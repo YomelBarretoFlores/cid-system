@@ -1,0 +1,20 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Pagos\Data;
+
+use App\Modules\Pagos\Enums\EstadoPago;
+use Carbon\CarbonImmutable;
+
+final readonly class DetalleDePago
+{
+    public function __construct(
+        public string $concepto,
+        public string $numeroOperacion,
+        public string $medioPago,
+        public string $monto,
+        public CarbonImmutable $fechaPago,
+        public EstadoPago $estado,
+    ) {}
+}

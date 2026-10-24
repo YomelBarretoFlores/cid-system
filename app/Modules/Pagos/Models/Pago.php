@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property EstadoPago $estado
+ * @property MedioPago $medio_pago
  * @property-read Concepto $concepto
  */
 #[Table('pag_pagos')]

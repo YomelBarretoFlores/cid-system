@@ -14,11 +14,6 @@ final readonly class ObtenerFichaDelUsuario implements FichaDelUsuario
     {
         $persona = Persona::query()->where('user_id', $userId)->first();
 
-        return $persona === null ? null : new FichaDeEstudiante(
-            personaId: $persona->id,
-            nombres: $persona->nombres,
-            nombreCompleto: $persona->nombre_completo,
-            documento: "{$persona->tipo_documento->etiqueta()} {$persona->numero_documento}",
-        );
+        return $persona === null ? null : FichaDeEstudiante::desde($persona);
     }
 }

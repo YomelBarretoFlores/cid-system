@@ -7,6 +7,7 @@ namespace App\Modules\Matricula\Models;
 use App\Modules\Matricula\Database\Factories\MatriculaFactory;
 use App\Modules\Matricula\Enums\CondicionMatricula;
 use App\Modules\Matricula\Enums\EstadoMatricula;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property EstadoMatricula $estado
+ * @property CondicionMatricula $condicion
+ * @property CarbonImmutable $matriculado_en
  */
 #[Table('mat_matriculas')]
 #[RouteKey('ulid')]

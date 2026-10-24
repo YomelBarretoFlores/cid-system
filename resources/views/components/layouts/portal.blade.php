@@ -44,6 +44,9 @@
             @if (session('estado'))
                 <x-portal.alerta tipo="exito">{{ session('estado') }}</x-portal.alerta>
             @endif
+            @if (session('error'))
+                <x-portal.alerta tipo="error">{{ session('error') }}</x-portal.alerta>
+            @endif
 
             {{ $slot }}
         </main>

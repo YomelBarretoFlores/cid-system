@@ -61,6 +61,17 @@
                                 </dd>
                             </div>
                         </dl>
+
+                        <div class="flex flex-wrap gap-3 border-t border-slate-200 pt-4 text-sm">
+                            <a href="{{ route('estudiante.matriculas.ficha', $matricula) }}" target="_blank" rel="noopener" class="rounded-md px-3 py-2 font-medium text-ciln-700 ring-1 ring-ciln-100 hover:bg-ciln-50 focus-visible:outline-2 focus-visible:outline-ciln-600">
+                                Ficha de matrícula (PDF)<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
+                            </a>
+                            @if ($matricula->estado === EstadoMatricula::Activa)
+                                <a href="{{ route('estudiante.matriculas.constancia', $matricula) }}" target="_blank" rel="noopener" class="rounded-md px-3 py-2 font-medium text-ciln-700 ring-1 ring-ciln-100 hover:bg-ciln-50 focus-visible:outline-2 focus-visible:outline-ciln-600">
+                                    Constancia de inscripción (PDF)<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
+                                </a>
+                            @endif
+                        </div>
                     </article>
                 </li>
             @endforeach
