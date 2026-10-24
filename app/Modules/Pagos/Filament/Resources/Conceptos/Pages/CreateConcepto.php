@@ -19,9 +19,11 @@ final class CreateConcepto extends CreateRecord
     {
         try {
             return parent::handleRecordCreation($data);
-        } catch (UniqueConstraintViolationException) {
+        } catch (UniqueConstraintViolationException $error) {
             // Another administrator created the same code after validation ran.
-            throw ValidationException::withMessages(['data.codigo' => ConceptoForm::CODIGO_REPETIDO]);
+            throw str_contains($error->getMessage(), 'pag_conceptos_codigo_unique')
+                ? ValidationException::withMessages(['data.codigo' => ConceptoForm::CODIGO_REPETIDO])
+                : $error;
         }
     }
 
