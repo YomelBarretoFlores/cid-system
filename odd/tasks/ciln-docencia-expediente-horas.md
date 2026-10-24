@@ -1,0 +1,44 @@
+# CILN teacher hours report (M3.3)
+
+Objective: keep the hourly cost per teacher category with validity dates and produce, per teacher and month, the dictated hours times the cost per hour (gross reference amount) in the panel, as PDF and as CSV, for the DGF / Tesorería.
+Branch: `feat/docencia-expediente-horas` (from `main` 6c716fa) · Delivery: one commit per unit on the feature branch, push and merge decided by the user · Test runner: Pest (`php artisan test`).
+
+## Specs
+
+- S1: "Bien, continúa." (after "Lo siguiente es M3.3, el expediente de horas por docente").
+- S2 (Anexo M3.3): "Consolidación, por docente y periodo, de las horas dictadas multiplicadas por la tarifa o costo por hora (dato provisto según la categoría del docente), obteniendo el monto bruto referencial." / "Generación del reporte/expediente por docente en PDF y/o hoja de cálculo (Excel/CSV), para su presentación ante la DGF / Tesorería." / "El sistema no calcula retenciones de ley ni procesa el pago: entrega únicamente la información consolidada de horas y costos."
+- S3 (Anexo M3.3, fields): "Periodo: Mes y año." / "Detalle: Nombres del docente, Idioma/Nivel dictado, Total de horas, Costo por hora, Monto Bruto Referencial."
+- S4 (project rules): "Time-varying prices (TUPA/TUSNE fees, teacher hourly cost) are rows with validity dates; transactions store the amount they applied." / money in `numeric(12,2)` or integer cents, never float / index every report filter column.
+- S5 (user rule, 2026-10-24): "Y ahora en adelante tomarás en cuenta esto de resilencia, etc." (Transaccion helper, lock order with race tests, indexes, masked rejection logs, audit, the 30 s statement cap for reports).
+
+Assumptions (to confirm with the CILN, recorded in docs/decisiones-pendientes.md):
+- D1: "Categoría del docente" is the labor condition already in the roster (Nombrado, Contratado, Tercero). The hourly cost is a row per category with a validity start (and an end set when a newer cost starts); costs are never edited, a new cost closes the previous one of the same category the day before, as Pagos tariffs do.
+- D2: "Periodo: Mes y año" is a calendar month (America/Lima). Dictated hours are the recorded classes (`doc_clases_dictadas`) of the teacher who took them, dated in that month, each counted with its recorded start and end; they are grouped by language and level.
+- D3: The cost per hour of a class is the cost of the teacher's current category valid on the class date; if the cost changes within the month, each cost gets its own line. Gross reference amount = hours × cost per hour, computed in integer cents and rounded to cents per line; the teacher's total is the sum of the lines. No withholding is computed.
+- D4: Hours without a valid cost are still listed, with "Sin costo vigente" and no amount, and the report warns that the total leaves them out.
+- D5: The panel page lists, for the chosen month, every teacher with dictated hours and their totals; each teacher downloads a PDF expediente; the month downloads a CSV with every line of every teacher.
+- D6: Permissions `docencia.costos` (manage hourly costs) and `docencia.reportar` (see and download the report); the demo administrator gets them.
+
+## Tasks
+
+| ID | Specs | Route | Status | Commit |
+|----|-------|-------|--------|--------|
+| T1 | S2, S4, S5, D1, D6 | inline | done | see L3 |
+| T2 | S2, S3, S5, D2, D3, D4 | inline | pending | |
+| T3 | S2, S3, D5, D6 | inline | pending | |
+| T4 | all | inline | pending | |
+
+- T1: `doc_costos_hora` (category, cost, validity) with audit and no overlap per category; Actions to register a cost (closing the previous one under a lock) and remove one not yet in effect; Filament resource; permissions. Risk: items 1, 2, 4.
+- T2: Action that consolidates a teacher's month (hours per language/level and cost) with integer-cent arithmetic. Risk: item 6 (money calculation).
+- T3: Panel page "Expediente de horas" (month filter, teacher totals), PDF per teacher and CSV of the month. Risk: item 2 (new permission check on downloads).
+- T4: Docs, demo data, full suite, independent verifier, native review.
+
+Route evidence: each unit builds on the previous one (same module and data), so no parallel writer reason; all inline.
+
+Forecast: about 1,300 authored lines in four commits.
+
+## Log
+
+- L1 (2026-10-24): "Bien, continúa." (after "Listo: subí la rama, la uní a main ... Lo siguiente es M3.3, el expediente de horas por docente: las horas dictadas, tomadas de las clases que registró cada docente, por su costo por hora vigente, en PDF y CSV.").
+- L2: Map: Pagos tariffs use a btree_gist EXCLUDE on `daterange(vigente_desde, vigente_hasta, '[]')`, translate 23P01 into a business message and close the open tariff the day before a newer one; managed from a Filament relation manager through `AccionDeNegocio`. The collection report is a Filament page whose header actions return a spatie `PdfBuilder` and a streamed CSV (BOM, comma, formula-injection guard); it does not guard against the 30 s statement cap. No shared money, CSV or PDF-header helper exists.
+- L3: T1 inline: RED 16/16 (classes and permission missing) → GREEN. Permissions `docencia.costos` and `docencia.reportar` (migration; the permissions test now lists four). `doc_costos_hora` (category, cost decimal(10,2) > 0, validity CHECK, EXCLUDE per category, audited, `registrado_por` indexed). `RegistrarCostoPorHora` (cost format, end not before start, locks the open cost of the category, closes it the day before, overlap → "La vigencia se superpone con otro costo por hora de esta categoría."), `EliminarCostoPorHora` (only a cost not yet in effect; reopens the cost it closed). Policy and Filament resource "Costos por hora" (group Docencia). Concurrency: two simultaneous costs of one category leave one open cost and no overlap; removing the row lock keeps the test green because the exclusion constraint is the guard (the lock only serializes). `composer check` 1016/1016.

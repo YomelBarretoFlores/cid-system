@@ -42,7 +42,7 @@ function datosDeDocente(array $cambios = []): DatosDeDocente
 
 it('creates the teaching permissions with the migrations', function (): void {
     expect(DB::table('permissions')->where('guard_name', 'web')->whereLike('name', 'docencia.%')->orderBy('name')->pluck('name')->all())
-        ->toBe(['docencia.gestionar', 'docencia.ver']);
+        ->toBe(['docencia.costos', 'docencia.gestionar', 'docencia.reportar', 'docencia.ver']);
 });
 
 it('lets readers consult the roster and managers change it, never delete it', function (): void {

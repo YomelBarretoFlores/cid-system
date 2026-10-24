@@ -16,5 +16,5 @@ trait TruncatesAcademicOffer
     /**
      * @var list<string>
      */
-    protected array $tablesToTruncate = ['aca_idiomas', 'aca_ciclos', 'aca_periodos', 'aca_aulas', 'aca_grupos', 'aca_horarios', 'doc_docentes'];
+    protected array $tablesToTruncate = ['aca_idiomas', 'aca_ciclos', 'aca_periodos', 'aca_aulas', 'aca_grupos', 'aca_horarios', 'doc_docentes', 'doc_costos_hora'];
 }

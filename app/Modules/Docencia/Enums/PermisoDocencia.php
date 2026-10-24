@@ -8,6 +8,8 @@ enum PermisoDocencia: string
 {
     case Ver = 'docencia.ver';
     case Gestionar = 'docencia.gestionar';
+    case Costos = 'docencia.costos';
+    case Reportar = 'docencia.reportar';
 
     /**
      * @return list<string>
