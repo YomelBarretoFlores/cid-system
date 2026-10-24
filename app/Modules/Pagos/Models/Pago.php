@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property EstadoPago $estado
+ * @property-read Concepto $concepto
  */
 #[Table('pag_pagos')]
 #[RouteKey('ulid')]

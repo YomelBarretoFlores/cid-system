@@ -18,6 +18,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property EstadoGrupo $estado
+ * @property-read Periodo $periodo
+ * @property-read Ciclo $ciclo
+ */
 #[Table('aca_grupos')]
 #[RouteKey('ulid')]
 #[Fillable([

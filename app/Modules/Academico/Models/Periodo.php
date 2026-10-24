@@ -6,6 +6,7 @@ namespace App\Modules\Academico\Models;
 
 use App\Modules\Academico\Database\Factories\PeriodoFactory;
 use App\Modules\Academico\Enums\EstadoPeriodo;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -13,6 +14,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property EstadoPeriodo $estado
+ * @property CarbonImmutable $matricula_inicio
+ * @property CarbonImmutable $matricula_fin
+ */
 #[Table('aca_periodos')]
 #[Fillable(['anio', 'numero', 'nombre', 'fecha_inicio', 'fecha_fin', 'matricula_inicio', 'matricula_fin', 'estado'])]
 #[UseFactory(PeriodoFactory::class)]

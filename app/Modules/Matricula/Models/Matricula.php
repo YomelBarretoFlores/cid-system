@@ -16,6 +16,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property EstadoMatricula $estado
+ */
 #[Table('mat_matriculas')]
 #[RouteKey('ulid')]
 #[Fillable(['persona_id', 'grupo_id', 'pago_id', 'condicion', 'estado', 'matriculado_en', 'retirado_en'])]

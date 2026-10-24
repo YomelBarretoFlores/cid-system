@@ -29,6 +29,11 @@ final class MatriculaFactory extends Factory
         ];
     }
 
+    public function activa(): static
+    {
+        return $this->state(['estado' => EstadoMatricula::Activa, 'retirado_en' => null]);
+    }
+
     public function retirada(): static
     {
         return $this->state(['estado' => EstadoMatricula::Retirada, 'retirado_en' => now()]);

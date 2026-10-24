@@ -22,8 +22,8 @@ Assumptions (to confirm with the CILN, recorded in `docs/decisiones-pendientes.m
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S1, S2, S4, S5 | inline | pending | |
-| T2 | S2, S4, S5 | inline | pending | |
+| T1 | S1, S2, S4, S5 | inline | done | 3ef09d1, c0db423 |
+| T2 | S2, S4, S5 | inline | done | 8ee3a10 |
 | T3 | S1, S3, S4, S5 | inline | pending | |
 | T4 | S1 | inline | pending | |
 
@@ -38,3 +38,6 @@ Forecast: about 1,300 authored lines; one stacked branch, commits per task so ea
 ## Log
 
 - L1 (2026-10-24): "Bien, ahora sí sigamos." (answer to S1's question after compaction).
+- L2: T1 RED (32 of 56 Pagos tests failing: missing Actions, transitions, trigger) → GREEN; `composer check` 156/156. Dev DB `ciln`: migrate → rollback 1 → migrate; psql UPDATE of a validated payment's amount rejected by `pag_controlar_cambios()`.
+- L3: Native review of 3ef09d1 (lenses risk, resilience, reliability): consent granted, approved and acknowledged (lineage review-05ac314888e84aeb). Advisories fixed in c0db423 (voiding fields frozen until the transition, rollback restores the full unique first, validated→rejected pinned at DB level, retry return value asserted; mutation check: removing the new trigger condition fails the test). Deferred: R1-001 no role check in the Actions (Policies when wired to UI, roles pending decision #2); R3 concurrency of validate vs reject not proven with two processes (the DB trigger refuses validado→rechazado, pinned by test).
+- L4: T2 RED (receipt judged by name: fake upload reported the name's MIME; aborted test transaction after a duplicate) → GREEN with finfo on content and a savepoint; mutation (no file cleanup) fails the test; `composer check` 166/166. Assess 3ef09d1..8ee3a10: medium, under_budget (pending slice).
