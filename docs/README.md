@@ -7,6 +7,7 @@
 | [arquitectura.md](arquitectura.md) | Monolito modular, capas, carpetas y reglas de desacople |
 | [tecnologia.md](tecnologia.md) | Stack, versiones, paquetes y herramientas |
 | [modulos.md](modulos.md) | Funcionalidades por módulo y sus reglas |
+| [modelo-de-datos.md](modelo-de-datos.md) | Esquema de PostgreSQL, diagrama ER y restricciones |
 | [buenas-practicas.md](buenas-practicas.md) | Código limpio, resiliencia, integridad y lo que no se hace |
 | [seguridad.md](seguridad.md) | OWASP, Ley 29733, auditoría inmutable |
 | [testing.md](testing.md) | Estrategia de pruebas |
