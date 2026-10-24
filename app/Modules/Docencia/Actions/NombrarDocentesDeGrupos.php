@@ -16,7 +16,7 @@ final readonly class NombrarDocentesDeGrupos implements DocentesDeGrupos
     {
         $cargas = CargaAcademica::query()
             ->join('doc_docentes', 'doc_docentes.id', '=', 'doc_cargas_academicas.docente_id')
-            ->whereIn('doc_cargas_academicas.grupo_id', $grupoIds)
+            ->whereIntegerInRaw('doc_cargas_academicas.grupo_id', $grupoIds)
             ->pluck('doc_docentes.persona_id', 'doc_cargas_academicas.grupo_id');
         $fichas = ($this->fichasDePersonas)(array_values(array_map(intval(...), $cargas->unique()->all())));
 

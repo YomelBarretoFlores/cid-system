@@ -30,7 +30,7 @@ final readonly class DescribirContextoAcademicoDePagos implements ContextoAcadem
      */
     private function deMatriculas(array $pagoIds): array
     {
-        $matriculas = Matricula::query()->whereIn('pago_id', $pagoIds)->get(['pago_id', 'grupo_id']);
+        $matriculas = Matricula::query()->whereIntegerInRaw('pago_id', $pagoIds)->get(['pago_id', 'grupo_id']);
         $grupos = ($this->detalleDeGrupos)(array_values($matriculas->pluck('grupo_id')->unique()->all()));
         $contextos = [];
 
@@ -54,7 +54,7 @@ final readonly class DescribirContextoAcademicoDePagos implements ContextoAcadem
         $idiomas = collect(($this->catalogoDeIdiomas)())->mapWithKeys(fn (IdiomaDelCatalogo $idioma): array => [$idioma->id => $idioma->nombre]);
 
         return SolicitudClasificacion::query()
-            ->whereIn('pago_id', $pagoIds)
+            ->whereIntegerInRaw('pago_id', $pagoIds)
             ->get(['pago_id', 'idioma_id'])
             ->mapWithKeys(fn (SolicitudClasificacion $solicitud): array => [
                 (int) $solicitud->pago_id => new ContextoAcademico(null, null, (string) $idiomas->get($solicitud->idioma_id, '—'), null),
