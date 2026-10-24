@@ -22,7 +22,7 @@ php artisan test       # o composer check para lint + análisis + tests
 
 - **Toda la suite corre en PostgreSQL**, nunca en SQLite: triggers, vistas, constraints y bloqueos son propios de PostgreSQL.
 - **Datos sintéticos** con factories y seeders. Nunca datos personales reales (Ley 29733).
-- **Concurrencia** (último cupo, doble validación): dos conexiones o procesos reales con `DatabaseTruncation`; `RefreshDatabase` usa una sola transacción y no prueba bloqueos. Viven en `tests/Concurrency/` (suite propia), lanzan procesos PHP con `tests/Concurrency/Fixtures/` y solo truncan la oferta académica (`TruncatesAcademicOffer`).
+- **Concurrencia** (último cupo, doble validación): dos conexiones o procesos reales con `DatabaseTruncation`; `RefreshDatabase` usa una sola transacción y no prueba bloqueos. Viven en `tests/Concurrency/` (suite propia), lanzan procesos PHP con `tests/Concurrency/Fixtures/` y solo truncan la oferta académica (`TruncatesAcademicOffer`); los pagos que crean quedan hasta el siguiente `migrate:fresh`, porque `pag_pagos` rechaza `TRUNCATE`.
 - **Auditoría**: probar que `UPDATE`/`DELETE` sobre la tabla de auditoría falla y que los cambios por query builder se registran.
 - Un test por regla pedida, y un test que confirme que el comportamiento existente no cambió cuando se toca código compartido.
 - Verificar también con el sistema corriendo y datos simulados, no solo con tests verdes.

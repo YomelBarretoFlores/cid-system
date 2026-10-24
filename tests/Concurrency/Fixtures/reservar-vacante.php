@@ -4,16 +4,10 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Contracts\ReservaDeVacante;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 
-require __DIR__.'/../../../vendor/autoload.php';
-
-$app = require __DIR__.'/../../../bootstrap/app.php';
-$app->make(Kernel::class)->bootstrap();
-
-[, $grupoId, $inicio] = $argv;
-DB::select('select 1');
+$app = require __DIR__.'/bootstrap.php';
+[, $inicio, $grupoId] = $argv;
 time_sleep_until((float) $inicio);
 
 try {

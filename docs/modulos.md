@@ -20,7 +20,7 @@ Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md
 | Funcionalidad | Reglas |
 |---|---|
 | Examen de clasificación | Solicitud → resultado (puntaje) → nivel asignado en el perfil. Estados: Pendiente de Evaluación, Evaluado, Expirado (el scheduler expira las vencidas) |
-| Matrícula autogestionada | `MatricularEstudiante`. Bloquea si: (a) el grupo no es del ciclo habilitado (sin habilitación, solo el ciclo 1); (b) el pago no está validado, es de otra persona, es de otro concepto o ya se usó (contrato `VerificacionDePago` de Pagos); (c) no hay vacantes o la matrícula del grupo no está abierta (contrato `ReservaDeVacante` de Academico, con `lockForUpdate` + `CHECK`). Tampoco permite dos grupos del mismo ciclo en el mismo periodo. Condición: Repitente si ya cursó el ciclo en otro periodo sin retirarse; si no, Regular. Reintentar con el mismo pago devuelve la misma matrícula |
+| Matrícula autogestionada | `MatricularEstudiante`. Bloquea si: (a) el grupo no es del ciclo habilitado (sin habilitación, solo el ciclo 1); (b) el pago no está validado, es de otra persona, es de otro concepto o ya se usó (contrato `VerificacionDePago` de Pagos); (c) no hay vacantes o la matrícula del grupo no está abierta (contrato `ReservaDeVacante` de Academico, con `lockForUpdate` + `CHECK`). Tampoco permite dos grupos del mismo ciclo en el mismo periodo, ni siquiera con solicitudes simultáneas (bloqueo por persona con `pg_advisory_xact_lock`). Condición: Repitente si ya cursó el ciclo en otro periodo sin retirarse; si no, Regular. Reintentar con el mismo pago devuelve la misma matrícula |
 | Documentos | Ficha de Matrícula (PDF) y Constancia de Inscripción |
 | Traslados y retiros | Grupo origen/destino, fecha, motivo y usuario que autoriza |
 

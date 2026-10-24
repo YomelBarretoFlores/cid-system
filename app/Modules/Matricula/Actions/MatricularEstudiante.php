@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\DB;
 
 final readonly class MatricularEstudiante
 {
+    private const int CANDADO_MATRICULA = 1;
+
     public function __construct(
         private VerificacionDePago $verificacionDePago,
         private ReservaDeVacante $reservaDeVacante,
@@ -27,8 +29,11 @@ final readonly class MatricularEstudiante
 
     public function __invoke(int $personaId, int $grupoId, int $pagoId): Matricula
     {
-        // Lock order is always payment, then group, so concurrent enrollments cannot deadlock.
+        // Lock order is always person, payment, then group, so concurrent enrollments cannot deadlock.
         return DB::transaction(function () use ($personaId, $grupoId, $pagoId): Matricula {
+            // Serializes one person's enrollments: the one-per-cycle-and-period check reads rows no other lock covers.
+            DB::select('select pg_advisory_xact_lock(?, ?)', [self::CANDADO_MATRICULA, $personaId]);
+
             $pago = ($this->verificacionDePago)($pagoId, $personaId, TipoConcepto::Matricula);
 
             $previa = Matricula::query()->where('pago_id', $pago->id)->first();
