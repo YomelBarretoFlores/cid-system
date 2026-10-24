@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property EstadoMatricula $estado
  * @property CondicionMatricula $condicion
  * @property CarbonImmutable $matriculado_en
+ * @property CarbonImmutable|null $retirado_en
  */
 #[Table('mat_matriculas')]
 #[RouteKey('ulid')]

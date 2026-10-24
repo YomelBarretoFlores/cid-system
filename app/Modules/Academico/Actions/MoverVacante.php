@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Actions;
 
 use App\Modules\Academico\Contracts\TrasladoDeVacante;
-use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Models\Grupo;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Support\Facades\DB;
 
 final readonly class MoverVacante implements TrasladoDeVacante
 {
-    private const array ESTADOS_QUE_RECIBEN = [EstadoGrupo::Abierto, EstadoGrupo::Cerrado];
-
     public function __invoke(int $grupoOrigenId, int $grupoDestinoId): void
     {
         if ($grupoOrigenId === $grupoDestinoId) {
@@ -43,7 +40,7 @@ final readonly class MoverVacante implements TrasladoDeVacante
             throw new ReglaDeNegocioIncumplida('El grupo destino debe ser del mismo periodo y ciclo.');
         }
 
-        if (! in_array($destino->estado, self::ESTADOS_QUE_RECIBEN, true)) {
+        if (! $destino->estado->recibeTraslados()) {
             throw new ReglaDeNegocioIncumplida("El grupo {$destino->codigo} está {$destino->estado->etiqueta()} y no recibe traslados.");
         }
 

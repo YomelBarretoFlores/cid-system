@@ -6,12 +6,16 @@ namespace App\Modules\Academico;
 
 use App\Modules\Academico\Actions\DescribirGrupos;
 use App\Modules\Academico\Actions\LiberarVacante;
+use App\Modules\Academico\Actions\ListarCatalogoDeGrupos;
 use App\Modules\Academico\Actions\ListarGruposDelCiclo;
+use App\Modules\Academico\Actions\ListarGruposParaTraslado;
 use App\Modules\Academico\Actions\ListarOfertaDeMatricula;
 use App\Modules\Academico\Actions\MoverVacante;
 use App\Modules\Academico\Actions\ReservarVacante;
+use App\Modules\Academico\Contracts\CatalogoDeGrupos;
 use App\Modules\Academico\Contracts\ConsultaGruposDelCiclo;
 use App\Modules\Academico\Contracts\DetalleDeGrupos;
+use App\Modules\Academico\Contracts\GruposParaTraslado;
 use App\Modules\Academico\Contracts\LiberacionDeVacante;
 use App\Modules\Academico\Contracts\OfertaDeMatricula;
 use App\Modules\Academico\Contracts\ReservaDeVacante;
@@ -30,6 +34,8 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         DetalleDeGrupos::class => DescribirGrupos::class,
         TrasladoDeVacante::class => MoverVacante::class,
         LiberacionDeVacante::class => LiberarVacante::class,
+        CatalogoDeGrupos::class => ListarCatalogoDeGrupos::class,
+        GruposParaTraslado::class => ListarGruposParaTraslado::class,
     ];
 
     protected string $module = 'Academico';

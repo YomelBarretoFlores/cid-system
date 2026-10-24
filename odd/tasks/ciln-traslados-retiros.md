@@ -22,7 +22,7 @@ Assumptions (to confirm with the CILN):
 |----|-------|-------|--------|--------|
 | T1 | S3, D1, D4 | inline | done | babb2f3, 3e9d89a |
 | T2 | S2, S3, D2, D3, D5 | inline | done | d2b21fd, see L6 |
-| T3 | S2, D1 | inline | pending | |
+| T3 | S2, D1 | inline | done | see L7 |
 | T4 | all | inline | pending | |
 
 - T1: `PermisoMatricula` enum and data migration, `MatriculaPolicy` (strict, `DeniegaLoNoConcedido`), demo grants, audit triggers on `mat_matriculas` and `mat_movimientos`, trigger that rejects UPDATE/DELETE/TRUNCATE on `mat_movimientos`. Risk: items 1 and 2.
@@ -40,3 +40,4 @@ Forecast: about 1,300 authored lines in four commits.
 - L4: Native review of 8dc87eb..3e9d89a (risk, reliability) granted, approved and acknowledged. Adopted: ordered and bound audit assertions, a test for truncating an empty movements table, concept codes with letters (6.7 million combinations). Not needed: cascade deletes (all Matricula foreign keys are RESTRICT).
 - L5: T2 inline: RED 14 of 14 → GREEN; `MovimientoDeMatricula` holds the person advisory lock (same key 1, now also used by `MatricularEstudiante`), the active-enrollment row lock and the reason rules; Academico `MoverVacante` locks both groups in ascending id order, `LiberarVacante` refuses cancelled or finished groups. Races: last vacancy to one of two transfers, opposite transfers without deadlock; mutation (unordered locks) produced `40P01 deadlock detected` and failed the test. `composer check` 656/656.
 - L6: Native review of c639cd0..d2b21fd (resilience, reliability) granted, approved and acknowledged (review-6708ab41a2192788). Adopted: a finished origin group refuses transfers like it refuses withdrawals (RED 1 → GREEN). Not adopted: a stale enrollment id raises ModelNotFound (404 in the panel) rather than a business error.
+- L7: T3 inline: RED 9 of 9 → GREEN 10/10; `MatriculaResource` (list with student search and state/group filters, view with group detail and movement history), "Trasladar" with destinations from Academico `GruposParaTraslado` (same period and cycle, receiving state from `EstadoGrupo::recibeTraslados()`, with vacancies) and "Retirar" with confirmation; staff ficha at `panel.matriculas.ficha` (policy `view`), PDF built by the shared `GenerarFichaDeMatricula`. A full destination is not offered, so the panel shows the Select validation error; the business refusal path is shown through a withdrawal from a finished group. `composer check` 667/667.

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Matricula\Http\Controllers\DescargarConstanciaDeInscripcion;
 use App\Modules\Matricula\Http\Controllers\DescargarFichaDeMatricula;
+use App\Modules\Matricula\Http\Controllers\DescargarFichaParaPersonal;
 use App\Modules\Matricula\Livewire\Matricularse;
 use App\Modules\Matricula\Livewire\MisMatriculas;
 use Illuminate\Support\Facades\Route;
@@ -14,3 +15,7 @@ Route::middleware(['auth', 'auth.session', 'verified', 'estudiante'])->group(fun
     Route::get('/estudiante/matriculas/{matricula}/ficha', DescargarFichaDeMatricula::class)->name('estudiante.matriculas.ficha');
     Route::get('/estudiante/matriculas/{matricula}/constancia', DescargarConstanciaDeInscripcion::class)->name('estudiante.matriculas.constancia');
 });
+
+Route::get('/panel/matriculas/{matricula}/ficha', DescargarFichaParaPersonal::class)
+    ->middleware(['auth', 'can:view,matricula'])
+    ->name('panel.matriculas.ficha');

@@ -36,6 +36,11 @@ enum EstadoGrupo: string
         };
     }
 
+    public function recibeTraslados(): bool
+    {
+        return $this === self::Abierto || $this === self::Cerrado;
+    }
+
     public function esTerminal(): bool
     {
         return $this === self::Cancelado || $this === self::Finalizado;
