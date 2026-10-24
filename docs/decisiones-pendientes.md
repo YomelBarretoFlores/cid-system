@@ -15,3 +15,5 @@ Temas abiertos que bloquean o afectan partes del sistema. Al cerrarse uno, regis
 | 9 | Supuesto: hasta 12 ciclos por idioma, cada uno con su nivel; la distribución por nivel (por ejemplo 4/4/4) y las horas lectivas son datos configurables | Confirmar con el CILN | Academico | Carga inicial del plan de estudios |
 | 10 | Supuesto: el prerrequisito es el ciclo habilitado por idioma (inicio en ciclo 1, clasificación o aprobación lo cambian) | Confirmar con el CILN | Matricula | Reglas de matrícula |
 | 11 | Supuesto: reglas de vigencia y costo del examen de clasificación (`vence_en`) | Confirmar con el CILN | Matricula, Pagos | Expiración automática |
+| 12 | Supuesto: las tarifas varían por concepto y tipo de vínculo, no por idioma ni nivel | Confirmar con el CILN | Pagos | Carga de tarifas reales |
+| 13 | Supuesto: se agrega el estado "Anulado" a los del Anexo (Pendiente, Validado, Rechazado) para revertir pagos sin borrarlos | Confirmar con el CILN | Pagos | — |

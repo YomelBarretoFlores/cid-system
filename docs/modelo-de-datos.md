@@ -1,6 +1,6 @@
 # Modelo de datos
 
-Esquema de PostgreSQL 18 de los módulos **Academico**, **Personas** y **Matricula**. Las reglas que no deben romperse viven también en la base de datos (`CHECK`, `UNIQUE` y llaves foráneas), no solo en el código.
+Esquema de PostgreSQL 18 de los módulos **Academico**, **Personas**, **Matricula** y **Pagos**, más la **auditoría** compartida. Las reglas que no deben romperse viven también en la base de datos (`CHECK`, `UNIQUE` y llaves foráneas), no solo en el código.
 
 ## Diagrama
 
@@ -23,6 +23,12 @@ erDiagram
     per_personas ||--o{ mat_matriculas : "se matricula"
     aca_grupos ||--o{ mat_matriculas : grupo
     mat_matriculas ||--o{ mat_movimientos : "traslados y retiros"
+    pag_conceptos ||--|{ pag_tarifas : "tarifa vigente"
+    per_personas ||--o{ pag_pagos : paga
+    pag_conceptos ||--o{ pag_pagos : concepto
+    pag_tarifas |o--o{ pag_pagos : "tarifa aplicada"
+    pag_pagos |o--o| mat_matriculas : "desbloquea"
+    pag_pagos |o--o| mat_solicitudes_clasificacion : "desbloquea"
 ```
 
 ## Tablas
@@ -42,6 +48,10 @@ erDiagram
 | `mat_habilitaciones` | Matricula | Ciclo en el que cada persona puede matricularse por idioma | — |
 | `mat_matriculas` | Matricula | Inscripción de una persona en un grupo | ULID |
 | `mat_movimientos` | Matricula | Traslados y retiros con su sustento | — |
+| `pag_conceptos` | Pagos | Conceptos TUPA/TUSNE (matrícula, pensión, examen, certificado...) | — |
+| `pag_tarifas` | Pagos | Monto por concepto y tipo de vínculo, con vigencia | — |
+| `pag_pagos` | Pagos | Pago con recibo, medio, número de operación y estado de validación | ULID |
+| `aud_registros` | Shared/Audit | Pista de auditoría inmutable de las tablas críticas | — |
 
 ## Restricciones clave
 
@@ -63,19 +73,27 @@ erDiagram
 | Fecha de retiro solo cuando la matrícula está retirada | `mat_matriculas_retiro_check` |
 | Traslado con grupo destino distinto; retiro sin destino; motivo obligatorio | `mat_movimientos_destino_check`, `mat_movimientos_motivo_check` |
 | No se borran grupos, personas ni ciclos con registros que dependan de ellos | FK con `RESTRICT` |
+| Una tarifa por concepto y vínculo en cada fecha | `pag_tarifas_sin_superposicion` (`EXCLUDE` con `btree_gist` y `daterange`) |
+| Medio de pago + número de operación único, sin evasión por mayúsculas o espacios | `UNIQUE (medio_pago, numero_operacion)` + `pag_pagos_numero_operacion_check` |
+| Cada estado del pago tiene sus datos (validado: quién y cuándo; rechazado: además motivo; anulado: quién, cuándo y motivo) | `pag_pagos_datos_estado_check`, `pag_pagos_anulacion_check` |
+| Un pago nunca se borra | trigger `pag_pagos_sin_borrado` |
+| Un pago desbloquea una sola matrícula o solicitud | `UNIQUE (pago_id)` en `mat_matriculas` y `mat_solicitudes_clasificacion` |
+| La auditoría no se modifica, borra ni trunca | triggers `aud_registros_inmutable`, `aud_registros_sin_truncate` |
 
 ## Decisiones de diseño
 
 - **Llaves foráneas reales entre módulos**, pero sin relaciones Eloquent hacia modelos de otro módulo (por ejemplo, `Matricula` guarda `grupo_id` y `persona_id`).
 - **El contador `matriculados` no es asignable masivamente**: solo lo modificará la Action que reserva y libera vacantes, con bloqueo de fila.
 - **Habilitación por idioma**: sin fila, la persona solo puede empezar en el ciclo 1. La clasificación fija el ciclo asignado y la aprobación (módulo Certificacion) lo avanzará.
-- **Asignación docente** (`doc_*`) y **vínculo con pagos** (`pag_*`) se agregan con sus módulos.
+- **Asignación docente** (`doc_*`) se agrega con el módulo Docencia.
+- **Pagos auditados**: cada `INSERT`/`UPDATE` de `pag_pagos` queda en `aud_registros` con el usuario y la IP de la petición (ver [`seguridad.md`](seguridad.md)).
+- **Estado anulado**: además de Pendiente, Validado y Rechazado (Anexo), un pago validado puede anularse con motivo; nunca se borra.
 - Enteros con `CHECK` (PostgreSQL no tiene `unsigned`), fechas con zona horaria (`timestamptz`) y valores de enum literales en las migraciones.
 
 ## Supuestos a confirmar con el CILN
 
-Ver [`decisiones-pendientes.md`](decisiones-pendientes.md), filas 9 a 11.
+Ver [`decisiones-pendientes.md`](decisiones-pendientes.md), filas 9 a 13.
 
 ## Datos de demostración
 
-`php artisan db:seed` (solo local; el seeder se niega a correr en producción) crea Inglés y Quechua con 12 ciclos (4 por nivel, supuesto), un periodo con matrícula abierta, aulas, dos grupos con horario, un esquema de evaluación 40/40/20 y 28 personas, 10 de ellas matriculadas. Usuario del panel: `admin@ciln.test` / `password`.
+`php artisan db:seed` (solo local; el seeder se niega a correr en producción) crea Inglés y Quechua con 12 ciclos (4 por nivel, supuesto), un periodo con matrícula abierta, aulas, dos grupos con horario, un esquema de evaluación 40/40/20, 28 personas, 10 de ellas matriculadas, conceptos TUPA de ejemplo con tarifas ficticias y un pago validado por cada matrícula. Usuario del panel: `admin@ciln.test` / `password`.

@@ -31,11 +31,24 @@ El Anexo exige pistas **inmutables** para operaciones críticas (cambio de notas
 |---|---|
 | Fuente oficial | Triggers de PostgreSQL en las tablas críticas, que escriben en una tabla de auditoría |
 | Inmutabilidad | Trigger que rechaza `UPDATE` y `DELETE` sobre la tabla de auditoría; el usuario de base de datos de la aplicación solo tiene `INSERT` y `SELECT` |
-| Usuario e IP | Laravel los fija por transacción con `SET LOCAL` y el trigger los lee |
+| Usuario e IP | Laravel los fija en cada petición con `set_config` (sesión de PostgreSQL) y el trigger los lee |
 | Cobertura | Captura también cambios hechos con query builder o SQL directo (los paquetes solo ven eventos de Eloquent) |
 | Complemento | `spatie/laravel-activitylog` para mostrar contexto de negocio en pantalla |
 
-Tests obligatorios: un `UPDATE`/`DELETE` sobre la auditoría falla, y un `Model::where()->update()` queda registrado.
+Implementación (`app/Shared/Audit`):
+
+| Pieza | Dónde |
+|---|---|
+| Tabla y triggers | migración `2026_10_24_125000_create_aud_registros_table` (`aud_registrar()`, `aud_impedir_cambios()`) |
+| Contexto de la petición | middleware `EstablecerContextoAuditoria` en los grupos `web` y `api` y en el panel de Filament; usa `ContextoAuditoria` |
+| Tablas auditadas | `pag_pagos` (después: notas y actas) |
+
+Reglas de uso:
+- **Jobs y comandos** que modifiquen tablas críticas deben llamar a `ContextoAuditoria::establecer($usuarioId, null)` al empezar y `limpiar()` al terminar: un worker reutiliza la conexión entre jobs.
+- **Producción**: migrar con un rol dueño del esquema y conectar la aplicación con otro rol que solo tenga `INSERT` y `SELECT` sobre `aud_registros`. Los triggers protegen incluso al dueño; solo un superusuario podría desactivarlos.
+- Las pruebas con `DatabaseTruncation` deben excluir `aud_registros`.
+
+Tests: `tests/Feature/Audit/AuditTrailTest.php` (inmutabilidad, contexto web/API, cambios por query builder) y `tests/Modules/Pagos/PagoTest.php` (validación auditada).
 
 ## Ley N° 29733 (datos personales)
 

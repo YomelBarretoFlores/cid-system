@@ -9,7 +9,7 @@ El Anexo pide una base de datos relacional optimizada y pistas de auditoría **i
 ## Decisión
 
 - PostgreSQL 18, usando a propósito sus funciones: llaves foráneas, `CHECK`, `UNIQUE`, `timestamptz`, vistas y triggers.
-- La auditoría oficial la escriben triggers en las tablas críticas. La tabla de auditoría rechaza `UPDATE`/`DELETE` y el usuario de la aplicación solo tiene `INSERT`/`SELECT` sobre ella. Usuario e IP llegan por `SET LOCAL`.
+- La auditoría oficial la escriben triggers en las tablas críticas. La tabla de auditoría rechaza `UPDATE`/`DELETE` y el usuario de la aplicación solo tiene `INSERT`/`SELECT` sobre ella. Usuario e IP llegan por `set_config` en cada petición.
 - `spatie/laravel-activitylog` queda como complemento para mostrar contexto de negocio.
 - Toda la suite de tests corre sobre PostgreSQL.
 

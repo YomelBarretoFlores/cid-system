@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Modules\Academico\Database\Seeders\AcademicoDemoSeeder;
 use App\Modules\Matricula\Database\Seeders\MatriculaDemoSeeder;
+use App\Modules\Pagos\Database\Seeders\PagosDemoSeeder;
 use App\Modules\Personas\Database\Seeders\PersonasDemoSeeder;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\Seeder;
@@ -29,6 +30,7 @@ final class DatabaseSeeder extends Seeder
             AcademicoDemoSeeder::class,
             PersonasDemoSeeder::class,
             MatriculaDemoSeeder::class,
+            PagosDemoSeeder::class,
         ]);
     }
 }

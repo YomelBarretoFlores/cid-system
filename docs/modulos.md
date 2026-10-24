@@ -28,10 +28,11 @@ Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md
 
 | Funcionalidad | Reglas |
 |---|---|
-| Registro y validación | Recibo digital (JPG/PNG/PDF) como evidencia; valida el administrador o cajero. Estados: Pendiente, Validado, Rechazado |
+| Registro y validación | Recibo digital (JPG/PNG/PDF) como evidencia; valida el administrador o cajero. Estados: Pendiente, Validado, Rechazado y Anulado (supuesto); nunca se borra y todo cambio queda auditado |
 | Campos | Número de recibo / código de operación, documento del pagador, monto, fecha, medio de pago, concepto TUPA/TUSNE, usuario y fecha de validación |
 | Desbloqueo | Al validar se habilitan matrícula, constancias y solicitud de exámenes |
-| Unicidad | (medio de pago + número de operación) es único |
+| Unicidad | (medio de pago + número de operación) es único; un pago desbloquea una sola matrícula o solicitud |
+| Tarifas | Por concepto TUPA/TUSNE y tipo de vínculo, con vigencia sin superposición |
 | Reportes | Consolidado por periodo, idioma, nivel y concepto; PDF y Excel/CSV para DGF/Tesorería |
 | Fuera de alcance | Integración automática con sistemas externos |
 
