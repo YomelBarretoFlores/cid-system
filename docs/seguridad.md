@@ -48,6 +48,7 @@ Reglas de uso:
 - **Producción**: un rol dueño del esquema ejecuta las migraciones y la aplicación se conecta con otro rol que **no es dueño** de ninguna tabla. Ese rol de aplicación no recibe `INSERT`, `UPDATE`, `DELETE` ni `TRUNCATE` sobre `aud_registros` (solo `SELECT` si debe consultarla). El dueño de una tabla puede desactivar sus triggers con `ALTER TABLE ... DISABLE TRIGGER`, por eso nunca debe ser el rol con el que corre la aplicación.
 - El contexto (`app.usuario_id`, `app.ip`) lo fija la aplicación; quien tenga acceso SQL directo podría falsearlo. La protección real es que nadie fuera de la aplicación se conecte con el rol de aplicación.
 - Las pruebas con `DatabaseTruncation` deben excluir `aud_registros` y `pag_pagos`, que rechazan `TRUNCATE`.
+- **Ciclo de vida del pago en la base**: el trigger `pag_pagos_ciclo_de_vida` rechaza transiciones no permitidas y cambios en los datos de un pago validado, rechazado o anulado, aunque se hagan por SQL directo. Las Actions aplican las mismas reglas con mensajes para el usuario.
 
 Tests: `tests/Feature/Audit/AuditTrailTest.php` (inmutabilidad, contexto web/API, cambios por query builder) y `tests/Modules/Pagos/PagoTest.php` (validación auditada).
 

@@ -16,4 +16,8 @@ Temas abiertos que bloquean o afectan partes del sistema. Al cerrarse uno, regis
 | 10 | Supuesto: el prerrequisito es el ciclo habilitado por idioma (inicio en ciclo 1, clasificación o aprobación lo cambian) | Confirmar con el CILN | Matricula | Reglas de matrícula |
 | 11 | Supuesto: reglas de vigencia y costo del examen de clasificación (`vence_en`) | Confirmar con el CILN | Matricula, Pagos | Expiración automática |
 | 12 | Supuesto: las tarifas varían por concepto y tipo de vínculo, no por idioma ni nivel | Confirmar con el CILN | Pagos | Carga de tarifas reales |
-| 13 | Supuesto: se agrega el estado "Anulado" a los del Anexo (Pendiente, Validado, Rechazado) para revertir pagos sin borrarlos | Confirmar con el CILN | Pagos | — |
+| 13 | Supuesto: se agrega el estado "Anulado" a los del Anexo (Pendiente, Validado, Rechazado) para revertir pagos sin borrarlos; Rechazado y Anulado son finales | Confirmar con el CILN | Pagos | — |
+| 14 | Supuesto: un pago rechazado libera su número de operación para registrarlo de nuevo con el recibo corregido | Confirmar con el CILN | Pagos | — |
+| 15 | Supuesto: la matrícula exige grupo Abierto, periodo en Matrícula abierta y la fecha de hoy (hora de Lima) dentro de la ventana de matrícula | Confirmar con el CILN | Academico, Matricula | — |
+| 16 | Supuesto: es Repitente quien ya tiene una matrícula no retirada en otro grupo del mismo ciclo | Confirmar con el CILN | Matricula | — |
+| 17 | ¿Qué pasa con la matrícula cuando se anula el pago que la habilitó? Hoy se emite `PagoAnulado` y la matrícula sigue activa | Consultar al CILN | Pagos, Matricula | Reacción automática a la anulación |

@@ -20,7 +20,7 @@ Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md
 | Funcionalidad | Reglas |
 |---|---|
 | Examen de clasificación | Solicitud → resultado (puntaje) → nivel asignado en el perfil. Estados: Pendiente de Evaluación, Evaluado, Expirado (el scheduler expira las vencidas) |
-| Matrícula autogestionada | Bloquea si: (a) no aprobó el ciclo anterior o no tiene el nivel; (b) el pago no está validado (consulta síncrona a Pagos); (c) no hay vacantes (`lockForUpdate` + `CHECK`). Condición: Regular o Repitente |
+| Matrícula autogestionada | `MatricularEstudiante`. Bloquea si: (a) el grupo no es del ciclo habilitado (sin habilitación, solo el ciclo 1); (b) el pago no está validado, es de otra persona, es de otro concepto o ya se usó (contrato `VerificacionDePago` de Pagos); (c) no hay vacantes o la matrícula del grupo no está abierta (contrato `ReservaDeVacante` de Academico, con `lockForUpdate` + `CHECK`). Tampoco permite dos grupos del mismo ciclo en el mismo periodo. Condición: Repitente si ya cursó el ciclo en otro periodo sin retirarse; si no, Regular. Reintentar con el mismo pago devuelve la misma matrícula |
 | Documentos | Ficha de Matrícula (PDF) y Constancia de Inscripción |
 | Traslados y retiros | Grupo origen/destino, fecha, motivo y usuario que autoriza |
 
@@ -28,13 +28,15 @@ Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md
 
 | Funcionalidad | Reglas |
 |---|---|
-| Registro y validación | Recibo digital (JPG/PNG/PDF) como evidencia; valida el administrador o cajero. Estados: Pendiente, Validado, Rechazado y Anulado (supuesto); nunca se borra y todo cambio queda auditado |
+| Registro y validación | `RegistrarPago`: recibo JPG/PNG/PDF (tipo detectado por contenido) en disco privado y tarifa vigente según concepto, vínculo y fecha de pago. `ValidarPago`, `RechazarPago` (con motivo) y `AnularPago` (con motivo): bloquean la fila, solo permiten Pendiente → Validado o Rechazado y Validado → Anulado, y repetir la misma operación no cambia nada. Nunca se borra y todo cambio queda auditado |
 | Campos | Número de recibo / código de operación, documento del pagador, monto, fecha, medio de pago, concepto TUPA/TUSNE, usuario y fecha de validación |
 | Desbloqueo | Al validar se habilitan matrícula, constancias y solicitud de exámenes |
-| Unicidad | (medio de pago + número de operación) es único; un pago desbloquea una sola matrícula o solicitud |
+| Unicidad | (medio de pago + número de operación) es único entre pagos no rechazados: tras un rechazo, la persona registra el pago de nuevo con el recibo corregido; un pago desbloquea una sola matrícula o solicitud |
 | Tarifas | Por concepto TUPA/TUSNE y tipo de vínculo, con vigencia sin superposición |
 | Reportes | Consolidado por periodo, idioma, nivel y concepto; PDF y Excel/CSV para DGF/Tesorería |
-| Reglas para las Actions | Al validar, anular o usar un pago: verificar estado, que pertenezca a la persona, que el concepto corresponda al servicio (matrícula o examen) y que la tarifa sea del mismo concepto; impedir editar monto o número de operación de un pago validado; un pago desbloquea un solo servicio en total (la base solo lo garantiza por tabla) |
+| Reglas aplicadas | Al usar un pago se verifica estado, persona y concepto del servicio; los datos de un pago no pendiente quedan congelados en la base; un pago desbloquea un solo servicio en total (por tabla con `UNIQUE (pago_id)` y entre servicios porque cada servicio exige su propio concepto) |
+| Eventos | `PagoValidado`, `PagoRechazado`, `PagoAnulado` (después del commit). Anular un pago ya usado no retira la matrícula (pendiente de decisión) |
+| Permisos | Las Actions no verifican roles: lo harán las Policies al conectar las pantallas (roles pendientes) |
 | Fuera de alcance | Integración automática con sistemas externos |
 
 ## M3 · Docencia

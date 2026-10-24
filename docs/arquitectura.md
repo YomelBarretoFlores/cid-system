@@ -84,7 +84,8 @@ Detalle funcional: [`modulos.md`](modulos.md).
 2. **Precondiciones de negocio por consulta síncrona** a un contrato (por ejemplo, la matrícula pregunta a Pagos si el pago está validado). **Efectos secundarios por eventos** (notificaciones, avance de trámites), despachados después del commit.
 3. **Cada módulo es dueño de sus tablas**, con prefijo (`aca_`, `per_`, `mat_`, `pag_`, `doc_`, `cer_`, `tra_`). Entre módulos no hay `belongsTo` hacia modelos ajenos, pero **sí llaves foráneas reales en PostgreSQL**.
 4. **Tablero es de solo lectura**: consulta mediante queries dedicadas o vistas de PostgreSQL (materializadas si pesan), no mediante contratos.
-5. **Contratos solo donde hacen falta.** No se crean interfaces "por si acaso".
+5. **Contratos solo donde hacen falta.** No se crean interfaces "por si acaso". Cada contrato es una interfaz invocable que implementa una Action del módulo dueño y se registra en `$bindings` de su `ServiceProvider` (por ejemplo `ReservaDeVacante` → `ReservarVacante`).
+6. **Reglas de negocio incumplidas** lanzan `App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida` con un mensaje para el usuario. Al conectar web, API y Filament, se mostrará ese mensaje (HTTP 422) sin detalles técnicos.
 
 ## Agregar un módulo
 

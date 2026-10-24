@@ -74,7 +74,8 @@ erDiagram
 | Traslado con grupo destino distinto; retiro sin destino; motivo obligatorio | `mat_movimientos_destino_check`, `mat_movimientos_motivo_check` |
 | No se borran grupos, personas ni ciclos con registros que dependan de ellos | FK con `RESTRICT` |
 | Una tarifa por concepto y vínculo en cada fecha | `pag_tarifas_sin_superposicion` (`EXCLUDE` con `btree_gist` y `daterange`) |
-| Medio de pago + número de operación único, sin evasión por mayúsculas o espacios | `UNIQUE (medio_pago, numero_operacion)` + `pag_pagos_numero_operacion_check` |
+| Medio de pago + número de operación único entre pagos no rechazados, sin evasión por mayúsculas o espacios | índice único parcial `pag_pagos_operacion_unique` + `pag_pagos_numero_operacion_check` |
+| Solo transiciones Pendiente → Validado o Rechazado y Validado → Anulado; los datos de un pago no pendiente no cambian | trigger `pag_pagos_ciclo_de_vida` (`pag_controlar_cambios()`) |
 | Cada estado del pago tiene sus datos (validado: quién y cuándo; rechazado: además motivo; anulado: quién, cuándo y motivo) | `pag_pagos_datos_estado_check`, `pag_pagos_anulacion_check` |
 | Un pago nunca se borra | trigger `pag_pagos_sin_borrado` |
 | Un pago desbloquea una sola matrícula o solicitud | `UNIQUE (pago_id)` en `mat_matriculas` y `mat_solicitudes_clasificacion` |
@@ -83,7 +84,7 @@ erDiagram
 ## Decisiones de diseño
 
 - **Llaves foráneas reales entre módulos**, pero sin relaciones Eloquent hacia modelos de otro módulo (por ejemplo, `Matricula` guarda `grupo_id` y `persona_id`).
-- **El contador `matriculados` no es asignable masivamente**: solo lo modificará la Action que reserva y libera vacantes, con bloqueo de fila.
+- **El contador `matriculados` no es asignable masivamente**: solo lo modifica `ReservarVacante` (Academico) con bloqueo de fila; la liberación llegará con retiros y traslados.
 - **Habilitación por idioma**: sin fila, la persona solo puede empezar en el ciclo 1. La clasificación fija el ciclo asignado y la aprobación (módulo Certificacion) lo avanzará.
 - **Asignación docente** (`doc_*`) se agrega con el módulo Docencia.
 - **Pagos auditados**: cada `INSERT`/`UPDATE` de `pag_pagos` queda en `aud_registros` con el usuario y la IP de la petición (ver [`seguridad.md`](seguridad.md)).
@@ -92,7 +93,7 @@ erDiagram
 
 ## Supuestos a confirmar con el CILN
 
-Ver [`decisiones-pendientes.md`](decisiones-pendientes.md), filas 9 a 13.
+Ver [`decisiones-pendientes.md`](decisiones-pendientes.md), filas 9 a 17.
 
 ## Datos de demostración
 
