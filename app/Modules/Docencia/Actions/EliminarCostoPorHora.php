@@ -12,13 +12,15 @@ use Illuminate\Support\Facades\DB;
 
 final readonly class EliminarCostoPorHora
 {
+    private const string YA_NO_EXISTE = 'Ese costo por hora ya no existe; actualiza la página.';
+
     public function __invoke(int $costoId): void
     {
         Transaccion::ejecutar(function () use ($costoId): void {
             // Same advisory lock as registering, taken first, so both queue per category in one order.
-            $categoria = CostoPorHora::query()->whereKey($costoId)->firstOrFail()->condicion_laboral;
+            $categoria = (CostoPorHora::query()->whereKey($costoId)->first() ?? throw new ReglaDeNegocioIncumplida(self::YA_NO_EXISTE))->condicion_laboral;
             DB::select('select pg_advisory_xact_lock(hashtext(?))', ["doc_costos_hora:{$categoria->value}"]);
-            $costo = CostoPorHora::query()->whereKey($costoId)->lockForUpdate()->firstOrFail();
+            $costo = CostoPorHora::query()->whereKey($costoId)->lockForUpdate()->first() ?? throw new ReglaDeNegocioIncumplida(self::YA_NO_EXISTE);
 
             // A cost already in effect fed reports that may have been delivered; only a future one can go.
             if (! self::aunNoVigente($costo)) {

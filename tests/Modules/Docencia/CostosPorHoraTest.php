@@ -101,3 +101,11 @@ it('refuses to delete a cost a later one already replaced', function (): void {
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Otro costo más reciente ya reemplazó a este; elimina primero el más reciente.')
         ->and(CostoPorHora::query()->count())->toBe(3);
 });
+
+it('tells the user when the cost to delete is already gone', function (): void {
+    $futuro = registrarCosto('2027-06-01');
+    app(EliminarCostoPorHora::class)($futuro->id);
+
+    expect(fn () => app(EliminarCostoPorHora::class)($futuro->id))->toThrow(ReglaDeNegocioIncumplida::class, 'Ese costo por hora ya no existe; actualiza la página.')
+        ->and($this->vigente->refresh()->vigente_hasta)->toBeNull();
+});
