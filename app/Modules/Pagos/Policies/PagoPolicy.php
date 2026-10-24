@@ -41,4 +41,9 @@ final class PagoPolicy
     {
         return $user->can(PermisoPago::Anular->value);
     }
+
+    public function reportar(User $user): bool
+    {
+        return $user->can(PermisoPago::Reportar->value);
+    }
 }

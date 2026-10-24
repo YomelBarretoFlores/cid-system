@@ -11,6 +11,7 @@ enum PermisoPago: string
     case Validar = 'pagos.validar';
     case Anular = 'pagos.anular';
     case Configurar = 'pagos.configurar';
+    case Reportar = 'pagos.reportar';
 
     /**
      * @return list<string>

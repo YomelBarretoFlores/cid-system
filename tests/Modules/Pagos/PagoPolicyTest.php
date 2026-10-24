@@ -29,6 +29,7 @@ it('grants each payment ability only with its permission', function (string $hab
     'validate' => ['validar', true, PermisoPago::Validar],
     'reject' => ['rechazar', true, PermisoPago::Validar],
     'void' => ['anular', true, PermisoPago::Anular],
+    'report' => ['reportar', false, PermisoPago::Reportar],
 ]);
 
 it('never lets anyone edit or delete a payment from the screens', function (string $habilidad): void {
