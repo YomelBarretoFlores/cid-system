@@ -16,6 +16,7 @@ final class ViewPago extends ViewRecord
     {
         return [
             AccionesDePago::descargarRecibo(),
+            ...AccionesDePago::revision(),
         ];
     }
 }

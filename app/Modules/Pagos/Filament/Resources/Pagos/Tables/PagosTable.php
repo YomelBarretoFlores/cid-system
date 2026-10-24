@@ -6,6 +6,7 @@ namespace App\Modules\Pagos\Filament\Resources\Pagos\Tables;
 
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\MedioPago;
+use App\Modules\Pagos\Filament\Resources\Pagos\Actions\AccionesDePago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ListPagos;
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use Filament\Actions\ViewAction;
@@ -58,6 +59,7 @@ final class PagosTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                ...AccionesDePago::revision(),
             ]);
     }
 
