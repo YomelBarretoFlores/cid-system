@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 $app = require __DIR__.'/bootstrap.php';
 [, $inicio, $grupoId] = $argv;
-time_sleep_until((float) $inicio);
+esperarHasta((float) $inicio);
 
 try {
     DB::transaction(function () use ($app, $grupoId): void {
