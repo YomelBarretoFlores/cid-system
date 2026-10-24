@@ -59,10 +59,18 @@ it('refuses a fee whose validity overlaps another one', function (string $desde,
     'open fee covering a later closed one' => ['2027-02-01', null, 'La vigencia se superpone con otra tarifa de este concepto y vínculo.'],
 ]);
 
-it('refuses to replace the open fee from its own start or earlier', function (): void {
-    expect(fn (): Tarifa => registrarTarifa('2027-01-01'))
-        ->toThrow(ReglaDeNegocioIncumplida::class, 'La nueva tarifa debe empezar después del 01/01/2027, inicio de la tarifa vigente.');
-    expect($this->vigente->refresh()->vigente_hasta)->toBeNull();
+it('refuses an open fee starting on or before the open one, as an overlap', function (string $desde): void {
+    expect(fn (): Tarifa => registrarTarifa($desde))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'La vigencia se superpone con otra tarifa de este concepto y vínculo.');
+    expect($this->vigente->refresh()->vigente_hasta)->toBeNull()
+        ->and(Tarifa::query()->count())->toBe(1);
+})->with(['2027-01-01', '2026-06-01']);
+
+it('registers a past fee that fills the gap before the open one', function (): void {
+    $historica = registrarTarifa('2026-01-01', '140.00', hasta: '2026-12-31');
+
+    expect($historica->refresh()->vigente_hasta->toDateString())->toBe('2026-12-31')
+        ->and($this->vigente->refresh()->vigente_hasta)->toBeNull();
 });
 
 it('refuses to close the open fee before a payment that applied it', function (): void {

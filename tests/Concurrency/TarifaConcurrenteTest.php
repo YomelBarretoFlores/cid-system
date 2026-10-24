@@ -67,3 +67,39 @@ it('makes the database refuse a direct closing before a payment still being regi
     expect($salidas)->toBe(['registrado', 'rechazada por la base'])
         ->and($tarifa->vigente_hasta)->toBeNull();
 });
+
+it('applies the new fee to a payment registered while the fee is being replaced', function (): void {
+    // Payments, people and fees refuse TRUNCATE or are referenced by payments, so these rows stay until the next migrate:fresh.
+    $persona = Persona::factory()->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral]);
+    $concepto = Concepto::factory()->create();
+    $anterior = Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'vigente_desde' => '2026-01-01']);
+    $recibo = (string) tempnam(sys_get_temp_dir(), 'recibo');
+    file_put_contents($recibo, "%PDF-1.4\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
+    $conexion = config('database.connections.pgsql');
+    $inicio = microtime(true) + 2;
+
+    $resultados = Process::pool(function (Pool $pool) use ($conexion, $inicio, $persona, $concepto, $recibo): void {
+        $proceso = fn () => $pool->path(base_path())->env([
+            'APP_ENV' => 'testing',
+            'DB_CONNECTION' => 'pgsql',
+            'DB_HOST' => $conexion['host'],
+            'DB_PORT' => (string) $conexion['port'],
+            'DB_DATABASE' => $conexion['database'],
+            'DB_USERNAME' => $conexion['username'],
+            'DB_PASSWORD' => $conexion['password'],
+        ]);
+        $proceso()->command([PHP_BINARY, 'tests/Concurrency/Fixtures/registrar-tarifa.php', (string) $inicio, (string) $concepto->id, '2026-10-01', '700000']);
+        $proceso()->command([PHP_BINARY, 'tests/Concurrency/Fixtures/registrar-pago.php', (string) ($inicio + 0.3), (string) $persona->id, (string) $concepto->id, '2026-10-20', $recibo]);
+    })->start()->wait();
+
+    $pago = Pago::query()->where('concepto_id', $concepto->id)->first();
+    if ($pago !== null) {
+        Storage::disk('local')->delete($pago->recibo_path);
+    }
+    unlink($recibo);
+
+    expect(collect($resultados)->map(fn ($resultado): string => trim($resultado->output().$resultado->errorOutput()))->values()->all())
+        ->toBe(['tarifa registrada', 'registrado'])
+        ->and($pago?->tarifa_id)->not->toBe($anterior->id)
+        ->and($pago?->tarifa_id)->toBe(Tarifa::query()->where('concepto_id', $concepto->id)->where('vigente_desde', '2026-10-01')->value('id'));
+});

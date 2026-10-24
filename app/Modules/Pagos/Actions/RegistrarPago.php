@@ -35,6 +35,7 @@ final readonly class RegistrarPago
     public function __invoke(RegistroDePago $registro, UploadedFile $recibo, ?User $registradoPor = null): Pago
     {
         $extension = $this->extensionDelRecibo($recibo);
+        // Fail fast before storing the receipt; the binding read happens under lock below.
         $this->tarifaAplicable($registro);
         $ruta = $recibo->storeAs("recibos/{$registro->fechaPago->format('Y')}", Str::ulid().".{$extension}", self::DISCO);
 
@@ -43,7 +44,7 @@ final readonly class RegistrarPago
             return DB::transaction(fn (): Pago => Pago::query()->create([
                 'persona_id' => $registro->personaId,
                 'concepto_id' => $registro->conceptoId,
-                // Re-read under a shared lock: a fee being closed makes this wait and then no longer match.
+                // Locks concept, then fee (the order RegistrarTarifa uses), waiting for any fee change in progress.
                 'tarifa_id' => $this->tarifaAplicable($registro, bloquear: true)->id,
                 'monto' => $registro->monto,
                 'medio_pago' => $registro->medioPago,
@@ -71,7 +72,11 @@ final readonly class RegistrarPago
 
     private function tarifaAplicable(RegistroDePago $registro, bool $bloquear = false): Tarifa
     {
-        $concepto = Concepto::query()->whereKey($registro->conceptoId)->where('activo', true)->first()
+        $concepto = Concepto::query()
+            ->whereKey($registro->conceptoId)
+            ->where('activo', true)
+            ->when($bloquear, fn (Builder $query): Builder => $query->sharedLock())
+            ->first()
             ?? throw new ReglaDeNegocioIncumplida('El concepto de pago no está disponible.');
 
         return $concepto->tarifas()

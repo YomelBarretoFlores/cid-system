@@ -15,6 +15,8 @@ use Filament\Schemas\Schema;
 
 final class ConceptoForm
 {
+    public const string CODIGO_REPETIDO = 'Ya existe un concepto con ese código.';
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -24,10 +26,9 @@ final class ConceptoForm
                     ->label('Código TUPA/TUSNE')
                     ->required()
                     ->maxLength(20)
-                    ->dehydrateStateUsing(fn (string $state): string => mb_strtoupper(trim($state)))
                     ->rule(fn (): Closure => function (string $attribute, mixed $value, Closure $fail): void {
-                        if (Concepto::query()->where('codigo', mb_strtoupper(trim((string) $value)))->exists()) {
-                            $fail('Ya existe un concepto con ese código.');
+                        if (Concepto::query()->where('codigo', Concepto::normalizarCodigo((string) $value))->exists()) {
+                            $fail(self::CODIGO_REPETIDO);
                         }
                     }, condition: fn (string $operation): bool => $operation === 'create')
                     ->disabledOn('edit')

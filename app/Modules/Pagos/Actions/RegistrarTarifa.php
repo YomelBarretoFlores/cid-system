@@ -7,7 +7,6 @@ namespace App\Modules\Pagos\Actions;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
-use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -26,8 +25,9 @@ final readonly class RegistrarTarifa
                 ->whereNull('vigente_hasta')
                 ->first();
 
-            if ($abierta !== null) {
-                $this->cerrarAntesDe($abierta, $desde);
+            // A fee starting before the open one fills an earlier gap; the exclusion constraint rejects any overlap.
+            if ($abierta !== null && $desde->gt($abierta->vigente_desde)) {
+                ($this->cerrarTarifa)($abierta->id, $desde->subDay());
             }
 
             return CerrarTarifa::traducirSuperposicion(fn (): Tarifa => Tarifa::query()->create([
@@ -38,16 +38,5 @@ final readonly class RegistrarTarifa
                 'vigente_hasta' => $hasta?->toDateString(),
             ]));
         });
-    }
-
-    private function cerrarAntesDe(Tarifa $abierta, CarbonImmutable $desde): void
-    {
-        if ($desde->lte($abierta->vigente_desde)) {
-            throw new ReglaDeNegocioIncumplida(
-                "La nueva tarifa debe empezar después del {$abierta->vigente_desde->format('d/m/Y')}, inicio de la tarifa vigente.",
-            );
-        }
-
-        ($this->cerrarTarifa)($abierta->id, $desde->subDay());
     }
 }

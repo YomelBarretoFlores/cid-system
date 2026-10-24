@@ -16,6 +16,7 @@ use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Shared\Auth\Models\User;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Support\Facades\DB;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 
@@ -70,6 +71,18 @@ it('refuses a repeated concept code', function (): void {
         ->assertHasFormErrors(['codigo']);
 
     expect(Concepto::query()->count())->toBe(1);
+});
+
+it('reports a code created by someone else at the same time as a form error', function (): void {
+    $this->actingAs($this->administrador);
+    Concepto::creating(function (Concepto $nuevo): void {
+        DB::table('pag_conceptos')->insert(['codigo' => $nuevo->codigo, 'nombre' => 'Simultáneo', 'tipo' => 'otro', 'fuente' => 'tupa', 'activo' => true]);
+    });
+
+    Livewire::test(CreateConcepto::class)
+        ->fillForm(['codigo' => 'tupa-099', 'nombre' => 'Otro', 'tipo' => TipoConcepto::Otro->value, 'fuente' => FuenteConcepto::Tupa->value])
+        ->call('create')
+        ->assertHasFormErrors(['codigo']);
 });
 
 it('deactivates a concept instead of deleting it, keeping its code', function (): void {
