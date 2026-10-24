@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Modules\Academico\Database\Seeders\AcademicoDemoSeeder;
 use App\Modules\Academico\Enums\PermisoAcademico;
+use App\Modules\Docencia\Database\Seeders\DocenciaDemoSeeder;
 use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Modules\Matricula\Database\Seeders\MatriculaDemoSeeder;
 use App\Modules\Matricula\Enums\PermisoClasificacion;
@@ -43,6 +44,7 @@ final class DatabaseSeeder extends Seeder
             PersonasDemoSeeder::class,
             MatriculaDemoSeeder::class,
             PagosDemoSeeder::class,
+            DocenciaDemoSeeder::class,
         ]);
 
         $this->estudianteDelPortal();
