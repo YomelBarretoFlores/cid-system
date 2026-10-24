@@ -21,7 +21,7 @@ final class EditPeriodo extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         try {
-            return Transaccion::ejecutar(fn (): Model => parent::handleRecordUpdate($record, $data));
+            return Transaccion::ejecutar(fn (): Model => parent::handleRecordUpdate($record, $data), reintentar: false);
         } catch (UniqueConstraintViolationException $error) {
             // Another administrator took the same year and number after validation ran.
             throw RestriccionUnica::es($error, 'aca_periodos_anio_numero_unique')

@@ -19,7 +19,7 @@ final class CreateIdioma extends CreateRecord
     {
         try {
             // The savepoint keeps the connection usable after a unique violation inside an outer transaction.
-            return Transaccion::ejecutar(fn (): Model => parent::handleRecordCreation($data));
+            return Transaccion::ejecutar(fn (): Model => parent::handleRecordCreation($data), reintentar: false);
         } catch (UniqueConstraintViolationException $error) {
             throw IdiomaForm::errorDeDuplicado($error);
         }

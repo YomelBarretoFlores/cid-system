@@ -25,23 +25,25 @@ final class Transaccion
      * @template T
      *
      * @param  Closure(): T  $operacion
+     * @param  bool  $reintentar  false when the operation changes a model loaded before the transaction: a retry would see it clean and save nothing
      * @return T
      */
-    public static function ejecutar(Closure $operacion): mixed
+    public static function ejecutar(Closure $operacion, bool $reintentar = true): mixed
     {
         // Only the outermost transaction can safely retry: an inner one shares its caller's snapshot and locks.
         $esExterna = DB::transactionLevel() === 0;
+        $intentos = $reintentar ? self::INTENTOS : 1;
 
         for ($intento = 1; ; $intento++) {
             try {
                 return DB::transaction($operacion);
             } catch (QueryException|DeadlockException $error) {
-                self::esperarAntesDeReintentar($error, $esExterna, $intento);
+                self::esperarAntesDeReintentar($error, $esExterna, $intento, $intentos);
             }
         }
     }
 
-    private static function esperarAntesDeReintentar(QueryException|DeadlockException $error, bool $esExterna, int $intento): void
+    private static function esperarAntesDeReintentar(QueryException|DeadlockException $error, bool $esExterna, int $intento, int $intentos): void
     {
         $sqlstate = self::sqlstate($error);
         $esConflicto = in_array($sqlstate, self::CONFLICTOS, true);
@@ -50,7 +52,7 @@ final class Transaccion
             throw $error;
         }
 
-        if (! $esConflicto || $intento >= self::INTENTOS) {
+        if (! $esConflicto || $intento >= $intentos) {
             throw self::traducir($error, $sqlstate);
         }
 

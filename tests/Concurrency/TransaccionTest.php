@@ -79,3 +79,37 @@ it('retries from the outermost transaction when the deadlock happens in a nested
 
     expect([$resultado, $intentos])->toBe(['listo', 2]);
 });
+
+it('does not retry an operation marked as unsafe to repeat and still explains the conflict', function (): void {
+    Log::spy();
+    $intentos = 0;
+    $operacion = function () use (&$intentos): void {
+        Transaccion::ejecutar(function () use (&$intentos): void {
+            $intentos++;
+
+            throw ErroresDePostgres::conCodigo('40P01', 'deadlock detected');
+        }, reintentar: false);
+    };
+
+    expect($operacion)->toThrow(ReglaDeNegocioIncumplida::class, 'Otra operación está modificando estos datos en este momento. Inténtalo de nuevo en unos segundos.')
+        ->and($intentos)->toBe(1);
+
+    Log::shouldNotHaveReceived('warning', ['Transacción reintentada tras un conflicto de concurrencia.', Mockery::any()]);
+});
+
+it('explains a lock timeout on the first attempt without retrying it', function (): void {
+    Log::spy();
+    $intentos = 0;
+    $operacion = function () use (&$intentos): void {
+        Transaccion::ejecutar(function () use (&$intentos): void {
+            $intentos++;
+
+            throw ErroresDePostgres::conCodigo('55P03', 'canceling statement due to lock timeout');
+        });
+    };
+
+    expect($operacion)->toThrow(ReglaDeNegocioIncumplida::class, 'Otra operación está modificando estos datos en este momento.')
+        ->and($intentos)->toBe(1);
+
+    Log::shouldHaveReceived('warning')->with('Operación rechazada por un conflicto de concurrencia.', ['sqlstate' => '55P03'])->once();
+});

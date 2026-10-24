@@ -99,7 +99,7 @@ final class CiclosRelationManager extends RelationManager
     {
         try {
             // The savepoint keeps the connection usable after a unique violation inside an outer transaction.
-            return Transaccion::ejecutar($guardar);
+            return Transaccion::ejecutar($guardar, reintentar: false);
         } catch (UniqueConstraintViolationException $error) {
             // Another coordinator used the same cycle number after validation ran.
             throw RestriccionUnica::es($error, 'aca_ciclos_idioma_id_numero_unique')

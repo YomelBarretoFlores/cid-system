@@ -20,7 +20,7 @@ trait InformaDocumentoRepetido
     private function guardarSinRepetirDocumento(Closure $guardar): Model
     {
         try {
-            return Transaccion::ejecutar($guardar);
+            return Transaccion::ejecutar($guardar, reintentar: false);
         } catch (UniqueConstraintViolationException $error) {
             // Someone else registered the same document after validation ran.
             throw RestriccionUnica::es($error, 'per_personas_tipo_documento_numero_documento_unique')

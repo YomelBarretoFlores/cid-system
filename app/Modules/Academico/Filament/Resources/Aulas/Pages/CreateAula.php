@@ -21,7 +21,7 @@ final class CreateAula extends CreateRecord
     {
         try {
             // The savepoint keeps the connection usable after a unique violation inside an outer transaction.
-            return Transaccion::ejecutar(fn (): Model => parent::handleRecordCreation($data));
+            return Transaccion::ejecutar(fn (): Model => parent::handleRecordCreation($data), reintentar: false);
         } catch (UniqueConstraintViolationException $error) {
             // Another coordinator created the same code after validation ran.
             throw RestriccionUnica::es($error, 'aca_aulas_codigo_unique')

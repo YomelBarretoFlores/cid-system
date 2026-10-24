@@ -18,7 +18,7 @@ final class EditIdioma extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         try {
-            return Transaccion::ejecutar(fn (): Model => parent::handleRecordUpdate($record, $data));
+            return Transaccion::ejecutar(fn (): Model => parent::handleRecordUpdate($record, $data), reintentar: false);
         } catch (UniqueConstraintViolationException $error) {
             throw IdiomaForm::errorDeDuplicado($error);
         }
