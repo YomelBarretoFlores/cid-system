@@ -28,7 +28,7 @@ final class AcademicoDemoSeeder extends Seeder
         $periodo = Periodo::query()->create([
             'anio' => 2027, 'numero' => 1, 'nombre' => 'Enero 2027',
             'fecha_inicio' => '2027-01-04', 'fecha_fin' => '2027-01-29',
-            'matricula_inicio' => '2026-12-14', 'matricula_fin' => '2027-01-06',
+            'matricula_inicio' => min(now('America/Lima')->toDateString(), '2026-12-14'), 'matricula_fin' => '2027-01-06',
             'estado' => EstadoPeriodo::MatriculaAbierta,
         ]);
 

@@ -10,8 +10,8 @@ Responde al Anexo II.2 (OWASP Top 10, Ley N° 29733, auditoría inmutable) y a l
 | XSS | Escapado de Blade (`{{ }}`); `{!! !!}` prohibido con datos del usuario; cabeceras CSP |
 | CSRF | Middleware `PreventRequestForgery` de Laravel 13 (token + verificación de origen) |
 | Sesiones | Cookies `HttpOnly`, `secure`, `SameSite=lax`; regeneración al iniciar sesión; `SESSION_DRIVER=database` |
-| Fuerza bruta | Rate limiting en login, recuperación de contraseña y verificación pública de QR |
-| Contraseñas | `Password::defaults()` con longitud mínima y `uncompromised()` |
+| Fuerza bruta | Rate limiting en login (5 intentos por minuto por correo e IP y 20 por IP), registro (20 por minuto por IP), recuperación de contraseña (5 por minuto por IP y un correo por minuto por cuenta), verificación de correo y verificación pública de QR |
+| Contraseñas | `Password::defaults()`: al menos 8 caracteres con letras y números. No se usa `uncompromised()` porque consulta un servicio externo (pendiente de aprobación de la DSTI) |
 | Autorización | Una Policy por acción sensible; acceso al panel solo con el permiso `admin-panel.access` |
 | IDOR | IDs públicos con ULID; Policies en cada recurso |
 | Archivos subidos | Validar tipo real por contenido; guardar fuera de `public/`; servir por controlador con Policy |
@@ -23,13 +23,21 @@ Responde al Anexo II.2 (OWASP Top 10, Ley N° 29733, auditoría inmutable) y a l
 
 Sesiones con cookie, no JWT ([`adr/0004-sesiones-para-autenticacion.md`](adr/0004-sesiones-para-autenticacion.md)). Sanctum usa la cookie para la web propia y tokens solo para clientes externos de la API. La recuperación de contraseña usa `password_reset_tokens` (token de un solo uso por correo, como pide el M6).
 
+Portal del estudiante (inicio de sesión diferenciado del panel administrativo, M6):
+
+- Ingreso en `/estudiante/ingresar` con correo y contraseña; el mensaje de error no revela si la cuenta existe. El correo se guarda siempre en minúsculas.
+- Autorregistro en `/estudiante/registro` con documento y correo, con consentimiento expreso de la Ley N° 29733. Una ficha que el CILN ya registró solo se vincula si el correo coincide con el que figura en ella; si no coincide, o si el documento ya tiene cuenta, el formulario responde con un único mensaje, para no revelar cuál de los dos casos aplica.
+- El portal exige el correo verificado (`verified`), una ficha de estudiante vinculada (middleware `estudiante`) y `auth.session`, que cierra las demás sesiones cuando cambia la contraseña.
+- Cada estudiante ve solo sus pagos, recibos y matrículas: las consultas parten de su ficha, nunca de un ID recibido del navegador, y el recibo de otra persona responde 404.
+- Los correos de verificación y de recuperación se envían en español; el enlace de recuperación vence a los 60 minutos.
+
 ## Autorización
 
 - Permisos por acción con `spatie/laravel-permission`, creados por migraciones (también `admin-panel.access`), nunca solo por seeders: así existen en producción.
 - Cada recurso del panel tiene su Policy. El panel corre con `strictAuthorization()`: si falta un método en la Policy, Filament lanza un error en vez de permitir la acción (por defecto la permitiría).
 - Cada Policy usa el trait `DeniegaLoNoConcedido`, que niega toda habilidad que no concede de forma explícita (editar, borrar, restaurar, duplicar, asociar...).
 - Permisos existentes: `pagos.*` (ver, registrar, validar, anular, configurar), `academico.ver`, `academico.gestionar`, `personas.ver`, `personas.gestionar` y `admin-panel.access`.
-- Los roles que agrupan permisos están pendientes ([`decisiones-pendientes.md`](decisiones-pendientes.md) #2). Usuarios de demostración: `admin@ciln.test` (todos los permisos de pagos) y `caja@ciln.test` (todo menos anular).
+- Los roles que agrupan permisos están pendientes ([`decisiones-pendientes.md`](decisiones-pendientes.md) #2). Usuarios de demostración: `admin@ciln.test` (todos los permisos de pagos) y `caja@ciln.test` (todo menos anular); en el portal, `estudiante@ciln.test`, con un pago de matrícula validado sin usar.
 
 ## Auditoría inmutable (Log Triggers)
 

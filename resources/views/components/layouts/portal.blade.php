@@ -24,6 +24,9 @@
                     @if (auth()->user()->hasVerifiedEmail())
                         <nav aria-label="Portal del estudiante" class="flex flex-wrap items-center gap-1 text-sm">
                             <x-portal.enlace-menu :ruta="'estudiante.inicio'">Inicio</x-portal.enlace-menu>
+                            <x-portal.enlace-menu :ruta="'estudiante.pagos'">Mis pagos</x-portal.enlace-menu>
+                            <x-portal.enlace-menu :ruta="'estudiante.matricula'">Matrícula</x-portal.enlace-menu>
+                            <x-portal.enlace-menu :ruta="'estudiante.matriculas'">Mis matrículas</x-portal.enlace-menu>
                         </nav>
                     @endif
 

@@ -9,8 +9,12 @@ use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Matricula\Database\Seeders\MatriculaDemoSeeder;
 use App\Modules\Pagos\Database\Seeders\PagosDemoSeeder;
 use App\Modules\Pagos\Enums\PermisoPago;
+use App\Modules\Pagos\Models\Pago;
+use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Database\Seeders\PersonasDemoSeeder;
 use App\Modules\Personas\Enums\PermisoPersona;
+use App\Modules\Personas\Enums\TipoVinculo;
+use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\Seeder;
 use RuntimeException;
@@ -36,6 +40,35 @@ final class DatabaseSeeder extends Seeder
             PersonasDemoSeeder::class,
             MatriculaDemoSeeder::class,
             PagosDemoSeeder::class,
+        ]);
+
+        $this->estudianteDelPortal();
+    }
+
+    // A verified student with an unused validated enrollment payment, so the portal can be tried end to end.
+    private function estudianteDelPortal(): void
+    {
+        $user = User::factory()->create(['name' => 'Estudiante Demo', 'email' => 'estudiante@ciln.test']);
+        $persona = Persona::factory()->create([
+            'user_id' => $user->id,
+            'numero_documento' => '70000001',
+            'apellido_paterno' => 'Demo',
+            'apellido_materno' => null,
+            'nombres' => 'Estudiante',
+            'correo' => 'estudiante@ciln.test',
+        ]);
+
+        $tarifa = Tarifa::query()
+            ->whereRelation('concepto', 'codigo', 'MAT-01')
+            ->where('tipo_vinculo', TipoVinculo::PublicoGeneral)
+            ->sole();
+
+        Pago::factory()->validado()->create([
+            'persona_id' => $persona->id,
+            'concepto_id' => $tarifa->concepto_id,
+            'tarifa_id' => $tarifa->id,
+            'monto' => $tarifa->monto,
+            'validado_por' => User::query()->where('email', 'caja@ciln.test')->value('id'),
         ]);
     }
 }

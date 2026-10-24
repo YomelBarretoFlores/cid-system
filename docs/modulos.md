@@ -24,6 +24,7 @@ Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y c
 - Tipo y número de documento (DNI/CE/Pasaporte), apellidos, nombres, fecha de nacimiento, correo personal, celular.
 - Tipo de vínculo: Estudiante UNASAM, Docente/Administrativo UNASAM, Público General (define la tarifa).
 - Pantalla "Personas" (`personas.ver`, `personas.gestionar`): búsqueda por documento o nombre; DNI de 8 dígitos, CE o pasaporte de 6 a 12 caracteres; documento único; celular normalizado. Sin borrado, acciones masivas ni exportación (Ley 29733); fuera de la búsqueda global del panel.
+- Autorregistro en el portal (`RegistrarCuentaDeEstudiante`): crea la ficha como Público General, o vincula la ficha que ya tiene el CILN si su correo coincide. Solo el personal del CILN cambia el tipo de vínculo, porque define la tarifa. El contrato `FichaDelUsuario` entrega a los demás módulos la ficha de quien inició sesión.
 
 ## M1 · Matricula
 
@@ -31,6 +32,7 @@ Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y c
 |---|---|
 | Examen de clasificación | Solicitud → resultado (puntaje) → nivel asignado en el perfil. Estados: Pendiente de Evaluación, Evaluado, Expirado (el scheduler expira las vencidas) |
 | Matrícula autogestionada | `MatricularEstudiante`. Bloquea si: (a) el grupo no es del ciclo habilitado (sin habilitación, solo el ciclo 1); (b) el pago no está validado, es de otra persona, es de otro concepto o ya se usó (contrato `VerificacionDePago` de Pagos); (c) no hay vacantes o la matrícula del grupo no está abierta (contrato `ReservaDeVacante` de Academico, con `lockForUpdate` + `CHECK`). Tampoco permite dos grupos del mismo ciclo en el mismo periodo, ni siquiera con solicitudes simultáneas (bloqueo por persona con `pg_advisory_xact_lock`). Condición: Repitente si ya cursó el ciclo en otro periodo sin retirarse; si no, Regular. Reintentar con el mismo pago devuelve la misma matrícula |
+| Portal del estudiante | `/estudiante/matricula`: grupos abiertos del ciclo habilitado en cada idioma (o el ciclo I), con vacantes que se refrescan solas; el estudiante elige un pago de matrícula validado que no haya usado y se matricula con `MatricularEstudiante`. `/estudiante/matriculas`: sus matrículas con horario y aula |
 | Documentos | Ficha de Matrícula (PDF) y Constancia de Inscripción |
 | Traslados y retiros | Grupo origen/destino, fecha, motivo y usuario que autoriza |
 

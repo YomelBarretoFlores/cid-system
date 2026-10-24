@@ -10,6 +10,7 @@ use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Enums\PermisoPersona;
+use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Database\Seeders\DatabaseSeeder;
 
@@ -22,7 +23,7 @@ it('seeds consistent demo data for local development', function (): void {
         ->and($grupo->matriculados)->toBe(Matricula::query()->where('grupo_id', $grupo->id)->count())
         ->and($grupo->matriculados)->toBe(10)
         ->and(Matricula::query()->whereNull('pago_id')->exists())->toBeFalse()
-        ->and(Pago::query()->where('estado', EstadoPago::Validado)->count())->toBe(10)
+        ->and(Pago::query()->where('estado', EstadoPago::Validado)->whereIn('id', Matricula::query()->select('pago_id'))->count())->toBe(10)
         ->and(User::query()->where('email', 'admin@ciln.test')->firstOrFail()->can(User::ADMIN_PANEL_PERMISSION))->toBeTrue();
 });
 
@@ -35,6 +36,18 @@ it('seeds a demo administrator with every payment permission and a cashier who c
     expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(collect(['admin-panel.access', ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores()])->sort()->values()->all())
         ->and($caja->getPermissionNames()->sort()->values()->all())
         ->toBe(collect(['admin-panel.access', PermisoPago::Registrar->value, PermisoPago::Validar->value, PermisoPago::Ver->value, ...PermisoPersona::valores()])->sort()->values()->all());
+});
+
+it('seeds a verified portal student with an unused validated enrollment payment', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $estudiante = User::query()->where('email', 'estudiante@ciln.test')->sole();
+    $persona = Persona::query()->where('user_id', $estudiante->id)->sole();
+
+    expect($estudiante->hasVerifiedEmail())->toBeTrue()
+        ->and($estudiante->can(User::ADMIN_PANEL_PERMISSION))->toBeFalse()
+        ->and(Pago::query()->where(['persona_id' => $persona->id, 'estado' => EstadoPago::Validado])->count())->toBe(1)
+        ->and(Matricula::query()->where('persona_id', $persona->id)->exists())->toBeFalse();
 });
 
 it('refuses to seed demo data in production even when forced', function (): void {

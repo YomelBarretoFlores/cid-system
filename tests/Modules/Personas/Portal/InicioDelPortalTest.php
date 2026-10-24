@@ -15,7 +15,10 @@ it('greets the student by name on the portal home', function (): void {
         ->get(route('estudiante.inicio'))
         ->assertOk()
         ->assertSee('Hola, Rosa Elena')
-        ->assertSee('DNI 41234567');
+        ->assertSee('DNI 41234567')
+        ->assertSee(route('estudiante.pagos'))
+        ->assertSee(route('estudiante.matricula'))
+        ->assertSee(route('estudiante.matriculas'));
 });
 
 it('refuses the portal to an account without a student record', function (): void {
