@@ -2,7 +2,12 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
-      "Bash(php artisan:*)",
+      "Bash(php artisan test:*)",
+      "Bash(php artisan make:*)",
+      "Bash(php artisan migrate)",
+      "Bash(php artisan migrate:status)",
+      "Bash(php artisan route:list:*)",
+      "Bash(php artisan boost:update:*)",
       "Bash(composer lint)",
       "Bash(composer analyse)",
       "Bash(composer fix)",
@@ -18,8 +23,15 @@
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
+      "Edit(./.env)",
+      "Edit(./.env.*)",
+      "Write(./.env)",
+      "Write(./.env.*)",
       "Read(./storage/app/**)",
-      "Bash(php artisan migrate:fresh --env=production:*)",
+      "Bash(php artisan tinker:*)",
+      "Bash(php artisan config:show:*)",
+      "Bash(php artisan env:*)",
+      "Bash(php artisan migrate:fresh:*)",
       "Bash(php artisan db:wipe:*)"
     ]
   },
@@ -30,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.php) \"$CLAUDE_PROJECT_DIR/vendor/bin/pint\" -q \"$f\" ;; esac; exit 0"
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.php) \"$CLAUDE_PROJECT_DIR/vendor/bin/pint\" -q -- \"$f\" ;; esac; exit 0"
           }
         ]
       }
