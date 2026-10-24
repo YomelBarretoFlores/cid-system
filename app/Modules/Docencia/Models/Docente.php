@@ -56,6 +56,14 @@ final class Docente extends Model
     }
 
     /**
+     * @return HasMany<CargaAcademica, $this>
+     */
+    public function cargas(): HasMany
+    {
+        return $this->hasMany(CargaAcademica::class);
+    }
+
+    /**
      * @return HasMany<Disponibilidad, $this>
      */
     public function disponibilidades(): HasMany

@@ -9,6 +9,7 @@ use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Docencia\Data\DatosDeDocente;
 use App\Modules\Docencia\Data\IdiomaHabilitado;
 use App\Modules\Docencia\Models\Docente;
+use App\Modules\Docencia\Support\ReglasDeCargaDocente;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -26,6 +27,7 @@ final readonly class GuardarDocente
     public function __construct(
         private EtiquetasDePersonas $etiquetasDePersonas,
         private CatalogoDeIdiomas $catalogoDeIdiomas,
+        private ReglasDeCargaDocente $reglas,
     ) {}
 
     public function __invoke(DatosDeDocente $datos, ?int $docenteId = null): Docente
@@ -64,6 +66,8 @@ final readonly class GuardarDocente
         foreach ($datos->idiomas as $idioma) {
             $docente->idiomas()->updateOrCreate(['idioma_id' => $idioma->idiomaId], ['nivel_maximo' => $idioma->nivelMaximo]);
         }
+
+        $this->reglas->asegurarCargaVigente($docente);
 
         // The code is a generated column, so it exists only after reading the row back.
         return $docente->refresh();

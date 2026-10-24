@@ -56,6 +56,7 @@ it('refuses an invalid or overlapping window and keeps the others', function (in
     'unknown day' => [8, '10:00', '11:00', 'El día debe estar entre 1 (lunes) y 7 (domingo).'],
     'unpadded hour' => [2, '9:00', '11:00', 'Escribe la hora en formato HH:MM.'],
     'hour out of range' => [2, '10:00', '24:00', 'Escribe la hora en formato HH:MM.'],
+    'trailing newline' => [2, "09:00\n", '11:00', 'Escribe la hora en formato HH:MM.'],
 ]);
 
 it('treats a time with seconds like the same time without them', function (): void {

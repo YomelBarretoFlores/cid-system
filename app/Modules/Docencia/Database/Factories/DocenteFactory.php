@@ -30,6 +30,12 @@ final class DocenteFactory extends Factory
         ];
     }
 
+    public function configure(): static
+    {
+        // The code is a generated column, so the created model reads it back.
+        return $this->afterCreating(fn (Docente $docente): Docente => $docente->refresh());
+    }
+
     public function enEstado(EstadoDocente $estado): static
     {
         return $this->state(['estado' => $estado]);

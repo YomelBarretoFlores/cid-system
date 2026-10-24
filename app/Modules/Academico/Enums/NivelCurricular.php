@@ -10,6 +10,15 @@ enum NivelCurricular: string
     case Intermedio = 'intermedio';
     case Avanzado = 'avanzado';
 
+    public function orden(): int
+    {
+        return match ($this) {
+            self::Basico => 1,
+            self::Intermedio => 2,
+            self::Avanzado => 3,
+        };
+    }
+
     public function etiqueta(): string
     {
         return match ($this) {

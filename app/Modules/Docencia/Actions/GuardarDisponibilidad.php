@@ -6,11 +6,14 @@ namespace App\Modules\Docencia\Actions;
 
 use App\Modules\Docencia\Models\Disponibilidad;
 use App\Modules\Docencia\Models\Docente;
+use App\Modules\Docencia\Support\ReglasDeCargaDocente;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Support\Facades\DB;
 
 final readonly class GuardarDisponibilidad
 {
+    public function __construct(private ReglasDeCargaDocente $reglas) {}
+
     public function __invoke(int $docenteId, int $diaSemana, string $horaInicio, string $horaFin, ?int $disponibilidadId = null): Disponibilidad
     {
         $inicio = self::normalizarHora($horaInicio);
@@ -33,6 +36,7 @@ final readonly class GuardarDisponibilidad
             }
 
             $franja->fill(['dia_semana' => $diaSemana, 'hora_inicio' => $inicio, 'hora_fin' => $fin])->save();
+            $this->reglas->asegurarCargaVigente($docente);
 
             return $franja;
         });
@@ -41,7 +45,7 @@ final readonly class GuardarDisponibilidad
     public static function normalizarHora(string $hora): string
     {
         // Times are compared as strings, so every value must share the zero-padded HH:MM:SS shape.
-        if (preg_match('/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/', $hora) !== 1) {
+        if (preg_match('/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?\z/', $hora) !== 1) {
             throw new ReglaDeNegocioIncumplida('Escribe la hora en formato HH:MM.');
         }
 
