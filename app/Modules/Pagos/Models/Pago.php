@@ -7,11 +7,13 @@ namespace App\Modules\Pagos\Models;
 use App\Modules\Pagos\Database\Factories\PagoFactory;
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\MedioPago;
+use App\Modules\Pagos\Policies\PagoPolicy;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'anulado_por', 'anulado_en', 'motivo_anulacion',
 ])]
 #[UseFactory(PagoFactory::class)]
+#[UsePolicy(PagoPolicy::class)]
 final class Pago extends Model
 {
     /** @use HasFactory<PagoFactory> */
