@@ -24,8 +24,8 @@ Assumptions (to confirm with the CILN):
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S4, S6, D1, D6 | inline | done | see L3 |
-| T2 | S1, S5, S6, D2, D3 | inline | pending | |
+| T1 | S4, S6, D1, D6 | inline | done | 20df716 |
+| T2 | S1, S5, S6, D2, D3 | inline | done | see L5 |
 | T3 | S3, S6, D4 | pending | pending | |
 | T4 | S2, S6, D5 | pending | pending | |
 | T5 | all | inline | pending | |
@@ -43,3 +43,5 @@ Forecast: about 2,500 authored lines in five commits.
 - L1 (2026-10-24): "Autorregistro con DNI y correo" / "Bien, entonces sigue como lo estabas haciendo, por flujos."
 - L2: Map: `User` (app/Shared/Auth/Models/User.php) lacks `MustVerifyEmail`; link is `per_personas.user_id`; no rate limiters, no Fortify, no Blade layout; `RegistrarPago` takes an `UploadedFile`; `MatricularEstudiante(personaId, grupoId, pagoId)`; `ReservarVacante` holds the open-for-enrollment rule. Auth is hand-written with Laravel's broker and `RateLimiter` (no new dependency).
 - L3: T1 inline: RED 20 of 21 (routes and components missing; the admin redirect already held) → GREEN 21/21; `composer check` 485/485, phpstan 0; `npm run build` compiles the theme. Spanish validation messages live in a shared trait instead of switching the app locale (Filament tests assert English strings). Not done: ending other sessions after a password reset (remember token is rotated).
+- L4: Native review of 20df716 (risk, reliability) granted, approved and acknowledged (review-9e4511c022c7fd4d). Advisories adopted for a follow-up fix: lowercase stored emails, end other sessions after a password change (`auth.session`), a per-IP login limit, a test for the reset throttle. Not adopted: reset link under `guest` (Laravel default), guest redirect scope (no staff routes outside Filament).
+- L5: T2 inline: RED 0 of 20 → GREEN 20/20; mutation (drop the email-match guard) killed by 2 tests; `composer check` 505/505, phpstan 0. Registration asks for consent under Ley 29733; throttle error shown at form level.

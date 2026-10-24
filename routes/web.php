@@ -25,7 +25,3 @@ Route::middleware('auth')->group(function (): void {
         ->name('verification.verify');
     Route::post('/estudiante/salir', CerrarSesion::class)->name('estudiante.salir');
 });
-
-Route::middleware(['auth', 'verified'])->group(function (): void {
-    Route::view('/estudiante', 'portal.inicio')->name('estudiante.inicio');
-});

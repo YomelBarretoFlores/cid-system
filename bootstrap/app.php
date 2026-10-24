@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', EstablecerContextoAuditoria::class);
         $middleware->appendToGroup('api', EstablecerContextoAuditoria::class);
+        $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class]);
 
         // The admin panel redirects its own guests to its login; every other web guest goes to the portal login.
         $middleware->redirectGuestsTo(

@@ -13,5 +13,6 @@
 
     <div class="mt-6 flex flex-col gap-2 text-sm">
         <a href="{{ route('password.request') }}" class="text-ciln-700 underline underline-offset-2 hover:text-ciln-900">¿Olvidaste tu contraseña?</a>
+        <p class="text-slate-700">¿Aún no tienes cuenta? <a href="{{ route('estudiante.registro') }}" class="font-medium text-ciln-700 underline underline-offset-2 hover:text-ciln-900">Créala con tu documento y tu correo</a>.</p>
     </div>
 </x-portal.tarjeta>
