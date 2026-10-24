@@ -12,6 +12,7 @@ use App\Modules\Matricula\Enums\EstadoMatricula;
 use App\Modules\Matricula\Events\EstudianteMatriculado;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\Matricula;
+use App\Modules\Matricula\Support\MovimientoDeMatricula;
 use App\Modules\Pagos\Contracts\VerificacionDePago;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -19,8 +20,6 @@ use Illuminate\Support\Facades\DB;
 
 final readonly class MatricularEstudiante
 {
-    private const int CANDADO_MATRICULA = 1;
-
     public function __construct(
         private VerificacionDePago $verificacionDePago,
         private ReservaDeVacante $reservaDeVacante,
@@ -32,7 +31,7 @@ final readonly class MatricularEstudiante
         // Lock order is always person, payment, then group, so concurrent enrollments cannot deadlock.
         return DB::transaction(function () use ($personaId, $grupoId, $pagoId): Matricula {
             // Serializes one person's enrollments: the one-per-cycle-and-period check reads rows no other lock covers.
-            DB::select('select pg_advisory_xact_lock(?, ?)', [self::CANDADO_MATRICULA, $personaId]);
+            MovimientoDeMatricula::bloquearPersona($personaId);
 
             $pago = ($this->verificacionDePago)($pagoId, $personaId, TipoConcepto::Matricula);
 
