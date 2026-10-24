@@ -20,8 +20,24 @@ final readonly class ReporteDeRecaudacion
         public array $detalle,
     ) {}
 
+    public function nombreDeArchivo(string $extension): string
+    {
+        return "recaudacion-{$this->filtros->desde->toDateString()}-al-{$this->filtros->hasta->toDateString()}.{$extension}";
+    }
+
     public static function soles(int $centimos): string
     {
-        return number_format(intdiv($centimos, 100), 0, '.', ',').'.'.str_pad((string) ($centimos % 100), 2, '0', STR_PAD_LEFT);
+        return number_format(intdiv($centimos, 100), 0, '.', ',').'.'.self::decimales($centimos);
+    }
+
+    // Plain decimal without thousands separators, for spreadsheets.
+    public static function decimal(int $centimos): string
+    {
+        return intdiv($centimos, 100).'.'.self::decimales($centimos);
+    }
+
+    private static function decimales(int $centimos): string
+    {
+        return str_pad((string) ($centimos % 100), 2, '0', STR_PAD_LEFT);
     }
 }

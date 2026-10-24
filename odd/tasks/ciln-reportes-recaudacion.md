@@ -19,8 +19,8 @@ Assumptions (to confirm with the CILN):
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S3, D3 | inline | done | de58f9f |
-| T2 | S2, S3, D1, D2 | inline | done | see L4 |
-| T3 | S2, D3 | inline | pending | |
+| T2 | S2, S3, D1, D2 | inline | done | 35fea44 |
+| T3 | S2, D3 | inline | done | see L5 |
 | T4 | all | inline | pending | |
 
 - T1: `PermisoPago::Reportar` and data migration, `PagoPolicy::reportar`, demo grant. Risk: item 2.
@@ -36,3 +36,4 @@ Forecast: about 900 authored lines in four commits.
 - L2: Map: payments link to an enrollment through `mat_matriculas.pago_id` (group → period, cycle → language and level) and to a placement request through `mat_solicitudes_clasificacion.pago_id`; `FuenteConcepto` gives TUPA/TUSNE; bcmath is available; no spreadsheet library installed.
 - L3: T1 inline: RED (dataset references the missing case) → GREEN; `pagos.reportar` by migration, `PagoPolicy::reportar`; the demo administrator already receives every payment permission. `composer check` green.
 - L4: T2 inline: RED 6 of 6 → GREEN; contracts `ContextoAcademicoDePagos` (Matricula: enrollment → period, language, level; placement request → language), `FichasDePersonas` (Personas, batch), `CatalogoDePeriodos` (Academico, for the T3 filter); `FichaDeGrupo` gains `periodoId`. `GenerarReporteDeRecaudacion` sums integer cents parsed from the numeric string (no float, no bcmath), groups by concept (by code) and by language and level ("Sin idioma"/"Sin nivel" last), detail ordered by payment date. `composer check` 753/753.
+- L5: T3 inline: RED 5 of 5 → GREEN 6/6; Filament page "Reporte de recaudación" (`canAccess` through `PagoPolicy::reportar`, live filters defaulting to the current month in Lima, summary, by concept, by language and level, detail), "Descargar PDF" (landscape A4, DOMPDF, real render tested) and "Descargar CSV" (UTF-8 BOM, `fputcsv`, cells starting with = + - @ tab or CR prefixed with a quote against CSV injection, total row). `composer check` 759/759.
