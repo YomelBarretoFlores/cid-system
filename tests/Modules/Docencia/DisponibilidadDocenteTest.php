@@ -54,7 +54,17 @@ it('refuses an invalid or overlapping window and keeps the others', function (in
     'inside' => [1, '09:00', '10:00', 'La disponibilidad se cruza con otra franja del docente: Lunes de 08:00 a 12:00.'],
     'end before start' => [2, '10:00', '09:00', 'La hora de fin debe ser posterior a la de inicio.'],
     'unknown day' => [8, '10:00', '11:00', 'El día debe estar entre 1 (lunes) y 7 (domingo).'],
+    'unpadded hour' => [2, '9:00', '11:00', 'Escribe la hora en formato HH:MM.'],
+    'hour out of range' => [2, '10:00', '24:00', 'Escribe la hora en formato HH:MM.'],
 ]);
+
+it('treats a time with seconds like the same time without them', function (): void {
+    app(GuardarDisponibilidad::class)($this->docente->id, 1, '08:00:00', '12:00');
+
+    expect(fn () => app(GuardarDisponibilidad::class)($this->docente->id, 1, '11:30', '13:00:00'))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'La disponibilidad se cruza con otra franja del docente: Lunes de 08:00 a 12:00.')
+        ->and(franjas($this->docente))->toBe([[1, '08:00:00', '12:00:00']]);
+});
 
 it('accepts a window that only touches another one', function (): void {
     app(GuardarDisponibilidad::class)($this->docente->id, 1, '08:00', '12:00');
@@ -98,4 +108,39 @@ it('shows the availability to readers without letting them change it', function 
     Livewire::actingAs($lector)->test(DisponibilidadesRelationManager::class, ['ownerRecord' => $this->docente, 'pageClass' => EditDocente::class])
         ->assertSee('Jueves')
         ->assertActionHidden(TestAction::make('agregarDisponibilidad')->table());
+});
+
+it('edits and removes a window from the profile', function (): void {
+    $gestor = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoDocencia::valores()]);
+    $franja = app(GuardarDisponibilidad::class)($this->docente->id, 2, '08:00', '10:00');
+
+    Livewire::actingAs($gestor)->test(DisponibilidadesRelationManager::class, ['ownerRecord' => $this->docente, 'pageClass' => EditDocente::class])
+        ->mountAction(TestAction::make('editarDisponibilidad')->table($franja))
+        ->assertSchemaStateSet(['dia_semana' => 2, 'hora_inicio' => '08:00', 'hora_fin' => '10:00'])
+        ->setActionData(['hora_fin' => '11:00'])
+        ->callMountedAction()
+        ->assertNotified('Disponibilidad actualizada');
+
+    expect(franjas($this->docente))->toBe([[2, '08:00:00', '11:00:00']]);
+
+    Livewire::actingAs($gestor)->test(DisponibilidadesRelationManager::class, ['ownerRecord' => $this->docente, 'pageClass' => EditDocente::class])
+        ->callAction(TestAction::make('quitarDisponibilidad')->table($franja))
+        ->assertNotified('Disponibilidad quitada');
+
+    expect(franjas($this->docente))->toBe([]);
+});
+
+it('does not let a reader edit or remove a window through a raw request', function (): void {
+    $lector = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoDocencia::Ver->value]);
+    $franja = app(GuardarDisponibilidad::class)($this->docente->id, 2, '08:00', '10:00');
+
+    foreach (['editarDisponibilidad' => ['dia_semana' => 2, 'hora_inicio' => '07:00', 'hora_fin' => '09:00'], 'quitarDisponibilidad' => []] as $accion => $datos) {
+        Livewire::actingAs($lector)->test(DisponibilidadesRelationManager::class, ['ownerRecord' => $this->docente, 'pageClass' => EditDocente::class])
+            ->assertActionHidden(TestAction::make($accion)->table($franja))
+            ->call('mountAction', $accion, [], ['table' => true, 'recordKey' => $franja->getKey()])
+            ->set('mountedActions.0.data', $datos)
+            ->call('callMountedAction');
+    }
+
+    expect(franjas($this->docente))->toBe([[2, '08:00:00', '10:00:00']]);
 });

@@ -40,6 +40,11 @@ final readonly class GuardarDisponibilidad
 
     public static function normalizarHora(string $hora): string
     {
+        // Times are compared as strings, so every value must share the zero-padded HH:MM:SS shape.
+        if (preg_match('/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/', $hora) !== 1) {
+            throw new ReglaDeNegocioIncumplida('Escribe la hora en formato HH:MM.');
+        }
+
         return strlen($hora) === 5 ? "{$hora}:00" : $hora;
     }
 
