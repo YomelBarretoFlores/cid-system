@@ -28,6 +28,7 @@ Portal del estudiante (inicio de sesión diferenciado del panel administrativo, 
 - Ingreso en `/estudiante/ingresar` con correo y contraseña; el mensaje de error no revela si la cuenta existe. El correo se guarda siempre en minúsculas.
 - Autorregistro en `/estudiante/registro` con documento y correo, con consentimiento expreso de la Ley N° 29733. Una ficha que el CILN ya registró solo se vincula si el correo coincide con el que figura en ella; si no coincide, o si el documento ya tiene cuenta, el formulario responde con un único mensaje, para no revelar cuál de los dos casos aplica.
 - El portal exige el correo verificado (`verified`), una ficha de estudiante vinculada (middleware `estudiante`) y `auth.session`, que cierra las demás sesiones cuando cambia la contraseña.
+- El portal del docente (`/docente`) exige además un perfil docente (middleware `docente`); cada página de grupo comprueba en cada solicitud que el grupo siga a cargo de ese docente (si no, 404), y las Actions lo vuelven a comprobar bajo el bloqueo del grupo.
 - Cada estudiante ve solo sus pagos, recibos y matrículas: las consultas parten de su ficha, nunca de un ID recibido del navegador, y el recibo de otra persona responde 404.
 - Los correos de verificación y de recuperación se envían en español; el enlace de recuperación vence a los 60 minutos.
 
@@ -37,7 +38,7 @@ Portal del estudiante (inicio de sesión diferenciado del panel administrativo, 
 - Cada recurso del panel tiene su Policy. El panel corre con `strictAuthorization()`: si falta un método en la Policy, Filament lanza un error en vez de permitir la acción (por defecto la permitiría).
 - Cada Policy usa el trait `DeniegaLoNoConcedido`, que niega toda habilidad que no concede de forma explícita (editar, borrar, restaurar, duplicar, asociar...).
 - Permisos existentes: `pagos.*` (ver, registrar, validar, anular, configurar, reportar), `academico.ver`, `academico.gestionar`, `personas.ver`, `personas.gestionar`, `matricula.ver`, `matricula.gestionar`, `clasificacion.ver`, `clasificacion.evaluar`, `docencia.ver`, `docencia.gestionar` y `admin-panel.access`.
-- Los roles que agrupan permisos están pendientes ([`decisiones-pendientes.md`](decisiones-pendientes.md) #2). Usuarios de demostración: `admin@ciln.test` (todos los permisos de pagos) y `caja@ciln.test` (todo menos anular); en el portal, `estudiante@ciln.test`, con un pago de matrícula validado sin usar.
+- Los roles que agrupan permisos están pendientes ([`decisiones-pendientes.md`](decisiones-pendientes.md) #2). Usuarios de demostración: `admin@ciln.test` (todos los permisos de pagos) y `caja@ciln.test` (todo menos anular); en el portal, `estudiante@ciln.test`, con un pago de matrícula validado sin usar, y `docente@ciln.test`, docente del primer grupo.
 
 ## Auditoría inmutable (Log Triggers)
 
@@ -68,7 +69,7 @@ Reglas de uso:
 - Las pruebas con `DatabaseTruncation` deben excluir `aud_registros` y `pag_pagos`, que rechazan `TRUNCATE`.
 - **Ciclo de vida del pago en la base**: el trigger `pag_pagos_ciclo_de_vida` rechaza transiciones no permitidas y cambios en los datos de un pago validado, rechazado o anulado, aunque se hagan por SQL directo. Las Actions aplican las mismas reglas con mensajes para el usuario.
 
-Tablas auditadas además de pagos: tarifas, conceptos, `mat_matriculas`, `mat_movimientos`, `mat_solicitudes_clasificacion`, `mat_habilitaciones`, `doc_docentes`, `doc_docente_idiomas`, `doc_disponibilidades` y `doc_cargas_academicas` (la cuenta bancaria queda cifrada también en la auditoría); los movimientos (traslados y retiros) rechazan UPDATE, DELETE y TRUNCATE con filas.
+Tablas auditadas además de pagos: tarifas, conceptos, `mat_matriculas`, `mat_movimientos`, `mat_solicitudes_clasificacion`, `mat_habilitaciones`, `doc_docentes`, `doc_docente_idiomas`, `doc_disponibilidades`, `doc_cargas_academicas`, `doc_clases_dictadas`, `doc_asistencias` y `doc_notas_parciales` (la cuenta bancaria queda cifrada también en la auditoría); los movimientos (traslados y retiros) rechazan UPDATE, DELETE y TRUNCATE con filas.
 
 Tests: `tests/Feature/Audit/AuditTrailTest.php` (inmutabilidad, contexto web/API, cambios por query builder), `tests/Modules/Pagos/PagoTest.php` (validación auditada) y `tests/Modules/Matricula/PermisosYAuditoriaTest.php`.
 

@@ -55,6 +55,18 @@ it('seeds a verified portal student with an unused validated enrollment payment'
         ->and(Matricula::query()->where('persona_id', $persona->id)->exists())->toBeFalse();
 });
 
+it('seeds a verified portal teacher who has the first demo group', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $docente = User::query()->where('email', 'docente@ciln.test')->sole();
+    $grupo = Grupo::query()->orderBy('id')->firstOrFail();
+
+    expect($docente->hasVerifiedEmail())->toBeTrue()
+        ->and($docente->can(User::ADMIN_PANEL_PERMISSION))->toBeFalse();
+
+    $this->actingAs($docente)->get(route('docente.grupos'))->assertOk()->assertSee("Grupo {$grupo->codigo}");
+});
+
 it('refuses to seed demo data in production even when forced', function (): void {
     app()->detectEnvironment(fn (): string => 'production');
 

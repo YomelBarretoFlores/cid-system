@@ -36,8 +36,13 @@ final readonly class RegistrarNotasParciales
             $esquema = ($this->esquemaDelGrupo)($grupoId)
                 ?? throw new ReglaDeNegocioIncumplida("El grupo {$grupo->codigo} no tiene un sistema de evaluación vigente; pide a coordinación que lo registre.");
 
-            foreach ($this->validar($notas, ($this->estudiantesDelGrupo)($grupoId), $esquema) as [$matriculaId, $componenteId, $nota]) {
-                $this->guardar($grupoId, $matriculaId, $componenteId, $nota, $usuario);
+            $valores = $this->validar($notas, ($this->estudiantesDelGrupo)($grupoId), $esquema);
+            $existentes = NotaParcial::query()->where('grupo_id', $grupoId)->get()
+                ->keyBy(fn (NotaParcial $nota): string => "{$nota->matricula_id}.{$nota->componente_id}");
+
+            foreach ($valores as [$matriculaId, $componenteId, $nota]) {
+                $registro = $existentes["{$matriculaId}.{$componenteId}"] ?? new NotaParcial(['grupo_id' => $grupoId, 'matricula_id' => $matriculaId, 'componente_id' => $componenteId]);
+                $this->guardar($registro, $nota, $usuario);
             }
         });
     }
@@ -94,11 +99,10 @@ final readonly class RegistrarNotasParciales
         return (int) $entero * 100 + (int) str_pad(substr($decimales, 0, 2), 2, '0');
     }
 
-    private function guardar(int $grupoId, int $matriculaId, int $componenteId, ?string $nota, User $usuario): void
+    private function guardar(NotaParcial $registro, ?string $nota, User $usuario): void
     {
-        $registro = NotaParcial::query()->firstOrNew(['grupo_id' => $grupoId, 'matricula_id' => $matriculaId, 'componente_id' => $componenteId]);
-
-        if (! $registro->exists && $nota === null) {
+        // Unchanged grades are not rewritten, so the audit trail only shows real changes.
+        if ((! $registro->exists && $nota === null) || ($registro->exists && $registro->nota === $nota)) {
             return;
         }
 

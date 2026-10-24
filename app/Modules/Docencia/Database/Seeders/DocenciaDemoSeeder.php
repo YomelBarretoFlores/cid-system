@@ -14,14 +14,16 @@ use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\Seeder;
 
-// A synthetic teacher who teaches the demo face-to-face group, so the roster and the load can be tried.
+// A synthetic teacher with a portal account who teaches the demo face-to-face group, so the roster, the load, attendance and the pre-acta can be tried.
 final class DocenciaDemoSeeder extends Seeder
 {
     public function run(): void
     {
+        $usuario = User::factory()->create(['name' => 'Docente Demo', 'email' => 'docente@ciln.test']);
         $persona = Persona::factory()->create([
+            'user_id' => $usuario->id,
             'numero_documento' => '70000002', 'apellido_paterno' => 'Docente', 'apellido_materno' => 'Demo',
-            'nombres' => 'Ana', 'correo' => 'ana.docente@example.test',
+            'nombres' => 'Ana', 'correo' => 'docente@ciln.test',
         ]);
         $docente = Docente::factory()->create([
             'persona_id' => $persona->id, 'correo_institucional' => 'docente.demo@ciln.test', 'ruc' => '10700000020',

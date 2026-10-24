@@ -6,7 +6,6 @@ Temas abiertos que bloquean o afectan partes del sistema. Al cerrarse uno, regis
 |---|---|---|---|---|
 | 1 | Migración de datos del sistema actual (PHP 5.6): ¿se migra historial de estudiantes, notas y certificados? | Consultar al CILN | Personas, Matricula, Certificacion | Plan de migración y conciliación |
 | 2 | Roles del sistema (coordinación, caja, administración, dirección, docente, estudiante). Ya existen los permisos por acción de Pagos (`pagos.ver`, `pagos.registrar`, `pagos.validar`, `pagos.anular`); falta decidir qué rol agrupa cuáles | Equipo | Shared/Auth, Policies | Asignación de permisos a roles |
-| 3 | Límite entre pre-actas (M3) y actas finales (M4) | Equipo, durante el desarrollo | Docencia, Certificacion | — |
 | 4 | Significado de "tasa de morosidad" (M5) en un modelo de pago previo | Más adelante | Tablero | KPI financiero |
 | 5 | Requisitos no funcionales: usuarios concurrentes en matrícula, disponibilidad, respaldos | Acordar con CILN y DSTI | Infraestructura | Dimensionamiento y conformidad final |
 | 6 | Etapas de la barra de progreso vs estados del trámite (inconsistencia del Anexo) | Corregir con el CILN | Tramites | Modelo de pipelines |
@@ -48,3 +47,6 @@ Temas abiertos que bloquean o afectan partes del sistema. Al cerrarse uno, regis
 | 42 | Supuesto: las horas de un grupo son las sesiones programadas entre las fechas del periodo (semanas = tramos de 7 días desde el inicio, redondeados hacia arriba), no las `horas_lectivas` del ciclo; las horas efectivamente dictadas saldrán de la asistencia (siguiente flujo) | Confirmar con el CILN | Docencia | Expediente de horas (M3.3) |
 | 43 | Cambiar las fechas de un periodo después de asignar docentes no vuelve a validar cruces entre periodos que pasen a superponerse | Equipo | Academico, Docencia | — |
 | 44 | Supuesto: permisos `docencia.ver` y `docencia.gestionar` (coordinación) | Confirmar con el CILN | Docencia | Asignación a roles (#2) |
+| 45 | Supuesto (ADR 0007): la pre-acta guarda notas parciales por componente mientras el grupo está Abierto o Cerrado; el acta final (M4) calcula el promedio, el estado y cierra. ¿El CILN quiere ver el promedio parcial en la pre-acta? | Confirmar con el CILN | Docencia, Certificacion | Actas finales (M4) |
+| 46 | Supuesto: "según el cronograma académico" = el horario semanal del grupo dentro de su periodo; la asistencia se registra el día de la clase o después, nunca antes, sin plazo máximo mientras el grupo no termine. ¿Hay feriados o un plazo para registrar? | Confirmar con el CILN | Docencia | — |
+| 47 | Supuesto: estados de asistencia Presente, Tardanza y Falta (sin "Justificada"); una lista nueva empieza con todos Presente | Confirmar con el CILN | Docencia | — |

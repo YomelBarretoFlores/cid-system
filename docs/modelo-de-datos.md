@@ -51,6 +51,9 @@ erDiagram
 | `pag_conceptos` | Pagos | Conceptos TUPA/TUSNE (matrícula, pensión, examen, certificado...) | — |
 | `pag_tarifas` | Pagos | Monto por concepto y tipo de vínculo, con vigencia | — |
 | `pag_pagos` | Pagos | Pago con recibo, medio, número de operación y estado de validación | ULID |
+| `doc_clases_dictadas` | Docencia | Clase dictada de un grupo (fecha, horas, docente y quién la registró) | — |
+| `doc_asistencias` | Docencia | Estado de asistencia de cada matrícula en una clase | — |
+| `doc_notas_parciales` | Docencia | Nota parcial de una matrícula en un componente del esquema (pre-acta) | — |
 | `aud_registros` | Shared/Audit | Pista de auditoría inmutable de las tablas críticas | — |
 
 ## Restricciones clave
@@ -98,4 +101,4 @@ Ver [`decisiones-pendientes.md`](decisiones-pendientes.md), filas 9 a 17.
 
 ## Datos de demostración
 
-`php artisan db:seed` (solo local; el seeder se niega a correr en producción) crea Inglés y Quechua con 12 ciclos (4 por nivel, supuesto), un periodo con matrícula abierta, aulas, dos grupos con horario, un esquema de evaluación 40/40/20, 28 personas, 10 de ellas matriculadas, conceptos TUPA de ejemplo con tarifas ficticias y un pago validado por cada matrícula. Usuario del panel: `admin@ciln.test` / `password`.
+`php artisan db:seed` (solo local; el seeder se niega a correr en producción) crea Inglés y Quechua con 12 ciclos (4 por nivel, supuesto), un periodo con matrícula abierta, aulas, dos grupos con horario, un esquema de evaluación 40/40/20, 28 personas, 10 de ellas matriculadas, conceptos TUPA de ejemplo con tarifas ficticias y un pago validado por cada matrícula. Usuario del panel: `admin@ciln.test` / `password`. Portal del docente: `docente@ciln.test` / `password` (docente del primer grupo).

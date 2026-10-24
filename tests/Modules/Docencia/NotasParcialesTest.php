@@ -61,7 +61,7 @@ it('records the grades per student and component, with the group and who recorde
 it('changes a grade, clears another and leaves the grades it did not receive untouched', function (): void {
     registrarNotas([$this->ana->id => [$this->parcial->id => '15', $this->final->id => '14'], $this->luis->id => [$this->parcial->id => '11']]);
 
-    registrarNotas([$this->ana->id => [$this->parcial->id => '16.75', $this->final->id => ' ']]);
+    registrarNotas([$this->ana->id => [$this->parcial->id => '16.75', $this->final->id => ' '], $this->luis->id => [$this->parcial->id => '11.00']]);
 
     expect(notasGuardadas())->toBe([
         [$this->ana->id, $this->parcial->id, '16.75'],
