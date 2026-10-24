@@ -31,6 +31,7 @@ final class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->brandName('CILN - UNASAM')
             ->login()
+            ->strictAuthorization()
             ->colors([
                 'primary' => Color::Blue,
             ])

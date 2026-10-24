@@ -38,4 +38,49 @@ final class PagoPolicy
     {
         return $user->can(PermisoPago::Anular->value);
     }
+
+    public function update(): bool
+    {
+        return false;
+    }
+
+    public function delete(): bool
+    {
+        return false;
+    }
+
+    public function deleteAny(): bool
+    {
+        return false;
+    }
+
+    public function restore(): bool
+    {
+        return false;
+    }
+
+    public function restoreAny(): bool
+    {
+        return false;
+    }
+
+    public function forceDelete(): bool
+    {
+        return false;
+    }
+
+    public function forceDeleteAny(): bool
+    {
+        return false;
+    }
+
+    public function replicate(): bool
+    {
+        return false;
+    }
+
+    public function reorder(): bool
+    {
+        return false;
+    }
 }
