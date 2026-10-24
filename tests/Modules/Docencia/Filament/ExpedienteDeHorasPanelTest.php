@@ -112,3 +112,12 @@ it('notifies an invalid month instead of downloading', function (): void {
         ->assertNotified('Elige un mes y un año válidos.')
         ->assertNoFileDownloaded();
 });
+
+it('notifies instead of downloading the PDF of a teacher without hours in the month', function (mixed $docente): void {
+    $this->actingAs($this->tesorero);
+
+    Livewire::test(ExpedienteDeHorasDocentes::class)
+        ->callAction(TestAction::make('descargarPdf')->arguments(['docente' => $docente === 'sin horas' ? Docente::factory()->create()->id : $docente]))
+        ->assertNotified('El docente no tiene horas dictadas en este mes.')
+        ->assertNoFileDownloaded();
+})->with(['sin horas', null, 'abc']);

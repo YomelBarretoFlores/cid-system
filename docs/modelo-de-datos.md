@@ -54,6 +54,7 @@ erDiagram
 | `doc_clases_dictadas` | Docencia | Clase dictada de un grupo (fecha, horas, docente y quién la registró) | — |
 | `doc_asistencias` | Docencia | Estado de asistencia de cada matrícula en una clase | — |
 | `doc_notas_parciales` | Docencia | Nota parcial de una matrícula en un componente del esquema (pre-acta) | — |
+| `doc_costos_hora` | Docencia | Costo por hora de cada categoría del docente, con vigencia y el costo que cerró | — |
 | `aud_registros` | Shared/Audit | Pista de auditoría inmutable de las tablas críticas | — |
 
 ## Restricciones clave

@@ -8,10 +8,12 @@ use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Docencia\Actions\AsignarDocente;
 use App\Modules\Docencia\Actions\GuardarDisponibilidad;
+use App\Modules\Docencia\Actions\RegistrarCostoPorHora;
 use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
 // A synthetic teacher with a portal account who teaches the demo face-to-face group, so the roster, the load, attendance and the pre-acta can be tried.
@@ -36,6 +38,12 @@ final class DocenciaDemoSeeder extends Seeder
             app(GuardarDisponibilidad::class)($docente->id, $dia, '07:00', '13:00');
         }
 
-        app(AsignarDocente::class)($grupo->id, $docente->id, User::query()->where('email', 'admin@ciln.test')->firstOrFail());
+        $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
+        app(AsignarDocente::class)($grupo->id, $docente->id, $administrador);
+
+        // Fictitious hourly costs per category so the hours report shows amounts.
+        foreach ([[CondicionLaboral::Nombrado, '50.00'], [CondicionLaboral::Contratado, '45.00'], [CondicionLaboral::Tercero, '40.00']] as [$categoria, $costo]) {
+            app(RegistrarCostoPorHora::class)($categoria, $costo, CarbonImmutable::today('America/Lima')->startOfYear(), null, $administrador);
+        }
     }
 }

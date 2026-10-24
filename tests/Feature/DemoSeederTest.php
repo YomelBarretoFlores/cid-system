@@ -7,6 +7,7 @@ use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
 use App\Modules\Docencia\Enums\PermisoDocencia;
+use App\Modules\Docencia\Models\CostoPorHora;
 use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Matricula\Models\Matricula;
@@ -65,6 +66,13 @@ it('seeds a verified portal teacher who has the first demo group', function (): 
         ->and($docente->can(User::ADMIN_PANEL_PERMISSION))->toBeFalse();
 
     $this->actingAs($docente)->get(route('docente.grupos'))->assertOk()->assertSee("Grupo {$grupo->codigo}");
+});
+
+it('seeds a fictitious hourly cost for every teacher category', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    expect(CostoPorHora::query()->whereNull('vigente_hasta')->orderBy('condicion_laboral')->pluck('costo_hora', 'condicion_laboral')->mapWithKeys(fn (string $costo, string $categoria): array => [$categoria => $costo])->all())
+        ->toBe(['contratado' => '45.00', 'nombrado' => '50.00', 'tercero' => '40.00']);
 });
 
 it('refuses to seed demo data in production even when forced', function (): void {

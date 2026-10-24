@@ -52,7 +52,7 @@ final readonly class ExportarExpedientesDeHorasCsv
         ];
     }
 
-    // A leading = + - @ would run as a formula in a spreadsheet (CSV injection); the quote keeps it as text.
+    // A leading = + - @, tab or carriage return would run as a formula in a spreadsheet (CSV injection); the quote keeps it as text.
     private function celdaSegura(string $valor): string
     {
         return preg_match('/^[=+\-@\t\r]/', $valor) === 1 ? "'{$valor}" : $valor;

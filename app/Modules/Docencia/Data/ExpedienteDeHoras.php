@@ -21,19 +21,32 @@ final readonly class ExpedienteDeHoras
         public array $lineas,
     ) {}
 
-    public static function nombreDelMes(int $mes): string
+    /**
+     * @return array<int, string>
+     */
+    public static function meses(): array
     {
-        return self::MESES[$mes];
+        return self::MESES;
+    }
+
+    public static function nombreDelMes(int $mes): ?string
+    {
+        return self::MESES[$mes] ?? null;
+    }
+
+    public static function nombreDeArchivoDelMes(int $anio, int $mes, string $extension): string
+    {
+        return sprintf('expediente-de-horas-%04d-%02d.%s', $anio, $mes, $extension);
     }
 
     public function periodo(): string
     {
-        return self::MESES[$this->mes].' '.$this->anio;
+        return self::nombreDelMes($this->mes).' '.$this->anio;
     }
 
     public function nombreDeArchivo(string $extension): string
     {
-        return sprintf('expediente-de-horas-%04d-%02d-%s.%s', $this->anio, $this->mes, $this->codigo, $extension);
+        return str_replace(".{$extension}", "-{$this->codigo}.{$extension}", self::nombreDeArchivoDelMes($this->anio, $this->mes, $extension));
     }
 
     public function montoTotalCentimos(): int

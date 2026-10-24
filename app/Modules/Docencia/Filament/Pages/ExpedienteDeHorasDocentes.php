@@ -60,7 +60,7 @@ final class ExpedienteDeHorasDocentes extends Page
             ->columns(4)
             ->statePath('data')
             ->components([
-                Select::make('mes')->label('Mes')->options(array_combine(range(1, 12), array_map(ExpedienteDeHoras::nombreDelMes(...), range(1, 12))))->required()->live(),
+                Select::make('mes')->label('Mes')->options(ExpedienteDeHoras::meses())->required()->live(),
                 TextInput::make('anio')->label('Año')->numeric()->minValue(2000)->maxValue(2100)->required()->live(debounce: 500),
             ]);
     }
@@ -82,7 +82,9 @@ final class ExpedienteDeHorasDocentes extends Page
     {
         [$anio, $mes] = $this->mesElegido();
 
-        return $mes >= 1 && $mes <= 12 ? ExpedienteDeHoras::nombreDelMes($mes)." {$anio}" : '';
+        $nombre = ExpedienteDeHoras::nombreDelMes($mes);
+
+        return $nombre === null ? '' : "{$nombre} {$anio}";
     }
 
     public function descargarPdfAction(): Action
@@ -94,8 +96,7 @@ final class ExpedienteDeHorasDocentes extends Page
             ->authorize(fn (): bool => self::canAccess())
             ->action(fn (Action $action, array $arguments): ?PdfBuilder => $this->exportar(
                 $action,
-                fn (): PdfBuilder => app(ExportarExpedienteDeHorasPdf::class)($this->expedientes(is_numeric($arguments['docente'] ?? null) ? (int) $arguments['docente'] : 0)[0]
-                    ?? throw new ReglaDeNegocioIncumplida('El docente no tiene horas dictadas en este mes.')),
+                fn (): PdfBuilder => app(ExportarExpedienteDeHorasPdf::class)($this->expedienteDe($arguments['docente'] ?? null)),
             ));
     }
 
@@ -110,7 +111,7 @@ final class ExpedienteDeHorasDocentes extends Page
                 ->action(fn (Action $action): ?StreamedResponse => $this->exportar($action, function (): StreamedResponse {
                     [$anio, $mes] = $this->mesElegido();
 
-                    return app(ExportarExpedientesDeHorasCsv::class)($this->expedientes(), sprintf('expediente-de-horas-%04d-%02d.csv', $anio, $mes));
+                    return app(ExportarExpedientesDeHorasCsv::class)($this->expedientes(), ExpedienteDeHoras::nombreDeArchivoDelMes($anio, $mes, 'csv'));
                 })),
         ];
     }
@@ -141,8 +142,16 @@ final class ExpedienteDeHorasDocentes extends Page
         [$anio, $mes] = $this->mesElegido();
         $expedientes = app(ConsolidarHorasDictadas::class)($anio, $mes, $docenteId);
 
-        // A teacher picked from the list always has hours; one without them is not offered a PDF.
+        // Teachers without classes in the month are left out of the screen, the PDF and the CSV.
         return array_values(array_filter($expedientes, fn (ExpedienteDeHoras $expediente): bool => $expediente->lineas !== []));
+    }
+
+    private function expedienteDe(mixed $docente): ExpedienteDeHoras
+    {
+        $docenteId = is_numeric($docente) ? (int) $docente : null;
+
+        return ($docenteId === null ? null : ($this->expedientes($docenteId)[0] ?? null))
+            ?? throw new ReglaDeNegocioIncumplida('El docente no tiene horas dictadas en este mes.');
     }
 
     /**
