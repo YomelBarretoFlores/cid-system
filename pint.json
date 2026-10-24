@@ -1,0 +1,12 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "declare_strict_types": true,
+        "final_class": false,
+        "no_superfluous_phpdoc_tags": true
+    },
+    "exclude": [
+        "bootstrap/cache",
+        "storage"
+    ]
+}

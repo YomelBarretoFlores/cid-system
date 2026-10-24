@@ -1,0 +1,16 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/tomasvotruba/cognitive-complexity/config/extension.neon
+
+parameters:
+    level: 8
+    paths:
+        - app
+        - bootstrap/app.php
+        - database
+        - routes
+    excludePaths:
+        - database/migrations/*_create_permission_tables.php
+    cognitive_complexity:
+        class: 40
+        function: 8
