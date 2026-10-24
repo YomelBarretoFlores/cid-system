@@ -34,6 +34,7 @@ it('never edits or deletes a movement', function (Closure $cambio): void {
 })->with([
     'update' => [fn (Movimiento $movimiento) => DB::table('mat_movimientos')->where('id', $movimiento->id)->update(['motivo' => 'Otro motivo'])],
     'delete' => [fn (Movimiento $movimiento) => DB::table('mat_movimientos')->where('id', $movimiento->id)->delete()],
+    'truncate' => [fn () => DB::statement('TRUNCATE mat_movimientos CASCADE')],
 ]);
 
 it('audits enrollments and movements', function (): void {

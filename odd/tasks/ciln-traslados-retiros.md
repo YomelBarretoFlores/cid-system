@@ -36,4 +36,4 @@ Forecast: about 1,300 authored lines in four commits.
 
 - L1 (2026-10-24): "continúa"
 - L2: Map: `mat_movimientos` already exists (tipo traslado/retiro, origen, destino, motivo, autorizado_por, efectuado_en, CHECKs); `mat_matriculas` has a partial unique index on active (persona, grupo); no audit triggers on Matricula tables; groups are cancelled only without active enrollments.
-- L3: T1 inline: RED 5 of 5 → GREEN; movements reject UPDATE and DELETE by trigger but not TRUNCATE, because the concurrency tests truncate the academic offer with CASCADE (recorded in the migration). `composer check` green.
+- L3: T1 inline: RED 5 of 5 → GREEN (babb2f3). Correction per `.claude/rules/database.md`: movements also reject TRUNCATE, except of an empty table, because the concurrency tests truncate the academic offer with CASCADE; so T2 race tests stay at the Academico contract level and create no movements. A full run showed one intermittent failure in `TarifaConcurrenteTest` (duplicate concept code): leftover concepts persist across concurrency runs and the factory had 1,000 codes; factory widened to 100,000.
