@@ -6,13 +6,17 @@ namespace App\Modules\Academico\Models;
 
 use App\Modules\Academico\Database\Factories\GrupoFactory;
 use App\Modules\Academico\Enums\EstadoGrupo;
+use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Policies\OfertaAcademicaPolicy;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property EstadoGrupo $estado
+ * @property Modalidad $modalidad
  * @property-read Periodo $periodo
  * @property-read Ciclo $ciclo
  */
@@ -82,6 +87,21 @@ final class Grupo extends Model
     public function horarios(): HasMany
     {
         return $this->hasMany(Horario::class)->orderBy('dia_semana')->orderBy('hora_inicio');
+    }
+
+    /**
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function abiertosParaMatricula(Builder $query): void
+    {
+        $hoy = CarbonImmutable::today('America/Lima')->toDateString();
+
+        $query->where('estado', EstadoGrupo::Abierto->value)
+            ->whereHas('periodo', fn (Builder $periodo) => $periodo
+                ->where('estado', EstadoPeriodo::MatriculaAbierta->value)
+                ->where('matricula_inicio', '<=', $hoy)
+                ->where('matricula_fin', '>=', $hoy));
     }
 
     /**
