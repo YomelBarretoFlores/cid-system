@@ -10,6 +10,7 @@ use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
+use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +28,7 @@ final readonly class GuardarGrupo
         try {
             return DB::transaction(fn (): Grupo => $this->guardar($datos, $grupoId));
         } catch (UniqueConstraintViolationException $error) {
-            throw str_contains($error->getMessage(), 'aca_grupos_periodo_id_codigo_unique')
+            throw RestriccionUnica::es($error, 'aca_grupos_periodo_id_codigo_unique')
                 ? new ReglaDeNegocioIncumplida("Ya existe un grupo con el código {$datos->codigo} en este periodo.")
                 : $error;
         }
@@ -36,6 +37,10 @@ final readonly class GuardarGrupo
     private function guardar(DatosDeGrupo $datos, ?int $grupoId): Grupo
     {
         $grupo = $grupoId === null ? new Grupo : Grupo::query()->whereKey($grupoId)->lockForUpdate()->firstOrFail();
+
+        if ($grupo->exists && $grupo->estado->esTerminal()) {
+            throw new ReglaDeNegocioIncumplida("El grupo {$grupo->codigo} está {$grupo->estado->etiqueta()} y ya no admite cambios.");
+        }
 
         $this->asegurarCicloDisponible($grupo, $datos);
 
@@ -76,7 +81,7 @@ final readonly class GuardarGrupo
 
     private function asegurarCicloDisponible(Grupo $grupo, DatosDeGrupo $datos): void
     {
-        if ($grupo->exists && $grupo->ciclo_id === $datos->cicloId) {
+        if ($grupo->exists && (int) $grupo->ciclo_id === $datos->cicloId) {
             return;
         }
 

@@ -264,3 +264,33 @@ it('keeps saving an existing group whose classroom was deactivated later', funct
     expect($grupo->refresh()->cupo_maximo)->toBe(20)
         ->and($grupo->aula_id)->toBe($this->aula->id);
 });
+
+it('freezes cancelled and finished groups and their schedules', function (EstadoGrupo $estado): void {
+    $grupo = app(GuardarGrupo::class)(datosDeGrupo());
+    DB::table('aca_grupos')->where('id', $grupo->id)->update(['estado' => $estado->value]);
+
+    expect(fn (): Grupo => app(GuardarGrupo::class)(datosDeGrupo(['cupoMaximo' => 20]), $grupo->id))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'ya no admite cambios')
+        ->and(fn (): Horario => app(GuardarHorario::class)($grupo->id, 1, '08:00', '10:00'))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'ya no admite cambios');
+    expect($grupo->refresh()->cupo_maximo)->toBe(25)
+        ->and(Horario::query()->where('grupo_id', $grupo->id)->exists())->toBeFalse();
+})->with([EstadoGrupo::Cancelado, EstadoGrupo::Finalizado]);
+
+it('refuses renaming a group to a code already used in its period', function (): void {
+    app(GuardarGrupo::class)(datosDeGrupo(['codigo' => 'ING-02']));
+    $grupo = app(GuardarGrupo::class)(datosDeGrupo());
+
+    expect(fn (): Grupo => app(GuardarGrupo::class)(datosDeGrupo(['codigo' => 'ING-02']), $grupo->id))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Ya existe un grupo con el código ING-02 en este periodo.');
+});
+
+it('refuses turning a virtual group face-to-face in a classroom another group uses at that time', function (): void {
+    $ocupante = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'aula_id' => $this->aula->id, 'codigo' => 'FRA-01']);
+    Horario::factory()->for($ocupante)->create(['dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']);
+    $virtual = app(GuardarGrupo::class)(datosDeGrupo(['modalidad' => Modalidad::Virtual, 'aulaId' => null, 'enlaceVirtual' => 'https://meet.example.test/ing']));
+    Horario::factory()->for($virtual)->create(['dia_semana' => 1, 'hora_inicio' => '09:00', 'hora_fin' => '11:00']);
+
+    expect(fn (): Grupo => app(GuardarGrupo::class)(datosDeGrupo(['modalidad' => Modalidad::Presencial]), $virtual->id))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El aula A-101 ya está ocupada por el grupo FRA-01');
+});

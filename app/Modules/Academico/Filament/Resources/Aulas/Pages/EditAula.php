@@ -25,8 +25,8 @@ final class EditAula extends EditRecord
             return app(ActualizarAula::class)($record->getKey(), [
                 'nombre' => $data['nombre'],
                 'capacidad' => (int) $data['capacidad'],
-                'ubicacion' => $data['ubicacion'] ?? null,
-                'activo' => (bool) ($data['activo'] ?? true),
+                'ubicacion' => array_key_exists('ubicacion', $data) ? $data['ubicacion'] : $record->getAttribute('ubicacion'),
+                'activo' => (bool) ($data['activo'] ?? $record->getAttribute('activo')),
             ]);
         } catch (ReglaDeNegocioIncumplida $error) {
             AccionDeNegocio::notificarError($error);

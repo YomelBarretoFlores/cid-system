@@ -36,6 +36,11 @@ enum EstadoGrupo: string
         };
     }
 
+    public function esTerminal(): bool
+    {
+        return $this === self::Cancelado || $this === self::Finalizado;
+    }
+
     public function puedeTransitarA(self $destino): bool
     {
         return in_array($destino, $this->destinosPermitidos(), true);

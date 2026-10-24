@@ -221,3 +221,18 @@ it('hides the state changes from readers', function (): void {
     Livewire::test(ListPeriodos::class)
         ->assertActionHidden(TestAction::make('abrirMatricula')->table($this->periodo));
 });
+
+it('reports a year and number taken by someone else while editing as a form error', function (): void {
+    $this->actingAs($this->gestor);
+    Periodo::updating(function (): void {
+        DB::table('aca_periodos')->insert([
+            'anio' => 2027, 'numero' => 9, 'nombre' => 'Simultáneo',
+            'fecha_inicio' => '2027-09-01', 'fecha_fin' => '2027-09-30', 'matricula_inicio' => '2027-08-20', 'matricula_fin' => '2027-09-05',
+        ]);
+    });
+
+    Livewire::test(EditPeriodo::class, ['record' => $this->periodo->getRouteKey()])
+        ->fillForm(['numero' => 9])
+        ->call('save')
+        ->assertHasFormErrors(['numero' => PeriodoForm::PERIODO_REPETIDO]);
+});

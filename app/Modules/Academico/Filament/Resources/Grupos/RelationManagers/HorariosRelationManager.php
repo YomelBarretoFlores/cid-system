@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Filament\Resources\Grupos\RelationManagers;
 
 use App\Modules\Academico\Actions\GuardarHorario;
+use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Actions\Action;
@@ -36,7 +37,7 @@ final class HorariosRelationManager extends RelationManager
             ])
             ->recordActions([
                 $this->editar(),
-                DeleteAction::make(),
+                DeleteAction::make()->hidden(fn (): bool => $this->grupoCongelado()),
             ]);
     }
 
@@ -46,6 +47,7 @@ final class HorariosRelationManager extends RelationManager
             ->label('Agregar horario')
             ->icon(Heroicon::OutlinedPlus)
             ->authorize('create')
+            ->hidden(fn (): bool => $this->grupoCongelado())
             ->schema($this->campos())
             ->action(fn (Action $action, array $data) => AccionDeNegocio::ejecutar(
                 $action,
@@ -60,6 +62,7 @@ final class HorariosRelationManager extends RelationManager
             ->label('Editar')
             ->icon(Heroicon::OutlinedPencilSquare)
             ->authorize('update')
+            ->hidden(fn (): bool => $this->grupoCongelado())
             ->fillForm(fn (Horario $record): array => $record->only(['dia_semana', 'hora_inicio', 'hora_fin']))
             ->schema($this->campos())
             ->action(fn (Action $action, Horario $record, array $data) => AccionDeNegocio::ejecutar(
@@ -96,5 +99,12 @@ final class HorariosRelationManager extends RelationManager
             TimePicker::make('hora_inicio')->label('Desde')->seconds(false)->timezone($sinZonaHoraria)->required(),
             TimePicker::make('hora_fin')->label('Hasta')->seconds(false)->timezone($sinZonaHoraria)->required(),
         ];
+    }
+
+    private function grupoCongelado(): bool
+    {
+        $grupo = $this->getOwnerRecord();
+
+        return $grupo instanceof Grupo && $grupo->estado->esTerminal();
     }
 }

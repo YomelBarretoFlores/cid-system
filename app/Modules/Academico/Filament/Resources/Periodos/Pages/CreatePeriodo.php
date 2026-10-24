@@ -6,6 +6,7 @@ namespace App\Modules\Academico\Filament\Resources\Periodos\Pages;
 
 use App\Modules\Academico\Filament\Resources\Periodos\PeriodoResource;
 use App\Modules\Academico\Filament\Resources\Periodos\Schemas\PeriodoForm;
+use App\Shared\Support\Database\RestriccionUnica;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -21,7 +22,7 @@ final class CreatePeriodo extends CreateRecord
             return parent::handleRecordCreation($data);
         } catch (UniqueConstraintViolationException $error) {
             // Another administrator created the same year and number after validation ran.
-            throw str_contains($error->getMessage(), 'aca_periodos_anio_numero_unique')
+            throw RestriccionUnica::es($error, 'aca_periodos_anio_numero_unique')
                 ? ValidationException::withMessages(['data.numero' => PeriodoForm::PERIODO_REPETIDO])
                 : $error;
         }

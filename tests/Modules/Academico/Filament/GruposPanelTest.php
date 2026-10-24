@@ -266,3 +266,14 @@ it('edits a group whose classroom was deactivated, keeping that classroom', func
         ->cupo_maximo->toBe(20)
         ->aula_id->toBe($this->aula->id);
 });
+
+it('hides schedule changes on a finished group', function (): void {
+    $horario = Horario::factory()->for($this->grupo)->create(['dia_semana' => 2, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']);
+    DB::table('aca_grupos')->where('id', $this->grupo->id)->update(['estado' => EstadoGrupo::Finalizado->value]);
+    $this->actingAs($this->gestor);
+
+    horariosDe($this->grupo->refresh())
+        ->assertActionHidden(TestAction::make('agregarHorario')->table())
+        ->assertActionHidden(TestAction::make('editarHorario')->table($horario))
+        ->assertActionHidden(TestAction::make('delete')->table($horario));
+});

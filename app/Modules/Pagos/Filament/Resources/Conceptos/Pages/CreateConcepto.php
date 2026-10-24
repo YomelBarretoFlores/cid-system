@@ -6,6 +6,7 @@ namespace App\Modules\Pagos\Filament\Resources\Conceptos\Pages;
 
 use App\Modules\Pagos\Filament\Resources\Conceptos\ConceptoResource;
 use App\Modules\Pagos\Filament\Resources\Conceptos\Schemas\ConceptoForm;
+use App\Shared\Support\Database\RestriccionUnica;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -21,7 +22,7 @@ final class CreateConcepto extends CreateRecord
             return parent::handleRecordCreation($data);
         } catch (UniqueConstraintViolationException $error) {
             // Another administrator created the same code after validation ran.
-            throw str_contains($error->getMessage(), 'pag_conceptos_codigo_unique')
+            throw RestriccionUnica::es($error, 'pag_conceptos_codigo_unique')
                 ? ValidationException::withMessages(['data.codigo' => ConceptoForm::CODIGO_REPETIDO])
                 : $error;
         }

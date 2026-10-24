@@ -57,3 +57,14 @@ it('protects people records with their own permissions and never deletes them', 
         ->toBe([true, true, false])
         ->and(User::factory()->create()->givePermissionTo(PermisoAcademico::valores())->can('view', $persona))->toBeFalse();
 });
+
+it('lets read-only users see schedule lines and only managers change them', function (): void {
+    $horario = Horario::factory()->create();
+    $lector = User::factory()->create()->givePermissionTo(PermisoAcademico::Ver->value);
+    $gestor = User::factory()->create()->givePermissionTo(PermisoAcademico::valores());
+
+    expect([$lector->can('viewAny', Horario::class), $lector->can('view', $horario), $lector->can('create', Horario::class), $lector->can('update', $horario)])
+        ->toBe([true, true, false, false])
+        ->and([$gestor->can('create', Horario::class), $gestor->can('update', $horario)])->toBe([true, true])
+        ->and(User::factory()->create()->can('viewAny', Horario::class))->toBeFalse();
+});

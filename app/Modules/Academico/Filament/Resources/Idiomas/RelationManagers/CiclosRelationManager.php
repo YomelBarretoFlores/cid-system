@@ -6,6 +6,7 @@ namespace App\Modules\Academico\Filament\Resources\Idiomas\RelationManagers;
 
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
+use App\Shared\Support\Database\RestriccionUnica;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -101,7 +102,7 @@ final class CiclosRelationManager extends RelationManager
             return DB::transaction($guardar);
         } catch (UniqueConstraintViolationException $error) {
             // Another coordinator used the same cycle number after validation ran.
-            throw str_contains($error->getMessage(), 'aca_ciclos_idioma_id_numero_unique')
+            throw RestriccionUnica::es($error, 'aca_ciclos_idioma_id_numero_unique')
                 ? ValidationException::withMessages(["mountedActions.{$action->getNestingIndex()}.data.numero" => self::NUMERO_REPETIDO])
                 : $error;
         }

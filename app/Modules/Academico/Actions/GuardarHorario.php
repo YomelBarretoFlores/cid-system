@@ -20,6 +20,11 @@ final readonly class GuardarHorario
 
         return DB::transaction(function () use ($grupoId, $diaSemana, $inicio, $fin, $horarioId): Horario {
             $grupo = Grupo::query()->whereKey($grupoId)->lockForUpdate()->firstOrFail();
+
+            if ($grupo->estado->esTerminal()) {
+                throw new ReglaDeNegocioIncumplida("El grupo {$grupo->codigo} está {$grupo->estado->etiqueta()} y ya no admite cambios.");
+            }
+
             $horario = $horarioId === null
                 ? new Horario(['grupo_id' => $grupo->id])
                 : Horario::query()->where('grupo_id', $grupo->id)->findOrFail($horarioId);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Filament\Resources\Idiomas\Schemas;
 
 use App\Modules\Academico\Models\Idioma;
+use App\Shared\Support\Database\RestriccionUnica;
 use Closure;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -27,11 +28,11 @@ final class IdiomaForm
                     ->label('Código')
                     ->required()
                     ->maxLength(10)
-                    ->rule(fn (?Idioma $record): Closure => function (string $attribute, mixed $value, Closure $fail) use ($record): void {
-                        if (self::codigoEnUso((string) $value, $record)) {
+                    ->rule(fn (): Closure => function (string $attribute, mixed $value, Closure $fail): void {
+                        if (Idioma::query()->where('codigo', Idioma::normalizarCodigo((string) $value))->exists()) {
                             $fail(self::CODIGO_REPETIDO);
                         }
-                    })
+                    }, condition: fn (string $operation): bool => $operation === 'create')
                     ->disabledOn('edit')
                     ->helperText('No cambia después de crear el idioma.'),
                 TextInput::make('nombre')
@@ -51,23 +52,10 @@ final class IdiomaForm
 
     public static function errorDeDuplicado(UniqueConstraintViolationException $error): ValidationException|UniqueConstraintViolationException
     {
-        $mensaje = $error->getMessage();
-
         return match (true) {
-            str_contains($mensaje, 'aca_idiomas_codigo_unique') => ValidationException::withMessages(['data.codigo' => self::CODIGO_REPETIDO]),
-            str_contains($mensaje, 'aca_idiomas_nombre_unique') => ValidationException::withMessages(['data.nombre' => self::NOMBRE_REPETIDO]),
+            RestriccionUnica::es($error, 'aca_idiomas_codigo_unique') => ValidationException::withMessages(['data.codigo' => self::CODIGO_REPETIDO]),
+            RestriccionUnica::es($error, 'aca_idiomas_nombre_unique') => ValidationException::withMessages(['data.nombre' => self::NOMBRE_REPETIDO]),
             default => $error,
         };
-    }
-
-    private static function codigoEnUso(string $codigo, ?Idioma $actual): bool
-    {
-        $consulta = Idioma::query()->where('codigo', Idioma::normalizarCodigo($codigo));
-
-        if ($actual instanceof Idioma) {
-            $consulta->whereKeyNot($actual->getKey());
-        }
-
-        return $consulta->exists();
     }
 }
