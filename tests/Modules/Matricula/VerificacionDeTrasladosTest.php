@@ -24,7 +24,6 @@ use Filament\Actions\Testing\TestAction;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
-use Pest\Mixins\Expectation;
 
 beforeEach(function (): void {
     $this->periodo = Periodo::factory()->conMatriculaAbierta()->create();
@@ -43,9 +42,9 @@ function matricularDeVerdad(int $grupoId): Matricula
 
 function contadoresCoherentes(): void
 {
-    Grupo::query()->get()->each(fn (Grupo $grupo): Expectation => expect($grupo->matriculados)->toBe(
-        Matricula::query()->where(['grupo_id' => $grupo->id, 'estado' => EstadoMatricula::Activa])->count(),
-    ));
+    foreach (Grupo::query()->get() as $grupo) {
+        expect($grupo->matriculados)->toBe(Matricula::query()->where(['grupo_id' => $grupo->id, 'estado' => EstadoMatricula::Activa])->count());
+    }
 }
 
 /**
