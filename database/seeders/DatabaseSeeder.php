@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Modules\Academico\Database\Seeders\AcademicoDemoSeeder;
 use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Matricula\Database\Seeders\MatriculaDemoSeeder;
+use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Pagos\Database\Seeders\PagosDemoSeeder;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Models\Pago;
@@ -28,12 +29,12 @@ final class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Administrador Demo',
             'email' => 'admin@ciln.test',
-        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores()]);
+        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores()]);
 
         User::factory()->create([
             'name' => 'Caja Demo',
             'email' => 'caja@ciln.test',
-        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoPago::Ver->value, PermisoPago::Registrar->value, PermisoPago::Validar->value, ...PermisoPersona::valores()]);
+        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoPago::Ver->value, PermisoPago::Registrar->value, PermisoPago::Validar->value, ...PermisoPersona::valores(), PermisoMatricula::Ver->value]);
 
         $this->call([
             AcademicoDemoSeeder::class,
