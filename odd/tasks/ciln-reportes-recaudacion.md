@@ -18,8 +18,8 @@ Assumptions (to confirm with the CILN):
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S3, D3 | inline | done | see L3 |
-| T2 | S2, S3, D1, D2 | inline | pending | |
+| T1 | S3, D3 | inline | done | de58f9f |
+| T2 | S2, S3, D1, D2 | inline | done | see L4 |
 | T3 | S2, D3 | inline | pending | |
 | T4 | all | inline | pending | |
 
@@ -35,3 +35,4 @@ Forecast: about 900 authored lines in four commits.
 - L1 (2026-10-24): "súbela y únela a main, luego sigue con los reportes"
 - L2: Map: payments link to an enrollment through `mat_matriculas.pago_id` (group → period, cycle → language and level) and to a placement request through `mat_solicitudes_clasificacion.pago_id`; `FuenteConcepto` gives TUPA/TUSNE; bcmath is available; no spreadsheet library installed.
 - L3: T1 inline: RED (dataset references the missing case) → GREEN; `pagos.reportar` by migration, `PagoPolicy::reportar`; the demo administrator already receives every payment permission. `composer check` green.
+- L4: T2 inline: RED 6 of 6 → GREEN; contracts `ContextoAcademicoDePagos` (Matricula: enrollment → period, language, level; placement request → language), `FichasDePersonas` (Personas, batch), `CatalogoDePeriodos` (Academico, for the T3 filter); `FichaDeGrupo` gains `periodoId`. `GenerarReporteDeRecaudacion` sums integer cents parsed from the numeric string (no float, no bcmath), groups by concept (by code) and by language and level ("Sin idioma"/"Sin nivel" last), detail ordered by payment date. `composer check` 753/753.

@@ -8,6 +8,7 @@ use App\Modules\Academico\Actions\DescribirGrupos;
 use App\Modules\Academico\Actions\LiberarVacante;
 use App\Modules\Academico\Actions\ListarCatalogoDeGrupos;
 use App\Modules\Academico\Actions\ListarCatalogoDeIdiomas;
+use App\Modules\Academico\Actions\ListarCatalogoDePeriodos;
 use App\Modules\Academico\Actions\ListarGruposDelCiclo;
 use App\Modules\Academico\Actions\ListarGruposParaTraslado;
 use App\Modules\Academico\Actions\ListarOfertaDeMatricula;
@@ -15,6 +16,7 @@ use App\Modules\Academico\Actions\MoverVacante;
 use App\Modules\Academico\Actions\ReservarVacante;
 use App\Modules\Academico\Contracts\CatalogoDeGrupos;
 use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
+use App\Modules\Academico\Contracts\CatalogoDePeriodos;
 use App\Modules\Academico\Contracts\ConsultaGruposDelCiclo;
 use App\Modules\Academico\Contracts\DetalleDeGrupos;
 use App\Modules\Academico\Contracts\GruposParaTraslado;
@@ -38,6 +40,7 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         LiberacionDeVacante::class => LiberarVacante::class,
         CatalogoDeGrupos::class => ListarCatalogoDeGrupos::class,
         CatalogoDeIdiomas::class => ListarCatalogoDeIdiomas::class,
+        CatalogoDePeriodos::class => ListarCatalogoDePeriodos::class,
         GruposParaTraslado::class => ListarGruposParaTraslado::class,
     ];
 

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
+ * @property FuenteConcepto $fuente
  * @property TipoConcepto $tipo
  */
 #[Table('pag_conceptos')]

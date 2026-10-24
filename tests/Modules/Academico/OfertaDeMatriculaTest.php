@@ -83,6 +83,7 @@ it('describes each offered group with its schedule, classroom and live vacancies
         nivel: 'Básico',
         modalidad: 'Presencial',
         esAcelerado: true,
+        periodoId: $this->periodo->id,
         periodo: '2026-II',
         horarios: ['Lunes de 08:00 a 10:00', 'Miércoles de 18:00 a 20:00'],
         aula: 'A-101 · Laboratorio 1',
