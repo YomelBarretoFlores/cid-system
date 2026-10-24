@@ -7,6 +7,7 @@ namespace App\Modules\Academico\Filament\Resources\Grupos\Tables;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Filament\Resources\Grupos\Actions\AccionesDeGrupo;
+use App\Modules\Academico\Filament\Resources\Grupos\Pages\ListGrupos;
 use App\Modules\Academico\Filament\Resources\Grupos\Schemas\GrupoForm;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
@@ -34,6 +35,7 @@ final class GruposTable
                 TextColumn::make('modalidad')->label('Modalidad')->formatStateUsing(fn (Modalidad $state): string => $state->etiqueta()),
                 IconColumn::make('es_acelerado')->label('Acelerado')->boolean(),
                 TextColumn::make('aula.codigo')->label('Aula')->placeholder('Virtual'),
+                TextColumn::make('docente')->label('Docente')->state(fn (Grupo $record, ListGrupos $livewire): string => $livewire->docenteDelGrupo($record->id)),
                 TextColumn::make('cupo_maximo')->label('Cupo'),
                 TextColumn::make('matriculados')->label('Matriculados'),
                 TextColumn::make('vacantes_disponibles')->label('Vacantes'),

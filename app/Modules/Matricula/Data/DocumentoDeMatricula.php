@@ -22,6 +22,7 @@ final readonly class DocumentoDeMatricula
         public CondicionMatricula $condicion,
         public EstadoMatricula $estado,
         public CarbonImmutable $matriculadoEn,
+        public ?string $docente = null,
     ) {}
 
     // The TdR names a validated payment "Verificado"; any later state, such as a voided payment, is shown as it is.

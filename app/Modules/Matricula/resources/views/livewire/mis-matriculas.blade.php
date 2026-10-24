@@ -23,6 +23,10 @@
 
                         <dl class="grid gap-3 text-sm sm:grid-cols-2">
                             <div class="flex flex-col gap-0.5">
+                                <dt class="font-medium text-slate-800">Docente</dt>
+                                <dd class="text-slate-700">{{ $docentes[$matricula->grupo_id] ?? 'Por asignar' }}</dd>
+                            </div>
+                            <div class="flex flex-col gap-0.5">
                                 <dt class="font-medium text-slate-800">Horario</dt>
                                 @forelse ($grupo->horarios as $horario)
                                     <dd class="text-slate-700">{{ $horario }}</dd>

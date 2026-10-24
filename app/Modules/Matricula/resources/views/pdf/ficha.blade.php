@@ -12,6 +12,7 @@
         <tr><th>Idioma y ciclo</th><td>{{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} ({{ $grupo->nivel }})</td></tr>
         <tr><th>Modalidad</th><td>{{ $grupo->modalidad }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }}</td></tr>
         <tr><th>Periodo</th><td>{{ $grupo->periodo }}</td></tr>
+        <tr><th>Docente</th><td>{{ $documento->docente ?? 'Por asignar' }}</td></tr>
         <tr><th>Horario</th><td>{{ $grupo->horarios === [] ? 'Por confirmar' : implode(' · ', $grupo->horarios) }}</td></tr>
         <tr><th>{{ $grupo->aula !== null || $grupo->enlaceVirtual === null ? 'Aula' : 'Clase virtual' }}</th><td>{{ $grupo->aula ?? $grupo->enlaceVirtual ?? 'Por asignar' }}</td></tr>
         <tr><th>Fecha y hora de matrícula</th><td>{{ $documento->matriculadoEn->format('d/m/Y H:i') }}</td></tr>
