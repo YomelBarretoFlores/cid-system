@@ -46,15 +46,20 @@ it('rejects a pending payment from its page with a reason', function (): void {
         ->motivo_rechazo->toBe('El recibo no es legible.');
 });
 
-it('requires a reason to reject', function (): void {
-    $this->actingAs($this->cajero);
+it('requires a short reason to reject or void', function (string $accion, string $estado, string $motivo, string $regla): void {
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores()]));
+    $pago = $this->{$estado};
 
-    Livewire::test(ViewPago::class, ['record' => $this->pendiente->getRouteKey()])
-        ->callAction('rechazar', data: ['motivo' => ''])
-        ->assertHasFormErrors(['motivo' => 'required']);
+    Livewire::test(ViewPago::class, ['record' => $pago->getRouteKey()])
+        ->callAction($accion, data: ['motivo' => $motivo])
+        ->assertHasFormErrors(['motivo' => $regla]);
 
-    expect($this->pendiente->refresh()->estado)->toBe(EstadoPago::Pendiente);
-});
+    expect($pago->refresh()->estado->value)->toBe($estado === 'pendiente' ? 'pendiente' : 'validado');
+})->with([
+    'reject without reason' => ['rechazar', 'pendiente', '', 'required'],
+    'void without reason' => ['anular', 'validado', '', 'required'],
+    'reason too long' => ['rechazar', 'pendiente', str_repeat('x', 501), 'max'],
+]);
 
 it('offers each action only for the states it can change', function (): void {
     $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores()]));

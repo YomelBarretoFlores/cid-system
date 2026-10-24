@@ -8,10 +8,9 @@ use App\Modules\Pagos\Actions\RegistrarPago;
 use App\Modules\Pagos\Data\RegistroDePago;
 use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
-use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Filament\AccionDeNegocio;
 use Carbon\CarbonImmutable;
-use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
@@ -30,7 +29,6 @@ final class CreatePago extends CreateRecord
      */
     protected function handleRecordCreation(array $data): Model
     {
-        $usuario = auth()->user();
         $registro = new RegistroDePago(
             personaId: (int) $data['persona_id'],
             conceptoId: (int) $data['concepto_id'],
@@ -41,9 +39,9 @@ final class CreatePago extends CreateRecord
         );
 
         try {
-            return app(RegistrarPago::class)($registro, $data['recibo'], $usuario instanceof User ? $usuario : null);
+            return app(RegistrarPago::class)($registro, $data['recibo'], AccionDeNegocio::usuario());
         } catch (ReglaDeNegocioIncumplida $error) {
-            Notification::make()->danger()->title($error->getMessage())->send();
+            AccionDeNegocio::notificarError($error);
 
             throw new Halt($error->getMessage(), $error->getCode(), $error);
         }

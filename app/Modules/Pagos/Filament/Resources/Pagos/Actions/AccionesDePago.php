@@ -28,7 +28,7 @@ final class AccionesDePago
             ->icon(Heroicon::OutlinedArrowDownTray)
             ->color('gray')
             ->authorize('view')
-            ->action(fn (Action $action, Pago $record): StreamedResponse => self::recibo($action, $record));
+            ->action(fn (Action $action, Pago $record): ?StreamedResponse => self::recibo($action, $record));
     }
 
     /**
@@ -82,13 +82,15 @@ final class AccionesDePago
             ));
     }
 
-    private static function recibo(Action $action, Pago $record): StreamedResponse
+    private static function recibo(Action $action, Pago $record): ?StreamedResponse
     {
         $disco = Storage::disk('local');
 
         if (! $disco->exists($record->recibo_path)) {
             Notification::make()->danger()->title('No se encontró el archivo del recibo.')->send();
             $action->halt();
+
+            return null;
         }
 
         $extension = pathinfo($record->recibo_path, PATHINFO_EXTENSION);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
+use App\Modules\Personas\Contracts\SubconsultaDePersonas;
 use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Models\Persona;
 
@@ -37,3 +38,14 @@ it('finds people by the start of their document or any part of their name', func
     'wildcards are literal' => ['%', []],
     'blank' => ['   ', []],
 ]);
+
+it('selects the IDs of every matching person as a subquery, without a limit', function (): void {
+    Persona::factory()->count(60)->create(['apellido_paterno' => 'Quispe']);
+
+    $subconsulta = app(SubconsultaDePersonas::class)('quispe');
+
+    expect($subconsulta->count())->toBe(62)
+        ->and(app(SubconsultaDePersonas::class)('   ')->count())->toBe(0)
+        ->and(app(SubconsultaDePersonas::class)('%')->count())->toBe(0)
+        ->and(app(BusquedaDePersonas::class)('quispe'))->toHaveCount(50);
+});

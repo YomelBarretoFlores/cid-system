@@ -10,8 +10,10 @@ use App\Modules\Personas\Enums\TipoVinculo;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -52,6 +54,19 @@ final class Persona extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function coincideCon(Builder $query, string $termino): void
+    {
+        $termino = addcslashes(trim($termino), '\\%_');
+
+        $query->where(fn (Builder $coincidencia) => $coincidencia
+            ->whereLike('numero_documento', mb_strtoupper($termino).'%', caseSensitive: true)
+            ->orWhereRaw("concat_ws(' ', apellido_paterno, apellido_materno, nombres) ILIKE ?", ["%{$termino}%"]));
     }
 
     /**

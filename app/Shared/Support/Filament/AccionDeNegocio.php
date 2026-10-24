@@ -18,19 +18,27 @@ final class AccionDeNegocio
      */
     public static function ejecutar(Action $action, Closure $operacion, string $exito): void
     {
-        $usuario = auth()->user();
-
-        if (! $usuario instanceof User) {
-            throw new AuthenticationException;
-        }
-
         try {
-            $operacion($usuario);
+            $operacion(self::usuario());
         } catch (ReglaDeNegocioIncumplida $error) {
-            Notification::make()->danger()->title($error->getMessage())->send();
+            self::notificarError($error);
             $action->halt();
+
+            return;
         }
 
         Notification::make()->success()->title($exito)->send();
+    }
+
+    public static function usuario(): User
+    {
+        $usuario = auth()->user();
+
+        return $usuario instanceof User ? $usuario : throw new AuthenticationException;
+    }
+
+    public static function notificarError(ReglaDeNegocioIncumplida $error): void
+    {
+        Notification::make()->danger()->title($error->getMessage())->send();
     }
 }

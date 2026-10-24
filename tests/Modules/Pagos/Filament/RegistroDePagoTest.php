@@ -14,6 +14,7 @@ use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -70,7 +71,8 @@ it('shows a broken business rule and registers nothing', function (): void {
         ->call('create')
         ->assertNotified('No hay una tarifa vigente para este concepto en la fecha de pago.');
 
-    expect(Pago::query()->count())->toBe(0);
+    expect(Pago::query()->count())->toBe(0)
+        ->and(Storage::disk('local')->allFiles('recibos'))->toBe([]);
 });
 
 it('validates the registration form', function (array $cambios, array $errores): void {
@@ -88,6 +90,7 @@ it('validates the registration form', function (array $cambios, array $errores):
     'receipt too large' => [['recibo' => UploadedFile::fake()->create('recibo.pdf', 6000, 'application/pdf')], ['recibo']],
     'future payment date' => [['fecha_pago' => now()->addDay()->toDateString()], ['fecha_pago']],
     'zero amount' => [['monto' => '0'], ['monto']],
+    'operation number too long' => [['numero_operacion' => str_repeat('9', 41)], ['numero_operacion']],
 ]);
 
 it('offers registration only to users with the register permission', function (): void {
@@ -98,4 +101,11 @@ it('offers registration only to users with the register permission', function ()
 
     $this->actingAs($this->cajero);
     Livewire::test(ListPagos::class)->assertActionVisible('create');
+});
+
+it('defaults the payment date to today in Lima, also late in the evening', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-10-24 22:30', 'America/Lima'));
+    $this->actingAs($this->cajero);
+
+    Livewire::test(CreatePago::class)->assertSchemaStateSet(['fecha_pago' => '2026-10-24']);
 });

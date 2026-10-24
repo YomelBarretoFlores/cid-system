@@ -8,7 +8,7 @@ use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Actions\AccionesDePago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ListPagos;
-use App\Modules\Personas\Contracts\BusquedaDePersonas;
+use App\Modules\Personas\Contracts\SubconsultaDePersonas;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
@@ -28,7 +28,7 @@ final class PagosTable
                     ->label('Persona')
                     ->formatStateUsing(fn (int $state, ListPagos $livewire): string => $livewire->etiquetaDePersona($state))
                     ->searchable(query: fn (Builder $query, string $search): Builder => $query
-                        ->whereIn('persona_id', array_keys(app(BusquedaDePersonas::class)($search, limite: null)))),
+                        ->whereIn('persona_id', app(SubconsultaDePersonas::class)($search))),
                 TextColumn::make('concepto.nombre')->label('Concepto'),
                 TextColumn::make('monto')->label('Monto')->money('PEN'),
                 TextColumn::make('medio_pago')->label('Medio')->formatStateUsing(fn (MedioPago $state): string => $state->etiqueta()),

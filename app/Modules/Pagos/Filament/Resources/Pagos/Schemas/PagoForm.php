@@ -8,6 +8,7 @@ use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
+use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -41,7 +42,11 @@ final class PagoForm
                     ->default(MedioPago::CajaPresencial->value)
                     ->required(),
                 TextInput::make('numero_operacion')->label('N.° de recibo u operación')->required()->maxLength(40),
-                DatePicker::make('fecha_pago')->label('Fecha de pago')->required()->maxDate(now())->default(now()),
+                DatePicker::make('fecha_pago')
+                    ->label('Fecha de pago')
+                    ->required()
+                    ->maxDate(fn (): string => CarbonImmutable::today('America/Lima')->toDateString())
+                    ->default(fn (): string => CarbonImmutable::today('America/Lima')->toDateString()),
                 TextInput::make('monto')->label('Monto')->prefix('S/')->numeric()->minValue(0.01)->maxValue(99999999.99)->required(),
                 FileUpload::make('recibo')
                     ->label('Recibo escaneado (JPG, PNG o PDF)')
