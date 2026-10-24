@@ -19,7 +19,7 @@ Assumptions (to confirm with the CILN):
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S2, S3, S4, D1-D3 | inline | done | see L3 |
+| T1 | S2, S3, S4, D1-D3 | inline | done | ffcdea9 |
 | T2 | all | inline | done | see L3 |
 
 - T1: Contracts `FichaDePersona` (Personas) and `ConsultaDePago` (Pagos); Action `ComponerDocumentoDeMatricula` (Matricula); PDF templates for the ficha and the constancia; owner-only routes `estudiante.matriculas.ficha` and `estudiante.matriculas.constancia`; download links in "Mis matrículas". Risk: item 2 (record-level access).
@@ -32,3 +32,4 @@ Forecast: about 600 authored lines in two commits.
 - L1 (2026-10-24): "Bien, sigue entonces."
 - L2: Map: spatie/laravel-pdf 2.14 with DOMPDF (`PdfGenerationTest`), `Pdf::fake()` and `assertRespondedWithPdf`; `FichaDeGrupo` from `DetalleDeGrupos`; `Matricula` route key `ulid`; no teacher assignment yet.
 - L3: T1 inline: RED 10 of 10 (routes missing) → GREEN 10/10; owner-lookup mutation (drop `persona_id`) killed by 2 tests; templates checked visually (A4, tables, DejaVu Sans); real DOMPDF render tested for both documents; `BuscarMatriculaDelEstudiante` answers 404 for another student's enrollment; error flash added to the portal layout. T2: docs (`modulos.md`, decisiones-pendientes rows 29-30). `composer check` 610/610, phpstan 0.
+- L4: Independent verifier (item 2) over 4c7b4fc..ffcdea9: S1-S4 and D1-D3 met, no blockers; 23 probes committed as regression tests (other student's ULID, numeric id and changed-case ULID 404, unverified and guest blocked on both routes, withdrawn enrollment, no payment, pending/voided labels, virtual group, Lima date boundary, escaped names, snapshot replay); `/estudiante/matriculas` output unchanged except the new links. Advisory for the CILN: the ficha prints the identity document as "ID Estudiante" (no student code exists).
