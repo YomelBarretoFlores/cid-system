@@ -11,6 +11,16 @@ parameters:
         - routes
     excludePaths:
         - database/migrations/*_create_permission_tables.php
+    databaseMigrationsPath:
+        - database/migrations
+        - app/Modules/Academico/Database/Migrations
+        - app/Modules/Personas/Database/Migrations
+        - app/Modules/Matricula/Database/Migrations
+        - app/Modules/Pagos/Database/Migrations
+        - app/Modules/Docencia/Database/Migrations
+        - app/Modules/Certificacion/Database/Migrations
+        - app/Modules/Tablero/Database/Migrations
+        - app/Modules/Tramites/Database/Migrations
     cognitive_complexity:
         class: 40
         function: 8
