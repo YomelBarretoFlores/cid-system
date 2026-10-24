@@ -35,6 +35,10 @@ final readonly class MoverVacante implements TrasladoDeVacante
 
     private function asegurarDestino(Grupo $origen, Grupo $destino): void
     {
+        if ($origen->estado->esTerminal()) {
+            throw new ReglaDeNegocioIncumplida("El grupo {$origen->codigo} está {$origen->estado->etiqueta()} y ya no admite traslados.");
+        }
+
         if ($origen->periodo_id !== $destino->periodo_id || $origen->ciclo_id !== $destino->ciclo_id) {
             throw new ReglaDeNegocioIncumplida('El grupo destino debe ser del mismo periodo y ciclo.');
         }

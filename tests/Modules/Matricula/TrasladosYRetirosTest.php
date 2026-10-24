@@ -83,6 +83,7 @@ it('refuses a transfer that breaks a rule and changes nothing', function (Closur
     'another period' => [fn ($t) => Grupo::factory()->for($t->ciclo)->create()->id, 'El grupo destino debe ser del mismo periodo y ciclo.'],
     'scheduled destination' => [fn ($t) => tap($t->destino)->update(['estado' => EstadoGrupo::Programado])->id, 'El grupo ING-I-B está Programado y no recibe traslados.'],
     'cancelled destination' => [fn ($t) => tap($t->destino)->update(['estado' => EstadoGrupo::Cancelado])->id, 'El grupo ING-I-B está Cancelado y no recibe traslados.'],
+    'finished origin' => [fn ($t) => tap($t->destino, fn () => $t->origen->update(['estado' => EstadoGrupo::Finalizado]))->id, 'El grupo ING-I-A está Finalizado y ya no admite traslados.'],
     'full destination' => [fn ($t) => tap($t->destino)->update(['cupo_maximo' => 5, 'cupo_minimo' => 1])->id, 'El grupo ING-I-B no tiene vacantes disponibles.'],
     'withdrawn enrollment' => [fn ($t) => tap($t->destino, fn () => $t->matricula->update(['estado' => EstadoMatricula::Retirada, 'retirado_en' => now()]))->id, 'Solo se puede trasladar o retirar una matrícula activa.'],
 ]);
