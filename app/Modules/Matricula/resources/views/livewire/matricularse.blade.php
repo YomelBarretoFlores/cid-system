@@ -9,7 +9,7 @@
     @enderror
 
     <form wire:submit="matricularme" class="flex flex-col gap-8" novalidate>
-        <section wire:poll.15s aria-labelledby="titulo-oferta" class="flex flex-col gap-4">
+        <section wire:poll.15s.visible aria-labelledby="titulo-oferta" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
                 <h2 id="titulo-oferta" class="text-lg font-semibold text-ciln-900">Grupos disponibles</h2>
                 <p class="text-xs text-slate-600">Las vacantes se actualizan automáticamente cada 15 segundos.</p>
