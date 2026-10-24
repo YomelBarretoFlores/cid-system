@@ -7,6 +7,7 @@ namespace App\Modules\Pagos\Models;
 use App\Modules\Pagos\Database\Factories\TarifaFactory;
 use App\Modules\Pagos\Policies\TarifaPolicy;
 use App\Modules\Personas\Enums\TipoVinculo;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -18,6 +19,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property CarbonImmutable $vigente_desde
+ * @property CarbonImmutable|null $vigente_hasta
+ */
 #[Table('pag_tarifas')]
 #[Fillable(['concepto_id', 'tipo_vinculo', 'monto', 'vigente_desde', 'vigente_hasta'])]
 #[UseFactory(TarifaFactory::class)]
