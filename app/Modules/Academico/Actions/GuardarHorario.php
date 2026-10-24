@@ -8,8 +8,8 @@ use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Modules\Docencia\Contracts\VerificacionDeCargaDocente;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class GuardarHorario
 {
@@ -21,7 +21,7 @@ final readonly class GuardarHorario
         $fin = self::normalizarHora($horaFin);
         $this->asegurarFranjaValida($diaSemana, $inicio, $fin);
 
-        return DB::transaction(function () use ($grupoId, $diaSemana, $inicio, $fin, $horarioId): Horario {
+        return Transaccion::ejecutar(function () use ($grupoId, $diaSemana, $inicio, $fin, $horarioId): Horario {
             $grupo = Grupo::query()->whereKey($grupoId)->lockForUpdate()->firstOrFail();
 
             if ($grupo->estado->esTerminal()) {

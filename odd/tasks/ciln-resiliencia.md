@@ -20,7 +20,7 @@ Assumptions (technical defaults, configurable by env vars, documented in `docs/d
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S3, D1 | inline | pending | |
+| T1 | S3, D1 | inline | done | ecdf075, b6b80cd, d64d12a |
 | T2 | S2, S3, D2 | inline | pending | |
 | T3 | S2, S3, S4, D3 | inline | pending | |
 | T4 | S2, S3, S4, D4 | inline | pending | |
@@ -38,3 +38,5 @@ Forecast: about 900 authored lines in five commits.
 
 - L1 (2026-10-24): "Hazlo ahora, antes de seguir con la asistencia y las pre-actas" (after "Sobre resilentia, atomicidad, transacciones, race tracing, índices en BD, etc [...]").
 - L2: Map: 34 `DB::transaction` calls (Actions, three Filament pages, one concern, one seeder); Laravel's `attempts` argument already retries `deadlock detected` and SQLSTATE 40001 but not PostgreSQL's lock timeout (55P03) or statement timeout (57014). `RegistrarPago` stores the receipt before its transaction and deletes it on failure, so a retry repeats no file work. The PostgreSQL connector has no option for session settings, so they are set on `ConnectionEstablished`. Audit context is set per request with `set_config` in `EstablecerContextoAuditoria`; no request ID and no business logging exist.
+- L3: T1 inline: RED 2/2 → GREEN. First version set the limits on `ConnectionEstablished` (ecdf075); review-300d6c77bd41b6f9 approved with warnings (lost on reconnect, read PDO only, three round trips, migrations capped, typo breaks every connection). b6b80cd moved the limits into the DSN `options` through a custom `db.connector.pgsql` (`ConectorPostgres`): survives reconnects, covers read and write PDOs, no extra round trip; review-8ac15f5075f94e21 approved with warnings (console exemption too broad, malformed value failed open, units, PgBouncer). d64d12a: only `migrate*`, `db:seed`, `schema:dump` lift the statement cap; malformed values fall back to the safe default and are logged once per process; all PostgreSQL units; docs/despliegue.md "Límites de sesión" with the pooler note. review-2bf97bda45b012e9 approved and acknowledged. `composer check` 887/887.
+- L4: Follow-ups from the d64d12a review, to do in T5: detect the command name after global options (`artisan --env=x migrate`) instead of `argv[1]`; reset the once-per-process log flag between tests; derive the malformed-value fallback from the configured defaults; document that a migration started through a nested `Artisan::call` or a long queued job keeps the 30 s cap and can lift it with `SET LOCAL statement_timeout = 0` inside its transaction. Accepted on purpose: queue workers and the scheduler keep the 30 s cap (no long job exists yet).

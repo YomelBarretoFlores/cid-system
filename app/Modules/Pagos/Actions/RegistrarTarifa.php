@@ -7,8 +7,8 @@ namespace App\Modules\Pagos\Actions;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
+use App\Shared\Support\Database\Transaccion;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\DB;
 
 final readonly class RegistrarTarifa
 {
@@ -16,7 +16,7 @@ final readonly class RegistrarTarifa
 
     public function __invoke(int $conceptoId, TipoVinculo $vinculo, string $monto, CarbonImmutable $desde, ?CarbonImmutable $hasta = null): Tarifa
     {
-        return DB::transaction(function () use ($conceptoId, $vinculo, $monto, $desde, $hasta): Tarifa {
+        return Transaccion::ejecutar(function () use ($conceptoId, $vinculo, $monto, $desde, $hasta): Tarifa {
             // Locking the concept serializes fee changes for it.
             Concepto::query()->whereKey($conceptoId)->lockForUpdate()->firstOrFail();
 

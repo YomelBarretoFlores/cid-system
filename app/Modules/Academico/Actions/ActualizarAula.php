@@ -7,8 +7,8 @@ namespace App\Modules\Academico\Actions;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Grupo;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class ActualizarAula
 {
@@ -17,7 +17,7 @@ final readonly class ActualizarAula
      */
     public function __invoke(int $aulaId, array $datos): Aula
     {
-        return DB::transaction(function () use ($aulaId, $datos): Aula {
+        return Transaccion::ejecutar(function () use ($aulaId, $datos): Aula {
             // Same lock GuardarGrupo takes on the classroom, so a quota change cannot slip past a capacity cut.
             $aula = Aula::query()->whereKey($aulaId)->lockForUpdate()->firstOrFail();
 

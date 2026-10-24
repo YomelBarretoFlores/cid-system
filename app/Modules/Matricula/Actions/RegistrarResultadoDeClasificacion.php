@@ -13,9 +13,9 @@ use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Matricula\Support\MovimientoDeMatricula;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\DB;
 
 final readonly class RegistrarResultadoDeClasificacion
 {
@@ -28,7 +28,7 @@ final readonly class RegistrarResultadoDeClasificacion
         }
 
         // Person first, like enrollment, so the enabled cycle never changes under an enrollment in progress.
-        return DB::transaction(function () use ($solicitudId, $resultado, $evaluador): SolicitudClasificacion {
+        return Transaccion::ejecutar(function () use ($solicitudId, $resultado, $evaluador): SolicitudClasificacion {
             MovimientoDeMatricula::bloquearPersona((int) SolicitudClasificacion::query()->whereKey($solicitudId)->value('persona_id'));
             $solicitud = SolicitudClasificacion::query()->whereKey($solicitudId)->lockForUpdate()->firstOrFail();
 

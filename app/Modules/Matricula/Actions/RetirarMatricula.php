@@ -11,7 +11,7 @@ use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Matricula\Models\Movimiento;
 use App\Modules\Matricula\Support\MovimientoDeMatricula;
 use App\Shared\Auth\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Shared\Support\Database\Transaccion;
 
 final readonly class RetirarMatricula
 {
@@ -21,7 +21,7 @@ final readonly class RetirarMatricula
     {
         $motivo = MovimientoDeMatricula::motivo($motivo);
 
-        return DB::transaction(function () use ($matriculaId, $motivo, $autorizadoPor): Matricula {
+        return Transaccion::ejecutar(function () use ($matriculaId, $motivo, $autorizadoPor): Matricula {
             $matricula = MovimientoDeMatricula::bloquearMatriculaActiva($matriculaId);
 
             ($this->liberacionDeVacante)($matricula->grupo_id);

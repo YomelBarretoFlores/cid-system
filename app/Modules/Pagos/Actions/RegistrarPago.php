@@ -10,12 +10,12 @@ use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use finfo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
@@ -41,7 +41,7 @@ final readonly class RegistrarPago
 
         try {
             // The savepoint keeps a caller's transaction usable after a duplicate number.
-            return DB::transaction(fn (): Pago => Pago::query()->create([
+            return Transaccion::ejecutar(fn (): Pago => Pago::query()->create([
                 'persona_id' => $registro->personaId,
                 'concepto_id' => $registro->conceptoId,
                 // Locks concept, then fee (the order RegistrarTarifa uses), waiting for any fee change in progress.

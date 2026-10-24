@@ -6,14 +6,14 @@ namespace App\Modules\Academico\Actions;
 
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Models\Grupo;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class CambiarEstadoGrupo
 {
     public function __invoke(int $grupoId, EstadoGrupo $destino): Grupo
     {
-        return DB::transaction(function () use ($grupoId, $destino): Grupo {
+        return Transaccion::ejecutar(function () use ($grupoId, $destino): Grupo {
             $grupo = Grupo::query()->whereKey($grupoId)->lockForUpdate()->firstOrFail();
 
             if ($grupo->estado === $destino) {

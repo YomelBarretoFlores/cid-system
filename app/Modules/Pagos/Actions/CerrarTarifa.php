@@ -6,10 +6,10 @@ namespace App\Modules\Pagos\Actions;
 
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\DB;
 
 final readonly class CerrarTarifa
 {
@@ -19,7 +19,7 @@ final readonly class CerrarTarifa
 
     public function __invoke(int $tarifaId, CarbonImmutable $hasta): Tarifa
     {
-        return DB::transaction(function () use ($tarifaId, $hasta): Tarifa {
+        return Transaccion::ejecutar(function () use ($tarifaId, $hasta): Tarifa {
             $tarifa = Tarifa::query()->whereKey($tarifaId)->lockForUpdate()->firstOrFail();
 
             if ($tarifa->vigente_hasta?->isSameDay($hasta)) {

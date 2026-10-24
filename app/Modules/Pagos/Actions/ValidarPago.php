@@ -8,13 +8,13 @@ use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Events\PagoValidado;
 use App\Modules\Pagos\Models\Pago;
 use App\Shared\Auth\Models\User;
-use Illuminate\Support\Facades\DB;
+use App\Shared\Support\Database\Transaccion;
 
 final readonly class ValidarPago
 {
     public function __invoke(int $pagoId, User $validador): Pago
     {
-        return DB::transaction(function () use ($pagoId, $validador): Pago {
+        return Transaccion::ejecutar(function () use ($pagoId, $validador): Pago {
             $pago = Pago::query()->whereKey($pagoId)->lockForUpdate()->firstOrFail();
 
             if ($pago->estado === EstadoPago::Validado) {

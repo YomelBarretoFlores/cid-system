@@ -11,9 +11,9 @@ use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Shared\Support\Database\RestriccionUnica;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Database\UniqueConstraintViolationException;
-use Illuminate\Support\Facades\DB;
 
 final readonly class GuardarGrupo
 {
@@ -26,7 +26,7 @@ final readonly class GuardarGrupo
         }
 
         try {
-            return DB::transaction(fn (): Grupo => $this->guardar($datos, $grupoId));
+            return Transaccion::ejecutar(fn (): Grupo => $this->guardar($datos, $grupoId));
         } catch (UniqueConstraintViolationException $error) {
             throw RestriccionUnica::es($error, 'aca_grupos_periodo_id_codigo_unique')
                 ? new ReglaDeNegocioIncumplida("Ya existe un grupo con el código {$datos->codigo} en este periodo.")

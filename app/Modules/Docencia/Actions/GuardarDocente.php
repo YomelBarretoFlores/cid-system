@@ -12,9 +12,9 @@ use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Support\ReglasDeCargaDocente;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use App\Shared\Support\Database\RestriccionUnica;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Database\UniqueConstraintViolationException;
-use Illuminate\Support\Facades\DB;
 
 final readonly class GuardarDocente
 {
@@ -38,7 +38,7 @@ final readonly class GuardarDocente
         $this->asegurarIdiomas($datos->idiomas);
 
         try {
-            return DB::transaction(fn (): Docente => $this->guardar($datos, $correo, $cuenta, $docenteId));
+            return Transaccion::ejecutar(fn (): Docente => $this->guardar($datos, $correo, $cuenta, $docenteId));
         } catch (UniqueConstraintViolationException $error) {
             throw $this->traducir($error, $datos, $correo);
         }

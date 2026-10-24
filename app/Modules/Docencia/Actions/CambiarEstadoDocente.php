@@ -7,8 +7,8 @@ namespace App\Modules\Docencia\Actions;
 use App\Modules\Docencia\Enums\EstadoDocente;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Support\ReglasDeCargaDocente;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class CambiarEstadoDocente
 {
@@ -16,7 +16,7 @@ final readonly class CambiarEstadoDocente
 
     public function __invoke(int $docenteId, EstadoDocente $estado): Docente
     {
-        return DB::transaction(function () use ($docenteId, $estado): Docente {
+        return Transaccion::ejecutar(function () use ($docenteId, $estado): Docente {
             $docente = Docente::query()->whereKey($docenteId)->lockForUpdate()->firstOrFail();
 
             if ($docente->estado === $estado) {

@@ -11,9 +11,9 @@ use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Matricula\Support\MovimientoDeMatricula;
 use App\Modules\Pagos\Contracts\VerificacionDePago;
 use App\Modules\Pagos\Enums\TipoConcepto;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\DB;
 
 final readonly class SolicitarExamenDeClasificacion
 {
@@ -29,7 +29,7 @@ final readonly class SolicitarExamenDeClasificacion
         $idioma = $this->idiomaDisponible($idiomaId);
 
         // Same order as enrollment: person, then payment.
-        return DB::transaction(function () use ($personaId, $idioma, $pagoId): SolicitudClasificacion {
+        return Transaccion::ejecutar(function () use ($personaId, $idioma, $pagoId): SolicitudClasificacion {
             MovimientoDeMatricula::bloquearPersona($personaId);
             ($this->verificacionDePago)($pagoId, $personaId, TipoConcepto::ExamenClasificacion);
 

@@ -6,13 +6,13 @@ namespace App\Modules\Academico\Actions;
 
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Models\Periodo;
-use Illuminate\Support\Facades\DB;
+use App\Shared\Support\Database\Transaccion;
 
 final readonly class CambiarEstadoPeriodo
 {
     public function __invoke(int $periodoId, EstadoPeriodo $destino): Periodo
     {
-        return DB::transaction(function () use ($periodoId, $destino): Periodo {
+        return Transaccion::ejecutar(function () use ($periodoId, $destino): Periodo {
             $periodo = Periodo::query()->whereKey($periodoId)->lockForUpdate()->firstOrFail();
 
             if ($periodo->estado === $destino) {

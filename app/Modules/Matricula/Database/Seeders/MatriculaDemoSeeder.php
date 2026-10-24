@@ -7,6 +7,7 @@ namespace App\Modules\Matricula\Database\Seeders;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
+use App\Shared\Support\Database\Transaccion;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +18,7 @@ final class MatriculaDemoSeeder extends Seeder
         $grupo = Grupo::query()->orderBy('id')->firstOrFail();
         $personas = Persona::query()->orderBy('id')->limit(10)->get();
 
-        DB::transaction(function () use ($grupo, $personas): void {
+        Transaccion::ejecutar(function () use ($grupo, $personas): void {
             $personas->each(fn (Persona $persona): Matricula => Matricula::factory()->create([
                 'persona_id' => $persona->id,
                 'grupo_id' => $grupo->id,

@@ -9,8 +9,8 @@ use App\Modules\Docencia\Models\CargaAcademica;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Support\ReglasDeCargaDocente;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class AsignarDocente
 {
@@ -21,7 +21,7 @@ final readonly class AsignarDocente
 
     public function __invoke(int $grupoId, int $docenteId, User $usuario): CargaAcademica
     {
-        return DB::transaction(function () use ($grupoId, $docenteId, $usuario): CargaAcademica {
+        return Transaccion::ejecutar(function () use ($grupoId, $docenteId, $usuario): CargaAcademica {
             // Lock order shared with schedule changes: group row first, then the teacher row.
             $grupo = ($this->bloqueoDeGrupo)($grupoId);
 

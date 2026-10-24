@@ -9,14 +9,14 @@ use App\Modules\Pagos\Data\PagoData;
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Pago;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class VerificarPagoParaServicio implements VerificacionDePago
 {
     public function __invoke(int $pagoId, int $personaId, TipoConcepto $servicio): PagoData
     {
-        return DB::transaction(function () use ($pagoId, $personaId, $servicio): PagoData {
+        return Transaccion::ejecutar(function () use ($pagoId, $personaId, $servicio): PagoData {
             $pago = Pago::query()->with('concepto')->whereKey($pagoId)->lockForUpdate()->firstOrFail();
 
             $error = match (true) {

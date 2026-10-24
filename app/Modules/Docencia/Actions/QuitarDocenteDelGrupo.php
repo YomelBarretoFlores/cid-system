@@ -6,8 +6,8 @@ namespace App\Modules\Docencia\Actions;
 
 use App\Modules\Academico\Contracts\BloqueoDeGrupo;
 use App\Modules\Docencia\Models\CargaAcademica;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class QuitarDocenteDelGrupo
 {
@@ -15,7 +15,7 @@ final readonly class QuitarDocenteDelGrupo
 
     public function __invoke(int $grupoId, ?int $docenteId = null): void
     {
-        DB::transaction(function () use ($grupoId, $docenteId): void {
+        Transaccion::ejecutar(function () use ($grupoId, $docenteId): void {
             $grupo = ($this->bloqueoDeGrupo)($grupoId);
 
             if ($grupo->estado->esTerminal()) {

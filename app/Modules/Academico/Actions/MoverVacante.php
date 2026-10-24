@@ -6,8 +6,8 @@ namespace App\Modules\Academico\Actions;
 
 use App\Modules\Academico\Contracts\TrasladoDeVacante;
 use App\Modules\Academico\Models\Grupo;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class MoverVacante implements TrasladoDeVacante
 {
@@ -17,7 +17,7 @@ final readonly class MoverVacante implements TrasladoDeVacante
             throw new ReglaDeNegocioIncumplida('El grupo destino debe ser distinto del grupo actual.');
         }
 
-        DB::transaction(function () use ($grupoOrigenId, $grupoDestinoId): void {
+        Transaccion::ejecutar(function () use ($grupoOrigenId, $grupoDestinoId): void {
             // Ascending id order, so two transfers in opposite directions cannot deadlock.
             $grupos = Grupo::query()->whereKey([$grupoOrigenId, $grupoDestinoId])->orderBy('id')->lockForUpdate()->get()->keyBy('id');
             $origen = $grupos->get($grupoOrigenId) ?? throw new ReglaDeNegocioIncumplida('El grupo actual no existe.');

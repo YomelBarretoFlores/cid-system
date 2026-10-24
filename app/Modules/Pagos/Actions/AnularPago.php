@@ -8,8 +8,8 @@ use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Events\PagoAnulado;
 use App\Modules\Pagos\Models\Pago;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class AnularPago
 {
@@ -21,7 +21,7 @@ final readonly class AnularPago
             throw new ReglaDeNegocioIncumplida('Indique el motivo de la anulación.');
         }
 
-        return DB::transaction(function () use ($pagoId, $usuario, $motivo): Pago {
+        return Transaccion::ejecutar(function () use ($pagoId, $usuario, $motivo): Pago {
             $pago = Pago::query()->whereKey($pagoId)->lockForUpdate()->firstOrFail();
 
             if ($pago->estado === EstadoPago::Anulado) {

@@ -7,8 +7,8 @@ namespace App\Modules\Docencia\Actions;
 use App\Modules\Docencia\Models\Disponibilidad;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Support\ReglasDeCargaDocente;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
-use Illuminate\Support\Facades\DB;
 
 final readonly class GuardarDisponibilidad
 {
@@ -20,7 +20,7 @@ final readonly class GuardarDisponibilidad
         $fin = self::normalizarHora($horaFin);
         $this->asegurarFranjaValida($diaSemana, $inicio, $fin);
 
-        return DB::transaction(function () use ($docenteId, $diaSemana, $inicio, $fin, $disponibilidadId): Disponibilidad {
+        return Transaccion::ejecutar(function () use ($docenteId, $diaSemana, $inicio, $fin, $disponibilidadId): Disponibilidad {
             $docente = Docente::query()->whereKey($docenteId)->lockForUpdate()->firstOrFail();
             $franja = $disponibilidadId === null
                 ? new Disponibilidad(['docente_id' => $docente->id])

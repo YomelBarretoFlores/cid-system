@@ -9,10 +9,10 @@ use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\RestriccionUnica;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\UniqueConstraintViolationException;
-use Illuminate\Support\Facades\DB;
 
 final readonly class RegistrarCuentaDeEstudiante
 {
@@ -24,7 +24,7 @@ final readonly class RegistrarCuentaDeEstudiante
     public function __invoke(SolicitudDeCuenta $solicitud): User
     {
         try {
-            $user = DB::transaction(fn (): User => $this->registrar($solicitud));
+            $user = Transaccion::ejecutar(fn (): User => $this->registrar($solicitud));
         } catch (UniqueConstraintViolationException $error) {
             throw $this->traducirDuplicado($error);
         }

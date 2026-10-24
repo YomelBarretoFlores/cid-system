@@ -7,6 +7,7 @@ namespace App\Modules\Academico\Filament\Resources\Idiomas\RelationManagers;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
 use App\Shared\Support\Database\RestriccionUnica;
+use App\Shared\Support\Database\Transaccion;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -20,7 +21,6 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\UniqueConstraintViolationException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Unique;
 use Illuminate\Validation\ValidationException;
 
@@ -99,7 +99,7 @@ final class CiclosRelationManager extends RelationManager
     {
         try {
             // The savepoint keeps the connection usable after a unique violation inside an outer transaction.
-            return DB::transaction($guardar);
+            return Transaccion::ejecutar($guardar);
         } catch (UniqueConstraintViolationException $error) {
             // Another coordinator used the same cycle number after validation ran.
             throw RestriccionUnica::es($error, 'aca_ciclos_idioma_id_numero_unique')
