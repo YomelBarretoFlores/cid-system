@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Table('mat_matriculas')]
 #[RouteKey('ulid')]
-#[Fillable(['persona_id', 'grupo_id', 'condicion', 'estado', 'matriculado_en', 'retirado_en'])]
+#[Fillable(['persona_id', 'grupo_id', 'pago_id', 'condicion', 'estado', 'matriculado_en', 'retirado_en'])]
 #[UseFactory(MatriculaFactory::class)]
 final class Matricula extends Model
 {

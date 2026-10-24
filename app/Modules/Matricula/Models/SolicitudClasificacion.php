@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Table('mat_solicitudes_clasificacion')]
 #[RouteKey('ulid')]
 #[Fillable([
-    'persona_id', 'idioma_id', 'estado', 'vence_en', 'fecha_examen', 'puntaje',
+    'persona_id', 'idioma_id', 'pago_id', 'estado', 'vence_en', 'fecha_examen', 'puntaje',
     'ciclo_asignado_id', 'evaluado_por', 'evaluado_en', 'observaciones',
 ])]
 #[UseFactory(SolicitudClasificacionFactory::class)]
