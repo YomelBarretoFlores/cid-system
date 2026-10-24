@@ -10,9 +10,9 @@ El sistema concentra operaciones concurrentes (matrícula de la última vacante,
 
 | Tema | Decisión |
 |---|---|
-| Límites de sesión | Cada conexión a PostgreSQL abre con `lock_timeout` 5 s, `statement_timeout` 30 s e `idle_in_transaction_session_timeout` 60 s, enviados en la cadena de conexión por un conector propio (`ConectorPostgres`). Las migraciones y los seeders no tienen límite de sentencia |
+| Límites de sesión | Cada conexión a PostgreSQL abre con `lock_timeout` 5 s, `statement_timeout` 30 s e `idle_in_transaction_session_timeout` 60 s, enviados en la cadena de conexión por un conector propio (`ConectorPostgres`) mediante `server_options` de Laravel (un valor explícito en `server_options` prevalece). Las migraciones y los seeders no tienen límite de sentencia |
 | Transacciones | Toda transacción de la aplicación pasa por `Transaccion::ejecutar`: reintenta hasta 3 veces un deadlock o un fallo de serialización (solo la transacción externa) y convierte una espera de bloqueo o una sentencia cancelada en un mensaje de negocio. Las páginas del panel que modifican un registro ya cargado no reintentan |
-| Trazabilidad | Cada solicitud HTTP recibe un ULID generado por el servidor, devuelto en `X-Request-Id`, añadido a cada línea de log y guardado en `aud_registros.solicitud_id`. El ID que envíe un proxy solo se conserva en los logs como `solicitud_origen` |
+| Trazabilidad | Cada solicitud HTTP (web, API y panel) recibe un ULID generado por el servidor, devuelto en `X-Request-Id`, añadido a cada línea de log y guardado en `aud_registros.solicitud_id`. El ID que envíe un proxy solo se conserva en los logs como `solicitud_origen` |
 | Logs | Los rechazos de negocio, reintentos y esperas agotadas se registran sin datos personales (se enmascaran números de 8 o más dígitos y correos) |
 | Índices | Una prueba falla si una llave foránea no tiene un índice completo que empiece por su primera columna. Las búsquedas por muchos IDs incrustan los enteros (`whereIntegerInRaw`) y no superan el límite de 65 535 parámetros |
 
@@ -30,4 +30,5 @@ El sistema concentra operaciones concurrentes (matrícula de la última vacante,
 - Un usuario que choca con otra operación ve "Otra operación está modificando estos datos en este momento. Inténtalo de nuevo en unos segundos." en lugar de un error técnico.
 - Las tareas en cola y programadas mantienen el límite de 30 s; una tarea larga debe usar `SET LOCAL statement_timeout = 0` dentro de su transacción.
 - Con PgBouncer en modo transacción, los límites se fijan en el rol de PostgreSQL (`docs/despliegue.md`).
+- Las acciones propias de Filament que no pasan por `Transaccion` (borrado, acciones masivas) y la consulta del reporte de recaudación aún muestran como error una espera agotada; la espera dura como máximo 5 s.
 - Agregar columnas o índices a tablas con escrituras frecuentes (`aud_registros`, `pag_pagos`) bloquea esas escrituras mientras dura la migración; en tablas grandes conviene una ventana de mantenimiento.
