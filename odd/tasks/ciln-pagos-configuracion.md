@@ -20,10 +20,10 @@ Assumptions (to confirm with the CILN):
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S3, C1, C3, C4 | inline | pending | |
-| T2 | S3, S4, C3 | inline | pending | |
-| T3 | S1, S2, C2, C3 | inline | pending | |
-| T4 | S1 | inline | pending | |
+| T1 | S3, C1, C3, C4 | inline | done | b078411, 1caf03d |
+| T2 | S3, S4, C3 | inline | done | e6fc3bd |
+| T3 | S1, S2, C2, C3 | inline | done | e395071 |
+| T4 | S1 | inline | done | docs commit |
 
 - T1: Permission `pagos.configurar` (data migration), `ConceptoPolicy`, `TarifaPolicy`, demo grants; migration with audit triggers on `pag_conceptos` and `pag_tarifas` and a trigger protecting fees already applied by payments. Risk: items 1 and 2 → own commit.
 - T2: Actions `RegistrarTarifa` (closes the open predecessor, overlap as a business error) and `CerrarTarifa`.
@@ -36,3 +36,8 @@ Forecast: about 800 authored lines.
 ## Log
 
 - L1 (2026-10-24): "Sigamos con las pantallas de conceptos y tarifas"
+- L2: T1 RED (permission enum case missing) → GREEN; migration roundtrip on dev DB ok. Native review of b078411 (risk, reliability): granted, approved and acknowledged (review-1ee76fe6f34dec42). Advisories: R3-002 race between a payment and a fee change; R3-001 audit test depended on id sequences; R3-003 fee UPDATE not audited in tests; R1-001 delete of an applied fee (blocked by the existing RESTRICT foreign key, now tested).
+- L3: T2 RED (Actions missing, 9 of 9) → GREEN.
+- L4: Race analysis with two-process tests: closing through `CerrarTarifa` already waited for an uncommitted payment (its `FOR UPDATE` conflicts with the payment's `FOR KEY SHARE`). The reverse order was a real defect: a payment read the fee while a closing was uncommitted and was applied to a fee closed before its date (RED 2 of 2). Fix in 1caf03d: `RegistrarPago` re-reads the fee `FOR SHARE` inside the insert transaction; this also makes direct SQL updates of the fee wait (mutation: without it, both the reverse order and direct SQL tests fail; without `lockForUpdate` in `CerrarTarifa` the first order fails).
+- L5: T3 RED (8 of 9) → GREEN 9/9; mutation: deleting applied fees allowed fails the test. `composer check` 283/283.
+- L6: T4 docs: `modulos.md`, `seguridad.md` (denial trait, audited tables), `modelo-de-datos.md` (fee protection), `decisiones-pendientes.md` #19.

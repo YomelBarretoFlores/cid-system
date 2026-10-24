@@ -27,7 +27,7 @@ Sesiones con cookie, no JWT ([`adr/0004-sesiones-para-autenticacion.md`](adr/000
 
 - Permisos por acción con `spatie/laravel-permission`, creados por migraciones (también `admin-panel.access`), nunca solo por seeders: así existen en producción.
 - Cada recurso del panel tiene su Policy. El panel corre con `strictAuthorization()`: si falta un método en la Policy, Filament lanza un error en vez de permitir la acción (por defecto la permitiría).
-- La Policy niega explícitamente lo que no concede (editar, borrar, restaurar o duplicar pagos).
+- Cada Policy usa el trait `DeniegaLoNoConcedido`, que niega toda habilidad que no concede de forma explícita (editar, borrar, restaurar, duplicar, asociar...).
 - Los roles que agrupan permisos están pendientes ([`decisiones-pendientes.md`](decisiones-pendientes.md) #2). Usuarios de demostración: `admin@ciln.test` (todos los permisos de pagos) y `caja@ciln.test` (todo menos anular).
 
 ## Auditoría inmutable (Log Triggers)
@@ -48,7 +48,7 @@ Implementación (`app/Shared/Audit`):
 |---|---|
 | Tabla y triggers | migración `2026_10_24_125000_create_aud_registros_table` (`aud_registrar()`, `aud_impedir_cambios()`) |
 | Contexto de la petición | middleware `EstablecerContextoAuditoria` en los grupos `web` y `api` y en el panel de Filament; usa `ContextoAuditoria`. Las acciones del panel (peticiones de Livewire) pasan por el grupo `web`, así que también llevan el usuario |
-| Tablas auditadas | `pag_pagos` (después: notas y actas) |
+| Tablas auditadas | `pag_pagos`, `pag_conceptos`, `pag_tarifas` (después: notas y actas) |
 
 Reglas de uso:
 - **Jobs y comandos** que modifiquen tablas críticas deben llamar a `ContextoAuditoria::establecer($usuarioId, null)` al empezar y `limpiar()` al terminar: un worker reutiliza la conexión entre jobs.

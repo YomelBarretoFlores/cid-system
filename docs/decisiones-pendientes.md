@@ -22,3 +22,4 @@ Temas abiertos que bloquean o afectan partes del sistema. Al cerrarse uno, regis
 | 16 | Supuesto: es Repitente quien ya tiene una matrícula no retirada en otro grupo del mismo ciclo | Confirmar con el CILN | Matricula | — |
 | 17 | ¿Qué pasa con la matrícula cuando se anula el pago que la habilitó? Hoy se emite `PagoAnulado` y la matrícula sigue activa | Consultar al CILN | Pagos, Matricula | Reacción automática a la anulación |
 | 18 | Supuesto: los pagos no se editan desde el panel; un pago pendiente con datos errados se rechaza y se registra de nuevo | Confirmar con el CILN | Pagos | — |
+| 19 | Supuesto: las tarifas no se editan; una tarifa nueva cierra la anterior del mismo vínculo el día previo, y solo se borra una tarifa que ningún pago aplicó | Confirmar con el CILN | Pagos | — |

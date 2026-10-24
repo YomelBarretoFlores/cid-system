@@ -74,6 +74,7 @@ erDiagram
 | Traslado con grupo destino distinto; retiro sin destino; motivo obligatorio | `mat_movimientos_destino_check`, `mat_movimientos_motivo_check` |
 | No se borran grupos, personas ni ciclos con registros que dependan de ellos | FK con `RESTRICT` |
 | Una tarifa por concepto y vínculo en cada fecha | `pag_tarifas_sin_superposicion` (`EXCLUDE` con `btree_gist` y `daterange`) |
+| Una tarifa aplicada a pagos conserva monto, vínculo, concepto e inicio, y no se cierra antes de su último pago | trigger `pag_tarifas_protegida`; el registro de un pago lee la tarifa con `FOR SHARE` para que un cierre simultáneo espere |
 | Medio de pago + número de operación único entre pagos no rechazados, sin evasión por mayúsculas o espacios | índice único parcial `pag_pagos_operacion_unique` + `pag_pagos_numero_operacion_check` |
 | Solo transiciones Pendiente → Validado o Rechazado y Validado → Anulado; los datos de un pago no pendiente no cambian | trigger `pag_pagos_ciclo_de_vida` (`pag_controlar_cambios()`) |
 | Cada estado del pago tiene sus datos (validado: quién y cuándo; rechazado: además motivo; anulado: quién, cuándo y motivo) | `pag_pagos_datos_estado_check`, `pag_pagos_anulacion_check` |
