@@ -13,6 +13,7 @@ parameters:
         - database/migrations/*_create_permission_tables.php
     databaseMigrationsPath:
         - database/migrations
+        - app/Shared/Audit/Database/Migrations
         - app/Modules/Academico/Database/Migrations
         - app/Modules/Personas/Database/Migrations
         - app/Modules/Matricula/Database/Migrations

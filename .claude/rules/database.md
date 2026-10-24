@@ -14,6 +14,8 @@ paths:
 - Put invariants in the database too: `UNIQUE` (for example payment method + operation number), `CHECK` (vacancies >= 0), `NOT NULL`.
 - PostgreSQL has no unsigned integers and Laravel silently ignores `unsigned*`: use `smallInteger`/`integer` plus a `CHECK`. Name constraints `<table>_<rule>_check` and add them with `DB::statement` after `Schema::create`.
 - Migrations use literal enum values, never PHP enum classes, so old migrations keep their meaning.
+- PostgreSQL functions use `CREATE OR REPLACE FUNCTION`: `migrate:fresh` drops tables but not functions. Name constraints and FKs explicitly when the generated name would exceed 63 characters.
+- Critical tables get `AFTER INSERT OR UPDATE OR DELETE ... EXECUTE FUNCTION aud_registrar()`. `aud_registros` rejects UPDATE, DELETE and TRUNCATE, so exclude it from `DatabaseTruncation`.
 - Money: `decimal(12, 2)` or integer cents. Never float. Timestamps: `timestampsTz()` / `timestampTz()`.
 - Time-varying prices (TUPA/TUSNE fees, teacher hourly cost) are rows with validity dates; transactions store the amount they applied.
 - Index every foreign key and every column used in filters of reports.

@@ -12,9 +12,11 @@ use App\Modules\Tablero\TableroServiceProvider;
 use App\Modules\Tramites\TramitesServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\Filament\AdminPanelProvider;
+use App\Shared\Audit\AuditServiceProvider;
 
 return [
     AppServiceProvider::class,
+    AuditServiceProvider::class,
     AdminPanelProvider::class,
     AcademicoServiceProvider::class,
     PersonasServiceProvider::class,
