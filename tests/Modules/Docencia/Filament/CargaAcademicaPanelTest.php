@@ -88,3 +88,12 @@ it('shows the load to readers but does not let them change it', function (): voi
 
     expect(CargaAcademica::query()->pluck('grupo_id')->all())->toBe([$this->grupo->id]);
 });
+
+it('labels a cancelled group instead of showing its hours', function (): void {
+    app(AsignarDocente::class)($this->grupo->id, $this->docente->id, $this->gestor);
+    $this->grupo->update(['estado' => EstadoGrupo::Cancelado]);
+
+    cargaDe($this->docente, $this->gestor)
+        ->assertSee(['ING-02-A', 'Grupo cancelado', 'Sin grupos asignados.'])
+        ->assertDontSee('16 h');
+});

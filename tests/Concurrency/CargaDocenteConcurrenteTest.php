@@ -79,3 +79,19 @@ it('never lets a schedule change and an assignment create a clash for the same t
         ->and(collect($salidas)->contains(fn (string $salida): bool => str_contains($salida, 'que se cruza con el grupo')))->toBeTrue()
         ->and($docenteDelNuevo xor $sesionMovida)->toBeTrue();
 });
+
+it('never lets two schedule changes of the same teacher create a clash at the same time', function (): void {
+    $a = grupoDeLunes($this->periodo, $this->ciclo, 'CD-F', '16:00:00', '18:00:00');
+    $b = grupoDeLunes($this->periodo, $this->ciclo, 'CD-G', '20:00:00', '22:00:00');
+    foreach ([$a, $b] as $grupo) {
+        CargaAcademica::query()->create(['grupo_id' => $grupo->id, 'docente_id' => $this->docente->id, 'asignado_por' => $this->usuario->id]);
+    }
+    $sesionA = Horario::query()->where('grupo_id', $a->id)->sole();
+    $sesionB = Horario::query()->where('grupo_id', $b->id)->sole();
+
+    $salidas = enParalelo('cambiar-horario.php', [[$a->id, $sesionA->id, '18:00', '20:00'], [$b->id, $sesionB->id, '19:00', '21:00']]);
+
+    expect(collect($salidas)->filter(fn (string $salida): bool => $salida === 'cambiado')->count())->toBe(1)
+        ->and(collect($salidas)->contains(fn (string $salida): bool => str_contains($salida, 'que se cruza con el grupo')))->toBeTrue()
+        ->and(($sesionA->refresh()->hora_inicio === '18:00:00') xor ($sesionB->refresh()->hora_inicio === '19:00:00'))->toBeTrue();
+});

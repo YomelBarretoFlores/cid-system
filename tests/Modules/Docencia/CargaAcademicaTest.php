@@ -231,3 +231,11 @@ it('refuses to remove a group that already moved to another teacher', function (
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El grupo ING-05-A ya no está a cargo de este docente.')
         ->and(CargaAcademica::query()->sole()->docente_id)->toBe($otro->id);
 });
+
+it('removes the group when the teacher of the page still has it', function (): void {
+    asignar($this->grupo);
+
+    app(QuitarDocenteDelGrupo::class)($this->grupo->id, $this->docente->id);
+
+    expect(CargaAcademica::query()->exists())->toBeFalse();
+});
