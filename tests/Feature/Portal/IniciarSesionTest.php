@@ -7,6 +7,7 @@ use App\Shared\Auth\Livewire\IniciarSesion;
 use App\Shared\Auth\Models\User;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Permission;
 
 function intentarIngreso(string $email, string $password): Testable
 {
@@ -119,4 +120,14 @@ it('ends the other sessions of a student after a password change', function (): 
 
     $this->get(route('estudiante.inicio'))->assertRedirect(route('estudiante.ingresar'));
     $this->assertGuest();
+});
+
+it('sends signed-in staff from the student login to the admin panel', function (): void {
+    Permission::findOrCreate(User::ADMIN_PANEL_PERMISSION);
+    $staff = User::factory()->create();
+    $staff->givePermissionTo(User::ADMIN_PANEL_PERMISSION);
+
+    $this->actingAs($staff)
+        ->get(route('estudiante.ingresar'))
+        ->assertRedirect(route('filament.admin.pages.dashboard'));
 });

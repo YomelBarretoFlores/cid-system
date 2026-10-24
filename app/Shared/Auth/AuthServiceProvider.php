@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace App\Shared\Auth;
 
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Livewire\Livewire;
 
 final class AuthServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
         Password::defaults(fn (): Password => Password::min(8)->letters()->numbers());
+        // Livewire re-runs only persistent middleware on component updates, so the email gate must be listed here too.
+        Livewire::addPersistentMiddleware([EnsureEmailIsVerified::class]);
 
         VerifyEmail::toMailUsing(fn (object $notifiable, string $url): MailMessage => (new MailMessage)
             ->subject('Verifica tu correo del CILN')

@@ -14,7 +14,9 @@ use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Contracts\SubconsultaDePersonas;
+use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Shared\Support\ModuleServiceProvider;
+use Livewire\Livewire;
 
 final class PersonasServiceProvider extends ModuleServiceProvider
 {
@@ -30,4 +32,11 @@ final class PersonasServiceProvider extends ModuleServiceProvider
     ];
 
     protected string $module = 'Personas';
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        Livewire::addPersistentMiddleware([RequiereFichaDeEstudiante::class]);
+    }
 }

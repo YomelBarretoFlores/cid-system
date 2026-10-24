@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
+use App\Shared\Auth\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -24,7 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(
             fn (Request $request): ?string => $request->is('api/*') ? null : route('estudiante.ingresar'),
         );
-        $middleware->redirectUsersTo(fn (): string => route('estudiante.inicio'));
+        $middleware->redirectUsersTo(fn (Request $request): string => $request->user()?->can(User::ADMIN_PANEL_PERMISSION)
+            ? route('filament.admin.pages.dashboard')
+            : route('estudiante.inicio'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
