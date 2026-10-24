@@ -155,3 +155,9 @@ it('lets staff with the enrollment permission download the enrollment record', f
         ->get(route('panel.matriculas.ficha', $this->matricula))
         ->assertForbidden();
 });
+
+it('keeps the staff enrollment record behind admin panel access', function (): void {
+    $sinPanel = User::factory()->create()->givePermissionTo(PermisoMatricula::Ver->value);
+
+    $this->actingAs($sinPanel)->get(route('panel.matriculas.ficha', $this->matricula))->assertForbidden();
+});

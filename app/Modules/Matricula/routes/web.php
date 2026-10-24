@@ -7,6 +7,7 @@ use App\Modules\Matricula\Http\Controllers\DescargarFichaDeMatricula;
 use App\Modules\Matricula\Http\Controllers\DescargarFichaParaPersonal;
 use App\Modules\Matricula\Livewire\Matricularse;
 use App\Modules\Matricula\Livewire\MisMatriculas;
+use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'auth.session', 'verified', 'estudiante'])->group(function (): void {
@@ -17,5 +18,5 @@ Route::middleware(['auth', 'auth.session', 'verified', 'estudiante'])->group(fun
 });
 
 Route::get('/panel/matriculas/{matricula}/ficha', DescargarFichaParaPersonal::class)
-    ->middleware(['auth', 'can:view,matricula'])
+    ->middleware(['auth', 'auth.session', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:view,matricula'])
     ->name('panel.matriculas.ficha');
