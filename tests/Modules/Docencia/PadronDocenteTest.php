@@ -115,6 +115,21 @@ it('refuses an invalid profile and leaves the roster unchanged', function (Closu
     'unknown language' => [fn (): array => ['idiomas' => [new IdiomaHabilitado(999999, NivelCurricular::Basico)]], 'El idioma elegido no existe.'],
 ]);
 
+it('refuses an update that takes the RUC or email of another teacher and keeps the profile', function (array $cambios, string $mensaje): void {
+    app(GuardarDocente::class)(datosDeDocente());
+    $segundo = app(GuardarDocente::class)(datosDeDocente([
+        'personaId' => Persona::factory()->create()->id, 'correoInstitucional' => 'dos@unasam.edu.pe', 'ruc' => '10222222222',
+        'idiomas' => [new IdiomaHabilitado(test()->quechua->id, NivelCurricular::Basico)],
+    ]));
+
+    expect(fn () => app(GuardarDocente::class)(datosDeDocente([...$cambios, 'banco' => 'BCP']), $segundo->id))->toThrow(ReglaDeNegocioIncumplida::class, $mensaje)
+        ->and($segundo->refresh()->only(['correo_institucional', 'ruc', 'banco']))->toBe(['correo_institucional' => 'dos@unasam.edu.pe', 'ruc' => '10222222222', 'banco' => 'Banco de la Nación'])
+        ->and($segundo->idiomas()->pluck('idioma_id')->all())->toBe([test()->quechua->id]);
+})->with([
+    'RUC' => [['correoInstitucional' => 'dos@unasam.edu.pe'], 'Ya existe un docente con el RUC 10456789012.'],
+    'email' => [['ruc' => '10222222222'], 'Ya existe un docente con el correo institucional docente.uno@unasam.edu.pe.'],
+]);
+
 it('changes the status of a teacher and refuses the status it already has', function (): void {
     $docente = app(GuardarDocente::class)(datosDeDocente());
 

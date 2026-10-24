@@ -56,6 +56,14 @@ final class Docente extends Model
     }
 
     /**
+     * @return HasMany<Disponibilidad, $this>
+     */
+    public function disponibilidades(): HasMany
+    {
+        return $this->hasMany(Disponibilidad::class);
+    }
+
+    /**
      * @return Attribute<non-falsy-string, never>
      */
     protected function cuentaEnmascarada(): Attribute

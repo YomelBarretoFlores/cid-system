@@ -25,7 +25,7 @@ Assumptions (to confirm with the CILN, recorded in docs/decisiones-pendientes.md
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S2, S5, D1, D2, D6 | inline | pending | |
+| T1 | S2, S5, D1, D2, D6 | inline | done | 8adec36 |
 | T2 | S2, D3 | inline | pending | |
 | T3 | S3, S5, D3, D4 | inline | pending | |
 | T4 | S3, D5 | inline | pending | |
@@ -45,3 +45,4 @@ Forecast: about 1,700 authored lines in six commits.
 
 - L1 (2026-10-24): "súbela y únela a main, luego sigue con Docencia, pero primero compactaré la conversación" — then "Puedes proseguir".
 - L2: Map: no teacher concept exists (no `docente_id`, role, middleware, attendance or grade tables). `aca_horarios` holds weekly sessions and `Horario::seCruzaCon` is the overlap scope; `GuardarHorario` locks group then classroom. Groups have no dates or weeks: dates come from `aca_periodos`, nominal hours from `aca_ciclos.horas_lectivas`. Persona has one email (personal). No spatie roles; permissions per user. Lock order chosen: group row → teacher advisory lock, the same in assignment and in schedule changes.
+- L3: T1 inline: RED 17/17 → GREEN; panel tests 8/8 (a reader's raw mount of "Cambiar estado" changes nothing; mutation without `authorize` makes it fail). `doc_docentes` (code `DOC-00001` as a stored generated column, encrypted account, CHECKs, audit) and `doc_docente_idiomas` (level per language). `FichaDeEstudiante` gains optional `correo` and `celular` (portal ficha test updated). `composer check` 811/811. Native review of 2a141a4..8adec36 (risk, reliability) granted, running.

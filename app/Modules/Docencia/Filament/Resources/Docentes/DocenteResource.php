@@ -8,6 +8,7 @@ use App\Modules\Docencia\Filament\Resources\Docentes\Pages\CreateDocente;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\EditDocente;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ListDocentes;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ViewDocente;
+use App\Modules\Docencia\Filament\Resources\Docentes\RelationManagers\DisponibilidadesRelationManager;
 use App\Modules\Docencia\Filament\Resources\Docentes\Schemas\DocenteForm;
 use App\Modules\Docencia\Filament\Resources\Docentes\Schemas\DocenteInfolist;
 use App\Modules\Docencia\Filament\Resources\Docentes\Tables\DocentesTable;
@@ -48,6 +49,13 @@ final class DocenteResource extends Resource
     public static function table(Table $table): Table
     {
         return DocentesTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            DisponibilidadesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
