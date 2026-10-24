@@ -47,7 +47,7 @@ final class PagosDemoSeeder extends Seeder
             ->where('tipo_vinculo', TipoVinculo::PublicoGeneral)
             ->sole();
 
-        Matricula::query()->whereNull('pago_id')->each(function (Matricula $matricula) use ($tarifa, $cajero): void {
+        Matricula::query()->whereNull('pago_id')->lazyById()->each(function (Matricula $matricula) use ($tarifa, $cajero): void {
             $pago = Pago::factory()->validado()->create([
                 'persona_id' => $matricula->persona_id,
                 'concepto_id' => $tarifa->concepto_id,
