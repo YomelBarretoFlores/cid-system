@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Filament\Resources\Pagos;
 
+use App\Modules\Pagos\Filament\Resources\Pagos\Pages\CreatePago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ListPagos;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ViewPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoForm;
@@ -47,6 +48,7 @@ final class PagoResource extends Resource
     {
         return [
             'index' => ListPagos::route('/'),
+            'create' => CreatePago::route('/registrar'),
             'view' => ViewPago::route('/{record}'),
         ];
     }

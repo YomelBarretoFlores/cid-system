@@ -7,6 +7,7 @@ namespace App\Modules\Pagos\Filament\Resources\Pagos\Pages;
 use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Collection;
 
@@ -18,6 +19,13 @@ final class ListPagos extends ListRecords
      * @var array<int, string>|null
      */
     private ?array $etiquetas = null;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            CreateAction::make()->label('Registrar pago'),
+        ];
+    }
 
     public function etiquetaDePersona(int $personaId): string
     {
