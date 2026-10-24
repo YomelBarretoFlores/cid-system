@@ -6,11 +6,13 @@ namespace App\Modules\Matricula\Models;
 
 use App\Modules\Matricula\Database\Factories\SolicitudClasificacionFactory;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
+use App\Modules\Matricula\Policies\SolicitudClasificacionPolicy;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'ciclo_asignado_id', 'evaluado_por', 'evaluado_en', 'observaciones',
 ])]
 #[UseFactory(SolicitudClasificacionFactory::class)]
+#[UsePolicy(SolicitudClasificacionPolicy::class)]
 final class SolicitudClasificacion extends Model
 {
     /** @use HasFactory<SolicitudClasificacionFactory> */

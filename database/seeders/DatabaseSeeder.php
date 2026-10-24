@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Modules\Academico\Database\Seeders\AcademicoDemoSeeder;
 use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Matricula\Database\Seeders\MatriculaDemoSeeder;
+use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Pagos\Database\Seeders\PagosDemoSeeder;
 use App\Modules\Pagos\Enums\PermisoPago;
@@ -29,7 +30,7 @@ final class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Administrador Demo',
             'email' => 'admin@ciln.test',
-        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores()]);
+        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores()]);
 
         User::factory()->create([
             'name' => 'Caja Demo',
