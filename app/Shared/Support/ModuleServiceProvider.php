@@ -16,7 +16,7 @@ abstract class ModuleServiceProvider extends ServiceProvider
     {
         $path = app_path("Modules/{$this->module}");
 
-        $this->loadMigrationsFrom("{$path}/database/migrations");
+        $this->loadMigrationsFrom("{$path}/Database/Migrations");
         $this->loadViewsFrom("{$path}/resources/views", Str::kebab($this->module));
         $this->loadModuleRoutes($path);
     }

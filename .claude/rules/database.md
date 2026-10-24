@@ -1,7 +1,7 @@
 ---
 paths:
   - "app/Modules/*/Models/**"
-  - "app/Modules/*/database/**"
+  - "app/Modules/*/Database/**"
   - "app/Shared/**/Models/**"
   - "app/Shared/Audit/**"
   - "database/**"
@@ -9,7 +9,7 @@ paths:
 
 # Models and database (PostgreSQL 18)
 
-- Tables use the module prefix: `aca_`, `per_`, `mat_`, `pag_`, `doc_`, `cer_`, `tra_`. Module migrations live in `app/Modules/<Modulo>/database/migrations`.
+- Tables use the module prefix: `aca_`, `per_`, `mat_`, `pag_`, `doc_`, `cer_`, `tra_`. Module migrations, factories and seeders live in `app/Modules/<Modulo>/Database/{Migrations,Factories,Seeders}`.
 - Real foreign keys between modules, but no `belongsTo` to another module's model; reference by ID and read through its contract.
 - Put invariants in the database too: `UNIQUE` (for example payment method + operation number), `CHECK` (vacancies >= 0), `NOT NULL`.
 - Money: `decimal(12, 2)` or integer cents. Never float. Timestamps: `timestampsTz()` / `timestampTz()`.

@@ -41,8 +41,9 @@ foreach (MODULES as $module) {
         ->map(fn (array $pair): string => "App\\Modules\\{$pair[0]}\\{$pair[1]}")
         ->all();
 
+    // Factories and seeders are test scaffolding and may build records of other modules.
     arch("{$module} only depends on the public API of other modules")
         ->expect("App\\Modules\\{$module}")
         ->not->toUse(array_map(fn (string $other): string => "App\\Modules\\{$other}", $otherModules))
-        ->ignoring($publicApi);
+        ->ignoring([...$publicApi, "App\\Modules\\{$module}\\Database"]);
 }

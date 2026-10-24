@@ -49,7 +49,7 @@ app/
 │   ├── Http/Controllers/   controladores web y API (delgados)
 │   ├── Http/Requests/      validación
 │   ├── Listeners/  Livewire/  Models/  Policies/
-│   ├── database/migrations/
+│   ├── Database/           Migrations/, Factories/ y Seeders/ del módulo
 │   ├── resources/views/    vistas Blade (namespace: kebab del módulo)
 │   ├── routes/web.php  routes/api.php (prefijo /api/v1)
 │   └── <Modulo>ServiceProvider.php
