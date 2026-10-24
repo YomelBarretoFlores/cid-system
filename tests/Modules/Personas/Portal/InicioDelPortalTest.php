@@ -18,7 +18,8 @@ it('greets the student by name on the portal home', function (): void {
         ->assertSee('DNI 41234567')
         ->assertSee(route('estudiante.pagos'))
         ->assertSee(route('estudiante.matricula'))
-        ->assertSee(route('estudiante.matriculas'));
+        ->assertSee(route('estudiante.matriculas'))
+        ->assertSee(route('estudiante.clasificacion'));
 });
 
 it('refuses the portal to an account without a student record', function (): void {
