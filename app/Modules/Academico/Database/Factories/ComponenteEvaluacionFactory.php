@@ -19,7 +19,7 @@ final class ComponenteEvaluacionFactory extends Factory
     {
         return [
             'esquema_id' => EsquemaEvaluacion::factory(),
-            'codigo' => fake()->unique()->slug(2),
+            'codigo' => fake()->unique()->lexify('comp-?????'),
             'nombre' => fake()->words(2, true),
             'peso' => '50.00',
             'orden' => 1,
