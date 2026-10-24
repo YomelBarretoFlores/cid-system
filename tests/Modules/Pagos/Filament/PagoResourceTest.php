@@ -40,7 +40,10 @@ it('lists payments with the person, concept, amount and state', function (): voi
 
     Livewire::test(ListPagos::class)
         ->assertCanSeeTableRecords([$this->pendiente, $this->validado])
-        ->assertSee(['DNI 40123456 · Quispe Mamani, Ana', 'OP-100', $this->pendiente->concepto->nombre, 'Pendiente', 'Validado']);
+        ->assertTableColumnFormattedStateSet('persona_id', 'DNI 40123456 · Quispe Mamani, Ana', $this->pendiente)
+        ->assertTableColumnStateSet('concepto.nombre', $this->pendiente->concepto->nombre, $this->pendiente)
+        ->assertTableColumnFormattedStateSet('estado', 'Pendiente', $this->pendiente)
+        ->assertTableColumnFormattedStateSet('estado', 'Validado', $this->validado);
 });
 
 it('labels every person on the page with a single lookup', function (): void {
@@ -63,7 +66,7 @@ it('filters payments by state', function (): void {
         ->assertCanNotSeeTableRecords([$this->validado]);
 });
 
-it('finds payments by operation number or by the person document', function (string $busqueda): void {
+it('finds payments by operation number, person document or person name', function (string $busqueda): void {
     $this->actingAs(usuarioDelPanel(PermisoPago::Ver));
 
     Livewire::test(ListPagos::class)
@@ -87,7 +90,29 @@ it('downloads the receipt from the private disk', function (): void {
 
     Livewire::test(ViewPago::class, ['record' => $this->pendiente->getRouteKey()])
         ->callAction('descargarRecibo')
-        ->assertFileDownloaded('recibo-OP-100.pdf');
+        ->assertFileDownloaded('recibo-op-100.pdf');
+});
+
+it('explains a missing receipt file instead of failing', function (): void {
+    Storage::fake('local');
+    $this->actingAs(usuarioDelPanel(PermisoPago::Ver));
+
+    Livewire::test(ViewPago::class, ['record' => $this->pendiente->getRouteKey()])
+        ->callAction('descargarRecibo')
+        ->assertNoFileDownloaded()
+        ->assertNotified('No se encontró el archivo del recibo.');
+});
+
+it('finds payments of every matching person, beyond the picker limit', function (): void {
+    $personas = Persona::factory()->count(60)->create(['apellido_paterno' => 'Huamán']);
+    $pagos = $personas->map(fn (Persona $persona): Pago => Pago::factory()->create(['persona_id' => $persona->id]));
+    $this->actingAs(usuarioDelPanel(PermisoPago::Ver));
+
+    Livewire::test(ListPagos::class)
+        ->set('tableRecordsPerPage', 100)
+        ->searchTable('huamán')
+        ->assertCanSeeTableRecords($pagos)
+        ->assertCountTableRecords(60);
 });
 
 it('offers no screen to edit or delete payments', function (): void {

@@ -28,7 +28,7 @@ final class PagosTable
                     ->label('Persona')
                     ->formatStateUsing(fn (int $state, ListPagos $livewire): string => $livewire->etiquetaDePersona($state))
                     ->searchable(query: fn (Builder $query, string $search): Builder => $query
-                        ->whereIn('persona_id', array_keys(app(BusquedaDePersonas::class)($search, 200)))),
+                        ->whereIn('persona_id', array_keys(app(BusquedaDePersonas::class)($search, limite: null)))),
                 TextColumn::make('concepto.nombre')->label('Concepto'),
                 TextColumn::make('monto')->label('Monto')->money('PEN'),
                 TextColumn::make('medio_pago')->label('Medio')->formatStateUsing(fn (MedioPago $state): string => $state->etiqueta()),
@@ -37,10 +37,10 @@ final class PagosTable
                     ->label('Estado')
                     ->badge()
                     ->formatStateUsing(fn (EstadoPago $state): string => $state->etiqueta())
-                    ->color(fn (EstadoPago $state): string => self::color($state)),
+                    ->color(fn (EstadoPago $state): string => $state->color()),
                 TextColumn::make('validado_en')
                     ->label('Revisado')
-                    ->dateTime('d/m/Y H:i', 'America/Lima')
+                    ->dateTime('d/m/Y H:i')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('fecha_pago', 'desc')
@@ -61,16 +61,6 @@ final class PagosTable
                 ViewAction::make(),
                 ...AccionesDePago::revision(),
             ]);
-    }
-
-    public static function color(EstadoPago $estado): string
-    {
-        return match ($estado) {
-            EstadoPago::Pendiente => 'warning',
-            EstadoPago::Validado => 'success',
-            EstadoPago::Rechazado => 'danger',
-            EstadoPago::Anulado => 'gray',
-        };
     }
 
     /**

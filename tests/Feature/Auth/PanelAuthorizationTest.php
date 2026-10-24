@@ -15,6 +15,6 @@ it('lets into the panel only users with the panel permission', function (): void
     $this->actingAs(User::factory()->create()->givePermissionTo(User::ADMIN_PANEL_PERMISSION))->get('/admin')->assertOk();
 });
 
-it('fails loudly instead of allowing an action whose policy method is missing', function (): void {
+it('runs the panel in strict authorization mode, so a missing policy method is an error and not a permission', function (): void {
     expect(Filament::getPanel('admin')->isAuthorizationStrict())->toBeTrue();
 });

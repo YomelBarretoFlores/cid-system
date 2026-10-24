@@ -39,6 +39,7 @@ final class PagoPolicy
         return $user->can(PermisoPago::Anular->value);
     }
 
+    // Payments are never edited or deleted, and strict panel authorization needs every ability declared.
     public function update(): bool
     {
         return false;

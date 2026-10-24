@@ -23,6 +23,16 @@ enum EstadoPago: string
         };
     }
 
+    public function color(): string
+    {
+        return match ($this) {
+            self::Pendiente => 'warning',
+            self::Validado => 'success',
+            self::Rechazado => 'danger',
+            self::Anulado => 'gray',
+        };
+    }
+
     public function puedeTransitarA(self $destino): bool
     {
         return in_array($destino, $this->destinosPermitidos(), true);

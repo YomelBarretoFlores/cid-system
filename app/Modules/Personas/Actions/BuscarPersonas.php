@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 final readonly class BuscarPersonas implements BusquedaDePersonas
 {
-    public function __invoke(string $termino, int $limite = 50): array
+    public function __invoke(string $termino, ?int $limite = 50): array
     {
         $termino = addcslashes(trim($termino), '\\%_');
 
@@ -25,7 +25,7 @@ final readonly class BuscarPersonas implements BusquedaDePersonas
             ->orderBy('apellido_paterno')
             ->orderBy('apellido_materno')
             ->orderBy('nombres')
-            ->limit($limite)
+            ->when($limite !== null, fn (Builder $query): Builder => $query->limit((int) $limite))
             ->get()
             ->mapWithKeys(fn (Persona $persona): array => [$persona->id => $persona->etiqueta])
             ->all();

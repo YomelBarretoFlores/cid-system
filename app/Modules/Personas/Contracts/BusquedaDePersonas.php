@@ -9,5 +9,5 @@ interface BusquedaDePersonas
     /**
      * @return array<int, string>
      */
-    public function __invoke(string $termino, int $limite = 50): array;
+    public function __invoke(string $termino, ?int $limite = 50): array;
 }
