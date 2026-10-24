@@ -152,3 +152,18 @@ it('schedules the daily expiration of placement requests', function (): void {
         ->and($tarea->expression)->toBe('10 0 * * *')
         ->and($tarea->timezone)->toBe('America/Lima');
 });
+
+it('accepts scores at both ends of the scale', function (string $puntaje): void {
+    $solicitud = solicitarExamen();
+
+    app(RegistrarResultadoDeClasificacion::class)($solicitud->id, resultado(['puntaje' => $puntaje]), $this->coordinador);
+
+    expect($solicitud->refresh()->estado)->toBe(EstadoSolicitudClasificacion::Evaluado);
+})->with(['0', '100', '100.00', '0.5']);
+
+it('refuses malformed scores', function (string $puntaje): void {
+    $solicitud = solicitarExamen();
+
+    expect(fn () => app(RegistrarResultadoDeClasificacion::class)($solicitud->id, resultado(['puntaje' => $puntaje]), $this->coordinador))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El puntaje va de 0 a 100, con hasta dos decimales.');
+})->with(['-1', '050', '100.1', '101', 'abc', '']);
