@@ -8,12 +8,16 @@ use App\Modules\Docencia\Models\CostoPorHora;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 
 final readonly class EliminarCostoPorHora
 {
     public function __invoke(int $costoId): void
     {
         Transaccion::ejecutar(function () use ($costoId): void {
+            // Same advisory lock as registering, taken first, so both queue per category in one order.
+            $categoria = CostoPorHora::query()->whereKey($costoId)->firstOrFail()->condicion_laboral;
+            DB::select('select pg_advisory_xact_lock(hashtext(?))', ["doc_costos_hora:{$categoria->value}"]);
             $costo = CostoPorHora::query()->whereKey($costoId)->lockForUpdate()->firstOrFail();
 
             // A cost already in effect fed reports that may have been delivered; only a future one can go.
@@ -21,12 +25,14 @@ final readonly class EliminarCostoPorHora
                 throw new ReglaDeNegocioIncumplida('Solo se puede eliminar un costo que aún no entra en vigencia; para cambiarlo, registra uno nuevo.');
             }
 
-            $anterior = $costo->vigente_hasta === null
-                ? CostoPorHora::query()->where('condicion_laboral', $costo->condicion_laboral)->whereDate('vigente_hasta', $costo->vigente_desde->subDay())->lockForUpdate()->first()
-                : null;
+            if (CostoPorHora::query()->where('cerro_costo_id', $costo->id)->exists()) {
+                throw new ReglaDeNegocioIncumplida('Otro costo más reciente ya reemplazó a este; elimina primero el más reciente.');
+            }
+
+            $cerrado = $costo->cerro_costo_id === null ? null : CostoPorHora::query()->whereKey($costo->cerro_costo_id)->lockForUpdate()->first();
 
             $costo->delete();
-            $anterior?->update(['vigente_hasta' => null]);
+            $cerrado?->update(['vigente_hasta' => null]);
         });
     }
 

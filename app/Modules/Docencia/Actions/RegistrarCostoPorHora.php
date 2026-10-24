@@ -11,6 +11,7 @@ use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
 final readonly class RegistrarCostoPorHora
 {
@@ -20,6 +21,24 @@ final readonly class RegistrarCostoPorHora
 
     public function __invoke(CondicionLaboral $categoria, string $costo, CarbonImmutable $desde, ?CarbonImmutable $hasta, User $usuario): CostoPorHora
     {
+        $this->validar($costo, $desde, $hasta);
+
+        return Transaccion::ejecutar(function () use ($categoria, $costo, $desde, $hasta, $usuario): CostoPorHora {
+            // A category has no stable row to lock before its first cost, so its changes queue on a transaction-scoped advisory lock.
+            DB::select('select pg_advisory_xact_lock(hashtext(?))', ["doc_costos_hora:{$categoria->value}"]);
+            $abierto = CostoPorHora::query()->where('condicion_laboral', $categoria)->whereNull('vigente_hasta')->first();
+            $reemplazado = $abierto !== null && $desde->gt($abierto->vigente_desde) ? $abierto : null;
+
+            if ($reemplazado instanceof CostoPorHora) {
+                $this->asegurarReemplazo($desde, $hasta);
+            }
+
+            return self::traducirSuperposicion(fn (): CostoPorHora => $this->crear($categoria, $costo, $desde, $hasta, $usuario, $reemplazado));
+        });
+    }
+
+    private function validar(string $costo, CarbonImmutable $desde, ?CarbonImmutable $hasta): void
+    {
         if (preg_match('/^\d{1,8}(\.\d{1,2})?\z/', $costo) !== 1 || preg_match('/[1-9]/', $costo) !== 1) {
             throw new ReglaDeNegocioIncumplida('El costo por hora debe ser un monto mayor que cero, con hasta dos decimales.');
         }
@@ -27,25 +46,32 @@ final readonly class RegistrarCostoPorHora
         if ($hasta instanceof CarbonImmutable && $hasta->lt($desde)) {
             throw new ReglaDeNegocioIncumplida('La fecha de fin no puede ser anterior a la de inicio.');
         }
+    }
 
-        return Transaccion::ejecutar(function () use ($categoria, $costo, $desde, $hasta, $usuario): CostoPorHora {
-            // Locking the open cost serializes changes of the category; the exclusion constraint rejects any overlap.
-            $abierto = CostoPorHora::query()->where('condicion_laboral', $categoria)->whereNull('vigente_hasta')->lockForUpdate()->first();
+    private function crear(CondicionLaboral $categoria, string $costo, CarbonImmutable $desde, ?CarbonImmutable $hasta, User $usuario, ?CostoPorHora $reemplazado): CostoPorHora
+    {
+        $reemplazado?->update(['vigente_hasta' => $desde->subDay()->toDateString()]);
 
-            return $this->traducirSuperposicion(function () use ($abierto, $categoria, $costo, $desde, $hasta, $usuario): CostoPorHora {
-                if ($abierto !== null && $desde->gt($abierto->vigente_desde)) {
-                    $abierto->update(['vigente_hasta' => $desde->subDay()->toDateString()]);
-                }
+        return CostoPorHora::query()->create([
+            'condicion_laboral' => $categoria,
+            'costo_hora' => $costo,
+            'vigente_desde' => $desde->toDateString(),
+            'vigente_hasta' => $hasta?->toDateString(),
+            'cerro_costo_id' => $reemplazado?->id,
+            'registrado_por' => $usuario->id,
+        ]);
+    }
 
-                return CostoPorHora::query()->create([
-                    'condicion_laboral' => $categoria,
-                    'costo_hora' => $costo,
-                    'vigente_desde' => $desde->toDateString(),
-                    'vigente_hasta' => $hasta?->toDateString(),
-                    'registrado_por' => $usuario->id,
-                ]);
-            });
-        });
+    private function asegurarReemplazo(CarbonImmutable $desde, ?CarbonImmutable $hasta): void
+    {
+        // Hours already taught keep the cost that was in effect; only the future changes.
+        if ($desde->toDateString() <= CarbonImmutable::today('America/Lima')->toDateString()) {
+            throw new ReglaDeNegocioIncumplida('Un costo que reemplaza al vigente debe empezar después de hoy.');
+        }
+
+        if ($hasta instanceof CarbonImmutable) {
+            throw new ReglaDeNegocioIncumplida('Un costo que reemplaza al vigente no lleva fecha de fin; la categoría quedaría sin costo después de esa fecha.');
+        }
     }
 
     /**

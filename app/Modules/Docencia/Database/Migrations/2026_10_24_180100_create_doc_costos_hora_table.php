@@ -19,9 +19,11 @@ return new class extends Migration
             $table->decimal('costo_hora', 10, 2);
             $table->date('vigente_desde');
             $table->date('vigente_hasta')->nullable();
+            $table->foreignId('cerro_costo_id')->nullable()->constrained('doc_costos_hora')->restrictOnDelete();
             $table->foreignId('registrado_por')->constrained('users')->restrictOnDelete();
             $table->timestampsTz();
 
+            $table->index('cerro_costo_id');
             $table->index('registrado_por');
         });
 

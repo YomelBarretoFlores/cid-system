@@ -57,6 +57,9 @@ it('refuses a cost that breaks a rule and changes nothing', function (Closure $r
     'zero' => [fn (): CostoPorHora => registrarCosto('2027-06-01', '0'), 'El costo por hora debe ser un monto mayor que cero, con hasta dos decimales.'],
     'three decimals' => [fn (): CostoPorHora => registrarCosto('2027-06-01', '45.125'), 'El costo por hora debe ser un monto mayor que cero, con hasta dos decimales.'],
     'negative' => [fn (): CostoPorHora => registrarCosto('2027-06-01', '-5'), 'El costo por hora debe ser un monto mayor que cero, con hasta dos decimales.'],
+    'replacing the cost in effect from today' => [fn (): CostoPorHora => registrarCosto('2027-05-10'), 'Un costo que reemplaza al vigente debe empezar después de hoy.'],
+    'replacing the cost in effect from the past' => [fn (): CostoPorHora => registrarCosto('2027-03-01'), 'Un costo que reemplaza al vigente debe empezar después de hoy.'],
+    'replacing the cost in effect with an end date' => [fn (): CostoPorHora => registrarCosto('2027-06-01', hasta: '2027-06-30'), 'Un costo que reemplaza al vigente no lleva fecha de fin; la categoría quedaría sin costo después de esa fecha.'],
     'end before start' => [fn (): CostoPorHora => registrarCosto('2027-06-01', hasta: '2027-05-31'), 'La fecha de fin no puede ser anterior a la de inicio.'],
 ]);
 
@@ -74,4 +77,27 @@ it('refuses to delete a cost already in effect', function (): void {
     expect(fn () => app(EliminarCostoPorHora::class)($this->vigente->id))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Solo se puede eliminar un costo que aún no entra en vigencia; para cambiarlo, registra uno nuevo.')
         ->and(CostoPorHora::query()->whereKey($this->vigente->id)->exists())->toBeTrue();
+});
+
+it('records which cost a new one closed', function (): void {
+    expect(registrarCosto('2027-06-01')->cerro_costo_id)->toBe($this->vigente->id)
+        ->and(registrarCosto('2027-02-01', categoria: CondicionLaboral::Tercero)->cerro_costo_id)->toBeNull();
+});
+
+it('reopens only the cost the deleted one closed, never one closed on purpose', function (): void {
+    $cerradoAMano = CostoPorHora::query()->create(['condicion_laboral' => 'tercero', 'costo_hora' => '30.00', 'vigente_desde' => '2027-01-01', 'vigente_hasta' => '2027-06-30', 'registrado_por' => $this->usuario->id]);
+    $siguiente = registrarCosto('2027-07-01', categoria: CondicionLaboral::Tercero);
+
+    app(EliminarCostoPorHora::class)($siguiente->id);
+
+    expect($cerradoAMano->refresh()->vigente_hasta->toDateString())->toBe('2027-06-30');
+});
+
+it('refuses to delete a cost a later one already replaced', function (): void {
+    $junio = registrarCosto('2027-06-01');
+    registrarCosto('2027-07-01');
+
+    expect(fn () => app(EliminarCostoPorHora::class)($junio->id))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Otro costo más reciente ya reemplazó a este; elimina primero el más reciente.')
+        ->and(CostoPorHora::query()->count())->toBe(3);
 });

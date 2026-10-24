@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property ?CarbonImmutable $vigente_hasta
  */
 #[Table('doc_costos_hora')]
-#[Fillable(['condicion_laboral', 'costo_hora', 'vigente_desde', 'vigente_hasta', 'registrado_por'])]
+#[Fillable(['condicion_laboral', 'costo_hora', 'vigente_desde', 'vigente_hasta', 'cerro_costo_id', 'registrado_por'])]
 #[UsePolicy(CostoPorHoraPolicy::class)]
 final class CostoPorHora extends Model
 {
