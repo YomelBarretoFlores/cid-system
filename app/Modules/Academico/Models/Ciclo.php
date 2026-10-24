@@ -15,6 +15,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property-read Idioma $idioma
+ * @property NivelCurricular $nivel
+ */
 #[Table('aca_ciclos')]
 #[Fillable(['idioma_id', 'numero', 'nivel', 'nombre', 'horas_lectivas', 'activo'])]
 #[UseFactory(CicloFactory::class)]

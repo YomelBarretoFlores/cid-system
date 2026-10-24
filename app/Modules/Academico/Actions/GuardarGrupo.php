@@ -7,6 +7,7 @@ namespace App\Modules\Academico\Actions;
 use App\Modules\Academico\Data\DatosDeGrupo;
 use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Aula;
+use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -35,6 +36,8 @@ final readonly class GuardarGrupo
     private function guardar(DatosDeGrupo $datos, ?int $grupoId): Grupo
     {
         $grupo = $grupoId === null ? new Grupo : Grupo::query()->whereKey($grupoId)->lockForUpdate()->firstOrFail();
+
+        $this->asegurarCicloDisponible($grupo, $datos);
 
         if ($datos->cupoMaximo < $grupo->matriculados) {
             throw new ReglaDeNegocioIncumplida("El cupo máximo no puede ser menor que los {$grupo->matriculados} estudiantes matriculados.");
@@ -71,9 +74,26 @@ final readonly class GuardarGrupo
         throw_if($datos->aulaId !== null, ReglaDeNegocioIncumplida::class, 'Un grupo virtual no usa aula.');
     }
 
+    private function asegurarCicloDisponible(Grupo $grupo, DatosDeGrupo $datos): void
+    {
+        if ($grupo->exists && $grupo->ciclo_id === $datos->cicloId) {
+            return;
+        }
+
+        $ciclo = Ciclo::query()->with('idioma')->whereKey($datos->cicloId)->firstOrFail();
+
+        throw_unless($ciclo->activo, ReglaDeNegocioIncumplida::class, 'El ciclo seleccionado no está disponible para nuevos grupos.');
+        throw_unless($ciclo->idioma->activo, ReglaDeNegocioIncumplida::class, "El idioma {$ciclo->idioma->nombre} no está disponible para nuevos grupos.");
+    }
+
     private function asegurarAula(Grupo $grupo, DatosDeGrupo $datos): void
     {
         $aula = Aula::query()->whereKey($datos->aulaId)->lockForUpdate()->firstOrFail();
+
+        // A deactivated classroom keeps serving the groups that already use it.
+        if (! $aula->activo && $grupo->aula_id !== $aula->id) {
+            throw new ReglaDeNegocioIncumplida("El aula {$aula->codigo} no está disponible para nuevos grupos.");
+        }
 
         if ($datos->cupoMaximo > $aula->capacidad) {
             throw new ReglaDeNegocioIncumplida("El aula {$aula->codigo} tiene capacidad para {$aula->capacidad} estudiantes; el cupo máximo no puede superarla.");

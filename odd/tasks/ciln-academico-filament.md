@@ -22,11 +22,11 @@ Assumptions (to confirm with the CILN):
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S4, D1 | inline | pending | |
-| T2 | S1, S2, D6 | delegated (parallel W-A) | pending | |
-| T3 | S1, S2, D2 | delegated (parallel W-B) | pending | |
-| T4 | S1, S2, D3, D4 | delegated (parallel W-C) | pending | |
-| T5 | S1, S3, S4, D6 | delegated (parallel W-D) | pending | |
+| T1 | S4, D1 | inline | done | b1a412b |
+| T2 | S1, S2, D6 | delegated (parallel W-A) | done | 8eb4eb4 |
+| T3 | S1, S2, D2 | delegated (parallel W-B) | done | 964d77f |
+| T4 | S1, S2, D3, D4 | delegated (parallel W-C) | done | a1b7c84 |
+| T5 | S1, S3, S4, D6 | delegated (parallel W-D) | done | 34b5412 |
 | T6 | S1 | inline | pending | |
 
 - T1: Permission enums and data migrations for Academico and Personas; policies for Idioma, Ciclo, Aula, Periodo, Grupo, Horario and Persona (shared denial trait); demo grants. Risk: item 2 → own commit.
@@ -42,3 +42,7 @@ Forecast: about 2,000 authored lines in five commits.
 ## Log
 
 - L1 (2026-10-24): "Sí, arranquemos con la oferta académica y personas"
+- L2: T1 inline: RED (permission enums missing) → GREEN; `composer check` 297/297.
+- L3: T2–T5 by four parallel writers with disjoint surfaces; each got its own test database (`ciln_testing_wa..wd`) after the parent noticed shared `RefreshDatabase` runs would clobber each other. Writer reports: W-A 61/61 (RED: resource missing), W-B 48/48 (RED 0 of 48), W-C 40 action tests RED then GREEN plus panel tests, fixed a TimePicker shift (09:00 stored as 14:00 because the panel timezone is Lima), renamed a global helper colliding with `matricular()`; W-D 28/28. Parent changes at integration: language code fixed after creation (consistency with classrooms and concepts), tests adapted. Seam check: `composer check` 450/450, phpstan 0.
+- L4: Writer choices accepted: cancelled groups free their classroom; duplicate group code per period as a business error; period and cycle fixed after a group is created; lock order group → classroom; a View page for groups; forms list only active classrooms and cycles; phone normalized in the `Persona` model. Open questions for the CILN: can a closed period's dates still be edited (today yes)?
+- L5: Range 2d05f34..34b5412 is 3,905 lines: independent verifier (items 2 and 4) launched over the whole feature before the native review.

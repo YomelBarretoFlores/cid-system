@@ -240,3 +240,29 @@ it('lets read-only users view a group and its schedule but hides every change', 
 
     horariosDe($this->grupo)->assertActionHidden(TestAction::make('agregarHorario')->table());
 });
+
+it('does not offer cycles of an inactive language for new groups', function (): void {
+    $this->idioma->update(['activo' => false]);
+    $this->actingAs($this->gestor);
+
+    Livewire::test(CreateGrupo::class)
+        ->fillForm(formularioDeGrupo())
+        ->call('create')
+        ->assertHasFormErrors(['ciclo_id']);
+
+    expect(Grupo::query()->where('codigo', 'ING-03-B')->exists())->toBeFalse();
+});
+
+it('edits a group whose classroom was deactivated, keeping that classroom', function (): void {
+    $this->aula->update(['activo' => false]);
+    $this->actingAs($this->gestor);
+
+    Livewire::test(EditGrupo::class, ['record' => $this->grupo->getRouteKey()])
+        ->fillForm(['cupo_maximo' => 20])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($this->grupo->refresh())
+        ->cupo_maximo->toBe(20)
+        ->aula_id->toBe($this->aula->id);
+});

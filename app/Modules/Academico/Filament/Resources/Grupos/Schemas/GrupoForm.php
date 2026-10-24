@@ -6,9 +6,9 @@ namespace App\Modules\Academico\Filament\Resources\Grupos\Schemas;
 
 use App\Modules\Academico\Data\DatosDeGrupo;
 use App\Modules\Academico\Enums\Modalidad;
-use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
+use App\Modules\Academico\Models\Grupo;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -31,7 +31,12 @@ final class GrupoForm
                     ->disabledOn('edit'),
                 Select::make('ciclo_id')
                     ->label('Idioma y ciclo')
-                    ->relationship('ciclo', 'nombre', fn (Builder $query): Builder => $query->where('activo', true)->with('idioma')->orderBy('idioma_id')->orderBy('numero'))
+                    ->relationship('ciclo', 'nombre', fn (Builder $query): Builder => $query
+                        ->where('activo', true)
+                        ->whereHas('idioma', fn (Builder $idioma): Builder => $idioma->where('activo', true))
+                        ->with('idioma')
+                        ->orderBy('idioma_id')
+                        ->orderBy('numero'))
                     ->getOptionLabelFromRecordUsing(fn (Ciclo $record): string => self::etiquetaDeCiclo($record))
                     ->preload()
                     ->required()
@@ -46,7 +51,9 @@ final class GrupoForm
                 Toggle::make('es_acelerado')->label('Acelerado')->default(false),
                 Select::make('aula_id')
                     ->label('Aula')
-                    ->relationship('aula', 'codigo', fn (Builder $query): Builder => $query->where('activo', true)->orderBy('codigo'))
+                    ->relationship('aula', 'codigo', fn (Builder $query, ?Grupo $record): Builder => $query
+                        ->where(fn (Builder $disponibles): Builder => $disponibles->where('activo', true)->when($record?->aula_id, fn (Builder $q, int $actual): Builder => $q->orWhereKey($actual)))
+                        ->orderBy('codigo'))
                     ->getOptionLabelFromRecordUsing(fn (Aula $record): string => "{$record->codigo} · {$record->nombre} ({$record->capacidad} estudiantes)")
                     ->preload()
                     ->required()
@@ -82,11 +89,7 @@ final class GrupoForm
 
     public static function etiquetaDeCiclo(Ciclo $ciclo): string
     {
-        // Ciclo declares no @property for its enum cast, so Larastan reads the level as a plain string.
-        $nivel = $ciclo->getAttribute('nivel');
-        $etiquetaDeNivel = $nivel instanceof NivelCurricular ? $nivel->etiqueta() : '';
-
-        return "{$ciclo->idioma?->nombre} · Ciclo {$ciclo->numero} ({$etiquetaDeNivel})";
+        return "{$ciclo->idioma->nombre} · Ciclo {$ciclo->numero} ({$ciclo->nivel->etiqueta()})";
     }
 
     private static function modalidad(Get $get): ?Modalidad

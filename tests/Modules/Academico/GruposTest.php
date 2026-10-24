@@ -239,3 +239,28 @@ it('frees the classroom of a cancelled group', function (): void {
 
     expect($grupo->horarios()->count())->toBe(1);
 });
+
+it('refuses new groups on an inactive language, cycle or classroom', function (string $caso, string $mensaje): void {
+    match ($caso) {
+        'idioma' => $this->ciclo->idioma->update(['activo' => false]),
+        'ciclo' => $this->ciclo->update(['activo' => false]),
+        'aula' => $this->aula->update(['activo' => false]),
+    };
+
+    expect(fn (): Grupo => app(GuardarGrupo::class)(datosDeGrupo()))->toThrow(ReglaDeNegocioIncumplida::class, $mensaje);
+    expect(Grupo::query()->count())->toBe(0);
+})->with([
+    'language' => ['idioma', 'no está disponible para nuevos grupos'],
+    'cycle' => ['ciclo', 'El ciclo seleccionado no está disponible para nuevos grupos.'],
+    'classroom' => ['aula', 'El aula A-101 no está disponible para nuevos grupos.'],
+]);
+
+it('keeps saving an existing group whose classroom was deactivated later', function (): void {
+    $grupo = app(GuardarGrupo::class)(datosDeGrupo());
+    $this->aula->update(['activo' => false]);
+
+    app(GuardarGrupo::class)(datosDeGrupo(['cupoMaximo' => 20]), $grupo->id);
+
+    expect($grupo->refresh()->cupo_maximo)->toBe(20)
+        ->and($grupo->aula_id)->toBe($this->aula->id);
+});

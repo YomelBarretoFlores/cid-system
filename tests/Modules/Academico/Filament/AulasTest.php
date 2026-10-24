@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Academico\Filament\Resources\Aulas\AulaResource;
 use App\Modules\Academico\Filament\Resources\Aulas\Pages\CreateAula;
 use App\Modules\Academico\Filament\Resources\Aulas\Pages\EditAula;
 use App\Modules\Academico\Filament\Resources\Aulas\Pages\ListAulas;
 use App\Modules\Academico\Models\Aula;
+use App\Modules\Academico\Models\Grupo;
 use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
@@ -95,4 +97,22 @@ it('deactivates a classroom instead of deleting it, keeping its code', function 
         ->nombre->toBe('Laboratorio 1')
         ->capacidad->toBe(28)
         ->activo->toBeFalse();
+});
+
+it('refuses a capacity below the quota of a group still using the classroom', function (): void {
+    $grupo = Grupo::factory()->create(['aula_id' => $this->aula->id, 'codigo' => 'ING-01', 'cupo_maximo' => 25, 'cupo_minimo' => 10]);
+    Grupo::factory()->create(['aula_id' => $this->aula->id, 'cupo_maximo' => 30, 'cupo_minimo' => 10, 'estado' => EstadoGrupo::Finalizado]);
+    $this->actingAs($this->coordinador);
+
+    Livewire::test(EditAula::class, ['record' => $this->aula->getRouteKey()])
+        ->fillForm(['capacidad' => 20])
+        ->call('save')
+        ->assertNotified("El grupo {$grupo->codigo} usa esta aula con un cupo de 25; la capacidad no puede ser menor.");
+    expect($this->aula->refresh()->capacidad)->toBe(30);
+
+    Livewire::test(EditAula::class, ['record' => $this->aula->getRouteKey()])
+        ->fillForm(['capacidad' => 25])
+        ->call('save')
+        ->assertHasNoFormErrors();
+    expect($this->aula->refresh()->capacidad)->toBe(25);
 });
