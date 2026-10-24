@@ -6,6 +6,7 @@ namespace App\Shared\Support\Filament;
 
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -39,6 +40,7 @@ final class AccionDeNegocio
 
     public static function notificarError(ReglaDeNegocioIncumplida $error): void
     {
+        RegistroDeRechazos::registrar($error);
         Notification::make()->danger()->title($error->getMessage())->send();
     }
 }

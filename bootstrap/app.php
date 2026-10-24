@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prependToGroup('web', AsignarIdDeSolicitud::class);
+        $middleware->prependToGroup('api', AsignarIdDeSolicitud::class);
         $middleware->appendToGroup('web', EstablecerContextoAuditoria::class);
         $middleware->appendToGroup('api', EstablecerContextoAuditoria::class);
         $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class]);

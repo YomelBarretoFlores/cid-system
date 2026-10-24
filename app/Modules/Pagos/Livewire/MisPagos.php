@@ -16,6 +16,7 @@ use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Data\FichaDeEstudiante;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Livewire\MensajesDeValidacion;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
@@ -70,6 +71,7 @@ final class MisPagos extends Component
         try {
             $registrar($this->registro(), $recibo, auth()->user());
         } catch (ReglaDeNegocioIncumplida $error) {
+            RegistroDeRechazos::registrar($error);
             $this->addError('registro', $error->getMessage());
 
             return;

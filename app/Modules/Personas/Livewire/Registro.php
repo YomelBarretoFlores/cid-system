@@ -10,6 +10,7 @@ use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Livewire\MensajesDeValidacion;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -64,6 +65,7 @@ final class Registro extends Component
         try {
             $user = $registrar($this->solicitud());
         } catch (ReglaDeNegocioIncumplida $error) {
+            RegistroDeRechazos::registrar($error);
             $this->addError($error->getMessage() === RegistrarCuentaDeEstudiante::CORREO_EN_USO ? 'email' : 'numero_documento', $error->getMessage());
 
             return;

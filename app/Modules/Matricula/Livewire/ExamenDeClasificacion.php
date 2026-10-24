@@ -14,6 +14,7 @@ use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Livewire\MensajesDeValidacion;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
@@ -49,6 +50,7 @@ final class ExamenDeClasificacion extends Component
         try {
             $solicitarExamen($this->personaId(), (int) $this->idioma, (int) $this->pago);
         } catch (ReglaDeNegocioIncumplida $error) {
+            RegistroDeRechazos::registrar($error);
             $this->addError('solicitud', $error->getMessage());
             $this->pagosDisponibles = null;
 

@@ -14,6 +14,7 @@ use App\Modules\Pagos\Data\PagoValidado;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
@@ -44,6 +45,7 @@ final class Matricularse extends Component
         try {
             $matricula = $matricular($this->personaId(), (int) $this->grupo, (int) $this->pago);
         } catch (ReglaDeNegocioIncumplida $error) {
+            RegistroDeRechazos::registrar($error);
             $this->addError('matricula', $error->getMessage());
             $this->oferta = $this->pagosDisponibles = null;
 

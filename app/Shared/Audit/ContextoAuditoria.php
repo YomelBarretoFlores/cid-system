@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\DB;
 
 final class ContextoAuditoria
 {
-    public function establecer(int|string|null $usuarioId, ?string $ip): void
+    public function establecer(int|string|null $usuarioId, ?string $ip, ?string $solicitudId = null): void
     {
         DB::select(
-            "select set_config('app.usuario_id', ?, false), set_config('app.ip', ?, false)",
-            [(string) ($usuarioId ?? ''), $ip ?? ''],
+            "select set_config('app.usuario_id', ?, false), set_config('app.ip', ?, false), set_config('app.solicitud_id', ?, false)",
+            [(string) ($usuarioId ?? ''), $ip ?? '', $solicitudId ?? ''],
         );
     }
 
