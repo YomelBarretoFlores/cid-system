@@ -34,11 +34,24 @@ final readonly class ExportarExpedientesDeHorasCsv
                 }
             }
 
-            $horas = array_sum(array_map(fn (ExpedienteDeHoras $expediente): int => $expediente->horasTotalesCentesimas(), $expedientes));
-            $monto = array_sum(array_map(fn (ExpedienteDeHoras $expediente): int => $expediente->montoTotalCentimos(), $expedientes));
-            fputcsv($salida, ['Total', '', '', '', '', '', LineaDeHoras::decimal($horas), '', LineaDeHoras::decimal($monto)], escape: '');
+            $this->cierre($salida, $expedientes);
             fclose($salida);
         }, $nombreDeArchivo, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * @param  resource  $salida
+     * @param  list<ExpedienteDeHoras>  $expedientes
+     */
+    private function cierre($salida, array $expedientes): void
+    {
+        $horas = array_sum(array_map(fn (ExpedienteDeHoras $expediente): int => $expediente->horasTotalesCentesimas(), $expedientes));
+        $monto = array_sum(array_map(fn (ExpedienteDeHoras $expediente): int => $expediente->montoTotalCentimos(), $expedientes));
+        fputcsv($salida, ['Total', '', '', '', '', '', LineaDeHoras::decimal($horas), '', LineaDeHoras::decimal($monto)], escape: '');
+
+        if (array_any($expedientes, fn (ExpedienteDeHoras $expediente): bool => $expediente->tieneHorasSinCosto())) {
+            fputcsv($salida, ['Nota: las horas sin costo vigente no suman al monto total.'], escape: '');
+        }
     }
 
     /**

@@ -90,6 +90,7 @@ it('downloads every line of the month as a CSV that spreadsheets open safely', f
         ->and($csv)->toContain("\"Marzo 2027\",{$this->luis->codigo},\"'=Alva Paz, Luis\",Tercero,Inglés,Básico,2.00,\"Sin costo vigente\",")
         ->and($csv)->toContain("\"Marzo 2027\",{$this->rosa->codigo},\"Rímac Huaylas, Rosa\",Contratado,Inglés,Básico,3.50,1250.00,4375.00")
         ->and($csv)->toContain('Total,,,,,,5.50,,4375.00')
+        ->and($csv)->toContain('"Nota: las horas sin costo vigente no suman al monto total."')
         ->and($csv)->not->toContain('Febrero');
 });
 
@@ -120,4 +121,4 @@ it('notifies instead of downloading the PDF of a teacher without hours in the mo
         ->callAction(TestAction::make('descargarPdf')->arguments(['docente' => $docente === 'sin horas' ? Docente::factory()->create()->id : $docente]))
         ->assertNotified('El docente no tiene horas dictadas en este mes.')
         ->assertNoFileDownloaded();
-})->with(['sin horas', null, 'abc']);
+})->with(['sin horas', null, 'abc', 1.5e30, -1, '1.5']);

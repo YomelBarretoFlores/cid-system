@@ -16,6 +16,7 @@ use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function (): void {
     $this->usuario = User::factory()->create();
@@ -129,3 +130,9 @@ it('gives a teacher without classes in the month an empty report', function (): 
 it('refuses a month that does not exist', function (int $anio, int $mes): void {
     expect(fn () => app(ConsolidarHorasDictadas::class)($anio, $mes))->toThrow(ReglaDeNegocioIncumplida::class, 'Elige un mes y un año válidos.');
 })->with([[2027, 0], [2027, 13], [1999, 5], [2101, 5]]);
+
+it('indexes the class date the report filters on', function (): void {
+    $indices = collect(DB::select("select indexdef from pg_indexes where tablename = 'doc_clases_dictadas'"))->pluck('indexdef');
+
+    expect($indices->contains(fn (string $definicion): bool => preg_match('/\\(fecha[,)]/', $definicion) === 1))->toBeTrue();
+});

@@ -11,6 +11,7 @@ use App\Modules\Docencia\Data\ExpedienteDeHoras;
 use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -74,6 +75,8 @@ final class ExpedienteDeHorasDocentes extends Page
         try {
             return $this->expedientes();
         } catch (ReglaDeNegocioIncumplida $error) {
+            RegistroDeRechazos::registrar($error);
+
             return $error->getMessage();
         }
     }
@@ -148,9 +151,9 @@ final class ExpedienteDeHorasDocentes extends Page
 
     private function expedienteDe(mixed $docente): ExpedienteDeHoras
     {
-        $docenteId = is_numeric($docente) ? (int) $docente : null;
+        $docenteId = is_int($docente) || is_string($docente) ? filter_var($docente, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) : false;
 
-        return ($docenteId === null ? null : ($this->expedientes($docenteId)[0] ?? null))
+        return ($docenteId === false ? null : ($this->expedientes($docenteId)[0] ?? null))
             ?? throw new ReglaDeNegocioIncumplida('El docente no tiene horas dictadas en este mes.');
     }
 
