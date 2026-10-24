@@ -23,7 +23,7 @@ Assumptions (to confirm with the CILN):
 | T1 | S3, D1, D4 | inline | done | babb2f3, 3e9d89a |
 | T2 | S2, S3, D2, D3, D5 | inline | done | d2b21fd, see L6 |
 | T3 | S2, D1 | inline | done | see L7 |
-| T4 | all | inline | pending | |
+| T4 | all | inline | in progress | |
 
 - T1: `PermisoMatricula` enum and data migration, `MatriculaPolicy` (strict, `DeniegaLoNoConcedido`), demo grants, audit triggers on `mat_matriculas` and `mat_movimientos`, trigger that rejects UPDATE/DELETE/TRUNCATE on `mat_movimientos`. Risk: items 1 and 2.
 - T2: Academico contracts `TrasladoDeVacante` and `LiberacionDeVacante`; Matricula Actions `TrasladarMatricula` and `RetirarMatricula`; lock order person (advisory, same key as `MatricularEstudiante`) → enrollment → groups by ascending id; two-process race tests. Risk: item 4.
