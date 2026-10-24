@@ -40,10 +40,9 @@ final readonly class RegistrarAsistencia
             $sesion = $this->sesion($grupo, $dia, $horaInicio);
             $marcas = $this->marcas($estados, ClasesDelHorario::estudiantesDe(($this->estudiantesDelGrupo)($grupoId), $dia));
 
-            $clase = ClaseDictada::query()->updateOrCreate(
-                ['grupo_id' => $grupoId, 'fecha' => $dia->toDateString(), 'hora_inicio' => $sesion->horaInicio],
-                ['hora_fin' => $sesion->horaFin, 'docente_id' => $docenteId, 'registrado_por' => $usuario->id],
-            );
+            $clase = ClaseDictada::query()->firstOrNew(['grupo_id' => $grupoId, 'fecha' => $dia->toDateString(), 'hora_inicio' => $sesion->horaInicio]);
+            // The teacher who took the class keeps it (its hours are theirs); a later correction only changes who recorded it.
+            $clase->fill(['hora_fin' => $sesion->horaFin, 'docente_id' => $clase->docente_id ?? $docenteId, 'registrado_por' => $usuario->id])->save();
 
             foreach ($marcas as $matriculaId => $estado) {
                 Asistencia::query()->updateOrCreate(['clase_id' => $clase->id, 'matricula_id' => $matriculaId], ['estado' => $estado]);

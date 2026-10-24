@@ -123,3 +123,14 @@ it('does not ask for a student who enrolled after the class date', function (): 
         ->and(fn (): ClaseDictada => registrarAsistencia([$this->ana->id => 'presente', $this->luis->id => 'presente', $tarde->id => 'presente']))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'La lista de estudiantes del grupo cambió; vuelve a cargarla.');
 });
+
+it('keeps the teacher who took the class when the new teacher corrects it', function (): void {
+    registrarAsistencia([$this->ana->id => 'presente', $this->luis->id => 'presente']);
+    [$usuarioNuevo, $nuevo] = PortalDocente::docente();
+    PortalDocente::asignar($this->grupo, $nuevo);
+
+    $clase = app(RegistrarAsistencia::class)($this->grupo->id, $nuevo->id, '2027-03-08', '18:00', [$this->ana->id => 'falta', $this->luis->id => 'presente'], $usuarioNuevo);
+
+    expect([$clase->refresh()->docente_id, $clase->registrado_por])->toBe([$this->docente->id, $usuarioNuevo->id])
+        ->and(estadosDeLaClase($clase))->toBe([$this->ana->id => 'falta', $this->luis->id => 'presente']);
+});
