@@ -18,5 +18,13 @@
                 </a>
             </li>
         @endforeach
+        @if ($esDocente)
+            <li wire:key="docente.grupos">
+                <a href="{{ route('docente.grupos') }}" class="flex h-full flex-col gap-2 rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200 hover:ring-ciln-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ciln-700">
+                    <span class="font-semibold text-ciln-800">Mis grupos</span>
+                    <span class="text-sm text-slate-600">Registra la asistencia y las notas parciales de tus grupos.</span>
+                </a>
+            </li>
+        @endif
     </ul>
 </div>

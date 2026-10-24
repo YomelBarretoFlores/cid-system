@@ -1,0 +1,43 @@
+# CILN attendance and pre-actas with the teacher portal (M3.2 second half)
+
+Objective: give the assigned teacher a portal to take attendance for each scheduled class and record partial grades (pre-actas) per component of the CILN evaluation scheme, with the resilience checklist built in.
+Branch: `feat/docencia-asistencia` (from `main` 9735b36) · Delivery: one commit per unit on the feature branch, push and merge decided by the user · Test runner: Pest (`php artisan test`).
+
+## Specs
+
+- S1: "Hazlo ahora, antes de seguir con la asistencia y las pre-actas" / "Bien, ahora puedes continuar."
+- S2 (Anexo M3.2): "Llamado de asistencia y registro de calificaciones (pre-actas) durante las clases, según el cronograma académico."
+- S3 (Anexo M4.1, the boundary with the final acta): "Interfaz exclusiva para el docente asignado, habilitada solo durante las fechas del calendario académico." / "Cálculo automático de promedios según el sistema de evaluación del CILN (Examen Parcial, Examen Final, Participación)."
+- S4 (Anexo, general): "Pistas de auditoría (Log Triggers) inmutables para operaciones críticas (cambio de notas, validación de pagos, modificación de actas), registrando fecha, hora, IP, ID de usuario y detalle de la operación."
+- S5 (user rule, 2026-10-24): "Y ahora en adelante tomarás en cuenta esto de resilencia, etc." (checklist: `Transaccion::ejecutar`, documented lock order with real two-process tests, indexed foreign keys, masked rejection logs, audit triggers).
+
+Assumptions (team decision per decisiones-pendientes #3, recorded there; to confirm with the CILN):
+- D1: Teacher portal. A signed-in, verified user whose Persona has a Docencia profile enters `/docente`; anyone else gets 403 "Tu cuenta no está vinculada a un perfil docente del CILN.". The portal header shows "Mis grupos" to teachers and the portal home links to it. "Mis grupos" lists the teacher's current groups (not Cancelado nor Finalizado) with language, level, period and schedule. A teacher only opens a group that is assigned to them now (otherwise 404).
+- D2: Roll call ("según el cronograma académico" = the group's weekly schedule within its period). The assigned teacher picks one scheduled class of the group: a date on which the group has a weekly session, between the period start and the period end, never after today (America/Lima). Every actively enrolled student (enrollment `activa` in the group) gets one state: Presente, Tardanza or Falta. Saving the same class again replaces the states (corrections). Only while the group is Abierto or Cerrado. The recorded class keeps the teacher who recorded it (the dictated hours for M3.3).
+- D3: Pre-acta. The group's scheme is the one for its language and level valid on the period start date (a scheme for the language and level wins over one for the language only, then the level only, then a general one; among equals, the latest `vigente_desde`). The teacher records, per enrolled student and component, a grade from 0 to the scheme's maximum with at most two decimals; a grade may stay blank. Only while the group is Abierto or Cerrado. The final average, the Aprobado/Desaprobado/NSP state, the closing and the locking of the acta belong to M4 (actas finales), which will take the pre-acta grades as input.
+- D4: Lock order: group row (Academico `BloqueoDeGrupo`) first, the same lock assignment and unassignment take, so a teacher removed from a group cannot save after the change commits. The enrolled students are read under that lock.
+- D5: New tables `doc_clases_dictadas`, `doc_asistencias`, `doc_notas_parciales` get the audit trigger and an index on every foreign key; a grade's component cannot be deleted while it has grades.
+
+## Tasks
+
+| ID | Specs | Route | Status | Commit |
+|----|-------|-------|--------|--------|
+| T1 | S2, S3, D1 | inline | done | see L3 |
+| T2 | S2, S4, S5, D2, D4, D5 | inline | pending | |
+| T3 | S2, S3, S4, S5, D3, D4, D5 | inline | pending | |
+| T4 | all | inline | pending | |
+
+- T1: Docencia contract `DocenteDelUsuario`, `docente` middleware (persistent for Livewire), `/docente` routes, "Mis grupos" page, header link and home card. Risk: item 2 (new guard).
+- T2: Matricula contract `EstudiantesDelGrupo`; `doc_clases_dictadas` and `doc_asistencias`; `RegistrarAsistencia` under the group lock; portal page "Asistencia". Risk: items 1, 4.
+- T3: Academico contract `EsquemaDelGrupo`; `doc_notas_parciales`; `RegistrarNotasParciales` under the group lock; portal page "Pre-acta". Risk: items 1, 4.
+- T4: Docs (`modulos.md`, `modelo-de-datos.md`, `seguridad.md`, decisiones-pendientes #3), demo data, full suite, independent verifier, native review.
+
+Route evidence: each unit depends on the previous one (same Docencia module, shared portal pages), so no parallel writer reason; all inline.
+
+Forecast: about 1,600 authored lines in four commits.
+
+## Log
+
+- L1 (2026-10-24): "Bien, ahora puedes continuar." (after "Hazlo ahora, antes de seguir con la asistencia y las pre-actas" and the closed resilience feature).
+- L2: Map: grading schemes (`aca_esquemas_evaluacion`, `aca_componentes_evaluacion`) link only to an optional language, an optional level and validity dates; no contract exposes them; component weights are not checked to add up to 100. No academic calendar table: `aca_periodos` has start, end and enrollment dates. Matricula has no contract listing a group's students; active = `estado = 'activa'`. The `estudiante` middleware only checks that a Persona exists for the user. Groups take classes while Abierto or Cerrado (`recibeTraslados`). `AsignarDocente` and `QuitarDocenteDelGrupo` lock the group row first.
+- L3: T1 inline: RED 5/5 (route missing) → GREEN. Docencia contract `DocenteDelUsuario` (user → person → teacher id), `docente` middleware `RequierePerfilDocente` (also persistent for Livewire updates), `/docente` "Mis grupos" (current groups only, through Academico `HorariosDeGrupos`), header link and home card shown only to teachers. Mutation without the guard fails the 403 test. A teacher gets an account through the existing portal registration (same document and personal email as the roster). `composer check` 930/930.

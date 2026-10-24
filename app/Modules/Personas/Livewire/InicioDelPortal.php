@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Personas\Livewire;
 
+use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
@@ -18,6 +19,7 @@ final class InicioDelPortal extends Component
     {
         return view('personas::livewire.inicio', [
             'ficha' => app(FichaDelUsuario::class)((int) auth()->id()) ?? abort(403),
+            'esDocente' => app(DocenteDelUsuario::class)((int) auth()->id()) !== null,
         ]);
     }
 }

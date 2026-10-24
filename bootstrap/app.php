@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Docencia\Http\Middleware\RequierePerfilDocente;
 use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use App\Shared\Auth\Models\User;
@@ -22,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prependToGroup('api', AsignarIdDeSolicitud::class);
         $middleware->appendToGroup('web', EstablecerContextoAuditoria::class);
         $middleware->appendToGroup('api', EstablecerContextoAuditoria::class);
-        $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class]);
+        $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'docente' => RequierePerfilDocente::class]);
 
         // The admin panel redirects its own guests to its login; every other web guest goes to the portal login.
         $middleware->redirectGuestsTo(

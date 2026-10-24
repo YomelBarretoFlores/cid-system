@@ -1,4 +1,5 @@
 @props(['title' => null])
+@use('App\Modules\Docencia\Contracts\DocenteDelUsuario')
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -28,6 +29,9 @@
                             <x-portal.enlace-menu :ruta="'estudiante.matricula'">Matrícula</x-portal.enlace-menu>
                             <x-portal.enlace-menu :ruta="'estudiante.matriculas'">Mis matrículas</x-portal.enlace-menu>
                             <x-portal.enlace-menu :ruta="'estudiante.clasificacion'">Clasificación</x-portal.enlace-menu>
+                            @if (app(DocenteDelUsuario::class)((int) auth()->id()) !== null)
+                                <x-portal.enlace-menu :ruta="'docente.grupos'">Mis grupos</x-portal.enlace-menu>
+                            @endif
                         </nav>
                     @endif
 
