@@ -12,7 +12,7 @@ paths:
 - Tables use the module prefix: `aca_`, `per_`, `mat_`, `pag_`, `doc_`, `cer_`, `tra_`. Module migrations, factories and seeders live in `app/Modules/<Modulo>/Database/{Migrations,Factories,Seeders}`.
 - Real foreign keys between modules, but no `belongsTo` to another module's model; reference by ID and read through its contract.
 - Put invariants in the database too: `UNIQUE` (for example payment method + operation number), `CHECK` (vacancies >= 0), `NOT NULL`.
-- PostgreSQL has no unsigned integers and Laravel silently ignores `unsigned*`: use `smallInteger`/`integer` plus a `CHECK`. Name constraints `<table>_<rule>_check` and add them with `DB::statement` after `Schema::create`.
+- PostgreSQL has no unsigned integers and Laravel silently ignores `unsigned*`: use `smallInteger`/`integer` plus a `CHECK`. Name constraints `<table>_<rule>_check` (never `<table>_<enum column>_check`: PostgreSQL already gives that name to the CHECK of a Laravel `enum()` column) and add them with `DB::statement` after `Schema::create`.
 - Migrations use literal enum values, never PHP enum classes, so old migrations keep their meaning.
 - PostgreSQL functions use `CREATE OR REPLACE FUNCTION`: `migrate:fresh` drops tables but not functions. Name constraints and FKs explicitly when the generated name would exceed 63 characters.
 - Critical tables get `AFTER INSERT OR UPDATE OR DELETE ... EXECUTE FUNCTION aud_registrar()`. `aud_registros` rejects UPDATE, DELETE and TRUNCATE, so exclude it from `DatabaseTruncation`.
