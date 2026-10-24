@@ -6,6 +6,7 @@ namespace App\Modules\Docencia\Data;
 
 use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Academico\Data\SesionDeClase;
+use App\Modules\Academico\Enums\EstadoGrupo;
 use Carbon\CarbonImmutable;
 
 final readonly class CargaHoraria
@@ -21,6 +22,7 @@ final readonly class CargaHoraria
         public int $semanas,
         public string $dias,
         public int $minutos,
+        public bool $cancelado = false,
     ) {}
 
     public static function de(HorarioDeGrupo $grupo): self
@@ -39,6 +41,7 @@ final readonly class CargaHoraria
             semanas: intdiv(self::diasEntre($grupo->periodoInicio, $grupo->periodoFin) + 7, 7),
             dias: implode(', ', array_values(array_unique(array_map(fn (SesionDeClase $sesion): string => $sesion->dia(), $sesiones)))),
             minutos: array_sum(array_map(fn (SesionDeClase $sesion): int => self::ocurrencias($grupo, $sesion->diaSemana) * $sesion->minutos(), $sesiones)),
+            cancelado: $grupo->estado === EstadoGrupo::Cancelado,
         );
     }
 

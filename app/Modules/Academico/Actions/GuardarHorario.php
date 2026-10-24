@@ -7,11 +7,14 @@ namespace App\Modules\Academico\Actions;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
+use App\Modules\Docencia\Contracts\VerificacionDeCargaDocente;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Support\Facades\DB;
 
 final readonly class GuardarHorario
 {
+    public function __construct(private VerificacionDeCargaDocente $verificacionDeCargaDocente) {}
+
     public function __invoke(int $grupoId, int $diaSemana, string $horaInicio, string $horaFin, ?int $horarioId = null): Horario
     {
         $inicio = self::normalizarHora($horaInicio);
@@ -33,6 +36,7 @@ final readonly class GuardarHorario
             $this->asegurarAulaLibre($grupo, $diaSemana, $inicio, $fin);
 
             $horario->fill(['dia_semana' => $diaSemana, 'hora_inicio' => $inicio, 'hora_fin' => $fin])->save();
+            ($this->verificacionDeCargaDocente)($grupo->id);
 
             return $horario;
         });

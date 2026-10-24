@@ -21,7 +21,8 @@ final readonly class ResumirCargaDelDocente
 
         $minutosPorPeriodo = [];
 
-        foreach ($cargas as $carga) {
+        // A cancelled group is never taught, so its hours stay out of the totals.
+        foreach (array_filter($cargas, fn (CargaHoraria $carga): bool => ! $carga->cancelado) as $carga) {
             $minutosPorPeriodo[$carga->periodo] = ($minutosPorPeriodo[$carga->periodo] ?? 0) + $carga->minutos;
         }
 

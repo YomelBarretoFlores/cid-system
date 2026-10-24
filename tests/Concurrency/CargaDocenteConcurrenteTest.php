@@ -59,3 +59,23 @@ it('never leaves an assigned session outside the availability when the window is
     ])
         ->and($asignado xor ! $franjaVigente)->toBeTrue();
 });
+
+it('never lets a schedule change and an assignment create a clash for the same teacher at the same time', function (): void {
+    $asignado = grupoDeLunes($this->periodo, $this->ciclo, 'CD-D', '11:00:00', '13:00:00');
+    CargaAcademica::query()->create(['grupo_id' => $asignado->id, 'docente_id' => $this->docente->id, 'asignado_por' => $this->usuario->id]);
+    $nuevo = grupoDeLunes($this->periodo, $this->ciclo, 'CD-E', '08:00:00', '10:00:00');
+    $sesion = Horario::query()->where('grupo_id', $asignado->id)->sole();
+    Disponibilidad::query()->whereKey($this->franja->id)->update(['hora_inicio' => '07:00:00']);
+
+    $salidas = enParalelo('asignar-o-cambiar-horario.php', [
+        ['asignar', $nuevo->id, $this->docente->id, $this->usuario->id],
+        ['cambiar', $asignado->id, $sesion->id, $this->usuario->id],
+    ]);
+
+    $docenteDelNuevo = CargaAcademica::query()->where('grupo_id', $nuevo->id)->exists();
+    $sesionMovida = $sesion->refresh()->hora_inicio === '09:00:00';
+
+    expect(collect($salidas)->filter(fn (string $salida): bool => str_ends_with($salida, ': hecho'))->count())->toBe(1)
+        ->and(collect($salidas)->contains(fn (string $salida): bool => str_contains($salida, 'que se cruza con el grupo')))->toBeTrue()
+        ->and($docenteDelNuevo xor $sesionMovida)->toBeTrue();
+});

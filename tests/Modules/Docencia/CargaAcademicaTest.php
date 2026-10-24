@@ -206,3 +206,28 @@ it('lets the profile change once the assigned group is finished', function (): v
 
     expect($this->docente->refresh()->estado)->toBe(EstadoDocente::Inactivo);
 });
+
+it('keeps a cancelled group in the list but out of the period total', function (): void {
+    $sabado = grupoConHorario('ING-05-S', $this->intermedio, $this->periodo, [[5, '18:00', '20:00']]);
+    asignar($this->grupo);
+    asignar($sabado);
+    Grupo::query()->whereKey($sabado->id)->update(['estado' => EstadoGrupo::Cancelado]);
+
+    $resumen = app(ResumirCargaDelDocente::class)($this->docente->id);
+
+    expect(array_map(fn (CargaHoraria $carga): array => [$carga->codigo, $carga->cancelado], $resumen->cargas))->toBe([['ING-05-A', false], ['ING-05-S', true]])
+        ->and($resumen->totalesPorPeriodo)->toBe(['Marzo 2027' => '32']);
+});
+
+it('refuses to remove a group that already moved to another teacher', function (): void {
+    $otro = Docente::factory()->create();
+    $otro->idiomas()->create(['idioma_id' => $this->ingles->id, 'nivel_maximo' => NivelCurricular::Avanzado]);
+    app(GuardarDisponibilidad::class)($otro->id, 1, '16:00', '22:00');
+    app(GuardarDisponibilidad::class)($otro->id, 3, '16:00', '22:00');
+    asignar($this->grupo);
+    asignar($this->grupo, $otro);
+
+    expect(fn () => app(QuitarDocenteDelGrupo::class)($this->grupo->id, $this->docente->id))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El grupo ING-05-A ya no está a cargo de este docente.')
+        ->and(CargaAcademica::query()->sole()->docente_id)->toBe($otro->id);
+});

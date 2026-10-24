@@ -76,7 +76,7 @@ final class CargasRelationManager extends RelationManager
                     ->modalDescription('El grupo quedará sin docente asignado.')
                     ->action(fn (Action $action, CargaAcademica $record) => AccionDeNegocio::ejecutar(
                         $action,
-                        fn () => app(QuitarDocenteDelGrupo::class)($record->grupo_id),
+                        fn () => app(QuitarDocenteDelGrupo::class)($record->grupo_id, $record->docente_id),
                         'Grupo quitado de la carga del docente',
                     )),
             ]);
@@ -100,7 +100,7 @@ final class CargasRelationManager extends RelationManager
             'fechas' => "{$carga->inicio->format('d/m/Y')} – {$carga->fin->format('d/m/Y')}",
             'semanas' => (string) $carga->semanas,
             'dias' => $carga->dias !== '' ? $carga->dias : 'Sin horario',
-            'horas' => "{$carga->horas()} h",
+            'horas' => $carga->cancelado ? 'Grupo cancelado' : "{$carga->horas()} h",
         ];
     }
 
