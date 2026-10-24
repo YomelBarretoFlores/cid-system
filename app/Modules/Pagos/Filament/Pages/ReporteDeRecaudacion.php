@@ -117,11 +117,23 @@ final class ReporteDeRecaudacion extends Page
         $datos = $this->data ?? [];
 
         return new FiltrosDeRecaudacion(
-            desde: CarbonImmutable::parse($this->texto($datos['desde'] ?? null) ?: 'today'),
-            hasta: CarbonImmutable::parse($this->texto($datos['hasta'] ?? null) ?: 'today'),
+            desde: $this->fecha($datos['desde'] ?? null),
+            hasta: $this->fecha($datos['hasta'] ?? null),
             conceptoId: is_numeric($datos['concepto_id'] ?? null) ? (int) $datos['concepto_id'] : null,
             periodoId: is_numeric($datos['periodo_id'] ?? null) ? (int) $datos['periodo_id'] : null,
         );
+    }
+
+    // The date picker sends Y-m-d; anything else reaching the component is refused as a business message, not a crash.
+    private function fecha(mixed $valor): CarbonImmutable
+    {
+        $texto = $this->texto($valor);
+        $fecha = preg_match('/^\d{4}-\d{2}-\d{2}$/', $texto) === 1 ? CarbonImmutable::createFromFormat('!Y-m-d', $texto, 'America/Lima') : null;
+
+        // Comparing back rejects dates that overflow into another month, such as 2026-13-45.
+        return $fecha instanceof CarbonImmutable && $fecha->format('Y-m-d') === $texto
+            ? $fecha
+            : throw new ReglaDeNegocioIncumplida('Escribe un rango de fechas válido.');
     }
 
     private function texto(mixed $valor): string

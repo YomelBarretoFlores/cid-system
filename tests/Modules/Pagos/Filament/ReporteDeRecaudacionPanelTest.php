@@ -83,3 +83,17 @@ it('renders the collection report as a real PDF file', function (): void {
 
     expect(app(ExportarRecaudacionPdf::class)($reporte)->generatePdfContent())->toStartWith('%PDF');
 });
+
+it('notifies an invalid range instead of downloading', function (string $accion, string $desde, string $mensaje): void {
+    $this->actingAs($this->tesorero);
+
+    Livewire::test(ReporteDeRecaudacion::class)
+        ->set('data.desde', $desde)
+        ->callAction($accion)
+        ->assertNotified($mensaje)
+        ->assertNoFileDownloaded();
+})->with([
+    'inverted range as PDF' => ['descargarPdf', '2026-10-31', 'La fecha inicial no puede ser posterior a la final.'],
+    'inverted range as CSV' => ['descargarCsv', '2026-10-31', 'La fecha inicial no puede ser posterior a la final.'],
+    'malformed date' => ['descargarCsv', 'not-a-date', 'Escribe un rango de fechas válido.'],
+]);

@@ -122,8 +122,13 @@ it('filters by concept and by academic period', function (): void {
     Matricula::factory()->create(['persona_id' => $this->luis->id, 'grupo_id' => $this->grupoFebrero->id, 'pago_id' => $febrero->id]);
     pagoValidado($this->pension, $this->rosa, '180.00', '2026-10-08', 'OP-3');
 
+    $delPeriodo = reporte(periodoId: $this->enero->id);
+
     expect(collect(reporte(conceptoId: $this->pension->id)->detalle)->pluck('numeroOperacion')->all())->toBe(['OP-3'])
-        ->and(collect(reporte(periodoId: $this->enero->id)->detalle)->pluck('numeroOperacion')->all())->toBe(['OP-1']);
+        ->and(collect($delPeriodo->detalle)->pluck('numeroOperacion')->all())->toBe(['OP-1'])
+        ->and([$delPeriodo->totalCentimos, $delPeriodo->operaciones])->toBe([8000, 1])
+        ->and(array_map(fn (FilaDeConcepto $fila): array => [$fila->codigo, $fila->centimos, $fila->operaciones], $delPeriodo->porConcepto))->toBe([['MAT-01', 8000, 1]])
+        ->and(array_map(fn (FilaDeIdioma $fila): array => [$fila->idioma, $fila->nivel, $fila->centimos], $delPeriodo->porIdiomaYNivel))->toBe([['Inglés', 'Básico', 8000]]);
 });
 
 it('refuses a date range that ends before it starts', function (): void {

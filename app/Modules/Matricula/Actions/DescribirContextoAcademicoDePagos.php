@@ -35,8 +35,11 @@ final readonly class DescribirContextoAcademicoDePagos implements ContextoAcadem
         $contextos = [];
 
         foreach ($matriculas as $matricula) {
-            $grupo = $grupos[$matricula->grupo_id];
-            $contextos[(int) $matricula->pago_id] = new ContextoAcademico($grupo->periodoId, $grupo->periodo, $grupo->idioma, $grupo->nivel);
+            $grupo = $grupos[$matricula->grupo_id] ?? null;
+
+            if ($grupo !== null) {
+                $contextos[(int) $matricula->pago_id] = new ContextoAcademico($grupo->periodoId, $grupo->periodo, $grupo->idioma, $grupo->nivel);
+            }
         }
 
         return $contextos;
