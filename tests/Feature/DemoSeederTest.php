@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Models\Pago;
+use App\Modules\Personas\Enums\PermisoPersona;
 use App\Shared\Auth\Models\User;
 use Database\Seeders\DatabaseSeeder;
 
@@ -30,9 +32,9 @@ it('seeds a demo administrator with every payment permission and a cashier who c
     $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
     $caja = User::query()->where('email', 'caja@ciln.test')->firstOrFail();
 
-    expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(['admin-panel.access', ...collect(PermisoPago::valores())->sort()->values()->all()])
+    expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(collect(['admin-panel.access', ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores()])->sort()->values()->all())
         ->and($caja->getPermissionNames()->sort()->values()->all())
-        ->toBe(['admin-panel.access', PermisoPago::Registrar->value, PermisoPago::Validar->value, PermisoPago::Ver->value]);
+        ->toBe(collect(['admin-panel.access', PermisoPago::Registrar->value, PermisoPago::Validar->value, PermisoPago::Ver->value, ...PermisoPersona::valores()])->sort()->values()->all());
 });
 
 it('refuses to seed demo data in production even when forced', function (): void {

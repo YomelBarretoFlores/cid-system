@@ -7,10 +7,12 @@ namespace App\Modules\Academico\Models;
 use App\Modules\Academico\Database\Factories\GrupoFactory;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\Modalidad;
+use App\Modules\Academico\Policies\OfertaAcademicaPolicy;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'enlace_virtual', 'cupo_maximo', 'cupo_minimo', 'estado',
 ])]
 #[UseFactory(GrupoFactory::class)]
+#[UsePolicy(OfertaAcademicaPolicy::class)]
 final class Grupo extends Model
 {
     /** @use HasFactory<GrupoFactory> */

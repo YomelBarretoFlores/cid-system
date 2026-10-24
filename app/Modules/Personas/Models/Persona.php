@@ -7,12 +7,14 @@ namespace App\Modules\Personas\Models;
 use App\Modules\Personas\Database\Factories\PersonaFactory;
 use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Enums\TipoVinculo;
+use App\Modules\Personas\Policies\PersonaPolicy;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -31,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'nombres', 'fecha_nacimiento', 'correo', 'celular', 'tipo_vinculo',
 ])]
 #[UseFactory(PersonaFactory::class)]
+#[UsePolicy(PersonaPolicy::class)]
 final class Persona extends Model
 {
     /** @use HasFactory<PersonaFactory> */
