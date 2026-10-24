@@ -31,10 +31,11 @@ return new class extends Migration
         DB::unprepared(<<<'SQL'
             CREATE OR REPLACE FUNCTION aud_registrar() RETURNS trigger
             LANGUAGE plpgsql
-            SET search_path = pg_catalog, public
+            SECURITY DEFINER
+            SET search_path = pg_catalog, public, pg_temp
             AS $$
             BEGIN
-                INSERT INTO aud_registros (tabla, registro_id, operacion, datos_anteriores, datos_nuevos, usuario_id, ip, ocurrido_en)
+                INSERT INTO public.aud_registros (tabla, registro_id, operacion, datos_anteriores, datos_nuevos, usuario_id, ip, ocurrido_en)
                 VALUES (
                     TG_TABLE_NAME,
                     CASE WHEN TG_OP = 'DELETE' THEN OLD.id ELSE NEW.id END,

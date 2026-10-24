@@ -66,6 +66,9 @@ return new class extends Migration
             CREATE TRIGGER pag_pagos_sin_borrado BEFORE DELETE ON pag_pagos
                 FOR EACH ROW EXECUTE FUNCTION pag_impedir_borrado();
 
+            CREATE TRIGGER pag_pagos_sin_truncate BEFORE TRUNCATE ON pag_pagos
+                FOR EACH STATEMENT EXECUTE FUNCTION pag_impedir_borrado();
+
             CREATE TRIGGER pag_pagos_auditoria AFTER INSERT OR UPDATE OR DELETE ON pag_pagos
                 FOR EACH ROW EXECUTE FUNCTION aud_registrar();
             SQL);

@@ -30,7 +30,7 @@ El Anexo exige pistas **inmutables** para operaciones críticas (cambio de notas
 | Pieza | Diseño |
 |---|---|
 | Fuente oficial | Triggers de PostgreSQL en las tablas críticas, que escriben en una tabla de auditoría |
-| Inmutabilidad | Trigger que rechaza `UPDATE` y `DELETE` sobre la tabla de auditoría; el usuario de base de datos de la aplicación solo tiene `INSERT` y `SELECT` |
+| Inmutabilidad | Triggers que rechazan `UPDATE`, `DELETE` y `TRUNCATE` sobre la tabla de auditoría. `aud_registrar()` es `SECURITY DEFINER` con `search_path` fijo (`pg_catalog, public, pg_temp`) y escribe en `public.aud_registros`, así que una tabla temporal no puede suplantarla y la aplicación no necesita permiso de escritura sobre la auditoría |
 | Usuario e IP | Laravel los fija en cada petición con `set_config` (sesión de PostgreSQL) y el trigger los lee |
 | Cobertura | Captura también cambios hechos con query builder o SQL directo (los paquetes solo ven eventos de Eloquent) |
 | Complemento | `spatie/laravel-activitylog` para mostrar contexto de negocio en pantalla |
@@ -45,8 +45,9 @@ Implementación (`app/Shared/Audit`):
 
 Reglas de uso:
 - **Jobs y comandos** que modifiquen tablas críticas deben llamar a `ContextoAuditoria::establecer($usuarioId, null)` al empezar y `limpiar()` al terminar: un worker reutiliza la conexión entre jobs.
-- **Producción**: migrar con un rol dueño del esquema y conectar la aplicación con otro rol que solo tenga `INSERT` y `SELECT` sobre `aud_registros`. Los triggers protegen incluso al dueño; solo un superusuario podría desactivarlos.
-- Las pruebas con `DatabaseTruncation` deben excluir `aud_registros`.
+- **Producción**: un rol dueño del esquema ejecuta las migraciones y la aplicación se conecta con otro rol que **no es dueño** de ninguna tabla. Ese rol de aplicación no recibe `INSERT`, `UPDATE`, `DELETE` ni `TRUNCATE` sobre `aud_registros` (solo `SELECT` si debe consultarla). El dueño de una tabla puede desactivar sus triggers con `ALTER TABLE ... DISABLE TRIGGER`, por eso nunca debe ser el rol con el que corre la aplicación.
+- El contexto (`app.usuario_id`, `app.ip`) lo fija la aplicación; quien tenga acceso SQL directo podría falsearlo. La protección real es que nadie fuera de la aplicación se conecte con el rol de aplicación.
+- Las pruebas con `DatabaseTruncation` deben excluir `aud_registros` y `pag_pagos`, que rechazan `TRUNCATE`.
 
 Tests: `tests/Feature/Audit/AuditTrailTest.php` (inmutabilidad, contexto web/API, cambios por query builder) y `tests/Modules/Pagos/PagoTest.php` (validación auditada).
 

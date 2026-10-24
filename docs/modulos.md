@@ -34,6 +34,7 @@ Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md
 | Unicidad | (medio de pago + número de operación) es único; un pago desbloquea una sola matrícula o solicitud |
 | Tarifas | Por concepto TUPA/TUSNE y tipo de vínculo, con vigencia sin superposición |
 | Reportes | Consolidado por periodo, idioma, nivel y concepto; PDF y Excel/CSV para DGF/Tesorería |
+| Reglas para las Actions | Al validar, anular o usar un pago: verificar estado, que pertenezca a la persona, que el concepto corresponda al servicio (matrícula o examen) y que la tarifa sea del mismo concepto; impedir editar monto o número de operación de un pago validado; un pago desbloquea un solo servicio en total (la base solo lo garantiza por tabla) |
 | Fuera de alcance | Integración automática con sistemas externos |
 
 ## M3 · Docencia

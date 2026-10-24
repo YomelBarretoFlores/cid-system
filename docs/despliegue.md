@@ -37,6 +37,11 @@ SESSION_SECURE_COOKIE=true
 QUEUE_CONNECTION=database
 ```
 
+## Base de datos y proxy
+
+- Dos roles de PostgreSQL: **dueño** (ejecuta `php artisan migrate`) y **aplicación** (lo usa Laravel en ejecución, sin ser dueño de tablas). Detalle en [`seguridad.md`](seguridad.md).
+- Si hay un proxy inverso o balanceador delante, configurar `trustProxies(at: ...)` en `bootstrap/app.php`; si no, la auditoría registra la IP del proxy en lugar de la del usuario.
+
 ## Verificación
 
 - `GET /up` responde 200.

@@ -82,3 +82,10 @@ it('audits who validated a payment and when, from the request context', function
         ->and(json_decode((string) $registro->datos_anteriores, true)['estado'])->toBe('pendiente')
         ->and(json_decode((string) $registro->datos_nuevos, true)['estado'])->toBe('validado');
 });
+
+it('never truncates payments', function (): void {
+    Pago::factory()->create();
+
+    expect(fn () => DB::statement('TRUNCATE pag_pagos CASCADE'))
+        ->toThrow(QueryException::class, 'pag_pagos no admite borrado');
+});

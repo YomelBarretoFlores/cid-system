@@ -84,3 +84,19 @@ it('leaves the user empty for guests', function (): void {
 
     $this->get('/auditoria-probe')->assertJson(['usuario' => '']);
 });
+
+it('cannot be bypassed by a temporary table that shadows the audit table', function (): void {
+    DB::statement('CREATE TEMP TABLE aud_registros (LIKE public.aud_registros INCLUDING DEFAULTS)');
+
+    DB::table('aud_prueba')->insert(['valor' => 'cambio que debe quedar auditado']);
+
+    expect(DB::table('public.aud_registros')->where('tabla', 'aud_prueba')->count())->toBe(1)
+        ->and(DB::table('pg_temp.aud_registros')->count())->toBe(0);
+});
+
+it('writes the audit trail with the owner privileges and a locked search path', function (): void {
+    $funcion = DB::selectOne("SELECT prosecdef, array_to_string(proconfig, ',') AS config FROM pg_proc WHERE proname = 'aud_registrar'");
+
+    expect($funcion->prosecdef)->toBeTrue()
+        ->and($funcion->config)->toBe('search_path=pg_catalog, public, pg_temp');
+});
