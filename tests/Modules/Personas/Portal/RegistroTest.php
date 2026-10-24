@@ -174,7 +174,7 @@ it('links a CILN record whose email was typed with capitals and spaces', functio
     expect($persona->refresh()->user_id)->not->toBeNull();
 });
 
-it('logs a refused registration without the email it mentions', function (): void {
+it('logs a refused registration from the portal', function (): void {
     $registros = [];
     Event::listen(MessageLogged::class, function (MessageLogged $mensaje) use (&$registros): void {
         $registros[] = [$mensaje->level, $mensaje->message, $mensaje->context];

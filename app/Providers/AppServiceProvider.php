@@ -16,7 +16,7 @@ final class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind('db.connector.pgsql', fn (): ConectorPostgres => new ConectorPostgres(
-            sinLimiteDeSentencia: $this->app->runningConsoleCommand(ConectorPostgres::COMANDOS_SIN_LIMITE_DE_SENTENCIA),
+            sinLimiteDeSentencia: $this->app->runningInConsole() && ConectorPostgres::liberaLimiteDeSentencia($_SERVER['argv'] ?? []),
         ));
     }
 

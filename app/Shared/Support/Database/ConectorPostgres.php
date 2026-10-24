@@ -25,6 +25,17 @@ final class ConectorPostgres extends PostgresConnector
     public function __construct(private readonly bool $sinLimiteDeSentencia = false) {}
 
     /**
+     * @param  array<int, mixed>  $argv
+     */
+    public static function liberaLimiteDeSentencia(array $argv): bool
+    {
+        // The command is the first argument after global options such as --env=production.
+        $comando = collect(array_slice($argv, 1))->first(fn (mixed $argumento): bool => is_string($argumento) && ! str_starts_with($argumento, '-'));
+
+        return in_array($comando, self::COMANDOS_SIN_LIMITE_DE_SENTENCIA, true);
+    }
+
+    /**
      * @param  array<string, mixed>  $config
      */
     protected function getDsn(array $config): string
@@ -62,8 +73,8 @@ final class ConectorPostgres extends PostgresConnector
         }
 
         // A typo must not silently remove the protection, so the safe default applies instead.
-        if (! isset(self::$avisados[$parametro])) {
-            self::$avisados[$parametro] = true;
+        if (! isset(self::$avisados["{$parametro}={$valor}"])) {
+            self::$avisados["{$parametro}={$valor}"] = true;
             Log::error('Límite de sesión de PostgreSQL inválido; se usa el valor seguro por defecto.', ['parametro' => $parametro]);
         }
 

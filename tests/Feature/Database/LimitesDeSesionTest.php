@@ -71,7 +71,7 @@ it('accepts every time unit PostgreSQL accepts', function (): void {
 
 it('lifts the statement cap only for migrations and seeding, not for workers or other commands', function (string $comando, string $limite): void {
     $argv = $_SERVER['argv'];
-    $_SERVER['argv'] = ['artisan', $comando];
+    $_SERVER['argv'] = ['artisan', ...explode(' ', $comando)];
 
     try {
         $pdo = app('db.connector.pgsql')->connect(config('database.connections.pgsql'));
@@ -84,6 +84,7 @@ it('lifts the statement cap only for migrations and seeding, not for workers or 
     expect($valor)->toBe($limite);
 })->with([
     'migrate' => ['migrate', '0'],
+    'migrate after a global option' => ['--env=production migrate', '0'],
     'seed' => ['db:seed', '0'],
     'queue worker' => ['queue:work', '30s'],
     'scheduler' => ['schedule:run', '30s'],

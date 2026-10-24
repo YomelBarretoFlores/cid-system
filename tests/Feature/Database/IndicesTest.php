@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
 
-it('indexes every foreign key column so joins and cascades never scan a whole table', function (): void {
+it('indexes every foreign key with a full index that starts with its first column, so joins and cascades never scan a whole table', function (): void {
     $sinIndice = collect(DB::select(<<<'SQL'
         SELECT c.conrelid::regclass::text AS tabla, a.attname AS columna
         FROM pg_constraint c
@@ -13,7 +13,7 @@ it('indexes every foreign key column so joins and cascades never scan a whole ta
           AND c.connamespace = 'public'::regnamespace
           AND NOT EXISTS (
               SELECT 1 FROM pg_index i
-              WHERE i.indrelid = c.conrelid AND i.indkey[0] = c.conkey[1]
+              WHERE i.indrelid = c.conrelid AND i.indkey[0] = c.conkey[1] AND i.indpred IS NULL
           )
         ORDER BY 1, 2
         SQL))->map(fn (object $fila): string => "{$fila->tabla}.{$fila->columna}")->all();

@@ -15,7 +15,7 @@ beforeEach(function (): void {
     Route::middleware('web')->get('/_prueba/auditada', fn (): string => (string) Docente::factory()->create()->id);
 });
 
-it('gives every request an ID that the response returns and every log line carries', function (): void {
+it('gives every request an ID that the response returns and every log line carries, next to the proxy origin', function (): void {
     config(['logging.channels.prueba' => ['driver' => 'monolog', 'handler' => TestHandler::class], 'logging.default' => 'prueba']);
     Route::middleware('web')->get('/_prueba/log', function (): string {
         Log::info('Línea de prueba.');
@@ -23,11 +23,12 @@ it('gives every request an ID that the response returns and every log line carri
         return 'ok';
     });
 
-    $id = $this->get('/_prueba/log')->assertOk()->headers->get('X-Request-Id');
+    $id = $this->withHeader('X-Request-Id', 'proxy-0001-abcd')->get('/_prueba/log')->assertOk()->headers->get('X-Request-Id');
     $registro = collect(Log::channel('prueba')->getLogger()->getHandlers()[0]->getRecords())->firstWhere('message', 'Línea de prueba.');
 
     expect(Str::isUlid((string) $id))->toBeTrue()
-        ->and($registro->extra['solicitud_id'] ?? null)->toBe($id);
+        ->and($registro->extra['solicitud_id'] ?? null)->toBe($id)
+        ->and($registro->extra['solicitud_origen'] ?? null)->toBe('proxy-0001-abcd');
 });
 
 it('generates its own ID even when a client sends one, and keeps a well-formed incoming ID only as the origin', function (string $enviado, ?string $origen): void {
