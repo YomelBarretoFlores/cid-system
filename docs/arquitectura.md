@@ -80,7 +80,7 @@ Detalle funcional: [`modulos.md`](modulos.md).
 
 ## Reglas de desacople
 
-1. **Un módulo solo usa la API pública de otro**: `Contracts/`, `Data/`, `Enums/` y `Events/`. Nunca sus `Models`, `Actions`, `Http`, `Filament`, `Livewire`, `Listeners` ni `Policies`. Lo verifica `tests/Architecture/ModulesTest.php`.
+1. **Un módulo solo usa la API pública de otro**: `Contracts/`, `Data/`, `Enums/` y `Events/`. Todo lo demás es interno (`Models`, `Actions`, `Http` o cualquier carpeta nueva). Lo verifica `tests/Architecture/ModulesTest.php` como lista blanca.
 2. **Precondiciones de negocio por consulta síncrona** a un contrato (por ejemplo, la matrícula pregunta a Pagos si el pago está validado). **Efectos secundarios por eventos** (notificaciones, avance de trámites), despachados después del commit.
 3. **Cada módulo es dueño de sus tablas**, con prefijo (`aca_`, `per_`, `mat_`, `pag_`, `doc_`, `cer_`, `tra_`). Entre módulos no hay `belongsTo` hacia modelos ajenos, pero **sí llaves foráneas reales en PostgreSQL**.
 4. **Tablero es de solo lectura**: consulta mediante queries dedicadas o vistas de PostgreSQL (materializadas si pesan), no mediante contratos.

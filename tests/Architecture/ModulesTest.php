@@ -13,14 +13,11 @@ const MODULES = [
     'Tramites',
 ];
 
-const INTERNAL_LAYERS = [
-    'Actions',
-    'Filament',
-    'Http',
-    'Listeners',
-    'Livewire',
-    'Models',
-    'Policies',
+const PUBLIC_API = [
+    'Contracts',
+    'Data',
+    'Enums',
+    'Events',
 ];
 
 arch('php preset')->preset()->php();
@@ -37,14 +34,15 @@ arch('actions are final and invokable')
     ->toBeInvokable();
 
 foreach (MODULES as $module) {
-    $foreignInternals = collect(MODULES)
-        ->reject(fn (string $other): bool => $other === $module)
-        ->crossJoin(INTERNAL_LAYERS)
+    $otherModules = array_values(array_filter(MODULES, fn (string $other): bool => $other !== $module));
+
+    $publicApi = collect($otherModules)
+        ->crossJoin(PUBLIC_API)
         ->map(fn (array $pair): string => "App\\Modules\\{$pair[0]}\\{$pair[1]}")
-        ->values()
         ->all();
 
     arch("{$module} only depends on the public API of other modules")
         ->expect("App\\Modules\\{$module}")
-        ->not->toUse($foreignInternals);
+        ->not->toUse(array_map(fn (string $other): string => "App\\Modules\\{$other}", $otherModules))
+        ->ignoring($publicApi);
 }
