@@ -12,6 +12,7 @@ use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use finfo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,7 @@ final readonly class RegistrarPago
     public function __invoke(RegistroDePago $registro, UploadedFile $recibo, ?User $registradoPor = null): Pago
     {
         $extension = $this->extensionDelRecibo($recibo);
-        $tarifa = $this->tarifaAplicable($registro);
+        $this->tarifaAplicable($registro);
         $ruta = $recibo->storeAs("recibos/{$registro->fechaPago->format('Y')}", Str::ulid().".{$extension}", self::DISCO);
 
         try {
@@ -42,7 +43,8 @@ final readonly class RegistrarPago
             return DB::transaction(fn (): Pago => Pago::query()->create([
                 'persona_id' => $registro->personaId,
                 'concepto_id' => $registro->conceptoId,
-                'tarifa_id' => $tarifa->id,
+                // Re-read under a shared lock: a fee being closed makes this wait and then no longer match.
+                'tarifa_id' => $this->tarifaAplicable($registro, bloquear: true)->id,
                 'monto' => $registro->monto,
                 'medio_pago' => $registro->medioPago,
                 'numero_operacion' => $registro->numeroOperacion,
@@ -67,7 +69,7 @@ final readonly class RegistrarPago
             ?? throw new ReglaDeNegocioIncumplida('El recibo debe ser una imagen JPG o PNG, o un PDF.');
     }
 
-    private function tarifaAplicable(RegistroDePago $registro): Tarifa
+    private function tarifaAplicable(RegistroDePago $registro, bool $bloquear = false): Tarifa
     {
         $concepto = Concepto::query()->whereKey($registro->conceptoId)->where('activo', true)->first()
             ?? throw new ReglaDeNegocioIncumplida('El concepto de pago no está disponible.');
@@ -75,6 +77,7 @@ final readonly class RegistrarPago
         return $concepto->tarifas()
             ->where('tipo_vinculo', ($this->vinculo)($registro->personaId))
             ->vigenteEn($registro->fechaPago)
+            ->when($bloquear, fn (Builder $query): Builder => $query->sharedLock())
             ->first()
             ?? throw new ReglaDeNegocioIncumplida('No hay una tarifa vigente para este concepto en la fecha de pago.');
     }

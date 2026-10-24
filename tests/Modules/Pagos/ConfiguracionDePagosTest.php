@@ -77,12 +77,25 @@ it('audits every change to concepts and fees with the user', function (): void {
     $concepto = Concepto::factory()->create();
     $concepto->update(['activo' => false]);
     $tarifa = Tarifa::factory()->for($concepto)->create();
+    $tarifa->update(['vigente_hasta' => '2027-12-31']);
     $tarifa->delete();
 
-    $registros = DB::table('aud_registros')->whereIn('tabla', ['pag_conceptos', 'pag_tarifas'])
-        ->whereIn('registro_id', [$concepto->id, $tarifa->id])->orderBy('id')->get();
+    $registros = DB::table('aud_registros')
+        ->where(fn ($query) => $query
+            ->where(['tabla' => 'pag_conceptos', 'registro_id' => $concepto->id])
+            ->orWhere(fn ($tarifas) => $tarifas->where(['tabla' => 'pag_tarifas', 'registro_id' => $tarifa->id])))
+        ->orderBy('id')
+        ->get();
 
     expect($registros->map(fn (object $registro): string => "{$registro->tabla}:{$registro->operacion}")->all())
-        ->toBe(['pag_conceptos:INSERT', 'pag_conceptos:UPDATE', 'pag_tarifas:INSERT', 'pag_tarifas:DELETE'])
+        ->toBe(['pag_conceptos:INSERT', 'pag_conceptos:UPDATE', 'pag_tarifas:INSERT', 'pag_tarifas:UPDATE', 'pag_tarifas:DELETE'])
         ->and($registros->pluck('usuario_id')->unique()->all())->toBe([$this->administrador->id]);
 });
+
+it('never deletes a fee or a concept that payments applied, even outside the application', function (string $tabla): void {
+    Pago::factory()->create(['concepto_id' => $this->tarifa->concepto_id, 'tarifa_id' => $this->tarifa->id]);
+    $id = $tabla === 'pag_tarifas' ? $this->tarifa->id : $this->tarifa->concepto_id;
+
+    expect(fn () => DB::transaction(fn () => DB::table($tabla)->where('id', $id)->delete()))
+        ->toThrow(QueryException::class, 'violates RESTRICT setting of foreign key constraint');
+})->with(['pag_tarifas', 'pag_conceptos']);
