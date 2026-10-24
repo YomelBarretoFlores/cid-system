@@ -19,9 +19,6 @@ use Illuminate\Support\Str;
 
 final readonly class ConsolidarHorasDictadas
 {
-    // Sorts after any padded cost, so hours without a cost close each language and level.
-    private const string SIN_COSTO = 'z';
-
     public function __construct(
         private HorariosDeGrupos $horariosDeGrupos,
         private FichasDePersonas $fichasDePersonas,
@@ -49,6 +46,8 @@ final readonly class ConsolidarHorasDictadas
         $grupos = ($this->horariosDeGrupos)(array_values(array_map(intval(...), $clases->pluck('grupo_id')->unique()->all())));
         $nombres = ($this->fichasDePersonas)(array_values(array_map(intval(...), $docentes->pluck('persona_id')->all())));
 
+        $costos = CostoPorHora::query()->get()->groupBy(fn (CostoPorHora $costo): string => $costo->condicion_laboral->value);
+
         $expedientes = $docentes->map(fn (Docente $docente): ExpedienteDeHoras => new ExpedienteDeHoras(
             docenteId: $docente->id,
             codigo: $docente->codigo,
@@ -56,7 +55,7 @@ final readonly class ConsolidarHorasDictadas
             categoria: $docente->condicion_laboral->etiqueta(),
             anio: $anio,
             mes: $mes,
-            lineas: $this->lineas($clases->where('docente_id', $docente->id), $grupos, $docente),
+            lineas: $this->lineas($clases->where('docente_id', $docente->id), $grupos, $costos->get($docente->condicion_laboral->value, new Collection)),
         ));
 
         return array_values($expedientes->sortBy(fn (ExpedienteDeHoras $expediente): string => Str::lower(Str::ascii($expediente->nombre)))->all());
@@ -65,33 +64,37 @@ final readonly class ConsolidarHorasDictadas
     /**
      * @param  Collection<int, ClaseDictada>  $clases
      * @param  array<int, HorarioDeGrupo>  $grupos
+     * @param  Collection<int, CostoPorHora>  $costos  costs of the teacher's category
      * @return list<LineaDeHoras>
      */
-    private function lineas(Collection $clases, array $grupos, Docente $docente): array
+    private function lineas(Collection $clases, array $grupos, Collection $costos): array
     {
-        $costos = CostoPorHora::query()->where('condicion_laboral', $docente->condicion_laboral)->get();
-        $minutos = [];
+        $lineas = [];
 
         foreach ($clases as $clase) {
             $grupo = $grupos[$clase->grupo_id];
             $costo = $costos->first(fn (CostoPorHora $vigente): bool => $vigente->vigente_desde->lte($clase->fecha) && ($vigente->vigente_hasta === null || $vigente->vigente_hasta->gte($clase->fecha)));
-            $clave = implode('|', [$grupo->idioma, $grupo->nivel->orden(), $grupo->nivel->etiqueta(), $costo === null ? self::SIN_COSTO : str_pad((string) $this->centimos($costo->costo_hora), 12, '0', STR_PAD_LEFT)]);
-            $minutos[$clave] = ($minutos[$clave] ?? 0) + $this->minutos($clase);
+            $centimos = $costo === null ? null : $this->centimos($costo->costo_hora);
+            $clave = "{$grupo->idioma}\0{$grupo->nivel->value}\0".($centimos ?? '-');
+            $lineas[$clave] ??= ['idioma' => $grupo->idioma, 'orden' => $grupo->nivel->orden(), 'nivel' => $grupo->nivel->etiqueta(), 'costo' => $centimos, 'minutos' => 0];
+            $lineas[$clave]['minutos'] += $this->minutos($clase);
         }
 
-        ksort($minutos);
+        // Language, then curricular level, then cost; hours without a cost close each language and level.
+        usort($lineas, fn (array $a, array $b): int => [$a['idioma'], $a['orden'], $a['costo'] ?? PHP_INT_MAX] <=> [$b['idioma'], $b['orden'], $b['costo'] ?? PHP_INT_MAX]);
 
-        return array_map($this->linea(...), array_keys($minutos), array_values($minutos));
+        return array_map($this->linea(...), $lineas);
     }
 
-    private function linea(string $clave, int $minutos): LineaDeHoras
+    /**
+     * @param  array{idioma: string, orden: int, nivel: string, costo: ?int, minutos: int}  $linea
+     */
+    private function linea(array $linea): LineaDeHoras
     {
-        [$idioma, , $nivel, $costo] = explode('|', $clave);
         // Hours are rounded once per line, and the amount is computed from those hours so anyone can reproduce it.
-        $centesimas = intdiv($minutos * 100 + 30, 60);
-        $costoCentimos = $costo === self::SIN_COSTO ? null : (int) $costo;
+        $centesimas = intdiv($linea['minutos'] * 100 + 30, 60);
 
-        return new LineaDeHoras($idioma, $nivel, $centesimas, $costoCentimos, $costoCentimos === null ? null : intdiv($centesimas * $costoCentimos + 50, 100));
+        return new LineaDeHoras($linea['idioma'], $linea['nivel'], $centesimas, $linea['costo'], $linea['costo'] === null ? null : intdiv($centesimas * $linea['costo'] + 50, 100));
     }
 
     private function minutos(ClaseDictada $clase): int

@@ -21,19 +21,39 @@ final readonly class ExpedienteDeHoras
         public array $lineas,
     ) {}
 
+    public static function nombreDelMes(int $mes): string
+    {
+        return self::MESES[$mes];
+    }
+
     public function periodo(): string
     {
         return self::MESES[$this->mes].' '.$this->anio;
     }
 
+    public function nombreDeArchivo(string $extension): string
+    {
+        return sprintf('expediente-de-horas-%04d-%02d-%s.%s', $this->anio, $this->mes, $this->codigo, $extension);
+    }
+
+    public function montoTotalCentimos(): int
+    {
+        return array_sum(array_map(fn (LineaDeHoras $linea): int => $linea->montoCentimos ?? 0, $this->lineas));
+    }
+
+    public function horasTotalesCentesimas(): int
+    {
+        return array_sum(array_map(fn (LineaDeHoras $linea): int => $linea->centesimasDeHora, $this->lineas));
+    }
+
     public function horasTotales(): string
     {
-        return LineaDeHoras::decimal(array_sum(array_map(fn (LineaDeHoras $linea): int => $linea->centesimasDeHora, $this->lineas)));
+        return LineaDeHoras::decimal($this->horasTotalesCentesimas());
     }
 
     public function montoTotal(): string
     {
-        return LineaDeHoras::decimal(array_sum(array_map(fn (LineaDeHoras $linea): int => $linea->montoCentimos ?? 0, $this->lineas)));
+        return LineaDeHoras::decimal($this->montoTotalCentimos());
     }
 
     public function tieneHorasSinCosto(): bool
