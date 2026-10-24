@@ -107,8 +107,16 @@ final readonly class ReglasDeCargaDocente
      */
     private function cubre(Collection $franjas, SesionDeClase $sesion): bool
     {
-        return $franjas->contains(fn (Disponibilidad $franja): bool => $franja->dia_semana === $sesion->diaSemana
-            && $franja->hora_inicio <= $sesion->horaInicio
-            && $franja->hora_fin >= $sesion->horaFin);
+        // Adjacent windows (16:00-19:00 and 19:00-22:00) are one continuous availability.
+        $cubiertaHasta = $sesion->horaInicio;
+        $delDia = $franjas->filter(fn (Disponibilidad $franja): bool => $franja->dia_semana === $sesion->diaSemana)->sortBy('hora_inicio');
+
+        foreach ($delDia as $franja) {
+            if ($franja->hora_inicio <= $cubiertaHasta && $franja->hora_fin > $cubiertaHasta) {
+                $cubiertaHasta = $franja->hora_fin;
+            }
+        }
+
+        return $cubiertaHasta >= $sesion->horaFin;
     }
 }

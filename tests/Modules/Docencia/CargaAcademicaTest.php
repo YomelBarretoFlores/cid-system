@@ -239,3 +239,24 @@ it('removes the group when the teacher of the page still has it', function (): v
 
     expect(CargaAcademica::query()->exists())->toBeFalse();
 });
+
+it('accepts a session covered by two adjacent availability windows', function (): void {
+    $otro = Docente::factory()->create();
+    $otro->idiomas()->create(['idioma_id' => $this->ingles->id, 'nivel_maximo' => NivelCurricular::Avanzado]);
+    app(GuardarDisponibilidad::class)($otro->id, 2, '16:00', '19:00');
+    app(GuardarDisponibilidad::class)($otro->id, 2, '19:00', '22:00');
+
+    asignar(grupoConHorario('ING-05-ADJ', $this->intermedio, $this->periodo, [[2, '18:00', '20:00']]), $otro);
+
+    expect(CargaAcademica::query()->where('docente_id', $otro->id)->count())->toBe(1);
+});
+
+it('still refuses a session that falls in the gap between two windows', function (): void {
+    $otro = Docente::factory()->create();
+    $otro->idiomas()->create(['idioma_id' => $this->ingles->id, 'nivel_maximo' => NivelCurricular::Avanzado]);
+    app(GuardarDisponibilidad::class)($otro->id, 2, '16:00', '19:00');
+    app(GuardarDisponibilidad::class)($otro->id, 2, '19:30', '22:00');
+
+    expect(fn (): CargaAcademica => asignar(grupoConHorario('ING-05-GAP', $this->intermedio, $this->periodo, [[2, '18:00', '20:00']]), $otro))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'La sesión del Martes de 18:00 a 20:00 del grupo ING-05-GAP está fuera de la disponibilidad del docente.');
+});
