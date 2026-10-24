@@ -19,7 +19,7 @@ final class ConceptoFactory extends Factory
     public function definition(): array
     {
         return [
-            'codigo' => fake()->unique()->bothify('TUPA-###'),
+            'codigo' => fake()->unique()->bothify('TUPA-#####'),
             'nombre' => 'Derecho de matrícula',
             'tipo' => TipoConcepto::Matricula,
             'fuente' => FuenteConcepto::Tupa,
