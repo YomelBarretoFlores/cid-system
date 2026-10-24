@@ -23,3 +23,7 @@ Temas abiertos que bloquean o afectan partes del sistema. Al cerrarse uno, regis
 | 17 | ¿Qué pasa con la matrícula cuando se anula el pago que la habilitó? Hoy se emite `PagoAnulado` y la matrícula sigue activa | Consultar al CILN | Pagos, Matricula | Reacción automática a la anulación |
 | 18 | Supuesto: los pagos no se editan desde el panel; un pago pendiente con datos errados se rechaza y se registra de nuevo | Confirmar con el CILN | Pagos | — |
 | 19 | Supuesto: las tarifas no se editan; una tarifa nueva cierra la anterior del mismo vínculo el día previo, y solo se borra una tarifa que ningún pago aplicó | Confirmar con el CILN | Pagos | — |
+| 20 | Supuesto: permisos `academico.ver/gestionar` y `personas.ver/gestionar`; caja puede registrar personas | Confirmar con el CILN | Academico, Personas | Asignación a roles (#2) |
+| 21 | Supuesto: los periodos avanzan de estado solo hacia adelante; los grupos pasan Programado → Abierto ⇄ Cerrado → Finalizado y se cancelan solo sin matriculados | Confirmar con el CILN | Academico | — |
+| 22 | Supuesto: dos grupos del mismo periodo no comparten aula el mismo día en horas que se cruzan; la capacidad del aula limita el cupo de los grupos presenciales | Confirmar con el CILN | Academico | — |
+| 23 | ¿Se pueden editar las fechas de un periodo cerrado? Hoy sí; los grupos cancelados o finalizados ya no se editan | Consultar al CILN | Academico | — |

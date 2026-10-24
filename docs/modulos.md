@@ -8,12 +8,22 @@ Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md
 - Grupo: código, idioma, nivel (Básico, Intermedio, Avanzado), ciclo (I a XII), modalidad (Presencial, Virtual, Semipresencial; Acelerado).
 - Capacidad: cupo máximo, cupo mínimo de apertura, vacantes en tiempo real. `CHECK` vacantes ≥ 0.
 - Asignación: docente, aula (física o enlace virtual), horario (días y rango de horas).
-- **Esquema de evaluación configurable** por idioma/nivel/periodo: componentes (Parcial, Final, Participación), pesos (suman 100 %) y nota mínima.
+- **Esquema de evaluación configurable** por idioma/nivel/periodo: componentes (Parcial, Final, Participación), pesos (suman 100 %) y nota mínima. Se construye con Certificacion.
+
+| Pantalla (menú "Oferta académica") | Reglas |
+|---|---|
+| Idiomas y plan de estudios | Código fijo tras crearlo y único; nombre único; ciclos I–XII únicos por idioma con nivel y horas lectivas. Se desactivan, no se borran; un idioma inactivo no ofrece sus ciclos para grupos nuevos |
+| Aulas | Código fijo y único; capacidad > 0. `ActualizarAula` no deja bajar la capacidad por debajo del cupo de un grupo activo que usa el aula |
+| Periodos | Validan año, fechas y ventana de matrícula como la base. Estados solo hacia adelante y de a uno (`CambiarEstadoPeriodo`): Planificado → Matrícula abierta → En curso → Cerrado |
+| Grupos y horarios | `GuardarGrupo` y `GuardarHorario` bloquean el grupo y el aula: grupo virtual con enlace y sin aula; presencial o semipresencial con aula activa de capacidad ≥ cupo; cupo nunca menor que los matriculados; sin choque de aula en el mismo periodo, día y horas. Estados con `CambiarEstadoGrupo`: Programado → Abierto ⇄ Cerrado → Finalizado; Cancelado solo sin matriculados. Un grupo cancelado o finalizado ya no se edita y libera su aula |
+
+Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y cambiar estados).
 
 ## Personas
 
 - Tipo y número de documento (DNI/CE/Pasaporte), apellidos, nombres, fecha de nacimiento, correo personal, celular.
 - Tipo de vínculo: Estudiante UNASAM, Docente/Administrativo UNASAM, Público General (define la tarifa).
+- Pantalla "Personas" (`personas.ver`, `personas.gestionar`): búsqueda por documento o nombre; DNI de 8 dígitos, CE o pasaporte de 6 a 12 caracteres; documento único; celular normalizado. Sin borrado, acciones masivas ni exportación (Ley 29733); fuera de la búsqueda global del panel.
 
 ## M1 · Matricula
 

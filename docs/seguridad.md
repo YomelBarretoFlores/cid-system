@@ -28,6 +28,7 @@ Sesiones con cookie, no JWT ([`adr/0004-sesiones-para-autenticacion.md`](adr/000
 - Permisos por acción con `spatie/laravel-permission`, creados por migraciones (también `admin-panel.access`), nunca solo por seeders: así existen en producción.
 - Cada recurso del panel tiene su Policy. El panel corre con `strictAuthorization()`: si falta un método en la Policy, Filament lanza un error en vez de permitir la acción (por defecto la permitiría).
 - Cada Policy usa el trait `DeniegaLoNoConcedido`, que niega toda habilidad que no concede de forma explícita (editar, borrar, restaurar, duplicar, asociar...).
+- Permisos existentes: `pagos.*` (ver, registrar, validar, anular, configurar), `academico.ver`, `academico.gestionar`, `personas.ver`, `personas.gestionar` y `admin-panel.access`.
 - Los roles que agrupan permisos están pendientes ([`decisiones-pendientes.md`](decisiones-pendientes.md) #2). Usuarios de demostración: `admin@ciln.test` (todos los permisos de pagos) y `caja@ciln.test` (todo menos anular).
 
 ## Auditoría inmutable (Log Triggers)

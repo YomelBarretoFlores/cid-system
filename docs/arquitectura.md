@@ -85,7 +85,8 @@ Detalle funcional: [`modulos.md`](modulos.md).
 3. **Cada módulo es dueño de sus tablas**, con prefijo (`aca_`, `per_`, `mat_`, `pag_`, `doc_`, `cer_`, `tra_`). Entre módulos no hay `belongsTo` hacia modelos ajenos, pero **sí llaves foráneas reales en PostgreSQL**.
 4. **Tablero es de solo lectura**: consulta mediante queries dedicadas o vistas de PostgreSQL (materializadas si pesan), no mediante contratos.
 5. **Contratos solo donde hacen falta.** No se crean interfaces "por si acaso". Cada contrato es una interfaz invocable que implementa una Action del módulo dueño y se registra en `$bindings` de su `ServiceProvider` (por ejemplo `ReservaDeVacante` → `ReservarVacante`).
-6. **Reglas de negocio incumplidas** lanzan `App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida` con un mensaje para el usuario. Al conectar web, API y Filament, se mostrará ese mensaje (HTTP 422) sin detalles técnicos.
+6. **Ayudas compartidas** en `app/Shared/Support`: `RestriccionUnica` (reconoce qué índice único se violó para mostrar un error de formulario), `NormalizaCodigo` (códigos en mayúsculas y sin espacios), `AccionDeNegocio` (ejecuta una Action desde Filament y muestra su mensaje).
+7. **Reglas de negocio incumplidas** lanzan `App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida` con un mensaje para el usuario. Al conectar web, API y Filament, se mostrará ese mensaje (HTTP 422) sin detalles técnicos.
 
 ## Agregar un módulo
 
