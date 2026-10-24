@@ -20,8 +20,8 @@ Assumptions (to confirm with the CILN):
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S4, D4 | inline | done | see L3 |
-| T2 | S2, S3, S4, D1-D3 | inline | pending | |
+| T1 | S4, D4 | inline | done | 53fc8bf |
+| T2 | S2, S3, S4, D1-D3 | inline | done | see L4 |
 | T3 | S2, S3, S4, D1 | pending | pending | |
 | T4 | S2, D3, D4 | pending | pending | |
 | T5 | all | inline | pending | |
@@ -39,3 +39,4 @@ Forecast: about 1,200 authored lines in five commits.
 - L1 (2026-10-24): "Sí, arranca con el examen de clasificación"
 - L2: Map: `mat_solicitudes_clasificacion` (estado, vence_en, fecha_examen, puntaje 0-100, ciclo_asignado_id with a composite FK to the language's cycles, evaluado_por/en, observaciones, pago_id unique, one pending per person and language) and `mat_habilitaciones` (one per person and language, origen) already exist with CHECKs; `VerificacionDePago` checks owner, validated state and concept type under a row lock; no scheduler task yet.
 - L3: T1 inline: RED 3 of 3 → GREEN; permissions migration, strict policy (`evaluar`), audit triggers on requests and enablements, demo grants. `composer check` green.
+- L4: T2 inline: RED 17 of 17 → GREEN; `CatalogoDeIdiomas` (Academico); `SolicitarExamenDeClasificacion` (person lock → `VerificacionDePago` → used-payment and pending checks); `RegistrarResultadoDeClasificacion` (score regex 0-100 with two decimals, cycle of the request's language, exam date between the request day and min(today, expiry) as Lima calendar dates, enablement upsert); `ExpirarSolicitudesDeClasificacion` with `clasificacion:expirar` scheduled daily 00:10 Lima. Race: one payment used by only one of two simultaneous requests. Unrelated flaky factory fixed in d412ac0 (component codes could exceed 30 characters); a test cycle number collision pinned. `composer check` green.

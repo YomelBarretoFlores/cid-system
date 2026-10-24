@@ -8,6 +8,7 @@ use App\Modules\Matricula\Database\Factories\SolicitudClasificacionFactory;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Policies\SolicitudClasificacionPolicy;
 use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -18,6 +19,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property EstadoSolicitudClasificacion $estado
+ * @property CarbonImmutable $vence_en
+ * @property CarbonImmutable|null $fecha_examen
+ * @property CarbonImmutable $created_at
+ */
 #[Table('mat_solicitudes_clasificacion')]
 #[RouteKey('ulid')]
 #[Fillable([
