@@ -99,6 +99,9 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'lock_timeout' => env('DB_LOCK_TIMEOUT', '5s'),
+            'statement_timeout' => env('DB_STATEMENT_TIMEOUT', '30s'),
+            'idle_in_transaction_session_timeout' => env('DB_IDLE_IN_TRANSACTION_TIMEOUT', '60s'),
         ],
 
         'sqlsrv' => [
