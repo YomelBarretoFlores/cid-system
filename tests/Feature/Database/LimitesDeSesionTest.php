@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Shared\Support\Database\ConectorPostgres;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -53,23 +52,40 @@ it('leaves the PostgreSQL default when a limit is empty', function (): void {
     expect(limitesDe(conexionLimitada(['lock_timeout' => '', 'statement_timeout' => null])))->toBe(['0', '0', '1min']);
 });
 
-it('reports a malformed limit and connects without it', function (): void {
+it('falls back to the safe default when a limit is malformed and reports it once', function (): void {
     Log::spy();
 
     $conexion = conexionLimitada(['lock_timeout' => "5s' -c work_mem=1GB", 'statement_timeout' => '30 segundos']);
+    $conexion->reconnect();
 
-    expect(limitesDe($conexion))->toBe(['0', '0', '1min'])
+    expect(limitesDe($conexion))->toBe(['5s', '30s', '1min'])
         ->and($conexion->selectOne("select current_setting('work_mem') as valor")->valor)->not->toBe('1GB');
 
-    Log::shouldHaveReceived('error')->with('Límite de sesión de PostgreSQL inválido; se usa el valor por defecto.', ['parametro' => 'lock_timeout'])->once();
-    Log::shouldHaveReceived('error')->with('Límite de sesión de PostgreSQL inválido; se usa el valor por defecto.', ['parametro' => 'statement_timeout'])->once();
+    Log::shouldHaveReceived('error')->with('Límite de sesión de PostgreSQL inválido; se usa el valor seguro por defecto.', ['parametro' => 'lock_timeout'])->once();
+    Log::shouldHaveReceived('error')->with('Límite de sesión de PostgreSQL inválido; se usa el valor seguro por defecto.', ['parametro' => 'statement_timeout'])->once();
 });
 
-it('does not cap statement time for console commands such as migrations and workers', function (): void {
-    $pdo = (new ConectorPostgres(enConsola: true))->connect(config('database.connections.pgsql'));
-
-    expect([
-        $pdo->query("select current_setting('lock_timeout')")->fetchColumn(),
-        $pdo->query("select current_setting('statement_timeout')")->fetchColumn(),
-    ])->toBe(['5s', '0']);
+it('accepts every time unit PostgreSQL accepts', function (): void {
+    expect(limitesDe(conexionLimitada(['lock_timeout' => '1d', 'statement_timeout' => '900000us'])))->toBe(['1d', '900ms', '1min']);
 });
+
+it('lifts the statement cap only for migrations and seeding, not for workers or other commands', function (string $comando, string $limite): void {
+    $argv = $_SERVER['argv'];
+    $_SERVER['argv'] = ['artisan', $comando];
+
+    try {
+        $pdo = app('db.connector.pgsql')->connect(config('database.connections.pgsql'));
+        $valor = $pdo->query("select current_setting('statement_timeout')")->fetchColumn();
+        $pdo = null;
+    } finally {
+        $_SERVER['argv'] = $argv;
+    }
+
+    expect($valor)->toBe($limite);
+})->with([
+    'migrate' => ['migrate', '0'],
+    'seed' => ['db:seed', '0'],
+    'queue worker' => ['queue:work', '30s'],
+    'scheduler' => ['schedule:run', '30s'],
+    'tests' => ['test', '30s'],
+]);
