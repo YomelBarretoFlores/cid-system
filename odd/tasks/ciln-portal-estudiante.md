@@ -31,7 +31,7 @@ Assumptions (to confirm with the CILN):
 | T5 | all | inline | done | eee960e, f492b00, see L9 |
 
 - T1: Portal auth foundation: layout and Blade components (Tailwind 4, responsive, accessible), student login and logout, password reset by email token, email verification, rate limits, guests of portal routes redirected to the portal login. Risk: item 2 → own commit.
-- T2: Self-registration (Personas): `RegistrarCuentaDeEstudiante` Action, two-step Livewire form, `PersonaDelUsuario` contract, middleware that requires a linked person, portal home. Risk: item 2.
+- T2: Self-registration (Personas): `RegistrarCuentaDeEstudiante` Action, one-page Livewire form, `FichaDelUsuario` contract, middleware that requires a linked person, portal home. Risk: item 2.
 - T3: My payments (Pagos): list own payments with state and rejection reason, register a payment with its receipt through `RegistrarPago`, download only own receipts.
   - `/estudiante/pagos` (`estudiante.pagos`): own payments newest first with concept, operation number, payment method, payment date, amount (`S/ 0.00`), state badge (`EstadoPago::etiqueta()`/`color()`), rejection reason when rejected, and a link to the receipt.
   - Register form: active concept, payment method, operation number, payment date (not after today), amount proposed from the current fee for the person's link type when a concept is chosen (D4), receipt JPG/PNG/PDF up to 5 MB; `RegistrarPago` with `registradoPor` = the student; business errors shown on the form.
