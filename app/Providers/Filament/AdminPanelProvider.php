@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
+use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -48,6 +49,7 @@ final class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
             ])
             ->middleware([
+                AsignarIdDeSolicitud::class,
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,

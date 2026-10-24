@@ -8,6 +8,8 @@ use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
 use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Filament\AccionDeNegocio;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -100,6 +102,8 @@ final class CiclosRelationManager extends RelationManager
         try {
             // The savepoint keeps the connection usable after a unique violation inside an outer transaction.
             return Transaccion::ejecutar($guardar, reintentar: false);
+        } catch (ReglaDeNegocioIncumplida $error) {
+            AccionDeNegocio::detener($error);
         } catch (UniqueConstraintViolationException $error) {
             // Another coordinator used the same cycle number after validation ran.
             throw RestriccionUnica::es($error, 'aca_ciclos_idioma_id_numero_unique')

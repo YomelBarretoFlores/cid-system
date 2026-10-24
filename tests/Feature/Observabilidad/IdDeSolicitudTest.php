@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\Docencia\Models\Docente;
+use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -66,4 +67,12 @@ it('leaves the request ID empty in audit rows written outside a request', functi
     $docente = Docente::factory()->create();
 
     expect(DB::table('aud_registros')->where('tabla', 'doc_docentes')->where('registro_id', $docente->id)->value('solicitud_id'))->toBeNull();
+});
+
+it('gives panel page requests an ID too', function (): void {
+    $admin = User::factory()->create()->givePermissionTo(User::ADMIN_PANEL_PERMISSION);
+
+    $id = $this->actingAs($admin)->get('/admin')->assertOk()->headers->get('X-Request-Id');
+
+    expect(Str::isUlid((string) $id))->toBeTrue();
 });

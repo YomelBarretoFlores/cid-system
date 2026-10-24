@@ -9,6 +9,8 @@ use App\Modules\Academico\Filament\Resources\Periodos\PeriodoResource;
 use App\Modules\Academico\Filament\Resources\Periodos\Schemas\PeriodoForm;
 use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -22,6 +24,8 @@ final class EditPeriodo extends EditRecord
     {
         try {
             return Transaccion::ejecutar(fn (): Model => parent::handleRecordUpdate($record, $data), reintentar: false);
+        } catch (ReglaDeNegocioIncumplida $error) {
+            AccionDeNegocio::detener($error);
         } catch (UniqueConstraintViolationException $error) {
             // Another administrator took the same year and number after validation ran.
             throw RestriccionUnica::es($error, 'aca_periodos_anio_numero_unique')

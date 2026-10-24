@@ -29,10 +29,32 @@ final class ConectorPostgres extends PostgresConnector
      */
     public static function liberaLimiteDeSentencia(array $argv): bool
     {
-        // The command is the first argument after global options such as --env=production.
-        $comando = collect(array_slice($argv, 1))->first(fn (mixed $argumento): bool => is_string($argumento) && ! str_starts_with($argumento, '-'));
+        return in_array(self::comando($argv), self::COMANDOS_SIN_LIMITE_DE_SENTENCIA, true);
+    }
 
-        return in_array($comando, self::COMANDOS_SIN_LIMITE_DE_SENTENCIA, true);
+    /**
+     * @param  array<int, mixed>  $argv
+     */
+    private static function comando(array $argv): ?string
+    {
+        // The command follows global options such as --env=production or --env production.
+        $saltarValor = false;
+
+        foreach (array_slice($argv, 1) as $argumento) {
+            if ($saltarValor || ! is_string($argumento)) {
+                $saltarValor = false;
+
+                continue;
+            }
+
+            if (! str_starts_with($argumento, '-')) {
+                return $argumento;
+            }
+
+            $saltarValor = in_array($argumento, ['--env', '-e'], true);
+        }
+
+        return null;
     }
 
     /**
@@ -40,17 +62,20 @@ final class ConectorPostgres extends PostgresConnector
      */
     protected function getDsn(array $config): string
     {
-        $opciones = [];
+        $limites = [];
 
         foreach (array_keys(self::LIMITES_SEGUROS) as $parametro) {
             $valor = $this->valor($config, $parametro);
 
             if ($valor !== null) {
-                $opciones[] = "-c {$parametro}={$valor}";
+                $limites[$parametro] = $valor;
             }
         }
 
-        return parent::getDsn($config).($opciones === [] ? '' : ";options='".implode(' ', $opciones)."'");
+        // Laravel writes server_options into the DSN; explicit server_options win over the default limits.
+        $config['server_options'] = [...$limites, ...(is_array($config['server_options'] ?? null) ? $config['server_options'] : [])];
+
+        return parent::getDsn($config);
     }
 
     /**

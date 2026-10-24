@@ -10,6 +10,7 @@ use App\Shared\Support\Logging\RegistroDeRechazos;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Support\Exceptions\Halt;
 use Illuminate\Auth\AuthenticationException;
 
 final class AccionDeNegocio
@@ -36,6 +37,14 @@ final class AccionDeNegocio
         $usuario = auth()->user();
 
         return $usuario instanceof User ? $usuario : throw new AuthenticationException;
+    }
+
+    // Shows the rule to the user and stops the page or action, so the save never ends in a server error.
+    public static function detener(ReglaDeNegocioIncumplida $error): never
+    {
+        self::notificarError($error);
+
+        throw new Halt($error->getMessage(), $error->getCode(), $error);
     }
 
     public static function notificarError(ReglaDeNegocioIncumplida $error): void

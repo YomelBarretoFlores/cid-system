@@ -7,6 +7,8 @@ namespace App\Modules\Personas\Filament\Resources\Personas\Pages\Concerns;
 use App\Modules\Personas\Filament\Resources\Personas\Schemas\PersonaForm;
 use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Filament\AccionDeNegocio;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -21,6 +23,8 @@ trait InformaDocumentoRepetido
     {
         try {
             return Transaccion::ejecutar($guardar, reintentar: false);
+        } catch (ReglaDeNegocioIncumplida $error) {
+            AccionDeNegocio::detener($error);
         } catch (UniqueConstraintViolationException $error) {
             // Someone else registered the same document after validation ran.
             throw RestriccionUnica::es($error, 'per_personas_tipo_documento_numero_documento_unique')

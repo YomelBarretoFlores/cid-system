@@ -48,6 +48,12 @@ it('keeps the limits on the write side of a read and write connection', function
     expect([$escritura, $lectura])->toBe(['3s', '3s']);
 });
 
+it('keeps the server options configured next to the limits, and an explicit option wins', function (): void {
+    $conexion = conexionLimitada(['server_options' => ['work_mem' => '8MB', 'lock_timeout' => '7s']]);
+
+    expect([limitesDe($conexion)[0], $conexion->selectOne("select current_setting('work_mem') as valor")->valor])->toBe(['7s', '8MB']);
+});
+
 it('leaves the PostgreSQL default when a limit is empty', function (): void {
     expect(limitesDe(conexionLimitada(['lock_timeout' => '', 'statement_timeout' => null])))->toBe(['0', '0', '1min']);
 });
@@ -85,6 +91,8 @@ it('lifts the statement cap only for migrations and seeding, not for workers or 
 })->with([
     'migrate' => ['migrate', '0'],
     'migrate after a global option' => ['--env=production migrate', '0'],
+    'migrate after a spaced global option' => ['--env production migrate', '0'],
+    'worker after a spaced global option' => ['--env production queue:work', '30s'],
     'seed' => ['db:seed', '0'],
     'queue worker' => ['queue:work', '30s'],
     'scheduler' => ['schedule:run', '30s'],
