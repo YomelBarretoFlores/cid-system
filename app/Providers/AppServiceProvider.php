@@ -4,22 +4,26 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Shared\Support\Database\AplicarLimitesDeSesion;
+use App\Shared\Support\Database\ConectorPostgres;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Events\ConnectionEstablished;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->bind('db.connector.pgsql', fn (): ConectorPostgres => new ConectorPostgres(
+            enConsola: $this->app->runningInConsole() && ! $this->app->runningUnitTests(),
+        ));
+    }
+
     public function boot(): void
     {
         Date::use(CarbonImmutable::class);
         Model::shouldBeStrict(! $this->app->isProduction());
         DB::prohibitDestructiveCommands($this->app->isProduction());
-        Event::listen(ConnectionEstablished::class, AplicarLimitesDeSesion::class);
     }
 }
