@@ -6,9 +6,12 @@ namespace App\Modules\Pagos\Policies;
 
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Shared\Auth\Models\User;
+use App\Shared\Auth\Policies\DeniegaLoNoConcedido;
 
 final class PagoPolicy
 {
+    use DeniegaLoNoConcedido;
+
     public function viewAny(User $user): bool
     {
         return $user->can(PermisoPago::Ver->value);
@@ -37,51 +40,5 @@ final class PagoPolicy
     public function anular(User $user): bool
     {
         return $user->can(PermisoPago::Anular->value);
-    }
-
-    // Payments are never edited or deleted, and strict panel authorization needs every ability declared.
-    public function update(): bool
-    {
-        return false;
-    }
-
-    public function delete(): bool
-    {
-        return false;
-    }
-
-    public function deleteAny(): bool
-    {
-        return false;
-    }
-
-    public function restore(): bool
-    {
-        return false;
-    }
-
-    public function restoreAny(): bool
-    {
-        return false;
-    }
-
-    public function forceDelete(): bool
-    {
-        return false;
-    }
-
-    public function forceDeleteAny(): bool
-    {
-        return false;
-    }
-
-    public function replicate(): bool
-    {
-        return false;
-    }
-
-    public function reorder(): bool
-    {
-        return false;
     }
 }

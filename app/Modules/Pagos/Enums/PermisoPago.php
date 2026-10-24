@@ -10,6 +10,7 @@ enum PermisoPago: string
     case Registrar = 'pagos.registrar';
     case Validar = 'pagos.validar';
     case Anular = 'pagos.anular';
+    case Configurar = 'pagos.configurar';
 
     /**
      * @return list<string>
