@@ -51,6 +51,16 @@ final class Persona extends Model
         return ['ulid'];
     }
 
+    public static function normalizarDocumento(string $numero): string
+    {
+        return mb_strtoupper(trim($numero));
+    }
+
+    public static function normalizarCelular(string $celular): string
+    {
+        return (string) preg_replace('/[\s().-]/', '', $celular);
+    }
+
     /**
      * @return BelongsTo<User, $this>
      */
@@ -93,7 +103,15 @@ final class Persona extends Model
      */
     protected function numeroDocumento(): Attribute
     {
-        return Attribute::set(fn (string $value): string => mb_strtoupper(trim($value)));
+        return Attribute::set(fn (string $value): string => self::normalizarDocumento($value));
+    }
+
+    /**
+     * @return Attribute<string|null, string|null>
+     */
+    protected function celular(): Attribute
+    {
+        return Attribute::set(fn (?string $value): ?string => $value === null ? null : self::normalizarCelular($value));
     }
 
     /**
