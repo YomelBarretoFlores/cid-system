@@ -75,6 +75,22 @@ final class Pago extends Model
     }
 
     /**
+     * @return BelongsTo<User, $this>
+     */
+    public function registrador(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'registrado_por');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function anulador(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'anulado_por');
+    }
+
+    /**
      * @return Attribute<string, string>
      */
     protected function numeroOperacion(): Attribute

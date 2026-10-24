@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property TipoVinculo $tipo_vinculo
+ * @property TipoDocumento $tipo_documento
  */
 #[Table('per_personas')]
 #[RouteKey('ulid')]
@@ -59,6 +60,14 @@ final class Persona extends Model
     protected function nombreCompleto(): Attribute
     {
         return Attribute::get(fn (): string => trim("{$this->apellido_paterno} {$this->apellido_materno}").", {$this->nombres}");
+    }
+
+    /**
+     * @return Attribute<non-falsy-string, never>
+     */
+    protected function etiqueta(): Attribute
+    {
+        return Attribute::get(fn (): string => "{$this->tipo_documento->etiqueta()} {$this->numero_documento} · {$this->nombre_completo}");
     }
 
     /**

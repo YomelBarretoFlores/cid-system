@@ -1,0 +1,53 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Pagos\Filament\Resources\Pagos;
+
+use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ListPagos;
+use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ViewPago;
+use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoForm;
+use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoInfolist;
+use App\Modules\Pagos\Filament\Resources\Pagos\Tables\PagosTable;
+use App\Modules\Pagos\Models\Pago;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+
+final class PagoResource extends Resource
+{
+    protected static ?string $model = Pago::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
+
+    protected static ?string $modelLabel = 'pago';
+
+    protected static ?string $pluralModelLabel = 'pagos';
+
+    protected static ?string $recordTitleAttribute = 'numero_operacion';
+
+    public static function form(Schema $schema): Schema
+    {
+        return PagoForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return PagoInfolist::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return PagosTable::configure($table);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListPagos::route('/'),
+            'view' => ViewPago::route('/{record}'),
+        ];
+    }
+}
