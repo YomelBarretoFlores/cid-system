@@ -18,10 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', EstablecerContextoAuditoria::class);
         $middleware->appendToGroup('api', EstablecerContextoAuditoria::class);
 
-        // Portal login arrives with the Tramites module (M6); until then web guests use the admin login.
+        // The admin panel redirects its own guests to its login; every other web guest goes to the portal login.
         $middleware->redirectGuestsTo(
-            fn (Request $request): ?string => $request->is('api/*') ? null : route('filament.admin.auth.login'),
+            fn (Request $request): ?string => $request->is('api/*') ? null : route('estudiante.ingresar'),
         );
+        $middleware->redirectUsersTo(fn (): string => route('estudiante.inicio'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

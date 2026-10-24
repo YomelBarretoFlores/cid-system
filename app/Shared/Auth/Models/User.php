@@ -7,6 +7,7 @@ namespace App\Shared\Auth\Models;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -19,7 +20,7 @@ use Spatie\Permission\Traits\HasRoles;
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 #[UseFactory(UserFactory::class)]
-final class User extends Authenticatable implements FilamentUser
+final class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     public const string ADMIN_PANEL_PERMISSION = 'admin-panel.access';
 

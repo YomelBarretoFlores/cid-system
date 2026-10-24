@@ -13,10 +13,12 @@ use App\Modules\Tramites\TramitesServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\Filament\AdminPanelProvider;
 use App\Shared\Audit\AuditServiceProvider;
+use App\Shared\Auth\AuthServiceProvider;
 
 return [
     AppServiceProvider::class,
     AuditServiceProvider::class,
+    AuthServiceProvider::class,
     AdminPanelProvider::class,
     AcademicoServiceProvider::class,
     PersonasServiceProvider::class,
