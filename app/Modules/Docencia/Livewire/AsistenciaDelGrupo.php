@@ -62,7 +62,8 @@ final class AsistenciaDelGrupo extends Component
     public function guardar(RegistrarAsistencia $registrar): void
     {
         $this->guardada = null;
-        [$fecha, $hora] = explode('|', $this->clase) + ['', ''];
+        $elegida = $this->claseElegida();
+        [$fecha, $hora] = $elegida instanceof ClaseProgramada ? [$elegida->fecha->toDateString(), substr($elegida->sesion->horaInicio, 0, 5)] : ['', ''];
         /** @var User $usuario */
         $usuario = auth()->user();
 
@@ -75,8 +76,7 @@ final class AsistenciaDelGrupo extends Component
             return;
         }
 
-        $descripcion = $this->claseElegida()?->descripcion() ?? $this->clase;
-        $this->guardada = 'Asistencia del '.mb_lcfirst($descripcion).' guardada.';
+        $this->guardada = 'Asistencia del '.mb_lcfirst((string) $elegida?->descripcion()).' guardada.';
     }
 
     public function render(): View

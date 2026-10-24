@@ -135,3 +135,13 @@ it('ignores a class that is not in the schedule instead of failing', function ()
 
     expect(ClaseDictada::query()->count())->toBe(0);
 });
+
+it('refuses a class key with extra parts instead of saving the class it starts with', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->set('clase', '2027-03-10|18:00|x')
+        ->call('guardar')
+        ->assertSee('La fecha o la hora de la clase no es válida.');
+
+    expect(ClaseDictada::query()->count())->toBe(0);
+});

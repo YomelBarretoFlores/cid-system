@@ -98,6 +98,7 @@ it('refuses grades that break a rule and saves nothing', function (Closure $prep
 
         return [];
     }, 'La lista de estudiantes del grupo cambió; vuelve a cargarla.'],
+    'grade that is not a number' => [fn (): array => [[$this->ana->id => [$this->parcial->id => ['15']]]], 'Una de las notas no es válida: usa un número de 0 a 20 con hasta dos decimales.'],
     'grades that are not a list per component' => [fn (): array => [[$this->ana->id => '15']], 'El sistema de evaluación del grupo cambió; vuelve a cargar la página.'],
     'component of another scheme' => [fn (): array => [[$this->ana->id => [ComponenteEvaluacion::factory()->create()->id => '15']]], 'El sistema de evaluación del grupo cambió; vuelve a cargar la página.'],
 ]);
@@ -106,4 +107,10 @@ it('keeps a component with grades from being deleted', function (): void {
     registrarNotas([$this->ana->id => [$this->parcial->id => '15']]);
 
     expect(fn () => $this->parcial->delete())->toThrow(QueryException::class, 'doc_notas_parciales_componente_id_foreign');
+});
+
+it('accepts grades sent as numbers', function (): void {
+    registrarNotas([$this->ana->id => [$this->parcial->id => 15.5, $this->final->id => 18]]);
+
+    expect(notasGuardadas())->toBe([[$this->ana->id, $this->parcial->id, '15.50'], [$this->ana->id, $this->final->id, '18.00']]);
 });

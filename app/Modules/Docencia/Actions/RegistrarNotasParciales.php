@@ -77,15 +77,19 @@ final readonly class RegistrarNotasParciales
 
     private function nota(mixed $valor, string $maxima): ?string
     {
-        $texto = is_string($valor) || is_int($valor) ? str_replace(',', '.', trim((string) $valor)) : '';
+        $limite = rtrim(rtrim($maxima, '0'), '.');
 
-        if ($valor === null || (is_string($valor) && $texto === '')) {
+        if (! is_string($valor) && ! is_int($valor) && ! is_float($valor) && $valor !== null) {
+            throw new ReglaDeNegocioIncumplida("Una de las notas no es válida: usa un número de 0 a {$limite} con hasta dos decimales.");
+        }
+
+        $texto = str_replace(',', '.', trim((string) $valor));
+
+        if ($texto === '') {
             return null;
         }
 
         if (preg_match('/^\d{1,2}(\.\d{1,2})?\z/', $texto) !== 1 || $this->centesimos($texto) > $this->centesimos($maxima)) {
-            $limite = rtrim(rtrim($maxima, '0'), '.');
-
             throw new ReglaDeNegocioIncumplida("La nota {$texto} no es válida: usa un número de 0 a {$limite} con hasta dos decimales.");
         }
 
