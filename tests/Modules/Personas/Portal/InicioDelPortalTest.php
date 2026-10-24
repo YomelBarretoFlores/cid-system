@@ -31,12 +31,14 @@ it('refuses the portal to an account without a student record', function (): voi
 
 it('describes the student record of a user and nothing for other users', function (): void {
     $user = User::factory()->create();
-    $persona = Persona::factory()->create(['user_id' => $user->id, 'nombres' => 'Rosa', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'numero_documento' => '41234567']);
+    $persona = Persona::factory()->create(['user_id' => $user->id, 'nombres' => 'Rosa', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'numero_documento' => '41234567', 'correo' => 'rosa@example.test', 'celular' => '987654321']);
 
     expect(app(FichaDelUsuario::class)($user->id))->toEqual(new FichaDeEstudiante(
         personaId: $persona->id,
         nombres: 'Rosa',
         nombreCompleto: 'Quispe Mamani, Rosa',
         documento: 'DNI 41234567',
+        correo: 'rosa@example.test',
+        celular: '987654321',
     ))->and(app(FichaDelUsuario::class)(User::factory()->create()->id))->toBeNull();
 });

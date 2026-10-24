@@ -13,6 +13,8 @@ final readonly class FichaDeEstudiante
         public string $nombres,
         public string $nombreCompleto,
         public string $documento,
+        public ?string $correo = null,
+        public ?string $celular = null,
     ) {}
 
     public static function desde(Persona $persona): self
@@ -22,6 +24,8 @@ final readonly class FichaDeEstudiante
             nombres: $persona->nombres,
             nombreCompleto: $persona->nombre_completo,
             documento: "{$persona->tipo_documento->etiqueta()} {$persona->numero_documento}",
+            correo: $persona->correo,
+            celular: $persona->celular,
         );
     }
 }
