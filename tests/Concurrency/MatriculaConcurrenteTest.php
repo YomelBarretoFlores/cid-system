@@ -9,39 +9,10 @@ use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
-use Illuminate\Process\Pool;
-use Illuminate\Support\Facades\Process;
 
 afterEach(function (): void {
     $this->truncateTablesForAllConnections();
 });
-
-/**
- * @param  list<list<int>>  $argumentosPorProceso
- * @return list<string>
- */
-function enParalelo(string $fixture, array $argumentosPorProceso): array
-{
-    $conexion = config('database.connections.pgsql');
-    $inicio = (string) (microtime(true) + 2);
-
-    $resultados = Process::pool(fn (Pool $pool) => collect($argumentosPorProceso)->each(fn (array $argumentos) => $pool
-        ->path(base_path())
-        ->env([
-            'APP_ENV' => 'testing',
-            'DB_CONNECTION' => 'pgsql',
-            'DB_HOST' => $conexion['host'],
-            'DB_PORT' => (string) $conexion['port'],
-            'DB_DATABASE' => $conexion['database'],
-            'DB_USERNAME' => $conexion['username'],
-            'DB_PASSWORD' => $conexion['password'],
-        ])
-        ->command([PHP_BINARY, "tests/Concurrency/Fixtures/{$fixture}", $inicio, ...array_map(strval(...), $argumentos)])))
-        ->start()
-        ->wait();
-
-    return collect($resultados)->map(fn ($resultado): string => trim($resultado->output().$resultado->errorOutput()))->sort()->values()->all();
-}
 
 it('gives the last vacancy to exactly one of two simultaneous requests', function (): void {
     $grupo = Grupo::factory()->for(Periodo::factory()->conMatriculaAbierta())->create(['cupo_maximo' => 1, 'cupo_minimo' => 1]);

@@ -18,9 +18,8 @@ final readonly class RegistrarCuentaDeEstudiante
 {
     public const string CORREO_EN_USO = 'Ya existe una cuenta con ese correo.';
 
-    public const string DOCUMENTO_CON_CUENTA = 'Ese documento ya tiene una cuenta. Ingresa con tu correo o recupera tu contraseña.';
-
-    public const string CORREO_DISTINTO = 'Tu documento ya está registrado en el CILN con otro correo o sin correo. Acércate a la oficina del CILN para actualizarlo.';
+    // One message for both refusals so the form does not reveal whether a document is on file or already has an account.
+    public const string DOCUMENTO_NO_DISPONIBLE = 'No podemos crear una cuenta con ese documento. Si ya tienes una, ingresa o recupera tu contraseña; si no, acércate a la oficina del CILN para actualizar tu correo.';
 
     public function __invoke(SolicitudDeCuenta $solicitud): User
     {
@@ -68,8 +67,7 @@ final readonly class RegistrarCuentaDeEstudiante
             return $this->nuevaPersona($solicitud, $correo);
         }
 
-        throw_if($persona->user_id !== null, ReglaDeNegocioIncumplida::class, self::DOCUMENTO_CON_CUENTA);
-        throw_if($persona->correo !== $correo, ReglaDeNegocioIncumplida::class, self::CORREO_DISTINTO);
+        throw_if($persona->user_id !== null || $persona->correo !== $correo, ReglaDeNegocioIncumplida::class, self::DOCUMENTO_NO_DISPONIBLE);
 
         return $persona;
     }
@@ -93,7 +91,7 @@ final readonly class RegistrarCuentaDeEstudiante
     {
         return match (true) {
             RestriccionUnica::es($error, 'users_email_unique') => new ReglaDeNegocioIncumplida(self::CORREO_EN_USO, previous: $error),
-            RestriccionUnica::es($error, 'per_personas_tipo_documento_numero_documento_unique') => new ReglaDeNegocioIncumplida(self::DOCUMENTO_CON_CUENTA, previous: $error),
+            RestriccionUnica::es($error, 'per_personas_tipo_documento_numero_documento_unique') => new ReglaDeNegocioIncumplida(self::DOCUMENTO_NO_DISPONIBLE, previous: $error),
             default => $error,
         };
     }

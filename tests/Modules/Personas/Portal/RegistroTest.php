@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Personas\Actions\RegistrarCuentaDeEstudiante;
 use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Livewire\Registro;
@@ -96,7 +97,7 @@ it('refuses to link a CILN record registered with another email or without one',
     Persona::factory()->create(['numero_documento' => '41234567', 'correo' => $correoRegistrado]);
 
     registrarse()->assertHasErrors([
-        'numero_documento' => 'Tu documento ya está registrado en el CILN con otro correo o sin correo. Acércate a la oficina del CILN para actualizarlo.',
+        'numero_documento' => RegistrarCuentaDeEstudiante::DOCUMENTO_NO_DISPONIBLE,
     ]);
 
     expect(User::query()->count())->toBe(0)
@@ -112,7 +113,7 @@ it('refuses a document that already has an account', function (): void {
     Persona::factory()->create(['numero_documento' => '41234567', 'correo' => 'rosa@correo.test', 'user_id' => $dueno->id]);
 
     registrarse(['email' => 'rosa.nueva@correo.test'])->assertHasErrors([
-        'numero_documento' => 'Ese documento ya tiene una cuenta. Ingresa con tu correo o recupera tu contraseña.',
+        'numero_documento' => RegistrarCuentaDeEstudiante::DOCUMENTO_NO_DISPONIBLE,
     ]);
 
     expect(User::query()->count())->toBe(1);
@@ -146,8 +147,8 @@ it('accepts a passport with lowercase letters and stores it in uppercase', funct
     expect(Persona::query()->sole()->numero_documento)->toBe('AB123456');
 });
 
-it('blocks the sixth registration attempt from the same address within a minute', function (): void {
-    foreach (range(1, 5) as $intento) {
+it('blocks the twenty-first registration attempt from the same address within a minute', function (): void {
+    foreach (range(1, 20) as $intento) {
         registrarse(['numero_documento' => '1234567']);
     }
 
@@ -161,4 +162,12 @@ it('sends signed-in users away from the registration form', function (): void {
     $this->actingAs(User::factory()->create())
         ->get(route('estudiante.registro'))
         ->assertRedirect(route('estudiante.inicio'));
+});
+
+it('links a CILN record whose email was typed with capitals and spaces', function (): void {
+    $persona = Persona::factory()->create(['numero_documento' => '41234567', 'correo' => ' Rosa@Correo.TEST ']);
+
+    registrarse()->assertHasNoErrors();
+
+    expect($persona->refresh()->user_id)->not->toBeNull();
 });

@@ -23,6 +23,8 @@ final class IniciarSesion extends Component
 
     private const int INTENTOS_POR_MINUTO = 5;
 
+    private const int INTENTOS_POR_DIRECCION = 20;
+
     public string $email = '';
 
     public string $password = '';
@@ -38,15 +40,15 @@ final class IniciarSesion extends Component
         ]);
 
         $clave = "ingreso|{$this->email}|".request()->ip();
+        // The per-address key also stops one address from trying a common password on many accounts.
+        $claveDeDireccion = 'ingreso|'.request()->ip();
 
-        if (RateLimiter::tooManyAttempts($clave, self::INTENTOS_POR_MINUTO)) {
-            throw ValidationException::withMessages([
-                'email' => 'Demasiados intentos. Vuelve a intentarlo en '.RateLimiter::availableIn($clave).' segundos.',
-            ]);
-        }
+        $this->asegurarIntentosDisponibles($clave, self::INTENTOS_POR_MINUTO);
+        $this->asegurarIntentosDisponibles($claveDeDireccion, self::INTENTOS_POR_DIRECCION);
 
         if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->recordar)) {
             RateLimiter::hit($clave);
+            RateLimiter::hit($claveDeDireccion);
             $this->reset('password');
 
             throw ValidationException::withMessages(['email' => self::CREDENCIALES_INCORRECTAS]);
@@ -61,5 +63,14 @@ final class IniciarSesion extends Component
     public function render(): View
     {
         return view('auth.iniciar-sesion');
+    }
+
+    private function asegurarIntentosDisponibles(string $clave, int $maximo): void
+    {
+        if (RateLimiter::tooManyAttempts($clave, $maximo)) {
+            throw ValidationException::withMessages([
+                'email' => 'Demasiados intentos. Vuelve a intentarlo en '.RateLimiter::availableIn($clave).' segundos.',
+            ]);
+        }
     }
 }

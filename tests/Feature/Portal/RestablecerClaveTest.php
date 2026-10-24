@@ -84,3 +84,13 @@ it('requires a password with letters and numbers', function (string $clave, stri
     'no numbers' => ['solo-letras', 'La contraseña debe incluir al menos una letra y un número.'],
     'no letters' => ['12345678', 'La contraseña debe incluir al menos una letra y un número.'],
 ]);
+
+it('limits reset requests from the same address to five a minute', function (): void {
+    foreach (range(1, 5) as $intento) {
+        Livewire::test(SolicitarRestablecimiento::class)->set('email', "persona{$intento}@correo.test")->call('enviar')->assertHasNoErrors();
+    }
+
+    $componente = Livewire::test(SolicitarRestablecimiento::class)->set('email', 'otra@correo.test')->call('enviar');
+
+    expect($componente->errors()->first('email'))->toStartWith('Demasiadas solicitudes. Vuelve a intentarlo en');
+});

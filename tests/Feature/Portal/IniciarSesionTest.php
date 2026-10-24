@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Livewire\IniciarSesion;
 use App\Shared\Auth\Models\User;
 use Livewire\Features\SupportTesting\Testable;
@@ -87,4 +88,35 @@ it('only logs out through a POST request', function (): void {
     $this->actingAs(User::factory()->create())
         ->get('/estudiante/salir')
         ->assertMethodNotAllowed();
+});
+
+it('stores emails in lowercase so a mixed-case address can still log in', function (): void {
+    $user = User::factory()->create(['email' => ' Ana@Correo.TEST ']);
+
+    expect($user->email)->toBe('ana@correo.test');
+
+    intentarIngreso('ana@correo.test', 'password')->assertHasNoErrors();
+    $this->assertAuthenticatedAs($user);
+});
+
+it('blocks an address that keeps trying different accounts', function (): void {
+    foreach (range(1, 20) as $intento) {
+        intentarIngreso("persona{$intento}@correo.test", 'mala-clave1');
+    }
+
+    $componente = intentarIngreso('otra@correo.test', 'mala-clave1');
+
+    expect($componente->errors()->first('email'))->toStartWith('Demasiados intentos. Vuelve a intentarlo en');
+});
+
+it('ends the other sessions of a student after a password change', function (): void {
+    $user = User::factory()->create();
+    Persona::factory()->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)->get(route('estudiante.inicio'))->assertOk();
+
+    $user->forceFill(['password' => 'otra-clave9'])->save();
+
+    $this->get(route('estudiante.inicio'))->assertRedirect(route('estudiante.ingresar'));
+    $this->assertGuest();
 });

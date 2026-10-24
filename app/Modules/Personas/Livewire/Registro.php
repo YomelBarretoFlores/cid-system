@@ -30,7 +30,8 @@ final class Registro extends Component
         validationAttributes as atributosComunes;
     }
 
-    private const int INTENTOS_POR_MINUTO = 5;
+    // Students often register from one campus address, so the limit leaves room for a full lab.
+    private const int INTENTOS_POR_MINUTO = 20;
 
     public string $tipo_documento = 'dni';
 
