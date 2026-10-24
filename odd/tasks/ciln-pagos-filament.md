@@ -19,11 +19,11 @@ Assumptions (to confirm with the CILN; roles are pending decision #2):
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S3, S4 | inline | pending | |
-| T2 | S1, S2, S3 | inline | pending | |
-| T3 | S1, S2, S4 | inline | pending | |
-| T4 | S1, S2, S3 | inline | pending | |
-| T5 | S1 | inline | pending | |
+| T1 | S3, S4 | inline | done | 87dc0fa, 38aeca4, 59c7eaf |
+| T2 | S1, S2, S3 | inline | done | b5bf19f, f762a60 |
+| T3 | S1, S2, S4 | inline | done | ff76696 |
+| T4 | S1, S2, S3 | inline | done | 836c2b3 |
+| T5 | S1 | inline | done | docs commit |
 
 - T1: Payment permissions (enum + data migration), `PagoPolicy`, demo seeder grants, shared helper that runs a business Action from a Filament action and turns `ReglaDeNegocioIncumplida` into a notification. Risk: item 2 (permissions) → own commit.
 - T2: `PagoResource` list (columns, state/concept/method/date filters, search by operation number and by person through Personas contracts) and view page (infolist, receipt download from the private disk).
@@ -37,3 +37,8 @@ Forecast: about 900 authored lines; commits per task.
 ## Log
 
 - L1 (2026-10-24): "Sí, sigamos con las pantallas de Filament"
+- L2: T1 RED (permission enum missing) → GREEN; policy denies each ability without its permission. Native review of 87dc0fa (risk, reliability): granted, approved and acknowledged (review-4c93e0c9e64667d6); advisories fixed in 38aeca4 (exact cashier grants, permissions compared with the enum). Deferred: R1-001 `view` is not record-scoped (fine for staff; the student portal needs its own scoping).
+- L3: Defects found while building T2: `admin-panel.access` existed only in the demo seeder (no panel access in production) → data migration; Filament allows any action whose policy method is missing (`get_authorization_response` falls back to allow) → `strictAuthorization()` plus explicit denials in `PagoPolicy` (59c7eaf; RED: 3 of 3 failing without it). Committed before its own review, so the review covered 87dc0fa..b5bf19f together (risk, reliability, readability): granted, approved and acknowledged (review-a58638f20dd903d5). Advisories fixed in f762a60 (person search no longer capped at 200; missing receipt explained, slugged download name; state color on the enum; panel timezone set once; per-record column assertions). Mutations: removing the escape of `%`/`_`, the search limit fix, `->authorize()` or the state visibility each fail a test.
+- L4: T3: Filament re-checks visibility when an action is called, so a stale state cannot reach the Action from the UI; `AccionDeNegocio` is tested directly (success, broken rule → notification + Halt, no user). Livewire update requests run the `web` group, which carries the audit middleware (route test).
+- L5: T4 RED (CreatePago missing) → GREEN 8/8. Full suite hit PHP's 128 MB CLI limit with the Filament tests → `memory_limit` 512M in `phpunit.xml`. `composer check` 241/241. Smoke on `php artisan serve` with dev DB: `/admin/login` 200, `/admin/pagos` and `/admin/pagos/registrar` redirect guests to login.
+- L6: T5 docs: `modulos.md` (screens and permissions), `seguridad.md` (authorization section, Livewire audit context), `decisiones-pendientes.md` (#2 updated, #18 no edit screen).

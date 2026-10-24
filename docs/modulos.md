@@ -33,10 +33,11 @@ Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md
 | Desbloqueo | Al validar se habilitan matrícula, constancias y solicitud de exámenes |
 | Unicidad | (medio de pago + número de operación) es único entre pagos no rechazados: tras un rechazo, la persona registra el pago de nuevo con el recibo corregido; un pago desbloquea una sola matrícula o solicitud |
 | Tarifas | Por concepto TUPA/TUSNE y tipo de vínculo, con vigencia sin superposición |
+| Pantallas (panel) | `PagoResource`: listado con filtros (estado, concepto, medio, fecha) y búsqueda por número de operación, documento o nombre; detalle con revisión, anulación y descarga del recibo; registro de pagos en caja; acciones Validar, Rechazar y Anular según el estado y el permiso |
 | Reportes | Consolidado por periodo, idioma, nivel y concepto; PDF y Excel/CSV para DGF/Tesorería |
 | Reglas aplicadas | Al usar un pago se verifica estado, persona y concepto del servicio; los datos de un pago no pendiente quedan congelados en la base; un pago desbloquea un solo servicio en total (por tabla con `UNIQUE (pago_id)` y entre servicios porque cada servicio exige su propio concepto) |
 | Eventos | `PagoValidado`, `PagoRechazado`, `PagoAnulado` (después del commit). Anular un pago ya usado no retira la matrícula (pendiente de decisión) |
-| Permisos | Las Actions no verifican roles: lo harán las Policies al conectar las pantallas (roles pendientes) |
+| Permisos | `PagoPolicy`: `pagos.ver` (listar y ver, incluido el recibo), `pagos.registrar`, `pagos.validar` (validar y rechazar) y `pagos.anular`. Nadie edita ni borra pagos. Las Actions no verifican permisos; lo hacen la Policy y el panel |
 | Fuera de alcance | Integración automática con sistemas externos |
 
 ## M3 · Docencia

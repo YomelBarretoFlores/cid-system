@@ -5,7 +5,7 @@ Temas abiertos que bloquean o afectan partes del sistema. Al cerrarse uno, regis
 | # | Tema | Responsable | Afecta | Bloquea |
 |---|---|---|---|---|
 | 1 | Migración de datos del sistema actual (PHP 5.6): ¿se migra historial de estudiantes, notas y certificados? | Consultar al CILN | Personas, Matricula, Certificacion | Plan de migración y conciliación |
-| 2 | Roles del sistema (coordinación, caja, administración, dirección, docente, estudiante) | Equipo | Shared/Auth, Policies | Permisos por acción |
+| 2 | Roles del sistema (coordinación, caja, administración, dirección, docente, estudiante). Ya existen los permisos por acción de Pagos (`pagos.ver`, `pagos.registrar`, `pagos.validar`, `pagos.anular`); falta decidir qué rol agrupa cuáles | Equipo | Shared/Auth, Policies | Asignación de permisos a roles |
 | 3 | Límite entre pre-actas (M3) y actas finales (M4) | Equipo, durante el desarrollo | Docencia, Certificacion | — |
 | 4 | Significado de "tasa de morosidad" (M5) en un modelo de pago previo | Más adelante | Tablero | KPI financiero |
 | 5 | Requisitos no funcionales: usuarios concurrentes en matrícula, disponibilidad, respaldos | Acordar con CILN y DSTI | Infraestructura | Dimensionamiento y conformidad final |
@@ -21,3 +21,4 @@ Temas abiertos que bloquean o afectan partes del sistema. Al cerrarse uno, regis
 | 15 | Supuesto: la matrícula exige grupo Abierto, periodo en Matrícula abierta y la fecha de hoy (hora de Lima) dentro de la ventana de matrícula | Confirmar con el CILN | Academico, Matricula | — |
 | 16 | Supuesto: es Repitente quien ya tiene una matrícula no retirada en otro grupo del mismo ciclo | Confirmar con el CILN | Matricula | — |
 | 17 | ¿Qué pasa con la matrícula cuando se anula el pago que la habilitó? Hoy se emite `PagoAnulado` y la matrícula sigue activa | Consultar al CILN | Pagos, Matricula | Reacción automática a la anulación |
+| 18 | Supuesto: los pagos no se editan desde el panel; un pago pendiente con datos errados se rechaza y se registra de nuevo | Confirmar con el CILN | Pagos | — |

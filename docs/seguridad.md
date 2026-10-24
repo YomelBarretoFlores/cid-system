@@ -23,6 +23,13 @@ Responde al Anexo II.2 (OWASP Top 10, Ley N° 29733, auditoría inmutable) y a l
 
 Sesiones con cookie, no JWT ([`adr/0004-sesiones-para-autenticacion.md`](adr/0004-sesiones-para-autenticacion.md)). Sanctum usa la cookie para la web propia y tokens solo para clientes externos de la API. La recuperación de contraseña usa `password_reset_tokens` (token de un solo uso por correo, como pide el M6).
 
+## Autorización
+
+- Permisos por acción con `spatie/laravel-permission`, creados por migraciones (también `admin-panel.access`), nunca solo por seeders: así existen en producción.
+- Cada recurso del panel tiene su Policy. El panel corre con `strictAuthorization()`: si falta un método en la Policy, Filament lanza un error en vez de permitir la acción (por defecto la permitiría).
+- La Policy niega explícitamente lo que no concede (editar, borrar, restaurar o duplicar pagos).
+- Los roles que agrupan permisos están pendientes ([`decisiones-pendientes.md`](decisiones-pendientes.md) #2). Usuarios de demostración: `admin@ciln.test` (todos los permisos de pagos) y `caja@ciln.test` (todo menos anular).
+
 ## Auditoría inmutable (Log Triggers)
 
 El Anexo exige pistas **inmutables** para operaciones críticas (cambio de notas, validación de pagos, modificación de actas) con fecha, hora, IP, ID de usuario y detalle.
@@ -40,7 +47,7 @@ Implementación (`app/Shared/Audit`):
 | Pieza | Dónde |
 |---|---|
 | Tabla y triggers | migración `2026_10_24_125000_create_aud_registros_table` (`aud_registrar()`, `aud_impedir_cambios()`) |
-| Contexto de la petición | middleware `EstablecerContextoAuditoria` en los grupos `web` y `api` y en el panel de Filament; usa `ContextoAuditoria` |
+| Contexto de la petición | middleware `EstablecerContextoAuditoria` en los grupos `web` y `api` y en el panel de Filament; usa `ContextoAuditoria`. Las acciones del panel (peticiones de Livewire) pasan por el grupo `web`, así que también llevan el usuario |
 | Tablas auditadas | `pag_pagos` (después: notas y actas) |
 
 Reglas de uso:
