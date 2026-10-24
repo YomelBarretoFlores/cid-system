@@ -29,8 +29,8 @@ beforeEach(function (): void {
     Horario::factory()->for($this->grupo)->create(['dia_semana' => 1, 'hora_inicio' => '18:00', 'hora_fin' => '20:00']);
     Horario::factory()->for($this->grupo)->create(['dia_semana' => 3, 'hora_inicio' => '18:00', 'hora_fin' => '20:00']);
     PortalDocente::asignar($this->grupo, $this->docente);
-    $this->ana = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Quispe'])->id]);
-    $this->luis = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Álvarez'])->id]);
+    $this->ana = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Quispe'])->id, 'matriculado_en' => '2027-02-20 15:00:00+00']);
+    $this->luis = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Álvarez'])->id, 'matriculado_en' => '2027-02-20 15:00:00+00']);
 });
 
 function registrarAsistencia(array $estados, string $fecha = '2027-03-08', string $hora = '18:00', ?Docente $docente = null): ClaseDictada
@@ -90,11 +90,13 @@ it('refuses a roll call that breaks a rule and saves nothing', function (Closure
     }, 'El grupo ING-01-A está Cancelado; la asistencia solo se registra en grupos abiertos o cerrados.'],
     'day without class' => [fn (): array => [1 => '2027-03-09'], 'El grupo ING-01-A no tiene clase el 09/03/2027 a las 18:00.'],
     'hour without class' => [fn (): array => [2 => '19:00'], 'El grupo ING-01-A no tiene clase el 08/03/2027 a las 19:00.'],
+    'after the period' => [fn (): array => [1 => '2027-04-26'], 'El 26/04/2027 está fuera del periodo del grupo ING-01-A.'],
     'before the period' => [fn (): array => [1 => '2027-02-22'], 'El 22/02/2027 está fuera del periodo del grupo ING-01-A.'],
     'future class' => [fn (): array => [1 => '2027-03-15'], 'Todavía no puedes registrar la asistencia de la clase del 15/03/2027.'],
     'malformed date' => [fn (): array => [1 => '2027-3-8'], 'La fecha o la hora de la clase no es válida.'],
     'missing student' => [fn (): array => [0 => [$this->ana->id => 'presente']], 'Marca la asistencia de todos los estudiantes del grupo.'],
     'student of another group' => [fn (): array => [0 => [$this->ana->id => 'presente', $this->luis->id => 'presente', Matricula::factory()->create()->id => 'presente']], 'La lista de estudiantes del grupo cambió; vuelve a cargarla.'],
+    'state that is not text' => [fn (): array => [0 => [$this->ana->id => null, $this->luis->id => 'presente']], 'El estado de asistencia no es válido.'],
     'unknown state' => [fn (): array => [0 => [$this->ana->id => 'presente', $this->luis->id => 'ausente']], 'El estado de asistencia no es válido.'],
 ]);
 
@@ -104,4 +106,20 @@ it('refuses a teacher removed from the group even with an earlier class on recor
 
     expect(fn (): ClaseDictada => registrarAsistencia([$this->ana->id => 'falta', $this->luis->id => 'falta']))->toThrow(ReglaDeNegocioIncumplida::class, 'No tienes a cargo el grupo ING-01-A.')
         ->and(Asistencia::query()->where('estado', 'falta')->count())->toBe(0);
+});
+
+it('accepts the roll call of a closed group', function (): void {
+    $this->grupo->update(['estado' => EstadoGrupo::Cerrado]);
+
+    expect(estadosDeLaClase(registrarAsistencia([$this->ana->id => 'presente', $this->luis->id => 'falta'])))->toBe([$this->ana->id => 'presente', $this->luis->id => 'falta']);
+});
+
+it('does not ask for a student who enrolled after the class date', function (): void {
+    $tarde = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'matriculado_en' => '2027-03-09 15:00:00+00']);
+
+    $clase = registrarAsistencia([$this->ana->id => 'presente', $this->luis->id => 'presente']);
+
+    expect(estadosDeLaClase($clase))->toBe([$this->ana->id => 'presente', $this->luis->id => 'presente'])
+        ->and(fn (): ClaseDictada => registrarAsistencia([$this->ana->id => 'presente', $this->luis->id => 'presente', $tarde->id => 'presente']))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'La lista de estudiantes del grupo cambió; vuelve a cargarla.');
 });

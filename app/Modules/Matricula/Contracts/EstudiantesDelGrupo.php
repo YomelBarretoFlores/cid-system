@@ -9,7 +9,7 @@ use App\Modules\Matricula\Data\EstudianteDelGrupo;
 interface EstudiantesDelGrupo
 {
     /**
-     * Active enrollments of the group, in alphabetical order of surnames.
+     * Active enrollments of the group, in alphabetical order of surnames, with the enrollment date in Lima.
      *
      * @return list<EstudianteDelGrupo>
      */

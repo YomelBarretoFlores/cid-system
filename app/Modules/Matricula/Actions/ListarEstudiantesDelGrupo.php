@@ -17,12 +17,17 @@ final readonly class ListarEstudiantesDelGrupo implements EstudiantesDelGrupo
 
     public function __invoke(int $grupoId): array
     {
-        $matriculas = Matricula::query()->where('grupo_id', $grupoId)->where('estado', EstadoMatricula::Activa)->get(['id', 'persona_id']);
+        $matriculas = Matricula::query()->where('grupo_id', $grupoId)->where('estado', EstadoMatricula::Activa)->get(['id', 'persona_id', 'matriculado_en']);
         $fichas = ($this->fichasDePersonas)(array_values(array_map(intval(...), $matriculas->pluck('persona_id')->all())));
 
         return array_values($matriculas
             ->filter(fn (Matricula $matricula): bool => isset($fichas[$matricula->persona_id]))
-            ->map(fn (Matricula $matricula): EstudianteDelGrupo => new EstudianteDelGrupo($matricula->id, $matricula->persona_id, $fichas[$matricula->persona_id]->nombreCompleto))
+            ->map(fn (Matricula $matricula): EstudianteDelGrupo => new EstudianteDelGrupo(
+                $matricula->id,
+                $matricula->persona_id,
+                $fichas[$matricula->persona_id]->nombreCompleto,
+                $matricula->matriculado_en->timezone('America/Lima')->toDateString(),
+            ))
             ->sortBy(fn (EstudianteDelGrupo $estudiante): string => Str::lower(Str::ascii($estudiante->nombreCompleto)))
             ->all());
     }

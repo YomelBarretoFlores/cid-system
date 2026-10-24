@@ -25,8 +25,8 @@ beforeEach(function (): void {
     Horario::factory()->for($this->grupo)->create(['dia_semana' => 1, 'hora_inicio' => '18:00', 'hora_fin' => '20:00']);
     Horario::factory()->for($this->grupo)->create(['dia_semana' => 3, 'hora_inicio' => '18:00', 'hora_fin' => '20:00']);
     PortalDocente::asignar($this->grupo, $this->docente);
-    $this->ana = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Quispe', 'apellido_materno' => 'Rojas', 'nombres' => 'Ana'])->id]);
-    $this->luis = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Álvarez', 'apellido_materno' => 'Mejía', 'nombres' => 'Luis'])->id]);
+    $this->ana = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Quispe', 'apellido_materno' => 'Rojas', 'nombres' => 'Ana'])->id, 'matriculado_en' => '2027-02-20 15:00:00+00']);
+    $this->luis = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Álvarez', 'apellido_materno' => 'Mejía', 'nombres' => 'Luis'])->id, 'matriculado_en' => '2027-02-20 15:00:00+00']);
 });
 
 it('links the roll call from the list of groups', function (): void {
@@ -84,15 +84,34 @@ it('hides a group the teacher does not have now', function (): void {
         ->assertNotFound();
 });
 
-it('shows the error when the teacher loses the group before saving', function (): void {
+it('shows and logs a rejected roll call', function (): void {
     Log::spy();
+    $pagina = Livewire::actingAs($this->usuario)->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id]);
+    $this->grupo->update(['estado' => EstadoGrupo::Finalizado]);
+    $mensaje = 'El grupo ING-01-A está Finalizado; la asistencia solo se registra en grupos abiertos o cerrados.';
+
+    $pagina->call('guardar')->assertHasErrors(['asistencia' => $mensaje])->assertSee($mensaje);
+
+    expect(ClaseDictada::query()->count())->toBe(0);
+    Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', Mockery::on(fn (array $contexto): bool => $contexto['regla'] === $mensaje))->once();
+});
+
+it('stops showing the attendance once the group moves to another teacher', function (): void {
     $pagina = Livewire::actingAs($this->usuario)->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id]);
     PortalDocente::asignar($this->grupo, Docente::factory()->create());
 
-    $pagina->call('guardar')->assertHasErrors(['asistencia' => 'No tienes a cargo el grupo ING-01-A.']);
+    $pagina->set('clase', '2027-03-08|18:00')->assertNotFound();
+});
 
-    expect(ClaseDictada::query()->count())->toBe(0);
-    Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', Mockery::on(fn (array $contexto): bool => $contexto['regla'] === 'No tienes a cargo el grupo ING-01-A.'))->once();
+it('lists for an earlier class only the students enrolled by then', function (): void {
+    Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Zapata', 'nombres' => 'Rosa'])->id, 'matriculado_en' => '2027-03-09 15:00:00+00']);
+
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertSee('Zapata')
+        ->set('clase', '2027-03-08|18:00')
+        ->assertDontSee('Zapata')
+        ->assertSet('estados', [$this->luis->id => 'presente', $this->ana->id => 'presente']);
 });
 
 it('tells the teacher when no class has been held yet', function (): void {

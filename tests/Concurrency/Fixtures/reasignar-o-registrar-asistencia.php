@@ -12,14 +12,29 @@ $app = require __DIR__.'/bootstrap.php';
 [, $inicio, $operacion, $grupoId, $docenteId, $usuarioId, $fecha, $estados] = $argv;
 esperarHasta((float) $inicio);
 
-// The roll call starts only once the reassignment sits in its transaction holding the group lock.
+// The roll call starts only once another backend holds a row lock on the group table inside its open transaction.
 $hasta = microtime(true) + 10;
-while ($operacion === 'registrar' && microtime(true) < $hasta && ! DB::table('pg_stat_activity')
-    ->where('datname', DB::raw('current_database()'))
-    ->where('state', 'idle in transaction')
-    ->where('pid', '!=', DB::raw('pg_backend_pid()'))
-    ->exists()) {
-    usleep(50_000);
+$retenido = fn (): bool => DB::table('pg_locks')
+    ->join('pg_class', 'pg_class.oid', '=', 'pg_locks.relation')
+    ->join('pg_stat_activity', 'pg_stat_activity.pid', '=', 'pg_locks.pid')
+    ->where('pg_class.relname', 'aca_grupos')
+    ->where('pg_locks.mode', 'RowShareLock')
+    ->where('pg_stat_activity.state', 'idle in transaction')
+    ->where('pg_locks.pid', '!=', DB::raw('pg_backend_pid()'))
+    ->exists();
+$visto = $operacion === 'reasignar';
+while (! $visto && microtime(true) < $hasta) {
+    $visto = $retenido();
+
+    if (! $visto) {
+        usleep(50_000);
+    }
+}
+
+if (! $visto) {
+    echo "{$operacion}: la reasignación nunca retuvo el grupo";
+
+    exit(1);
 }
 
 $usuario = User::query()->findOrFail((int) $usuarioId);

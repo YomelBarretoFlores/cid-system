@@ -32,7 +32,7 @@ it('refuses the roll call of a teacher whose group is being reassigned at the sa
         Disponibilidad::query()->create(['docente_id' => $docente->id, 'dia_semana' => $clase->dayOfWeekIso, 'hora_inicio' => '16:00:00', 'hora_fin' => '22:00:00']);
     }
     CargaAcademica::query()->create(['grupo_id' => $grupo->id, 'docente_id' => $actual->id, 'asignado_por' => $usuario->id]);
-    $matricula = Matricula::factory()->create(['grupo_id' => $grupo->id]);
+    $matricula = Matricula::factory()->create(['grupo_id' => $grupo->id, 'matriculado_en' => $clase->subDays(15)]);
     $estados = json_encode([$matricula->id => 'presente']);
 
     $salidas = enParalelo('reasignar-o-registrar-asistencia.php', [

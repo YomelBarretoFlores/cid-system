@@ -27,7 +27,7 @@ final readonly class RegistrarAsistencia
     ) {}
 
     /**
-     * @param  array<int, string>  $estados  state per enrollment id
+     * @param  array<int, mixed>  $estados  state per enrollment id
      */
     public function __invoke(int $grupoId, int $docenteId, string $fecha, string $horaInicio, array $estados, User $usuario): ClaseDictada
     {
@@ -38,7 +38,7 @@ final readonly class RegistrarAsistencia
             $grupo = ($this->bloqueoDeGrupo)($grupoId);
             GrupoACargo::asegurar($grupo, $docenteId, 'la asistencia solo se registra');
             $sesion = $this->sesion($grupo, $dia, $horaInicio);
-            $marcas = $this->marcas($estados, ($this->estudiantesDelGrupo)($grupoId));
+            $marcas = $this->marcas($estados, ClasesDelHorario::estudiantesDe(($this->estudiantesDelGrupo)($grupoId), $dia));
 
             $clase = ClaseDictada::query()->updateOrCreate(
                 ['grupo_id' => $grupoId, 'fecha' => $dia->toDateString(), 'hora_inicio' => $sesion->horaInicio],
@@ -79,7 +79,7 @@ final readonly class RegistrarAsistencia
     }
 
     /**
-     * @param  array<int, string>  $estados
+     * @param  array<int, mixed>  $estados
      * @param  list<EstudianteDelGrupo>  $estudiantes
      * @return array<int, EstadoAsistencia>
      */
@@ -95,7 +95,7 @@ final readonly class RegistrarAsistencia
             throw new ReglaDeNegocioIncumplida('Marca la asistencia de todos los estudiantes del grupo.');
         }
 
-        return array_map(fn (string $estado): EstadoAsistencia => EstadoAsistencia::tryFrom($estado)
+        return array_map(fn (mixed $estado): EstadoAsistencia => (is_string($estado) ? EstadoAsistencia::tryFrom($estado) : null)
             ?? throw new ReglaDeNegocioIncumplida('El estado de asistencia no es válido.'), $estados);
     }
 }

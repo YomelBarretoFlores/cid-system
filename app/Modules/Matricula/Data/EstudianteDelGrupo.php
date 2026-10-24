@@ -10,5 +10,6 @@ final readonly class EstudianteDelGrupo
         public int $matriculaId,
         public int $personaId,
         public string $nombreCompleto,
+        public string $matriculadoEl,
     ) {}
 }

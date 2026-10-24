@@ -7,6 +7,7 @@ namespace App\Modules\Docencia\Support;
 use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Academico\Data\SesionDeClase;
 use App\Modules\Docencia\Data\ClaseProgramada;
+use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use Carbon\CarbonImmutable;
 
 final class ClasesDelHorario
@@ -36,6 +37,17 @@ final class ClasesDelHorario
         }
 
         return $clases;
+    }
+
+    /**
+     * A student enrolled after the class date is not part of that class.
+     *
+     * @param  list<EstudianteDelGrupo>  $estudiantes
+     * @return list<EstudianteDelGrupo>
+     */
+    public static function estudiantesDe(array $estudiantes, CarbonImmutable $dia): array
+    {
+        return array_values(array_filter($estudiantes, fn (EstudianteDelGrupo $estudiante): bool => $estudiante->matriculadoEl <= $dia->toDateString()));
     }
 
     public static function sesionDe(HorarioDeGrupo $grupo, CarbonImmutable $fecha, string $horaInicio): ?SesionDeClase

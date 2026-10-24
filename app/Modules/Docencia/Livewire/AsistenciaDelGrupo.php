@@ -19,6 +19,7 @@ use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Logging\RegistroDeRechazos;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
@@ -44,6 +45,12 @@ final class AsistenciaDelGrupo extends Component
         $this->grupoId = $grupo;
         $this->clase = (ClasesDelHorario::hastaHoy($this->grupo())[0] ?? null)?->clave() ?? '';
         $this->cargarEstados();
+    }
+
+    public function hydrate(): void
+    {
+        // The page may stay open after the group moves to another teacher; reads stop too, not only saves.
+        abort_unless(GrupoACargo::tiene($this->docenteId(), $this->grupoId), 404);
     }
 
     public function updatedClase(): void
@@ -83,7 +90,7 @@ final class AsistenciaDelGrupo extends Component
             'grupo' => $grupo,
             'clases' => ClasesDelHorario::hastaHoy($grupo),
             'registradas' => $registradas,
-            'estudiantes' => ($this->estudiantes()),
+            'estudiantes' => $this->estudiantes(),
             'opciones' => EstadoAsistencia::cases(),
         ])->title("Asistencia · {$grupo->codigo}");
     }
@@ -109,7 +116,10 @@ final class AsistenciaDelGrupo extends Component
      */
     private function estudiantes(): array
     {
-        return app(EstudiantesDelGrupo::class)($this->grupoId);
+        $fecha = explode('|', $this->clase)[0];
+        $estudiantes = app(EstudiantesDelGrupo::class)($this->grupoId);
+
+        return $fecha === '' ? $estudiantes : ClasesDelHorario::estudiantesDe($estudiantes, CarbonImmutable::parse($fecha, ClasesDelHorario::ZONA));
     }
 
     private function grupo(): HorarioDeGrupo
