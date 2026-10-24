@@ -19,7 +19,6 @@ use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Logging\RegistroDeRechazos;
-use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
@@ -97,8 +96,8 @@ final class AsistenciaDelGrupo extends Component
 
     private function cargarEstados(): void
     {
-        [$fecha, $hora] = explode('|', $this->clase) + ['', ''];
-        $clase = $fecha === '' ? null : ClaseDictada::query()->where('grupo_id', $this->grupoId)->where('fecha', $fecha)->where('hora_inicio', "{$hora}:00")->first();
+        $elegida = $this->claseElegida();
+        $clase = $elegida instanceof ClaseProgramada ? ClaseDictada::query()->where('grupo_id', $this->grupoId)->where('fecha', $elegida->fecha->toDateString())->where('hora_inicio', $elegida->sesion->horaInicio)->first() : null;
         $guardados = $clase === null ? collect() : Asistencia::query()->where('clase_id', $clase->id)->get()->mapWithKeys(fn (Asistencia $asistencia): array => [$asistencia->matricula_id => $asistencia->estado->value]);
 
         $this->estados = collect($this->estudiantes())
@@ -116,10 +115,10 @@ final class AsistenciaDelGrupo extends Component
      */
     private function estudiantes(): array
     {
-        $fecha = explode('|', $this->clase)[0];
+        $clase = $this->claseElegida();
         $estudiantes = app(EstudiantesDelGrupo::class)($this->grupoId);
 
-        return $fecha === '' ? $estudiantes : ClasesDelHorario::estudiantesDe($estudiantes, CarbonImmutable::parse($fecha, ClasesDelHorario::ZONA));
+        return $clase instanceof ClaseProgramada ? ClasesDelHorario::estudiantesDe($estudiantes, $clase->fecha) : $estudiantes;
     }
 
     private function grupo(): HorarioDeGrupo

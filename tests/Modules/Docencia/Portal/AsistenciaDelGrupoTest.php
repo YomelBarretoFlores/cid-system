@@ -122,3 +122,16 @@ it('tells the teacher when no class has been held yet', function (): void {
         ->assertOk()
         ->assertSee('Este grupo todavía no tiene clases para registrar.');
 });
+
+it('ignores a class that is not in the schedule instead of failing', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->set('clase', 'no-es-fecha|18:00')
+        ->assertOk()
+        ->assertSee('Quispe Rojas, Ana')
+        ->call('guardar')
+        ->assertHasErrors('asistencia')
+        ->assertSee('La fecha o la hora de la clase no es válida.');
+
+    expect(ClaseDictada::query()->count())->toBe(0);
+});

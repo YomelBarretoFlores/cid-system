@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Academico;
 
 use App\Modules\Academico\Actions\BloquearGrupo;
+use App\Modules\Academico\Actions\BuscarEsquemaDelGrupo;
 use App\Modules\Academico\Actions\DescribirGrupos;
 use App\Modules\Academico\Actions\DescribirHorariosDeGrupos;
 use App\Modules\Academico\Actions\LiberarVacante;
@@ -22,6 +23,7 @@ use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
 use App\Modules\Academico\Contracts\CatalogoDePeriodos;
 use App\Modules\Academico\Contracts\ConsultaGruposDelCiclo;
 use App\Modules\Academico\Contracts\DetalleDeGrupos;
+use App\Modules\Academico\Contracts\EsquemaDelGrupo;
 use App\Modules\Academico\Contracts\GruposParaTraslado;
 use App\Modules\Academico\Contracts\HorariosDeGrupos;
 use App\Modules\Academico\Contracts\LiberacionDeVacante;
@@ -48,6 +50,7 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         GruposParaTraslado::class => ListarGruposParaTraslado::class,
         HorariosDeGrupos::class => DescribirHorariosDeGrupos::class,
         BloqueoDeGrupo::class => BloquearGrupo::class,
+        EsquemaDelGrupo::class => BuscarEsquemaDelGrupo::class,
     ];
 
     protected string $module = 'Academico';
