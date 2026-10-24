@@ -31,6 +31,7 @@ return new class extends Migration
             $table->timestampsTz();
 
             $table->unique(['idioma_id', 'numero']);
+            $table->unique(['id', 'idioma_id']);
         });
 
         DB::statement('ALTER TABLE aca_ciclos ADD CONSTRAINT aca_ciclos_numero_check CHECK (numero BETWEEN 1 AND 12)');
