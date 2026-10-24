@@ -13,7 +13,7 @@ final class RegistroDeRechazos
     public static function registrar(ReglaDeNegocioIncumplida $error): void
     {
         $regla = (string) preg_replace(
-            ['/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/', '/\d{8,}/'],
+            ['/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/', '/\d(?:[\s-]?\d){7,}/'],
             ['[correo]', '[dato]'],
             $error->getMessage(),
         );

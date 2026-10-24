@@ -17,10 +17,15 @@ final class AsignarIdDeSolicitud
 
     public function handle(Request $request, Closure $next): Response
     {
+        // The ID is always generated here, so a client cannot choose what the audit trail records.
+        $id = (string) Str::ulid();
         $recibido = $request->headers->get(self::CABECERA);
-        $id = is_string($recibido) && preg_match('/^[A-Za-z0-9-]{8,64}\z/', $recibido) === 1 ? $recibido : (string) Str::ulid();
 
         Context::add('solicitud_id', $id);
+
+        if (is_string($recibido) && preg_match('/^[A-Za-z0-9-]{8,64}\z/', $recibido) === 1) {
+            Context::add('solicitud_origen', $recibido);
+        }
 
         $respuesta = $next($request);
         $respuesta->headers->set(self::CABECERA, $id);

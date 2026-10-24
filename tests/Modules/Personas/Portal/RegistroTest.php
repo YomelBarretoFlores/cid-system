@@ -9,6 +9,8 @@ use App\Modules\Personas\Livewire\Registro;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Features\SupportTesting\Testable;
@@ -170,4 +172,16 @@ it('links a CILN record whose email was typed with capitals and spaces', functio
     registrarse()->assertHasNoErrors();
 
     expect($persona->refresh()->user_id)->not->toBeNull();
+});
+
+it('logs a refused registration without the email it mentions', function (): void {
+    $registros = [];
+    Event::listen(MessageLogged::class, function (MessageLogged $mensaje) use (&$registros): void {
+        $registros[] = [$mensaje->level, $mensaje->message, $mensaje->context];
+    });
+    User::factory()->create(['email' => 'rosa@correo.test']);
+
+    registrarse()->assertHasErrors(['email' => 'Ya existe una cuenta con ese correo.']);
+
+    expect($registros)->toContain(['info', 'Regla de negocio incumplida.', ['regla' => 'Ya existe una cuenta con ese correo.']]);
 });
