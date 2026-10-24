@@ -31,9 +31,8 @@ it('seeds a demo administrator with every payment permission and a cashier who c
     $caja = User::query()->where('email', 'caja@ciln.test')->firstOrFail();
 
     expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(['admin-panel.access', ...collect(PermisoPago::valores())->sort()->values()->all()])
-        ->and($caja->can(User::ADMIN_PANEL_PERMISSION))->toBeTrue()
-        ->and($caja->can(PermisoPago::Validar->value))->toBeTrue()
-        ->and($caja->can(PermisoPago::Anular->value))->toBeFalse();
+        ->and($caja->getPermissionNames()->sort()->values()->all())
+        ->toBe(['admin-panel.access', PermisoPago::Registrar->value, PermisoPago::Validar->value, PermisoPago::Ver->value]);
 });
 
 it('refuses to seed demo data in production even when forced', function (): void {

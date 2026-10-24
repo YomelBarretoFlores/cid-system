@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 it('creates the payment permissions with the migrations', function (): void {
     expect(DB::table('permissions')->where('guard_name', 'web')->whereLike('name', 'pagos.%')->orderBy('name')->pluck('name')->all())
-        ->toBe(['pagos.anular', 'pagos.registrar', 'pagos.validar', 'pagos.ver']);
+        ->toBe(collect(PermisoPago::valores())->sort()->values()->all());
 });
 
 it('grants each payment ability only with its permission', function (string $habilidad, bool $conRegistro, PermisoPago $permiso): void {
