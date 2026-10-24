@@ -40,8 +40,16 @@ it('never edits or deletes a movement', function (Closure $cambio): void {
 it('audits enrollments and movements', function (): void {
     $matricula = Matricula::factory()->create();
     $matricula->update(['estado' => 'retirada', 'retirado_en' => now()]);
-    Movimiento::factory()->create();
+    $movimiento = Movimiento::factory()->create();
 
-    expect(DB::table('aud_registros')->where('tabla', 'mat_matriculas')->where('registro_id', (string) $matricula->id)->pluck('operacion')->all())->toBe(['INSERT', 'UPDATE'])
-        ->and(DB::table('aud_registros')->where('tabla', 'mat_movimientos')->where('operacion', 'INSERT')->exists())->toBeTrue();
+    $operaciones = fn (string $tabla, int $id): array => DB::table('aud_registros')->where(['tabla' => $tabla, 'registro_id' => $id])->orderBy('id')->pluck('operacion')->all();
+
+    expect($operaciones('mat_matriculas', $matricula->id))->toBe(['INSERT', 'UPDATE'])
+        ->and($operaciones('mat_movimientos', $movimiento->id))->toBe(['INSERT']);
+});
+
+it('lets an empty movements table be truncated with the academic offer', function (): void {
+    DB::statement('TRUNCATE mat_movimientos CASCADE');
+
+    expect(Movimiento::query()->count())->toBe(0);
 });

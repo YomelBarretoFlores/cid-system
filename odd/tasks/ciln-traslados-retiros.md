@@ -20,7 +20,7 @@ Assumptions (to confirm with the CILN):
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S3, D1, D4 | inline | done | see L3 |
+| T1 | S3, D1, D4 | inline | done | babb2f3, 3e9d89a |
 | T2 | S2, S3, D2, D3, D5 | inline | pending | |
 | T3 | S2, D1 | inline | pending | |
 | T4 | all | inline | pending | |
@@ -37,3 +37,4 @@ Forecast: about 1,300 authored lines in four commits.
 - L1 (2026-10-24): "continúa"
 - L2: Map: `mat_movimientos` already exists (tipo traslado/retiro, origen, destino, motivo, autorizado_por, efectuado_en, CHECKs); `mat_matriculas` has a partial unique index on active (persona, grupo); no audit triggers on Matricula tables; groups are cancelled only without active enrollments.
 - L3: T1 inline: RED 5 of 5 → GREEN (babb2f3). Correction per `.claude/rules/database.md`: movements also reject TRUNCATE, except of an empty table, because the concurrency tests truncate the academic offer with CASCADE; so T2 race tests stay at the Academico contract level and create no movements. A full run showed one intermittent failure in `TarifaConcurrenteTest` (duplicate concept code): leftover concepts persist across concurrency runs and the factory had 1,000 codes; factory widened to 100,000.
+- L4: Native review of 8dc87eb..3e9d89a (risk, reliability) granted, approved and acknowledged. Adopted: ordered and bound audit assertions, a test for truncating an empty movements table, concept codes with letters (6.7 million combinations). Not needed: cascade deletes (all Matricula foreign keys are RESTRICT).
