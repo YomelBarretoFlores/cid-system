@@ -42,6 +42,17 @@ it('lists the current groups of the teacher with language, level, period and sch
         ->assertDontSee('ING-05-AJENO');
 });
 
+it('lists the groups of the latest period first, then by code', function (): void {
+    $anterior = Periodo::factory()->create(['anio' => 2026, 'fecha_inicio' => '2026-09-01', 'fecha_fin' => '2026-10-30', 'matricula_inicio' => '2026-08-15', 'matricula_fin' => '2026-09-05']);
+    PortalDocente::asignar(Grupo::factory()->create(['codigo' => 'ING-05-Z', 'ciclo_id' => $this->ciclo->id, 'periodo_id' => $anterior->id, 'estado' => EstadoGrupo::Cerrado]), $this->docente);
+    PortalDocente::asignar(grupoDelPortal('ING-05-C'), $this->docente);
+    PortalDocente::asignar(grupoDelPortal('ING-05-B'), $this->docente);
+
+    $this->actingAs($this->usuario)
+        ->get(route('docente.grupos'))
+        ->assertSeeInOrder(['Grupo ING-05-B', 'Grupo ING-05-C', 'Grupo ING-05-Z']);
+});
+
 it('tells a teacher without groups that none is assigned yet', function (): void {
     $this->actingAs($this->usuario)
         ->get(route('docente.grupos'))
@@ -63,11 +74,10 @@ it('sends a guest to the portal login', function (): void {
     $this->get(route('docente.grupos'))->assertRedirect(route('estudiante.ingresar'));
 });
 
-it('shows the teacher portal in the header and the home only to teachers', function (): void {
+it('shows the teacher portal on the home only to teachers', function (): void {
     $this->actingAs($this->usuario)
         ->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSee(route('docente.grupos'))
         ->assertSee('Registra la asistencia y las notas parciales de tus grupos.');
 
     $estudiante = User::factory()->create();
@@ -77,5 +87,15 @@ it('shows the teacher portal in the header and the home only to teachers', funct
         ->get(route('estudiante.inicio'))
         ->assertOk()
         ->assertDontSee(route('docente.grupos'))
+        ->assertDontSee('Registra la asistencia y las notas parciales de tus grupos.')
         ->assertSee(route('estudiante.matriculas'));
+});
+
+it('links the teacher portal from the header of every portal page only for teachers', function (): void {
+    $this->actingAs($this->usuario)->get(route('estudiante.matriculas'))->assertSee(route('docente.grupos'));
+
+    $estudiante = User::factory()->create();
+    Persona::factory()->create(['user_id' => $estudiante->id]);
+
+    $this->actingAs($estudiante)->get(route('estudiante.matriculas'))->assertOk()->assertDontSee(route('docente.grupos'));
 });

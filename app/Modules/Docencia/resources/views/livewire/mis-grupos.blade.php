@@ -34,6 +34,12 @@
                                 <dd><x-portal.insignia :color="$grupo->estado->color()">{{ $grupo->estado->etiqueta() }}</x-portal.insignia></dd>
                             </div>
                         </dl>
+
+                        <div class="flex flex-wrap gap-3 border-t border-slate-200 pt-4 text-sm">
+                            <a href="{{ route('docente.asistencia', $grupo->grupoId) }}" class="rounded-md px-3 py-2 font-medium text-ciln-700 ring-1 ring-ciln-100 hover:bg-ciln-50 focus-visible:outline-2 focus-visible:outline-ciln-600">
+                                Asistencia<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
+                            </a>
+                        </div>
                     </article>
                 </li>
             @endforeach
