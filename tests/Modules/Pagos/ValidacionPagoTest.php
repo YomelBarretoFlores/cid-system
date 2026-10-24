@@ -51,9 +51,11 @@ it('treats validating an already validated payment as a harmless retry', functio
     $pago = Pago::factory()->validado()->create();
     $validadorOriginal = $pago->validado_por;
 
-    app(ValidarPago::class)($pago->id, $this->cajero);
+    $resultado = app(ValidarPago::class)($pago->id, $this->cajero);
 
-    expect($pago->refresh()->validado_por)->toBe($validadorOriginal);
+    expect($pago->refresh()->validado_por)->toBe($validadorOriginal)
+        ->and($resultado->is($pago))->toBeTrue()
+        ->and($resultado->validado_por)->toBe($validadorOriginal);
     Event::assertNotDispatched(PagoValidado::class);
 });
 
@@ -128,9 +130,10 @@ it('treats rejecting or voiding twice as a harmless retry', function (string $ac
     $pago = Pago::factory()->{$estado}()->create();
     $antes = $pago->refresh()->getAttributes();
 
-    app($action)($pago->id, $this->cajero, 'Otro motivo.');
+    $resultado = app($action)($pago->id, $this->cajero, 'Otro motivo.');
 
-    expect($pago->refresh()->getAttributes())->toBe($antes);
+    expect($pago->refresh()->getAttributes())->toBe($antes)
+        ->and($resultado->is($pago))->toBeTrue();
     Event::assertNotDispatched($evento);
 })->with([
     'reject' => [RechazarPago::class, 'rechazado', PagoRechazado::class],

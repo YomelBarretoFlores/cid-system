@@ -24,8 +24,9 @@ return new class extends Migration
             SET search_path = pg_catalog, public, pg_temp
             AS $$
             DECLARE
-                mutables text[] := CASE OLD.estado
-                    WHEN 'validado' THEN ARRAY['estado', 'anulado_por', 'anulado_en', 'motivo_anulacion', 'updated_at']
+                mutables text[] := CASE
+                    WHEN OLD.estado = 'validado' AND NEW.estado = 'anulado'
+                        THEN ARRAY['estado', 'anulado_por', 'anulado_en', 'motivo_anulacion', 'updated_at']
                     ELSE ARRAY['updated_at']
                 END;
             BEGIN
@@ -52,14 +53,15 @@ return new class extends Migration
 
     public function down(): void
     {
+        // Restored first so a rejected payment sharing its number with a newer one aborts the rollback intact.
+        Schema::table('pag_pagos', function (Blueprint $table): void {
+            $table->unique(['medio_pago', 'numero_operacion']);
+        });
+
         DB::unprepared(<<<'SQL'
             DROP TRIGGER IF EXISTS pag_pagos_ciclo_de_vida ON pag_pagos;
             DROP FUNCTION IF EXISTS pag_controlar_cambios();
             DROP INDEX IF EXISTS pag_pagos_operacion_unique;
             SQL);
-
-        Schema::table('pag_pagos', function (Blueprint $table): void {
-            $table->unique(['medio_pago', 'numero_operacion']);
-        });
     }
 };

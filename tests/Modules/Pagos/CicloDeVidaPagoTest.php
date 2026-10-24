@@ -20,6 +20,7 @@ it('rejects forbidden state transitions even outside the application', function 
 
     expect(fn (): int => actualizarPago($pago, $cambios))->toThrow(QueryException::class, 'transición no permitida');
 })->with([
+    'validated to rejected' => ['validado', ['estado' => 'rechazado', 'motivo_rechazo' => 'Monto incorrecto']],
     'validated back to pending' => ['validado', ['estado' => 'pendiente', 'validado_por' => null, 'validado_en' => null]],
     'rejected to validated' => ['rechazado', ['estado' => 'validado', 'motivo_rechazo' => null]],
     'voided to validated' => ['anulado', ['estado' => 'validado', 'anulado_por' => null, 'anulado_en' => null, 'motivo_anulacion' => null]],
@@ -39,6 +40,7 @@ it('freezes the data of a payment once it leaves the pending state', function (s
     'validated operation number' => ['validado', ['numero_operacion' => 'OTRO-1']],
     'validated receipt' => ['validado', ['recibo_path' => 'recibos/otro.pdf']],
     'validated validator' => ['validado', ['validado_por' => fn (): int => User::factory()->create()->id]],
+    'voiding data on a payment that stays validated' => ['validado', ['motivo_anulacion' => 'Sin anular']],
     'rejected reason' => ['rechazado', ['motivo_rechazo' => 'Otro motivo']],
     'voided reason' => ['anulado', ['motivo_anulacion' => 'Otro motivo']],
 ]);
