@@ -46,6 +46,7 @@ El Anexo exige pistas **inmutables** para operaciones críticas (cambio de notas
 | Pieza | Diseño |
 |---|---|
 | Fuente oficial | Triggers de PostgreSQL en las tablas críticas, que escriben en una tabla de auditoría |
+| Logs | Los rechazos de negocio se registran con DNI, RUC, cuentas, teléfonos y correos enmascarados. Los mensajes de `ReglaDeNegocioIncumplida` no incluyen nombres de personas (no se pueden enmascarar con seguridad) |
 | Trazabilidad | Cada fila guarda `solicitud_id`, el ULID de la solicitud HTTP que la escribió (vacío fuera de una solicitud), igual al de la cabecera `X-Request-Id` y al de los logs |
 | Inmutabilidad | Triggers que rechazan `UPDATE`, `DELETE` y `TRUNCATE` sobre la tabla de auditoría. `aud_registrar()` es `SECURITY DEFINER` con `search_path` fijo (`pg_catalog, public, pg_temp`) y escribe en `public.aud_registros`, así que una tabla temporal no puede suplantarla y la aplicación no necesita permiso de escritura sobre la auditoría |
 | Usuario e IP | Laravel los fija en cada petición con `set_config` (sesión de PostgreSQL) y el trigger los lee |

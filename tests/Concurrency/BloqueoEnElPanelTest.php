@@ -22,9 +22,8 @@ it('shows the busy message instead of a server error when a panel save waits pas
         'DB_DATABASE' => $conexion['database'], 'DB_USERNAME' => $conexion['username'], 'DB_PASSWORD' => $conexion['password'],
     ])->start([PHP_BINARY, 'tests/Concurrency/Fixtures/retener-fila.php', '0', 'aca_periodos', (string) $periodo->id, '3']);
 
-    $esperando = fn (): bool => DB::table('pg_stat_activity')->where('query', 'like', '%pg_sleep%')->where('pid', '!=', DB::raw('pg_backend_pid()'))->exists();
     $hasta = microtime(true) + 10;
-    while (! $esperando() && microtime(true) < $hasta) {
+    while (! str_contains($retencion->output(), 'bloqueada') && microtime(true) < $hasta) {
         usleep(100_000);
     }
 
@@ -32,7 +31,9 @@ it('shows the busy message instead of a server error when a panel save waits pas
     DB::purge();
 
     $pagina->call('save')->assertNotified('Otra operación está modificando estos datos en este momento. Inténtalo de nuevo en unos segundos.');
-    $retencion->wait();
+    $resultado = $retencion->wait();
 
-    expect($periodo->refresh()->nombre)->toBe('Original');
+    expect($resultado->successful())->toBeTrue()
+        ->and($resultado->output())->toContain('liberada')
+        ->and($periodo->refresh()->nombre)->toBe('Original');
 });

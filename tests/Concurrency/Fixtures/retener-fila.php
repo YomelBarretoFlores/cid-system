@@ -10,6 +10,9 @@ $app = require __DIR__.'/bootstrap.php';
 // Holds the row lock long enough for the test process to hit its lock timeout.
 DB::transaction(function () use ($tabla, $id, $segundos): void {
     DB::table($tabla)->where('id', (int) $id)->lockForUpdate()->first();
+    // The test waits for this line, so it only proceeds once this process really holds the lock.
+    fwrite(STDOUT, "bloqueada\n");
+    fflush(STDOUT);
     DB::select('select pg_sleep(?)', [(float) $segundos]);
 });
 echo 'liberada';

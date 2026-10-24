@@ -44,7 +44,8 @@ final class AccionDeNegocio
     {
         self::notificarError($error);
 
-        throw new Halt($error->getMessage(), $error->getCode(), $error);
+        // A rejected save must not commit earlier writes of a transaction Filament may have opened around it.
+        throw (new Halt($error->getMessage(), $error->getCode(), $error))->rollBackDatabaseTransaction();
     }
 
     public static function notificarError(ReglaDeNegocioIncumplida $error): void

@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Log;
 
 final class RegistroDeRechazos
 {
-    // Messages may quote a DNI, RUC, account number or email; logs must not keep personal data (Ley 29733).
+    // Messages may quote a DNI, RUC, account, phone or email; logs must not keep them (Ley 29733). Messages never name people.
     public static function registrar(ReglaDeNegocioIncumplida $error): void
     {
         $regla = (string) preg_replace(
-            ['/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/', '/\d(?:[\s-]?\d){7,}/'],
+            ['/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/', '/\d(?:[\s.-]?\d){7,}/'],
             ['[correo]', '[dato]'],
             $error->getMessage(),
         );

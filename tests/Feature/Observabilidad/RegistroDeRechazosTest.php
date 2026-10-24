@@ -16,7 +16,7 @@ use Livewire\Livewire;
 it('logs a business rejection without the personal data it may mention', function (): void {
     Log::spy();
 
-    RegistroDeRechazos::registrar(new ReglaDeNegocioIncumplida('Ya existe un docente con el RUC 10456789012, DNI 40123456, cuenta 04-123-456789, celular 987 654 321 y correo Rosa.Q@unasam.edu.pe; grupo ING-05-A, ciclo 12.'));
+    RegistroDeRechazos::registrar(new ReglaDeNegocioIncumplida('Ya existe un docente con el RUC 10456789012, DNI 40.123.456, cuenta 04-123-456789, celular 987 654 321 y correo Rosa.Q@unasam.edu.pe; grupo ING-05-A, ciclo 12.'));
 
     Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', ['regla' => 'Ya existe un docente con el RUC [dato], DNI [dato], cuenta [dato], celular [dato] y correo [correo]; grupo ING-05-A, ciclo 12.'])->once();
 });
