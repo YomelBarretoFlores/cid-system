@@ -34,6 +34,11 @@ final class PagoFactory extends Factory
         ];
     }
 
+    public function pendiente(): static
+    {
+        return $this->state(['estado' => EstadoPago::Pendiente]);
+    }
+
     public function validado(): static
     {
         return $this->state([

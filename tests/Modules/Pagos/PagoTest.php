@@ -43,7 +43,7 @@ it('rejects the same operation number twice for the same payment method', functi
     Pago::factory()->create(['medio_pago' => MedioPago::BancoNacion, 'numero_operacion' => 'OP-12345']);
 
     expect(fn () => Pago::factory()->create(['medio_pago' => MedioPago::BancoNacion, 'numero_operacion' => ' op-12345 ']))
-        ->toThrow(QueryException::class, 'pag_pagos_medio_pago_numero_operacion_unique');
+        ->toThrow(QueryException::class, 'pag_pagos_operacion_unique');
 });
 
 it('allows the same operation number on a different payment method', function (): void {
