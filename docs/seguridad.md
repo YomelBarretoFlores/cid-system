@@ -25,7 +25,7 @@ Sesiones con cookie, no JWT ([`adr/0004-sesiones-para-autenticacion.md`](adr/000
 
 API REST v1 (clientes externos):
 
-- Token personal de Sanctum con `POST /api/v1/sesiones` (correo, contraseña y nombre del dispositivo). La verificación de credenciales es la misma Action del ingreso web (`AutenticarUsuario`): comparte sus límites, emite los eventos de intento y de fallo, y actualiza el hash de la contraseña si cambió el costo. El token vence a los 30 días, se revoca con `DELETE /api/v1/sesiones/actual` y los vencidos se borran cada noche (`sanctum:prune-expired`).
+- Token personal de Sanctum con `POST /api/v1/sesiones` (correo, contraseña y nombre del dispositivo). La verificación de credenciales es la misma Action del ingreso web (`AutenticarUsuario`): comparte sus límites, emite los eventos de intento y de fallo, y actualiza el hash de la contraseña si cambió el costo. El token vence a los 30 días, se revoca con `DELETE /api/v1/sesiones/actual` (solo el de la propia cuenta), ingresar de nuevo desde el mismo dispositivo reemplaza su token anterior y los vencidos se borran cada noche (`sanctum:prune-expired`). La descarga de PDF tiene un límite propio de 10 por minuto.
 - Los servicios del estudiante y del docente exigen correo verificado (`correo.verificado`) y la ficha o el perfil correspondiente; cada uno devuelve solo los datos del dueño del token. El PDF de un documento ajeno o anulado responde 404.
 - Límite de 60 pedidos por minuto por usuario o dirección (`throttle:api`); la verificación pública de documentos, 30. La documentación (`/docs/api`) solo se ve con acceso al panel fuera del entorno local.
 
