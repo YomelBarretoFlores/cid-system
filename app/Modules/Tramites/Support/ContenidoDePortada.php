@@ -31,7 +31,7 @@ final readonly class ContenidoDePortada
         $ahora = CarbonImmutable::now('America/Lima');
         $oferta = ($this->ofertaPublica)();
         $grupos = $oferta->grupos ?? [];
-        $tarifas = ($this->tarifasVigentes)($ahora);
+        $tarifas = ($this->tarifasVigentes)($ahora->startOfDay());
 
         return [
             'ahora' => $ahora,
@@ -41,7 +41,7 @@ final readonly class ContenidoDePortada
             'gruposConVacantes' => count(array_filter($grupos, fn (GrupoOfertado $grupo): bool => $grupo->abierto && $grupo->vacantes > 0)),
             'vinculos' => $this->vinculos($tarifas),
             'tarifasDesde' => $tarifas === [] ? null : max(array_map(fn (TarifaVigente $tarifa): CarbonImmutable => $tarifa->vigenteDesde, $tarifas)),
-            'fechas' => $oferta instanceof OfertaDelPeriodo ? $this->fechas($oferta, $ahora->startOfDay()) : [],
+            'fechas' => $oferta instanceof OfertaDelPeriodo ? $this->fechas($oferta, $ahora) : [],
         ];
     }
 
@@ -92,9 +92,12 @@ final readonly class ContenidoDePortada
      */
     private function fecha(string $detalle, CarbonImmutable $desde, CarbonImmutable $hasta, CarbonImmutable $hoy): array
     {
+        // Period dates come from the database in the app timezone, so days are compared as Lima calendar dates.
+        $dia = $hoy->toDateString();
+
         [$estado, $color] = match (true) {
-            $hoy->greaterThan($hasta) => ['Concluido', 'gray'],
-            $hoy->greaterThanOrEqualTo($desde) => [$desde->isSameDay($hasta) ? 'Hoy' : 'En curso', 'warning'],
+            $dia > $hasta->toDateString() => ['Concluido', 'gray'],
+            $dia >= $desde->toDateString() => [$desde->isSameDay($hasta) ? 'Hoy' : 'En curso', 'warning'],
             default => ['Próximo', 'info'],
         };
 

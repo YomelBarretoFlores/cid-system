@@ -79,3 +79,13 @@ it('still shows the fees and requirements when no period is open or planned', fu
         ->assertSeeText('Crea tu cuenta')
         ->assertDontSeeText('Fechas del periodo');
 });
+
+it('dates each step of the period by the day in Lima, including its last day', function (string $momento, array $esperado): void {
+    $this->travelTo(CarbonImmutable::parse($momento, 'America/Lima'));
+    periodoDePortada()->update(['matricula_inicio' => '2026-10-20', 'matricula_fin' => '2026-11-03', 'fecha_inicio' => '2026-11-03']);
+
+    $this->get('/')->assertOk()->assertSeeTextInOrder($esperado);
+})->with([
+    'before the period, late evening' => ['2026-10-19 23:30', ['Próximo', '20 oct – 3 nov', 'Próximo', '3 nov']],
+    'last enrollment day, which is also the first day of classes, late evening' => ['2026-11-03 23:30', ['En curso', '20 oct – 3 nov', 'Hoy', '3 nov', 'Próximo', '20 dic']],
+]);
