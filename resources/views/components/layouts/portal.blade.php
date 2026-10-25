@@ -38,7 +38,8 @@
                         <x-portal.enlace-menu ruta="estudiante.matriculas" icono="heroicon-o-academic-cap">Mis matrículas</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.clasificacion" icono="heroicon-o-clipboard-document-check">Clasificación</x-portal.enlace-menu>
                         @if ($esDocente)
-                            <x-portal.enlace-menu ruta="docente.grupos" activo="docente.*" icono="heroicon-o-user-group">Mis grupos</x-portal.enlace-menu>
+                            <x-portal.enlace-menu ruta="docente.grupos" :activo="['docente.grupos', 'docente.asistencia', 'docente.notas', 'docente.acta']" icono="heroicon-o-user-group">Mis grupos</x-portal.enlace-menu>
+                            <x-portal.enlace-menu ruta="docente.actas" icono="heroicon-o-document-check">Actas finales</x-portal.enlace-menu>
                         @endif
                     </nav>
                 @endif

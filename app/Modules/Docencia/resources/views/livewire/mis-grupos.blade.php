@@ -44,6 +44,9 @@
                             <x-portal.boton variante="secundario" :href="route('docente.notas', $grupo->grupoId)" tamano="compacto" class="flex-1">
                                 Pre-acta<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
                             </x-portal.boton>
+                            <x-portal.boton variante="secundario" :href="route('docente.acta', $grupo->grupoId)" tamano="compacto" class="flex-1">
+                                Acta final<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
+                            </x-portal.boton>
                         </div>
                     </article>
                 </li>

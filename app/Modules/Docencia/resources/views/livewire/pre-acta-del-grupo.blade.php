@@ -4,7 +4,7 @@
         <x-slot:inicio><x-ciln.hoja-bandera :idioma="$grupo->idioma" size="40" class="max-sm:hidden" /></x-slot:inicio>
         {{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel->etiqueta() }} · {{ $grupo->periodo }}
         <x-slot:acciones>
-            <x-portal.pestanas etiqueta="Registro del grupo" :enlaces="[[route('docente.asistencia', $grupo->grupoId), 'Asistencia', false], [route('docente.notas', $grupo->grupoId), 'Pre-acta', true]]" />
+            <x-portal.pestanas etiqueta="Registro del grupo" :enlaces="[[route('docente.asistencia', $grupo->grupoId), 'Asistencia', false], [route('docente.notas', $grupo->grupoId), 'Pre-acta', true], [route('docente.acta', $grupo->grupoId), 'Acta final', false]]" />
         </x-slot:acciones>
     </x-portal.encabezado>
 

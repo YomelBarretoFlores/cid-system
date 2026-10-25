@@ -31,7 +31,7 @@ Assumptions (recorded in `docs/decisiones-pendientes.md`, to confirm with the CI
 | T1 | S2, D1 | inline | done | c185d1d |
 | T2 | S5 | inline | done | 5b89207 |
 | T3 | S2–S6, D2–D7 | inline | done | see L6 |
-| T4 | S2, S3, S8, D2, D5 | inline | pending | |
+| T4 | S2, S3, S8, D2, D5 | inline | done | see L8 |
 | T5 | S2, S3, S8, D5, D7 | inline | pending | |
 | T6 | all | inline | pending | |
 
@@ -52,3 +52,5 @@ Route evidence: each unit builds on the previous one (same contracts and tables)
 - L4: T2 done (5b89207): `App\Shared\Support\Notas\Nota` (parser moved from `RegistrarNotasParciales`, pre-acta tests unchanged and green), contracts `NotasParcialesDelGrupo` and `DocenteDelGrupo`. RED observed (class missing), GREEN 210/210 Docencia + unit.
 - L5: Slice T1–T2 escalated (item 1, migration on `aca_periodos`) and reviewed with risk + reliability lenses: approved and acknowledged (lineage review-7a9e8ebd0dba5f59). Advisories: `BuscarDocenteDelGrupo` uses `first()` without order, a non-issue because `doc_cargas_academicas.grupo_id` is unique; the calendar had no test for a moment in another time zone, added (UTC moments around Lima midnight).
 - L6: T3 written implementation-first; tests then pinned it (37 Certificacion + 2 race tests), and a mutation that drops the half-up rounding fails the average test. The DB triggers reject grade changes, inserts or deletes on a closed acta, data changes on a closed acta and deleting an acta.
+- L7: T3 reviewed with risk, resilience and reliability lenses: approved and acknowledged (lineage review-4cf9fbd17d3539b4). Advisories folded into later tasks: `AutorizarRectificacion` should check the `certificacion.actas` permission itself and answer a missing acta clearly (T5); rectifying a group without acta had no test (added in T4).
+- L8: T4: page `/docente/grupos/{grupo}/acta` (preview, validate with an inline confirmation, rectification inputs and motive, PDF when closed), `/docente/actas` (actas the teacher validated), "Acta final" tab and card button, menu entry "Actas finales"; shared PDF layout `x-pdf.documento` with the CILN emblem (DOMPDF, A4 landscape for the acta); access answers 404 to teachers not in charge and 403 without teacher profile. 11 portal tests; a real DOMPDF render was checked visually.

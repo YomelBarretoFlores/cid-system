@@ -7,6 +7,7 @@ use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Actions\PrepararActaDelGrupo;
+use App\Modules\Certificacion\Actions\RectificarNotasFinales;
 use App\Modules\Certificacion\Data\FilaDelActa;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
@@ -147,3 +148,9 @@ it('keeps a closed acta and its grades locked in the database', function (Closur
     'changing the course data' => [fn () => DB::table('cer_actas')->update(['docente_nombre' => 'Otro']), 'un acta cerrada no admite cambios en sus datos'],
     'deleting the acta' => [fn () => DB::table('cer_actas')->delete(), 'un acta no se elimina'],
 ]);
+
+it('refuses to rectify grades of a group whose acta was never closed', function (): void {
+    expect(fn () => app(RectificarNotasFinales::class)($this->grupo->id, $this->curso['docente']->id, [$this->ana->id => [$this->curso['final']->id => '14']]))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El grupo ING-1-M aún no tiene acta final.')
+        ->and(Acta::query()->count())->toBe(0);
+});
