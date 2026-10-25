@@ -1,10 +1,14 @@
 @props(['title' => null])
 @use('App\Modules\Docencia\Contracts\DocenteDelUsuario')
+@use('App\Modules\Personas\Contracts\FichaDelUsuario')
+@use('App\Modules\Tramites\Contracts\TramitesObservados')
 @use('App\Shared\Auth\Models\User')
 @php
     $usuario = auth()->user();
     $verificado = $usuario?->hasVerifiedEmail() ?? false;
     $esDocente = $verificado && app(DocenteDelUsuario::class)((int) $usuario->id) !== null;
+    $personaId = $verificado ? app(FichaDelUsuario::class)((int) $usuario->id)?->personaId : null;
+    $observados = $personaId === null ? 0 : app(TramitesObservados::class)($personaId);
     $iniciales = collect(preg_split('/\s+/', trim((string) $usuario?->name)) ?: [])->filter()->take(2)->map(fn (string $parte): string => mb_strtoupper(mb_substr($parte, 0, 1)))->implode('');
 @endphp
 <x-layouts.base :title="$title" x-data="{ colapsado: $persist(false).as('ciln-menu-colapsado') }" x-bind:data-colapsado="colapsado || null"
@@ -37,6 +41,7 @@
                         <x-portal.enlace-menu ruta="estudiante.matricula" icono="heroicon-o-pencil-square">Matrícula</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.matriculas" icono="heroicon-o-academic-cap">Mis matrículas</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.clasificacion" icono="heroicon-o-clipboard-document-check">Clasificación</x-portal.enlace-menu>
+                        <x-portal.enlace-menu ruta="estudiante.tramites" icono="heroicon-o-document-text" :insignia="$observados ?: null">Trámites</x-portal.enlace-menu>
                         @if ($esDocente)
                             <x-portal.enlace-menu ruta="docente.grupos" :activo="['docente.grupos', 'docente.asistencia', 'docente.notas', 'docente.acta']" icono="heroicon-o-user-group">Mis grupos</x-portal.enlace-menu>
                             <x-portal.enlace-menu ruta="docente.actas" icono="heroicon-o-document-check">Actas finales</x-portal.enlace-menu>

@@ -17,6 +17,7 @@ use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Filament\Forms\Components\Repeater;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -104,3 +105,24 @@ it('replaces the stages of a type for new requests while a trámite in progress 
     expect($tipo->etapas()->pluck('nombre')->all())->toBe(['Solicitud recibida', 'Pago validado', 'Entregado'])
         ->and(array_column($enCurso->refresh()->etapas, 'nombre'))->toBe(['Solicitud recibida', 'Pago validado', 'En firma de Dirección', 'Listo para recojo o descarga']);
 });
+
+it('creates a type without a fee and audits the stages it replaces', function (): void {
+    $this->actingAs($this->administrador);
+
+    Livewire::test(CreateTipoTramite::class)->fillForm(formularioDeTipo(['tipo_concepto' => null, 'etapas' => [
+        ['nombre' => 'Solicitud recibida', 'avance' => 0, 'condicion' => 'solicitud'],
+        ['nombre' => 'Atendido', 'avance' => 100, 'condicion' => 'accion_del_personal'],
+    ]]))->call('create')->assertHasNoFormErrors();
+    $tipo = TipoTramite::query()->where('codigo', 'DUPLICADO-CARNE')->sole();
+    $etapaInicial = $tipo->etapas()->firstOrFail();
+
+    app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo()), $this->administrador, $tipo->id);
+
+    expect($tipo->refresh()->tipo_concepto)->toBe(TipoConcepto::Tramite)
+        ->and(DB::table('aud_registros')->where(['tabla' => 'tra_etapas', 'registro_id' => $etapaInicial->id, 'operacion' => 'DELETE'])->exists())->toBeTrue();
+});
+
+it('refuses a fee of a concept that belongs to enrollment, monthly fees or the placement exam', function (TipoConcepto $concepto): void {
+    expect(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo(['tipo_concepto' => $concepto->value])), $this->administrador))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'La tasa de un trámite es de constancia, certificado, trámite u otro concepto.');
+})->with([TipoConcepto::Matricula, TipoConcepto::Pension, TipoConcepto::ExamenClasificacion]);
