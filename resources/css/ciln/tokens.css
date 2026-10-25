@@ -43,6 +43,7 @@
     --color-acento: var(--color-oro-400);
     --color-acento-claro: var(--color-oro-50);
     --color-fila-hover: #fdf5e4;
+    --color-hover-suave: #f7f5ef;
     --color-enlace: var(--color-oro-700);
     --color-enlace-hover: var(--color-oro-800);
     --color-positivo: oklch(0.62 0.17 150);

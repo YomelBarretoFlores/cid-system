@@ -1,11 +1,18 @@
-@props(['titulo', 'descripcion' => null, 'ancho' => 'max-w-md'])
-<section {{ $attributes->class(['mx-auto w-full rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8', $ancho]) }}>
-    <header class="mb-6 flex flex-col gap-1">
-        <h1 class="text-xl font-semibold text-ciln-900">{{ $titulo }}</h1>
-        @if ($descripcion)
-            <p class="text-sm text-slate-600">{{ $descripcion }}</p>
-        @endif
-    </header>
+@props(['titulo' => null, 'descripcion' => null])
+<section {{ $attributes->class('flex flex-col gap-4 rounded-tarjeta bg-tarjeta p-5 sm:px-7 sm:py-[26px]') }}>
+    @if ($titulo || isset($acciones))
+        <header class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <div class="flex flex-col gap-1">
+                @if ($titulo)
+                    <h2 class="text-[21px] font-semibold">{{ $titulo }}</h2>
+                @endif
+                @if ($descripcion)
+                    <p class="text-secundario">{{ $descripcion }}</p>
+                @endif
+            </div>
+            {{ $acciones ?? '' }}
+        </header>
+    @endif
 
     {{ $slot }}
 </section>

@@ -1,11 +1,11 @@
 @props(['tipo' => 'info'])
 <div role="{{ $tipo === 'error' ? 'alert' : 'status' }}"
     {{ $attributes->class([
-        'rounded-md border px-4 py-3 text-sm',
-        'border-green-300 bg-green-50 text-green-900' => $tipo === 'exito',
-        'border-red-300 bg-red-50 text-red-900' => $tipo === 'error',
-        'border-amber-300 bg-amber-50 text-amber-900' => $tipo === 'aviso',
-        'border-ciln-100 bg-ciln-50 text-ciln-900' => $tipo === 'info',
+        'rounded-control px-[14px] py-3 text-[14.5px]',
+        'bg-verde-fondo text-verde-texto' => $tipo === 'exito',
+        'bg-rojo-fondo text-rojo-texto' => $tipo === 'error',
+        'bg-ambar-fondo text-ambar-texto' => $tipo === 'aviso',
+        'bg-azul-fondo text-azul-texto' => $tipo === 'info',
     ]) }}>
     {{ $slot }}
 </div>

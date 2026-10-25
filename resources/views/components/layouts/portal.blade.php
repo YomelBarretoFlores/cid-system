@@ -1,63 +1,81 @@
 @props(['title' => null])
 @use('App\Modules\Docencia\Contracts\DocenteDelUsuario')
-<!DOCTYPE html>
-<html lang="es">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $title ? "{$title} · " : '' }}CILN UNASAM</title>
-        @fonts
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
-        <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-ciln-800 focus:shadow">
-            Saltar al contenido
-        </a>
+@use('App\Shared\Auth\Models\User')
+@php
+    $usuario = auth()->user();
+    $verificado = $usuario?->hasVerifiedEmail() ?? false;
+    $esDocente = $verificado && app(DocenteDelUsuario::class)((int) $usuario->id) !== null;
+    $iniciales = collect(preg_split('/\s+/', trim((string) $usuario?->name)) ?: [])->filter()->take(2)->map(fn (string $parte): string => mb_strtoupper(mb_substr($parte, 0, 1)))->implode('');
+@endphp
+<x-layouts.base :title="$title" class="grid gap-2 sm:gap-3.5 lg:grid-cols-[264px_minmax(0,1fr)]">
+    <aside x-data="{ abierto: false }" class="flex flex-col gap-5 rounded-tarjeta bg-tarjeta px-4 py-5 lg:sticky lg:top-[30px] lg:max-h-[calc(100vh-60px)] lg:overflow-auto lg:px-[18px] lg:pt-[26px]">
+        <div class="flex items-center justify-between gap-3">
+            <a href="{{ route('estudiante.inicio') }}" class="flex items-center gap-3 px-1.5 text-tinta">
+                <x-ciln.emblema class="w-[54px]" />
+                <span class="flex flex-col leading-[1.1]">
+                    <span class="text-lg/[1.1] font-semibold tracking-[-0.01em] whitespace-nowrap">Centro de Idiomas</span>
+                    <span class="text-[12.5px] tracking-[0.12em] text-apagado">{{ request()->routeIs('docente.*') ? 'PORTAL DOCENTE' : 'UNASAM' }}</span>
+                </span>
+            </a>
+            @auth
+                <button type="button" x-on:click="abierto = ! abierto" x-bind:aria-expanded="abierto" aria-controls="menu-del-portal"
+                    class="rounded-control p-2 text-secundario hover:bg-hover-suave focus-visible:shadow-foco focus-visible:outline-none lg:hidden">
+                    <span class="sr-only">Menú</span>
+                    <x-heroicon-o-bars-3 class="size-6" x-show="! abierto" />
+                    <x-heroicon-o-x-mark class="size-6" x-show="abierto" x-cloak />
+                </button>
+            @endauth
+        </div>
 
-        <header class="border-b-4 border-oro-400 bg-ciln-800 text-white">
-            <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-3">
-                <a href="{{ route('estudiante.inicio') }}" class="flex flex-col leading-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-                    <span class="text-lg font-semibold tracking-wide">CILN</span>
-                    <span class="text-xs text-ciln-100">Centro de Idiomas y Lenguas Nativas · UNASAM</span>
-                </a>
+        @auth
+            <div id="menu-del-portal" class="flex flex-1 flex-col gap-5 max-lg:hidden" x-bind:class="{ 'max-lg:hidden': ! abierto }">
+                @if ($verificado)
+                    <nav aria-label="Portal del estudiante" class="flex shrink-0 flex-col gap-0.5">
+                        <x-portal.enlace-menu ruta="estudiante.inicio" icono="heroicon-o-home">Inicio</x-portal.enlace-menu>
+                        <x-portal.enlace-menu ruta="estudiante.pagos" icono="heroicon-o-banknotes">Mis pagos</x-portal.enlace-menu>
+                        <x-portal.enlace-menu ruta="estudiante.matricula" icono="heroicon-o-pencil-square">Matrícula</x-portal.enlace-menu>
+                        <x-portal.enlace-menu ruta="estudiante.matriculas" icono="heroicon-o-academic-cap">Mis matrículas</x-portal.enlace-menu>
+                        <x-portal.enlace-menu ruta="estudiante.clasificacion" icono="heroicon-o-clipboard-document-check">Clasificación</x-portal.enlace-menu>
+                        @if ($esDocente)
+                            <x-portal.enlace-menu ruta="docente.grupos" activo="docente.*" icono="heroicon-o-user-group">Mis grupos</x-portal.enlace-menu>
+                        @endif
+                    </nav>
+                @endif
 
-                @auth
-                    @if (auth()->user()->hasVerifiedEmail())
-                        <nav aria-label="Portal del estudiante" class="flex flex-wrap items-center gap-1 text-sm">
-                            <x-portal.enlace-menu :ruta="'estudiante.inicio'">Inicio</x-portal.enlace-menu>
-                            <x-portal.enlace-menu :ruta="'estudiante.pagos'">Mis pagos</x-portal.enlace-menu>
-                            <x-portal.enlace-menu :ruta="'estudiante.matricula'">Matrícula</x-portal.enlace-menu>
-                            <x-portal.enlace-menu :ruta="'estudiante.matriculas'">Mis matrículas</x-portal.enlace-menu>
-                            <x-portal.enlace-menu :ruta="'estudiante.clasificacion'">Clasificación</x-portal.enlace-menu>
-                            @if (app(DocenteDelUsuario::class)((int) auth()->id()) !== null)
-                                <x-portal.enlace-menu :ruta="'docente.grupos'">Mis grupos</x-portal.enlace-menu>
-                            @endif
-                        </nav>
-                    @endif
-
-                    <form method="POST" action="{{ route('estudiante.salir') }}">
-                        @csrf
-                        <button type="submit" class="rounded-md px-3 py-2 text-sm text-ciln-100 hover:bg-ciln-700 hover:text-white focus-visible:outline-2 focus-visible:outline-white">
-                            Salir
-                        </button>
-                    </form>
-                @endauth
+                <div class="mt-auto flex flex-col gap-4">
+                    <div class="flex items-center gap-3 px-1.5">
+                        <span aria-hidden="true" class="flex size-10 shrink-0 items-center justify-center rounded-full bg-oro-100 font-semibold text-oro-950">{{ $iniciales }}</span>
+                        <span class="flex min-w-0 flex-col gap-0.5">
+                            <span class="truncate font-medium">{{ $usuario->name }}</span>
+                            <span class="self-start rounded-pildora bg-oro-300 px-2 text-xs text-oro-950">{{ $esDocente ? 'Docente' : 'Estudiante' }}</span>
+                        </span>
+                    </div>
+                    <div class="flex flex-col gap-2.5 px-1.5 text-[14.5px]">
+                        @can(User::ADMIN_PANEL_PERMISSION)
+                            <a href="{{ route('filament.admin.pages.dashboard') }}" class="flex items-center gap-3 text-tinta hover:text-enlace-hover">
+                                <x-heroicon-o-squares-2x2 class="size-[19px] text-apagado" />Panel administrativo
+                            </a>
+                        @endcan
+                        <form method="POST" action="{{ route('estudiante.salir') }}">
+                            @csrf
+                            <button type="submit" class="flex items-center gap-3 text-peligro hover:underline focus-visible:shadow-foco focus-visible:outline-none">
+                                <x-heroicon-o-arrow-right-start-on-rectangle class="size-[19px]" />Cerrar sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-        </header>
+        @endauth
+    </aside>
 
-        <main id="contenido" class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
-            @if (session('estado'))
-                <x-portal.alerta tipo="exito">{{ session('estado') }}</x-portal.alerta>
-            @endif
-            @if (session('error'))
-                <x-portal.alerta tipo="error">{{ session('error') }}</x-portal.alerta>
-            @endif
+    <main id="contenido" class="flex min-w-0 flex-col gap-2 sm:gap-3.5">
+        @if (session('estado'))
+            <x-portal.alerta tipo="exito">{{ session('estado') }}</x-portal.alerta>
+        @endif
+        @if (session('error'))
+            <x-portal.alerta tipo="error">{{ session('error') }}</x-portal.alerta>
+        @endif
 
-            {{ $slot }}
-        </main>
-
-        <footer class="mx-auto max-w-5xl px-4 pb-8 text-xs text-slate-500">
-            Universidad Nacional Santiago Antúnez de Mayolo · Huaraz
-        </footer>
-    </body>
-</html>
+        {{ $slot }}
+    </main>
+</x-layouts.base>

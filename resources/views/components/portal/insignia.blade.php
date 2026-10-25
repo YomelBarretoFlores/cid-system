@@ -1,9 +1,9 @@
 @props(['color' => 'gray'])
 <span {{ $attributes->class([
-    'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset',
-    'bg-amber-50 text-amber-900 ring-amber-300' => $color === 'warning',
-    'bg-green-50 text-green-900 ring-green-300' => $color === 'success',
-    'bg-red-50 text-red-900 ring-red-300' => $color === 'danger',
-    'bg-ciln-50 text-ciln-900 ring-ciln-100' => $color === 'info',
-    'bg-slate-100 text-slate-800 ring-slate-300' => $color === 'gray',
+    'inline-flex items-center rounded-pildora px-3 py-[3px] text-[13px] font-medium whitespace-nowrap',
+    'bg-ambar-fondo text-ambar-texto' => $color === 'warning',
+    'bg-verde-fondo text-verde-texto' => $color === 'success',
+    'bg-rojo-fondo text-rojo-texto' => $color === 'danger',
+    'bg-azul-fondo text-azul-texto' => $color === 'info',
+    'bg-gris-fondo text-gris-texto' => $color === 'gray',
 ]) }}>{{ $slot }}</span>

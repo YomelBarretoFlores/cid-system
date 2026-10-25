@@ -22,7 +22,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('components.layouts.portal')]
+#[Layout('components.layouts.acceso')]
 #[Title('Crear cuenta')]
 final class Registro extends Component
 {

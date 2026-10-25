@@ -16,7 +16,7 @@ use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('components.layouts.portal')]
+#[Layout('components.layouts.acceso')]
 #[Title('Nueva contraseña')]
 final class RestablecerClave extends Component
 {

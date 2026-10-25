@@ -13,7 +13,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('components.layouts.portal')]
+#[Layout('components.layouts.acceso')]
 #[Title('Ingresar')]
 final class IniciarSesion extends Component
 {
