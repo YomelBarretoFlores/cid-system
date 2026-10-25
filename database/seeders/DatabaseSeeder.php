@@ -6,11 +6,14 @@ namespace Database\Seeders;
 
 use App\Modules\Academico\Database\Seeders\AcademicoDemoSeeder;
 use App\Modules\Academico\Enums\PermisoAcademico;
+use App\Modules\Academico\Models\Grupo;
 use App\Modules\Docencia\Database\Seeders\DocenciaDemoSeeder;
 use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Modules\Matricula\Database\Seeders\MatriculaDemoSeeder;
+use App\Modules\Matricula\Enums\EstadoMatricula;
 use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Enums\PermisoMatricula;
+use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Database\Seeders\PagosDemoSeeder;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Models\Pago;
@@ -20,6 +23,7 @@ use App\Modules\Personas\Enums\PermisoPersona;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 
@@ -44,13 +48,13 @@ final class DatabaseSeeder extends Seeder
             PersonasDemoSeeder::class,
             MatriculaDemoSeeder::class,
             PagosDemoSeeder::class,
-            DocenciaDemoSeeder::class,
         ]);
 
         $this->estudianteDelPortal();
+        $this->call(DocenciaDemoSeeder::class);
     }
 
-    // A verified student with an unused validated enrollment payment, so the portal can be tried end to end.
+    // A verified student enrolled in English I, withdrawn from Quechua I, and with an unused validated enrollment payment to try next period's enrollment.
     private function estudianteDelPortal(): void
     {
         $user = User::factory()->create(['name' => 'Estudiante Demo', 'email' => 'estudiante@ciln.test']);
@@ -68,12 +72,29 @@ final class DatabaseSeeder extends Seeder
             ->where('tipo_vinculo', TipoVinculo::PublicoGeneral)
             ->sole();
 
-        Pago::factory()->validado()->create([
+        $pagar = fn (string $fecha): Pago => Pago::factory()->validado()->create([
             'persona_id' => $persona->id,
             'concepto_id' => $tarifa->concepto_id,
             'tarifa_id' => $tarifa->id,
             'monto' => $tarifa->monto,
+            'fecha_pago' => $fecha,
             'validado_por' => User::query()->where('email', 'caja@ciln.test')->value('id'),
         ]);
+
+        foreach ([['ING-1-M', EstadoMatricula::Activa], ['QUE-1-S', EstadoMatricula::Retirada]] as [$codigo, $estado]) {
+            $grupo = Grupo::query()->with('periodo')->where('codigo', $codigo)->whereRelation('periodo', 'estado', 'en_curso')->firstOrFail();
+            $matriculadoEn = CarbonImmutable::parse($grupo->periodo->matricula_inicio->toDateString(), 'America/Lima')->setTime(9, 30);
+            Matricula::factory()->create([
+                'persona_id' => $persona->id, 'grupo_id' => $grupo->id, 'pago_id' => $pagar($matriculadoEn->toDateString())->id,
+                'matriculado_en' => $matriculadoEn, 'estado' => $estado,
+                'retirado_en' => $estado === EstadoMatricula::Retirada ? $matriculadoEn->addDays(12) : null,
+            ]);
+
+            if ($estado === EstadoMatricula::Activa) {
+                $grupo->increment('matriculados');
+            }
+        }
+
+        $pagar(CarbonImmutable::today('America/Lima')->subDays(2)->toDateString());
     }
 }

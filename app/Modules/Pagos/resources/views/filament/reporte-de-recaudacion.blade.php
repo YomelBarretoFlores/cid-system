@@ -22,12 +22,12 @@
         <div class="grid gap-3.5 lg:grid-cols-2">
             <section class="flex flex-col gap-3 rounded-tarjeta bg-tarjeta px-7 py-6">
                 <h2 class="mb-1.5 text-xl font-semibold">Por concepto TUPA / TUSNE</h2>
-                @forelse ($reporte->porConcepto as $fila)
+                @forelse (collect($reporte->porConcepto)->sortByDesc('centimos')->values() as $fila)
                     <div wire:key="concepto-{{ $fila->codigo }}" class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                         <div class="flex h-10 min-w-0 items-center justify-between gap-3 rounded-lg px-3.5"
-                            style="width: max(60%, {{ round($fila->centimos / $maximo * 100) }}%); background: color-mix(in oklch, var(--color-oro-400) {{ max(35, 100 - $loop->index * 22) }}%, white)">
+                            style="width: {{ round($fila->centimos / $maximo * 100) }}%; min-width: min(100%, 230px); background: color-mix(in oklch, var(--color-oro-400) {{ max(35, 100 - $loop->index * 22) }}%, white)">
                             <span class="truncate font-semibold">{{ $fila->nombre }}</span>
-                            <span class="shrink-0 text-[12.5px] font-semibold text-oro-950">{{ $fila->operaciones }} {{ $fila->operaciones === 1 ? 'operación' : 'operaciones' }}</span>
+                            <span class="shrink-0 text-[12.5px] font-semibold text-oro-950" title="{{ $fila->operaciones }} {{ $fila->operaciones === 1 ? 'operación' : 'operaciones' }}">{{ $fila->operaciones }} op.</span>
                         </div>
                         <span class="flex flex-col items-end">
                             <span class="font-semibold whitespace-nowrap">S/ {{ Reporte::soles($fila->centimos) }}</span>
