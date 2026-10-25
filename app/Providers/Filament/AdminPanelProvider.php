@@ -68,6 +68,8 @@ final class AdminPanelProvider extends PanelProvider
             ->sidebarWidth('268px')
             ->sidebarCollapsibleOnDesktop()
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
+            ->globalSearchKeyBindings(['mod+k'])
+            ->globalSearchFieldKeyBindingSuffix()
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->login(IngresarAlPanel::class)
             ->profile(EditarPerfil::class, isSimple: false)

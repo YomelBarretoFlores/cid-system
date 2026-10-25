@@ -17,6 +17,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 final class PagoResource extends Resource
@@ -59,5 +61,23 @@ final class PagoResource extends Resource
             'create' => CreatePago::route('/registrar'),
             'view' => ViewPago::route('/{record}'),
         ];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return $record instanceof Pago ? [
+            'Concepto' => $record->concepto->nombre,
+            'Monto' => 'S/ '.number_format((float) $record->monto, 2),
+            'Pagado el' => $record->fecha_pago->format('d/m/Y'),
+            'Estado' => $record->estado->etiqueta(),
+        ] : [];
+    }
+
+    /**
+     * @return Builder<Model>
+     */
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with('concepto');
     }
 }

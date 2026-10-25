@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 final class TramiteResource extends Resource
@@ -53,5 +54,13 @@ final class TramiteResource extends Resource
             'index' => ListTramites::route('/'),
             'view' => ViewTramite::route('/{record}'),
         ];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return $record instanceof Tramite ? [
+            'Tipo' => $record->tipo_nombre,
+            'Estado' => $record->estado->etiqueta(),
+        ] : [];
     }
 }

@@ -197,6 +197,10 @@
     @apply rounded-none shadow-drawer sm:rounded-s-tarjeta;
 }
 
+.fi-sidebar .fi-global-search-results-ctn {
+    @apply w-[22rem] max-w-[calc(100vw-2rem)] rounded-interna shadow-dropdown ring-0;
+}
+
 .fi-dropdown-panel {
     @apply rounded-interna shadow-dropdown ring-0;
 }
