@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Matricula\Livewire;
 
-use App\Modules\Academico\Contracts\DetalleDeGrupos;
-use App\Modules\Docencia\Contracts\DocentesDeGrupos;
-use App\Modules\Matricula\Models\Matricula;
+use App\Modules\Matricula\Actions\ListarMatriculasDeEstudiante;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
@@ -21,18 +19,12 @@ final class MisMatriculas extends Component
     {
         $ficha = app(FichaDelUsuario::class)((int) auth()->id()) ?? abort(403);
 
-        $matriculas = Matricula::query()
-            ->where('persona_id', $ficha->personaId)
-            ->orderByDesc('matriculado_en')
-            ->orderByDesc('id')
-            ->get();
-
-        $grupoIds = array_values($matriculas->pluck('grupo_id')->unique()->all());
+        $datos = app(ListarMatriculasDeEstudiante::class)($ficha->personaId);
 
         return view('matricula::livewire.mis-matriculas', [
-            'matriculas' => $matriculas,
-            'grupos' => app(DetalleDeGrupos::class)($grupoIds),
-            'docentes' => app(DocentesDeGrupos::class)($grupoIds),
+            'matriculas' => $datos->matriculas,
+            'grupos' => $datos->grupos,
+            'docentes' => $datos->docentes,
         ]);
     }
 }

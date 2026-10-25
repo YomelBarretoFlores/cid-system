@@ -9,6 +9,7 @@ use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Policies\PagoPolicy;
 use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -21,6 +22,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ * @property string $monto
+ * @property CarbonImmutable $fecha_pago
  * @property EstadoPago $estado
  * @property MedioPago $medio_pago
  * @property-read Concepto $concepto

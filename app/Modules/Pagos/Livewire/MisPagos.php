@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Livewire;
 
+use App\Modules\Pagos\Actions\ListarPagosDeEstudiante;
 use App\Modules\Pagos\Actions\RegistrarPago;
 use App\Modules\Pagos\Data\RegistroDePago;
 use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoForm;
 use App\Modules\Pagos\Models\Concepto;
-use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
@@ -84,12 +84,7 @@ final class MisPagos extends Component
     public function render(): View
     {
         return view('pagos::livewire.mis-pagos', [
-            'pagos' => Pago::query()
-                ->with('concepto:id,nombre')
-                ->where('persona_id', $this->ficha()->personaId)
-                ->orderByDesc('fecha_pago')
-                ->orderByDesc('id')
-                ->get(),
+            'pagos' => app(ListarPagosDeEstudiante::class)($this->ficha()->personaId),
             'conceptos' => Concepto::query()->where('activo', true)->orderBy('nombre')->pluck('nombre', 'id')->all(),
             'mediosDePago' => collect(MedioPago::cases())->mapWithKeys(fn (MedioPago $medio): array => [$medio->value => $medio->etiqueta()])->all(),
             'hoy' => $this->hoy(),

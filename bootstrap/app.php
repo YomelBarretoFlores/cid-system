@@ -6,6 +6,7 @@ use App\Modules\Docencia\Http\Middleware\RequierePerfilDocente;
 use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use App\Shared\Auth\Enums\EntradaDelPortal;
+use App\Shared\Auth\Http\Middleware\RequiereCorreoVerificado;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\DestinoTrasIngreso;
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
@@ -28,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', EstablecerContextoAuditoria::class);
         $middleware->appendToGroup('api', EstablecerContextoAuditoria::class);
         $middleware->throttleApi();
-        $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'docente' => RequierePerfilDocente::class]);
+        $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'docente' => RequierePerfilDocente::class, 'correo.verificado' => RequiereCorreoVerificado::class]);
 
         // The admin panel redirects its own guests to its login; teacher pages go to the teacher entry, the rest to the student entry.
         $middleware->redirectGuestsTo(
