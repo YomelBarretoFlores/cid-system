@@ -1,0 +1,96 @@
+/* Design tokens of the CILN design handoff, shared by the portals and the Filament theme. */
+@theme {
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --color-piedra-50: #fbfaf7;
+    --color-piedra-100: #f4f3ef;
+    --color-piedra-200: #eae9e5;
+    --color-piedra-300: #d9d4c8;
+    --color-piedra-400: #a39e92;
+    --color-piedra-500: #8d887c;
+    --color-piedra-600: #6e695e;
+    --color-piedra-700: #5e5a50;
+    --color-piedra-800: #36322a;
+    --color-piedra-900: #1d1b16;
+    --color-piedra-950: #12110d;
+
+    --color-oro-50: oklch(0.975 0.018 85);
+    --color-oro-100: oklch(0.95 0.04 82);
+    --color-oro-200: oklch(0.9 0.08 85);
+    --color-oro-300: oklch(0.86 0.13 80);
+    --color-oro-400: oklch(0.8 0.14 75);
+    --color-oro-500: oklch(0.72 0.14 70);
+    --color-oro-600: oklch(0.6 0.13 67);
+    --color-oro-700: oklch(0.5 0.11 65);
+    --color-oro-800: oklch(0.42 0.1 60);
+    --color-oro-900: oklch(0.34 0.08 60);
+    --color-oro-950: oklch(0.29 0.06 80);
+
+    --color-fondo: var(--color-piedra-200);
+    --color-lienzo: var(--color-piedra-100);
+    --color-tarjeta: #ffffff;
+    --color-tarjeta-interna: var(--color-piedra-50);
+    --color-tinta: var(--color-piedra-900);
+    --color-tinta-hover: var(--color-piedra-800);
+    --color-secundario: var(--color-piedra-700);
+    --color-terciario: var(--color-piedra-600);
+    --color-apagado: var(--color-piedra-500);
+    --color-grupo: var(--color-piedra-400);
+    --color-borde: #e5e1d6;
+    --color-borde-interno: #efede7;
+    --color-separador: #f2f0ea;
+    --color-acento: var(--color-oro-400);
+    --color-acento-claro: var(--color-oro-50);
+    --color-fila-hover: #fdf5e4;
+    --color-enlace: var(--color-oro-700);
+    --color-enlace-hover: var(--color-oro-800);
+    --color-positivo: oklch(0.62 0.17 150);
+    --color-peligro: oklch(0.5 0.19 27);
+    --color-interruptor: var(--color-piedra-300);
+
+    --color-ambar-fondo: #fbefd5;
+    --color-ambar-texto: #7a5300;
+    --color-verde-fondo: #e6f3ea;
+    --color-verde-texto: #24663e;
+    --color-rojo-fondo: #f9e3df;
+    --color-rojo-texto: #8e2a1c;
+    --color-gris-fondo: #efede8;
+    --color-gris-texto: #5e5a50;
+    --color-azul-fondo: #e6ecf3;
+    --color-azul-texto: #2f4a66;
+
+    --radius-marco: 28px;
+    --radius-tarjeta: 22px;
+    --radius-interna: 16px;
+    --radius-control: 14px;
+    --radius-pildora: 40px;
+
+    --shadow-drawer: 0 24px 60px rgb(29 27 22 / 0.18);
+    --shadow-dropdown: 0 18px 44px rgb(29 27 22 / 0.16), 0 0 0 1px #efede7;
+    --shadow-foco: 0 0 0 3px oklch(0.9 0.08 85 / 0.5);
+
+    --text-titulo: 1.875rem;
+    --text-titulo--line-height: 1.15;
+    --text-titulo--letter-spacing: -0.02em;
+    --text-kpi: clamp(2.125rem, 3.4vw, 3.5rem);
+    --text-kpi--line-height: 1;
+    --text-kpi--letter-spacing: -0.04em;
+
+    --animate-subir: subir 180ms ease-out;
+    --animate-entrar: entrar 200ms ease-out;
+
+    @keyframes subir {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+    }
+
+    @keyframes entrar {
+        from {
+            opacity: 0;
+            transform: translateX(24px);
+        }
+    }
+}
