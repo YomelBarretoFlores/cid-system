@@ -31,7 +31,7 @@ it('refuses guests and unverified accounts on every student endpoint', function 
 
     $this->withToken($sinVerificar->createToken('App')->plainTextToken)->getJson($ruta)
         ->assertForbidden()
-        ->assertJsonPath('message', 'Verifica tu correo antes de usar los datos del estudiante.');
+        ->assertJsonPath('message', 'Verifica tu correo antes de usar estos datos.');
 })->with([
     '/api/v1/estudiante/perfil', '/api/v1/estudiante/matriculas', '/api/v1/estudiante/pagos',
     '/api/v1/estudiante/notas', '/api/v1/estudiante/tramites', '/api/v1/estudiante/documentos',

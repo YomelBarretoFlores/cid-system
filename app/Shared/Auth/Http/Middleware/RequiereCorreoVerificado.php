@@ -16,7 +16,7 @@ final readonly class RequiereCorreoVerificado
     {
         $usuario = $request->user();
 
-        abort_unless($usuario instanceof MustVerifyEmail && $usuario->hasVerifiedEmail(), 403, 'Verifica tu correo antes de usar los datos del estudiante.');
+        abort_unless($usuario instanceof MustVerifyEmail && $usuario->hasVerifiedEmail(), 403, 'Verifica tu correo antes de usar estos datos.');
 
         return $next($request);
     }

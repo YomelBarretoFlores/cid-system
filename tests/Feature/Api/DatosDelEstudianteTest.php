@@ -47,7 +47,7 @@ it('gives the student their own profile and refuses guests, accounts without a p
     app('auth')->forgetGuards();
     $this->withToken($sinVerificar->createToken('App')->plainTextToken)->getJson('/api/v1/estudiante/perfil')
         ->assertForbidden()
-        ->assertJsonPath('message', 'Verifica tu correo antes de usar los datos del estudiante.');
+        ->assertJsonPath('message', 'Verifica tu correo antes de usar estos datos.');
 });
 
 it('lists only the student\'s own enrollments, newest first, with their group, schedule, room or link and teacher', function (): void {
