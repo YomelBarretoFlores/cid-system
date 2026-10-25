@@ -76,3 +76,11 @@ it('sends a signed-in teacher away from the teacher entry to the teacher module'
 it('ignores an unknown entry and treats it as the student entry', function (): void {
     Livewire::test(IniciarSesion::class, ['portal' => 'admin'])->assertSee('Ingresar al portal del estudiante');
 });
+
+it('keeps sending signed-in staff from the entry pages to the panel, even with a person record', function (): void {
+    $usuario = User::factory()->create();
+    Persona::factory()->create(['user_id' => $usuario->id]);
+    $usuario->givePermissionTo(Permission::findOrCreate(User::ADMIN_PANEL_PERMISSION, 'web'));
+
+    $this->actingAs($usuario)->get(route('estudiante.ingresar'))->assertRedirect(route('filament.admin.pages.dashboard'));
+});

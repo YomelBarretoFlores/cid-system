@@ -31,9 +31,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(
             fn (Request $request): ?string => $request->is('api/*') ? null : route(EntradaDelPortal::delPedido($request)->ruta()),
         );
-        $middleware->redirectUsersTo(fn (Request $request): string => $request->user() instanceof User
-            ? app(DestinoTrasIngreso::class)->para($request->user(), EntradaDelPortal::delPedido($request))
-            : route('estudiante.inicio'));
+        $middleware->redirectUsersTo(fn (Request $request): string => match (true) {
+            ! $request->user() instanceof User => route('estudiante.inicio'),
+            $request->user()->can(User::ADMIN_PANEL_PERMISSION) => route('filament.admin.pages.dashboard'),
+            default => app(DestinoTrasIngreso::class)->para($request->user(), EntradaDelPortal::delPedido($request)),
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
