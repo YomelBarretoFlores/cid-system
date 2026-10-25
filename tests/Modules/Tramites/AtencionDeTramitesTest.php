@@ -27,11 +27,13 @@ use App\Modules\Tramites\Actions\SolicitarTramite;
 use App\Modules\Tramites\Data\DatosDeSolicitud;
 use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Enums\PermisoTramite;
+use App\Modules\Tramites\Events\TramiteActualizado;
 use App\Modules\Tramites\Models\Movimiento;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Illuminate\Support\Facades\Event;
 use Tests\Support\ActasFinales;
 
 beforeEach(function (): void {
@@ -175,7 +177,10 @@ it('resumes an unpaid trámite back to waiting for the fee when its free payment
         }
     });
 
+    Event::fake([TramiteActualizado::class]);
+
     app(ReanudarTramite::class)($sinPagar->id, $this->personal);
 
     expect($sinPagar->refresh())->estado->toBe(EstadoTramite::PendientePago)->pago_id->toBeNull();
+    Event::assertDispatchedTimes(TramiteActualizado::class, 1);
 });

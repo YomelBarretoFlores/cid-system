@@ -2,7 +2,10 @@
 {{-- A segmented bar with one segment per stage: done, current (amber when observed) and pending. --}}
 @php($total = count($etapas))
 <div {{ $attributes->class('flex flex-col gap-2') }}>
-    <p class="sr-only">Etapa {{ $actual + 1 }} de {{ $total }}: {{ $etapas[$actual]['nombre'] }}, {{ $etapas[$actual]['avance'] }} % de avance.</p>
+    <p class="flex flex-wrap justify-between gap-x-3 text-[13.5px] text-secundario">
+        <span><span class="sr-only">Etapa {{ $actual + 1 }} de {{ $total }}: </span><span class="font-semibold text-tinta">{{ $etapas[$actual]['nombre'] }}</span></span>
+        <span>{{ $etapas[$actual]['avance'] }} %<span class="sr-only"> de avance</span></span>
+    </p>
     <ol aria-hidden="true" class="grid gap-1.5" style="grid-template-columns: repeat({{ $total }}, minmax(0, 1fr))">
         @foreach ($etapas as $indice => $etapa)
             @php($hecha = $finalizado || $indice < $actual)

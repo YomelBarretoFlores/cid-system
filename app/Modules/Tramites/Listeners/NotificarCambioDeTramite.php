@@ -18,7 +18,7 @@ use Illuminate\Queue\Attributes\Tries;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 
-// One log row per change, created on the first attempt and reused by the retries; a failed delivery never undoes the change.
+// One log row per change, reused by the retries; a failed delivery never undoes the change. If the worker dies between sending and marking it, a retry may send it once more.
 #[Backoff([30, 120])]
 #[Tries(3)]
 final readonly class NotificarCambioDeTramite implements ShouldQueue

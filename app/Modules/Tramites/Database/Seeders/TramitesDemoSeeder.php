@@ -56,24 +56,26 @@ final class TramitesDemoSeeder extends Seeder
     {
         $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
         $cajero = User::query()->where('email', 'caja@ciln.test')->firstOrFail();
+        $escenarios = ['finalizado', 'observado por el personal', 'recibo rechazado'];
         $cohorte = Persona::query()->whereNull('user_id')->orderBy('id')->get()
-            ->filter(fn (Persona $persona): bool => app(IdiomasConNotasCerradas::class)($persona->id) !== [])
-            ->take(3)
+            ->map(fn (Persona $persona): array => [$persona, app(IdiomasConNotasCerradas::class)($persona->id)])
+            ->filter(fn (array $conIdiomas): bool => $conIdiomas[1] !== [])
+            ->take(count($escenarios))
             ->values();
 
-        foreach ($cohorte as $indice => $persona) {
-            $idioma = app(IdiomasConNotasCerradas::class)($persona->id)[0];
+        foreach ($cohorte as $indice => [$persona, $idiomas]) {
+            $escenario = $escenarios[$indice];
 
-            if ($indice < 2) {
+            if ($escenario !== 'recibo rechazado') {
                 $this->pagar($persona, 'CON-01', EstadoPago::Validado);
             }
 
-            $tramite = $this->solicitar($persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: $idioma));
+            $tramite = $this->solicitar($persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: $idiomas[0]));
 
-            match ($indice) {
-                0 => $this->finalizar($tramite, $administrador),
-                1 => app(ObservarTramite::class)($tramite->id, $administrador, 'Indica la institución para la que necesitas la constancia, para consignarla en el documento.'),
-                default => app(RechazarPago::class)($this->pagar($persona, 'CON-01', EstadoPago::Pendiente)->id, $cajero, 'El número de operación no corresponde a un depósito del Banco de la Nación.'),
+            match ($escenario) {
+                'finalizado' => $this->finalizar($tramite, $administrador),
+                'observado por el personal' => app(ObservarTramite::class)($tramite->id, $administrador, 'Indica la institución para la que necesitas la constancia, para consignarla en el documento.'),
+                'recibo rechazado' => app(RechazarPago::class)($this->pagar($persona, 'CON-01', EstadoPago::Pendiente)->id, $cajero, 'El número de operación no corresponde a un depósito del Banco de la Nación.'),
             };
         }
     }

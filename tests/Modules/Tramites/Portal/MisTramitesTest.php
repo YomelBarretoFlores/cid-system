@@ -32,7 +32,8 @@ it('lists the student\'s trámites with their code, state, stages and observatio
         ->assertSeeText('Constancia de matrícula')
         ->assertSeeText('Observado')
         ->assertSeeText('El recibo no se lee. Sube una foto más nítida.')
-        ->assertSeeText('Etapa 2 de 4: Pago validado, 33 % de avance.')
+        ->assertSeeText('Etapa 2 de 4: Pago validado')
+        ->assertSeeText('33 % de avance')
         ->assertSeeTextInOrder(['Trámites', '1'])
         ->assertDontSeeText($ajeno->refresh()->codigo);
 });
