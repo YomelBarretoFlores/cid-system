@@ -25,7 +25,7 @@ Sesiones con cookie, no JWT ([`adr/0004-sesiones-para-autenticacion.md`](adr/000
 
 Portal del estudiante (inicio de sesión diferenciado del panel administrativo, M6):
 
-- Ingreso en `/estudiante/ingresar` con correo y contraseña; el mensaje de error no revela si la cuenta existe. El correo se guarda siempre en minúsculas.
+- Ingreso en `/estudiante/ingresar` o `/docente/ingresar` con correo y contraseña (una sola cuenta; cada entrada lleva al módulo de su perfil); el mensaje de error no revela si la cuenta existe. El correo se guarda siempre en minúsculas. Un visitante sin sesión que abre una página docente va a la entrada docente; el resto, a la del estudiante.
 - Autorregistro en `/estudiante/registro` con documento y correo, con consentimiento expreso de la Ley N° 29733. Una ficha que el CILN ya registró solo se vincula si el correo coincide con el que figura en ella; si no coincide, o si el documento ya tiene cuenta, el formulario responde con un único mensaje, para no revelar cuál de los dos casos aplica.
 - El portal exige el correo verificado (`verified`), una ficha de estudiante vinculada (middleware `estudiante`) y `auth.session`, que cierra las demás sesiones cuando cambia la contraseña.
 - El portal del docente (`/docente`) exige además un perfil docente (middleware `docente`); cada página de grupo comprueba en cada solicitud que el grupo siga a cargo de ese docente (si no, 404), y las Actions lo vuelven a comprobar bajo el bloqueo del grupo.
@@ -80,6 +80,7 @@ Tests: `tests/Feature/Audit/AuditTrailTest.php` (inmutabilidad, contexto web/API
 - Guardar solo los datos necesarios y definir su tiempo de conservación.
 - Cifrar con el cast `encrypted` los datos sensibles que no se buscan (por ejemplo, la cuenta bancaria del docente). **No cifrar el DNI**, porque se busca por él.
 - La verificación pública de constancias y certificados (`/verificar/{código}`) muestra solo los datos mínimos: tipo, código, fecha de emisión, nombres, documento de identidad con solo sus últimos cuatro caracteres, idioma, nivel, horas, nota final y si está vigente o anulado (nunca el motivo de anulación). Limita las consultas a 30 por minuto por IP y pide a los buscadores no indexarla (`X-Robots-Tag` y meta `robots`). El código único tiene 10 caracteres aleatorios, así que no se puede adivinar ni recorrer.
+- La portada pública (`/`) no muestra datos personales: la oferta usa un objeto propio (`GrupoOfertado`) sin aula, enlace virtual ni docente, y los costos salen de los conceptos y tarifas vigentes. Es la única página pública indexable.
 - **Nunca usar datos personales reales en tests ni en staging.**
 
 ## Pruebas de seguridad

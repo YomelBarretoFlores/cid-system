@@ -74,7 +74,7 @@ tests/
 | Docencia | M3 | Padrón, carga académica, asistencia y pre-actas, expediente de horas |
 | Certificacion | M4 | Actas finales (vista previa desde la pre-acta, cierre con bloqueo y rectificación autorizada), constancias y certificados con código único y QR, con verificación pública |
 | Tablero | M5 | KPIs descriptivos (solo lectura) |
-| Tramites | M6 | Portal público y pipelines de trámites |
+| Tramites | M6 | Portada pública (oferta, costos, fechas, requisitos y verificación, desde los contratos `OfertaPublica` y `TarifasVigentes`) y pipelines de trámites |
 
 Detalle funcional: [`modulos.md`](modulos.md).
 
