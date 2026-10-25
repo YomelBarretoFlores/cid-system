@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Tablero\Data;
 
+use App\Modules\Tablero\Support\Porcentaje;
+
 final readonly class PagosPorValidar
 {
     /**
@@ -20,6 +22,6 @@ final readonly class PagosPorValidar
 
     public function tasa(): ?float
     {
-        return $this->registrados === 0 ? null : round($this->pendientes * 100 / $this->registrados, 1);
+        return Porcentaje::de($this->pendientes, $this->registrados);
     }
 }

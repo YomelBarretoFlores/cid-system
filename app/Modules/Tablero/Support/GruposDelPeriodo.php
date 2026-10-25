@@ -15,10 +15,14 @@ final class GruposDelPeriodo
 {
     public static function consulta(FiltrosDelTablero $filtros): Builder
     {
+        return self::deTodosLosPeriodos($filtros)->where('g.periodo_id', $filtros->periodoId);
+    }
+
+    public static function deTodosLosPeriodos(FiltrosDelTablero $filtros): Builder
+    {
         return DB::table('aca_grupos as g')
             ->join('aca_ciclos as c', 'c.id', '=', 'g.ciclo_id')
             ->join('aca_idiomas as i', 'i.id', '=', 'c.idioma_id')
-            ->where('g.periodo_id', $filtros->periodoId)
             ->where('g.estado', '!=', EstadoGrupo::Cancelado->value)
             ->when($filtros->idiomaId, fn (Builder $query, int $idiomaId): Builder => $query->where('c.idioma_id', $idiomaId))
             ->when($filtros->nivel, fn (Builder $query, NivelCurricular $nivel): Builder => $query->where('c.nivel', $nivel->value));

@@ -18,6 +18,7 @@ use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Shared\Auth\Models\User;
+use Illuminate\Support\Facades\DB;
 
 // Small academic and payment scenarios for the management dashboard, built straight on the factories.
 final class DatosDelTablero
@@ -77,5 +78,15 @@ final class DatosDelTablero
             'condicion_laboral' => $condicion, 'costo_hora' => $costoHora, 'vigente_desde' => $desde,
             'vigente_hasta' => $hasta, 'registrado_por' => User::factory()->create()->id,
         ]);
+    }
+
+    /**
+     * @param  list<int>  $dias
+     */
+    public static function horario(Grupo $grupo, array $dias, string $inicio, string $fin): void
+    {
+        DB::table('aca_horarios')->insert(array_map(fn (int $dia): array => [
+            'grupo_id' => $grupo->id, 'dia_semana' => $dia, 'hora_inicio' => $inicio, 'hora_fin' => $fin, 'created_at' => now(), 'updated_at' => now(),
+        ], $dias));
     }
 }
