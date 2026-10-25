@@ -56,3 +56,4 @@ Temas abiertos que bloquean o afectan partes del sistema. Al cerrarse uno, regis
 | 51 | Supuesto: las horas se redondean a centésimas por línea y el monto bruto es horas × costo redondeado al céntimo; las horas sin costo vigente se listan sin monto | Confirmar con el CILN y la DGF | Docencia | — |
 | 52 | Supuesto: permisos `docencia.costos` (configurar costos) y `docencia.reportar` (expediente de horas) | Confirmar con el CILN | Docencia | Asignación a roles (#2) |
 | 53 | Un costo con fechas anteriores al primero de su categoría se acepta y llena un mes pasado que estaba "Sin costo vigente" (sirve para la carga inicial). ¿Debe exigirse autorización o bloquearse después de la puesta en marcha? | Consultar al CILN | Docencia | — |
+| 54 | El diseño final incluye Alemán entre los idiomas (logo y hojas-bandera). ¿El CILN lo dicta o se retira de la identidad visual? | Confirmar con el CILN | Identidad visual | — |

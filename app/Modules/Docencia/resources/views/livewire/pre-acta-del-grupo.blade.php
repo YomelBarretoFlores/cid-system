@@ -46,7 +46,7 @@
                         </thead>
                         <tbody>
                             @foreach ($estudiantes as $estudiante)
-                                <tr wire:key="estudiante-{{ $estudiante->matriculaId }}" class="hover:bg-[#fbf8f1]">
+                                <tr wire:key="estudiante-{{ $estudiante->matriculaId }}" class="hover:bg-fila-suave">
                                     <th scope="row" class="rounded-l-xl px-3 py-[7px] font-medium">{{ $estudiante->nombreCompleto }}</th>
                                     @foreach ($esquema->componentes as $componente)
                                         <td @class(['px-3 py-[7px]', 'rounded-r-xl' => $loop->last])>

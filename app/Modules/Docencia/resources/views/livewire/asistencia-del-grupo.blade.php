@@ -33,7 +33,7 @@
                 @else
                     <ul role="list" class="-mx-2 flex flex-col gap-1">
                         @foreach ($estudiantes as $estudiante)
-                            <li wire:key="estudiante-{{ $estudiante->matriculaId }}" class="flex flex-wrap items-center gap-3 rounded-control px-3 py-2.5 hover:bg-[#fbf8f1]">
+                            <li wire:key="estudiante-{{ $estudiante->matriculaId }}" class="flex flex-wrap items-center gap-3 rounded-control px-3 py-2.5 hover:bg-fila-suave">
                                 <span class="w-6 text-[13px] text-apagado">{{ $loop->iteration }}</span>
                                 <span id="estudiante-{{ $estudiante->matriculaId }}" class="min-w-40 flex-1 font-medium">{{ $estudiante->nombreCompleto }}</span>
                                 <div role="radiogroup" aria-labelledby="estudiante-{{ $estudiante->matriculaId }}" class="ml-auto flex shrink-0 gap-0.5 rounded-pildora bg-lienzo p-1">

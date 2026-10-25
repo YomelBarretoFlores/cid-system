@@ -89,6 +89,22 @@ Detalle funcional: [`modulos.md`](modulos.md).
 7. **Transacciones**: siempre con `App\Shared\Support\Database\Transaccion::ejecutar`, nunca con `DB::transaction` (lo verifica `tests/Architecture/TransaccionesTest.php`). Reintenta deadlocks y explica esperas agotadas; desde el panel, sobre un registro ya cargado, se usa `reintentar: false`. Detalle en [ADR 0006](adr/0006-resiliencia-y-trazabilidad.md).
 8. **Reglas de negocio incumplidas** lanzan `App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida` con un mensaje para el usuario. Al conectar web, API y Filament, se mostrará ese mensaje (HTTP 422) sin detalles técnicos. El panel y el portal registran cada rechazo con `RegistroDeRechazos`, sin datos personales.
 
+## Sistema de diseño
+
+Portales y panel comparten una sola fuente de estilos ([ADR 0008](adr/0008-sistema-de-diseno.md)).
+
+| Pieza | Dónde |
+|---|---|
+| Colores, radios, sombras, tamaños | `resources/css/ciln/tokens.css` |
+| Utilidades de portal (`control`, `casilla`, `enlace`, `tarjeta-interna`, `columnas`) | `resources/css/app.css` |
+| Tema del panel y `tabla-reporte` | `resources/css/filament/admin/theme.css` |
+| Paletas del panel (copia en PHP, verificada por prueba) | `app/Shared/Ui/PaletaCiln.php` |
+| Layouts: base, portal con barra lateral, acceso dividido | `resources/views/components/layouts/` |
+| Identidad: emblema y hojas-bandera | `resources/views/components/ciln/` |
+| Controles y bloques del portal | `resources/views/components/portal/` |
+
+Regla: una pantalla nueva usa estos componentes y utilidades; si un patrón aparece en dos pantallas, se vuelve componente.
+
 ## Agregar un módulo
 
 1. Crear `app/Modules/<Nuevo>/` con la misma estructura y su `<Nuevo>ServiceProvider` (extiende `ModuleServiceProvider`).

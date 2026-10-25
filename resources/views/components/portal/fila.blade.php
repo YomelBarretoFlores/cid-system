@@ -1,5 +1,5 @@
 @props(['titulo', 'detalle' => null])
-<li {{ $attributes->class('flex flex-col gap-1.5 rounded-control p-3.5 hover:bg-[#fbf8f1]') }}>
+<li {{ $attributes->class('flex flex-col gap-1.5 rounded-control p-3.5 hover:bg-fila-suave') }}>
     <div class="flex items-center gap-3.5">
         @isset($inicio)
             <span class="flex size-11 shrink-0 items-center justify-center rounded-control bg-acento-claro">{{ $inicio }}</span>
