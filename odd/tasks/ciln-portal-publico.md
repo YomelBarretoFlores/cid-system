@@ -25,7 +25,7 @@ Assumptions (recorded in `docs/decisiones-pendientes.md`, to confirm with the CI
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S2, D1, D2 | inline | pending | |
+| T1 | S2, D1, D2 | inline | done | 1ee675e |
 | T2 | S2, S3, S4, S7, D1–D3 | inline | pending | |
 | T3 | S2, S4, D4, D5 | inline | pending | |
 | T4 | all | inline | pending | |
@@ -41,3 +41,5 @@ Route evidence: T2 and T3 depend on T1 or touch the same layout and auth flow, s
 
 - L1 (2026-10-25, user): "bien, puedes continuar"
 - L2: Mapping: `/` renders Laravel's `welcome.blade.php`; one Livewire login `estudiante.ingresar` sends everyone to `estudiante.inicio`, which needs a student record (a teacher without one gets 403); token reset by e-mail exists and is tested; no public contract lists fees (`pag_conceptos`, `pag_tarifas`); `FichaDeGrupo` carries the virtual link, so the public offer needs its own DTO; design "Web Publica v2" in the user's design handoff.
+- L3: T1 (1ee675e): `OfertaPublica` → `OfertaDelPeriodo` with `GrupoOfertado` (no room, link or teacher; programmed and open groups of active languages; vacancies never below 0) and `TarifasVigentes` → `TarifaVigente` (active concepts, fee in force on the date). RED observed (contracts missing), GREEN 5/5; Academico, Pagos and architecture 435/435. Assessed medium, under budget.
+- L4: T2: `/` is the Livewire page `PortadaPublica` (Tramites) on `ContenidoDePortada`: header with section links and the student entry, hero with the open or next enrollment, figures, offer by language and modality (filtered with Alpine on the client, opening on the first language with groups), costs by link, period dates (Concluido / En curso / Próximo), four requirement steps, verification form to `/verificar`, footer with the student portal and staff entries; Laravel's `welcome.blade.php` removed. `Formato` gains `diaYMes`, `diaDeMes`, `fechaLarga`, `rango`, `romano`. RED observed (3 failing), GREEN 3/3 + Formato; browser check on the demo (desktop and phone) found the page opening on a language without groups, fixed.

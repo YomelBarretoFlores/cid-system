@@ -22,3 +22,18 @@ it('writes grades without trailing zeros and a dash when missing', function (?st
     ['7', '7'],
     [null, '—'],
 ]);
+
+it('writes a date range within a month, across months and as a single day', function (string $desde, string $hasta, string $esperado): void {
+    expect(Formato::rango(CarbonImmutable::parse($desde), CarbonImmutable::parse($hasta)))->toBe($esperado);
+})->with([
+    ['2026-10-06', '2026-10-31', '6 – 31 oct'],
+    ['2026-09-28', '2026-10-05', '28 set – 5 oct'],
+    ['2026-11-03', '2026-11-03', '3 nov'],
+]);
+
+it('writes long dates and cycle numbers the way the public page shows them', function (): void {
+    expect(Formato::fechaLarga(CarbonImmutable::parse('2026-03-01')))->toBe('1 de marzo de 2026')
+        ->and(Formato::diaDeMes(CarbonImmutable::parse('2026-10-31')))->toBe('31 de octubre')
+        ->and(Formato::romano(9))->toBe('IX')
+        ->and(Formato::romano(13))->toBe('13');
+});

@@ -10,8 +10,6 @@ use App\Shared\Auth\Livewire\SolicitarRestablecimiento;
 use App\Shared\Auth\Livewire\VerificarCorreo;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
-
 Route::middleware('guest')->group(function (): void {
     Route::livewire('/estudiante/ingresar', IniciarSesion::class)->name('estudiante.ingresar');
     Route::livewire('/recuperar-clave', SolicitarRestablecimiento::class)->name('password.request');
