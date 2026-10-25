@@ -2,13 +2,19 @@
 
 declare(strict_types=1);
 
+use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Livewire\IniciarSesion;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Attempting;
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Sanctum\PersonalAccessToken;
+use Livewire\Livewire;
 use Tests\Support\PortalDocente;
 
 beforeEach(function (): void {
@@ -113,4 +119,58 @@ it('schedules the daily removal of expired tokens', function (): void {
     expect($tarea)->not->toBeNull()
         ->and($tarea?->expression)->toBe('20 0 * * *')
         ->and($tarea?->timezone)->toBe('America/Lima');
+});
+
+it('emits the failed sign-in event for wrong credentials on the API and on the web, as Auth::attempt did', function (): void {
+    Event::fake([Attempting::class, Failed::class]);
+
+    $this->postJson('/api/v1/sesiones', ['email' => 'rosa@ciln.test', 'password' => 'otra-clave', 'dispositivo' => 'App'])->assertUnprocessable();
+    Livewire::test(IniciarSesion::class)->set('email', 'rosa@ciln.test')->set('password', 'otra-clave')->call('ingresar');
+
+    Event::assertDispatchedTimes(Attempting::class, 2);
+    Event::assertDispatchedTimes(Failed::class, 2);
+    Event::assertDispatched(Failed::class, fn (Failed $evento): bool => $evento->guard === 'web' && $evento->user?->getAuthIdentifier() === $this->estudiante->id);
+});
+
+it('upgrades an outdated password hash when the credentials are right', function (): void {
+    User::query()->whereKey($this->estudiante->id)->update(['password' => Hash::make('password', ['rounds' => 5])]);
+
+    $this->postJson('/api/v1/sesiones', ['email' => 'rosa@ciln.test', 'password' => 'password', 'dispositivo' => 'App'])->assertCreated();
+
+    expect(Hash::needsRehash((string) $this->estudiante->fresh()?->password))->toBeFalse();
+});
+
+it('blocks an address that tries many accounts through the API, and a success clears only the account key', function (): void {
+    RateLimiter::increment('ingreso|rosa@ciln.test|127.0.0.1', amount: 2);
+    RateLimiter::increment('ingreso|127.0.0.1', amount: 2);
+
+    $this->postJson('/api/v1/sesiones', ['email' => 'rosa@ciln.test', 'password' => 'password', 'dispositivo' => 'App'])->assertCreated();
+
+    expect(RateLimiter::attempts('ingreso|rosa@ciln.test|127.0.0.1'))->toBe(0)
+        ->and(RateLimiter::attempts('ingreso|127.0.0.1'))->toBe(2);
+
+    foreach (range(3, 20) as $intento) {
+        $this->postJson('/api/v1/sesiones', ['email' => "persona{$intento}@ciln.test", 'password' => 'mala-clave1', 'dispositivo' => 'App'])->assertUnprocessable();
+    }
+
+    $this->postJson('/api/v1/sesiones', ['email' => 'otra@ciln.test', 'password' => 'mala-clave1', 'dispositivo' => 'App'])
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.email.0', fn (string $mensaje): bool => str_starts_with($mensaje, 'Demasiados intentos.'));
+});
+
+it('creates no token when the profiles of the account cannot be read', function (): void {
+    $this->mock(FichaDelUsuario::class)->shouldReceive('__invoke')->andThrow(new RuntimeException('falla de lectura'));
+
+    $this->withoutExceptionHandling();
+
+    expect(fn () => $this->postJson('/api/v1/sesiones', ['email' => 'rosa@ciln.test', 'password' => 'password', 'dispositivo' => 'App']))->toThrow(RuntimeException::class)
+        ->and(PersonalAccessToken::query()->count())->toBe(0);
+});
+
+it('says when a session without a token is asked to revoke it instead of pretending', function (): void {
+    $this->actingAs($this->estudiante, 'sanctum');
+
+    $this->deleteJson('/api/v1/sesiones/actual')
+        ->assertConflict()
+        ->assertJsonPath('message', 'Esta sesión no usa un token que se pueda revocar.');
 });

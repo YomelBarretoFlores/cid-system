@@ -6,15 +6,11 @@ namespace App\Shared\Auth\Http\Controllers\Api;
 
 use App\Shared\Auth\Actions\EmitirTokenDeApi;
 use App\Shared\Auth\Http\Requests\EmitirTokenDeApiRequest;
-use App\Shared\Auth\Support\PerfilesDelUsuario;
 use Illuminate\Http\JsonResponse;
 
 final readonly class EmitirToken
 {
-    public function __construct(
-        private EmitirTokenDeApi $emitirToken,
-        private PerfilesDelUsuario $perfiles,
-    ) {}
+    public function __construct(private EmitirTokenDeApi $emitirToken) {}
 
     /**
      * Issue a personal access token for an external client.
@@ -23,13 +19,13 @@ final readonly class EmitirToken
      */
     public function __invoke(EmitirTokenDeApiRequest $request): JsonResponse
     {
-        $nuevo = ($this->emitirToken)($request->string('email')->toString(), $request->string('password')->toString(), (string) $request->ip(), $request->string('dispositivo')->toString());
+        $token = ($this->emitirToken)($request->string('email')->toString(), $request->string('password')->toString(), (string) $request->ip(), $request->string('dispositivo')->toString());
 
         return response()->json([
-            'token' => $nuevo->plainTextToken,
+            'token' => $token->token,
             'tipo' => 'Bearer',
-            'expira_en' => $nuevo->accessToken->expires_at?->setTimezone('America/Lima')->toIso8601String(),
-            'perfiles' => $this->perfiles->de((int) $nuevo->accessToken->tokenable_id),
+            'expira_en' => $token->expiraEn->setTimezone('America/Lima')->toIso8601String(),
+            'perfiles' => $token->perfiles,
         ], 201);
     }
 }
