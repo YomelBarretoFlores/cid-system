@@ -89,10 +89,10 @@
                 </dl>
 
                 <div class="-mx-2 overflow-x-auto">
-                    <table class="w-full min-w-[640px] border-separate border-spacing-y-0.5 text-left">
+                    <table class="w-full min-w-[720px] border-separate border-spacing-y-0.5 text-left">
                         <thead class="text-[13px] text-apagado">
                             <tr>
-                                <th scope="col" class="px-3 pb-2 font-normal">Estudiante</th>
+                                <th scope="col" class="min-w-[200px] px-3 pb-2 font-normal">Estudiante</th>
                                 @foreach ($acta->componentes as $componente)
                                     <th scope="col" class="w-28 px-3 pb-2 text-right font-normal">{{ $componente->nombre }}</th>
                                 @endforeach

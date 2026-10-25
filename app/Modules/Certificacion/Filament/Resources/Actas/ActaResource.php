@@ -28,6 +28,10 @@ final class ActaResource extends Resource
 
     protected static ?string $pluralModelLabel = 'actas finales';
 
+    protected static ?string $navigationLabel = 'Actas finales';
+
+    protected static bool $hasTitleCaseModelLabel = false;
+
     protected static ?string $slug = 'actas-finales';
 
     protected static bool $isGloballySearchable = false;

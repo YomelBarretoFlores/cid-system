@@ -29,3 +29,10 @@ El acta final toma las notas de la pre-acta como punto de partida.
 
 - Docencia expone sus notas parciales a Certificacion por un contrato cuando se construya M4.
 - Un componente del esquema con notas no se puede borrar (llave foránea restrictiva); un esquema nuevo aplica a los periodos que empiezan dentro de su vigencia.
+
+## Implementación (M4.1, 2026-10-25)
+
+- Docencia expone `NotasParcialesDelGrupo` y `DocenteDelGrupo`; Academico expone `CursoDelGrupo` con el calendario de actas del periodo (`actas_inicio`, `actas_fin`).
+- El acta no tiene borrador guardado: el docente ve una vista previa calculada desde la pre-acta y, al validarla, se guarda la copia ya cerrada (`cer_actas`, `cer_notas_finales`).
+- Una corrección posterior pasa por `cer_rectificaciones`: el Administrador la autoriza con motivo, el acta queda "En rectificación", el docente corrige y vuelve a validar.
+- Triggers de PostgreSQL rechazan cambios en un acta cerrada y en sus notas, y cualquier borrado, aunque se hagan por SQL directo.

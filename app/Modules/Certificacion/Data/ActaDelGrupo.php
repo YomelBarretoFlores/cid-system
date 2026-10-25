@@ -62,7 +62,7 @@ final readonly class ActaDelGrupo
                 $nota->matricula_id, $nota->persona_id, $nota->estudiante_nombre, $nota->estudiante_documento,
                 $nota->notas, $nota->promedio, $nota->estado_final,
             ))->all()),
-            validadaEn: $acta->validada_en,
+            validadaEn: $acta->validada_en?->setTimezone('America/Lima'),
         );
     }
 

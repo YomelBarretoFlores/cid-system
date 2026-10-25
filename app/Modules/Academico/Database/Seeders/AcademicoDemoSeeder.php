@@ -17,7 +17,7 @@ use App\Modules\Academico\Models\Periodo;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
-// Dates are relative to today in Lima: the current month is in progress and the next one is open for enrollment.
+// Dates are relative to today in Lima: the previous month is closed with its final grade sheets, the current one is in progress and the next one is open for enrollment.
 final class AcademicoDemoSeeder extends Seeder
 {
     private const array ROMANOS = ['I', 'II', 'III', 'IV'];
@@ -51,6 +51,15 @@ final class AcademicoDemoSeeder extends Seeder
         ['POR-2-T', 'POR', 2, 'A-102', [2, 4], '16:00', '18:00'],
     ];
 
+    /**
+     * @var list<array{0: string, 1: string, 2: int, 3: string, 4: list<int>, 5: string, 6: string}>
+     */
+    private const array GRUPOS_ANTERIORES = [
+        ['ING-1-M', 'ING', 1, 'A-204', [1, 3, 5], '07:00', '08:30'],
+        ['POR-1-T', 'POR', 1, 'A-102', [2, 4], '16:00', '18:00'],
+        ['QUE-1-S', 'QUE', 1, 'C-105', [6], '14:00', '18:30'],
+    ];
+
     public function run(): void
     {
         $idiomas = [];
@@ -66,8 +75,12 @@ final class AcademicoDemoSeeder extends Seeder
         $actual = $this->periodo($hoy->startOfMonth(), $hoy->startOfMonth()->subDays(14), EstadoPeriodo::EnCurso);
         $siguiente = $this->periodo($hoy->startOfMonth()->addMonth(), min($hoy, $hoy->startOfMonth()->addMonth()->subDays(10)), EstadoPeriodo::MatriculaAbierta);
 
+        $anterior = $this->periodo($hoy->startOfMonth()->subMonth(), $hoy->startOfMonth()->subMonth()->subDays(14), EstadoPeriodo::Cerrado);
+
         $this->grupos($actual, self::GRUPOS_EN_CURSO, $idiomas, $aulas);
         $this->grupos($siguiente, self::GRUPOS_SIGUIENTES, $idiomas, $aulas);
+        // Created last so the first demo groups stay those of the current period.
+        $this->grupos($anterior, self::GRUPOS_ANTERIORES, $idiomas, $aulas, EstadoGrupo::Cerrado);
 
         EsquemaEvaluacion::query()->create([
             'nombre' => 'Esquema general (demo)', 'nota_maxima' => '20.00',
@@ -103,8 +116,20 @@ final class AcademicoDemoSeeder extends Seeder
             'anio' => $inicio->year, 'numero' => $inicio->month, 'nombre' => self::MESES[$inicio->month - 1].' '.$inicio->year,
             'fecha_inicio' => $inicio->toDateString(), 'fecha_fin' => $inicio->endOfMonth()->toDateString(),
             'matricula_inicio' => $aperturaDeMatricula->toDateString(), 'matricula_fin' => $inicio->addDays(4)->toDateString(),
+            ...$this->calendarioDeActas($inicio->endOfMonth()->startOfDay()),
             'estado' => $estado,
         ]);
+    }
+
+    /**
+     * Final grade sheets are validated from five days before the end of classes to five days after; the previous month's
+     * calendar stays open until today so its demo actas can be closed through the real Action.
+     *
+     * @return array{actas_inicio: string, actas_fin: string}
+     */
+    private function calendarioDeActas(CarbonImmutable $fin): array
+    {
+        return ['actas_inicio' => $fin->subDays(5)->toDateString(), 'actas_fin' => max($fin->addDays(5), CarbonImmutable::today('America/Lima'))->toDateString()];
     }
 
     /**
@@ -112,13 +137,13 @@ final class AcademicoDemoSeeder extends Seeder
      * @param  array<string, Idioma>  $idiomas
      * @param  array<string, int>  $aulas
      */
-    private function grupos(Periodo $periodo, array $grupos, array $idiomas, array $aulas): void
+    private function grupos(Periodo $periodo, array $grupos, array $idiomas, array $aulas, EstadoGrupo $estado = EstadoGrupo::Abierto): void
     {
         foreach ($grupos as [$codigo, $idioma, $ciclo, $aula, $dias, $inicio, $fin]) {
             $grupo = Grupo::query()->create([
                 'periodo_id' => $periodo->id, 'ciclo_id' => Ciclo::query()->where(['idioma_id' => $idiomas[$idioma]->id, 'numero' => $ciclo])->value('id'),
                 'aula_id' => $aulas[$aula], 'codigo' => $codigo, 'modalidad' => Modalidad::Presencial,
-                'cupo_maximo' => 25, 'cupo_minimo' => 5, 'estado' => EstadoGrupo::Abierto,
+                'cupo_maximo' => 25, 'cupo_minimo' => 5, 'estado' => $estado,
             ]);
             $grupo->horarios()->createMany(array_map(fn (int $dia): array => ['dia_semana' => $dia, 'hora_inicio' => $inicio, 'hora_fin' => $fin], $dias));
         }

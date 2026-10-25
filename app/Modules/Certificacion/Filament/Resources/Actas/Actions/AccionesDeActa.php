@@ -43,7 +43,7 @@ final class AccionesDeActa
                     ->maxLength(AutorizarRectificacion::MOTIVO_MAXIMO)
                     ->rows(3)
                     ->live(debounce: 400)
-                    ->hint(fn (?string $state): string => mb_strlen(trim((string) $state)).' / '.AutorizarRectificacion::MOTIVO_MAXIMO),
+                    ->hint(fn (?string $state): string => mb_strlen((string) $state).' / '.AutorizarRectificacion::MOTIVO_MAXIMO),
             ])
             ->action(fn (Action $action, Acta $record, array $data) => AccionDeNegocio::ejecutar(
                 $action,

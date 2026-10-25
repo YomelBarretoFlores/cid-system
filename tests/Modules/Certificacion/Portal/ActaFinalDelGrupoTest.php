@@ -219,3 +219,11 @@ it('lists an acta under rectification with its state', function (): void {
 
     Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertSeeInOrder(['ING-1-M', 'En rectificación']);
 });
+
+it('shows the validation day in Lima time, also late at night', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-03-30 23:30', 'America/Lima'));
+    cerrarActaDelCurso();
+
+    $this->actingAs($this->usuario)->get(route('docente.acta', $this->grupo->id))->assertSee('Validada el 30 mar 2027.');
+    Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertSee('validada el 30 mar 2027');
+});

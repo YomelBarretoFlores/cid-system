@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Modules\Academico\Database\Seeders\AcademicoDemoSeeder;
 use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Academico\Models\Grupo;
+use App\Modules\Certificacion\Database\Seeders\CertificacionDemoSeeder;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Docencia\Database\Seeders\DocenciaDemoSeeder;
 use App\Modules\Docencia\Enums\PermisoDocencia;
@@ -53,6 +54,7 @@ final class DatabaseSeeder extends Seeder
 
         $this->estudianteDelPortal();
         $this->call(DocenciaDemoSeeder::class);
+        $this->call(CertificacionDemoSeeder::class);
     }
 
     // A verified student enrolled in English I, withdrawn from Quechua I, and with an unused validated enrollment payment to try next period's enrollment.

@@ -12,7 +12,7 @@
             <ul class="flex flex-col gap-1">
                 @foreach ($actas as $acta)
                     <x-portal.fila wire:key="acta-{{ $acta->id }}" :titulo="$acta->grupo_codigo.' · '.$acta->idioma.' '.$acta->ciclo_nombre"
-                        :detalle="$acta->periodo.' · '.$acta->aprobados_count.' de '.$acta->notas_count.' aprobados · validada el '.Formato::fechaCorta($acta->validada_en)">
+                        :detalle="$acta->periodo.' · '.$acta->aprobados_count.' de '.$acta->notas_count.' aprobados · validada el '.Formato::fechaCorta($acta->validada_en->setTimezone('America/Lima'))">
                         <x-slot:inicio><x-ciln.hoja-bandera :idioma="$acta->idioma" size="26" /></x-slot:inicio>
                         <x-slot:fin>
                             <x-portal.insignia :color="$acta->estado === EstadoActa::Cerrada ? 'success' : 'warning'">{{ $acta->estado->etiqueta() }}</x-portal.insignia>

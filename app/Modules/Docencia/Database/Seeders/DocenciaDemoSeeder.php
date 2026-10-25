@@ -6,6 +6,7 @@ namespace App\Modules\Docencia\Database\Seeders;
 
 use App\Modules\Academico\Contracts\EsquemaDelGrupo;
 use App\Modules\Academico\Contracts\HorariosDeGrupos;
+use App\Modules\Academico\Data\ComponenteDeEvaluacion;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
@@ -25,7 +26,7 @@ use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
-// Synthetic teachers who teach the demo groups through the real Actions, with the attendance of the classes already given, some partial grades and hourly costs.
+// Synthetic teachers who teach the demo groups through the real Actions, with the attendance of the classes already given, partial grades and hourly costs.
 final class DocenciaDemoSeeder extends Seeder
 {
     /**
@@ -39,6 +40,11 @@ final class DocenciaDemoSeeder extends Seeder
         [['Shuan', 'Ramírez', 'Julián'], '70000004', CondicionLaboral::Tercero, ['QUE'], [[6], '08:00', '19:00'], ['QUE-1-S']],
     ];
 
+    /**
+     * Teacher position in DOCENTES for each group of the closed previous period.
+     */
+    private const array GRUPOS_ANTERIORES = ['ING-1-M' => 0, 'POR-1-T' => 1, 'QUE-1-S' => 2];
+
     public function run(): void
     {
         $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
@@ -48,17 +54,28 @@ final class DocenciaDemoSeeder extends Seeder
             app(RegistrarCostoPorHora::class)($categoria, $costo, CarbonImmutable::today('America/Lima')->startOfYear(), null, $administrador);
         }
 
-        foreach (self::DOCENTES as $posicion => [$nombre, $documento, $categoria, $idiomas, $disponibilidad, $grupos]) {
-            $docente = $this->docente($nombre, $documento, $categoria, $idiomas, $disponibilidad, $posicion === 0);
-            $usuario = User::query()->where('email', $posicion === 0 ? 'docente@ciln.test' : 'admin@ciln.test')->firstOrFail();
+        $docentes = [];
 
-            foreach ($this->gruposDelPeriodoEnCurso($grupos) as $grupo) {
-                app(AsignarDocente::class)($grupo->id, $docente->id, $administrador);
-                $this->tomarAsistencia($grupo, $docente, $usuario);
+        foreach (self::DOCENTES as $posicion => [$nombre, $documento, $categoria, $idiomas, $disponibilidad, $grupos]) {
+            $docentes[$posicion] = $this->docente($nombre, $documento, $categoria, $idiomas, $disponibilidad, $posicion === 0);
+
+            foreach ($this->gruposDelPeriodo('en_curso', $grupos) as $grupo) {
+                $this->dictar($grupo, $docentes[$posicion], $administrador);
             }
         }
 
         $this->registrarNotasParciales();
+
+        foreach ($this->gruposDelPeriodo('cerrado', array_keys(self::GRUPOS_ANTERIORES)) as $grupo) {
+            $docente = $docentes[self::GRUPOS_ANTERIORES[$grupo->codigo] ?? -1] ?? null;
+
+            if ($docente === null) {
+                continue;
+            }
+
+            $this->dictar($grupo, $docente, $administrador);
+            $this->registrarNotasDelCiclo($grupo, $docente);
+        }
     }
 
     /**
@@ -94,9 +111,39 @@ final class DocenciaDemoSeeder extends Seeder
      * @param  list<string>  $codigos
      * @return iterable<Grupo>
      */
-    private function gruposDelPeriodoEnCurso(array $codigos): iterable
+    private function gruposDelPeriodo(string $estado, array $codigos): iterable
     {
-        return Grupo::query()->whereIn('codigo', $codigos)->whereRelation('periodo', 'estado', 'en_curso')->orderBy('id')->get();
+        return Grupo::query()->whereIn('codigo', $codigos)->whereRelation('periodo', 'estado', $estado)->orderBy('id')->get();
+    }
+
+    private function dictar(Grupo $grupo, Docente $docente, User $administrador): void
+    {
+        app(AsignarDocente::class)($grupo->id, $docente->id, $administrador);
+        $this->tomarAsistencia($grupo, $docente, $this->usuarioDe($docente));
+    }
+
+    // The demo teacher signs in as herself; the other synthetic teachers have no account, so the administrator records for them.
+    private function usuarioDe(Docente $docente): User
+    {
+        return User::query()->where('email', $docente->correo_institucional === 'docente.70000002@ciln.test' ? 'docente@ciln.test' : 'admin@ciln.test')->firstOrFail();
+    }
+
+    // Every component of a finished course, in a fixed pattern with some failing students, one without the final exam and one who never showed up.
+    private function registrarNotasDelCiclo(Grupo $grupo, Docente $docente): void
+    {
+        $componentes = collect(app(EsquemaDelGrupo::class)($grupo->id)->componentes ?? []);
+        $estudiantes = app(EstudiantesDelGrupo::class)($grupo->id);
+        $notas = [];
+
+        foreach ($estudiantes as $indice => $estudiante) {
+            $notas[$estudiante->matriculaId] = $componentes->mapWithKeys(fn (ComponenteDeEvaluacion $componente, int $posicion): array => [$componente->id => match (true) {
+                $indice === count($estudiantes) - 1 => '',
+                $indice === 2 && $componente->codigo === 'final' => '',
+                default => number_format(min(20, 8 + ($indice * 5 + $posicion * 3) % 12 + ($indice % 3) * 0.5), 2, '.', ''),
+            }])->all();
+        }
+
+        app(RegistrarNotasParciales::class)($grupo->id, $docente->id, $notas, $this->usuarioDe($docente));
     }
 
     // Mostly present; a few late arrivals and absences in a fixed pattern so every run looks the same.
@@ -133,6 +180,6 @@ final class DocenciaDemoSeeder extends Seeder
             $estudiante->matriculaId => [$parcial->id => number_format(10 + ($indice * 7 % 9) + ($indice % 2) * 0.5, 2, '.', '')],
         ])->all();
 
-        app(RegistrarNotasParciales::class)($grupo->id, $docente->id, $notas, User::query()->where('email', 'docente@ciln.test')->firstOrFail());
+        app(RegistrarNotasParciales::class)($grupo->id, $docente->id, $notas, $this->usuarioDe($docente));
     }
 }

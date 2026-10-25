@@ -6,7 +6,10 @@ use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
+use App\Modules\Certificacion\Models\Acta;
+use App\Modules\Certificacion\Models\NotaFinal;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
 use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Modules\Docencia\Models\ClaseDictada;
@@ -91,6 +94,19 @@ it('seeds a fictitious hourly cost for every teacher category', function (): voi
 
     expect(CostoPorHora::query()->whereNull('vigente_hasta')->orderBy('condicion_laboral')->pluck('costo_hora', 'condicion_laboral')->mapWithKeys(fn (string $costo, string $categoria): array => [$categoria => $costo])->all())
         ->toBe(['contratado' => '45.00', 'nombrado' => '50.00', 'tercero' => '40.00']);
+});
+
+it('closes the final grade sheets of the previous month, one of them reopened for a rectification', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $gruposCerrados = Grupo::query()->whereRelation('periodo', 'estado', 'cerrado')->pluck('id');
+    $actas = Acta::query()->withCount('notas')->get();
+
+    expect($actas->pluck('grupo_id')->sort()->values()->all())->toBe($gruposCerrados->sort()->values()->all())
+        ->and($actas->every(fn (Acta $acta): bool => $acta->notas_count === Matricula::query()->where(['grupo_id' => $acta->grupo_id, 'estado' => 'activa'])->count()))->toBeTrue()
+        ->and($actas->where('estado', EstadoActa::Abierta)->pluck('grupo_codigo')->all())->toBe(['POR-1-T'])
+        ->and(NotaFinal::query()->distinct()->pluck('estado_final')->map->value->sort()->values()->all())->toBe(['aprobado', 'desaprobado', 'nsp'])
+        ->and(Periodo::query()->where('estado', 'en_curso')->sole()->actas_inicio)->not->toBeNull();
 });
 
 it('refuses to seed demo data in production even when forced', function (): void {
