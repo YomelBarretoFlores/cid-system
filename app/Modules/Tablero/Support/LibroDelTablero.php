@@ -75,7 +75,7 @@ final readonly class LibroDelTablero implements Export, WithMultipleSheets
             ['Pagos validados', (string) $tablero->recaudacion->operaciones],
             ['Pagos por validar (todos los periodos)', (string) $pagos->porValidar],
             ['Monto por validar', Cifras::soles($pagos->centimosPorValidar)],
-            ['Tasa de pagos pendientes de validación del periodo', Cifras::porcentaje($pagos->tasa())],
+            ['Tasa de pagos pendientes de validación del periodo (todos los idiomas y niveles)', Cifras::porcentaje($pagos->tasa())],
             ['Matrículas', (string) $matriculas->total],
             ['Crecimiento frente al periodo anterior', Cifras::variacion($matriculas->crecimientoMensual())],
             ['Crecimiento frente al mismo periodo del año anterior', Cifras::variacion($matriculas->crecimientoAnual())],

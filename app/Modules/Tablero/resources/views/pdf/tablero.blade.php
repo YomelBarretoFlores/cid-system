@@ -40,7 +40,7 @@
 
         <h2>Indicadores principales</h2>
         <table class="datos">
-            <tr><th>Recaudación</th><th>Pagos por validar</th><th>Pendientes de validación del periodo</th><th>Matrículas</th><th>Frente al periodo anterior</th><th>Frente al año anterior</th><th>Deserción</th></tr>
+            <tr><th>Recaudación</th><th>Pagos por validar (todos los periodos)</th><th>Pendientes de validación del periodo (todos los idiomas y niveles)</th><th>Matrículas</th><th>Frente al periodo anterior</th><th>Frente al año anterior</th><th>Deserción</th></tr>
             <tr>
                 <td class="numero">{{ Cifras::soles($tablero->recaudacion->totalCentimos) }} ({{ $tablero->recaudacion->operaciones }} pagos)</td>
                 <td class="numero">{{ $pagos->porValidar }} · {{ Cifras::soles($pagos->centimosPorValidar) }}</td>

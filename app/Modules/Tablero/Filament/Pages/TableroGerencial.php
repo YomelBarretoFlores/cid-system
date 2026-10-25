@@ -123,7 +123,18 @@ final class TableroGerencial extends Page
         return new FiltrosDelTablero(
             periodoId: is_numeric($datos['periodo_id'] ?? null) ? (int) $datos['periodo_id'] : throw new ReglaDeNegocioIncumplida('Elige un periodo válido.'),
             idiomaId: is_numeric($datos['idioma_id'] ?? null) ? (int) $datos['idioma_id'] : null,
-            nivel: is_string($datos['nivel'] ?? null) ? NivelCurricular::tryFrom($datos['nivel']) : null,
+            nivel: $this->nivel($datos['nivel'] ?? null),
         );
+    }
+
+    private function nivel(mixed $valor): ?NivelCurricular
+    {
+        if ($valor === null || $valor === '') {
+            return null;
+        }
+
+        return is_string($valor) && NivelCurricular::tryFrom($valor) instanceof NivelCurricular
+            ? NivelCurricular::from($valor)
+            : throw new ReglaDeNegocioIncumplida('Elige un nivel válido.');
     }
 }

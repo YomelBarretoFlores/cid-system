@@ -55,7 +55,7 @@ it('opens on the period in progress with the financial and academic indicators',
     Livewire::test(TableroGerencial::class)
         ->assertSet('data.periodo_id', $this->marzo->id)
         ->assertSee(['Marzo 2027 · Todos los idiomas · Todos los niveles', 'S/ 160.00', '2 pagos validados del periodo'])
-        ->assertSee(['Tasa del periodo: 100.0 % (1 de 1 pagos registrados)', 'S/ 180.00 · el más antiguo se registró hoy', 'Mes a mes: sin periodo comparable', 'Año a año: sin periodo comparable'])
+        ->assertSee(['Tasa del periodo en todos los idiomas y niveles: 100.0 % (1 de 1 pagos registrados)', 'S/ 180.00 · el más antiguo se registró hoy', 'Mes a mes: sin periodo comparable', 'Año a año: sin periodo comparable'])
         ->assertSee(['Deserción', '50.0 %', 'mayor en Básico', 'Idioma líder', '07:00', 'Lun–Vie'])
         ->assertSee(['ING-1-M', 'S/ 80.00', '2.00 h', '+S/ 80.00'])
         ->assertDontSee(['Reporte de recaudación →', 'Todos los pagos →']);
@@ -148,4 +148,21 @@ it('exports one spreadsheet sheet per indicator, with amounts as numbers and nam
         ->and($recaudacion?->getCell('D2')->getValue())->toEqual(160)
         ->and($libro->getSheetByName('Rentabilidad')?->getCell('H2')->getValue())->toEqual(80)
         ->and($libro->getSheetByName('Resumen')?->getCell('B2')->getValue())->toBe('Marzo 2027 · Todos los idiomas · Todos los niveles');
+});
+
+it('explains an unknown level instead of showing every level', function (): void {
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)
+        ->set('data.nivel', 'experto')
+        ->assertSee('Elige un nivel válido.')
+        ->assertDontSee('Marzo 2027 · Todos los idiomas · Todos los niveles');
+});
+
+it('keeps the pending-validation figures for every language and level when the page is filtered', function (): void {
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)
+        ->set('data.idioma_id', $this->quechua->id)
+        ->assertSee('Tasa del periodo en todos los idiomas y niveles: 100.0 % (1 de 1 pagos registrados)');
 });

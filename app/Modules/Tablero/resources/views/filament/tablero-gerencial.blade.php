@@ -51,7 +51,7 @@
 
             <x-ciln.cifra titulo="Por validar" :valor="$pagos->porValidar"
                 :detalle="$pagos->porValidar === 0 ? 'Todo al día.' : $soles($pagos->centimosPorValidar).' · '.$espera">
-                <span class="text-sm text-apagado">Tasa del periodo: {{ $porcentaje($pagos->tasa()) }} ({{ $pagos->pendientes }} de {{ $pagos->registrados }} pagos registrados)</span>
+                <span class="text-sm text-apagado">Tasa del periodo en todos los idiomas y niveles: {{ $porcentaje($pagos->tasa()) }} ({{ $pagos->pendientes }} de {{ $pagos->registrados }} pagos registrados)</span>
                 @if ($puedeVerPagos)
                     <a href="{{ route('filament.admin.resources.pagos.index') }}" class="font-medium text-enlace hover:text-enlace-hover">Todos los pagos →</a>
                 @endif
