@@ -37,7 +37,7 @@ final readonly class EmitirCertificadosDelPeriodo
             try {
                 $emitidos[] = ($this->emitir)($personaId, $idioma, $nivel, $emisor);
             } catch (ReglaDeNegocioIncumplida $error) {
-                // Issued meanwhile by someone else: the rest of the period still goes on.
+                // A student refused now (usually certified meanwhile by someone else) is logged and the rest of the period goes on.
                 RegistroDeRechazos::registrar($error);
             }
         }

@@ -18,4 +18,23 @@ enum TipoDocumento: string
             self::CertificadoNivel => 'Certificado de culminación de nivel',
         };
     }
+
+    public function vistaPdf(): string
+    {
+        return 'certificacion::pdf.'.$this->prefijoPdf();
+    }
+
+    public function archivoPdf(string $codigo): string
+    {
+        return "{$this->prefijoPdf()}-{$codigo}.pdf";
+    }
+
+    private function prefijoPdf(): string
+    {
+        return match ($this) {
+            self::ConstanciaMatricula => 'constancia-de-matricula',
+            self::ConstanciaNotas => 'constancia-de-notas',
+            self::CertificadoNivel => 'certificado-de-nivel',
+        };
+    }
 }

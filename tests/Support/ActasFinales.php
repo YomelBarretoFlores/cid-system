@@ -80,6 +80,7 @@ final class ActasFinales
                 'notas' => '{}', 'promedio' => $promedio, 'estado_final' => $estado, 'created_at' => now(), 'updated_at' => now(),
             ]);
 
+            // Validated in the past and in cycle order, so documents issued now come after every acta.
             if ($estadoActa === 'cerrada') {
                 DB::table('cer_actas')->where('id', $actaId)->update(['estado' => 'cerrada', 'validada_por' => $usuario->id, 'validada_en' => now()->subMinutes(60 - $numero)]);
             }

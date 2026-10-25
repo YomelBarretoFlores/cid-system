@@ -44,6 +44,23 @@ final class HistorialDeNotas
     }
 
     /**
+     * @return array<string, string> languages with closed actas for the student, by name
+     */
+    public static function idiomasDe(int $personaId): array
+    {
+        $idiomas = NotaFinal::query()
+            ->join('cer_actas', 'cer_actas.id', '=', 'cer_notas_finales.acta_id')
+            ->where('cer_notas_finales.persona_id', $personaId)
+            ->where('cer_actas.estado', EstadoActa::Cerrada)
+            ->distinct()
+            ->orderBy('cer_actas.idioma')
+            ->pluck('cer_actas.idioma')
+            ->all();
+
+        return array_combine($idiomas, $idiomas);
+    }
+
+    /**
      * The last passed result of each cycle of the level, or null when one of its cycles is not passed yet.
      *
      * @param  list<NotaDelHistorial>  $historial

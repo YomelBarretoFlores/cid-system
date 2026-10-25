@@ -6,10 +6,12 @@ namespace App\Modules\Certificacion\Models;
 
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Enums\TipoDocumento;
+use App\Modules\Certificacion\Policies\DocumentoPolicy;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -26,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'codigo', 'tipo', 'persona_id', 'matricula_id', 'estudiante_nombre', 'estudiante_documento', 'idioma', 'nivel', 'horas_lectivas',
     'nota_final', 'detalle', 'emitido_por', 'emitido_en', 'anulado_por', 'anulado_en', 'motivo_anulacion',
 ])]
+#[UsePolicy(DocumentoPolicy::class)]
 final class Documento extends Model
 {
     public function estaVigente(): bool

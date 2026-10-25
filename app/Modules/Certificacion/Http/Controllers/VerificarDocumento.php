@@ -19,16 +19,27 @@ final readonly class VerificarDocumento
         $buscado = $request->query('codigo');
 
         if ($codigo === null && is_string($buscado) && trim($buscado) !== '') {
-            return redirect()->route('verificacion.documento', CodigoDeDocumento::normalizar($buscado));
+            return $this->buscar($buscado);
         }
 
-        $documento = $codigo === null ? null : Documento::query()->where('codigo', CodigoDeDocumento::normalizar($codigo))->first();
+        $codigo = $codigo === null ? null : CodigoDeDocumento::normalizar($codigo);
+        $documento = $codigo === null ? null : Documento::query()->where('codigo', $codigo)->first();
 
         return response()
             ->view('certificacion::verificacion', [
-                'codigo' => $codigo === null ? null : CodigoDeDocumento::normalizar($codigo),
+                'codigo' => $codigo,
                 'verificacion' => $documento === null ? null : VerificacionDeDocumento::desde($documento),
             ], $codigo !== null && $documento === null ? 404 : 200)
             ->header('X-Robots-Tag', 'noindex, nofollow');
+    }
+
+    // The form sends the typed code as a query; it moves to the canonical URL so the result can be shared.
+    private function buscar(string $buscado): RedirectResponse
+    {
+        $normalizado = CodigoDeDocumento::normalizar($buscado);
+
+        return preg_match('/^[A-Z0-9-]{1,30}$/', $normalizado) === 1
+            ? redirect()->route('verificacion.documento', $normalizado)
+            : redirect()->route('verificacion.documento');
     }
 }

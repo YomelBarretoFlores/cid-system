@@ -29,14 +29,16 @@ final readonly class EmitirConstanciasDeNotasDelActa
         }
 
         // Students who already got a valid grade record after this acta closed are skipped, so a repeated bulk issue adds nothing.
+        $estudiantes = $acta->notas()->orderBy('estudiante_nombre')->pluck('persona_id');
         $conConstancia = Documento::query()
+            ->whereIn('persona_id', $estudiantes)
             ->where(['tipo' => TipoDocumento::ConstanciaNotas, 'idioma' => $acta->idioma])
             ->whereNull('anulado_en')
             ->where('emitido_en', '>=', $acta->validada_en)
             ->pluck('persona_id')
             ->all();
 
-        return array_values($acta->notas()->orderBy('estudiante_nombre')->pluck('persona_id')
+        return array_values($estudiantes
             ->reject(fn (int $personaId): bool => in_array($personaId, $conConstancia, true))
             ->map(fn (int $personaId): Documento => ($this->emitir)($personaId, $acta->idioma, $emisor))
             ->all());

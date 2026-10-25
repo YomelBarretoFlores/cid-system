@@ -16,6 +16,7 @@ final class ViewActa extends ViewRecord
     {
         return [
             AccionesDeActa::descargarPdf(),
+            AccionesDeActa::emitirConstancias(),
             AccionesDeActa::autorizarRectificacion(),
         ];
     }
