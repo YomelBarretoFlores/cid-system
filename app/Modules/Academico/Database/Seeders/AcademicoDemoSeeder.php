@@ -17,7 +17,7 @@ use App\Modules\Academico\Models\Periodo;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
-// Dates are relative to today in Lima: the previous month is closed with its final grade sheets, the current one is in progress and the next one is open for enrollment.
+// Dates are relative to today in Lima: the previous four months are closed with their final grade sheets, the current one is in progress and the next one is open for enrollment.
 final class AcademicoDemoSeeder extends Seeder
 {
     private const array ROMANOS = ['I', 'II', 'III', 'IV'];
@@ -60,6 +60,18 @@ final class AcademicoDemoSeeder extends Seeder
         ['QUE-1-S', 'QUE', 1, 'C-105', [6], '14:00', '18:30'],
     ];
 
+    /**
+     * One English cohort that took cycles I to IV in the four previous months, so the demo can issue a level certificate.
+     *
+     * @var list<array{0: string, 1: string, 2: int, 3: string, 4: list<int>, 5: string, 6: string}>
+     */
+    private const array COHORTE = [
+        ['ING-1-A', 'ING', 1, 'A-103', [1, 3, 5], '09:00', '10:30'],
+        ['ING-2-A', 'ING', 2, 'A-103', [1, 3, 5], '09:00', '10:30'],
+        ['ING-3-A', 'ING', 3, 'A-103', [1, 3, 5], '09:00', '10:30'],
+        ['ING-4-A', 'ING', 4, 'A-103', [1, 3, 5], '09:00', '10:30'],
+    ];
+
     public function run(): void
     {
         $idiomas = [];
@@ -82,9 +94,16 @@ final class AcademicoDemoSeeder extends Seeder
         // Created last so the first demo groups stay those of the current period.
         $this->grupos($anterior, self::GRUPOS_ANTERIORES, $idiomas, $aulas, EstadoGrupo::Cerrado);
 
+        foreach ([4, 3, 2] as $posicion => $mesesAtras) {
+            $inicio = $hoy->startOfMonth()->subMonths($mesesAtras);
+            $this->grupos($this->periodo($inicio, $inicio->subDays(14), EstadoPeriodo::Cerrado), [self::COHORTE[$posicion]], $idiomas, $aulas, EstadoGrupo::Cerrado);
+        }
+
+        $this->grupos($anterior, [self::COHORTE[3]], $idiomas, $aulas, EstadoGrupo::Cerrado);
+
         EsquemaEvaluacion::query()->create([
             'nombre' => 'Esquema general (demo)', 'nota_maxima' => '20.00',
-            'nota_minima_aprobatoria' => '11.00', 'vigente_desde' => $hoy->startOfYear()->toDateString(),
+            'nota_minima_aprobatoria' => '11.00', 'vigente_desde' => $hoy->subMonths(6)->startOfYear()->toDateString(),
         ])->componentes()->createMany([
             ['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'peso' => '40.00', 'orden' => 1],
             ['codigo' => 'final', 'nombre' => 'Examen final', 'peso' => '40.00', 'orden' => 2],

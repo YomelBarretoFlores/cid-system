@@ -24,6 +24,10 @@ final class MatriculaDemoSeeder extends Seeder
 {
     private const array ESTUDIANTES_POR_GRUPO = ['ING-1-M' => 10, 'ING-5-N' => 6, 'POR-1-T' => 5, 'FRA-1-N' => 4, 'ITA-1-M' => 3, 'QUE-1-S' => 4, 'ING-2-M' => 2];
 
+    private const int COHORTE_DESDE = 20;
+
+    private const int COHORTE_TAMANO = 5;
+
     public function run(): void
     {
         $personas = Persona::query()->whereNull('user_id')->orderBy('id')->get();
@@ -31,6 +35,13 @@ final class MatriculaDemoSeeder extends Seeder
 
         Transaccion::ejecutar(function () use ($personas, &$desplazamiento): void {
             Grupo::query()->with('periodo')->orderBy('id')->get()->each(function (Grupo $grupo) use ($personas, &$desplazamiento): void {
+                // The cohort groups (code ending in -A) keep the same students from cycle to cycle.
+                if (str_ends_with($grupo->codigo, '-A')) {
+                    $this->matricular($grupo, $personas->slice(self::COHORTE_DESDE, self::COHORTE_TAMANO)->values());
+
+                    return;
+                }
+
                 $cantidad = self::ESTUDIANTES_POR_GRUPO[$grupo->codigo] ?? 0;
                 $this->matricular($grupo, $personas->slice($desplazamiento % $personas->count(), $cantidad)->values());
                 $desplazamiento += $cantidad;

@@ -13,6 +13,7 @@ use App\Modules\Certificacion\Filament\Resources\Documentos\Pages\ListDocumentos
 use App\Modules\Certificacion\Filament\Resources\Documentos\Pages\ViewDocumento;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\Documento;
+use App\Modules\Certificacion\Models\Rectificacion;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -131,4 +132,18 @@ it('shows the detail of a level certificate with its cycles', function (): void 
     $this->get(DocumentoResource::getUrl('view', ['record' => Documento::query()->sole()]))
         ->assertOk()
         ->assertSeeInOrder(['Certificado de culminación de nivel', 'Alva Prueba, Ana', 'DNI 70000001', 'Vigente', 'Inglés', 'Básico', '240', '14.69', 'Básico 1 (1)', '14.00', 'Básico 4 (4)', '13.00']);
+});
+
+it('shows the detail of an enrollment record and hides the bulk grade records of an acta under rectification', function (): void {
+    $this->actingAs($this->gestor);
+    $matricula = Matricula::factory()->activa()->create(['persona_id' => $this->ana->id, 'grupo_id' => Grupo::factory()->create(['codigo' => 'POR-2-T'])->id]);
+    Livewire::test(ListDocumentos::class)->callAction('emitir', ['tipo' => 'constancia_matricula', 'persona_id' => $this->ana->id, 'matricula_id' => $matricula->id]);
+    $acta = Acta::query()->where('ciclo_numero', 4)->sole();
+    Rectificacion::query()->create(['acta_id' => $acta->id, 'motivo' => 'Corrección pendiente.', 'autorizada_por' => $this->gestor->id, 'autorizada_en' => now()]);
+    $acta->update(['estado' => 'abierta']);
+
+    $this->get(DocumentoResource::getUrl('view', ['record' => Documento::query()->sole()]))
+        ->assertOk()
+        ->assertSeeInOrder(['Constancia de matrícula', 'Grupo', 'POR-2-T', 'Periodo', 'Modalidad', 'Horario']);
+    Livewire::test(ViewActa::class, ['record' => $acta->getRouteKey()])->assertActionHidden('emitirConstancias');
 });

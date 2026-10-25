@@ -41,9 +41,9 @@ final class DocenciaDemoSeeder extends Seeder
     ];
 
     /**
-     * Teacher position in DOCENTES for each group of the closed previous period.
+     * Teacher position in DOCENTES for each group of the closed previous periods.
      */
-    private const array GRUPOS_ANTERIORES = ['ING-1-M' => 0, 'POR-1-T' => 1, 'QUE-1-S' => 2];
+    private const array GRUPOS_ANTERIORES = ['ING-1-M' => 0, 'POR-1-T' => 1, 'QUE-1-S' => 2, 'ING-1-A' => 0, 'ING-2-A' => 0, 'ING-3-A' => 0, 'ING-4-A' => 0];
 
     public function run(): void
     {
@@ -139,7 +139,7 @@ final class DocenciaDemoSeeder extends Seeder
             $notas[$estudiante->matriculaId] = $componentes->mapWithKeys(fn (ComponenteDeEvaluacion $componente, int $posicion): array => [$componente->id => match (true) {
                 $indice === count($estudiantes) - 1 => '',
                 $indice === 2 && $componente->codigo === 'final' => '',
-                default => number_format(min(20, 8 + ($indice * 5 + $posicion * 3) % 12 + ($indice % 3) * 0.5), 2, '.', ''),
+                default => number_format(min(20, 8 + ($indice * 5 + $posicion * 3 + $grupo->id) % 12 + ($indice % 3) * 0.5), 2, '.', ''),
             }])->all();
         }
 

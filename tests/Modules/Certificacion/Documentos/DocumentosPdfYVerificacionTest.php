@@ -108,3 +108,8 @@ it('renders the enrollment record with the group, cycle, period, schedule and en
     expect(view('certificacion::pdf.constancia-de-matricula', ['documento' => $documento, 'verificacion' => 'https://ciln.test/verificar/CILN-ABCDEFGHJK', 'qr' => CodigoQr::comoDataUri('x'), 'emitidoEl' => '10 abr 2027'])->render())
         ->toContain('CONSTANCIA DE MATRÍCULA', 'Alva Prueba, Ana', 'POR-2-T', 'Ciclo 2 · Básico', 'Marzo 2027', 'Martes 16:00–18:00 · Jueves 16:00–18:00', '20/02/2027', 'Código único: CILN-ABCDEFGHJK');
 });
+
+it('sends a typed code that cannot be a document code back to the empty form', function (): void {
+    $this->get(route('verificacion.documento').'?codigo='.urlencode(str_repeat('A', 40)))->assertRedirect(route('verificacion.documento'));
+    $this->get(route('verificacion.documento').'?codigo='.urlencode('***'))->assertRedirect(route('verificacion.documento'));
+});

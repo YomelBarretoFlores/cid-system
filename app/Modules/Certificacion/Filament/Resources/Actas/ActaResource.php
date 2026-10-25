@@ -26,7 +26,7 @@ final class ActaResource extends Resource
 
     protected static ?string $modelLabel = 'acta final';
 
-    protected static ?string $pluralModelLabel = 'actas finales';
+    protected static ?string $pluralModelLabel = 'Actas finales';
 
     protected static ?string $navigationLabel = 'Actas finales';
 

@@ -28,7 +28,7 @@ final class DocumentoResource extends Resource
 
     protected static ?string $modelLabel = 'documento emitido';
 
-    protected static ?string $pluralModelLabel = 'constancias y certificados';
+    protected static ?string $pluralModelLabel = 'Constancias y certificados';
 
     protected static bool $hasTitleCaseModelLabel = false;
 

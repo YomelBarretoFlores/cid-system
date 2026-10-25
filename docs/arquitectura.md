@@ -72,7 +72,7 @@ tests/
 | Matricula | M1 | Clasificación, matrícula con bloqueos, ficha, traslados y retiros |
 | Pagos | M2 | Registro y validación de pagos, desbloqueos, reportes de recaudación |
 | Docencia | M3 | Padrón, carga académica, asistencia y pre-actas, expediente de horas |
-| Certificacion | M4 | Actas finales (vista previa desde la pre-acta, cierre con bloqueo y rectificación autorizada), constancias y certificados con QR |
+| Certificacion | M4 | Actas finales (vista previa desde la pre-acta, cierre con bloqueo y rectificación autorizada), constancias y certificados con código único y QR, con verificación pública |
 | Tablero | M5 | KPIs descriptivos (solo lectura) |
 | Tramites | M6 | Portal público y pipelines de trámites |
 

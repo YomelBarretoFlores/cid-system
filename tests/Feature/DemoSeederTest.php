@@ -8,7 +8,9 @@ use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
+use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Acta;
+use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Certificacion\Models\NotaFinal;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
 use App\Modules\Docencia\Enums\PermisoDocencia;
@@ -107,6 +109,18 @@ it('closes the final grade sheets of the previous month, one of them reopened fo
         ->and($actas->where('estado', EstadoActa::Abierta)->pluck('grupo_codigo')->all())->toBe(['POR-1-T'])
         ->and(NotaFinal::query()->distinct()->pluck('estado_final')->map->value->sort()->values()->all())->toBe(['aprobado', 'desaprobado', 'nsp'])
         ->and(Periodo::query()->where('estado', 'en_curso')->sole()->actas_inicio)->not->toBeNull();
+});
+
+it('issues level certificates to the English cohort, its grade records with one voided, and the portal student an enrollment record', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $documentos = Documento::query()->get();
+
+    expect($documentos->where('tipo', TipoDocumento::CertificadoNivel)->count())->toBeGreaterThan(0)
+        ->and($documentos->where('tipo', TipoDocumento::CertificadoNivel)->every(fn (Documento $documento): bool => $documento->horas_lectivas === 240 && $documento->nota_final >= '11.00'))->toBeTrue()
+        ->and($documentos->where('tipo', TipoDocumento::ConstanciaNotas)->count())->toBe(5)
+        ->and($documentos->filter(fn (Documento $documento): bool => ! $documento->estaVigente())->count())->toBe(1)
+        ->and($documentos->where('tipo', TipoDocumento::ConstanciaMatricula)->pluck('estudiante_nombre')->all())->toBe(['Demo, Estudiante']);
 });
 
 it('refuses to seed demo data in production even when forced', function (): void {

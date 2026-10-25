@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Certificacion\Actions\AutorizarRectificacion;
 use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
@@ -116,7 +117,7 @@ it('downloads the PDF of a closed acta from the panel and refuses it while under
     $this->actingAs($this->gestor)->get(route('panel.actas.pdf', $this->acta))->assertOk();
     Pdf::assertRespondedWithPdf(fn ($pdf): bool => $pdf->viewName === 'certificacion::pdf.acta-final');
 
-    app(App\Modules\Certificacion\Actions\AutorizarRectificacion::class)($this->acta->id, 'Error al transcribir el examen final.', $this->gestor);
+    app(AutorizarRectificacion::class)($this->acta->id, 'Error al transcribir el examen final.', $this->gestor);
 
     $this->actingAs($this->gestor)->get(route('panel.actas.pdf', $this->acta))->assertNotFound();
 });

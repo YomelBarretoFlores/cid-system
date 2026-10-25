@@ -37,7 +37,7 @@ Portal del estudiante (inicio de sesión diferenciado del panel administrativo, 
 - Permisos por acción con `spatie/laravel-permission`, creados por migraciones (también `admin-panel.access`), nunca solo por seeders: así existen en producción.
 - Cada recurso del panel tiene su Policy. El panel corre con `strictAuthorization()`: si falta un método en la Policy, Filament lanza un error en vez de permitir la acción (por defecto la permitiría).
 - Cada Policy usa el trait `DeniegaLoNoConcedido`, que niega toda habilidad que no concede de forma explícita (editar, borrar, restaurar, duplicar, asociar...).
-- Permisos existentes: `pagos.*` (ver, registrar, validar, anular, configurar, reportar), `academico.ver`, `academico.gestionar`, `personas.ver`, `personas.gestionar`, `matricula.ver`, `matricula.gestionar`, `clasificacion.ver`, `clasificacion.evaluar`, `docencia.ver`, `docencia.gestionar`, `docencia.costos`, `docencia.reportar`, `certificacion.actas` y `admin-panel.access`.
+- Permisos existentes: `pagos.*` (ver, registrar, validar, anular, configurar, reportar), `academico.ver`, `academico.gestionar`, `personas.ver`, `personas.gestionar`, `matricula.ver`, `matricula.gestionar`, `clasificacion.ver`, `clasificacion.evaluar`, `docencia.ver`, `docencia.gestionar`, `docencia.costos`, `docencia.reportar`, `certificacion.actas`, `certificacion.documentos` y `admin-panel.access`.
 - Los roles que agrupan permisos están pendientes ([`decisiones-pendientes.md`](decisiones-pendientes.md) #2). Usuarios de demostración: `admin@ciln.test` (todos los permisos de pagos) y `caja@ciln.test` (todo menos anular); en el portal, `estudiante@ciln.test`, con un pago de matrícula validado sin usar, y `docente@ciln.test`, docente del primer grupo.
 
 ## Auditoría inmutable (Log Triggers)
@@ -68,9 +68,10 @@ Reglas de uso:
 - El contexto (`app.usuario_id`, `app.ip`) lo fija la aplicación; quien tenga acceso SQL directo podría falsearlo. La protección real es que nadie fuera de la aplicación se conecte con el rol de aplicación.
 - Las pruebas con `DatabaseTruncation` deben excluir `aud_registros` y `pag_pagos`, que rechazan `TRUNCATE`.
 - **Ciclo de vida del pago en la base**: el trigger `pag_pagos_ciclo_de_vida` rechaza transiciones no permitidas y cambios en los datos de un pago validado, rechazado o anulado, aunque se hagan por SQL directo. Las Actions aplican las mismas reglas con mensajes para el usuario.
-- **Bloqueo de actas finales en la base**: `cer_actas_bloqueo` rechaza cambios en los datos de un acta cerrada, su borrado y reabrirla sin una rectificación abierta; `cer_notas_finales_bloqueo` rechaza agregar, cambiar, mover a otra acta o borrar notas de un acta cerrada; `cer_rectificaciones_bloqueo` impide editar o borrar una rectificación (solo se registra cuándo se volvió a cerrar el acta). La autorización de una rectificación exige el permiso `certificacion.actas` también dentro de la Action.
+- **Bloqueo de actas finales en la base**: `cer_actas_bloqueo` rechaza cambios en los datos de un acta cerrada, su borrado y reabrirla sin una rectificación abierta; `cer_notas_finales_bloqueo` rechaza agregar, cambiar, mover a otra acta o borrar notas de un acta cerrada; `cer_rectificaciones_bloqueo` impide editar o borrar una rectificación (solo se registra cuándo se volvió a cerrar el acta).
+- **Documentos emitidos inmutables**: `cer_documentos_bloqueo` rechaza editar o borrar una constancia o un certificado; solo admite anularlo una vez, con motivo. Un índice único parcial impide dos certificados vigentes del mismo nivel e idioma para una persona. Emitir y anular exigen el permiso `certificacion.documentos` también dentro de las Actions. La autorización de una rectificación exige el permiso `certificacion.actas` también dentro de la Action.
 
-Tablas auditadas además de pagos: tarifas, conceptos, `mat_matriculas`, `mat_movimientos`, `mat_solicitudes_clasificacion`, `mat_habilitaciones`, `doc_docentes`, `doc_docente_idiomas`, `doc_disponibilidades`, `doc_cargas_academicas`, `doc_clases_dictadas`, `doc_asistencias`, `doc_notas_parciales`, `doc_costos_hora`, `cer_actas`, `cer_notas_finales` y `cer_rectificaciones` (la cuenta bancaria queda cifrada también en la auditoría); los movimientos (traslados y retiros) rechazan UPDATE, DELETE y TRUNCATE con filas.
+Tablas auditadas además de pagos: tarifas, conceptos, `mat_matriculas`, `mat_movimientos`, `mat_solicitudes_clasificacion`, `mat_habilitaciones`, `doc_docentes`, `doc_docente_idiomas`, `doc_disponibilidades`, `doc_cargas_academicas`, `doc_clases_dictadas`, `doc_asistencias`, `doc_notas_parciales`, `doc_costos_hora`, `cer_actas`, `cer_notas_finales`, `cer_rectificaciones` y `cer_documentos` (la cuenta bancaria queda cifrada también en la auditoría); los movimientos (traslados y retiros) rechazan UPDATE, DELETE y TRUNCATE con filas.
 
 Tests: `tests/Feature/Audit/AuditTrailTest.php` (inmutabilidad, contexto web/API, cambios por query builder), `tests/Modules/Pagos/PagoTest.php` (validación auditada) y `tests/Modules/Matricula/PermisosYAuditoriaTest.php`.
 
@@ -78,7 +79,7 @@ Tests: `tests/Feature/Audit/AuditTrailTest.php` (inmutabilidad, contexto web/API
 
 - Guardar solo los datos necesarios y definir su tiempo de conservación.
 - Cifrar con el cast `encrypted` los datos sensibles que no se buscan (por ejemplo, la cuenta bancaria del docente). **No cifrar el DNI**, porque se busca por él.
-- La verificación pública de certificados muestra solo los datos mínimos.
+- La verificación pública de constancias y certificados (`/verificar/{código}`) muestra solo los datos mínimos: tipo, código, fecha de emisión, nombres, documento de identidad con solo sus últimos cuatro caracteres, idioma, nivel, horas, nota final y si está vigente o anulado (nunca el motivo de anulación). Limita las consultas a 30 por minuto por IP y pide a los buscadores no indexarla (`X-Robots-Tag` y meta `robots`). El código único tiene 10 caracteres aleatorios, así que no se puede adivinar ni recorrer.
 - **Nunca usar datos personales reales en tests ni en staging.**
 
 ## Pruebas de seguridad
