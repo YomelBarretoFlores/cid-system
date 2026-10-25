@@ -29,6 +29,8 @@ final class ExpedienteDeHorasDocentes extends Page
 
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Expediente de horas';
 
     protected static ?string $title = 'Expediente de horas por docente';

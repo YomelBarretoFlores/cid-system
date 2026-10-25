@@ -32,6 +32,8 @@ final class DocenteResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationLabel = 'Docentes';
 
     protected static ?string $modelLabel = 'docente';

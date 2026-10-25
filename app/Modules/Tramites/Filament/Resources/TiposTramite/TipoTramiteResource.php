@@ -28,6 +28,8 @@ final class TipoTramiteResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Configuración';
 
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Tipos de trámite';
 
     protected static ?string $modelLabel = 'tipo de trámite';

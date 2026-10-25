@@ -24,10 +24,15 @@ use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use UnitEnum;
 
 final class ReporteDeRecaudacion extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartBar;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Reportes';
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Reporte de recaudación';
 

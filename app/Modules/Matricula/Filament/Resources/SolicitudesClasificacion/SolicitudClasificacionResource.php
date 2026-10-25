@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 final class SolicitudClasificacionResource extends Resource
 {
@@ -23,6 +24,10 @@ final class SolicitudClasificacionResource extends Resource
     protected static ?string $model = SolicitudClasificacion::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Atención';
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $modelLabel = 'solicitud de clasificación';
 

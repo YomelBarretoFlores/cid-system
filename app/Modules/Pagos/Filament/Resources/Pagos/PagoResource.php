@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 final class PagoResource extends Resource
 {
@@ -25,6 +26,10 @@ final class PagoResource extends Resource
     protected static ?string $model = Pago::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Atención';
+
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $modelLabel = 'pago';
 

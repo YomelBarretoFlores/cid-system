@@ -28,6 +28,8 @@ final class AulaResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Oferta académica';
 
+    protected static ?int $navigationSort = 4;
+
     protected static ?string $navigationLabel = 'Aulas';
 
     protected static ?string $modelLabel = 'aula';

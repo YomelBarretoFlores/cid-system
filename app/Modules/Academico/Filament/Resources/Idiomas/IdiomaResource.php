@@ -29,6 +29,8 @@ final class IdiomaResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Oferta académica';
 
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Idiomas y ciclos';
 
     protected static ?string $modelLabel = 'idioma';

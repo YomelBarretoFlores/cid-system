@@ -27,6 +27,8 @@ final class DocumentoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Certificación';
 
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Constancias y certificados';
 
     protected static ?string $modelLabel = 'documento emitido';

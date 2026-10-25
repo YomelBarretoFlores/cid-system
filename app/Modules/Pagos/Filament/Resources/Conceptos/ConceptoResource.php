@@ -29,6 +29,8 @@ final class ConceptoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Configuración';
 
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationLabel = 'Conceptos y tarifas';
 
     protected static ?string $modelLabel = 'concepto';

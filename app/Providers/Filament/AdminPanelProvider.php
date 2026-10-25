@@ -10,6 +10,7 @@ use App\Shared\Auth\Filament\EditarPerfil;
 use App\Shared\Auth\Filament\IngresarAlPanel;
 use App\Shared\Auth\Http\Middleware\ExigirDobleFactorSiEsObligatorio;
 use App\Shared\Auth\Http\Middleware\ProtegerSesionDelPanel;
+use App\Shared\Support\Filament\Inicio;
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
 use App\Shared\Ui\PaletaCiln;
 use Filament\Enums\GlobalSearchPosition;
@@ -21,14 +22,12 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentTimezone;
 use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -83,11 +82,9 @@ final class AdminPanelProvider extends PanelProvider
                 'info' => Color::Sky,
             ])
             ->pages([
-                Dashboard::class,
+                Inicio::class,
             ])
-            ->widgets([
-                AccountWidget::class,
-            ])
+            ->navigationGroups(['Atención', 'Oferta académica', 'Docencia', 'Certificación', 'Reportes', 'Configuración'])
             ->middleware([
                 AsignarIdDeSolicitud::class,
                 EncryptCookies::class,

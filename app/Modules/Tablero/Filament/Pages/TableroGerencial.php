@@ -31,13 +31,13 @@ final class TableroGerencial extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartPie;
 
+    protected static ?int $navigationSort = -10;
+
     protected static ?string $navigationLabel = 'Tablero gerencial';
 
     protected static ?string $title = 'Tablero gerencial';
 
     protected static ?string $slug = 'tablero-gerencial';
-
-    protected static ?int $navigationSort = -1;
 
     protected ?string $subheading = 'Indicadores financieros y académicos con los datos registrados hasta este momento.';
 

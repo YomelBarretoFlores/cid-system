@@ -27,6 +27,8 @@ final class ActaResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Certificación';
 
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $modelLabel = 'acta final';
 
     protected static ?string $pluralModelLabel = 'actas finales';

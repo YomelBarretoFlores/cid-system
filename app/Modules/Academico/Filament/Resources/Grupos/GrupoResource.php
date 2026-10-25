@@ -30,6 +30,8 @@ final class GrupoResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Oferta académica';
 
+    protected static ?int $navigationSort = 3;
+
     protected static ?string $navigationLabel = 'Grupos';
 
     protected static ?string $modelLabel = 'grupo';

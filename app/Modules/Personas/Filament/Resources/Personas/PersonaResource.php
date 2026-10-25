@@ -28,7 +28,9 @@ final class PersonaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Personas';
+    protected static string|UnitEnum|null $navigationGroup = 'Atención';
+
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $navigationLabel = 'Personas';
 
