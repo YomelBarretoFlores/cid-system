@@ -54,6 +54,24 @@ it('changes the password with the current one', function (): void {
     expect(Hash::check('nueva-clave-2027', $this->usuario->fresh()->password))->toBeTrue();
 });
 
+it('asks the current password only when a new one is typed', function (): void {
+    Livewire::test(EditarPerfil::class)
+        ->assertFormFieldHidden('currentPassword')
+        ->fillForm(['password' => 'nueva-clave-2027'])
+        ->assertFormFieldVisible('currentPassword');
+});
+
+it('closes the other sessions of the account after a password change', function (): void {
+    $anterior = $this->usuario->password;
+
+    Livewire::test(EditarPerfil::class)
+        ->fillForm(['password' => 'nueva-clave-2027', 'passwordConfirmation' => 'nueva-clave-2027', 'currentPassword' => 'password'])
+        ->call('save');
+
+    $this->withSession(['password_hash_web' => $anterior])->get('/admin/profile')->assertRedirect('/admin/login');
+    $this->assertGuest();
+});
+
 it('opens the profile from the panel', function (): void {
     $this->get('/admin/profile')->assertOk()->assertSee('Ana Torres');
 });
