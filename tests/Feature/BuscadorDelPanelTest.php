@@ -63,7 +63,7 @@ it('collapses the sidebar with Ctrl+B or Cmd+B and names the shortcut on the but
 
 it('finds people by surname or document for staff who can see people, with their link to the CILN', function (): void {
     $persona = Persona::factory()->create(['apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'nombres' => 'Rosa', 'numero_documento' => '41234567']);
-    Persona::factory()->create(['apellido_paterno' => 'Torres', 'nombres' => 'Luis']);
+    Persona::factory()->create(['apellido_paterno' => 'Torres', 'apellido_materno' => 'Salas', 'nombres' => 'Luis', 'numero_documento' => '87654321']);
     $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoPersona::Ver->value]));
     $recurso = PersonaResource::class;
 
