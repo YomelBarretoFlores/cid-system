@@ -11,6 +11,7 @@ use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoForm;
 use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoInfolist;
 use App\Modules\Pagos\Filament\Resources\Pagos\Tables\PagosTable;
 use App\Modules\Pagos\Models\Pago;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,6 +20,8 @@ use Filament\Tables\Table;
 
 final class PagoResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = Pago::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;

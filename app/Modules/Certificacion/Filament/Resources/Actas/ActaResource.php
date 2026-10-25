@@ -9,6 +9,7 @@ use App\Modules\Certificacion\Filament\Resources\Actas\Pages\ViewActa;
 use App\Modules\Certificacion\Filament\Resources\Actas\Schemas\ActaInfolist;
 use App\Modules\Certificacion\Filament\Resources\Actas\Tables\ActasTable;
 use App\Modules\Certificacion\Models\Acta;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,6 +19,8 @@ use UnitEnum;
 
 final class ActaResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = Acta::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCheck;
@@ -26,11 +29,9 @@ final class ActaResource extends Resource
 
     protected static ?string $modelLabel = 'acta final';
 
-    protected static ?string $pluralModelLabel = 'Actas finales';
+    protected static ?string $pluralModelLabel = 'actas finales';
 
     protected static ?string $navigationLabel = 'Actas finales';
-
-    protected static bool $hasTitleCaseModelLabel = false;
 
     protected static ?string $slug = 'actas-finales';
 

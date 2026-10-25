@@ -14,6 +14,7 @@ use App\Modules\Docencia\Filament\Resources\Docentes\Schemas\DocenteForm;
 use App\Modules\Docencia\Filament\Resources\Docentes\Schemas\DocenteInfolist;
 use App\Modules\Docencia\Filament\Resources\Docentes\Tables\DocentesTable;
 use App\Modules\Docencia\Models\Docente;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -23,6 +24,8 @@ use UnitEnum;
 
 final class DocenteResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = Docente::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;

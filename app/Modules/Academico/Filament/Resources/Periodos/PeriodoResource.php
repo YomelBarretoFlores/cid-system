@@ -10,6 +10,7 @@ use App\Modules\Academico\Filament\Resources\Periodos\Pages\ListPeriodos;
 use App\Modules\Academico\Filament\Resources\Periodos\Schemas\PeriodoForm;
 use App\Modules\Academico\Filament\Resources\Periodos\Tables\PeriodosTable;
 use App\Modules\Academico\Models\Periodo;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -19,6 +20,8 @@ use UnitEnum;
 
 final class PeriodoResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = Periodo::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDateRange;

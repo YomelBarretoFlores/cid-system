@@ -9,6 +9,7 @@ use App\Modules\Tramites\Filament\Resources\Tramites\Pages\ViewTramite;
 use App\Modules\Tramites\Filament\Resources\Tramites\Schemas\TramiteInfolist;
 use App\Modules\Tramites\Filament\Resources\Tramites\Tables\TramitesTable;
 use App\Modules\Tramites\Models\Tramite;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,6 +19,8 @@ use UnitEnum;
 
 final class TramiteResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = Tramite::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxStack;
@@ -28,9 +31,7 @@ final class TramiteResource extends Resource
 
     protected static ?string $modelLabel = 'trámite';
 
-    protected static ?string $pluralModelLabel = 'Trámites';
-
-    protected static bool $hasTitleCaseModelLabel = false;
+    protected static ?string $pluralModelLabel = 'trámites';
 
     protected static ?string $recordTitleAttribute = 'codigo';
 

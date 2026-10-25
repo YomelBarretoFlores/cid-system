@@ -11,6 +11,7 @@ use App\Modules\Pagos\Filament\Resources\Conceptos\RelationManagers\TarifasRelat
 use App\Modules\Pagos\Filament\Resources\Conceptos\Schemas\ConceptoForm;
 use App\Modules\Pagos\Filament\Resources\Conceptos\Tables\ConceptosTable;
 use App\Modules\Pagos\Models\Concepto;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -20,6 +21,8 @@ use UnitEnum;
 
 final class ConceptoResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = Concepto::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;

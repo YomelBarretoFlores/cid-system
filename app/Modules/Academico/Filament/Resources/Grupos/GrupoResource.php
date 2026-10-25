@@ -12,6 +12,7 @@ use App\Modules\Academico\Filament\Resources\Grupos\RelationManagers\HorariosRel
 use App\Modules\Academico\Filament\Resources\Grupos\Schemas\GrupoForm;
 use App\Modules\Academico\Filament\Resources\Grupos\Tables\GruposTable;
 use App\Modules\Academico\Models\Grupo;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -21,6 +22,8 @@ use UnitEnum;
 
 final class GrupoResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = Grupo::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;

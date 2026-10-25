@@ -9,6 +9,7 @@ use App\Modules\Certificacion\Filament\Resources\Documentos\Pages\ViewDocumento;
 use App\Modules\Certificacion\Filament\Resources\Documentos\Schemas\DocumentoInfolist;
 use App\Modules\Certificacion\Filament\Resources\Documentos\Tables\DocumentosTable;
 use App\Modules\Certificacion\Models\Documento;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -18,6 +19,8 @@ use UnitEnum;
 
 final class DocumentoResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = Documento::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQrCode;
@@ -28,9 +31,7 @@ final class DocumentoResource extends Resource
 
     protected static ?string $modelLabel = 'documento emitido';
 
-    protected static ?string $pluralModelLabel = 'Constancias y certificados';
-
-    protected static bool $hasTitleCaseModelLabel = false;
+    protected static ?string $pluralModelLabel = 'constancias y certificados';
 
     protected static ?string $slug = 'documentos';
 

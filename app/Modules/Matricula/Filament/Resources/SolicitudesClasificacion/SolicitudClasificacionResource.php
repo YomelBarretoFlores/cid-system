@@ -9,6 +9,7 @@ use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Pages\View
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Schemas\SolicitudClasificacionInfolist;
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Tables\SolicitudesClasificacionTable;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -17,6 +18,8 @@ use Filament\Tables\Table;
 
 final class SolicitudClasificacionResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = SolicitudClasificacion::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
@@ -24,6 +27,8 @@ final class SolicitudClasificacionResource extends Resource
     protected static ?string $modelLabel = 'solicitud de clasificación';
 
     protected static ?string $pluralModelLabel = 'solicitudes de clasificación';
+
+    protected static ?string $slug = 'solicitudes-clasificacion';
 
     protected static bool $isGloballySearchable = false;
 

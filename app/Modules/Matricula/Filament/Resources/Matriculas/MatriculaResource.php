@@ -9,6 +9,7 @@ use App\Modules\Matricula\Filament\Resources\Matriculas\Pages\ViewMatricula;
 use App\Modules\Matricula\Filament\Resources\Matriculas\Schemas\MatriculaInfolist;
 use App\Modules\Matricula\Filament\Resources\Matriculas\Tables\MatriculasTable;
 use App\Modules\Matricula\Models\Matricula;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -17,6 +18,8 @@ use Filament\Tables\Table;
 
 final class MatriculaResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = Matricula::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;

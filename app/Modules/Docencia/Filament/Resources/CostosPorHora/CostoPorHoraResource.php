@@ -9,6 +9,7 @@ use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Filament\Resources\CostosPorHora\Pages\ListCostosPorHora;
 use App\Modules\Docencia\Models\CostoPorHora;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Resources\Resource;
@@ -19,6 +20,8 @@ use UnitEnum;
 
 final class CostoPorHoraResource extends Resource
 {
+    use TitulosEnMayusculaInicial;
+
     protected static ?string $model = CostoPorHora::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
