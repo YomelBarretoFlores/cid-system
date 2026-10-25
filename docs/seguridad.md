@@ -35,7 +35,13 @@ Panel administrativo (`/admin`, personal con `admin-panel.access`):
 - El panel solo acepta sesiones abiertas por su propio ingreso, el único que pide el segundo factor: la marca de la sesión lleva la cuenta que ingresó. Una sesión abierta en el portal, recordada por una cookie ("recordarme") o de otra cuenta en el mismo navegador se cierra al llegar al panel, con el aviso "Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.". Por eso el panel no ofrece "recordarme". Cada cierre forzado queda en el log con el ID de la cuenta y la causa (`sin_ingreso_del_panel` o `inactividad`).
 - La sesión del panel se cierra tras 30 minutos sin actividad (`SESSION_PANEL_LIFETIME`, mínimo 1), con el aviso "Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.". Cuenta cada página y cada acción del panel; el panel no tiene consultas automáticas en segundo plano que mantengan viva una sesión inactiva.
 - Página de perfil (menú de usuario → perfil): el nombre y el correo solo se leen (los registra el CILN); el cambio de contraseña pide la actual y cierra las demás sesiones de la cuenta. Desde ahí también se regeneran los códigos de recuperación.
-- Si alguien pierde el teléfono y los códigos, la DSTI quita el segundo factor con `php artisan auth:reiniciar-doble-factor <correo>` y la persona lo configura de nuevo al ingresar (configurarlo pide la contraseña actual). El comando también cierra las sesiones abiertas de la cuenta (guardadas en la base de datos, `SESSION_DRIVER=database`; con otro almacenamiento, o si falla la conexión, el reinicio se mantiene y el comando avisa que no pudo cerrarlas) y anula su "recordarme", por si el teléfono fue robado. El log registra el ID de la cuenta, no el correo.
+- Si alguien pierde el teléfono y los códigos, la DSTI quita el segundo factor con `php artisan auth:reiniciar-doble-factor <correo>` y la persona lo configura de nuevo al ingresar (configurarlo pide la contraseña actual). Por si el teléfono fue robado, el comando también anula el "recordarme" de la cuenta y cierra sus sesiones abiertas, que se encuentran por cuenta solo con `SESSION_DRIVER=database`. El log registra el ID de la cuenta, no el correo.
+
+  | Código de salida | Significado |
+  |---|---|
+  | `0` | Doble factor quitado y sesiones cerradas |
+  | `1` | No hay una cuenta con ese correo; no se cambió nada |
+  | `2` | Doble factor quitado, pero las sesiones siguen abiertas: si falló la conexión, volver a ejecutar con `--solo-sesiones` (cierra las sesiones sin quitar de nuevo un doble factor ya reconfigurado); con otro almacenamiento de sesiones, expiran solas |
 - El doble factor protege el panel. La API v1 solo expone los datos propios de estudiantes y docentes, sin funciones administrativas.
 
 Portal del estudiante (inicio de sesión diferenciado del panel administrativo, M6):

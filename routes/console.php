@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Modules\Matricula\Actions\ExpirarSolicitudesDeClasificacion;
+use App\Shared\Auth\Actions\CerrarSesionesDeCuenta;
 use App\Shared\Auth\Actions\ReiniciarDobleFactor;
+use App\Shared\Auth\Enums\CierreDeSesiones;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -17,23 +19,30 @@ Artisan::command('clasificacion:expirar', function (ExpirarSolicitudesDeClasific
     $this->info('Solicitudes de clasificación vencidas: '.$expirar());
 })->purpose('Mark placement test requests past their date as expired');
 
-Artisan::command('auth:reiniciar-doble-factor {correo}', function (ReiniciarDobleFactor $reiniciar, string $correo): int {
+Artisan::command('auth:reiniciar-doble-factor {correo} {--solo-sesiones : Only close the open sessions, keeping the second factor}', function (ReiniciarDobleFactor $reiniciar, CerrarSesionesDeCuenta $cerrarSesiones, string $correo): int {
     try {
-        $sesionesCerradas = $reiniciar($correo);
+        $cierre = $this->option('solo-sesiones') ? $cerrarSesiones($correo) : $reiniciar($correo);
     } catch (ReglaDeNegocioIncumplida $error) {
         $this->error($error->getMessage());
 
         return 1;
     }
 
-    $this->info('Se quitó el doble factor de la cuenta. Deberá configurarlo de nuevo al ingresar al panel.');
-
-    if (! $sesionesCerradas) {
-        $this->warn('No se pudieron cerrar las sesiones abiertas de la cuenta (no se guardan en la base de datos o falló la conexión). Revisa el log y vuelve a ejecutar el comando.');
+    if (! $this->option('solo-sesiones')) {
+        $this->info('Se quitó el doble factor de la cuenta. Deberá configurarlo de nuevo al ingresar al panel.');
     }
 
+    // Exit code 2: the reset holds, but the account's open sessions are still alive.
+    if ($cierre !== CierreDeSesiones::Cerradas) {
+        $this->warn($cierre->mensaje());
+
+        return 2;
+    }
+
+    $this->info($cierre->mensaje());
+
     return 0;
-})->purpose('Clear the authenticator app of an account that lost its phone and its recovery codes');
+})->purpose('Clear the authenticator app of an account that lost its phone and its recovery codes, and close its sessions');
 
 Schedule::command('clasificacion:expirar')->dailyAt('00:10')->timezone('America/Lima');
 
