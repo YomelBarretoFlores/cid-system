@@ -70,6 +70,7 @@ final class AdminPanelProvider extends PanelProvider
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->login(IngresarAlPanel::class)
             ->profile(EditarPerfil::class, isSimple: false)
+            // isRequired keeps the set-up page and the required hook registered; the setting decides per request whether it applies.
             ->multiFactorAuthentication([AutenticacionPorApp::make()->recoverable()->brandName('CILN - UNASAM')], isRequired: true)
             ->multiFactorAuthenticationRequiredMiddlewareName(ExigirDobleFactorSiEsObligatorio::class)
             ->strictAuthorization()
