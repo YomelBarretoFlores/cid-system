@@ -36,6 +36,9 @@ return [
 
     'lifetime' => (int) env('SESSION_LIFETIME', 120),
 
+    // Staff panel: minutes without activity before the panel closes the session.
+    'panel_lifetime' => (int) env('SESSION_PANEL_LIFETIME', 30),
+
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
 
     /*

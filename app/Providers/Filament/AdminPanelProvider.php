@@ -6,6 +6,8 @@ namespace App\Providers\Filament;
 
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use App\Shared\Auth\Filament\EditarPerfil;
+use App\Shared\Auth\Filament\IngresarAlPanel;
+use App\Shared\Auth\Http\Middleware\ProtegerSesionDelPanel;
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
 use App\Shared\Ui\PaletaCiln;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
@@ -65,7 +67,7 @@ final class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
             ->userMenu(position: UserMenuPosition::Sidebar)
-            ->login()
+            ->login(IngresarAlPanel::class)
             ->profile(EditarPerfil::class, isSimple: false)
             ->multiFactorAuthentication([AppAuthentication::make()->recoverable()->brandName('CILN - UNASAM')], isRequired: true)
             ->strictAuthorization()
@@ -97,8 +99,9 @@ final class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                ProtegerSesionDelPanel::class,
                 EstablecerContextoAuditoria::class,
-            ]);
+            ], isPersistent: true);
 
         return $this->discoverModules($panel);
     }

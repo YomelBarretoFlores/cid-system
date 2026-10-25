@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Shared\Auth\Http\Middleware\ProtegerSesionDelPanel;
 use App\Shared\Auth\Models\User;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Auth\Pages\Login;
@@ -51,7 +52,8 @@ it('stores the secret and the recovery codes encrypted and never shows them', fu
 it('sends a panel account without the authenticator app to set it up first', function (): void {
     $this->be(personalDelPanel(conDobleFactor: false));
 
-    $this->get('/admin')
+    $this->withSession([ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD => now()->getTimestamp()])
+        ->get('/admin')
         ->assertRedirect(Filament::getPanel('admin')->getSetUpRequiredMultiFactorAuthenticationUrl());
 });
 
