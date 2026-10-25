@@ -17,14 +17,17 @@ use Illuminate\Http\Request;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        apiPrefix: 'api/v1',
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prependToGroup('web', AsignarIdDeSolicitud::class);
         $middleware->prependToGroup('api', AsignarIdDeSolicitud::class);
         $middleware->appendToGroup('web', EstablecerContextoAuditoria::class);
         $middleware->appendToGroup('api', EstablecerContextoAuditoria::class);
+        $middleware->throttleApi();
         $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'docente' => RequierePerfilDocente::class]);
 
         // The admin panel redirects its own guests to its login; teacher pages go to the teacher entry, the rest to the student entry.

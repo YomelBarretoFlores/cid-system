@@ -16,3 +16,6 @@ Artisan::command('clasificacion:expirar', function (ExpirarSolicitudesDeClasific
 })->purpose('Mark placement test requests past their date as expired');
 
 Schedule::command('clasificacion:expirar')->dailyAt('00:10')->timezone('America/Lima');
+
+// Expired API tokens stop working at once; this only keeps the table small.
+Schedule::command('sanctum:prune-expired --hours=24')->dailyAt('00:20')->timezone('America/Lima');

@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Shared\Auth\Livewire;
 
+use App\Shared\Auth\Actions\AutenticarUsuario;
 use App\Shared\Auth\Enums\EntradaDelPortal;
-use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\DestinoTrasIngreso;
 use App\Shared\Support\Livewire\MensajesDeValidacion;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
@@ -21,11 +20,7 @@ final class IniciarSesion extends Component
 {
     use MensajesDeValidacion;
 
-    public const string CREDENCIALES_INCORRECTAS = 'El correo o la contraseña no son correctos.';
-
-    private const int INTENTOS_POR_MINUTO = 5;
-
-    private const int INTENTOS_POR_DIRECCION = 20;
+    public const string CREDENCIALES_INCORRECTAS = AutenticarUsuario::CREDENCIALES_INCORRECTAS;
 
     #[Locked]
     public EntradaDelPortal $entrada = EntradaDelPortal::Estudiante;
@@ -49,26 +44,19 @@ final class IniciarSesion extends Component
             'password' => ['required', 'string', 'max:255'],
         ]);
 
-        $clave = "ingreso|{$this->email}|".request()->ip();
-        // The per-address key also stops one address from trying a common password on many accounts.
-        $claveDeDireccion = 'ingreso|'.request()->ip();
+        try {
+            $usuario = app(AutenticarUsuario::class)($this->email, $this->password, (string) request()->ip());
+        } catch (ValidationException $error) {
+            // As before, only wrong credentials clear the password; the attempt limit keeps it.
+            if (in_array(self::CREDENCIALES_INCORRECTAS, $error->errors()['email'] ?? [], true)) {
+                $this->reset('password');
+            }
 
-        $this->asegurarIntentosDisponibles($clave, self::INTENTOS_POR_MINUTO);
-        $this->asegurarIntentosDisponibles($claveDeDireccion, self::INTENTOS_POR_DIRECCION);
-
-        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->recordar)) {
-            RateLimiter::hit($clave);
-            RateLimiter::hit($claveDeDireccion);
-            $this->reset('password');
-
-            throw ValidationException::withMessages(['email' => self::CREDENCIALES_INCORRECTAS]);
+            throw $error;
         }
 
-        RateLimiter::clear($clave);
+        Auth::login($usuario, $this->recordar);
         session()->regenerate();
-
-        /** @var User $usuario */
-        $usuario = Auth::user();
 
         $this->redirectIntended(app(DestinoTrasIngreso::class)->para($usuario, $this->entrada));
     }
@@ -76,14 +64,5 @@ final class IniciarSesion extends Component
     public function render(): View
     {
         return view('auth.iniciar-sesion')->title('Ingresar');
-    }
-
-    private function asegurarIntentosDisponibles(string $clave, int $maximo): void
-    {
-        if (RateLimiter::tooManyAttempts($clave, $maximo)) {
-            throw ValidationException::withMessages([
-                'email' => 'Demasiados intentos. Vuelve a intentarlo en '.RateLimiter::availableIn($clave).' segundos.',
-            ]);
-        }
     }
 }
