@@ -30,6 +30,7 @@
 ```dotenv
 APP_ENV=production
 APP_DEBUG=false
+APP_URL=https://cid.unasam.edu.pe
 APP_LOCALE=es
 APP_FAKER_LOCALE=es_PE
 DB_CONNECTION=pgsql
@@ -37,6 +38,8 @@ SESSION_DRIVER=database
 SESSION_SECURE_COOKIE=true
 QUEUE_CONNECTION=database
 ```
+
+`APP_URL` debe ser la dirección pública con `https`: los enlaces de verificación de correo y de recuperación de contraseña los arma el proceso de la cola, que no conoce la petición original. La caché usa el almacén por defecto (`database`); la portada pública solo guarda objetos de valor autorizados en `config/cache.php` (`serializable_classes`).
 
 ## Base de datos y proxy
 

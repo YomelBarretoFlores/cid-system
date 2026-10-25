@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Support\Cache;
 
 use Closure;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -19,6 +20,11 @@ final class ContenidoPublico
     private const string VERSION = 'portada-publica:version';
 
     private const int SEGUNDOS = 180;
+
+    // The lock outlives a slow rebuild; waiting visits give up sooner and build the page themselves.
+    private const int SEGUNDOS_DEL_CANDADO = 20;
+
+    private const int SEGUNDOS_DE_ESPERA = 10;
 
     /**
      * A failing cache store never takes the page down: it is then built directly.
@@ -71,12 +77,17 @@ final class ContenidoPublico
             return $guardado;
         }
 
-        // One visit rebuilds while the others wait for it, instead of all rebuilding at once during a peak.
-        return Cache::lock(self::CLAVE.':armando', 15)->block(5, function () use ($dia, $construir): array {
-            $version = self::version();
+        try {
+            // One visit rebuilds while the others wait for it, instead of all rebuilding at once during a peak.
+            return Cache::lock(self::CLAVE.':armando', self::SEGUNDOS_DEL_CANDADO)->block(self::SEGUNDOS_DE_ESPERA, function () use ($dia, $construir): array {
+                $version = self::version();
 
-            return self::vigente($dia, $version) ?? self::guardar($dia, $version, $construir());
-        });
+                return self::vigente($dia, $version) ?? self::guardar($dia, $version, $construir());
+            });
+        } catch (LockTimeoutException) {
+            // The store works; the rebuild is just slow, so this visit uses its result if ready or builds the page itself.
+            return self::vigente($dia, self::version()) ?? $construir();
+        }
     }
 
     /**
@@ -97,7 +108,12 @@ final class ContenidoPublico
      */
     private static function guardar(string $dia, string $version, array $contenido): array
     {
-        Cache::put(self::CLAVE, ['dia' => $dia, 'version' => $version, 'contenido' => $contenido], self::SEGUNDOS);
+        try {
+            Cache::put(self::CLAVE, ['dia' => $dia, 'version' => $version, 'contenido' => $contenido], self::SEGUNDOS);
+        } catch (Throwable $error) {
+            // The page is already built: serve it without paying for a second build.
+            self::avisar($error);
+        }
 
         return $contenido;
     }

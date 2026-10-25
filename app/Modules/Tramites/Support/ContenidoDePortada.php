@@ -29,15 +29,17 @@ final readonly class ContenidoDePortada
      */
     public function armar(): array
     {
-        return ContenidoPublico::recordar(CarbonImmutable::now('America/Lima')->toDateString(), $this->construir(...));
+        // One instant for the cache day and the content, so content of a new day is never stored under the previous one.
+        $ahora = CarbonImmutable::now('America/Lima');
+
+        return ContenidoPublico::recordar($ahora->toDateString(), fn (): array => $this->construir($ahora));
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function construir(): array
+    private function construir(CarbonImmutable $ahora): array
     {
-        $ahora = CarbonImmutable::now('America/Lima');
         $oferta = ($this->ofertaPublica)();
         $grupos = $oferta->grupos ?? [];
         $tarifas = ($this->tarifasVigentes)($ahora->startOfDay());

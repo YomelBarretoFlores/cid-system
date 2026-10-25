@@ -14,6 +14,7 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 beforeEach(function (): void {
@@ -77,3 +78,17 @@ it('rebuilds the public page when any model it shows is saved or deleted', funct
     'schedule deleted' => [fn ($prueba) => Horario::factory()->for($prueba->grupo)->createQuietly(['dia_semana' => 3, 'hora_inicio' => '19:00', 'hora_fin' => '21:00'])->delete()],
     'concept' => [fn ($prueba) => $prueba->concepto->update(['nombre' => 'Matrícula ordinaria'])],
 ]);
+
+it('serves the cached page from a store that serializes it, as production does', function (): void {
+    config(['cache.default' => 'file']);
+    Cache::flush();
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '180.00', 'vigente_desde' => '2026-03-01']);
+
+    $this->get('/')->assertOk()->assertSeeText('20 vacantes');
+    DB::table('aca_grupos')->where('id', $this->grupo->id)->update(['matriculados' => 5]);
+
+    // Still the stored page, read back from the serialized store with its value objects intact.
+    $this->get('/')->assertOk()->assertSeeText(['20 vacantes', 'Inglés', 'S/ 180.00', 'Oferta 2026-II']);
+
+    Cache::flush();
+});
