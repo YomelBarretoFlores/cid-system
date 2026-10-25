@@ -10,7 +10,7 @@
             Mantener la sesión iniciada en este equipo
         </label>
 
-        <x-portal.boton accion="ingresar" class="mt-1 w-full py-[15px]">Ingresar</x-portal.boton>
+        <x-portal.boton accion="ingresar" class="mt-1 w-full" tamano="grande">Ingresar</x-portal.boton>
     </form>
 
     <x-slot:pie>

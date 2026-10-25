@@ -53,12 +53,12 @@
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <x-portal.boton variante="secundario" :href="route('estudiante.matriculas.ficha', $matricula)" target="_blank" rel="noopener" class="px-4 py-2.5">
+                            <x-portal.boton variante="secundario" :href="route('estudiante.matriculas.ficha', $matricula)" target="_blank" rel="noopener" tamano="compacto">
                                 <x-heroicon-o-document-arrow-down aria-hidden="true" class="size-4" />
                                 Ficha de matrícula (PDF)<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
                             </x-portal.boton>
                             @if ($matricula->estado === EstadoMatricula::Activa)
-                                <x-portal.boton variante="secundario" :href="route('estudiante.matriculas.constancia', $matricula)" target="_blank" rel="noopener" class="px-4 py-2.5">
+                                <x-portal.boton variante="secundario" :href="route('estudiante.matriculas.constancia', $matricula)" target="_blank" rel="noopener" tamano="compacto">
                                     <x-heroicon-o-document-check aria-hidden="true" class="size-4" />
                                     Constancia de inscripción (PDF)<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
                                 </x-portal.boton>

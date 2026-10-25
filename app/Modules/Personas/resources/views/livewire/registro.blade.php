@@ -39,7 +39,7 @@
             @enderror
         </div>
 
-        <x-portal.boton accion="registrarse" class="w-full py-[15px]">Crear mi cuenta</x-portal.boton>
+        <x-portal.boton accion="registrarse" class="w-full" tamano="grande">Crear mi cuenta</x-portal.boton>
     </form>
 
     <x-slot:pie>

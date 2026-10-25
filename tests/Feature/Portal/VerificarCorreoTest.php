@@ -55,3 +55,14 @@ it('sends a verified user from the notice to the portal', function (): void {
         ->get(route('verification.notice'))
         ->assertRedirect(route('estudiante.inicio'));
 });
+
+it('lets an unverified user sign out from the verification notice', function (): void {
+    $user = User::factory()->unverified()->create();
+
+    $this->actingAs($user)->get(route('verification.notice'))
+        ->assertOk()
+        ->assertSee('action="'.route('estudiante.salir').'"', false);
+
+    $this->post(route('estudiante.salir'))->assertRedirect();
+    $this->assertGuest();
+});

@@ -4,7 +4,7 @@
     @endif
 
     <p class="text-secundario">¿No te llegó? Revisa la carpeta de spam o pide otro enlace.</p>
-    <x-portal.boton type="button" wire:click="reenviar" accion="reenviar" class="w-full py-[15px]">Enviar otro enlace</x-portal.boton>
+    <x-portal.boton type="button" wire:click="reenviar" accion="reenviar" class="w-full" tamano="grande">Enviar otro enlace</x-portal.boton>
 
     <x-slot:pie>
         <form method="POST" action="{{ route('estudiante.salir') }}">

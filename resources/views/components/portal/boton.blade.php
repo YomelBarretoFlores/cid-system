@@ -1,10 +1,13 @@
-@props(['accion' => null, 'variante' => 'primario', 'href' => null])
+@props(['accion' => null, 'variante' => 'primario', 'tamano' => 'normal', 'href' => null])
 @php
     $clases = [
-        'inline-flex items-center justify-center gap-2 rounded-pildora px-6 py-3 text-[15px] font-medium whitespace-nowrap transition-colors focus-visible:shadow-foco focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
+        'inline-flex items-center justify-center gap-2 rounded-pildora text-[15px] font-medium whitespace-nowrap transition-colors focus-visible:shadow-foco focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
         'bg-tinta text-white hover:bg-tinta-hover' => $variante === 'primario',
         'border border-borde bg-tarjeta text-tinta hover:bg-hover-suave' => $variante === 'secundario',
-        'bg-transparent px-0 py-0 text-enlace hover:text-enlace-hover' => $variante === 'enlace',
+        'text-enlace hover:text-enlace-hover' => $variante === 'enlace',
+        'px-6 py-[15px]' => $variante !== 'enlace' && $tamano === 'grande',
+        'px-6 py-3' => $variante !== 'enlace' && $tamano === 'normal',
+        'px-4 py-2.5' => $variante !== 'enlace' && $tamano === 'compacto',
     ];
 @endphp
 @if ($href)

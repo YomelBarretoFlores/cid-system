@@ -37,10 +37,10 @@
                         </dl>
 
                         <div class="mt-auto flex gap-2">
-                            <x-portal.boton :href="route('docente.asistencia', $grupo->grupoId)" class="flex-1 px-3">
+                            <x-portal.boton :href="route('docente.asistencia', $grupo->grupoId)" tamano="compacto" class="flex-1">
                                 Tomar asistencia<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
                             </x-portal.boton>
-                            <x-portal.boton variante="secundario" :href="route('docente.notas', $grupo->grupoId)" class="flex-1 px-3">
+                            <x-portal.boton variante="secundario" :href="route('docente.notas', $grupo->grupoId)" tamano="compacto" class="flex-1">
                                 Pre-acta<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
                             </x-portal.boton>
                         </div>

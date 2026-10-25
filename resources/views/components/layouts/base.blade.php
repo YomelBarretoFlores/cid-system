@@ -16,7 +16,7 @@
         </a>
 
         <div class="min-h-screen p-2 sm:p-4">
-            <div {{ $attributes->class('min-h-[calc(100vh-1rem)] rounded-[22px] bg-lienzo p-2 sm:min-h-[calc(100vh-2rem)] sm:rounded-marco sm:p-3.5') }}>
+            <div {{ $attributes->class('min-h-[calc(100vh-1rem)] rounded-tarjeta bg-lienzo p-2 sm:min-h-[calc(100vh-2rem)] sm:rounded-marco sm:p-3.5') }}>
                 {{ $slot }}
             </div>
         </div>

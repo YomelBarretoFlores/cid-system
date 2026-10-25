@@ -4,7 +4,7 @@
     @else
         <form wire:submit="enviar" class="flex flex-col gap-4" novalidate>
             <x-portal.campo nombre="email" etiqueta="Correo" tipo="email" autocomplete="email" required autofocus />
-            <x-portal.boton accion="enviar" class="mt-1 w-full py-[15px]">Enviar enlace</x-portal.boton>
+            <x-portal.boton accion="enviar" class="mt-1 w-full" tamano="grande">Enviar enlace</x-portal.boton>
         </form>
     @endif
 

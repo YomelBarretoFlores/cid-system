@@ -55,3 +55,18 @@ it('ends an open portal session once the password changes elsewhere', function (
     $this->get(route('estudiante.inicio'))->assertRedirect(route('estudiante.ingresar'));
     $this->assertGuest();
 });
+
+it('links the portal sidebar to the admin panel only for users with the panel permission', function (): void {
+    Permission::findOrCreate(User::ADMIN_PANEL_PERMISSION);
+    $estudiante = User::factory()->create();
+    Persona::factory()->create(['user_id' => $estudiante->id]);
+
+    $this->actingAs($estudiante)->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertDontSee(route('filament.admin.pages.dashboard'))
+        ->assertSee(route('estudiante.salir'));
+
+    $estudiante->givePermissionTo(User::ADMIN_PANEL_PERMISSION);
+
+    $this->get(route('estudiante.inicio'))->assertSee(route('filament.admin.pages.dashboard'));
+});

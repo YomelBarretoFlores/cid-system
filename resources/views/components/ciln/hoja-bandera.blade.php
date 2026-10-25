@@ -1,5 +1,6 @@
 @props(['idioma' => null, 'size' => 28, 'forma' => 'hoja', 'rot' => 0])
 @php
+    $clave = mb_strtolower((string) $idioma);
     $ancho = (int) $size;
     $alto = match ($forma) {
         'circulo' => $ancho,
@@ -11,14 +12,14 @@
         'pill' => round($alto * 0.28).'px',
         default => '100% 0 100% 0 / 100% 0 100% 0',
     };
-    $franjas = match (mb_strtolower((string) $idioma)) {
+    $franjas = match ($clave) {
         'francés' => ['vertical', ['#0055A4', '#EEF1F5', '#EF4135']],
         'italiano' => ['vertical', ['#009246', '#EEF1F5', '#CE2B37']],
         'alemán' => ['horizontal', ['#111111', '#DD0000', '#FFCE00']],
         'inglés' => ['horizontal', ['#B22234', '#FFFFFF', '#B22234', '#FFFFFF', '#B22234', '#FFFFFF', '#B22234']],
         default => null,
     };
-    $bandera = match (mb_strtolower((string) $idioma)) {
+    $bandera = match ($clave) {
         'portugués' => 'brasil',
         'quechua' => 'wiphala',
         default => $franjas === null ? 'neutra' : 'franjas',
@@ -37,7 +38,7 @@
                     <rect x="0" y="{{ $alto / count($franjas[1]) * $indice }}" width="{{ $ancho }}" height="{{ $alto / count($franjas[1]) + 0.5 }}" fill="{{ $color }}" />
                 @endif
             @endforeach
-            @if (mb_strtolower((string) $idioma) === 'inglés')
+            @if ($clave === 'inglés')
                 <rect x="0" y="0" width="{{ $ancho * 0.46 }}" height="{{ $alto * 0.54 }}" fill="#3C3B6E" />
                 @foreach ([[0.1, 0.16], [0.23, 0.16], [0.36, 0.16], [0.1, 0.38], [0.23, 0.38], [0.36, 0.38]] as [$x, $y])
                     <circle cx="{{ $ancho * $x }}" cy="{{ $alto * $y }}" r="{{ max(0.6, $ancho / 56) }}" fill="#FFFFFF" />
