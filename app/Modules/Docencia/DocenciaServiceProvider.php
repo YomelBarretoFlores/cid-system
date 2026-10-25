@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia;
 
+use App\Modules\Docencia\Actions\BuscarDocenteDelGrupo;
 use App\Modules\Docencia\Actions\BuscarDocenteDelUsuario;
+use App\Modules\Docencia\Actions\LeerNotasParcialesDelGrupo;
 use App\Modules\Docencia\Actions\NombrarDocentesDeGrupos;
 use App\Modules\Docencia\Actions\VerificarCargaDelGrupo;
+use App\Modules\Docencia\Contracts\DocenteDelGrupo;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
+use App\Modules\Docencia\Contracts\NotasParcialesDelGrupo;
 use App\Modules\Docencia\Contracts\VerificacionDeCargaDocente;
 use App\Modules\Docencia\Http\Middleware\RequierePerfilDocente;
 use App\Shared\Support\ModuleServiceProvider;
@@ -23,6 +27,8 @@ final class DocenciaServiceProvider extends ModuleServiceProvider
         VerificacionDeCargaDocente::class => VerificarCargaDelGrupo::class,
         DocentesDeGrupos::class => NombrarDocentesDeGrupos::class,
         DocenteDelUsuario::class => BuscarDocenteDelUsuario::class,
+        DocenteDelGrupo::class => BuscarDocenteDelGrupo::class,
+        NotasParcialesDelGrupo::class => LeerNotasParcialesDelGrupo::class,
     ];
 
     protected string $module = 'Docencia';

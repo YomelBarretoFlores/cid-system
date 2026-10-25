@@ -15,6 +15,7 @@ use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Notas\Nota;
 
 final readonly class RegistrarNotasParciales
 {
@@ -68,39 +69,11 @@ final readonly class RegistrarNotasParciales
             }
 
             foreach ($porComponente as $componenteId => $nota) {
-                $valores[] = [$matriculaId, $componenteId, $this->nota($nota, $esquema->notaMaxima)];
+                $valores[] = [$matriculaId, $componenteId, Nota::leer($nota, $esquema->notaMaxima)];
             }
         }
 
         return $valores;
-    }
-
-    private function nota(mixed $valor, string $maxima): ?string
-    {
-        $limite = rtrim(rtrim($maxima, '0'), '.');
-
-        if (! is_string($valor) && ! is_int($valor) && ! is_float($valor) && $valor !== null) {
-            throw new ReglaDeNegocioIncumplida("Una de las notas no es válida: usa un número de 0 a {$limite} con hasta dos decimales.");
-        }
-
-        $texto = str_replace(',', '.', trim((string) $valor));
-
-        if ($texto === '') {
-            return null;
-        }
-
-        if (preg_match('/^\d{1,2}(\.\d{1,2})?\z/', $texto) !== 1 || $this->centesimos($texto) > $this->centesimos($maxima)) {
-            throw new ReglaDeNegocioIncumplida("La nota {$texto} no es válida: usa un número de 0 a {$limite} con hasta dos decimales.");
-        }
-
-        return number_format($this->centesimos($texto) / 100, 2, '.', '');
-    }
-
-    private function centesimos(string $numero): int
-    {
-        [$entero, $decimales] = explode('.', $numero.'.');
-
-        return (int) $entero * 100 + (int) str_pad(substr($decimales, 0, 2), 2, '0');
     }
 
     private function guardar(NotaParcial $registro, ?string $nota, User $usuario): void
