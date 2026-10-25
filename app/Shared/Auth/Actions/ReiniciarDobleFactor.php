@@ -25,12 +25,21 @@ final readonly class ReiniciarDobleFactor
                 'app_authentication_recovery_codes' => null,
                 'remember_token' => Str::random(60),
             ])->save();
-            // The reset may follow a stolen phone, so the account's open sessions end too (production keeps them in the database).
-            DB::table(config()->string('session.table'))->where('user_id', $usuario->id)->delete();
+            $this->cerrarSesiones($usuario->id);
 
             return $usuario->id;
         });
 
         Log::info('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuarioId]);
+    }
+
+    // The reset may follow a stolen phone, so the account's open sessions end too; only database sessions can be found by account.
+    private function cerrarSesiones(int $usuarioId): void
+    {
+        if (config('session.driver') !== 'database') {
+            return;
+        }
+
+        DB::connection(config('session.connection'))->table(config()->string('session.table'))->where('user_id', $usuarioId)->delete();
     }
 }

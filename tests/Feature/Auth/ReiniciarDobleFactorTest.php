@@ -17,6 +17,7 @@ it('clears the second factor of an account that lost its phone and its recovery 
         ['id' => 'sesion-de-otra', 'user_id' => $otra->id, 'payload' => '', 'last_activity' => now()->getTimestamp()],
     ]);
     $recordarAntes = $usuario->remember_token;
+    config(['session.driver' => 'database']);
     Log::spy();
 
     $this->artisan('auth:reiniciar-doble-factor', ['correo' => ' CAJA@ciln.test '])
