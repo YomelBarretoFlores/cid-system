@@ -93,3 +93,10 @@ it('ranks the schedule slots by active enrollments, counting each group once per
         ->and($franjas[0]->ocupacion())->toBe(4.4)
         ->and(app(CalcularDemandaHoraria::class)(new FiltrosDelTablero($this->marzo->id, $this->quechua->id)))->toEqual([new FranjaHoraria('15:00', '18:00', [6], 1, 1, 30)]);
 });
+
+it('groups desertion by a language whose name is only digits', function (): void {
+    $this->quechua->update(['nombre' => '2027']);
+
+    expect(app(CalcularDesercion::class)(new FiltrosDelTablero($this->marzo->id))->porIdioma)
+        ->toEqual([new FilaDeDesercion('2027', 1, 0), new FilaDeDesercion('Inglés', 4, 2)]);
+});

@@ -44,7 +44,7 @@ final readonly class CalcularDesercion
     private function agrupar(Collection $filas, callable $clave, callable $ordenYEtiqueta): array
     {
         return array_values($filas->groupBy($clave)
-            ->map(fn (Collection $grupo, string $valor): array => [...$ordenYEtiqueta($valor), $grupo])
+            ->map(fn (Collection $grupo, int|string $valor): array => [...$ordenYEtiqueta((string) $valor), $grupo])
             ->sortBy(fn (array $grupo): int|string => $grupo[0])
             ->map(fn (array $grupo): FilaDeDesercion => $this->fila($grupo[1], $grupo[2]))
             ->all());
