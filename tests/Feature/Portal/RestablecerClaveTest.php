@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Shared\Auth\Livewire\RestablecerClave;
 use App\Shared\Auth\Livewire\SolicitarRestablecimiento;
 use App\Shared\Auth\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Shared\Auth\Notifications\CorreoDeRestablecimiento;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
@@ -24,7 +24,7 @@ it('emails a reset link in Spanish to a registered address', function (): void {
         ->assertHasNoErrors()
         ->assertSee(AVISO_DE_ENVIO);
 
-    Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $aviso) use ($user): bool {
+    Notification::assertSentTo($user, CorreoDeRestablecimiento::class, function (CorreoDeRestablecimiento $aviso) use ($user): bool {
         $correo = $aviso->toMail($user);
 
         return $correo->subject === 'Restablece tu contraseña del CILN'

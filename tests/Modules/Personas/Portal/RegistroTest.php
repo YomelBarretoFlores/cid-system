@@ -8,7 +8,7 @@ use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Livewire\Registro;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
@@ -75,7 +75,7 @@ it('creates the person and an unverified account, signs it in and asks to verify
         ->and($user->name)->toBe('Rosa Elena Quispe');
 
     $this->assertAuthenticatedAs($user);
-    Notification::assertSentTo($user, VerifyEmail::class);
+    Notification::assertSentTo($user, CorreoDeVerificacion::class);
 });
 
 it('links an existing CILN record when its email matches and keeps its data', function (): void {

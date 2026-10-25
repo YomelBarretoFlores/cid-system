@@ -12,8 +12,8 @@ use App\Shared\Auth\Livewire\RestablecerClave;
 use App\Shared\Auth\Livewire\SolicitarRestablecimiento;
 use App\Shared\Auth\Livewire\VerificarCorreo;
 use App\Shared\Auth\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Shared\Auth\Notifications\CorreoDeRestablecimiento;
+use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
@@ -74,7 +74,7 @@ it('links a record on file with the same email and keeps its link type', functio
     expect($persona->refresh()->user_id)->toBe(User::query()->sole()->id)
         ->and($persona->tipo_vinculo)->toBe(TipoVinculo::EstudianteUnasam)
         ->and(Persona::query()->count())->toBe(1);
-    Notification::assertSentTo(User::query()->sole(), VerifyEmail::class);
+    Notification::assertSentTo(User::query()->sole(), CorreoDeVerificacion::class);
 });
 
 it('requires consent and creates nothing without it', function (): void {
@@ -138,7 +138,7 @@ it('sends at most one verification email per minute', function (): void {
     $componente = Livewire::actingAs($user)->test(VerificarCorreo::class);
     $componente->call('reenviar')->call('reenviar')->assertSet('aviso', 'Espera un minuto antes de pedir otro enlace.');
 
-    Notification::assertSentToTimes($user, VerifyEmail::class, 1);
+    Notification::assertSentToTimes($user, CorreoDeVerificacion::class, 1);
 });
 
 it('refuses an invalid or expired reset token and keeps the password', function (): void {
@@ -156,7 +156,7 @@ it('refuses an invalid or expired reset token and keeps the password', function 
         ->call('restablecer')->assertHasErrors('email');
 
     expect(Hash::check('clave-segura1', $user->refresh()->password))->toBeTrue();
-    Notification::assertNotSentTo($user, ResetPassword::class);
+    Notification::assertNotSentTo($user, CorreoDeRestablecimiento::class);
 });
 
 it('resets with a valid token and rotates the remember token', function (): void {

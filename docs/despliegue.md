@@ -22,6 +22,7 @@
 5. `npm ci && npm run build`
 6. `php artisan optimize` (cachea config, rutas, vistas y eventos).
 7. Worker: `php artisan queue:work --tries=3 --timeout=90`, supervisado.
+   Sin el worker se detienen: los correos de verificación de cuenta, de recuperación de contraseña y de cambio de trámite, y la reacción de los trámites cuando Pagos valida, rechaza o anula un pago.
 8. Cron: `* * * * * php /ruta/artisan schedule:run >> /dev/null 2>&1`
 
 ## Variables clave de producción

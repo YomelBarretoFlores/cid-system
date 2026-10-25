@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Shared\Auth\Livewire\VerificarCorreo;
 use App\Shared\Auth\Models\User;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Livewire\Livewire;
@@ -26,8 +26,8 @@ it('resends the verification email in Spanish at most once a minute', function (
     Livewire::test(VerificarCorreo::class)->call('reenviar')->assertSee('Te enviamos un nuevo enlace de verificación.');
     Livewire::test(VerificarCorreo::class)->call('reenviar')->assertSee('Espera un minuto antes de pedir otro enlace.');
 
-    Notification::assertSentToTimes($user, VerifyEmail::class, 1);
-    Notification::assertSentTo($user, VerifyEmail::class, fn (VerifyEmail $aviso): bool => $aviso->toMail($user)->subject === 'Verifica tu correo del CILN');
+    Notification::assertSentToTimes($user, CorreoDeVerificacion::class, 1);
+    Notification::assertSentTo($user, CorreoDeVerificacion::class, fn (CorreoDeVerificacion $aviso): bool => $aviso->toMail($user)->subject === 'Verifica tu correo del CILN');
 });
 
 it('verifies the email from the signed link', function (): void {

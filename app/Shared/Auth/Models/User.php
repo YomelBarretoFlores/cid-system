@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Shared\Auth\Models;
 
+use App\Shared\Auth\Notifications\CorreoDeRestablecimiento;
+use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -31,6 +33,19 @@ final class User extends Authenticatable implements FilamentUser, MustVerifyEmai
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->can(self::ADMIN_PANEL_PERMISSION);
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new CorreoDeVerificacion);
+    }
+
+    /**
+     * @param  string  $token
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new CorreoDeRestablecimiento($token));
     }
 
     /**
