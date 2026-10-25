@@ -26,6 +26,11 @@
     @apply h-auto justify-start px-6 pt-[26px] pb-2;
 }
 
+.fi-sidebar-close-collapse-sidebar-btn,
+.fi-sidebar-open-collapse-sidebar-btn {
+    @apply lg:hidden!;
+}
+
 .fi-sidebar-nav {
     @apply gap-y-5 px-[18px] py-4;
 }
