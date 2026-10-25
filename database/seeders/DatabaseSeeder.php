@@ -24,6 +24,8 @@ use App\Modules\Personas\Database\Seeders\PersonasDemoSeeder;
 use App\Modules\Personas\Enums\PermisoPersona;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Tramites\Database\Seeders\TramitesDemoSeeder;
+use App\Modules\Tramites\Enums\PermisoTramite;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
@@ -38,7 +40,7 @@ final class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Administrador Demo',
             'email' => 'admin@ciln.test',
-        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores()]);
+        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores()]);
 
         User::factory()->create([
             'name' => 'Caja Demo',
@@ -55,6 +57,7 @@ final class DatabaseSeeder extends Seeder
         $this->estudianteDelPortal();
         $this->call(DocenciaDemoSeeder::class);
         $this->call(CertificacionDemoSeeder::class);
+        $this->call(TramitesDemoSeeder::class);
     }
 
     // A verified student enrolled in English I, withdrawn from Quechua I, and with an unused validated enrollment payment to try next period's enrollment.

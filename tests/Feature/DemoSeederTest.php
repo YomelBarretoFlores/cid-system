@@ -25,6 +25,10 @@ use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Enums\PermisoPersona;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Tramites\Enums\PermisoTramite;
+use App\Modules\Tramites\Models\Movimiento;
+use App\Modules\Tramites\Models\Notificacion;
+use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DatabaseSeeder;
@@ -61,7 +65,7 @@ it('seeds a demo administrator with every payment permission and a cashier who c
     $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
     $caja = User::query()->where('email', 'caja@ciln.test')->firstOrFail();
 
-    expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(collect(['admin-panel.access', ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores()])->sort()->values()->all())
+    expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(collect(['admin-panel.access', ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores()])->sort()->values()->all())
         ->and($caja->getPermissionNames()->sort()->values()->all())
         ->toBe(collect(['admin-panel.access', PermisoPago::Registrar->value, PermisoPago::Validar->value, PermisoPago::Ver->value, ...PermisoPersona::valores(), PermisoMatricula::Ver->value])->sort()->values()->all());
 });
@@ -71,7 +75,7 @@ it('seeds a verified portal student with an active enrollment and an unused vali
 
     $estudiante = User::query()->where('email', 'estudiante@ciln.test')->sole();
     $persona = Persona::query()->where('user_id', $estudiante->id)->sole();
-    $usados = Matricula::query()->where('persona_id', $persona->id)->pluck('pago_id');
+    $usados = Matricula::query()->where('persona_id', $persona->id)->pluck('pago_id')->merge(Tramite::query()->whereNotNull('pago_id')->pluck('pago_id'));
 
     expect($estudiante->hasVerifiedEmail())->toBeTrue()
         ->and($estudiante->can(User::ADMIN_PANEL_PERMISSION))->toBeFalse()
@@ -111,16 +115,36 @@ it('closes the final grade sheets of the previous month, one of them reopened fo
         ->and(Periodo::query()->where('estado', 'en_curso')->sole()->actas_inicio)->not->toBeNull();
 });
 
-it('issues level certificates to the English cohort, its grade records with one voided, and the portal student an enrollment record', function (): void {
+it('issues level certificates to the English cohort, its grade records with one voided (and one more through a trámite), and the portal student an enrollment record', function (): void {
     $this->seed(DatabaseSeeder::class);
 
     $documentos = Documento::query()->get();
 
     expect($documentos->where('tipo', TipoDocumento::CertificadoNivel)->count())->toBeGreaterThan(0)
         ->and($documentos->where('tipo', TipoDocumento::CertificadoNivel)->every(fn (Documento $documento): bool => $documento->horas_lectivas === 240 && $documento->nota_final >= '11.00'))->toBeTrue()
-        ->and($documentos->where('tipo', TipoDocumento::ConstanciaNotas)->count())->toBe(5)
+        ->and($documentos->where('tipo', TipoDocumento::ConstanciaNotas)->count())->toBe(6)
         ->and($documentos->filter(fn (Documento $documento): bool => ! $documento->estaVigente())->count())->toBe(1)
         ->and($documentos->where('tipo', TipoDocumento::ConstanciaMatricula)->pluck('estudiante_nombre')->all())->toBe(['Demo, Estudiante']);
+});
+
+it('seeds trámites in every state through the real flow, each change e-mailed and logged', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $tramites = Tramite::query()->orderBy('id')->get();
+    $estudiante = Persona::query()->whereRelation('user', 'email', 'estudiante@ciln.test')->value('id');
+
+    expect($tramites->map(fn (Tramite $tramite): string => "{$tramite->tipo_nombre}: {$tramite->estado->value} {$tramite->avance()}")->all())->toBe([
+        'Constancia de matrícula: en_proceso 66',
+        'Traslado de grupo: pendiente_pago 0',
+        'Constancia de notas: finalizado 100',
+        'Constancia de notas: observado 33',
+        'Constancia de notas: observado 0',
+    ])
+        ->and($tramites->take(2)->every(fn (Tramite $tramite): bool => $tramite->persona_id === $estudiante))->toBeTrue()
+        ->and($tramites[2]->documento_id)->not->toBeNull()
+        // The three requests that took a payment at once send one e-mail for both steps.
+        ->and(Notificacion::query()->count())->toBe(Movimiento::query()->count() - 3)
+        ->and(Notificacion::query()->where('estado', '!=', 'enviado')->exists())->toBeFalse();
 });
 
 it('refuses to seed demo data in production even when forced', function (): void {

@@ -33,6 +33,8 @@ final class TipoTramiteResource extends Resource
 
     protected static bool $hasTitleCaseModelLabel = false;
 
+    protected static ?string $slug = 'tipos-de-tramite';
+
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

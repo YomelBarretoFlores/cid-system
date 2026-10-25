@@ -97,4 +97,4 @@ Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y c
 | Reglas | Bloqueo hasta que Pagos valide la tasa; barra de progreso; correo en cada cambio de estado (log de notificaciones) |
 | Fuera de alcance | Asistente conversacional (chatbot) |
 
-> El Anexo tiene una inconsistencia: las etapas de la barra de progreso (Solicitud recibida → Pago validado → En firma de Dirección → Listo) no coinciden con los estados (Pendiente de Pago, En Proceso, Observado, Finalizado). Ver [`decisiones-pendientes.md`](decisiones-pendientes.md).
+> El Anexo tiene una inconsistencia: las etapas de la barra de progreso (Solicitud recibida → Pago validado → En firma de Dirección → Listo) no coinciden con los estados (Pendiente de Pago, En Proceso, Observado, Finalizado). Supuesto aplicado: los estados son fijos y se derivan del avance; las etapas, con su porcentaje, se configuran por tipo de trámite en el panel («Tipos de trámite»). Ver [`decisiones-pendientes.md`](decisiones-pendientes.md) (#6, #74–#79).

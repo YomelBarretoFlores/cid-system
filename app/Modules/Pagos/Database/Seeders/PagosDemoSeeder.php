@@ -31,6 +31,9 @@ final class PagosDemoSeeder extends Seeder
         'MAT-01' => ['Derecho de matrícula', TipoConcepto::Matricula, ['estudiante_unasam' => '50.00', 'docente_administrativo_unasam' => '60.00', 'publico_general' => '80.00']],
         'PEN-01' => ['Pensión mensual', TipoConcepto::Pension, ['estudiante_unasam' => '120.00', 'docente_administrativo_unasam' => '140.00', 'publico_general' => '180.00']],
         'EXC-01' => ['Examen de clasificación', TipoConcepto::ExamenClasificacion, ['estudiante_unasam' => '30.00', 'docente_administrativo_unasam' => '30.00', 'publico_general' => '40.00']],
+        'CON-01' => ['Constancia', TipoConcepto::Constancia, ['estudiante_unasam' => '20.00', 'docente_administrativo_unasam' => '20.00', 'publico_general' => '25.00']],
+        'CER-01' => ['Certificado de nivel', TipoConcepto::Certificado, ['estudiante_unasam' => '60.00', 'docente_administrativo_unasam' => '70.00', 'publico_general' => '90.00']],
+        'TRA-01' => ['Trámite académico', TipoConcepto::Tramite, ['estudiante_unasam' => '15.00', 'docente_administrativo_unasam' => '15.00', 'publico_general' => '20.00']],
     ];
 
     private const array MEDIOS = [MedioPago::BancoNacion, MedioPago::PagaloPe, MedioPago::CajaPresencial];

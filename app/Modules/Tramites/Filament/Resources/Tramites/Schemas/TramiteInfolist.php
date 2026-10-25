@@ -41,12 +41,12 @@ final class TramiteInfolist
                 Section::make('Solicitud')
                     ->columns(3)
                     ->schema([
-                        TextEntry::make('datos.matricula')->label('Matrícula')->placeholder('—'),
-                        TextEntry::make('datos.idioma')->label('Idioma')->placeholder('—'),
-                        TextEntry::make('datos.nivel')->label('Nivel')->placeholder('—')
+                        TextEntry::make('datos.matricula')->label('Matrícula')->visible(fn (Tramite $record): bool => isset($record->datos['matricula'])),
+                        TextEntry::make('datos.idioma')->label('Idioma')->visible(fn (Tramite $record): bool => isset($record->datos['idioma'])),
+                        TextEntry::make('datos.nivel')->label('Nivel')->visible(fn (Tramite $record): bool => isset($record->datos['nivel']))
                             ->formatStateUsing(fn (string $state): string => NivelCurricular::tryFrom($state)?->etiqueta() ?? $state),
-                        TextEntry::make('datos.motivo')->label('Motivo')->placeholder('—')->columnSpanFull(),
-                        TextEntry::make('datos.comentario')->label('Comentario del estudiante')->placeholder('—')->columnSpanFull(),
+                        TextEntry::make('datos.motivo')->label('Motivo')->visible(fn (Tramite $record): bool => isset($record->datos['motivo']))->columnSpanFull(),
+                        TextEntry::make('datos.comentario')->label('Comentario del estudiante')->visible(fn (Tramite $record): bool => isset($record->datos['comentario']))->columnSpanFull(),
                     ]),
                 Section::make('Tasa')
                     ->columns(4)
