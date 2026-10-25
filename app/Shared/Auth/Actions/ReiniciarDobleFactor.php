@@ -7,7 +7,9 @@ namespace App\Shared\Auth\Actions;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 // For staff who lost both the phone and the recovery codes; the panel asks them to set it up again.
 final readonly class ReiniciarDobleFactor
@@ -18,7 +20,13 @@ final readonly class ReiniciarDobleFactor
             $usuario = User::query()->where('email', mb_strtolower(trim($email)))->lockForUpdate()->first()
                 ?? throw new ReglaDeNegocioIncumplida('No hay una cuenta con ese correo.');
 
-            $usuario->forceFill(['app_authentication_secret' => null, 'app_authentication_recovery_codes' => null])->save();
+            $usuario->forceFill([
+                'app_authentication_secret' => null,
+                'app_authentication_recovery_codes' => null,
+                'remember_token' => Str::random(60),
+            ])->save();
+            // The reset may follow a stolen phone, so the account's open sessions end too (production keeps them in the database).
+            DB::table(config()->string('session.table'))->where('user_id', $usuario->id)->delete();
 
             return $usuario->id;
         });
