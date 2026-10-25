@@ -9,10 +9,12 @@ use App\Shared\Auth\Enums\EntradaDelPortal;
 use App\Shared\Auth\Http\Middleware\RequiereCorreoVerificado;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\DestinoTrasIngreso;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -46,4 +48,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request): bool => $request->is('api/*') || $request->expectsJson(),
         );
+        // On the API a business refusal is the client's to fix: 422 with the same message the screens show.
+        $exceptions->render(fn (ReglaDeNegocioIncumplida $error, Request $request): ?JsonResponse => $request->is('api/*')
+            ? response()->json(['message' => $error->getMessage()], 422)
+            : null);
     })->create();
