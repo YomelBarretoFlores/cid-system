@@ -44,6 +44,14 @@ it('admits final grade sheets only on the days of the grade calendar', function 
     'the day after' => ['2027-04-06 00:00', false],
 ]);
 
+it('reads the grade calendar in Lima time whatever the time zone of the moment', function (string $momento, bool $admite): void {
+    expect(app(CursoDelGrupo::class)($this->grupo->id)->admiteActasEl(CarbonImmutable::parse($momento, 'UTC')))->toBe($admite);
+})->with([
+    'late on the eve in Lima, already the first day in UTC' => ['2027-03-29 04:59', false],
+    'the first day in Lima' => ['2027-03-29 05:00', true],
+    'late on the last day in Lima, already the next day in UTC' => ['2027-04-06 04:59', true],
+]);
+
 it('admits no final grade sheet when the period has no grade calendar', function (): void {
     Periodo::query()->whereKey($this->grupo->periodo_id)->update(['actas_inicio' => null, 'actas_fin' => null]);
 

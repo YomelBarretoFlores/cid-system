@@ -28,9 +28,9 @@ Assumptions (recorded in `docs/decisiones-pendientes.md`, to confirm with the CI
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S2, D1 | inline | pending | |
-| T2 | S5 | inline | pending | |
-| T3 | S2–S6, D2–D7 | inline | pending | |
+| T1 | S2, D1 | inline | done | c185d1d |
+| T2 | S5 | inline | done | 5b89207 |
+| T3 | S2–S6, D2–D7 | inline | done | see L6 |
 | T4 | S2, S3, S8, D2, D5 | inline | pending | |
 | T5 | S2, S3, S8, D5, D7 | inline | pending | |
 | T6 | all | inline | pending | |
@@ -48,3 +48,7 @@ Route evidence: each unit builds on the previous one (same contracts and tables)
 
 - L1 (2026-10-24, user): "Sobre los dos detalles ya lo podrás pulir más adelante. Bien, entonces sigamos con el M4 actas finales, constancias, certificados QR"
 - L2: Mapping found no grade-calendar field on periods (D1), no partial-grades contract in Docencia (T2), `EstudiantesDelGrupo` returns only active enrollments (D4), `endroid/qr-code` 6.1 installed and unused (for M4.2), PDFs through spatie/laravel-pdf with DOMPDF and table layouts (ADR 0005).
+- L3: T1 done (c185d1d): `aca_periodos.actas_inicio/actas_fin` with `aca_periodos_actas_check`, Periodo form fields, contract `CursoDelGrupo` → `DatosDelCurso::admiteActasEl`. RED observed (column missing), GREEN 209/209 Academico. Assessed medium, under budget.
+- L4: T2 done (5b89207): `App\Shared\Support\Notas\Nota` (parser moved from `RegistrarNotasParciales`, pre-acta tests unchanged and green), contracts `NotasParcialesDelGrupo` and `DocenteDelGrupo`. RED observed (class missing), GREEN 210/210 Docencia + unit.
+- L5: Slice T1–T2 escalated (item 1, migration on `aca_periodos`) and reviewed with risk + reliability lenses: approved and acknowledged (lineage review-7a9e8ebd0dba5f59). Advisories: `BuscarDocenteDelGrupo` uses `first()` without order, a non-issue because `doc_cargas_academicas.grupo_id` is unique; the calendar had no test for a moment in another time zone, added (UTC moments around Lima midnight).
+- L6: T3 written implementation-first; tests then pinned it (37 Certificacion + 2 race tests), and a mutation that drops the half-up rounding fails the average test. The DB triggers reject grade changes, inserts or deletes on a closed acta, data changes on a closed acta and deleting an acta.
