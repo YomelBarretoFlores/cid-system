@@ -8,7 +8,7 @@ use Closure;
 use Filament\Auth\MultiFactor\Http\Middleware\EnsureMultiFactorAuthenticationIsEnabled;
 use Illuminate\Http\Request;
 
-// Filament fixes "required" when routes are registered; reading the setting here lets the DSTI switch it on without code (after config:cache, rebuild the cache).
+// Filament fixes "required" when routes are registered; reading the setting here lets the DSTI switch it on without code (if the config is cached, run config:cache again after changing it).
 final readonly class ExigirDobleFactorSiEsObligatorio
 {
     public function __construct(private EnsureMultiFactorAuthenticationIsEnabled $exigir) {}

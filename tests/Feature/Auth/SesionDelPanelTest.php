@@ -66,7 +66,7 @@ it('refuses a session that was not opened by the panel sign-in and asks to sign 
     $this->be($this->personal);
     Log::spy();
 
-    assertSalidaDelPanel($this->get('/admin'), 'Vuelve a ingresar al panel desde su página de acceso.');
+    assertSalidaDelPanel($this->get('/admin'), ProtegerSesionDelPanel::AVISO_SIN_INGRESO);
     Log::shouldHaveReceived('info')->with('Se cerró una sesión del panel.', ['usuario_id' => $this->personal->id, 'causa' => 'sin_ingreso_del_panel']);
 });
 
@@ -77,7 +77,7 @@ it('sends staff who sign in on the portal to the panel sign-in', function (): vo
         ->call('ingresar')
         ->assertRedirect(route('filament.admin.pages.dashboard'));
 
-    assertSalidaDelPanel($this->get('/admin'), 'Vuelve a ingresar al panel desde su página de acceso.');
+    assertSalidaDelPanel($this->get('/admin'), ProtegerSesionDelPanel::AVISO_SIN_INGRESO);
 });
 
 it('closes the panel session after 30 minutes without activity, and each visit restarts the count', function (): void {
@@ -92,7 +92,7 @@ it('closes the panel session after 30 minutes without activity, and each visit r
 
     $this->travel(31)->minutes();
     Log::spy();
-    assertSalidaDelPanel($this->get('/admin'), 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
+    assertSalidaDelPanel($this->get('/admin'), ProtegerSesionDelPanel::AVISO_INACTIVIDAD);
     Log::shouldHaveReceived('info')->with('Se cerró una sesión del panel.', ['usuario_id' => $this->personal->id, 'causa' => 'inactividad']);
 });
 
@@ -102,7 +102,7 @@ it('refuses the panel mark of another account signed in earlier in the same brow
 
     $respuesta = $this->withSession([ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD => ProtegerSesionDelPanel::marca($otraCuenta->id)])->get('/admin');
 
-    assertSalidaDelPanel($respuesta, 'Vuelve a ingresar al panel desde su página de acceso.');
+    assertSalidaDelPanel($respuesta, ProtegerSesionDelPanel::AVISO_SIN_INGRESO);
 });
 
 it('counts panel actions as activity and closes the session on an action after the limit', function (): void {
@@ -115,7 +115,7 @@ it('counts panel actions as activity and closes the session on an action after t
     $this->get('/admin')->assertOk();
 
     $this->travel(31)->minutes();
-    assertSalidaDelPanel(accionDelPerfil($pagina), 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
+    assertSalidaDelPanel(accionDelPerfil($pagina), ProtegerSesionDelPanel::AVISO_INACTIVIDAD);
 });
 
 it('refuses a panel action from a session without the panel mark', function (): void {
@@ -123,14 +123,14 @@ it('refuses a panel action from a session without the panel mark', function (): 
     $pagina = $this->get('/admin/profile')->assertOk();
     session()->forget(ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD);
 
-    assertSalidaDelPanel(accionDelPerfil($pagina), 'Vuelve a ingresar al panel desde su página de acceso.');
+    assertSalidaDelPanel(accionDelPerfil($pagina), ProtegerSesionDelPanel::AVISO_SIN_INGRESO);
 });
 
 it('refuses a session restored by a "remember me" cookie', function (): void {
     $cuenta = $this->personal->fresh();
     $cookie = $cuenta->id.'|'.$cuenta->remember_token.'|'.$cuenta->password;
 
-    assertSalidaDelPanel($this->withCookie(auth()->guard('web')->getRecallerName(), $cookie)->get('/admin'), 'Vuelve a ingresar al panel desde su página de acceso.');
+    assertSalidaDelPanel($this->withCookie(auth()->guard('web')->getRecallerName(), $cookie)->get('/admin'), ProtegerSesionDelPanel::AVISO_SIN_INGRESO);
 });
 
 it('takes the inactivity limit from the configuration, never below one minute', function (): void {
@@ -141,7 +141,7 @@ it('takes the inactivity limit from the configuration, never below one minute', 
     $this->get('/admin')->assertOk();
 
     $this->travel(61)->seconds();
-    assertSalidaDelPanel($this->get('/admin'), 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
+    assertSalidaDelPanel($this->get('/admin'), ProtegerSesionDelPanel::AVISO_INACTIVIDAD);
 });
 
 it('takes the inactivity limit from the configuration', function (): void {
@@ -150,5 +150,5 @@ it('takes the inactivity limit from the configuration', function (): void {
 
     $this->travel(6)->minutes();
 
-    assertSalidaDelPanel($this->get('/admin/profile'), 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
+    assertSalidaDelPanel($this->get('/admin/profile'), ProtegerSesionDelPanel::AVISO_INACTIVIDAD);
 });

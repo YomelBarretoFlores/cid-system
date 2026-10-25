@@ -16,6 +16,10 @@ final class ProtegerSesionDelPanel
 {
     public const string ULTIMA_ACTIVIDAD = 'panel.ultima_actividad';
 
+    public const string AVISO_SIN_INGRESO = 'Vuelve a ingresar al panel desde su página de acceso.';
+
+    public const string AVISO_INACTIVIDAD = 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.';
+
     /**
      * @return array{usuario: int|string, instante: int}
      */
@@ -42,11 +46,11 @@ final class ProtegerSesionDelPanel
 
         // The mark names its account: a later sign-in of another account in the same browser starts unmarked.
         if (! is_array($marca) || ($marca['usuario'] ?? null) !== Filament::auth()->id() || ! is_int($marca['instante'] ?? null)) {
-            return $this->cerrar($request, 'sin_ingreso_del_panel', 'Vuelve a ingresar al panel desde su página de acceso.');
+            return $this->cerrar($request, 'sin_ingreso_del_panel', self::AVISO_SIN_INGRESO);
         }
 
         if (now()->getTimestamp() - $marca['instante'] > max(1, config()->integer('session.panel_lifetime')) * 60) {
-            return $this->cerrar($request, 'inactividad', 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
+            return $this->cerrar($request, 'inactividad', self::AVISO_INACTIVIDAD);
         }
 
         self::registrarActividad();
