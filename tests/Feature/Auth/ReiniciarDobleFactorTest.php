@@ -30,7 +30,25 @@ it('clears the second factor of an account that lost its phone and its recovery 
         ->remember_token->not->toBe($recordarAntes)
         ->and(DB::table('sessions')->pluck('id')->all())->toBe(['sesion-de-otra']);
 
-    Log::shouldHaveReceived('info')->once()->with('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuario->id]);
+    Log::shouldHaveReceived('info')->once()->with('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuario->id, 'sesiones_cerradas' => true]);
+});
+
+it('still clears the second factor and warns when sessions are not stored in the database', function (): void {
+    config(['session.driver' => 'file']);
+    $usuario = User::factory()->create(['email' => 'caja@ciln.test']);
+    $usuario->saveAppAuthenticationSecret('SECRETO');
+    DB::table('sessions')->insert(['id' => 'sesion-de-caja', 'user_id' => $usuario->id, 'payload' => '', 'last_activity' => now()->getTimestamp()]);
+    $recordarAntes = $usuario->remember_token;
+
+    $this->artisan('auth:reiniciar-doble-factor', ['correo' => 'caja@ciln.test'])
+        ->expectsOutput('Se quitó el doble factor de la cuenta. Deberá configurarlo de nuevo al ingresar al panel.')
+        ->expectsOutput('Las sesiones abiertas de la cuenta no se cerraron porque no se guardan en la base de datos (SESSION_DRIVER).')
+        ->assertSuccessful();
+
+    expect($usuario->fresh())
+        ->getAppAuthenticationSecret()->toBeNull()
+        ->remember_token->not->toBe($recordarAntes)
+        ->and(DB::table('sessions')->pluck('id')->all())->toBe(['sesion-de-caja']);
 });
 
 it('fails without changing anything when no account has that e-mail', function (): void {

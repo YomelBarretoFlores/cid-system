@@ -19,7 +19,7 @@ Artisan::command('clasificacion:expirar', function (ExpirarSolicitudesDeClasific
 
 Artisan::command('auth:reiniciar-doble-factor {correo}', function (ReiniciarDobleFactor $reiniciar, string $correo): int {
     try {
-        $reiniciar($correo);
+        $sesionesCerradas = $reiniciar($correo);
     } catch (ReglaDeNegocioIncumplida $error) {
         $this->error($error->getMessage());
 
@@ -27,6 +27,10 @@ Artisan::command('auth:reiniciar-doble-factor {correo}', function (ReiniciarDobl
     }
 
     $this->info('Se quitó el doble factor de la cuenta. Deberá configurarlo de nuevo al ingresar al panel.');
+
+    if (! $sesionesCerradas) {
+        $this->warn('Las sesiones abiertas de la cuenta no se cerraron porque no se guardan en la base de datos (SESSION_DRIVER).');
+    }
 
     return 0;
 })->purpose('Clear the authenticator app of an account that lost its phone and its recovery codes');

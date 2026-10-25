@@ -14,7 +14,8 @@ use Illuminate\Support\Str;
 // For staff who lost both the phone and the recovery codes; the panel asks them to set it up again.
 final readonly class ReiniciarDobleFactor
 {
-    public function __invoke(string $email): void
+    // Returns whether the account's open sessions were closed too.
+    public function __invoke(string $email): bool
     {
         $usuarioId = Transaccion::ejecutar(function () use ($email): int {
             $usuario = User::query()->where('email', mb_strtolower(trim($email)))->lockForUpdate()->first()
@@ -25,21 +26,25 @@ final readonly class ReiniciarDobleFactor
                 'app_authentication_recovery_codes' => null,
                 'remember_token' => Str::random(60),
             ])->save();
-            $this->cerrarSesiones($usuario->id);
 
             return $usuario->id;
         });
 
-        Log::info('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuarioId]);
+        $sesionesCerradas = $this->cerrarSesiones($usuarioId);
+        Log::info('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuarioId, 'sesiones_cerradas' => $sesionesCerradas]);
+
+        return $sesionesCerradas;
     }
 
     // The reset may follow a stolen phone, so the account's open sessions end too; only database sessions can be found by account.
-    private function cerrarSesiones(int $usuarioId): void
+    private function cerrarSesiones(int $usuarioId): bool
     {
         if (config('session.driver') !== 'database') {
-            return;
+            return false;
         }
 
         DB::connection(config('session.connection'))->table(config()->string('session.table'))->where('user_id', $usuarioId)->delete();
+
+        return true;
     }
 }
