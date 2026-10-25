@@ -65,6 +65,9 @@ final class TramiteInfolist
                     ]),
                 Section::make('Historial')
                     ->schema([ViewEntry::make('movimientos')->hiddenLabel()->view('tramites::filament.historial-del-tramite')]),
+                Section::make('Correos enviados')
+                    ->description('Un correo por cada cambio de estado o de etapa, con su estado de entrega.')
+                    ->schema([ViewEntry::make('notificaciones')->hiddenLabel()->view('tramites::filament.notificaciones-del-tramite')]),
             ]);
     }
 

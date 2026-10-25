@@ -88,6 +88,7 @@ return new class extends Migration
         Schema::create('tra_notificaciones', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('tramite_id')->constrained('tra_tramites')->restrictOnDelete();
+            $table->foreignId('movimiento_id')->unique()->constrained('tra_movimientos')->restrictOnDelete();
             $table->string('destinatario', 255);
             $table->string('asunto', 200);
             $table->enum('estado', ['pendiente', 'enviado', 'fallido'])->default('pendiente');

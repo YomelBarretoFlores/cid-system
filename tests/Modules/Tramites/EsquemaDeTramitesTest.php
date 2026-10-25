@@ -66,7 +66,8 @@ it('keeps the request of a trámite fixed, a finished one closed and nothing del
         DB::table('tra_movimientos')->where('id', $movimiento->id)->update(['comentario' => 'otro']);
     }, 'el historial de trámites no se modifica'],
     'deleting a notification' => [function (Tramite $tramite): void {
-        $notificacion = Notificacion::query()->create(['tramite_id' => $tramite->id, 'destinatario' => 'ana@correo.test', 'asunto' => 'Tu trámite cambió']);
+        $movimiento = Movimiento::query()->create(['tramite_id' => $tramite->id, 'estado' => EstadoTramite::EnProceso, 'etapa' => 0, 'etapa_nombre' => 'Solicitud recibida']);
+        $notificacion = Notificacion::query()->create(['tramite_id' => $tramite->id, 'movimiento_id' => $movimiento->id, 'destinatario' => 'ana@correo.test', 'asunto' => 'Tu trámite cambió']);
         DB::table('tra_notificaciones')->where('id', $notificacion->id)->delete();
     }, 'el historial de trámites no se modifica'],
     'deleting a trámite type' => [fn (Tramite $tramite) => DB::table('tra_tipos_tramite')->where('id', $tramite->tipo_tramite_id)->delete(), 'el historial de trámites no se modifica'],

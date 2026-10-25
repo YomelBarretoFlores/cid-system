@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable $created_at
  */
 #[Table('tra_notificaciones')]
-#[Fillable(['tramite_id', 'destinatario', 'asunto', 'estado', 'intentos', 'enviado_en', 'error'])]
+#[Fillable(['tramite_id', 'movimiento_id', 'destinatario', 'asunto', 'estado', 'intentos', 'enviado_en', 'error'])]
 final class Notificacion extends Model
 {
     /**
