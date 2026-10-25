@@ -25,6 +25,7 @@ use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Enums\PermisoPersona;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Tablero\Enums\PermisoTablero;
 use App\Modules\Tramites\Enums\PermisoTramite;
 use App\Modules\Tramites\Models\Movimiento;
 use App\Modules\Tramites\Models\Notificacion;
@@ -65,7 +66,7 @@ it('seeds a demo administrator with every payment permission and a cashier who c
     $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
     $caja = User::query()->where('email', 'caja@ciln.test')->firstOrFail();
 
-    expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(collect(['admin-panel.access', ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores()])->sort()->values()->all())
+    expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(collect(['admin-panel.access', ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores(), ...PermisoTablero::valores()])->sort()->values()->all())
         ->and($caja->getPermissionNames()->sort()->values()->all())
         ->toBe(collect(['admin-panel.access', PermisoPago::Registrar->value, PermisoPago::Validar->value, PermisoPago::Ver->value, ...PermisoPersona::valores(), PermisoMatricula::Ver->value])->sort()->values()->all());
 });

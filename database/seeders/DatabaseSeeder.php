@@ -24,6 +24,7 @@ use App\Modules\Personas\Database\Seeders\PersonasDemoSeeder;
 use App\Modules\Personas\Enums\PermisoPersona;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Tablero\Enums\PermisoTablero;
 use App\Modules\Tramites\Database\Seeders\TramitesDemoSeeder;
 use App\Modules\Tramites\Enums\PermisoTramite;
 use App\Shared\Auth\Models\User;
@@ -40,7 +41,7 @@ final class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Administrador Demo',
             'email' => 'admin@ciln.test',
-        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores()]);
+        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores(), ...PermisoTablero::valores()]);
 
         User::factory()->create([
             'name' => 'Caja Demo',
