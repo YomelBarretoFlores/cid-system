@@ -181,6 +181,52 @@
     @apply rounded-tarjeta shadow-none ring-0;
 }
 
+.fi-dropdown-list-item {
+    @apply rounded-[10px] px-2.5 py-[9px] text-[14.5px];
+
+    &:not(.fi-disabled):not([disabled]) {
+        @apply hover:bg-acento-claro focus-visible:bg-acento-claro;
+
+        &.fi-selected {
+            @apply bg-fila-hover font-semibold;
+        }
+    }
+}
+
+.fi-select-input-search-ctn input {
+    @apply rounded-[10px] bg-lienzo;
+}
+
+.fi-fo-date-time-picker {
+    & .fi-fo-date-time-picker-panel {
+        @apply w-[300px] rounded-[18px] p-3.5 shadow-dropdown ring-0;
+    }
+
+    & .fi-fo-date-time-picker-month-select {
+        @apply text-[15px] font-semibold;
+    }
+
+    & .fi-fo-date-time-picker-calendar-header-day {
+        @apply font-normal text-apagado;
+    }
+
+    & .fi-fo-date-time-picker-calendar .fi-fo-date-time-picker-calendar-day {
+        @apply h-9 rounded-[10px] leading-9;
+
+        &:not(.fi-disabled):is(:hover, :focus-visible) {
+            @apply bg-acento-claro;
+        }
+
+        &.fi-selected {
+            @apply bg-tinta font-semibold text-white;
+        }
+
+        &.fi-fo-date-time-picker-calendar-day-today:not(.fi-selected):not(.fi-disabled) {
+            @apply font-semibold text-tinta shadow-[inset_0_0_0_1.5px_var(--color-oro-400)];
+        }
+    }
+}
+
 @utility tabla-reporte {
     width: 100%;
     font-size: 0.875rem;

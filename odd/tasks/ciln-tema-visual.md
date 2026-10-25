@@ -11,6 +11,10 @@ Branch: `feat/tema-visual` (from `main` c634ae1) · Delivery: one commit per uni
 - S4 (handoff README, Fidelity): "Alta fidelidad (hifi). Colores, tipografía, espaciado, radios e interacciones son finales. Recrear con precisión; en Filament, aplicar vía tema personalizado (`->viteTheme()`), `->colors()`, `->font('Figtree')` y vistas/estilos de componentes."
 - S5 (handoff README, About): "No son código de producción para copiar. La tarea es recrear estos diseños en el entorno existente del repositorio ... Toda regla de negocio ya vive en las Actions; el diseño solo cambia la presentación."
 - S6 (agreed scope): base theme now — Filament theme, CILN colors shared with the portals, typography, logo and favicon, global search and user menu in the sidebar, empty states, portal screens restyled; the full dashboard (M5 metrics) waits for M5, the public page for M6.
+- S7 (user, 2026-10-24): "como puedes ver en las imágenes, hay diferencias, los selects, calendarios, etc son los nativos. Además, no veo que por ejemplo en donde está el logo como fondo en alguna card no lo está en lo que estabas haciendo." / "Por ejemplo en reporte de recaudación, en total recaudado de fondo está el logo, también que las cards se organizan de diferente manera."
+- S8 (agreed plan): custom selector and calendar in the portals and `native(false)` in the panel; collection report with the design layout; compact schedule; student home with "siguiente paso", "Tu semana" and "Mis idiomas" (no Trámites); richer demo seeder.
+- S9 (user): "llena de datos, pero solo en los flujos que ya completamos o cerramos. Luego cuando sigamos con la implementación de los flujos pues iremos agregando datos y se podrá visualizar."
+- S10 (user): "es responsivo todos los paneles? Además, el el sidebar sea colapsable."
 
 Assumptions:
 - D1: One source of truth for design tokens (`resources/css/ciln/tokens.css`, Tailwind 4 `@theme`) imported by the portal stylesheet and the Filament theme; repetition is solved with Blade components (`x-ciln.*` brand pieces, `x-portal.*` controls), not with copied class strings or `@apply` chains.
@@ -27,12 +31,22 @@ Assumptions:
 | T3 | S3-S6 | inline | done | 87ec484 |
 | T4 | S2, S4, S6, D4 | inline | done | 22783be |
 | T5 | all | inline | done | see L7 |
+| T6 | S7, S8 | inline | pending | |
+| T7 | S7, S8 | inline | pending | |
+| T8 | S8 | inline | pending | |
+| T9 | S10 | inline | pending | |
+| T10 | S9 | inline | pending | |
 
 - T1: Foundations: shared tokens, self-hosted Figtree, emblem assets and favicon, `x-ciln.emblema` and `x-ciln.hoja-bandera`. Risk: none.
 - T2: Portal shell (sidebar layout, split auth layout) and the restyled `x-portal.*` controls. Risk: none (navigation conditions unchanged, covered by existing tests).
 - T3: Student, teacher and auth screens restyled on the new components. Risk: none.
 - T4: Filament theme (tokens, colors, font, logo, sidebar search and user menu, custom report pages). Risk: none.
 - T5: Docs, full suite, review.
+- T6: Custom selector and calendar (portal Alpine components; Filament `native(false)` configured once). S7, S8. Risk: none.
+- T7: Collection report with the design layout (three figure cards with the emblem watermark, concept bars, languages with flag leaves, two-line student detail). S7, S8. Risk: none.
+- T8: Compact schedule and student home blocks from existing data (next step, week, languages). S8. Risk: none.
+- T9: Collapsible sidebar in the panel and the portals; responsive check of every panel. S10. Risk: none.
+- T10: Demo seeder with varied synthetic data for the closed flows only (M1-M3). S9. Risk: none (demo data only).
 
 Route evidence: each unit builds on the previous one's tokens and components (no independent parallel units); all inline.
 
@@ -48,3 +62,4 @@ Forecast: about 1,600 authored lines in five commits.
 - L6: T4 inline: `resources/css/filament/admin/theme.css` (imports Filament's theme and the shared tokens; canvas frame, white rounded sidebar, gold active item, group labels, ink pill primary buttons, status badges on the token pairs, inputs with the focus ring, green toggles, rounded sections, tables, modals, dropdowns; `@utility tabla-reporte` for the two custom report views); panel: `viteTheme`, palettes from `App\Shared\Ui\PaletaCiln` (copy of the tokens, `tests/Unit/PaletaCilnTest.php` fails on drift; mutation of `oro-400` fails it), Figtree through `LocalFontProvider` plus the Vite fonts tags in `HEAD_END`, brand view with the emblem, favicon, no topbar, global search and user menu in the sidebar, 268 px sidebar, no dark mode. Filament keeps its own tables, forms and actions (D4). The panel shows English labels in tests and local runs with `APP_LOCALE=en`; production uses `APP_LOCALE=es` (`docs/despliegue.md`). The sidebar period card of the design needs period data and waits for M5. `composer check`: Pint, Rector, Larastan pass; Pest 1051/1053 (the same two clock failures).
 - L7: T5: ADR 0008 (shared design system), `docs/arquitectura.md` section "Sistema de diseño", `.claude/rules/ui.md` (tokens and components, no hard-coded colors; palette test), decisiones-pendientes #54 (German in the visual identity). The row hover color moved to a token (`fila-suave`). Preview test removed.
 - L8: Native review: the whole branch exceeds the reviewer context budget (`lens_context_budget_exceeded`, 2,056 lines), so it was reviewed in two slices. Slice c634ae1..530b316 (T1, T2; lenses risk, readability, reliability) approved and acknowledged (review-a69e0f4a2257597c); adopted in 8e3a879: `x-portal.boton` takes `tamano` (`grande`, `normal`, `compacto`) instead of padding overrides that collided with its base utilities; base frame radius on the token; flag leaf normalizes the language once; tests for the panel link shown only with `admin-panel.access` (mutation without `@can` fails it) and for signing out from the verification notice. Slice 530b316..8e3a879 (T3, T4, T5, fixes; lenses readability, reliability) approved and acknowledged (review-84aa999ac9d15a94); advisories left as follow-ups: segmented-control shadow and sticky side card as tokens/utility, named keys for `x-portal.pestanas`, the `fila` indent constant, a test for the live class selector. Portal tests 242/242. Feature closed on `feat/tema-visual`, not pushed.
+- L9 (2026-10-24): user compared the screens with the design: "como puedes ver en las imágenes, hay diferencias, los selects, calendarios, etc son los nativos. Además, no veo que por ejemplo en donde está el logo como fondo en alguna card no lo está en lo que estabas haciendo. Por ejemplo en reporte de recaudación, en total recaudado de fondo está el logo, también que las cards se organizan de diferente manera. Notas las diferencias?, y quizás en algunas secciones como tablero o inicio de admin y estudiante no aparece nada porque no hay datos? Si es así podrías llenarlo de datos en algunas secciones?, o es mejor que se llene mediante vayamos completando el flujo?" Then: "Bien, me gusta. Mira, llena de datos, pero solo en los flujos que ya completamos o cerramos. Luego cuando sigamos con la implementación de los flujos pues iremos agregando datos y se podrá visualizar. Y una cosa más, es responsivo todos los paneles? Además, el el sidebar sea colapsable." Feature reopened with T6-T10.

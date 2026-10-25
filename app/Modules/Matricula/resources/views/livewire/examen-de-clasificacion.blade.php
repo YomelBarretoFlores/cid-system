@@ -56,7 +56,7 @@
                 <x-portal.alerta>Por ahora no hay idiomas disponibles para el examen de clasificación.</x-portal.alerta>
             @else
                 <form wire:submit="solicitar" class="flex flex-col gap-3.5" novalidate>
-                    <x-portal.seleccion nombre="idioma" etiqueta="Idioma" :opciones="$opcionesDeIdioma" vacio="Elige el idioma" />
+                    <x-portal.seleccion nombre="idioma" etiqueta="Idioma" :opciones="$opcionesDeIdioma" vacio="Elige el idioma" banderas />
                     <x-portal.seleccion nombre="pago" etiqueta="Pago que usarás" :opciones="$opcionesDePago" vacio="Elige tu pago" ayuda="Solo aparecen tus pagos del examen de clasificación validados que aún no usaste." />
                     <x-portal.boton accion="solicitar" class="mt-1 w-full">Solicitar examen</x-portal.boton>
                 </form>

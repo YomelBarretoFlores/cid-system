@@ -10,6 +10,8 @@ use App\Shared\Ui\PaletaCiln;
 use Filament\Enums\GlobalSearchPosition;
 use Filament\Enums\UserMenuPosition;
 use Filament\FontProviders\LocalFontProvider;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -35,6 +37,8 @@ final class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         FilamentTimezone::set('America/Lima');
+        DatePicker::configureUsing(fn (DatePicker $campo): DatePicker => $campo->native(false)->displayFormat('j M Y')->firstDayOfWeek(1));
+        Select::configureUsing(fn (Select $campo): Select => $campo->native(false));
     }
 
     public function panel(Panel $panel): Panel

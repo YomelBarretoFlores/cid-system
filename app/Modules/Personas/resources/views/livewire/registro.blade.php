@@ -15,7 +15,7 @@
             <x-portal.campo nombre="apellido_paterno" etiqueta="Apellido paterno" autocomplete="family-name" required />
             <x-portal.campo nombre="apellido_materno" etiqueta="Apellido materno (opcional)" autocomplete="off" />
             <x-portal.campo nombre="nombres" etiqueta="Nombres" autocomplete="given-name" required />
-            <x-portal.campo nombre="fecha_nacimiento" etiqueta="Fecha de nacimiento" tipo="date" autocomplete="bday" required />
+            <x-portal.fecha nombre="fecha_nacimiento" etiqueta="Fecha de nacimiento" :max="now('America/Lima')->toDateString()" />
             <x-portal.campo nombre="celular" etiqueta="Celular (opcional)" tipo="tel" autocomplete="tel" inputmode="tel" />
         </fieldset>
 

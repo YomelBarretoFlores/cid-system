@@ -41,7 +41,7 @@
 
                 <div class="grid gap-3 sm:grid-cols-2">
                     <x-portal.seleccion nombre="medio_pago" etiqueta="Medio de pago" :opciones="$mediosDePago" vacio="Elige cómo pagaste" />
-                    <x-portal.campo nombre="fecha_pago" etiqueta="Fecha de pago" tipo="date" :max="$hoy" required />
+                    <x-portal.fecha nombre="fecha_pago" etiqueta="Fecha de pago" :max="$hoy" />
                 </div>
 
                 <x-portal.campo nombre="numero_operacion" etiqueta="N.° de recibo u operación" autocomplete="off" maxlength="40" placeholder="Ej.: 00482193" required />
