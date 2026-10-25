@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
+use App\Shared\Auth\Filament\AutenticacionPorApp;
 use App\Shared\Auth\Filament\EditarPerfil;
 use App\Shared\Auth\Filament\IngresarAlPanel;
+use App\Shared\Auth\Http\Middleware\ExigirDobleFactorSiEsObligatorio;
 use App\Shared\Auth\Http\Middleware\ProtegerSesionDelPanel;
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
 use App\Shared\Ui\PaletaCiln;
-use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Enums\GlobalSearchPosition;
 use Filament\Enums\UserMenuPosition;
 use Filament\FontProviders\LocalFontProvider;
@@ -69,7 +70,8 @@ final class AdminPanelProvider extends PanelProvider
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->login(IngresarAlPanel::class)
             ->profile(EditarPerfil::class, isSimple: false)
-            ->multiFactorAuthentication([AppAuthentication::make()->recoverable()->brandName('CILN - UNASAM')], isRequired: true)
+            ->multiFactorAuthentication([AutenticacionPorApp::make()->recoverable()->brandName('CILN - UNASAM')], isRequired: true)
+            ->multiFactorAuthenticationRequiredMiddlewareName(ExigirDobleFactorSiEsObligatorio::class)
             ->strictAuthorization()
             ->colors([
                 'primary' => PaletaCiln::ORO,

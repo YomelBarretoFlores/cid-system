@@ -116,4 +116,7 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    // Staff panel: when true, every panel account must set up the authenticator app before entering.
+    'panel_doble_factor_obligatorio' => (bool) env('PANEL_DOBLE_FACTOR_OBLIGATORIO', false),
+
 ];

@@ -17,7 +17,7 @@ Responde al Anexo II.2 (OWASP Top 10, Ley N° 29733, auditoría inmutable) y a l
 | Archivos subidos | Validar tipo real por contenido; guardar fuera de `public/`; servir por controlador con Policy |
 | Exposición de información | `APP_DEBUG=false` en producción, páginas de error propias, sin trazas |
 | Dependencias | `composer audit` y `npm audit` en CI |
-| Personal del panel | Doble factor obligatorio con aplicación autenticadora (MFA de Filament) y cierre de la sesión del panel tras 30 minutos sin actividad (middleware `ProtegerSesionDelPanel`) |
+| Personal del panel | Doble factor con aplicación autenticadora (MFA de Filament), que cada persona activa desde su perfil y que puede volverse obligatorio con `PANEL_DOBLE_FACTOR_OBLIGATORIO=true`, y cierre de la sesión del panel tras 30 minutos sin actividad (middleware `ProtegerSesionDelPanel`) |
 
 ## Autenticación
 
@@ -31,7 +31,7 @@ API REST v1 (clientes externos):
 
 Panel administrativo (`/admin`, personal con `admin-panel.access`):
 
-- Ingreso en `/admin/login` con correo, contraseña y el código de 6 dígitos de una aplicación autenticadora (Google Authenticator, Microsoft Authenticator u otra compatible). Toda cuenta del panel debe configurarla en su primer ingreso; al hacerlo recibe 8 códigos de recuperación de un solo uso para cuando no tenga el teléfono. El secreto y los códigos se guardan cifrados con la clave de la aplicación (los códigos, además, con hash) y nunca se muestran de nuevo.
+- Ingreso en `/admin/login` con correo y contraseña, y además el código de 6 dígitos de una aplicación autenticadora (Google Authenticator, Microsoft Authenticator u otra compatible) en las cuentas que la activaron. Cada persona la activa desde su perfil con el botón "Configurar"; con `PANEL_DOBLE_FACTOR_OBLIGATORIO=true`, toda cuenta del panel debe configurarla antes de entrar (el ajuste se lee en cada pedido, sin tocar código). Al activarla recibe 8 códigos de recuperación de un solo uso para cuando no tenga el teléfono. El secreto y los códigos se guardan cifrados con la clave de la aplicación (los códigos, además, con hash) y nunca se muestran de nuevo.
 - El panel solo acepta sesiones abiertas por su propio ingreso, el único que pide el segundo factor: la marca de la sesión lleva la cuenta que ingresó. Una sesión abierta en el portal, recordada por una cookie ("recordarme") o de otra cuenta en el mismo navegador se cierra al llegar al panel, con el aviso "Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.". Por eso el panel no ofrece "recordarme". Cada cierre forzado queda en el log con el ID de la cuenta y la causa (`sin_ingreso_del_panel` o `inactividad`). Todo cierre forzado, también el de inactividad, anula el "recordarme" de la cuenta en todos sus dispositivos, incluido el portal.
 - La sesión del panel se cierra tras 30 minutos sin actividad (`SESSION_PANEL_LIFETIME`, mínimo 1), con el aviso "Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.". Cuenta cada página y cada acción del panel; el panel no tiene consultas automáticas en segundo plano que mantengan viva una sesión inactiva.
 - Página de perfil (menú de usuario → perfil): el nombre y el correo solo se leen (los registra el CILN); el cambio de contraseña pide la actual y cierra las demás sesiones de la cuenta. Desde ahí también se regeneran los códigos de recuperación.
