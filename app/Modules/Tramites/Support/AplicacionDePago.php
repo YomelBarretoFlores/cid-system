@@ -28,6 +28,7 @@ final readonly class AplicacionDePago
         $usados = Tramite::query()->whereIn('pago_id', $ids)->pluck('pago_id')->all();
         $libres = array_values(array_diff($ids, $usados));
 
+        // The contract lists the newest payment first.
         return $libres === [] ? null : end($libres);
     }
 

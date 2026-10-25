@@ -10,7 +10,7 @@ use App\Modules\Pagos\Enums\TipoConcepto;
 interface PagosValidadosDePersona
 {
     /**
-     * @return list<PagoValidado>
+     * @return list<PagoValidado> newest payment first
      */
     public function __invoke(int $personaId, TipoConcepto $servicio): array;
 }

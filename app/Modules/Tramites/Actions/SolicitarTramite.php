@@ -11,6 +11,7 @@ use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
 use App\Modules\Tramites\Data\DatosDeSolicitud;
 use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\EstadoTramite;
+use App\Modules\Tramites\Events\TramiteActualizado;
 use App\Modules\Tramites\Models\Etapa;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Models\Tramite;
@@ -19,6 +20,7 @@ use App\Modules\Tramites\Support\RegistroDeMovimiento;
 use App\Modules\Tramites\Support\ReglasDeEtapas;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 
 final readonly class SolicitarTramite
 {
@@ -55,14 +57,28 @@ final readonly class SolicitarTramite
             ])->refresh();
 
             $pagoLibre = $tipo->tipo_concepto === null ? null : $this->aplicacionDePago->pagoLibre($personaId, $tipo->tipo_concepto);
-            RegistroDeMovimiento::registrar($tramite, notificar: $pagoLibre === null);
+            $solicitud = RegistroDeMovimiento::registrar($tramite, notificar: $pagoLibre === null);
 
-            if ($pagoLibre !== null) {
-                $this->aplicacionDePago->aplicar($tramite, $pagoLibre);
+            if ($pagoLibre !== null && ! $this->aplicarSiSigueLibre($tramite, $pagoLibre)) {
+                TramiteActualizado::dispatch($tramite->id, $solicitud->id);
             }
 
             return $tramite;
         });
+    }
+
+    // The payment may be voided between the lookup and its lock; the request then simply waits for a payment.
+    private function aplicarSiSigueLibre(Tramite $tramite, int $pagoId): bool
+    {
+        try {
+            $this->aplicacionDePago->aplicar($tramite, $pagoId);
+        } catch (ReglaDeNegocioIncumplida $error) {
+            RegistroDeRechazos::registrar($error);
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
