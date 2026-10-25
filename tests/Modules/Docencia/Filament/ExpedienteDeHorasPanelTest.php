@@ -63,7 +63,8 @@ it('downloads the expediente of one teacher as a PDF for the DGF', function (): 
     $this->actingAs($this->tesorero);
 
     Livewire::test(ExpedienteDeHorasDocentes::class)
-        ->callAction(TestAction::make('descargarPdf')->arguments(['docente' => $this->rosa->id]));
+        ->callAction(TestAction::make('descargarPdf')->arguments(['docente' => $this->rosa->id]))
+        ->assertFileDownloaded("expediente-de-horas-2027-03-{$this->rosa->codigo}.pdf");
 
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === "expediente-de-horas-2027-03-{$this->rosa->codigo}.pdf");
 });

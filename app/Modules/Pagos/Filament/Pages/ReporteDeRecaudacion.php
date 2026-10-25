@@ -14,6 +14,7 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Support\Filament\DescargaDePdf;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -22,7 +23,6 @@ use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Spatie\LaravelPdf\PdfBuilder;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class ReporteDeRecaudacion extends Page
@@ -95,7 +95,7 @@ final class ReporteDeRecaudacion extends Page
                 ->label('Descargar PDF')
                 ->icon(Heroicon::OutlinedDocumentArrowDown)
                 ->authorize(fn (): bool => self::canAccess())
-                ->action(fn (Action $action): ?PdfBuilder => $this->exportar($action, app(ExportarRecaudacionPdf::class))),
+                ->action(fn (Action $action): ?StreamedResponse => $this->exportar($action, fn (Reporte $reporte): StreamedResponse => DescargaDePdf::desde(app(ExportarRecaudacionPdf::class)($reporte)))),
             Action::make('descargarCsv')
                 ->label('Descargar CSV')
                 ->icon(Heroicon::OutlinedTableCells)

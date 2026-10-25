@@ -11,6 +11,7 @@ use App\Modules\Docencia\Data\ExpedienteDeHoras;
 use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Support\Filament\DescargaDePdf;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -19,7 +20,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Spatie\LaravelPdf\PdfBuilder;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use UnitEnum;
 
@@ -95,9 +95,9 @@ final class ExpedienteDeHorasDocentes extends Page
             ->icon(Heroicon::OutlinedDocumentArrowDown)
             ->link()
             ->authorize(fn (): bool => self::canAccess())
-            ->action(fn (Action $action, array $arguments): ?PdfBuilder => $this->exportar(
+            ->action(fn (Action $action, array $arguments): ?StreamedResponse => $this->exportar(
                 $action,
-                fn (): PdfBuilder => app(ExportarExpedienteDeHorasPdf::class)($this->expedienteDe($arguments['docente'] ?? null)),
+                fn (): StreamedResponse => DescargaDePdf::desde(app(ExportarExpedienteDeHorasPdf::class)($this->expedienteDe($arguments['docente'] ?? null))),
             ));
     }
 

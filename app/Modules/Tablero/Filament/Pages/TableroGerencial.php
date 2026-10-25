@@ -17,14 +17,15 @@ use App\Modules\Tablero\Enums\PermisoTablero;
 use App\Modules\Tablero\Support\PeriodoPorDefecto;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Support\Filament\DescargaDePdf;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Spatie\LaravelPdf\PdfBuilder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class TableroGerencial extends Page
 {
@@ -88,7 +89,7 @@ final class TableroGerencial extends Page
                 ->label('Exportar PDF')
                 ->icon(Heroicon::OutlinedDocumentArrowDown)
                 ->authorize(fn (): bool => self::canAccess())
-                ->action(fn (Action $action): ?PdfBuilder => $this->exportar($action, app(ExportarTableroPdf::class))),
+                ->action(fn (Action $action): ?StreamedResponse => $this->exportar($action, fn (Tablero $tablero): StreamedResponse => DescargaDePdf::desde(app(ExportarTableroPdf::class)($tablero)))),
             Action::make('descargarExcel')
                 ->label('Excel')
                 ->icon(Heroicon::OutlinedTableCells)

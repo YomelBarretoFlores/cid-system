@@ -72,7 +72,7 @@ it('downloads the consolidated report as PDF for the treasury file', function ()
     Pdf::fake();
     $this->actingAs($this->tesorero);
 
-    Livewire::test(ReporteDeRecaudacion::class)->callAction('descargarPdf');
+    Livewire::test(ReporteDeRecaudacion::class)->callAction('descargarPdf')->assertFileDownloaded('recaudacion-2026-10-01-al-2026-10-24.pdf');
 
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'recaudacion-2026-10-01-al-2026-10-24.pdf'
         && $pdf->contains(['REPORTE DE RECAUDACIÓN', 'Del 01/10/2026 al 24/10/2026', 'MAT-01', 'Derecho de matrícula', 'S/ 80.00', 'DNI 41234567', 'OP-1']));
