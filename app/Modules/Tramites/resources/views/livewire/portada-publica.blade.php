@@ -13,13 +13,7 @@
 @endphp
 <div x-data="{ idioma: @js($primerIdioma), modalidad: 'Todas', vinculo: @js($primerVinculo), conteos: @js($conteos) }" class="flex flex-col gap-3.5">
     <header class="sticky top-2 z-10 flex items-center gap-3 rounded-[20px] bg-tarjeta py-2.5 pr-3 pl-[18px] shadow-[0_1px_2px_rgb(29_27_22/0.04)] sm:top-4">
-        <a href="#inicio" class="flex items-center gap-3 text-tinta">
-            <x-ciln.emblema class="w-[50px]" />
-            <span class="flex flex-col leading-[1.1]">
-                <span class="text-[17px] font-semibold">Centro de Idiomas</span>
-                <span class="text-xs tracking-[0.12em] text-apagado">UNASAM</span>
-            </span>
-        </a>
+        <x-ciln.marca href="#inicio" emblema="w-[50px]" />
         <nav aria-label="Secciones" class="ml-auto hidden text-[14.5px] whitespace-nowrap lg:flex">
             @foreach (['oferta' => 'Oferta', 'costos' => 'Costos', 'fechas' => 'Fechas', 'requisitos' => 'Requisitos', 'verificar' => 'Verificar'] as $ancla => $seccion)
                 @continue($ancla === 'fechas' && $fechas === [])
@@ -254,6 +248,7 @@
         </span>
         <nav aria-label="Accesos" class="flex flex-wrap gap-[18px]">
             <a href="{{ route('estudiante.ingresar') }}" class="enlace">Portal del estudiante</a>
+            <a href="{{ route('docente.ingresar') }}" class="enlace">Portal docente</a>
             <a href="{{ route('filament.admin.auth.login') }}" class="enlace">Personal del CILN</a>
         </nav>
     </footer>

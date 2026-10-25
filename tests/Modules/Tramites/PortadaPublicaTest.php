@@ -55,6 +55,7 @@ it('publishes the open period with its groups, fees, dates and entries, without 
         ->assertSeeTextInOrder(['En curso', '6 – 31 oct', 'Próximo', '3 nov', 'Próximo', '20 dic'])
         ->assertSee(route('estudiante.ingresar'), false)
         ->assertSee(route('estudiante.registro'), false)
+        ->assertSee(route('docente.ingresar'), false)
         ->assertSee(route('verificacion.documento'), false)
         ->assertDontSee('AULA-SECRETA')
         ->assertDontSee('meet.example.test')

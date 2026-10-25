@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function (): void {
     Route::livewire('/estudiante/ingresar', IniciarSesion::class)->name('estudiante.ingresar');
+    Route::livewire('/docente/ingresar', IniciarSesion::class)->name('docente.ingresar');
     Route::livewire('/recuperar-clave', SolicitarRestablecimiento::class)->name('password.request');
     Route::livewire('/restablecer-clave/{token}', RestablecerClave::class)->name('password.reset');
 });

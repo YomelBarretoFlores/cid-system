@@ -11,7 +11,7 @@
     class="grid grid-cols-[minmax(0,1fr)] content-start gap-2 transition-[grid-template-columns] sm:gap-3.5 lg:grid-cols-[264px_minmax(0,1fr)] lg:content-stretch lg:data-colapsado:grid-cols-[88px_minmax(0,1fr)]">
     <aside x-data="{ abierto: false }" class="flex flex-col gap-5 rounded-tarjeta bg-tarjeta px-4 py-5 lg:sticky lg:top-[30px] lg:max-h-[calc(100vh-60px)] lg:overflow-auto lg:px-[18px] lg:pt-[26px] lg:in-data-colapsado:px-3">
         <div class="flex items-center justify-between gap-3 lg:in-data-colapsado:flex-col">
-            <a href="{{ route('estudiante.inicio') }}" class="flex items-center gap-3 px-1.5 text-tinta lg:in-data-colapsado:px-0">
+            <a href="{{ route(request()->routeIs('docente.*') ? 'docente.grupos' : 'estudiante.inicio') }}" class="flex items-center gap-3 px-1.5 text-tinta lg:in-data-colapsado:px-0">
                 <x-ciln.emblema class="w-[54px] lg:in-data-colapsado:w-12" />
                 <span class="flex flex-col leading-[1.1] lg:in-data-colapsado:hidden">
                     <span class="text-lg/[1.1] font-semibold tracking-[-0.01em] whitespace-nowrap">Centro de Idiomas</span>

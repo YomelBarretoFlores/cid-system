@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace App\Shared\Auth\Livewire;
 
+use App\Shared\Auth\Enums\EntradaDelPortal;
+use App\Shared\Auth\Models\User;
+use App\Shared\Auth\Support\DestinoTrasIngreso;
 use App\Shared\Support\Livewire\MensajesDeValidacion;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 #[Layout('components.layouts.acceso')]
-#[Title('Ingresar')]
 final class IniciarSesion extends Component
 {
     use MensajesDeValidacion;
@@ -25,11 +27,19 @@ final class IniciarSesion extends Component
 
     private const int INTENTOS_POR_DIRECCION = 20;
 
+    #[Locked]
+    public EntradaDelPortal $entrada = EntradaDelPortal::Estudiante;
+
     public string $email = '';
 
     public string $password = '';
 
     public bool $recordar = false;
+
+    public function mount(?string $portal = null): void
+    {
+        $this->entrada = $portal === null ? EntradaDelPortal::delPedido(request()) : EntradaDelPortal::desde($portal);
+    }
 
     public function ingresar(): void
     {
@@ -57,12 +67,15 @@ final class IniciarSesion extends Component
         RateLimiter::clear($clave);
         session()->regenerate();
 
-        $this->redirectIntended(route('estudiante.inicio'));
+        /** @var User $usuario */
+        $usuario = Auth::user();
+
+        $this->redirectIntended(app(DestinoTrasIngreso::class)->para($usuario, $this->entrada));
     }
 
     public function render(): View
     {
-        return view('auth.iniciar-sesion');
+        return view('auth.iniciar-sesion')->title('Ingresar');
     }
 
     private function asegurarIntentosDisponibles(string $clave, int $maximo): void
