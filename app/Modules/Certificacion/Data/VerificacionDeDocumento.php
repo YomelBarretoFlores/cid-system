@@ -26,6 +26,8 @@ final readonly class VerificacionDeDocumento
         public bool $vigente,
         public ?string $anuladoEl,
         public bool $esCertificado,
+        public string $fechaDeEmision = '',
+        public ?string $fechaDeAnulacion = null,
     ) {}
 
     public static function desde(Documento $documento): self
@@ -44,6 +46,8 @@ final readonly class VerificacionDeDocumento
             vigente: $documento->estaVigente(),
             anuladoEl: $documento->anulado_en === null ? null : Formato::fechaCorta($documento->anulado_en->setTimezone('America/Lima')),
             esCertificado: $documento->tipo === TipoDocumento::CertificadoNivel,
+            fechaDeEmision: $documento->emitido_en->setTimezone('America/Lima')->toDateString(),
+            fechaDeAnulacion: $documento->anulado_en?->setTimezone('America/Lima')->toDateString(),
         );
     }
 

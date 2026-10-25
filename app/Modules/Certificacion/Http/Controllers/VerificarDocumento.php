@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Http\Controllers;
 
+use App\Modules\Certificacion\Actions\VerificarDocumentoPorCodigo;
 use App\Modules\Certificacion\Data\VerificacionDeDocumento;
-use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Certificacion\Support\CodigoDeDocumento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +14,8 @@ use Illuminate\Http\Response;
 // The official page a document's QR opens: public, rate-limited and kept out of search engines.
 final readonly class VerificarDocumento
 {
+    public function __construct(private VerificarDocumentoPorCodigo $verificar) {}
+
     public function __invoke(Request $request, ?string $codigo = null): Response|RedirectResponse
     {
         $buscado = $request->query('codigo');
@@ -23,13 +25,13 @@ final readonly class VerificarDocumento
         }
 
         $codigo = $codigo === null ? null : CodigoDeDocumento::normalizar($codigo);
-        $documento = $codigo === null ? null : Documento::query()->where('codigo', $codigo)->first();
+        $verificacion = $codigo === null ? null : ($this->verificar)($codigo);
 
         return response()
             ->view('certificacion::verificacion', [
                 'codigo' => $codigo,
-                'verificacion' => $documento === null ? null : VerificacionDeDocumento::desde($documento),
-            ], $codigo !== null && $documento === null ? 404 : 200)
+                'verificacion' => $verificacion,
+            ], $codigo !== null && ! $verificacion instanceof VerificacionDeDocumento ? 404 : 200)
             ->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
