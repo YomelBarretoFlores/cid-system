@@ -60,7 +60,7 @@ return new class extends Migration
             $table->timestampTz('finalizado_en')->nullable();
             $table->timestampsTz();
 
-            $table->index('persona_id');
+            $table->index(['persona_id', 'estado']);
             $table->index('tipo_tramite_id');
             $table->index('documento_id');
             $table->index(['estado', 'created_at']);

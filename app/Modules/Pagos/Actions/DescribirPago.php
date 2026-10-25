@@ -22,6 +22,8 @@ final readonly class DescribirPago implements ConsultaDePago
             monto: (string) $pago->monto,
             fechaPago: CarbonImmutable::parse($pago->fecha_pago),
             estado: $pago->estado,
+            personaId: $pago->persona_id,
+            tipo: $pago->concepto->tipo,
         );
     }
 }

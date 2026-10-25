@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Pagos\Data;
 
 use App\Modules\Pagos\Enums\EstadoPago;
+use App\Modules\Pagos\Enums\TipoConcepto;
 use Carbon\CarbonImmutable;
 
 final readonly class DetalleDePago
@@ -16,5 +17,7 @@ final readonly class DetalleDePago
         public string $monto,
         public CarbonImmutable $fechaPago,
         public EstadoPago $estado,
+        public int $personaId,
+        public TipoConcepto $tipo,
     ) {}
 }

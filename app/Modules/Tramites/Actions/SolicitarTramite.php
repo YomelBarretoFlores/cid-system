@@ -14,6 +14,7 @@ use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Models\Etapa;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Models\Tramite;
+use App\Modules\Tramites\Support\AplicacionDePago;
 use App\Modules\Tramites\Support\RegistroDeMovimiento;
 use App\Modules\Tramites\Support\ReglasDeEtapas;
 use App\Shared\Support\Database\Transaccion;
@@ -27,6 +28,7 @@ final readonly class SolicitarTramite
         private MatriculasActivasDePersona $matriculasActivas,
         private IdiomasConNotasCerradas $idiomasConNotas,
         private NivelesPorCertificar $nivelesPorCertificar,
+        private AplicacionDePago $aplicacionDePago,
     ) {}
 
     public function __invoke(int $personaId, int $tipoTramiteId, DatosDeSolicitud $datos): Tramite
@@ -35,10 +37,10 @@ final readonly class SolicitarTramite
             ?? throw new ReglaDeNegocioIncumplida('Este trámite no está disponible.');
         $etapas = $tipo->etapas->map(fn (Etapa $etapa): array => ['nombre' => $etapa->nombre, 'avance' => $etapa->avance, 'condicion' => $etapa->condicion])->all();
         ReglasDeEtapas::validar(array_values($etapas), $tipo->cobraTasa());
-        $guardados = $this->datos($tipo->accion_final, $personaId, $datos);
 
-        return Transaccion::ejecutar(function () use ($personaId, $tipo, $etapas, $guardados): Tramite {
+        return Transaccion::ejecutar(function () use ($personaId, $tipo, $etapas, $datos): Tramite {
             RegistroDeMovimiento::bloquearPersona($personaId);
+            $guardados = $this->datos($tipo->accion_final, $personaId, $datos);
             $this->asegurarUnoEnCurso($personaId, $tipo, $guardados);
 
             $tramite = Tramite::query()->create([
@@ -52,7 +54,12 @@ final readonly class SolicitarTramite
                 'datos' => $guardados,
             ])->refresh();
 
-            RegistroDeMovimiento::registrar($tramite);
+            $pagoLibre = $tipo->tipo_concepto === null ? null : $this->aplicacionDePago->pagoLibre($personaId, $tipo->tipo_concepto);
+            RegistroDeMovimiento::registrar($tramite, notificar: $pagoLibre === null);
+
+            if ($pagoLibre !== null) {
+                $this->aplicacionDePago->aplicar($tramite, $pagoLibre);
+            }
 
             return $tramite;
         });

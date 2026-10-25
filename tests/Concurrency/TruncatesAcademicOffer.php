@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Payments and the audit trail reject TRUNCATE, so only the academic offer (and what cascades from it) is truncated.
+ * Payments and the audit trail reject TRUNCATE, so only the academic offer, the trámites (and what cascades from them) are truncated.
  */
 trait TruncatesAcademicOffer
 {
@@ -17,7 +17,7 @@ trait TruncatesAcademicOffer
     /**
      * @var list<string>
      */
-    protected array $tablesToTruncate = ['aca_idiomas', 'aca_ciclos', 'aca_periodos', 'aca_aulas', 'aca_grupos', 'aca_horarios', 'doc_docentes', 'doc_costos_hora'];
+    protected array $tablesToTruncate = ['aca_idiomas', 'aca_ciclos', 'aca_periodos', 'aca_aulas', 'aca_grupos', 'aca_horarios', 'doc_docentes', 'doc_costos_hora', 'tra_tramites'];
 
     /**
      * Actas, issued documents and trámites reject TRUNCATE with rows; only the test cleanup lifts that guard, for its own statement.

@@ -19,7 +19,8 @@ final class RegistroDeMovimiento
         DB::select('select pg_advisory_xact_lock(?, ?)', [self::CANDADO_POR_PERSONA, $personaId]);
     }
 
-    public static function registrar(Tramite $tramite, ?int $actorId = null, ?string $comentario = null): Movimiento
+    // A step that is immediately followed by another in the same request is recorded without its own e-mail.
+    public static function registrar(Tramite $tramite, ?int $actorId = null, ?string $comentario = null, bool $notificar = true): Movimiento
     {
         $movimiento = Movimiento::query()->create([
             'tramite_id' => $tramite->id,
@@ -30,7 +31,9 @@ final class RegistroDeMovimiento
             'actor_id' => $actorId,
         ]);
 
-        TramiteActualizado::dispatch($tramite->id, $movimiento->id);
+        if ($notificar) {
+            TramiteActualizado::dispatch($tramite->id, $movimiento->id);
+        }
 
         return $movimiento;
     }

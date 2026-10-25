@@ -12,6 +12,7 @@ use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\DB;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
+use Tests\Support\ActasFinales;
 
 beforeEach(function (): void {
     $this->user = User::factory()->create();
@@ -51,6 +52,20 @@ it('starts a trámite from its button with the data its final action asks for', 
     $tramite = Tramite::query()->where('persona_id', $this->persona->id)->sole();
     expect($tramite)->estado->toBe(EstadoTramite::PendientePago)
         ->and(session('estado'))->toContain("Registramos tu trámite {$tramite->codigo}. Paga la tasa");
+});
+
+it('requests a level certificate from the levels the student completed', function (): void {
+    $this->actingAs($this->user);
+    ActasFinales::historial($this->persona, 'Inglés', [[1, '15.00', 'aprobado'], [2, '14.00', 'aprobado'], [3, '13.00', 'aprobado'], [4, '16.00', 'aprobado']]);
+
+    Livewire::test(MisTramites::class)
+        ->call('elegir', TipoTramite::query()->where('codigo', 'CERTIFICADO-NIVEL')->value('id'))
+        ->assertSeeText('Inglés · Básico')
+        ->set('nivel', 'Inglés|basico')
+        ->call('solicitar')
+        ->assertHasNoErrors();
+
+    expect(Tramite::query()->where('persona_id', $this->persona->id)->sole()->datos)->toMatchArray(['idioma' => 'Inglés', 'nivel' => 'basico']);
 });
 
 it('shows why a request is refused and keeps the form open', function (): void {
