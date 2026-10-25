@@ -1,0 +1,207 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '../../ciln/tokens.css';
+
+@source '../../../../app/Modules/*/Filament/**/*';
+@source '../../../../app/Modules/*/resources/views/filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+@source '../../../../resources/views/components/ciln/**/*';
+
+.fi-body {
+    @apply bg-fondo text-[0.9375rem] leading-[1.45] text-tinta;
+}
+
+.fi-layout {
+    @apply min-h-dvh bg-lienzo lg:m-4 lg:min-h-[calc(100dvh-2rem)] lg:w-auto lg:gap-3.5 lg:rounded-marco lg:p-3.5;
+}
+
+.fi-main {
+    @apply px-2 py-2 sm:px-3.5 lg:px-0 lg:py-0;
+}
+
+.fi-sidebar {
+    @apply bg-tarjeta lg:top-[30px] lg:h-[calc(100dvh-60px)] lg:rounded-tarjeta lg:bg-tarjeta;
+}
+
+.fi-sidebar-header {
+    @apply h-auto justify-start px-6 pt-[26px] pb-2;
+}
+
+.fi-sidebar-nav {
+    @apply gap-y-5 px-[18px] py-4;
+}
+
+.fi-sidebar-nav-groups {
+    @apply mx-0 gap-y-4;
+}
+
+.fi-sidebar-group-btn {
+    @apply px-2.5 pt-1 pb-0;
+}
+
+.fi-sidebar-group-label {
+    @apply text-xs font-normal text-grupo;
+}
+
+.fi-sidebar-item-btn {
+    @apply justify-start gap-3.5 rounded-xl p-2.5;
+
+    & > .fi-icon {
+        @apply size-5 text-apagado;
+    }
+}
+
+.fi-sidebar-item-label {
+    @apply text-[15px] font-normal text-tinta;
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn {
+    @apply hover:bg-hover-suave focus-visible:bg-hover-suave;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    @apply bg-acento-claro;
+
+    & > .fi-icon {
+        @apply text-oro-500;
+    }
+
+    & > .fi-sidebar-item-label {
+        @apply font-semibold text-tinta;
+    }
+}
+
+.fi-sidebar-item-badge-ctn .fi-badge {
+    @apply bg-acento text-oro-950;
+}
+
+.fi-sidebar-footer {
+    @apply px-[18px] pb-5;
+}
+
+.fi-header-heading {
+    @apply text-titulo font-semibold;
+}
+
+.fi-header-subheading {
+    @apply text-secundario;
+}
+
+.fi-section:not(.fi-section-not-contained),
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat,
+.fi-fo-repeater-item,
+.fi-tabs.fi-contained {
+    @apply rounded-tarjeta shadow-none ring-0;
+}
+
+.fi-ta-header-cell {
+    @apply text-[13px] font-normal text-apagado;
+}
+
+.fi-ta-row {
+    @apply hover:bg-fila-hover;
+}
+
+.fi-input-wrp {
+    @apply rounded-control shadow-none ring-borde;
+
+    &:not(.fi-disabled):not(:has(.fi-ac-action:focus)) {
+        @apply focus-within:shadow-foco focus-within:ring-1 focus-within:ring-oro-400;
+    }
+}
+
+.fi-btn {
+    @apply rounded-pildora px-4;
+
+    &.fi-color-primary:not(.fi-outlined) {
+        @apply bg-tinta text-white hover:bg-tinta-hover focus-visible:ring-oro-200;
+
+        & > .fi-icon {
+            @apply text-white;
+        }
+    }
+
+    &.fi-outlined,
+    &.fi-color-gray:not(.fi-outlined) {
+        @apply bg-tarjeta shadow-none ring-borde;
+    }
+}
+
+.fi-badge {
+    @apply rounded-pildora px-2.5 ring-0;
+
+    &.fi-color-success {
+        @apply bg-verde-fondo text-verde-texto;
+    }
+
+    &.fi-color-warning,
+    &.fi-color-primary {
+        @apply bg-ambar-fondo text-ambar-texto;
+    }
+
+    &.fi-color-danger {
+        @apply bg-rojo-fondo text-rojo-texto;
+    }
+
+    &.fi-color-info {
+        @apply bg-azul-fondo text-azul-texto;
+    }
+
+    &.fi-color-gray,
+    &:not(.fi-color) {
+        @apply bg-gris-fondo text-gris-texto;
+    }
+}
+
+.fi-toggle {
+    @apply bg-interruptor;
+
+    &.fi-color {
+        @apply bg-positivo;
+    }
+}
+
+.fi-modal-window {
+    @apply rounded-tarjeta;
+}
+
+.fi-modal-slide-over .fi-modal-window {
+    @apply rounded-none shadow-drawer sm:rounded-s-tarjeta;
+}
+
+.fi-dropdown-panel {
+    @apply rounded-interna shadow-dropdown ring-0;
+}
+
+.fi-simple-layout {
+    @apply bg-lienzo;
+}
+
+.fi-simple-main {
+    @apply rounded-tarjeta shadow-none ring-0;
+}
+
+@utility tabla-reporte {
+    width: 100%;
+    font-size: 0.875rem;
+    text-align: left;
+
+    & th {
+        padding: 0 0.75rem 0.5rem;
+        font-size: 0.8125rem;
+        font-weight: 400;
+        color: var(--color-apagado);
+    }
+
+    & td {
+        padding: 0.625rem 0.75rem;
+    }
+
+    & tbody tr {
+        border-top: 1px solid var(--color-separador);
+    }
+
+    & tbody tr:hover {
+        background-color: var(--color-fila-hover);
+    }
+}

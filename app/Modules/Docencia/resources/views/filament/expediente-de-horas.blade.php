@@ -13,9 +13,9 @@
                 <p class="mb-3 text-sm text-warning-600">Las horas sin costo vigente no suman al monto; registra el costo por hora de su categoría.</p>
             @endif
 
-            <table class="w-full text-sm">
+            <table class="tabla-reporte">
                 <thead>
-                    <tr class="text-left text-gray-500">
+                    <tr>
                         <th scope="col">ID</th><th scope="col">Docente</th><th scope="col">Categoría</th><th scope="col">Idioma y nivel</th>
                         <th scope="col" class="text-right">Horas</th><th scope="col" class="text-right">Costo por hora</th><th scope="col" class="text-right">Monto</th><th scope="col"><span class="sr-only">Descargas</span></th>
                     </tr>
@@ -23,8 +23,8 @@
                 <tbody>
                     @forelse ($expedientes as $expediente)
                         @foreach ($expediente->lineas as $linea)
-                            <tr wire:key="linea-{{ $expediente->docenteId }}-{{ $loop->index }}" class="border-t border-gray-100 dark:border-white/10">
-                                <td class="py-1.5">{{ $loop->first ? $expediente->codigo : '' }}</td>
+                            <tr wire:key="linea-{{ $expediente->docenteId }}-{{ $loop->index }}">
+                                <td>{{ $loop->first ? $expediente->codigo : '' }}</td>
                                 <td>{{ $loop->first ? $expediente->nombre : '' }}</td>
                                 <td>{{ $loop->first ? $expediente->categoria : '' }}</td>
                                 <td>{{ $linea->idioma }} · {{ $linea->nivel }}</td>
@@ -35,14 +35,14 @@
                             </tr>
                         @endforeach
                         <tr wire:key="total-{{ $expediente->docenteId }}" class="font-medium">
-                            <td colspan="4" class="py-1.5 text-gray-500">Total de {{ $expediente->codigo }}</td>
+                            <td colspan="4" class="text-apagado">Total de {{ $expediente->codigo }}</td>
                             <td class="text-right">{{ $expediente->horasTotales() }} h</td>
                             <td></td>
                             <td class="text-right">{{ LineaDeHoras::soles($expediente->montoTotalCentimos()) }}</td>
                             <td></td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="py-2 text-gray-500">No hay clases registradas en este mes.</td></tr>
+                        <tr><td colspan="8" class="text-apagado">No hay clases registradas en este mes.</td></tr>
                     @endforelse
                 </tbody>
             </table>

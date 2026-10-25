@@ -6,6 +6,10 @@ namespace App\Providers\Filament;
 
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
+use App\Shared\Ui\PaletaCiln;
+use Filament\Enums\GlobalSearchPosition;
+use Filament\Enums\UserMenuPosition;
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -15,12 +19,15 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentTimezone;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 final class AdminPanelProvider extends PanelProvider
@@ -37,10 +44,26 @@ final class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('CILN - UNASAM')
+            ->brandLogo(fn (): Factory|\Illuminate\Contracts\View\View => view('filament.admin.marca'))
+            ->brandLogoHeight('auto')
+            ->favicon(asset('favicon.ico'))
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->font('Figtree', provider: LocalFontProvider::class)
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => Vite::fonts()->toHtml())
+            ->darkMode(false)
+            ->topbar(false)
+            ->sidebarWidth('268px')
+            ->globalSearch(position: GlobalSearchPosition::Sidebar)
+            ->userMenu(position: UserMenuPosition::Sidebar)
             ->login()
             ->strictAuthorization()
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => PaletaCiln::ORO,
+                'gray' => PaletaCiln::PIEDRA,
+                'success' => Color::Green,
+                'warning' => Color::Amber,
+                'danger' => Color::Red,
+                'info' => Color::Sky,
             ])
             ->pages([
                 Dashboard::class,
