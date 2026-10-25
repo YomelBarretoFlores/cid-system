@@ -7,12 +7,14 @@ use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Actions\RectificarNotasFinales;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
+use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\NotaFinal;
 use App\Modules\Certificacion\Models\Rectificacion;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\ActasFinales;
 use Tests\Support\PortalDocente;
@@ -27,7 +29,7 @@ beforeEach(function (): void {
     ActasFinales::preActa($this->beto, [$this->curso['parcial']->id => '8.00', $this->curso['final']->id => '10.00']);
     app(CerrarActa::class)($this->grupo->id, $this->curso['docente']->id, $this->curso['usuario']);
     $this->acta = Acta::query()->sole();
-    $this->administrador = User::factory()->create();
+    $this->administrador = User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value);
 });
 
 function rectificar(array $notas, ?int $docenteId = null): void
@@ -131,4 +133,13 @@ it('closes the rectified acta again, outside the grade calendar, and ends the re
         ->and($this->acta->validada_en?->toDateString())->toBe('2027-05-10')
         ->and(Rectificacion::query()->sole()->cerrada_en)->not->toBeNull()
         ->and(NotaFinal::query()->count())->toBe(2);
+});
+
+it('lets only users with the actas permission authorize a rectification, and answers a missing acta', function (): void {
+    expect(fn () => app(AutorizarRectificacion::class)($this->acta->id, 'Error al transcribir el examen final.', User::factory()->create()))
+        ->toThrow(AuthorizationException::class)
+        ->and(fn () => app(AutorizarRectificacion::class)(999_999, 'Error al transcribir el examen final.', $this->administrador))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El acta final no existe.')
+        ->and($this->acta->refresh()->estado)->toBe(EstadoActa::Cerrada)
+        ->and(Rectificacion::query()->count())->toBe(0);
 });

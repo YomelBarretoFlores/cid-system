@@ -1,4 +1,4 @@
-@props(['titulo', 'codigo', 'orientacion' => 'portrait'])
+@props(['titulo', 'codigo'])
 {{-- DOMPDF lays out tables and simple CSS only (ADR 0005); colors are the hex values of the CILN tokens. --}}
 <!DOCTYPE html>
 <html lang="es">

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Enums\EstadoActa;
+use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\NotaFinal;
 use App\Modules\Certificacion\Models\Rectificacion;
@@ -33,7 +34,7 @@ it('closes the acta once when it is validated twice at the same time', function 
 
 it('authorizes one rectification when two are requested at the same time', function (): void {
     app(CerrarActa::class)($this->curso['grupo']->id, $this->curso['docente']->id, $this->curso['usuario']);
-    $argumentos = ['autorizar', Acta::query()->sole()->id, 0, User::factory()->create()->id];
+    $argumentos = ['autorizar', Acta::query()->sole()->id, 0, User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value)->id];
 
     $salidas = enParalelo('cerrar-o-autorizar-acta.php', [$argumentos, $argumentos]);
 

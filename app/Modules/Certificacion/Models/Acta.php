@@ -7,10 +7,14 @@ namespace App\Modules\Certificacion\Models;
 use App\Modules\Academico\Data\ComponenteDeEvaluacion;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Enums\EstadoActa;
+use App\Modules\Certificacion\Policies\ActaPolicy;
+use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -27,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'docente_id', 'docente_nombre', 'esquema_id', 'esquema_nombre', 'nota_maxima', 'nota_minima_aprobatoria', 'componentes',
     'validada_por', 'validada_en',
 ])]
+#[UsePolicy(ActaPolicy::class)]
 final class Acta extends Model
 {
     /**
@@ -35,6 +40,14 @@ final class Acta extends Model
     public function notas(): HasMany
     {
         return $this->hasMany(NotaFinal::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function validador(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validada_por');
     }
 
     /**

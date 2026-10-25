@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Livewire;
 
+use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Support\AccesoDelDocente;
 use Illuminate\Contracts\View\View;
@@ -22,7 +23,7 @@ final class MisActasFinales extends Component
         return view('certificacion::livewire.mis-actas-finales', [
             'actas' => Acta::query()
                 ->where('docente_id', $docenteId)
-                ->withCount(['notas', 'notas as aprobados_count' => fn ($consulta) => $consulta->where('estado_final', 'aprobado')])
+                ->withCount(['notas', 'notas as aprobados_count' => fn ($consulta) => $consulta->where('estado_final', EstadoFinal::Aprobado)])
                 ->orderByDesc('validada_en')
                 ->orderBy('grupo_codigo')
                 ->get(),

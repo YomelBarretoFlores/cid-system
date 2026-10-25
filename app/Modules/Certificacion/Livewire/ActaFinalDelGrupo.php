@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Modules\Certificacion\Livewire;
 
 use App\Modules\Academico\Contracts\CursoDelGrupo;
+use App\Modules\Academico\Data\ComponenteDeEvaluacion;
 use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Actions\PrepararActaDelGrupo;
 use App\Modules\Certificacion\Actions\RectificarNotasFinales;
 use App\Modules\Certificacion\Data\ActaDelGrupo;
 use App\Modules\Certificacion\Data\FilaDelActa;
+use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Certificacion\Models\Rectificacion;
 use App\Modules\Certificacion\Support\AccesoDelDocente;
 use App\Shared\Auth\Models\User;
@@ -68,15 +70,6 @@ final class ActaFinalDelGrupo extends Component
         ])->title("Acta final · {$curso->codigo}");
     }
 
-    public static function numero(?string $decimal): string
-    {
-        if ($decimal === null) {
-            return '—';
-        }
-
-        return str_contains($decimal, '.') ? rtrim(rtrim($decimal, '0'), '.') : $decimal;
-    }
-
     /**
      * @param  list<FilaDelActa>  $filas
      * @return array{aprobados: int, desaprobados: int, nsp: int}
@@ -85,7 +78,11 @@ final class ActaFinalDelGrupo extends Component
     {
         $conteo = array_count_values(array_map(fn (FilaDelActa $fila): string => $fila->estadoFinal->value, $filas));
 
-        return ['aprobados' => $conteo['aprobado'] ?? 0, 'desaprobados' => $conteo['desaprobado'] ?? 0, 'nsp' => $conteo['nsp'] ?? 0];
+        return [
+            'aprobados' => $conteo[EstadoFinal::Aprobado->value] ?? 0,
+            'desaprobados' => $conteo[EstadoFinal::Desaprobado->value] ?? 0,
+            'nsp' => $conteo[EstadoFinal::Nsp->value] ?? 0,
+        ];
     }
 
     /**
@@ -125,7 +122,7 @@ final class ActaFinalDelGrupo extends Component
 
         $this->notas = $acta instanceof ActaDelGrupo && $acta->admiteRectificacion() ? collect($acta->filas)
             ->mapWithKeys(fn (FilaDelActa $fila): array => [$fila->matriculaId => collect($acta->componentes)
-                ->mapWithKeys(fn ($componente): array => [$componente->id => self::numero($fila->notas[$componente->id] ?? null) === '—' ? '' : (string) $fila->notas[$componente->id]])
+                ->mapWithKeys(fn (ComponenteDeEvaluacion $componente): array => [$componente->id => $fila->notas[$componente->id] ?? ''])
                 ->all()])
             ->all() : [];
     }

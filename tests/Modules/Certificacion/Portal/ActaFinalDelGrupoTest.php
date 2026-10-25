@@ -8,6 +8,7 @@ use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Data\ActaDelGrupo;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
+use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Livewire\ActaFinalDelGrupo;
 use App\Modules\Certificacion\Livewire\MisActasFinales;
 use App\Modules\Certificacion\Models\Acta;
@@ -92,7 +93,7 @@ it('shows and logs a rejected validation outside the grade calendar and stores n
 
 it('lets the teacher rectify and close again once a rectification is authorized', function (): void {
     $acta = cerrarActaDelCurso();
-    app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create());
+    app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value));
 
     Livewire::actingAs($this->usuario)
         ->test(ActaFinalDelGrupo::class, ['grupo' => $this->grupo->id])
@@ -153,7 +154,7 @@ it('downloads the PDF of a closed acta only', function (): void {
         && $pdf->viewData['codigo'] === sprintf('ACTA-%06d', $acta->id)
         && $pdf->viewData['acta']->filas[0]->promedio === '14.40');
 
-    app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create());
+    app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value));
     $this->actingAs($this->usuario)->get(route('docente.acta.pdf', $this->grupo->id))->assertNotFound();
 });
 
@@ -183,4 +184,38 @@ it('lists the actas the teacher closed with their state', function (): void {
     Livewire::actingAs($otro)->test(MisActasFinales::class)
         ->assertSee('Aún no has cerrado actas finales.')
         ->assertDontSee('ING-1-M');
+});
+
+it('shows and logs a rejected rectified grade and keeps the acta as it was', function (): void {
+    Log::spy();
+    $acta = cerrarActaDelCurso();
+    app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value));
+
+    Livewire::actingAs($this->usuario)
+        ->test(ActaFinalDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->set("notas.{$this->beto->id}.{$this->curso['final']->id}", '25')
+        ->call('guardar')
+        ->assertHasErrors('acta')
+        ->assertSee('La nota 25 no es válida: usa un número de 0 a 20 con hasta dos decimales.');
+
+    expect(NotaFinal::query()->where('matricula_id', $this->beto->id)->sole()->promedio)->toBe('7.20');
+    Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', ['regla' => 'La nota 25 no es válida: usa un número de 0 a 20 con hasta dos decimales.'])->once();
+});
+
+it('marks the menu entry of the page the teacher is on', function (string $pagina, string $entrada): void {
+    $html = $this->actingAs($this->usuario)->get($pagina === 'actas' ? route('docente.actas') : route('docente.acta', $this->grupo->id))->getContent();
+    $enlace = fn (string $ruta): bool => preg_match('/<a href="'.preg_quote(route($ruta), '/').'"[^>]*aria-current="page"/s', (string) $html) === 1;
+
+    expect($enlace($entrada))->toBeTrue()
+        ->and($enlace($entrada === 'docente.actas' ? 'docente.grupos' : 'docente.actas'))->toBeFalse();
+})->with([
+    'the actas list' => ['actas', 'docente.actas'],
+    'the acta of a group' => ['acta', 'docente.grupos'],
+]);
+
+it('lists an acta under rectification with its state', function (): void {
+    $acta = cerrarActaDelCurso();
+    app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value));
+
+    Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertSeeInOrder(['ING-1-M', 'En rectificación']);
 });

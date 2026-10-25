@@ -37,6 +37,8 @@ return new class extends Migration
 
             $table->index(['periodo_id', 'estado']);
             $table->index('docente_id');
+            $table->index('esquema_id');
+            $table->index('validada_por');
         });
 
         Schema::create('cer_notas_finales', function (Blueprint $table): void {
@@ -66,6 +68,7 @@ return new class extends Migration
             $table->timestampsTz();
 
             $table->index('acta_id');
+            $table->index('autorizada_por');
         });
 
         DB::statement("ALTER TABLE cer_actas ADD CONSTRAINT cer_actas_validada_check CHECK (estado = 'abierta' OR (validada_por IS NOT NULL AND validada_en IS NOT NULL))");

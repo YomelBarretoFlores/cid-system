@@ -14,4 +14,14 @@ final class Formato
     {
         return $fecha->day.' '.self::MESES[$fecha->month - 1].' '.$fecha->year;
     }
+
+    // Grades and weights without trailing zeros (15.50 → 15.5, 40.00 → 40); a missing grade is a dash.
+    public static function nota(?string $decimal): string
+    {
+        if ($decimal === null) {
+            return '—';
+        }
+
+        return str_contains($decimal, '.') ? rtrim(rtrim($decimal, '0'), '.') : $decimal;
+    }
 }

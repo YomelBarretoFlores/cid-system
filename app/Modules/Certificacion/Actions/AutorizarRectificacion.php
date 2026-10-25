@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Modules\Certificacion\Actions;
 
 use App\Modules\Certificacion\Enums\EstadoActa;
+use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\Rectificacion;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Illuminate\Auth\Access\AuthorizationException;
 
 final readonly class AutorizarRectificacion
 {
@@ -19,6 +21,8 @@ final readonly class AutorizarRectificacion
 
     public function __invoke(int $actaId, string $motivo, User $administrador): void
     {
+        // Checked here too, so every entry point (panel, API, console) needs the permission.
+        throw_unless($administrador->can(PermisoCertificacion::Actas->value), AuthorizationException::class);
         $motivo = trim($motivo);
         $largo = mb_strlen($motivo);
 
@@ -27,7 +31,8 @@ final readonly class AutorizarRectificacion
         }
 
         Transaccion::ejecutar(function () use ($actaId, $motivo, $administrador): void {
-            $acta = Acta::query()->whereKey($actaId)->lockForUpdate()->firstOrFail();
+            $acta = Acta::query()->whereKey($actaId)->lockForUpdate()->first()
+                ?? throw new ReglaDeNegocioIncumplida('El acta final no existe.');
 
             if ($acta->estado === EstadoActa::Abierta) {
                 throw new ReglaDeNegocioIncumplida("El acta final del grupo {$acta->grupo_codigo} ya tiene una rectificación autorizada.");

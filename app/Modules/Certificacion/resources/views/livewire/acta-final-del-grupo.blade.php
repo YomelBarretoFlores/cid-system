@@ -29,7 +29,7 @@
         @php($resumen = ActaFinalDelGrupo::resumen($acta->filas))
         <div class="grid gap-2 sm:grid-cols-3 sm:gap-3.5">
             <x-ciln.cifra titulo="Aprobados" :valor="$resumen['aprobados']" :detalle="'de '.count($acta->filas).' estudiantes'" marca />
-            <x-ciln.cifra titulo="Desaprobados" :valor="$resumen['desaprobados']" :detalle="'Nota mínima '.ActaFinalDelGrupo::numero($acta->notaMinimaAprobatoria)" />
+            <x-ciln.cifra titulo="Desaprobados" :valor="$resumen['desaprobados']" :detalle="'Nota mínima '.Formato::nota($acta->notaMinimaAprobatoria)" />
             <x-ciln.cifra titulo="NSP" :valor="$resumen['nsp']" detalle="Sin ninguna nota registrada" tono="oro" />
         </div>
 
@@ -72,11 +72,11 @@
         </x-portal.tarjeta>
 
         <form wire:submit="guardar" novalidate>
-            <x-portal.tarjeta titulo="Calificaciones" :descripcion="$acta->esquema.' · notas de 0 a '.ActaFinalDelGrupo::numero($acta->notaMaxima).'; el promedio pondera cada componente por su peso.'">
+            <x-portal.tarjeta titulo="Calificaciones" :descripcion="$acta->esquema.' · notas de 0 a '.Formato::nota($acta->notaMaxima).'; el promedio pondera cada componente por su peso.'">
                 <x-slot:acciones>
                     <span class="flex flex-wrap gap-1.5">
                         @foreach ($acta->componentes as $componente)
-                            <span class="rounded-pildora bg-acento-claro px-3 py-1.5 text-[13.5px] font-medium">{{ $componente->nombre }} · {{ ActaFinalDelGrupo::numero($componente->peso) }} %</span>
+                            <span class="rounded-pildora bg-acento-claro px-3 py-1.5 text-[13.5px] font-medium">{{ $componente->nombre }} · {{ Formato::nota($componente->peso) }} %</span>
                         @endforeach
                     </span>
                 </x-slot:acciones>
@@ -114,7 +114,7 @@
                                                     aria-label="{{ $componente->nombre }} de {{ $fila->estudiante }}"
                                                     class="control w-[84px] rounded-xl px-3 py-2 text-right font-medium">
                                             @else
-                                                {{ ActaFinalDelGrupo::numero($fila->notas[$componente->id] ?? null) }}
+                                                {{ Formato::nota($fila->notas[$componente->id] ?? null) }}
                                             @endif
                                         </td>
                                     @endforeach

@@ -32,7 +32,7 @@ Assumptions (recorded in `docs/decisiones-pendientes.md`, to confirm with the CI
 | T2 | S5 | inline | done | 5b89207 |
 | T3 | S2–S6, D2–D7 | inline | done | see L6 |
 | T4 | S2, S3, S8, D2, D5 | inline | done | see L8 |
-| T5 | S2, S3, S8, D5, D7 | inline | pending | |
+| T5 | S2, S3, S8, D5, D7 | inline | done | see L10 |
 | T6 | all | inline | pending | |
 
 - T1: Academico: grade calendar on periods (`actas_inicio`, `actas_fin`, both or none, start not after end), editable in the Periodo resource, and a contract with the course data of a group (language, level, cycle, teaching hours, period, calendar). Risk: item 1 (migration on an existing table).
@@ -54,3 +54,5 @@ Route evidence: each unit builds on the previous one (same contracts and tables)
 - L6: T3 written implementation-first; tests then pinned it (37 Certificacion + 2 race tests), and a mutation that drops the half-up rounding fails the average test. The DB triggers reject grade changes, inserts or deletes on a closed acta, data changes on a closed acta and deleting an acta.
 - L7: T3 reviewed with risk, resilience and reliability lenses: approved and acknowledged (lineage review-4cf9fbd17d3539b4). Advisories folded into later tasks: `AutorizarRectificacion` should check the `certificacion.actas` permission itself and answer a missing acta clearly (T5); rectifying a group without acta had no test (added in T4).
 - L8: T4: page `/docente/grupos/{grupo}/acta` (preview, validate with an inline confirmation, rectification inputs and motive, PDF when closed), `/docente/actas` (actas the teacher validated), "Acta final" tab and card button, menu entry "Actas finales"; shared PDF layout `x-pdf.documento` with the CILN emblem (DOMPDF, A4 landscape for the acta); access answers 404 to teachers not in charge and 403 without teacher profile. 11 portal tests; a real DOMPDF render was checked visually.
+- L9: T4 reviewed with risk, reliability and readability lenses: approved and acknowledged (lineage review-896ef67616f19683). Advisories applied in T5: dead `orientacion` prop removed, grade formatting moved to `Formato::nota` (the PDF no longer depends on the Livewire class), enum values instead of raw state strings, and tests for a rejected rectified grade, the active menu entry and an acta under rectification in the teacher list.
+- L10: T5: panel resource "Actas finales" (group Certificación; list with course, teacher, passed students, state; filters by period and state; detail with the grades table and rectifications; header actions "Acta en PDF" and "Autorizar rectificación" with a 5–500 character reason and a live counter), `ActaPolicy` (`certificacion.actas`; never create, edit or delete), route `panel.actas.pdf`; `AutorizarRectificacion` now checks the permission itself and answers a missing acta (T3 advisories). The FK index test found three unindexed foreign keys in the T3 migration (`esquema_id`, `validada_por`, `autorizada_por`); indexed.

@@ -1,4 +1,3 @@
-@use('App\Modules\Certificacion\Livewire\ActaFinalDelGrupo')
 @use('App\Shared\Ui\Formato')
 <x-pdf.documento titulo="ACTA FINAL DE EVALUACIÓN" :codigo="$codigo">
     <h2>Datos del curso</h2>
@@ -21,7 +20,7 @@
                 <th>ID estudiante</th>
                 <th>Apellidos y nombres</th>
                 @foreach ($acta->componentes as $componente)
-                    <th class="num">{{ $componente->nombre }} ({{ ActaFinalDelGrupo::numero($componente->peso) }} %)</th>
+                    <th class="num">{{ $componente->nombre }} ({{ Formato::nota($componente->peso) }} %)</th>
                 @endforeach
                 <th class="num">Promedio final</th>
                 <th>Estado final</th>
@@ -34,7 +33,7 @@
                     <td>{{ $fila->documento }}</td>
                     <td>{{ $fila->estudiante }}</td>
                     @foreach ($acta->componentes as $componente)
-                        <td class="num">{{ ActaFinalDelGrupo::numero($fila->notas[$componente->id] ?? null) }}</td>
+                        <td class="num">{{ Formato::nota($fila->notas[$componente->id] ?? null) }}</td>
                     @endforeach
                     <td class="num"><strong>{{ $fila->promedio ?? '—' }}</strong></td>
                     <td>{{ $fila->estadoFinal->etiqueta() }}</td>
@@ -44,7 +43,7 @@
     </table>
 
     <p style="margin-top: 14px; font-size: 8.5pt; color: #5e5a50;">
-        Nota máxima {{ ActaFinalDelGrupo::numero($acta->notaMaxima) }} · nota mínima aprobatoria {{ ActaFinalDelGrupo::numero($acta->notaMinimaAprobatoria) }}.
+        Nota máxima {{ Formato::nota($acta->notaMaxima) }} · nota mínima aprobatoria {{ Formato::nota($acta->notaMinimaAprobatoria) }}.
         NSP: no se presentó (sin ninguna nota registrada). Acta validada por el docente a cargo el {{ Formato::fechaCorta($acta->validadaEn) }} y cerrada.
     </p>
 </x-pdf.documento>
