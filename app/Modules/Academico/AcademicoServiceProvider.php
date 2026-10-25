@@ -34,7 +34,9 @@ use App\Modules\Academico\Contracts\OfertaDeMatricula;
 use App\Modules\Academico\Contracts\OfertaPublica;
 use App\Modules\Academico\Contracts\ReservaDeVacante;
 use App\Modules\Academico\Contracts\TrasladoDeVacante;
+use App\Modules\Academico\Support\BanderasRegistradas;
 use App\Shared\Support\ModuleServiceProvider;
+use App\Shared\Ui\BanderasDeIdiomas;
 
 final class AcademicoServiceProvider extends ModuleServiceProvider
 {
@@ -60,4 +62,9 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
     ];
 
     protected string $module = 'Academico';
+
+    public function register(): void
+    {
+        $this->app->scoped(BanderasDeIdiomas::class, BanderasRegistradas::class);
+    }
 }

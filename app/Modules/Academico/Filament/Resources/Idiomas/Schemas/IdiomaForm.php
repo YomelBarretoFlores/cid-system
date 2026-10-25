@@ -6,7 +6,9 @@ namespace App\Modules\Academico\Filament\Resources\Idiomas\Schemas;
 
 use App\Modules\Academico\Models\Idioma;
 use App\Shared\Support\Database\RestriccionUnica;
+use App\Shared\Ui\BanderaDeIdioma;
 use Closure;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
@@ -41,6 +43,17 @@ final class IdiomaForm
                     ->maxLength(80)
                     ->unique(ignoreRecord: true)
                     ->validationMessages(['unique' => self::NOMBRE_REPETIDO]),
+                Select::make('bandera')
+                    ->label('Bandera')
+                    ->options(BanderaDeIdioma::opciones())
+                    ->allowHtml()
+                    ->searchable(false)
+                    ->afterStateHydrated(function (Select $campo, mixed $state, ?Idioma $record): void {
+                        if ($state === null && $record instanceof Idioma) {
+                            $campo->state(BanderaDeIdioma::sugeridaPara($record->nombre)->value);
+                        }
+                    })
+                    ->helperText('Se muestra junto al nombre del idioma en todo el sistema. Si no eliges una, se usa la sugerida por el nombre.'),
                 Toggle::make('es_lengua_nativa')
                     ->label('Lengua originaria')
                     ->default(false),
