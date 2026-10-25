@@ -80,7 +80,30 @@
 }
 
 .fi-sidebar-footer {
-    @apply px-[18px] pb-5;
+    @apply mx-[18px] mb-1 border-separador px-0 pb-2;
+}
+
+.fi-sidebar .fi-user-menu-trigger {
+    @apply justify-start gap-3 rounded-xl p-2.5 text-start hover:bg-hover-suave focus-visible:bg-hover-suave;
+
+    & .fi-user-menu-trigger-text {
+        @apply min-w-0 flex-1 truncate text-[15px] font-medium text-tinta;
+    }
+
+    & .fi-icon {
+        @apply text-apagado;
+    }
+}
+
+/* Collapsed on desktop the footer narrows to the rail so the avatar sits centered inside it. */
+.fi-sidebar:not(.fi-sidebar-open) {
+    & .fi-sidebar-footer {
+        @apply lg:mx-2.5;
+    }
+
+    & .fi-user-menu-trigger {
+        @apply lg:justify-center lg:px-0;
+    }
 }
 
 .fi-header-heading {
