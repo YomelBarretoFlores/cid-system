@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
@@ -10,7 +11,10 @@ use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Matricula\Actions\MatricularEstudiante;
 use App\Modules\Matricula\Enums\EstadoMatricula;
+use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Matricula\Models\Matricula;
+use App\Modules\Pagos\Contracts\VerificacionDePago;
+use App\Modules\Pagos\Data\PagoData;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
@@ -28,6 +32,7 @@ use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Tests\Support\ActasFinales;
 
 beforeEach(function (): void {
     $this->periodo = Periodo::factory()->conMatriculaAbierta()->create();
@@ -35,7 +40,7 @@ beforeEach(function (): void {
     [$this->origen, $this->destino] = Grupo::factory()->count(2)->for($this->periodo)->for($this->ciclo)->create(['cupo_maximo' => 3, 'cupo_minimo' => 1])->all();
     $this->persona = Persona::factory()->create();
     $this->matricula = app(MatricularEstudiante::class)($this->persona->id, $this->origen->id, Pago::factory()->validado()->for(Concepto::factory())->create(['persona_id' => $this->persona->id])->id);
-    $this->personal = User::factory()->create()->givePermissionTo([PermisoTramite::Gestionar->value, PermisoCertificacion::Documentos->value]);
+    $this->personal = User::factory()->create()->givePermissionTo([PermisoTramite::Gestionar->value, PermisoCertificacion::Documentos->value, PermisoMatricula::Gestionar->value]);
 });
 
 function tramiteListoParaFirma(Persona $persona, Matricula $matricula): Tramite
@@ -130,4 +135,47 @@ it('observes a trámite with a reason and resumes it, back to waiting for the fe
     $pago = Pago::factory()->validado()->for(Concepto::factory()->state(['tipo' => TipoConcepto::Constancia]))->create(['persona_id' => $this->persona->id]);
     app(ReanudarTramite::class)($sinPagar->id, $this->personal);
     expect($sinPagar->refresh())->estado->toBe(EstadoTramite::EnProceso)->pago_id->toBe($pago->id)->etapa_actual->toBe(1);
+});
+
+it('asks for the enrollment permission to finish a withdrawal, leaving everything unchanged without it', function (): void {
+    $retiro = tramiteSinTasa($this->persona, $this->matricula, 'RETIRO');
+    app(AvanzarTramite::class)($retiro->id, $this->personal);
+    $soloTramites = User::factory()->create()->givePermissionTo(PermisoTramite::Gestionar->value);
+
+    expect(fn () => app(FinalizarTramite::class)($retiro->id, $soloTramites))->toThrow(ReglaDeNegocioIncumplida::class, 'No tiene permiso para trasladar ni retirar matrículas.')
+        ->and($retiro->refresh()->estado)->toBe(EstadoTramite::EnProceso)
+        ->and($this->matricula->refresh()->estado)->toBe(EstadoMatricula::Activa);
+});
+
+it('finishes a grade record and a level certificate trámite with the language and level the student asked for', function (): void {
+    ActasFinales::historial($this->persona, 'Inglés', [[1, '15.00', 'aprobado'], [2, '14.00', 'aprobado'], [3, '13.00', 'aprobado'], [4, '16.00', 'aprobado']]);
+    Pago::factory()->validado()->for(Concepto::factory()->state(['tipo' => TipoConcepto::Constancia]))->create(['persona_id' => $this->persona->id]);
+    Pago::factory()->validado()->for(Concepto::factory()->state(['tipo' => TipoConcepto::Certificado]))->create(['persona_id' => $this->persona->id]);
+    $notas = app(SolicitarTramite::class)($this->persona->id, TipoTramite::query()->where('codigo', 'CONSTANCIA-NOTAS')->value('id'), new DatosDeSolicitud(idioma: 'Inglés'));
+    $certificado = app(SolicitarTramite::class)($this->persona->id, TipoTramite::query()->where('codigo', 'CERTIFICADO-NIVEL')->value('id'), new DatosDeSolicitud(idioma: 'Inglés', nivel: 'basico'));
+
+    foreach ([$notas, $certificado] as $tramite) {
+        app(AvanzarTramite::class)($tramite->id, $this->personal);
+        app(FinalizarTramite::class)($tramite->id, $this->personal);
+    }
+
+    expect(Documento::query()->whereKey($notas->refresh()->documento_id)->sole())->tipo->toBe(TipoDocumento::ConstanciaNotas)->idioma->toBe('Inglés')
+        ->and(Documento::query()->whereKey($certificado->refresh()->documento_id)->sole())->tipo->toBe(TipoDocumento::CertificadoNivel)->nivel->toBe(NivelCurricular::Basico);
+});
+
+it('resumes an unpaid trámite back to waiting for the fee when its free payment can no longer be used', function (): void {
+    $sinPagar = app(SolicitarTramite::class)($this->persona->id, TipoTramite::query()->where('codigo', 'CONSTANCIA-MATRICULA')->value('id'), new DatosDeSolicitud(matriculaId: $this->matricula->id));
+    app(ObservarTramite::class)($sinPagar->id, $this->personal, 'Adjunta tu documento de identidad.');
+    Pago::factory()->validado()->for(Concepto::factory()->state(['tipo' => TipoConcepto::Constancia]))->create(['persona_id' => $this->persona->id]);
+    $this->app->bind(VerificacionDePago::class, fn (): VerificacionDePago => new class implements VerificacionDePago
+    {
+        public function __invoke(int $pagoId, int $personaId, TipoConcepto $servicio): PagoData
+        {
+            throw new ReglaDeNegocioIncumplida('El pago fue anulado.');
+        }
+    });
+
+    app(ReanudarTramite::class)($sinPagar->id, $this->personal);
+
+    expect($sinPagar->refresh())->estado->toBe(EstadoTramite::PendientePago)->pago_id->toBeNull();
 });

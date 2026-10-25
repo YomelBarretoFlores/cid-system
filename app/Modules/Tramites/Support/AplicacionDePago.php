@@ -12,6 +12,7 @@ use App\Modules\Tramites\Enums\CondicionDeEtapa;
 use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 
 // Callers hold the person's lock; the payment row lock comes second, as in every other consumer of Pagos.
 final readonly class AplicacionDePago
@@ -30,6 +31,20 @@ final readonly class AplicacionDePago
 
         // The contract lists the newest payment first.
         return $libres === [] ? null : end($libres);
+    }
+
+    // The payment may be voided or taken between the lookup and its lock; the trámite then simply keeps waiting for one.
+    public function aplicarSiSigueLibre(Tramite $tramite, int $pagoId): bool
+    {
+        try {
+            $this->aplicar($tramite, $pagoId);
+        } catch (ReglaDeNegocioIncumplida $error) {
+            RegistroDeRechazos::registrar($error);
+
+            return false;
+        }
+
+        return true;
     }
 
     public function aplicar(Tramite $tramite, int $pagoId): void

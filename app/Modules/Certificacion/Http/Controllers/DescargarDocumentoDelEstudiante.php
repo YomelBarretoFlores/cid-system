@@ -15,7 +15,7 @@ final readonly class DescargarDocumentoDelEstudiante
 {
     public function __invoke(string $documento, FichaDelUsuario $fichaDelUsuario, GenerarDocumentoPdf $generar): PdfBuilder
     {
-        $personaId = $fichaDelUsuario((int) auth()->id())?->personaId;
+        $personaId = $fichaDelUsuario((int) auth()->id())->personaId ?? abort(404);
         $id = Documento::query()->whereKey((int) $documento)->where('persona_id', $personaId)->value('id') ?? abort(404);
 
         try {

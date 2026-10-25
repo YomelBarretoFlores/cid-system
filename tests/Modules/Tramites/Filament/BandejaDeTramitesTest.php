@@ -2,12 +2,18 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Models\Ciclo;
+use App\Modules\Academico\Models\Grupo;
+use App\Modules\Academico\Models\Periodo;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
+use App\Modules\Matricula\Actions\MatricularEstudiante;
+use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Tramites\Actions\AvanzarTramite;
 use App\Modules\Tramites\Actions\SolicitarTramite;
 use App\Modules\Tramites\Data\DatosDeSolicitud;
 use App\Modules\Tramites\Enums\EstadoTramite;
@@ -83,4 +89,22 @@ it('observes a trámite from its page with a counted reason and lifts the observ
         ->assertNotified('Observación levantada');
 
     expect($this->tramite->refresh()->estado)->toBe(EstadoTramite::EnProceso);
+});
+
+it('finishes a transfer from its page with the destination group chosen among those that can receive it', function (): void {
+    $this->actingAs($this->personal->givePermissionTo(PermisoMatricula::Gestionar->value));
+    $periodo = Periodo::factory()->conMatriculaAbierta()->create();
+    $ciclo = Ciclo::factory()->create(['numero' => 1]);
+    [$origen, $destino] = Grupo::factory()->count(2)->for($periodo)->for($ciclo)->create(['cupo_maximo' => 3, 'cupo_minimo' => 1])->all();
+    $matricula = app(MatricularEstudiante::class)($this->persona->id, $origen->id, Pago::factory()->validado()->for(Concepto::factory())->create(['persona_id' => $this->persona->id])->id);
+    Pago::factory()->validado()->for(Concepto::factory()->state(['tipo' => TipoConcepto::Tramite]))->create(['persona_id' => $this->persona->id]);
+    $traslado = app(SolicitarTramite::class)($this->persona->id, TipoTramite::query()->where('codigo', 'TRASLADO')->value('id'), new DatosDeSolicitud(matriculaId: $matricula->id, motivo: 'Cambio de turno en el trabajo'));
+    app(AvanzarTramite::class)($traslado->id, $this->personal);
+
+    Livewire::test(ViewTramite::class, ['record' => $traslado->getRouteKey()])
+        ->callAction('finalizar', ['grupo_destino' => $destino->id])
+        ->assertHasNoActionErrors()
+        ->assertNotified('Trámite finalizado');
+
+    expect($matricula->refresh()->grupo_id)->toBe($destino->id);
 });
