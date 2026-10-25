@@ -1,0 +1,106 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Modules\Pagos\Enums\TipoConcepto;
+use App\Modules\Tramites\Actions\GuardarTipoDeTramite;
+use App\Modules\Tramites\Enums\AccionFinal;
+use App\Modules\Tramites\Enums\CondicionDeEtapa;
+use App\Modules\Tramites\Enums\PermisoTramite;
+use App\Modules\Tramites\Filament\Resources\TiposTramite\Pages\CreateTipoTramite;
+use App\Modules\Tramites\Filament\Resources\TiposTramite\Pages\EditTipoTramite;
+use App\Modules\Tramites\Filament\Resources\TiposTramite\Pages\ListTiposTramite;
+use App\Modules\Tramites\Filament\Resources\TiposTramite\Schemas\TipoTramiteForm;
+use App\Modules\Tramites\Filament\Resources\TiposTramite\TipoTramiteResource;
+use App\Modules\Tramites\Models\TipoTramite;
+use App\Modules\Tramites\Models\Tramite;
+use App\Shared\Auth\Models\User;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Filament\Forms\Components\Repeater;
+use Livewire\Livewire;
+
+beforeEach(function (): void {
+    Repeater::fake();
+    $this->administrador = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoTramite::Configurar->value]);
+});
+
+/**
+ * @return array<string, mixed>
+ */
+function formularioDeTipo(array $cambios = []): array
+{
+    return [
+        'codigo' => 'duplicado-carne', 'nombre' => 'Duplicado de carné', 'requisitos' => 'El carné anterior o la denuncia de pérdida.',
+        'tipo_concepto' => TipoConcepto::Tramite->value, 'accion_final' => AccionFinal::Ninguna->value, 'activo' => true,
+        'etapas' => [
+            ['nombre' => 'Solicitud recibida', 'avance' => 0, 'condicion' => CondicionDeEtapa::Solicitud->value],
+            ['nombre' => 'Pago validado', 'avance' => 40, 'condicion' => CondicionDeEtapa::PagoValidado->value],
+            ['nombre' => 'Carné impreso', 'avance' => 100, 'condicion' => CondicionDeEtapa::AccionDelPersonal->value],
+        ],
+        ...$cambios,
+    ];
+}
+
+it('keeps the trámite configuration away from staff without the configuration permission', function (): void {
+    $personal = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoTramite::Gestionar->value]);
+
+    $this->actingAs($personal)->get(TipoTramiteResource::getUrl('index'))->assertForbidden();
+    expect(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo()), $personal))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'No tiene permiso para configurar los trámites.');
+});
+
+it('lists the trámite types with their fee, final action and number of stages', function (): void {
+    $this->actingAs($this->administrador);
+    $tipo = TipoTramite::query()->where('codigo', 'RETIRO')->sole();
+
+    Livewire::test(ListTiposTramite::class)
+        ->assertCanSeeTableRecords([$tipo])
+        ->assertTableColumnFormattedStateSet('tipo_concepto', 'Sin tasa', $tipo)
+        ->assertTableColumnFormattedStateSet('accion_final', 'Retirar la matrícula', $tipo)
+        ->assertTableColumnStateSet('etapas_count', 3, $tipo);
+});
+
+it('creates a trámite type with its stages in the given order', function (): void {
+    $this->actingAs($this->administrador);
+
+    Livewire::test(CreateTipoTramite::class)->fillForm(formularioDeTipo())->call('create')->assertHasNoFormErrors();
+
+    $tipo = TipoTramite::query()->with('etapas')->where('codigo', 'DUPLICADO-CARNE')->sole();
+    expect($tipo)->tipo_concepto->toBe(TipoConcepto::Tramite)->accion_final->toBe(AccionFinal::Ninguna)
+        ->and($tipo->etapas->map(fn ($etapa): string => "{$etapa->orden} {$etapa->nombre} {$etapa->avance}")->all())
+        ->toBe(['1 Solicitud recibida 0', '2 Pago validado 40', '3 Carné impreso 100']);
+});
+
+it('refuses stages that break the pipeline rules or a repeated code, and saves nothing', function (array $cambios, string $mensaje): void {
+    $this->actingAs($this->administrador);
+    $antes = TipoTramite::query()->count();
+
+    Livewire::test(CreateTipoTramite::class)->fillForm(formularioDeTipo($cambios))->call('create')->assertNotified($mensaje);
+
+    expect(TipoTramite::query()->count())->toBe($antes);
+})->with([
+    'fee without its payment stage' => [['etapas' => [
+        ['nombre' => 'Solicitud recibida', 'avance' => 0, 'condicion' => 'solicitud'],
+        ['nombre' => 'Entregado', 'avance' => 100, 'condicion' => 'accion_del_personal'],
+    ]], 'Un trámite con tasa tiene una sola etapa de pago validado, justo después de la solicitud.'],
+    'repeated code' => [['codigo' => 'retiro'], 'Ya existe un tipo de trámite con el código RETIRO.'],
+]);
+
+it('replaces the stages of a type for new requests while a trámite in progress keeps its own', function (): void {
+    $this->actingAs($this->administrador);
+    $tipo = TipoTramite::factory()->create(['codigo' => 'CONSTANCIA-PRUEBA']);
+    $enCurso = Tramite::factory()->for($tipo)->create();
+
+    Livewire::test(EditTipoTramite::class, ['record' => $tipo->getRouteKey()])
+        ->assertFormSet(['codigo' => 'CONSTANCIA-PRUEBA', 'tipo_concepto' => 'constancia'])
+        ->fillForm(['etapas' => [
+            ['nombre' => 'Solicitud recibida', 'avance' => 0, 'condicion' => 'solicitud'],
+            ['nombre' => 'Pago validado', 'avance' => 50, 'condicion' => 'pago_validado'],
+            ['nombre' => 'Entregado', 'avance' => 100, 'condicion' => 'accion_del_personal'],
+        ]])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($tipo->etapas()->pluck('nombre')->all())->toBe(['Solicitud recibida', 'Pago validado', 'Entregado'])
+        ->and(array_column($enCurso->refresh()->etapas, 'nombre'))->toBe(['Solicitud recibida', 'Pago validado', 'En firma de Dirección', 'Listo para recojo o descarga']);
+});

@@ -7,10 +7,12 @@ namespace App\Modules\Tramites\Models;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Tramites\Database\Factories\TipoTramiteFactory;
 use App\Modules\Tramites\Enums\AccionFinal;
+use App\Modules\Tramites\Policies\TipoTramitePolicy;
 use App\Shared\Support\Eloquent\NormalizaCodigo;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Table('tra_tipos_tramite')]
 #[Fillable(['codigo', 'nombre', 'requisitos', 'tipo_concepto', 'accion_final', 'activo'])]
 #[UseFactory(TipoTramiteFactory::class)]
+#[UsePolicy(TipoTramitePolicy::class)]
 final class TipoTramite extends Model
 {
     /** @use HasFactory<TipoTramiteFactory> */
