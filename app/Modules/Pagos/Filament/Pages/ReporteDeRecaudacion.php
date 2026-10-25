@@ -35,6 +35,8 @@ final class ReporteDeRecaudacion extends Page
 
     protected static ?string $slug = 'reporte-de-recaudacion';
 
+    protected ?string $subheading = 'Pagos validados por fecha de pago, para la DGF y Tesorería.';
+
     protected string $view = 'pagos::filament.reporte-de-recaudacion';
 
     /**
@@ -75,6 +77,15 @@ final class ReporteDeRecaudacion extends Page
         } catch (ReglaDeNegocioIncumplida $error) {
             return $error->getMessage();
         }
+    }
+
+    public function alcance(): string
+    {
+        $datos = $this->data ?? [];
+        $concepto = is_numeric($datos['concepto_id'] ?? null) ? Concepto::query()->whereKey((int) $datos['concepto_id'])->value('nombre') : null;
+        $periodo = is_numeric($datos['periodo_id'] ?? null) ? (app(CatalogoDePeriodos::class)()[(int) $datos['periodo_id']] ?? null) : null;
+
+        return (is_string($concepto) ? $concepto : 'Todos los conceptos').' · '.(is_string($periodo) ? $periodo : 'todos los periodos');
     }
 
     protected function getHeaderActions(): array
@@ -124,10 +135,10 @@ final class ReporteDeRecaudacion extends Page
         );
     }
 
-    // The date picker sends Y-m-d; anything else reaching the component is refused as a business message, not a crash.
+    // The calendar keeps Y-m-d H:i:s (midnight) and a typed value arrives as Y-m-d; anything else is refused as a business message, not a crash.
     private function fecha(mixed $valor): CarbonImmutable
     {
-        $texto = $this->texto($valor);
+        $texto = preg_replace('/^(\d{4}-\d{2}-\d{2}) 00:00:00$/', '$1', $this->texto($valor)) ?? '';
         $fecha = preg_match('/^\d{4}-\d{2}-\d{2}$/', $texto) === 1 ? CarbonImmutable::createFromFormat('!Y-m-d', $texto, 'America/Lima') : null;
 
         // Comparing back rejects dates that overflow into another month, such as 2026-13-45.

@@ -38,8 +38,8 @@ it('shows the current month totals by concept and updates with the filters', fun
     $this->actingAs($this->tesorero);
 
     Livewire::test(ReporteDeRecaudacion::class)
-        ->assertSet('data.desde', '2026-10-01')
-        ->assertSet('data.hasta', '2026-10-24')
+        ->assertSet('data.desde', '2026-10-01 00:00:00')
+        ->assertSet('data.hasta', '2026-10-24 00:00:00')
         ->assertSee(['MAT-01', 'Derecho de matrícula', 'TUPA', 'S/ 80.00', '1 operación'])
         ->assertDontSee('SETIEMBRE')
         ->set('data.desde', '2026-09-01')

@@ -25,6 +25,11 @@ final readonly class ReporteDeRecaudacion
         return "recaudacion-{$this->filtros->desde->toDateString()}-al-{$this->filtros->hasta->toDateString()}.{$extension}";
     }
 
+    public function ticketPromedioCentimos(): int
+    {
+        return $this->operaciones === 0 ? 0 : intdiv($this->totalCentimos * 2 + $this->operaciones, $this->operaciones * 2);
+    }
+
     public static function soles(int $centimos): string
     {
         return number_format(intdiv($centimos, 100), 0, '.', ',').'.'.self::decimales($centimos);

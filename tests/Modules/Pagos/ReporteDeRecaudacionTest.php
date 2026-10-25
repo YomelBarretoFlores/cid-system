@@ -134,3 +134,11 @@ it('filters by concept and by academic period', function (): void {
 it('refuses a date range that ends before it starts', function (): void {
     expect(fn (): ReporteDeRecaudacion => reporte('2026-10-31', '2026-10-01'))->toThrow(ReglaDeNegocioIncumplida::class, 'La fecha inicial no puede ser posterior a la final.');
 });
+
+it('gives the average ticket in cents rounded half up, and zero without operations', function (): void {
+    pagoValidado($this->matricula, $this->rosa, '80.00', '2026-10-05', 'OP-1');
+    pagoValidado($this->examen, $this->luis, '40.01', '2026-10-06', 'OP-2');
+
+    expect(reporte()->ticketPromedioCentimos())->toBe(6001)
+        ->and(reporte('2026-09-01', '2026-09-30')->ticketPromedioCentimos())->toBe(0);
+});

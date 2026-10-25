@@ -21,6 +21,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentTimezone;
+use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Contracts\View\Factory;
@@ -37,7 +38,7 @@ final class AdminPanelProvider extends PanelProvider
     public function boot(): void
     {
         FilamentTimezone::set('America/Lima');
-        DatePicker::configureUsing(fn (DatePicker $campo): DatePicker => $campo->native(false)->displayFormat('j M Y')->firstDayOfWeek(1));
+        DatePicker::configureUsing(fn (DatePicker $campo): DatePicker => $campo->native(false)->format('Y-m-d')->displayFormat('j M Y')->firstDayOfWeek(1)->prefixIcon(Heroicon::OutlinedCalendar, isInline: true));
         Select::configureUsing(fn (Select $campo): Select => $campo->native(false));
     }
 
