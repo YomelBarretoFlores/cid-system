@@ -30,8 +30,8 @@ Assumptions (to record in `docs/decisiones-pendientes.md` and confirm with the C
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S3, S6, D1, D2, D7, D8 | inline | pending | |
-| T2 | S3, S6, D3 | inline | pending | |
+| T1 | S3, S6, D1, D2, D7, D8 | inline | done | 7f897dd |
+| T2 | S3, S6, D3 | inline | done | (T2 commit) |
 | T3 | S4, S6, D4–D6 | inline | pending | |
 | T4 | S2, S5, S7, S8, D7, D8 | inline | pending | |
 | T5 | S5, D9 | inline | pending | |
@@ -50,3 +50,5 @@ Route evidence: every task reads the same filter DTO and T4/T5 render T1–T3, s
 
 - L1 (2026-10-25, user): "Bien, puedes continuar."
 - L2: Mapping: Tablero is an empty skeleton; it may read other modules' tables with dedicated queries (arquitectura:86) and import only their Enums/Data. Payment → group only through `mat_matriculas.pago_id`; pensions only carry `persona_id`. `mat_matriculas.estado` is `activa|retirada`, a transfer overwrites `grupo_id`. Hours taught in `doc_clases_dictadas`, cost in `doc_costos_hora` by labor category and validity. Schedules in `aca_horarios`. No chart widgets or views exist; `maatwebsite/excel` 4.0.6 installed and unused; PDF via spatie/laravel-pdf on DOMPDF. Design "Panel Admin v3": header with language filter and PDF/Excel buttons, cards Recaudación / Por validar / Meta de matrícula, pending list, growth line chart, Deserción / Idioma líder / Demanda horaria mini-cards, enrollments by language bars, profitability per group bars.
+- L3: T1 (7f897dd): `PermisoTablero::Ver` (`tablero.ver`, migration 150000, demo administrator), `FiltrosDelTablero`, `CalcularRecaudacion` (validated payments; enrollment fee by its group's period, language and level; placement exam by its request's language; other payments by date in the period's class window) and `CalcularPagosPorValidar` (rate in the class window, voided excluded; current backlog with amount, oldest age in Lima days and the five oldest without personal data). RED observed (classes missing), GREEN 5/5; architecture and database 45/45. Assessed medium, under budget.
+- L4: T2: `CalcularRentabilidadPorGrupo`: groups of the period that are not cancelled; income = validated enrollment-fee payments of the group's enrollments (withdrawn included); cost = minutes taught per rate in force on each class date for the teacher's category, hours rounded once per rate like the teachers' hour reports; hours without a cost in force reported apart. RED observed (class missing), GREEN 7/7.

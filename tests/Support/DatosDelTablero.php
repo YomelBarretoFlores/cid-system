@@ -10,10 +10,14 @@ use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Docencia\Models\ClaseDictada;
+use App\Modules\Docencia\Models\CostoPorHora;
+use App\Modules\Docencia\Models\Docente;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
+use App\Shared\Auth\Models\User;
 
 // Small academic and payment scenarios for the management dashboard, built straight on the factories.
 final class DatosDelTablero
@@ -47,9 +51,9 @@ final class DatosDelTablero
             ?? Concepto::factory()->create(['codigo' => $codigo, 'nombre' => "Concepto {$tipo->value}", 'tipo' => $tipo]);
     }
 
-    public static function pago(TipoConcepto $tipo, string $monto, string $fecha, string $estado = 'validado'): Pago
+    public static function pago(TipoConcepto $tipo, string $monto, string $fecha, string $estado = 'validado', ?int $personaId = null): Pago
     {
-        return Pago::factory()->{$estado}()->for(self::concepto($tipo))->create(['monto' => $monto, 'fecha_pago' => $fecha]);
+        return Pago::factory()->{$estado}()->for(self::concepto($tipo))->create(['monto' => $monto, 'fecha_pago' => $fecha, ...($personaId === null ? [] : ['persona_id' => $personaId])]);
     }
 
     public static function matricula(Grupo $grupo, ?Pago $pago = null, bool $retirada = false): Matricula
@@ -57,5 +61,21 @@ final class DatosDelTablero
         $fabrica = $retirada ? Matricula::factory()->retirada() : Matricula::factory()->activa();
 
         return $fabrica->create(['grupo_id' => $grupo->id, 'pago_id' => $pago?->id, ...($pago instanceof Pago ? ['persona_id' => $pago->persona_id] : [])]);
+    }
+
+    public static function clase(Grupo $grupo, Docente $docente, string $fecha, string $inicio, string $fin): ClaseDictada
+    {
+        return ClaseDictada::query()->create([
+            'grupo_id' => $grupo->id, 'docente_id' => $docente->id, 'fecha' => $fecha,
+            'hora_inicio' => $inicio, 'hora_fin' => $fin, 'registrado_por' => User::factory()->create()->id,
+        ]);
+    }
+
+    public static function costo(string $condicion, string $costoHora, string $desde, ?string $hasta = null): CostoPorHora
+    {
+        return CostoPorHora::query()->create([
+            'condicion_laboral' => $condicion, 'costo_hora' => $costoHora, 'vigente_desde' => $desde,
+            'vigente_hasta' => $hasta, 'registrado_por' => User::factory()->create()->id,
+        ]);
     }
 }
