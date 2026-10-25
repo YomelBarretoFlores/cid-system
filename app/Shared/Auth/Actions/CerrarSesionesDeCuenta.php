@@ -27,6 +27,12 @@ final readonly class CerrarSesionesDeCuenta
             return $usuario->id;
         });
 
+        return $this->borrarSesiones($usuarioId);
+    }
+
+    // Never throws: the caller has already committed its change, so a failure here is reported, not raised.
+    public function borrarSesiones(int $usuarioId): CierreDeSesiones
+    {
         if (config('session.driver') !== 'database') {
             Log::warning('No se pudieron cerrar las sesiones de una cuenta.', ['usuario_id' => $usuarioId, 'causa' => 'almacenamiento_sin_cuentas']);
 

@@ -92,6 +92,16 @@ it('keeps the reset, logs it and exits with code 2 when sessions are not stored 
     Log::shouldHaveReceived('warning')->once()->with('No se pudieron cerrar las sesiones de una cuenta.', ['usuario_id' => $this->usuario->id, 'causa' => 'almacenamiento_sin_cuentas']);
 });
 
+it('reports open sessions with code 2 for --solo-sesiones too when sessions are not stored in the database', function (): void {
+    config(['session.driver' => 'file']);
+
+    $this->artisan('auth:reiniciar-doble-factor', ['correo' => 'caja@ciln.test', '--solo-sesiones' => true])
+        ->expectsOutput(SESIONES_SIN_CUENTA)
+        ->assertExitCode(2);
+
+    expect($this->usuario->fresh()->remember_token)->not->toBe($this->recordarAntes);
+});
+
 it('fails with code 1 without changing anything when no account has that e-mail', function (): void {
     $secreto = $this->usuario->getAppAuthenticationSecret();
 
