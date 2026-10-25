@@ -1,4 +1,4 @@
-@props(['nombre', 'etiqueta', 'opciones', 'ayuda' => null, 'vacio' => null])
+@props(['nombre', 'etiqueta', 'opciones', 'ayuda' => null, 'vacio' => null, 'vivo' => false])
 @php
     $id = 'campo-'.str_replace(['.', '_'], '-', $nombre);
     $conError = $errors->has($nombre);
@@ -6,7 +6,7 @@
 @endphp
 <x-portal.control :id="$id" :etiqueta="$etiqueta" :nombre="$nombre" :ayuda="$ayuda">
     <div class="relative">
-        <select id="{{ $id }}" wire:model="{{ $nombre }}"
+        <select id="{{ $id }}" {{ $vivo ? 'wire:model.live' : 'wire:model' }}="{{ $nombre }}"
             @if ($conError) aria-invalid="true" @endif
             @if ($descripciones) aria-describedby="{{ $descripciones }}" @endif
             {{ $attributes->class('control appearance-none pr-11') }}>

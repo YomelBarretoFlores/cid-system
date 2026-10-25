@@ -1,47 +1,48 @@
-<div class="flex flex-col gap-6">
-    <header class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold text-ciln-900">Mis grupos</h1>
-        <p class="text-sm text-slate-600">Los grupos que tienes a cargo en este momento.</p>
-    </header>
+<div class="flex flex-col gap-2 sm:gap-3.5">
+    <x-portal.encabezado titulo="Mis grupos" :antetitulo="now('America/Lima')->locale('es')->isoFormat('[Hoy es] dddd D [de] MMMM')" saludo>
+        Los grupos que tienes a cargo en este momento. Si la coordinación te reasigna un grupo, deja de aparecer aquí.
+    </x-portal.encabezado>
 
     @if ($grupos->isEmpty())
-        <x-portal.alerta>Aún no tienes grupos asignados.</x-portal.alerta>
+        <x-portal.tarjeta>
+            <x-portal.vacio titulo="Aún no tienes grupos asignados." icono="heroicon-o-user-group">
+                Cuando la coordinación te asigne un grupo, aparecerá aquí.
+            </x-portal.vacio>
+        </x-portal.tarjeta>
     @else
-        <ul role="list" class="flex flex-col gap-4">
+        <ul role="list" class="grid grid-cols-[minmax(0,1fr)] gap-2 sm:gap-3.5 md:grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
             @foreach ($grupos as $grupo)
-                <li wire:key="grupo-{{ $grupo->grupoId }}" class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
-                    <article class="flex flex-col gap-4" aria-labelledby="grupo-{{ $grupo->grupoId }}-titulo">
-                        <header class="flex flex-col gap-0.5">
-                            <h2 id="grupo-{{ $grupo->grupoId }}-titulo" class="text-base font-semibold text-ciln-900">Grupo {{ $grupo->codigo }}</h2>
-                            <p class="text-sm text-slate-600">{{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel->etiqueta() }}</p>
+                <li wire:key="grupo-{{ $grupo->grupoId }}">
+                    <article aria-labelledby="grupo-{{ $grupo->grupoId }}-titulo" class="flex h-full flex-col gap-4 rounded-tarjeta bg-tarjeta p-6">
+                        <header class="flex items-start justify-between gap-2.5">
+                            <div class="flex items-center gap-3">
+                                <x-ciln.hoja-bandera :idioma="$grupo->idioma" size="44" rot="-8" />
+                                <div class="flex flex-col">
+                                    <h2 id="grupo-{{ $grupo->grupoId }}-titulo" class="text-[19px] font-semibold">Grupo {{ $grupo->codigo }}</h2>
+                                    <span class="text-sm text-terciario">{{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel->etiqueta() }}</span>
+                                </div>
+                            </div>
+                            <x-portal.insignia :color="$grupo->estado->color()">{{ $grupo->estado->etiqueta() }}</x-portal.insignia>
                         </header>
 
-                        <dl class="grid gap-3 text-sm sm:grid-cols-2">
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">Periodo</dt>
-                                <dd class="text-slate-700">{{ $grupo->periodo }} ({{ $grupo->periodoInicio->format('d/m/Y') }} al {{ $grupo->periodoFin->format('d/m/Y') }})</dd>
-                            </div>
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">Horario</dt>
+                        <dl class="grid grid-cols-2 gap-2.5 text-sm">
+                            <x-portal.dato etiqueta="Periodo">{{ $grupo->periodo }} ({{ $grupo->periodoInicio->format('d/m/Y') }} al {{ $grupo->periodoFin->format('d/m/Y') }})</x-portal.dato>
+                            <x-portal.dato etiqueta="Horario" class="col-span-2">
                                 @forelse ($grupo->sesiones as $sesion)
-                                    <dd class="text-slate-700">{{ $sesion->descripcion() }}</dd>
+                                    <span class="block">{{ $sesion->descripcion() }}</span>
                                 @empty
-                                    <dd class="text-slate-700">Por confirmar</dd>
+                                    Por confirmar
                                 @endforelse
-                            </div>
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">Estado</dt>
-                                <dd><x-portal.insignia :color="$grupo->estado->color()">{{ $grupo->estado->etiqueta() }}</x-portal.insignia></dd>
-                            </div>
+                            </x-portal.dato>
                         </dl>
 
-                        <div class="flex flex-wrap gap-3 border-t border-slate-200 pt-4 text-sm">
-                            <a href="{{ route('docente.asistencia', $grupo->grupoId) }}" class="rounded-md px-3 py-2 font-medium text-ciln-700 ring-1 ring-ciln-100 hover:bg-ciln-50 focus-visible:outline-2 focus-visible:outline-ciln-600">
-                                Asistencia<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
-                            </a>
-                            <a href="{{ route('docente.notas', $grupo->grupoId) }}" class="rounded-md px-3 py-2 font-medium text-ciln-700 ring-1 ring-ciln-100 hover:bg-ciln-50 focus-visible:outline-2 focus-visible:outline-ciln-600">
+                        <div class="mt-auto flex gap-2">
+                            <x-portal.boton :href="route('docente.asistencia', $grupo->grupoId)" class="flex-1 px-3">
+                                Tomar asistencia<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
+                            </x-portal.boton>
+                            <x-portal.boton variante="secundario" :href="route('docente.notas', $grupo->grupoId)" class="flex-1 px-3">
                                 Pre-acta<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
-                            </a>
+                            </x-portal.boton>
                         </div>
                     </article>
                 </li>

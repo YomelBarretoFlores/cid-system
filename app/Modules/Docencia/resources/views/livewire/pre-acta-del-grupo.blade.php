@@ -1,10 +1,12 @@
 @use('App\Modules\Docencia\Livewire\PreActaDelGrupo')
-<div class="flex flex-col gap-6">
-    <header class="flex flex-col gap-1">
-        <a href="{{ route('docente.grupos') }}" class="text-sm font-medium text-ciln-700 underline underline-offset-2 hover:text-ciln-900">Volver a mis grupos</a>
-        <h1 class="text-2xl font-semibold text-ciln-900">Pre-acta del grupo {{ $grupo->codigo }}</h1>
-        <p class="text-sm text-slate-600">{{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel->etiqueta() }} · {{ $grupo->periodo }}</p>
-    </header>
+<div class="flex flex-col gap-2 sm:gap-3.5">
+    <x-portal.encabezado titulo="Pre-acta del grupo {{ $grupo->codigo }}" :volver="route('docente.grupos')">
+        <x-slot:inicio><x-ciln.hoja-bandera :idioma="$grupo->idioma" size="40" class="max-sm:hidden" /></x-slot:inicio>
+        {{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel->etiqueta() }} · {{ $grupo->periodo }}
+        <x-slot:acciones>
+            <x-portal.pestanas etiqueta="Registro del grupo" :enlaces="[[route('docente.asistencia', $grupo->grupoId), 'Asistencia', false], [route('docente.notas', $grupo->grupoId), 'Pre-acta', true]]" />
+        </x-slot:acciones>
+    </x-portal.encabezado>
 
     @if ($guardadas)
         <x-portal.alerta tipo="exito">{{ $guardadas }}</x-portal.alerta>
@@ -14,41 +16,55 @@
     @enderror
 
     @if ($esquema === null)
-        <x-portal.alerta>El grupo no tiene un sistema de evaluación vigente; pide a coordinación que lo registre.</x-portal.alerta>
+        <x-portal.tarjeta>
+            <x-portal.vacio titulo="El grupo no tiene un sistema de evaluación vigente; pide a coordinación que lo registre." icono="heroicon-o-clipboard-document-list" />
+        </x-portal.tarjeta>
     @elseif ($estudiantes === [])
-        <x-portal.alerta>El grupo no tiene estudiantes matriculados.</x-portal.alerta>
+        <x-portal.tarjeta>
+            <x-portal.vacio titulo="El grupo no tiene estudiantes matriculados." icono="heroicon-o-user-group" />
+        </x-portal.tarjeta>
     @else
-        <form wire:submit="guardar" class="flex flex-col gap-4" novalidate>
-            <p class="text-sm text-slate-600">{{ $esquema->nombre }} · notas de 0 a {{ PreActaDelGrupo::numero($esquema->notaMaxima) }}, con hasta dos decimales. Deja en blanco lo que aún no evalúas.</p>
+        <form wire:submit="guardar" novalidate>
+            <x-portal.tarjeta titulo="Notas parciales" :descripcion="$esquema->nombre.' · notas de 0 a '.PreActaDelGrupo::numero($esquema->notaMaxima).', con hasta dos decimales. Deja en blanco lo que aún no evalúas.'">
+                <x-slot:acciones>
+                    <span class="flex flex-wrap gap-1.5">
+                        @foreach ($esquema->componentes as $componente)
+                            <span class="rounded-pildora bg-acento-claro px-3 py-1.5 text-[13.5px] font-medium">{{ $componente->nombre }} · {{ PreActaDelGrupo::numero($componente->peso) }} %</span>
+                        @endforeach
+                    </span>
+                </x-slot:acciones>
 
-            <div class="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
-                <table class="min-w-full divide-y divide-slate-200 text-sm">
-                    <thead class="bg-slate-50 text-left text-slate-800">
-                        <tr>
-                            <th scope="col" class="px-4 py-3 font-semibold">Estudiante</th>
-                            @foreach ($esquema->componentes as $componente)
-                                <th scope="col" class="px-4 py-3 font-semibold">{{ $componente->nombre }} <span class="font-normal text-slate-600">({{ PreActaDelGrupo::numero($componente->peso) }} %)</span></th>
-                            @endforeach
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-200">
-                        @foreach ($estudiantes as $estudiante)
-                            <tr wire:key="estudiante-{{ $estudiante->matriculaId }}">
-                                <th scope="row" class="px-4 py-2 text-left font-medium text-slate-900">{{ $estudiante->nombreCompleto }}</th>
+                <div class="-mx-2 overflow-x-auto">
+                    <table class="w-full min-w-[560px] border-separate border-spacing-y-0.5 text-left">
+                        <thead class="text-[13px] text-apagado">
+                            <tr>
+                                <th scope="col" class="px-3 pb-2 font-normal">Estudiante</th>
                                 @foreach ($esquema->componentes as $componente)
-                                    <td class="px-4 py-2">
-                                        <input type="text" inputmode="decimal" wire:model="notas.{{ $estudiante->matriculaId }}.{{ $componente->id }}"
-                                            aria-label="{{ $componente->nombre }} de {{ $estudiante->nombreCompleto }}"
-                                            class="block w-20 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-base text-slate-900 shadow-xs focus:outline-2 focus:outline-ciln-600 sm:text-sm">
-                                    </td>
+                                    <th scope="col" class="w-32 px-3 pb-2 font-normal">{{ $componente->nombre }} <span class="sr-only">({{ PreActaDelGrupo::numero($componente->peso) }} %)</span></th>
                                 @endforeach
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach ($estudiantes as $estudiante)
+                                <tr wire:key="estudiante-{{ $estudiante->matriculaId }}" class="hover:bg-[#fbf8f1]">
+                                    <th scope="row" class="rounded-l-xl px-3 py-[7px] font-medium">{{ $estudiante->nombreCompleto }}</th>
+                                    @foreach ($esquema->componentes as $componente)
+                                        <td @class(['px-3 py-[7px]', 'rounded-r-xl' => $loop->last])>
+                                            <input type="text" inputmode="decimal" placeholder="—" wire:model="notas.{{ $estudiante->matriculaId }}.{{ $componente->id }}"
+                                                aria-label="{{ $componente->nombre }} de {{ $estudiante->nombreCompleto }}"
+                                                class="control w-[92px] rounded-xl px-3 py-2.5 text-right font-medium">
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
-            <x-portal.boton accion="guardar" class="self-start">Guardar notas</x-portal.boton>
+                <div class="flex justify-end border-t border-separador pt-3">
+                    <x-portal.boton accion="guardar">Guardar notas</x-portal.boton>
+                </div>
+            </x-portal.tarjeta>
         </form>
     @endif
 </div>

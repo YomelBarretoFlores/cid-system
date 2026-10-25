@@ -22,8 +22,8 @@ Assumptions:
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S2, S4, D1-D3 | inline | pending | |
-| T2 | S2-S5 | inline | pending | |
+| T1 | S2, S4, D1-D3 | inline | done | 7a60490 |
+| T2 | S2-S5 | inline | done | 530b316 |
 | T3 | S3-S6 | inline | pending | |
 | T4 | S2, S4, S6, D4 | inline | pending | |
 | T5 | all | inline | pending | |
@@ -42,3 +42,5 @@ Forecast: about 1,600 authored lines in five commits.
 
 - L1 (2026-10-24): "Sí, arranca. Pero ojo, para esto de estilos y diseño sigue las buenas prácticas. Quizás centralizarlo, estilos repetitivos buscar una buena práctica, etc."
 - L2: Map: portal stylesheet `resources/css/app.css` (Tailwind 4, `@theme` with blue `ciln-*` and `oro-400`), fonts through `laravel-vite-plugin/fonts` (`bunny('Instrument Sans')`, `@fonts`), layout `components/layouts/portal.blade.php` (top bar), controls already centralized in `components/portal/*` (alerta, archivo, boton, campo, enlace-menu, insignia, seleccion, tarjeta). Filament 5.10.3 without a theme (`->colors(['primary' => Color::Blue])`); `LocalFontProvider` exists. Design tokens and screens in `design_handoff_ciln/README.md`.
+- L3: T1 inline (styling, no RED applicable): `resources/css/ciln/tokens.css` (Tailwind 4 `@theme`: `piedra` and `oro` palettes, semantic colors `fondo`, `lienzo`, `tarjeta`, `tinta`, `secundario`, `acento`, `enlace`, status pairs `ambar/verde/rojo/gris/azul-fondo/texto`, radii `marco/tarjeta/interna/control/pildora`, shadows, `text-titulo`, `text-kpi`), imported by `app.css`; Figtree 400-700 self-hosted through `bunny('Figtree')` in the Vite fonts manifest; emblem assets as WebP (720 px, 49 KB instead of 274 KB PNG), favicon and touch icon; `x-ciln.emblema`, `x-ciln.hoja-bandera` (SVG flags clipped by the leaf radius; unknown language shows a gold leaf). Visual check by headless screenshot.
+- L4: T2 inline: `layouts/base` (head, fonts, favicon, skip link, rounded frame) shared by `layouts/portal` (264 px sticky sidebar, Heroicons, active item in gold, user block with initials and role, panel link only with `admin-panel.access`, logout; on mobile the menu folds behind a button with `aria-expanded`) and `layouts/acceso` (split sign-in: form left, emblem with flag leaves right, hidden on mobile); sign-in, password, verification and registration screens moved to it (`#[Layout('components.layouts.acceso')]`). Repetition centralized: `@utility control`, `casilla` and `enlace` in `app.css` (input states through `aria-invalid`, focus ring token), `x-portal.control` (label, help and error once for `campo`, `seleccion`, `archivo`), `x-portal.boton` variants (`primario`, `secundario`, `enlace`; `href` renders a link), `insignia` and `alerta` on the status tokens, new `encabezado`, `vacio`, `acceso`. The right panel says "Idiomas extranjeros y lenguas originarias en la UNASAM." instead of listing languages (the handoff asks to confirm German). Portal and module tests 936/938: the two failures are `RegistroDePagoTest` building the payment date with `now()` in UTC, which is tomorrow in Lima after 19:00 (pre-existing, unrelated to this change; reported to the user).

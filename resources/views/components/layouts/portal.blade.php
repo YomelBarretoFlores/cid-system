@@ -7,7 +7,7 @@
     $esDocente = $verificado && app(DocenteDelUsuario::class)((int) $usuario->id) !== null;
     $iniciales = collect(preg_split('/\s+/', trim((string) $usuario?->name)) ?: [])->filter()->take(2)->map(fn (string $parte): string => mb_strtoupper(mb_substr($parte, 0, 1)))->implode('');
 @endphp
-<x-layouts.base :title="$title" class="grid gap-2 sm:gap-3.5 lg:grid-cols-[264px_minmax(0,1fr)]">
+<x-layouts.base :title="$title" class="grid grid-cols-[minmax(0,1fr)] content-start gap-2 sm:gap-3.5 lg:grid-cols-[264px_minmax(0,1fr)] lg:content-stretch">
     <aside x-data="{ abierto: false }" class="flex flex-col gap-5 rounded-tarjeta bg-tarjeta px-4 py-5 lg:sticky lg:top-[30px] lg:max-h-[calc(100vh-60px)] lg:overflow-auto lg:px-[18px] lg:pt-[26px]">
         <div class="flex items-center justify-between gap-3">
             <a href="{{ route('estudiante.inicio') }}" class="flex items-center gap-3 px-1.5 text-tinta">

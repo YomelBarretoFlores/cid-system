@@ -58,7 +58,7 @@ function registrarPagoEnElPortal(array $cambios = []): Testable
 
 it('lists only the payments of the signed-in student, with their state and rejection reason', function (): void {
     Pago::factory()->validado()->create(['persona_id' => $this->persona->id, 'concepto_id' => $this->concepto->id, 'numero_operacion' => 'OP-PROPIO-1', 'monto' => '150.00', 'fecha_pago' => '2027-02-20']);
-    Pago::factory()->rechazado()->create(['persona_id' => $this->persona->id, 'concepto_id' => $this->concepto->id, 'numero_operacion' => 'OP-PROPIO-2', 'motivo_rechazo' => 'El monto no coincide con el recibo.']);
+    Pago::factory()->rechazado()->create(['persona_id' => $this->persona->id, 'concepto_id' => $this->concepto->id, 'numero_operacion' => 'OP-PROPIO-2', 'fecha_pago' => '2027-02-21', 'motivo_rechazo' => 'El monto no coincide con el recibo.']);
     Pago::factory()->create(['numero_operacion' => 'OP-AJENO-9']);
 
     $this->actingAs($this->estudiante)

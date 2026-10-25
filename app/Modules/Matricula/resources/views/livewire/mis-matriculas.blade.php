@@ -1,79 +1,67 @@
 @use('App\Modules\Matricula\Enums\EstadoMatricula')
-<div class="flex flex-col gap-6">
-    <header class="flex flex-col gap-1">
-        <h1 class="text-2xl font-semibold text-ciln-900">Mis matrículas</h1>
-        <p class="text-sm text-slate-600">Tus matrículas, de la más reciente a la más antigua.</p>
-    </header>
+<div class="flex flex-col gap-2 sm:gap-3.5">
+    <x-portal.encabezado titulo="Mis matrículas">Tus matrículas, de la más reciente a la más antigua.</x-portal.encabezado>
 
     @if ($matriculas->isEmpty())
-        <x-portal.alerta>
-            Aún no tienes matrículas.
-            <a href="{{ route('estudiante.matricula') }}" class="font-medium underline underline-offset-2 hover:text-ciln-700">Matricúlate aquí</a>.
-        </x-portal.alerta>
+        <x-portal.tarjeta>
+            <x-portal.vacio titulo="Aún no tienes matrículas." icono="heroicon-o-academic-cap">
+                <a href="{{ route('estudiante.matricula') }}" class="enlace">Matricúlate aquí</a>.
+            </x-portal.vacio>
+        </x-portal.tarjeta>
     @else
-        <ul role="list" class="flex flex-col gap-4">
+        <ul role="list" class="flex flex-col gap-2 sm:gap-3.5">
             @foreach ($matriculas as $matricula)
                 @php($grupo = $grupos[$matricula->grupo_id])
-                <li wire:key="matricula-{{ $matricula->id }}" class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
-                    <article class="flex flex-col gap-4" aria-labelledby="matricula-{{ $matricula->id }}-titulo">
-                        <header class="flex flex-col gap-0.5">
-                            <h2 id="matricula-{{ $matricula->id }}-titulo" class="text-base font-semibold text-ciln-900">Grupo {{ $grupo->codigo }}</h2>
-                            <p class="text-sm text-slate-600">{{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel }} · {{ $grupo->modalidad }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }}</p>
-                        </header>
+                <li wire:key="matricula-{{ $matricula->id }}">
+                    <article aria-labelledby="matricula-{{ $matricula->id }}-titulo"
+                        class="grid items-center gap-5 rounded-tarjeta bg-tarjeta p-5 sm:px-7 sm:py-[26px] md:grid-cols-[auto_minmax(0,1fr)_auto]">
+                        <x-ciln.hoja-bandera :idioma="$grupo->idioma" size="64" rot="-10" class="max-md:hidden" />
 
-                        <dl class="grid gap-3 text-sm sm:grid-cols-2">
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">Docente</dt>
-                                <dd class="text-slate-700">{{ $docentes[$matricula->grupo_id] ?? 'Por asignar' }}</dd>
-                            </div>
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">Horario</dt>
-                                @forelse ($grupo->horarios as $horario)
-                                    <dd class="text-slate-700">{{ $horario }}</dd>
-                                @empty
-                                    <dd class="text-slate-700">Por confirmar</dd>
-                                @endforelse
-                            </div>
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">{{ $grupo->aula !== null || $grupo->enlaceVirtual === null ? 'Aula' : 'Clase virtual' }}</dt>
-                                <dd class="text-slate-700">
+                        <div class="flex flex-col gap-3">
+                            <header class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                                <h2 id="matricula-{{ $matricula->id }}-titulo" class="text-[22px] font-semibold">{{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }}</h2>
+                                <span class="text-[13.5px] text-apagado">Grupo {{ $grupo->codigo }} · {{ $grupo->nivel }} · {{ $grupo->modalidad }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }}</span>
+                            </header>
+
+                            <dl class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3">
+                                <x-portal.dato etiqueta="Horario">
+                                    @forelse ($grupo->horarios as $horario)
+                                        <span class="block">{{ $horario }}</span>
+                                    @empty
+                                        Por confirmar
+                                    @endforelse
+                                </x-portal.dato>
+                                <x-portal.dato :etiqueta="$grupo->aula !== null || $grupo->enlaceVirtual === null ? 'Aula' : 'Clase virtual'">
                                     @if ($grupo->aula !== null)
                                         {{ $grupo->aula }}
                                     @elseif ($grupo->enlaceVirtual !== null)
-                                        <a href="{{ $grupo->enlaceVirtual }}" target="_blank" rel="noopener noreferrer" class="font-medium text-ciln-700 underline underline-offset-2 hover:text-ciln-900 focus-visible:outline-2 focus-visible:outline-ciln-600">Entrar a la clase virtual</a>
+                                        <a href="{{ $grupo->enlaceVirtual }}" target="_blank" rel="noopener noreferrer" class="enlace">Entrar a la clase virtual</a>
                                     @else
                                         Por asignar
                                     @endif
-                                </dd>
-                            </div>
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">Periodo</dt>
-                                <dd class="text-slate-700">{{ $grupo->periodo }}</dd>
-                            </div>
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">Estado</dt>
-                                <dd><x-portal.insignia :color="$matricula->estado === EstadoMatricula::Activa ? 'success' : 'gray'">{{ $matricula->estado->etiqueta() }}</x-portal.insignia></dd>
-                            </div>
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">Condición</dt>
-                                <dd class="text-slate-700">{{ $matricula->condicion->etiqueta() }}</dd>
-                            </div>
-                            <div class="flex flex-col gap-0.5">
-                                <dt class="font-medium text-slate-800">Matriculado el</dt>
-                                <dd class="text-slate-700">
+                                </x-portal.dato>
+                                <x-portal.dato etiqueta="Estado">
+                                    <x-portal.insignia :color="$matricula->estado === EstadoMatricula::Activa ? 'success' : 'gray'">{{ $matricula->estado->etiqueta() }}</x-portal.insignia>
+                                </x-portal.dato>
+                                <x-portal.dato etiqueta="Docente">{{ $docentes[$matricula->grupo_id] ?? 'Por asignar' }}</x-portal.dato>
+                                <x-portal.dato etiqueta="Condición">{{ $matricula->condicion->etiqueta() }}</x-portal.dato>
+                                <x-portal.dato etiqueta="Periodo">{{ $grupo->periodo }}</x-portal.dato>
+                                <x-portal.dato etiqueta="Matriculado el">
                                     <time datetime="{{ $matricula->matriculado_en->toIso8601String() }}">{{ $matricula->matriculado_en->timezone('America/Lima')->format('d/m/Y H:i') }}</time>
-                                </dd>
-                            </div>
-                        </dl>
+                                </x-portal.dato>
+                            </dl>
+                        </div>
 
-                        <div class="flex flex-wrap gap-3 border-t border-slate-200 pt-4 text-sm">
-                            <a href="{{ route('estudiante.matriculas.ficha', $matricula) }}" target="_blank" rel="noopener" class="rounded-md px-3 py-2 font-medium text-ciln-700 ring-1 ring-ciln-100 hover:bg-ciln-50 focus-visible:outline-2 focus-visible:outline-ciln-600">
+                        <div class="flex flex-col gap-2">
+                            <x-portal.boton variante="secundario" :href="route('estudiante.matriculas.ficha', $matricula)" target="_blank" rel="noopener" class="px-4 py-2.5">
+                                <x-heroicon-o-document-arrow-down aria-hidden="true" class="size-4" />
                                 Ficha de matrícula (PDF)<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
-                            </a>
+                            </x-portal.boton>
                             @if ($matricula->estado === EstadoMatricula::Activa)
-                                <a href="{{ route('estudiante.matriculas.constancia', $matricula) }}" target="_blank" rel="noopener" class="rounded-md px-3 py-2 font-medium text-ciln-700 ring-1 ring-ciln-100 hover:bg-ciln-50 focus-visible:outline-2 focus-visible:outline-ciln-600">
+                                <x-portal.boton variante="secundario" :href="route('estudiante.matriculas.constancia', $matricula)" target="_blank" rel="noopener" class="px-4 py-2.5">
+                                    <x-heroicon-o-document-check aria-hidden="true" class="size-4" />
                                     Constancia de inscripción (PDF)<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
-                                </a>
+                                </x-portal.boton>
                             @endif
                         </div>
                     </article>
