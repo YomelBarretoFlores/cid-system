@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Modules\Academico\Contracts\DetalleDeGrupos;
 use App\Modules\Academico\Contracts\OfertaDeMatricula;
 use App\Modules\Academico\Data\FichaDeGrupo;
+use App\Modules\Academico\Data\SesionDeClase;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\Modalidad;
@@ -89,6 +90,7 @@ it('describes each offered group with its schedule, classroom and live vacancies
         aula: 'A-101 · Laboratorio 1',
         enlaceVirtual: null,
         vacantesDisponibles: 2,
+        sesiones: [new SesionDeClase(1, '08:00:00', '10:00:00'), new SesionDeClase(3, '18:00:00', '20:00:00')],
     )]);
 });
 

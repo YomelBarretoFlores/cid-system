@@ -25,7 +25,7 @@ it('lists only the own enrollments, newest first, with group detail, state, cond
     $this->actingAs($user)
         ->get(route('estudiante.matriculas'))
         ->assertOk()
-        ->assertSeeInOrder(['ING-II-A', 'Martes de 18:00 a 20:00', 'Activa', 'Repitente', '20/10/2026 10:30', 'ING-I-A', 'Retirada', 'Regular', '02/03/2026 08:00'])
+        ->assertSeeInOrder(['ING-II-A', 'Mar, 18:00–20:00', 'Activa', 'Repitente', '20/10/2026 10:30', 'ING-I-A', 'Retirada', 'Regular', '02/03/2026 08:00'])
         ->assertDontSee('AJENO-1');
 });
 

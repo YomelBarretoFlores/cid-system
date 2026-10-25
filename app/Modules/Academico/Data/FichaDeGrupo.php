@@ -13,6 +13,7 @@ final readonly class FichaDeGrupo
 
     /**
      * @param  list<string>  $horarios
+     * @param  list<SesionDeClase>  $sesiones
      */
     public function __construct(
         public int $id,
@@ -28,6 +29,7 @@ final readonly class FichaDeGrupo
         public ?string $aula,
         public ?string $enlaceVirtual,
         public int $vacantesDisponibles,
+        public array $sesiones = [],
     ) {}
 
     public static function desde(Grupo $grupo): self
@@ -46,6 +48,15 @@ final readonly class FichaDeGrupo
             aula: $grupo->aula === null ? null : "{$grupo->aula->codigo} · {$grupo->aula->nombre}",
             enlaceVirtual: $grupo->enlace_virtual,
             vacantesDisponibles: max(0, $grupo->vacantes_disponibles),
+            sesiones: array_values($grupo->horarios->map(fn (Horario $horario): SesionDeClase => SesionDeClase::desde($horario))->all()),
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function horarioCompacto(): array
+    {
+        return SesionDeClase::compactar($this->sesiones);
     }
 }

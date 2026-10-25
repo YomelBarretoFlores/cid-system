@@ -36,7 +36,7 @@ it('shows the open groups of the enabled cycle with schedule and live vacancies'
         ->assertOk()
         ->assertSee('Inglés')
         ->assertSee('ING-I-A')
-        ->assertSee('Lunes de 08:00 a 10:00')
+        ->assertSee('Lun, 08:00–10:00')
         ->assertSee('20 vacantes')
         ->assertSee('wire:poll.15s', false)
         ->assertDontSee('ING-II-A');

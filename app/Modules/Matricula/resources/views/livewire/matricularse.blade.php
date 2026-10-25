@@ -26,7 +26,7 @@
                             <span id="grupo-{{ $grupo->id }}-detalle" class="flex flex-col gap-0.5">
                                 <span class="text-base font-semibold">Grupo {{ $grupo->codigo }}</span>
                                 <span class="text-[13.5px] text-terciario">Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel }} · {{ $grupo->modalidad }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }} · Periodo {{ $grupo->periodo }}</span>
-                                @forelse ($grupo->horarios as $horario)
+                                @forelse ($grupo->horarioCompacto() as $horario)
                                     <span class="text-[13.5px]">{{ $horario }}</span>
                                 @empty
                                     <span class="text-[13.5px]">Horario por confirmar</span>

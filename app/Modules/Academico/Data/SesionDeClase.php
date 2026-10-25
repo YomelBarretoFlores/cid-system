@@ -8,6 +8,8 @@ use App\Modules\Academico\Models\Horario;
 
 final readonly class SesionDeClase
 {
+    public const array DIAS_CORTOS = [1 => 'Lun', 2 => 'Mar', 3 => 'Mié', 4 => 'Jue', 5 => 'Vie', 6 => 'Sáb', 7 => 'Dom'];
+
     public function __construct(
         public int $diaSemana,
         public string $horaInicio,
@@ -37,6 +39,29 @@ final readonly class SesionDeClase
     public function descripcion(): string
     {
         return sprintf('%s de %s a %s', $this->dia(), substr($this->horaInicio, 0, 5), substr($this->horaFin, 0, 5));
+    }
+
+    /**
+     * Days that share the same hours go on one line: "Lun · Mié · Vie, 07:00–08:30".
+     *
+     * @param  list<self>  $sesiones
+     * @return list<string>
+     */
+    public static function compactar(array $sesiones): array
+    {
+        usort($sesiones, fn (self $una, self $otra): int => [$una->horaInicio, $una->diaSemana] <=> [$otra->horaInicio, $otra->diaSemana]);
+        $porHorario = [];
+
+        foreach ($sesiones as $sesion) {
+            $porHorario[$sesion->horas()][] = self::DIAS_CORTOS[$sesion->diaSemana] ?? (string) $sesion->diaSemana;
+        }
+
+        return array_map(fn (string $horas, array $dias): string => implode(' · ', $dias).", {$horas}", array_keys($porHorario), $porHorario);
+    }
+
+    private function horas(): string
+    {
+        return substr($this->horaInicio, 0, 5).'–'.substr($this->horaFin, 0, 5);
     }
 
     private function segundos(string $hora): int

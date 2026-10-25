@@ -36,7 +36,7 @@ it('lists the current groups of the teacher with language, level, period and sch
     $this->actingAs($this->usuario)
         ->get(route('docente.grupos'))
         ->assertOk()
-        ->assertSeeInOrder(['Mis grupos', 'Grupo ING-05-A', 'Inglés · Ciclo 5 · Intermedio', 'Marzo 2027', 'Lunes de 18:00 a 20:00'])
+        ->assertSeeInOrder(['Mis grupos', 'Grupo ING-05-A', 'Inglés · Ciclo 5 · Intermedio', 'Marzo 2027', 'Lun, 18:00–20:00'])
         ->assertDontSee('ING-05-CANCELADO')
         ->assertDontSee('ING-05-FINALIZADO')
         ->assertDontSee('ING-05-AJENO');

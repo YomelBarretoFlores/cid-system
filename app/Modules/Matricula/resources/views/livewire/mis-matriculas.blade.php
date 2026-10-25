@@ -25,7 +25,7 @@
 
                             <dl class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3">
                                 <x-portal.dato etiqueta="Horario">
-                                    @forelse ($grupo->horarios as $horario)
+                                    @forelse ($grupo->horarioCompacto() as $horario)
                                         <span class="block">{{ $horario }}</span>
                                     @empty
                                         Por confirmar

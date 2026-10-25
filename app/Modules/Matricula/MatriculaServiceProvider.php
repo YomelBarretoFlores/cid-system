@@ -8,7 +8,9 @@ use App\Modules\Matricula\Actions\DescribirContextoAcademicoDePagos;
 use App\Modules\Matricula\Actions\ListarEstudiantesDelGrupo;
 use App\Modules\Matricula\Contracts\ContextoAcademicoDePagos;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
+use App\Modules\Matricula\Livewire\ResumenDelEstudiante;
 use App\Shared\Support\ModuleServiceProvider;
+use Livewire\Livewire;
 
 final class MatriculaServiceProvider extends ModuleServiceProvider
 {
@@ -21,4 +23,11 @@ final class MatriculaServiceProvider extends ModuleServiceProvider
     ];
 
     protected string $module = 'Matricula';
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        Livewire::component('matricula.resumen-del-estudiante', ResumenDelEstudiante::class);
+    }
 }

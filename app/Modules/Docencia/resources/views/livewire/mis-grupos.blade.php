@@ -1,3 +1,4 @@
+@use('App\Modules\Academico\Data\SesionDeClase')
 <div class="flex flex-col gap-2 sm:gap-3.5">
     <x-portal.encabezado titulo="Mis grupos" :antetitulo="now('America/Lima')->locale('es')->isoFormat('[Hoy es] dddd D [de] MMMM')" saludo>
         Los grupos que tienes a cargo en este momento. Si la coordinación te reasigna un grupo, deja de aparecer aquí.
@@ -28,8 +29,8 @@
                         <dl class="grid grid-cols-2 gap-2.5 text-sm">
                             <x-portal.dato etiqueta="Periodo">{{ $grupo->periodo }} ({{ $grupo->periodoInicio->format('d/m/Y') }} al {{ $grupo->periodoFin->format('d/m/Y') }})</x-portal.dato>
                             <x-portal.dato etiqueta="Horario" class="col-span-2">
-                                @forelse ($grupo->sesiones as $sesion)
-                                    <span class="block">{{ $sesion->descripcion() }}</span>
+                                @forelse (SesionDeClase::compactar($grupo->sesiones) as $horario)
+                                    <span class="block">{{ $horario }}</span>
                                 @empty
                                     Por confirmar
                                 @endforelse
