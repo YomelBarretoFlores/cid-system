@@ -15,7 +15,7 @@ paths:
 - PostgreSQL has no unsigned integers and Laravel silently ignores `unsigned*`: use `smallInteger`/`integer` plus a `CHECK`. Name constraints `<table>_<rule>_check` (never `<table>_<enum column>_check`: PostgreSQL already gives that name to the CHECK of a Laravel `enum()` column) and add them with `DB::statement` after `Schema::create`.
 - Migrations use literal enum values, never PHP enum classes, so old migrations keep their meaning.
 - PostgreSQL functions use `CREATE OR REPLACE FUNCTION`: `migrate:fresh` drops tables but not functions. Name constraints and FKs explicitly when the generated name would exceed 63 characters.
-- Critical tables get `AFTER INSERT OR UPDATE OR DELETE ... EXECUTE FUNCTION aud_registrar()`. `aud_registros` and `pag_pagos` reject TRUNCATE, so exclude them from `DatabaseTruncation`.
+- Critical tables get `AFTER INSERT OR UPDATE OR DELETE ... EXECUTE FUNCTION aud_registrar()`. `aud_registros` and `pag_pagos` reject TRUNCATE, so exclude them from `DatabaseTruncation`; `mat_movimientos` and the `cer_*` tables reject it only with rows (the concurrency truncation disables the `cer_*_sin_truncate` triggers around its own statement).
 - Trigger functions schema-qualify tables (`public.x`) and pin `SET search_path = pg_catalog, public, pg_temp`; `pg_temp` is searched first otherwise. Row-level DELETE triggers do not fire on TRUNCATE: add a statement-level `BEFORE TRUNCATE` trigger too.
 - Money: `decimal(12, 2)` or integer cents. Never float. Timestamps: `timestampsTz()` / `timestampTz()`.
 - Time-varying prices (TUPA/TUSNE fees, teacher hourly cost) are rows with validity dates; transactions store the amount they applied.

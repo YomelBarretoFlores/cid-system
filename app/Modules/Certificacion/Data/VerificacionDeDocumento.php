@@ -25,6 +25,7 @@ final readonly class VerificacionDeDocumento
         public string $resumen,
         public bool $vigente,
         public ?string $anuladoEl,
+        public bool $esCertificado,
     ) {}
 
     public static function desde(Documento $documento): self
@@ -42,6 +43,7 @@ final readonly class VerificacionDeDocumento
             resumen: self::resumen($documento),
             vigente: $documento->estaVigente(),
             anuladoEl: $documento->anulado_en === null ? null : Formato::fechaCorta($documento->anulado_en->setTimezone('America/Lima')),
+            esCertificado: $documento->tipo === TipoDocumento::CertificadoNivel,
         );
     }
 

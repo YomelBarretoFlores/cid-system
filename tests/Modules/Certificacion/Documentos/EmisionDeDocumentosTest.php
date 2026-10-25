@@ -171,6 +171,8 @@ it('keeps issued documents locked in the database outside the Actions', function
 })->with([
     'changing the grade' => [fn () => DB::table('cer_documentos')->update(['nota_final' => '20.00']), 'un documento emitido solo admite su anulación'],
     'deleting it' => [fn () => DB::table('cer_documentos')->delete(), 'un documento emitido no se elimina'],
+    'truncating the table' => [fn () => DB::statement('TRUNCATE cer_documentos'), 'las actas y los documentos emitidos no se borran'],
+    'truncating the actas' => [fn () => DB::statement('TRUNCATE cer_actas CASCADE'), 'las actas y los documentos emitidos no se borran'],
     'a second valid certificate' => [fn () => DB::table('cer_documentos')->insert([...collect((array) DB::table('cer_documentos')->first())->except(['id'])->all(), 'codigo' => 'CILN-0000000000']), 'cer_documentos_certificado_vigente_unique'],
 ]);
 

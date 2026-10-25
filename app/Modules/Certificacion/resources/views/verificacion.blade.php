@@ -24,7 +24,7 @@
                     <x-portal.dato etiqueta="Documento de identidad">{{ $verificacion->documentoOculto }}</x-portal.dato>
                     <x-portal.dato etiqueta="Idioma">{{ $verificacion->idioma }}</x-portal.dato>
                     @if ($verificacion->nivel)
-                        <x-portal.dato etiqueta="Nivel alcanzado">{{ $verificacion->nivel }}</x-portal.dato>
+                        <x-portal.dato :etiqueta="$verificacion->esCertificado ? 'Nivel alcanzado' : 'Nivel'">{{ $verificacion->nivel }}</x-portal.dato>
                     @endif
                     @if ($verificacion->horasLectivas)
                         <x-portal.dato etiqueta="Total de horas lectivas">{{ $verificacion->horasLectivas }}</x-portal.dato>

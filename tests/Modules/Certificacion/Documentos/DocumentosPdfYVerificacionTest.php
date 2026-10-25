@@ -113,3 +113,17 @@ it('sends a typed code that cannot be a document code back to the empty form', f
     $this->get(route('verificacion.documento').'?codigo='.urlencode(str_repeat('A', 40)))->assertRedirect(route('verificacion.documento'));
     $this->get(route('verificacion.documento').'?codigo='.urlencode('***'))->assertRedirect(route('verificacion.documento'));
 });
+
+it('labels the level of an enrollment record as the level of the course, not a level reached', function (): void {
+    $documento = Documento::query()->create([
+        'codigo' => 'CILN-MATRICULA01', 'tipo' => 'constancia_matricula', 'persona_id' => $this->ana->id, 'estudiante_nombre' => 'Alva Prueba, Ana',
+        'estudiante_documento' => 'DNI 70000001', 'idioma' => 'Portugués', 'nivel' => 'basico', 'emitido_por' => $this->emisor->id, 'emitido_en' => now(),
+        'detalle' => ['grupo' => 'POR-2-T', 'ciclo_numero' => 2, 'periodo' => 'Marzo 2027', 'modalidad' => 'Presencial', 'horario' => [], 'matriculado_el' => '2027-02-20', 'codigo_matricula' => '01J'],
+    ]);
+
+    $this->get(route('verificacion.documento', $documento->codigo))
+        ->assertOk()
+        ->assertSeeInOrder(['Nivel', 'Básico'])
+        ->assertDontSee('Nivel alcanzado');
+    $this->get(route('verificacion.documento', $this->certificado->codigo))->assertSee('Nivel alcanzado');
+});
