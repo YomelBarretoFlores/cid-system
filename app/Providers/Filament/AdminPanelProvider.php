@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
+use App\Shared\Auth\Filament\EditarPerfil;
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
 use App\Shared\Ui\PaletaCiln;
 use Filament\Enums\GlobalSearchPosition;
@@ -64,6 +65,7 @@ final class AdminPanelProvider extends PanelProvider
             ->globalSearch(position: GlobalSearchPosition::Sidebar)
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->login()
+            ->profile(EditarPerfil::class, isSimple: false)
             ->strictAuthorization()
             ->colors([
                 'primary' => PaletaCiln::ORO,
