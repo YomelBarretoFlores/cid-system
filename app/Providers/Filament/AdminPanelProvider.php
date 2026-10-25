@@ -8,6 +8,7 @@ use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use App\Shared\Auth\Filament\EditarPerfil;
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
 use App\Shared\Ui\PaletaCiln;
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Enums\GlobalSearchPosition;
 use Filament\Enums\UserMenuPosition;
 use Filament\FontProviders\LocalFontProvider;
@@ -66,6 +67,7 @@ final class AdminPanelProvider extends PanelProvider
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->login()
             ->profile(EditarPerfil::class, isSimple: false)
+            ->multiFactorAuthentication([AppAuthentication::make()->recoverable()->brandName('CILN - UNASAM')], isRequired: true)
             ->strictAuthorization()
             ->colors([
                 'primary' => PaletaCiln::ORO,

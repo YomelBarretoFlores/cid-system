@@ -7,6 +7,10 @@ namespace App\Shared\Auth\Models;
 use App\Shared\Auth\Notifications\CorreoDeRestablecimiento;
 use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use Database\Factories\UserFactory;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -23,12 +27,18 @@ use Spatie\Permission\Traits\HasRoles;
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 #[UseFactory(UserFactory::class)]
-final class User extends Authenticatable implements FilamentUser, MustVerifyEmail
+final class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, MustVerifyEmail
 {
     public const string ADMIN_PANEL_PERMISSION = 'admin-panel.access';
 
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery, Notifiable;
+
+    // A freshly created account has no second factor yet; strict mode would refuse the unloaded columns.
+    protected $attributes = [
+        'app_authentication_secret' => null,
+        'app_authentication_recovery_codes' => null,
+    ];
 
     public function canAccessPanel(Panel $panel): bool
     {
