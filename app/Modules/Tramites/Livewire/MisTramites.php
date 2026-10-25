@@ -9,12 +9,12 @@ use App\Modules\Certificacion\Contracts\NivelesPorCertificar;
 use App\Modules\Certificacion\Data\NivelPorCertificar;
 use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
+use App\Modules\Tramites\Actions\ListarTramitesDeEstudiante;
 use App\Modules\Tramites\Actions\SolicitarTramite;
 use App\Modules\Tramites\Data\DatosDeSolicitud;
 use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Models\TipoTramite;
-use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Logging\RegistroDeRechazos;
 use Illuminate\Contracts\View\View;
@@ -92,7 +92,7 @@ final class MisTramites extends Component
         $tipo = $this->tipoElegido === null ? null : TipoTramite::query()->find($this->tipoElegido);
 
         return view('tramites::livewire.mis-tramites', [
-            'tramites' => Tramite::query()->where('persona_id', $this->personaId())->latest()->latest('id')->get(),
+            'tramites' => app(ListarTramitesDeEstudiante::class)($this->personaId()),
             'tipos' => TipoTramite::query()->where('activo', true)->orderBy('nombre')->get(),
             'tipo' => $tipo,
             'opciones' => $tipo instanceof TipoTramite ? $this->opciones($tipo->accion_final) : [],
