@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Certificacion\Http\Controllers\DescargarActaFinalDelDocente;
 use App\Modules\Certificacion\Http\Controllers\DescargarActaFinalParaPersonal;
+use App\Modules\Certificacion\Http\Controllers\DescargarDocumentoDelEstudiante;
 use App\Modules\Certificacion\Http\Controllers\DescargarDocumentoParaPersonal;
 use App\Modules\Certificacion\Http\Controllers\VerificarDocumento;
 use App\Modules\Certificacion\Livewire\ActaFinalDelGrupo;
@@ -16,6 +17,11 @@ Route::middleware(['auth', 'auth.session', 'verified', 'docente'])->group(functi
     Route::livewire('/docente/grupos/{grupo}/acta', ActaFinalDelGrupo::class)->whereNumber('grupo')->name('docente.acta');
     Route::get('/docente/grupos/{grupo}/acta/pdf', DescargarActaFinalDelDocente::class)->whereNumber('grupo')->name('docente.acta.pdf');
 });
+
+Route::get('/estudiante/documentos/{documento}/pdf', DescargarDocumentoDelEstudiante::class)
+    ->whereNumber('documento')
+    ->middleware(['auth', 'auth.session', 'verified', 'estudiante'])
+    ->name('estudiante.documentos.pdf');
 
 Route::get('/panel/actas-finales/{acta}/pdf', DescargarActaFinalParaPersonal::class)
     ->middleware(['auth', 'auth.session', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:view,acta'])

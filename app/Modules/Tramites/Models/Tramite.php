@@ -9,10 +9,12 @@ use App\Modules\Tramites\Database\Factories\TramiteFactory;
 use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\CondicionDeEtapa;
 use App\Modules\Tramites\Enums\EstadoTramite;
+use App\Modules\Tramites\Policies\TramitePolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +22,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string $codigo
+ * @property int $persona_id
+ * @property ?int $pago_id
+ * @property ?int $documento_id
+ * @property ?string $observacion
  * @property AccionFinal $accion_final
  * @property ?TipoConcepto $tipo_concepto
  * @property list<array{nombre: string, avance: int, condicion: string}> $etapas
@@ -36,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'pago_id', 'observacion', 'documento_id', 'finalizado_en',
 ])]
 #[UseFactory(TramiteFactory::class)]
+#[UsePolicy(TramitePolicy::class)]
 final class Tramite extends Model
 {
     /** @use HasFactory<TramiteFactory> */

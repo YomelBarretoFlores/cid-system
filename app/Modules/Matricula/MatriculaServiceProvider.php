@@ -8,10 +8,12 @@ use App\Modules\Matricula\Actions\BuscarDocumentoDeMatricula;
 use App\Modules\Matricula\Actions\DescribirContextoAcademicoDePagos;
 use App\Modules\Matricula\Actions\ListarEstudiantesDelGrupo;
 use App\Modules\Matricula\Actions\ListarMatriculasActivasDePersona;
+use App\Modules\Matricula\Actions\MoverMatriculaPorTramite;
 use App\Modules\Matricula\Contracts\ContextoAcademicoDePagos;
 use App\Modules\Matricula\Contracts\DocumentoDeMatriculaPorId;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
+use App\Modules\Matricula\Contracts\MovimientoPorTramite;
 use App\Modules\Matricula\Livewire\ResumenDelEstudiante;
 use App\Shared\Support\ModuleServiceProvider;
 use Livewire\Livewire;
@@ -26,6 +28,7 @@ final class MatriculaServiceProvider extends ModuleServiceProvider
         EstudiantesDelGrupo::class => ListarEstudiantesDelGrupo::class,
         MatriculasActivasDePersona::class => ListarMatriculasActivasDePersona::class,
         DocumentoDeMatriculaPorId::class => BuscarDocumentoDeMatricula::class,
+        MovimientoPorTramite::class => MoverMatriculaPorTramite::class,
     ];
 
     protected string $module = 'Matricula';

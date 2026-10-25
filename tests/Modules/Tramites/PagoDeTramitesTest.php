@@ -122,7 +122,7 @@ it('uses the oldest of several free payments', function (): void {
 
 it('keeps the request waiting for a payment when the free one can no longer be used', function (): void {
     pagoDeConstancia($this->persona, $this->constancia, 'validado');
-    $this->app->bind(VerificacionDePago::class, fn () => new class implements VerificacionDePago
+    $this->app->bind(VerificacionDePago::class, fn (): VerificacionDePago => new class implements VerificacionDePago
     {
         public function __invoke(int $pagoId, int $personaId, TipoConcepto $servicio): PagoData
         {

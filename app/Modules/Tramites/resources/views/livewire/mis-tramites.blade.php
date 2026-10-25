@@ -23,6 +23,12 @@
 
                     <x-portal.etapas :etapas="$tramite->etapas" :actual="$tramite->etapa_actual" :observado="$tramite->estado === EstadoTramite::Observado" :finalizado="$tramite->estado === EstadoTramite::Finalizado" />
 
+                    @if ($tramite->documento_id !== null)
+                        <x-portal.boton variante="secundario" tamano="compacto" :href="route('estudiante.documentos.pdf', $tramite->documento_id)" class="self-start">
+                            <x-heroicon-o-arrow-down-tray aria-hidden="true" class="size-4" /> Descargar el documento
+                        </x-portal.boton>
+                    @endif
+
                     @if ($tramite->estado === EstadoTramite::Observado)
                         <x-portal.alerta tipo="aviso">{{ $tramite->observacion }}</x-portal.alerta>
                     @elseif ($tramite->estado === EstadoTramite::PendientePago)
