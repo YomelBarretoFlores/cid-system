@@ -7,6 +7,7 @@ use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Auth\Pages\Login;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -33,12 +34,17 @@ it('offers the authenticator app with recovery codes and requires it for every p
 
 it('stores the secret and the recovery codes encrypted and never shows them', function (): void {
     $usuario = personalDelPanel(conDobleFactor: true);
-    $usuario->saveAppAuthenticationRecoveryCodes(['codigo-uno', 'codigo-dos']);
+    $codigos = $this->proveedor->generateRecoveryCodes();
+    $this->proveedor->saveRecoveryCodes($usuario, $codigos);
     $fila = DB::table('users')->where('id', $usuario->id)->first();
+    $guardados = json_decode(decrypt($fila->app_authentication_recovery_codes, unserialize: false), true);
 
     expect($fila->app_authentication_secret)->not->toBe($usuario->getAppAuthenticationSecret())
         ->and(decrypt($fila->app_authentication_secret, unserialize: false))->toBe($usuario->getAppAuthenticationSecret())
-        ->and($fila->app_authentication_recovery_codes)->not->toContain('codigo-uno')
+        ->and($codigos)->toHaveCount(8)
+        ->and($guardados)->toHaveCount(8)
+        ->and(Hash::check($codigos[0], $guardados[0]))->toBeTrue()
+        ->and($fila->app_authentication_recovery_codes)->not->toContain($codigos[0])
         ->and($usuario->toArray())->not->toHaveKeys(['app_authentication_secret', 'app_authentication_recovery_codes']);
 });
 
@@ -59,9 +65,33 @@ it('asks for the app code after the password and signs in only with a valid one'
 
     $this->assertGuest();
 
-    $ingreso->set('data.multiFactor.app.code', '000000')->call('authenticate')->assertHasErrors();
+    $codigo = $this->proveedor->getCurrentCode($usuario);
+    $equivocado = substr($codigo, 0, 5).(((int) $codigo[5] + 1) % 10);
+
+    $ingreso->set('data.multiFactor.app.code', $equivocado)->call('authenticate')->assertHasErrors();
     $this->assertGuest();
 
-    $ingreso->set('data.multiFactor.app.code', $this->proveedor->getCurrentCode($usuario))->call('authenticate')->assertHasNoErrors();
+    $ingreso->set('data.multiFactor.app.code', $codigo)->call('authenticate')->assertHasNoErrors();
     $this->assertAuthenticatedAs($usuario);
+});
+
+it('signs in once with each recovery code when the phone is lost', function (): void {
+    $usuario = personalDelPanel(conDobleFactor: true);
+    $codigos = $this->proveedor->generateRecoveryCodes();
+    $this->proveedor->saveRecoveryCodes($usuario, $codigos);
+
+    $ingresarCon = fn (string $codigo) => Livewire::test(Login::class)
+        ->fillForm(['email' => 'caja@ciln.test', 'password' => 'password'])
+        ->call('authenticate')
+        ->set('data.multiFactor.app.useRecoveryCode', true)
+        ->set('data.multiFactor.app.recoveryCode', $codigo)
+        ->call('authenticate');
+
+    $ingresarCon($codigos[0])->assertHasNoErrors();
+    $this->assertAuthenticatedAs($usuario);
+    expect($usuario->fresh()->getAppAuthenticationRecoveryCodes())->toHaveCount(7);
+
+    auth()->logout();
+    $ingresarCon($codigos[0])->assertHasErrors();
+    $this->assertGuest();
 });
