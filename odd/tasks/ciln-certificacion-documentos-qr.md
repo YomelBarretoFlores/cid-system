@@ -31,8 +31,8 @@ Assumptions (recorded in `docs/decisiones-pendientes.md`, to confirm with the CI
 |----|-------|-------|--------|--------|
 | T1 | S2, D2 | inline | done | see L3 |
 | T2 | S2, S3, S5, S6, D1, D3–D5, D7 | inline | done | see L4 |
-| T3 | S2, S3, S8 | inline | pending | |
-| T4 | S2, S5, D6 | inline | pending | |
+| T3 | S2, S3, S8 | inline | done | see L6 |
+| T4 | S2, S5, D6 | inline | done | see L6 |
 | T5 | S2, S8, D7, D8 | inline | pending | |
 | T6 | all | inline | pending | |
 
@@ -52,3 +52,4 @@ Route evidence: each unit builds on the previous one, so there is no parallel wr
 - L3: T1: contracts `MatriculasActivasDePersona` (options for the issue form) and `DocumentoDeMatriculaPorId` (reuses `ComponerDocumentoDeMatricula`); 2 tests, written with the implementation (thin wrappers over tested code).
 - L4: T2: `cer_documentos` (snapshot of student, language, level, hours, final grade and detail; audit; `cer_documentos_bloqueo` allows only one voiding; partial unique index for one valid certificate per student, language and level), `CodigoDeDocumento` (CILN- + 10 Crockford base32), `HistorialDeNotas` (closed actas only, last passed result per cycle, average half up), Actions to issue each type, bulk issue per period and per acta, and void; every one checks `certificacion.documentos`; a repeated random code is retried and a duplicate certificate becomes a business message. 14 tests plus a race test (two certificates for the same student at once → one issued). Written implementation-first, then pinned by the tests.
 - L5: T1–T2 reviewed with risk, resilience and reliability lenses: approved and acknowledged (lineage review-90831224f16c67aa). Advisories applied: a repeated bulk issue of an acta's grade records skips students who already got one after the acta closed; the period's bulk issue logs and skips a certificate issued meanwhile by someone else instead of stopping halfway (mutation check: without the guard the test fails); the race test no longer depends on output order. Left: the random-code retry has no test (a collision of 10 random base32 characters cannot be produced without injecting the generator).
+- L6: T3 + T4 in one commit, because every PDF carries the URL of the public page: `CodigoQr` (endroid PNG data URI), `GenerarDocumentoPdf` (refuses a voided document), PDFs for the three types on `x-pdf.documento` with the shared `x-pdf.verificacion` block (QR, code, issue date, URL); public route `/verificar/{codigo?}` (`throttle:30,1`, `X-Robots-Tag` and meta robots `noindex, nofollow`, code normalized from lowercase or without dash, form redirect, 404 for unknown codes), showing type, name, document number with only its last four characters, language, level, hours, grade, summary, code, issue date and valid/void state, never the void reason. 11 tests; the certificate and grade record PDFs were rendered with DOMPDF and checked visually.

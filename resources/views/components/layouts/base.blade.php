@@ -1,9 +1,12 @@
-@props(['title' => null])
+@props(['title' => null, 'indexable' => true])
 <!DOCTYPE html>
 <html lang="es">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        @unless ($indexable)
+            <meta name="robots" content="noindex, nofollow">
+        @endunless
         <title>{{ $title ? "{$title} · " : '' }}CILN UNASAM</title>
         <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
         <link rel="apple-touch-icon" href="{{ asset('images/ciln/apple-touch-icon.png') }}">
