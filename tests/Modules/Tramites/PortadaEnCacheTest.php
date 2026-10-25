@@ -6,6 +6,7 @@ use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
+use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Pagos\Enums\FuenteConcepto;
@@ -61,3 +62,18 @@ it('rebuilds the public page when the day changes in Lima, so the dates move on'
 
     $this->get('/')->assertSeeTextInOrder(['En curso', '6 – 25 oct', 'Hoy', '25 oct']);
 });
+
+it('rebuilds the public page when any model it shows is saved or deleted', function (Closure $cambiar): void {
+    $this->get('/');
+    DB::table('aca_grupos')->where('id', $this->grupo->id)->update(['matriculados' => 5]);
+
+    $cambiar($this);
+
+    $this->get('/')->assertSeeText('15 vacantes');
+})->with([
+    'period' => [fn ($prueba) => $prueba->periodo->update(['nombre' => '2026-II B'])],
+    'cycle' => [fn ($prueba) => $prueba->grupo->ciclo->update(['horas_lectivas' => 70])],
+    'schedule saved' => [fn ($prueba) => Horario::factory()->for($prueba->grupo)->create(['dia_semana' => 2, 'hora_inicio' => '19:00', 'hora_fin' => '21:00'])],
+    'schedule deleted' => [fn ($prueba) => Horario::factory()->for($prueba->grupo)->createQuietly(['dia_semana' => 3, 'hora_inicio' => '19:00', 'hora_fin' => '21:00'])->delete()],
+    'concept' => [fn ($prueba) => $prueba->concepto->update(['nombre' => 'Matrícula ordinaria'])],
+]);
