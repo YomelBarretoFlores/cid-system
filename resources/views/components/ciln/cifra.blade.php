@@ -12,4 +12,7 @@
     @if ($detalle)
         <span @class(['relative', 'text-secundario' => $tono === 'tinta', 'font-medium text-oro-600' => $tono === 'oro'])>{{ $detalle }}</span>
     @endif
+    @if ($slot->isNotEmpty())
+        <div class="relative mt-auto flex flex-col gap-1 pt-2">{{ $slot }}</div>
+    @endif
 </div>

@@ -1,0 +1,82 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Modules\Academico\Enums\EstadoPeriodo;
+use App\Modules\Academico\Models\Idioma;
+use App\Modules\Docencia\Enums\CondicionLaboral;
+use App\Modules\Docencia\Models\Docente;
+use App\Modules\Pagos\Enums\PermisoPago;
+use App\Modules\Pagos\Enums\TipoConcepto;
+use App\Modules\Tablero\Enums\PermisoTablero;
+use App\Modules\Tablero\Filament\Pages\TableroGerencial;
+use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
+use Livewire\Livewire;
+use Tests\Support\DatosDelTablero;
+
+beforeEach(function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-03-20 10:00', 'America/Lima'));
+    $this->directora = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoTablero::Ver->value]);
+    $this->ingles = Idioma::factory()->create(['nombre' => 'Inglés']);
+    $this->quechua = Idioma::factory()->create(['nombre' => 'Quechua']);
+    DatosDelTablero::periodo('Febrero 2027', '2027-02-01', '2027-02-28', numero: 2);
+    $this->marzo = DatosDelTablero::periodo('Marzo 2027', '2027-03-01', '2027-03-31', numero: 3, estado: EstadoPeriodo::EnCurso);
+    DatosDelTablero::periodo('Abril 2027', '2027-04-01', '2027-04-30', numero: 4, estado: EstadoPeriodo::MatriculaAbierta);
+
+    $grupo = DatosDelTablero::grupo($this->marzo, $this->ingles, atributos: ['codigo' => 'ING-1-M']);
+    DatosDelTablero::horario($grupo, [1, 2, 3, 4, 5], '07:00', '09:00');
+    DatosDelTablero::matricula($grupo, DatosDelTablero::pago(TipoConcepto::Matricula, '80.00', '2027-02-20'));
+    DatosDelTablero::matricula($grupo, DatosDelTablero::pago(TipoConcepto::Matricula, '80.00', '2027-02-21'), retirada: true);
+    $this->pendiente = DatosDelTablero::pago(TipoConcepto::Pension, '180.00', '2027-03-18', 'pendiente');
+    DatosDelTablero::costo('contratado', '40.00', '2027-01-01');
+    DatosDelTablero::clase($grupo, Docente::factory()->create(['condicion_laboral' => CondicionLaboral::Contratado]), '2027-03-02', '07:00', '09:00');
+});
+
+it('opens the dashboard only to staff with the dashboard permission', function (): void {
+    $cajero = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoPago::Ver->value, PermisoPago::Validar->value]);
+
+    $this->actingAs($cajero)->get(TableroGerencial::getUrl())->assertForbidden();
+    $this->actingAs($this->directora)->get(TableroGerencial::getUrl())->assertOk()->assertSee('Tablero gerencial');
+});
+
+it('opens on the period in progress with the financial and academic indicators', function (): void {
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)
+        ->assertSet('data.periodo_id', $this->marzo->id)
+        ->assertSee(['Marzo 2027 · Todos los idiomas · Todos los niveles', 'S/ 160.00', '2 pagos validados del periodo'])
+        ->assertSee(['Tasa del periodo: 100.0 % (1 de 1 pagos registrados)', 'S/ 180.00 · el más antiguo se registró hoy', 'Mes a mes: sin periodo comparable', 'Año a año: sin periodo comparable'])
+        ->assertSee(['Deserción', '50.0 %', 'mayor en Básico', 'Idioma líder', '07:00', 'Lun–Vie'])
+        ->assertSee(['ING-1-M', 'S/ 80.00', '2.00 h', '+S/ 80.00'])
+        ->assertDontSee(['Reporte de recaudación →', 'Todos los pagos →']);
+});
+
+it('updates every indicator with the language and level filters', function (): void {
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)
+        ->set('data.idioma_id', $this->quechua->id)
+        ->assertSee(['Marzo 2027 · Quechua · Todos los niveles', 'No hay grupos en este periodo.', 'No hay horarios registrados en este periodo.'])
+        ->assertDontSee('ING-1-M')
+        ->set('data.idioma_id', $this->ingles->id)
+        ->set('data.nivel', 'basico')
+        ->assertSee(['Marzo 2027 · Inglés · Básico', 'ING-1-M']);
+});
+
+it('explains an unknown period instead of failing', function (): void {
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)
+        ->set('data.periodo_id', 999999)
+        ->assertSee('Elige un periodo válido.');
+});
+
+it('links the pending payments and the revenue report only for staff who can see them', function (): void {
+    $this->directora->givePermissionTo([PermisoPago::Ver->value, PermisoPago::Reportar->value]);
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)
+        ->assertSee(['Reporte de recaudación →', 'Todos los pagos →'])
+        ->assertSeeHtml(route('filament.admin.resources.pagos.view', ['record' => $this->pendiente->id]));
+});
