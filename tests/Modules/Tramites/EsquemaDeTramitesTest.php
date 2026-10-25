@@ -35,13 +35,14 @@ it('ships the Anexo trámites with valid stages and the two trámite permissions
     ));
 });
 
-it('gives each trámite a unique tracking code with the year and a six-digit number', function (): void {
-    $this->travelTo(now('America/Lima')->setDate(2026, 12, 31)->setTime(23, 30));
+it('gives each trámite a unique tracking code with the Lima year and a six-digit number', function (): void {
+    // The code comes from the column default, so the year is the database's Lima year, not the test clock.
+    $anio = DB::selectOne("SELECT to_char(now() AT TIME ZONE 'America/Lima', 'YYYY') AS anio")->anio;
 
     $primero = Tramite::factory()->create()->refresh();
     $segundo = Tramite::factory()->create()->refresh();
 
-    expect($primero->codigo)->toMatch('/^TR-2026-\d{6}$/')
+    expect($primero->codigo)->toMatch("/^TR-{$anio}-\\d{6}$/")
         ->and($segundo->codigo)->not->toBe($primero->codigo)
         ->and((int) substr($segundo->codigo, -6))->toBe((int) substr($primero->codigo, -6) + 1);
 });

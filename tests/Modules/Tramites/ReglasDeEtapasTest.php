@@ -20,6 +20,13 @@ it('accepts the Anexo pipeline with a fee and a short one without it', function 
     ReglasDeEtapas::validar(etapas([[0, C::Solicitud], [100, C::AccionDelPersonal]]), false);
 })->throwsNoExceptions();
 
+it('reads percentages typed as text in the panel as numbers', function (): void {
+    ReglasDeEtapas::validar([
+        ['nombre' => 'Solicitud', 'avance' => '0', 'condicion' => C::Solicitud],
+        ['nombre' => 'Atendido', 'avance' => '100', 'condicion' => C::AccionDelPersonal],
+    ], false);
+})->throwsNoExceptions();
+
 it('rejects a pipeline that breaks a rule, saying which', function (array $etapas, bool $cobraTasa, string $mensaje): void {
     expect(fn () => ReglasDeEtapas::validar(etapas($etapas), $cobraTasa))->toThrow(ReglaDeNegocioIncumplida::class, $mensaje);
 })->with([
@@ -30,5 +37,6 @@ it('rejects a pipeline that breaks a rule, saying which', function (array $etapa
     'progress going back' => [[[0, C::Solicitud], [60, C::AccionDelPersonal], [60, C::AccionDelPersonal], [100, C::AccionDelPersonal]], false, 'crecer'],
     'fee without its stage' => [[[0, C::Solicitud], [100, C::AccionDelPersonal]], true, 'una sola etapa de pago validado'],
     'fee stage not second' => [[[0, C::Solicitud], [50, C::AccionDelPersonal], [70, C::PagoValidado], [100, C::AccionDelPersonal]], true, 'justo después de la solicitud'],
+    'fee validated as the last stage' => [[[0, C::Solicitud], [100, C::PagoValidado]], true, 'La última etapa la avanza el personal'],
     'payment stage without fee' => [[[0, C::Solicitud], [50, C::PagoValidado], [100, C::AccionDelPersonal]], false, 'sin tasa no tiene etapa de pago'],
 ]);

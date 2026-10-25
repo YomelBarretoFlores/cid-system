@@ -11,7 +11,7 @@ use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 final class ReglasDeEtapas
 {
     /**
-     * @param  list<array{nombre: string, avance: int, condicion: CondicionDeEtapa}>  $etapas
+     * @param  list<array{nombre: string, avance: int|string, condicion: CondicionDeEtapa}>  $etapas
      */
     public static function validar(array $etapas, bool $cobraTasa): void
     {
@@ -21,11 +21,11 @@ final class ReglasDeEtapas
     }
 
     /**
-     * @param  list<array{nombre: string, avance: int, condicion: CondicionDeEtapa}>  $etapas
+     * @param  list<array{nombre: string, avance: int|string, condicion: CondicionDeEtapa}>  $etapas
      */
     private static function problema(array $etapas, bool $cobraTasa): ?string
     {
-        $avances = array_column($etapas, 'avance');
+        $avances = array_map(intval(...), array_column($etapas, 'avance'));
         $condiciones = array_column($etapas, 'condicion');
         $pagos = array_keys($condiciones, CondicionDeEtapa::PagoValidado, true);
 
@@ -34,6 +34,7 @@ final class ReglasDeEtapas
             $avances[0] !== 0 || $condiciones[0] !== CondicionDeEtapa::Solicitud => 'La primera etapa es la solicitud recibida, con 0 % de avance.',
             array_keys($condiciones, CondicionDeEtapa::Solicitud, true) !== [0] => 'Solo la primera etapa se alcanza al recibir la solicitud.',
             end($avances) !== 100 => 'La última etapa debe tener 100 % de avance.',
+            end($condiciones) !== CondicionDeEtapa::AccionDelPersonal => 'La última etapa la avanza el personal, que es quien cierra el trámite.',
             ! self::crecen($avances) => 'El avance debe crecer de una etapa a la siguiente.',
             $cobraTasa && $pagos !== [1] => 'Un trámite con tasa tiene una sola etapa de pago validado, justo después de la solicitud.',
             ! $cobraTasa && $pagos !== [] => 'Un trámite sin tasa no tiene etapa de pago validado.',
