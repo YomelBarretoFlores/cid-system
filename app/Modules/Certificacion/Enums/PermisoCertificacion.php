@@ -7,6 +7,7 @@ namespace App\Modules\Certificacion\Enums;
 enum PermisoCertificacion: string
 {
     case Actas = 'certificacion.actas';
+    case Documentos = 'certificacion.documentos';
 
     /**
      * @return list<string>

@@ -17,6 +17,7 @@ use App\Modules\Docencia\Models\NotaParcial;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use Illuminate\Support\Facades\DB;
 
 // A closed course ready for its final grade sheet: grade calendar 2027-03-29 to 2027-04-05, scheme 40/40/20 with passing grade 11.
 final class ActasFinales
@@ -48,6 +49,39 @@ final class ActasFinales
         $persona = Persona::factory()->create(['apellido_paterno' => $apellido, 'apellido_materno' => 'Prueba', 'nombres' => 'Ana', ...($documento === null ? [] : ['numero_documento' => $documento])]);
 
         return Matricula::factory()->activa()->create(['persona_id' => $persona->id, 'grupo_id' => $grupo->id]);
+    }
+
+    /**
+     * Closed actas of past cycles for one student, without going through the teacher flow.
+     *
+     * @param  list<array{0: int, 1: ?string, 2: string}>  $ciclos  cycle number, average (null for NSP) and final state
+     */
+    public static function historial(Persona $persona, string $idioma, array $ciclos, string $estadoActa = 'cerrada', ?int $periodoId = null): void
+    {
+        $docente = Docente::factory()->create();
+        $esquema = EsquemaEvaluacion::factory()->create();
+        $usuario = User::factory()->create();
+
+        foreach ($ciclos as [$numero, $promedio, $estado]) {
+            $nivel = NivelCurricular::cases()[intdiv($numero - 1, 4)];
+            $grupo = Grupo::factory()->create($periodoId === null ? [] : ['periodo_id' => $periodoId]);
+            $actaId = DB::table('cer_actas')->insertGetId([
+                'grupo_id' => $grupo->id, 'periodo_id' => $grupo->periodo_id, 'estado' => 'abierta', 'grupo_codigo' => "G-{$numero}",
+                'idioma' => $idioma, 'nivel' => $nivel->value, 'ciclo_numero' => $numero, 'ciclo_nombre' => "{$nivel->etiqueta()} {$numero}",
+                'horas_lectivas' => 60, 'periodo' => "Periodo {$numero}", 'docente_id' => $docente->id, 'docente_nombre' => 'Docente',
+                'esquema_id' => $esquema->id, 'esquema_nombre' => 'Esquema', 'nota_maxima' => '20.00', 'nota_minima_aprobatoria' => '11.00',
+                'componentes' => '[]', 'created_at' => now(), 'updated_at' => now(),
+            ]);
+            DB::table('cer_notas_finales')->insert([
+                'acta_id' => $actaId, 'matricula_id' => Matricula::factory()->create(['persona_id' => $persona->id, 'grupo_id' => $grupo->id])->id,
+                'persona_id' => $persona->id, 'estudiante_nombre' => $persona->nombre_completo, 'estudiante_documento' => "DNI {$persona->numero_documento}",
+                'notas' => '{}', 'promedio' => $promedio, 'estado_final' => $estado, 'created_at' => now(), 'updated_at' => now(),
+            ]);
+
+            if ($estadoActa === 'cerrada') {
+                DB::table('cer_actas')->where('id', $actaId)->update(['estado' => 'cerrada', 'validada_por' => $usuario->id, 'validada_en' => now()->addMinutes($numero)]);
+            }
+        }
     }
 
     /**

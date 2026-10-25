@@ -30,7 +30,7 @@ Assumptions (recorded in `docs/decisiones-pendientes.md`, to confirm with the CI
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S2, D2 | inline | done | see L3 |
-| T2 | S2, S3, S5, S6, D1, D3–D5, D7 | inline | pending | |
+| T2 | S2, S3, S5, S6, D1, D3–D5, D7 | inline | done | see L4 |
 | T3 | S2, S3, S8 | inline | pending | |
 | T4 | S2, S5, D6 | inline | pending | |
 | T5 | S2, S8, D7, D8 | inline | pending | |
@@ -50,3 +50,4 @@ Route evidence: each unit builds on the previous one, so there is no parallel wr
 - L1 (2026-10-25, user): "sube y une. Y podrás proseguir."
 - L2: Context: M4.1 merged (35d543b); `endroid/qr-code` 6.1 installed (constructor-based `Builder`, `SvgWriter`/`PngWriter`); Matricula exposes `DocumentoDeMatricula` but no contract for a person's enrollments; no public data page exists yet.
 - L3: T1: contracts `MatriculasActivasDePersona` (options for the issue form) and `DocumentoDeMatriculaPorId` (reuses `ComponerDocumentoDeMatricula`); 2 tests, written with the implementation (thin wrappers over tested code).
+- L4: T2: `cer_documentos` (snapshot of student, language, level, hours, final grade and detail; audit; `cer_documentos_bloqueo` allows only one voiding; partial unique index for one valid certificate per student, language and level), `CodigoDeDocumento` (CILN- + 10 Crockford base32), `HistorialDeNotas` (closed actas only, last passed result per cycle, average half up), Actions to issue each type, bulk issue per period and per acta, and void; every one checks `certificacion.documentos`; a repeated random code is retried and a duplicate certificate becomes a business message. 14 tests plus a race test (two certificates for the same student at once → one issued). Written implementation-first, then pinned by the tests.
