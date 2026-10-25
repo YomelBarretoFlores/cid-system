@@ -9,6 +9,7 @@ use App\Shared\Auth\Models\User;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
+use Illuminate\Testing\TestResponse;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -16,6 +17,20 @@ beforeEach(function (): void {
     $this->personal = User::factory()->create(['email' => 'caja@ciln.test'])->givePermissionTo(User::ADMIN_PANEL_PERMISSION);
     $this->personal->saveAppAuthenticationSecret(app(AppAuthentication::class)->generateSecret());
 });
+
+// Livewire::test skips the persistent middleware, so these go through the real update endpoint.
+function accionDelPerfil(TestResponse $pagina): TestResponse
+{
+    // Each production request starts clean; in one test Livewire would skip the middleware it already ran.
+    Livewire::flushState();
+    preg_match('/wire:snapshot="([^"]*EditarPerfil[^"]*)"/', $pagina->getContent(), $coincidencia);
+
+    return test()->withHeaders(['X-Livewire' => '1'])->postJson(route('default-livewire.update'), ['components' => [[
+        'snapshot' => html_entity_decode($coincidencia[1], ENT_QUOTES),
+        'updates' => [],
+        'calls' => [['method' => '$refresh', 'params' => [], 'metadata' => []]],
+    ]]]);
+}
 
 function assertSalidaDelPanel(mixed $test, string $motivo): void
 {
@@ -84,12 +99,43 @@ it('refuses the panel mark of another account signed in earlier in the same brow
     assertSalidaDelPanel($respuesta, 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
 });
 
+it('counts panel actions as activity and closes the session on an action after the limit', function (): void {
+    $this->actingAs($this->personal);
+    $pagina = $this->get('/admin/profile')->assertOk();
+
+    $this->travel(20)->minutes();
+    accionDelPerfil($pagina)->assertOk();
+    $this->travel(20)->minutes();
+    $this->get('/admin')->assertOk();
+
+    $this->travel(31)->minutes();
+    assertSalidaDelPanel(accionDelPerfil($pagina), 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
+});
+
+it('refuses a panel action from a session without the panel mark', function (): void {
+    $this->actingAs($this->personal);
+    $pagina = $this->get('/admin/profile')->assertOk();
+    session()->forget(ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD);
+
+    assertSalidaDelPanel(accionDelPerfil($pagina), 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+});
+
+it('refuses a session restored by a "remember me" cookie', function (): void {
+    $cuenta = $this->personal->fresh();
+    $cookie = $cuenta->id.'|'.$cuenta->remember_token.'|'.$cuenta->password;
+
+    assertSalidaDelPanel($this->withCookie(auth()->guard('web')->getRecallerName(), $cookie)->get('/admin'), 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+});
+
 it('takes the inactivity limit from the configuration, never below one minute', function (): void {
     config(['session.panel_lifetime' => 0]);
     $this->actingAs($this->personal);
 
     $this->travel(59)->seconds();
     $this->get('/admin')->assertOk();
+
+    $this->travel(61)->seconds();
+    assertSalidaDelPanel($this->get('/admin'), 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
 });
 
 it('takes the inactivity limit from the configuration', function (): void {

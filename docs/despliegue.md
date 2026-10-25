@@ -40,7 +40,7 @@ SESSION_PANEL_LIFETIME=30
 QUEUE_CONNECTION=database
 ```
 
-`SESSION_PANEL_LIFETIME` son los minutos sin actividad tras los que se cierra la sesión del panel. Al publicar la versión con doble factor, las sesiones del panel abiertas se cierran en su siguiente pedido (aún no tienen la marca del ingreso del panel) y cada cuenta del personal configura su aplicación autenticadora en el primer ingreso: conviene publicarla fuera del horario de atención y avisar antes al personal. El secreto del doble factor se cifra con `APP_KEY`; cambiar esa clave obliga a reiniciar el segundo factor de todas las cuentas (`php artisan auth:reiniciar-doble-factor <correo>`).
+`SESSION_PANEL_LIFETIME` son los minutos sin actividad tras los que se cierra la sesión del panel. Al publicar la versión con doble factor, las sesiones del panel abiertas se cierran en su siguiente pedido (aún no tienen la marca del ingreso del panel) y cada cuenta del personal configura su aplicación autenticadora en el primer ingreso: conviene publicarla fuera del horario de atención y avisar antes al personal. El secreto del doble factor se cifra con `APP_KEY`: al rotar la clave, dejar la anterior en `APP_PREVIOUS_KEYS`; si se pierde, hay que reiniciar el segundo factor de cada cuenta (`php artisan auth:reiniciar-doble-factor <correo>`).
 
 `APP_URL` debe ser la dirección pública con `https`: los enlaces de verificación de correo y de recuperación de contraseña los arma el proceso de la cola, que no conoce la petición original. La caché usa el almacén por defecto (`database`); la portada pública solo guarda objetos de valor autorizados en `config/cache.php` (`serializable_classes`).
 

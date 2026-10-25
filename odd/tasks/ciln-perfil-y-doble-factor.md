@@ -26,7 +26,7 @@ Assumptions (to record in `docs/decisiones-pendientes.md` and confirm with the C
 | T1 | S1, S5 | inline | done, review approved | 611c7bf, ca0bb54 |
 | T2 | S2, S4, A1 | inline (Risk: items 1, 2) | done, review approved | dae73de, fb7a6b3 |
 | T3 | S3, S4, A2, A3 | inline (Risk: item 2) | done, review approved | 6db354a, 2f31ddd |
-| T4 | all, A4 | docs inline + independent verifier at the end | review and verifier running | f9857c2 |
+| T4 | all, A4 | docs inline + independent verifier at the end | done, verifier: no blockers | f9857c2, last commit |
 
 - T1: profile page in the panel (user menu): name and e-mail read-only; new password with confirmation asks the current password; other sessions close after a password change.
 - T2: authenticator app sign-in (migration with the secret and recovery-code columns, encrypted), required for every panel account, managed from the profile page.
@@ -40,3 +40,4 @@ Assumptions (to record in `docs/decisiones-pendientes.md` and confirm with the C
 - L3 (decision): A3 implemented without touching the portal: the panel guard closes any session without the panel mark, so staff who sign in on the portal land on the panel sign-in with the notice. Tests: `TestCase::actingAs()` stands for staff already signed in through the panel (gives a panel account a secret and the mark); sign-in tests use `be()`.
 - L4 (evidence): browser check on a seeded preview database (`ciln_preview`, dropped afterwards): required set-up page with QR and 8 recovery codes, challenge on sign-in, profile with read-only name and e-mail, old session refused with the notice, and a Livewire save after 2 idle minutes (`SESSION_PANEL_LIFETIME=2`) redirected to the sign-in with the inactivity notice. `composer check`: 1469/1469.
 - L5 (review): T3 review warnings applied in 2f31ddd (mark bound to the account, 1-minute floor, exact 30-minute boundary, recovery sign-in through the panel page); rollout note and no-polling statement in the docs.
+- L6 (verifier, whole feature from fa31ec7): no blockers; S1–S6 and A1–A4 pass with 13 probes (raw profile payloads, forced remember flag, remember cookie, Livewire updates after inactivity and without the mark, reset command log). Its Livewire-update and remember-cookie probes were committed as regression tests (they go through the real update endpoint, since `Livewire::test` skips persistent middleware; a mutation without `isPersistent` makes them fail). Advisories kept as known effects: a staff remember cookie reaching `/admin` also resets that account's remember token; an account that has not enrolled yet can be enrolled by whoever knows its password (rollout note in `despliegue.md`). Key rotation note (`APP_PREVIOUS_KEYS`) added. `composer check`: 1472/1472.
