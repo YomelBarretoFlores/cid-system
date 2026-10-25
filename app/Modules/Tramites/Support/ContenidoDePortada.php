@@ -12,6 +12,7 @@ use App\Modules\Academico\Data\OfertaDelPeriodo;
 use App\Modules\Pagos\Contracts\TarifasVigentes;
 use App\Modules\Pagos\Data\TarifaVigente;
 use App\Modules\Personas\Enums\TipoVinculo;
+use App\Shared\Support\Cache\ContenidoPublico;
 use App\Shared\Ui\Formato;
 use Carbon\CarbonImmutable;
 
@@ -27,6 +28,14 @@ final readonly class ContenidoDePortada
      * @return array<string, mixed>
      */
     public function armar(): array
+    {
+        return ContenidoPublico::recordar(CarbonImmutable::now('America/Lima')->toDateString(), $this->construir(...));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function construir(): array
     {
         $ahora = CarbonImmutable::now('America/Lima');
         $oferta = ($this->ofertaPublica)();

@@ -7,6 +7,7 @@ namespace App\Modules\Academico\Models;
 use App\Modules\Academico\Database\Factories\IdiomaFactory;
 use App\Modules\Academico\Policies\OfertaAcademicaPolicy;
 use App\Shared\Support\Eloquent\NormalizaCodigo;
+use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 final class Idioma extends Model
 {
     /** @use HasFactory<IdiomaFactory> */
-    use HasFactory, NormalizaCodigo;
+    use HasFactory, NormalizaCodigo, RenuevaContenidoPublico;
 
     /**
      * @return HasMany<Ciclo, $this>

@@ -7,6 +7,7 @@ namespace App\Modules\Academico\Models;
 use App\Modules\Academico\Database\Factories\HorarioFactory;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Policies\HorarioPolicy;
+use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -28,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 final class Horario extends Model
 {
     /** @use HasFactory<HorarioFactory> */
-    use HasFactory;
+    use HasFactory, RenuevaContenidoPublico;
 
     public const array DIAS = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
 

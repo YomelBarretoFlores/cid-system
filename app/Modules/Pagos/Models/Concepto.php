@@ -9,6 +9,7 @@ use App\Modules\Pagos\Enums\FuenteConcepto;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Policies\ConceptoPolicy;
 use App\Shared\Support\Eloquent\NormalizaCodigo;
+use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -28,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 final class Concepto extends Model
 {
     /** @use HasFactory<ConceptoFactory> */
-    use HasFactory, NormalizaCodigo;
+    use HasFactory, NormalizaCodigo, RenuevaContenidoPublico;
 
     /**
      * @return HasMany<Tarifa, $this>

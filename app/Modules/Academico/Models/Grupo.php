@@ -9,6 +9,7 @@ use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Policies\OfertaAcademicaPolicy;
+use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
@@ -41,7 +42,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 final class Grupo extends Model
 {
     /** @use HasFactory<GrupoFactory> */
-    use HasFactory, HasUlids;
+    use HasFactory, HasUlids, RenuevaContenidoPublico;
 
     protected $attributes = [
         'matriculados' => 0,

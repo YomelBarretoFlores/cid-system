@@ -7,6 +7,7 @@ namespace App\Modules\Pagos\Models;
 use App\Modules\Pagos\Database\Factories\TarifaFactory;
 use App\Modules\Pagos\Policies\TarifaPolicy;
 use App\Modules\Personas\Enums\TipoVinculo;
+use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -32,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 final class Tarifa extends Model
 {
     /** @use HasFactory<TarifaFactory> */
-    use HasFactory;
+    use HasFactory, RenuevaContenidoPublico;
 
     /**
      * @return BelongsTo<Concepto, $this>

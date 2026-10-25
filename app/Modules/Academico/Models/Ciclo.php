@@ -7,6 +7,7 @@ namespace App\Modules\Academico\Models;
 use App\Modules\Academico\Database\Factories\CicloFactory;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Policies\OfertaAcademicaPolicy;
+use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -26,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 final class Ciclo extends Model
 {
     /** @use HasFactory<CicloFactory> */
-    use HasFactory;
+    use HasFactory, RenuevaContenidoPublico;
 
     /**
      * @return BelongsTo<Idioma, $this>

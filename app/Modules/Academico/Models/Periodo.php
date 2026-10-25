@@ -7,6 +7,7 @@ namespace App\Modules\Academico\Models;
 use App\Modules\Academico\Database\Factories\PeriodoFactory;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Policies\OfertaAcademicaPolicy;
+use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -32,7 +33,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 final class Periodo extends Model
 {
     /** @use HasFactory<PeriodoFactory> */
-    use HasFactory;
+    use HasFactory, RenuevaContenidoPublico;
 
     protected $attributes = [
         'estado' => 'planificado',
