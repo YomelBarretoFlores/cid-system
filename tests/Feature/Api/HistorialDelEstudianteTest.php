@@ -35,6 +35,7 @@ it('refuses guests and unverified accounts on every student endpoint', function 
 })->with([
     '/api/v1/estudiante/perfil', '/api/v1/estudiante/matriculas', '/api/v1/estudiante/pagos',
     '/api/v1/estudiante/notas', '/api/v1/estudiante/tramites', '/api/v1/estudiante/documentos',
+    '/api/v1/estudiante/documentos/CIL-0001/pdf',
 ]);
 
 it('gives the student their final grades by language, only from closed grade sheets', function (): void {
@@ -99,4 +100,16 @@ it('lists the student\'s own issued documents and downloads only their own valid
 
     $this->withToken($this->token)->getJson("/api/v1/estudiante/documentos/{$ajena->codigo}/pdf")->assertNotFound();
     $this->withToken($this->token)->getJson("/api/v1/estudiante/documentos/{$anulada->codigo}/pdf")->assertNotFound();
+});
+
+it('lists trámites and documents newest first', function (): void {
+    $antiguo = Tramite::factory()->create(['persona_id' => $this->rosa->id]);
+    ActasFinales::historial($this->rosa, 'Inglés', [[1, '14.00', 'aprobado']]);
+    $primera = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', $this->emisor);
+    $this->travel(1)->hour();
+    $reciente = Tramite::factory()->create(['persona_id' => $this->rosa->id]);
+    $segunda = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', $this->emisor);
+
+    expect($this->withToken($this->token)->getJson('/api/v1/estudiante/tramites')->json('data.*.codigo'))->toBe([$reciente->fresh()?->codigo, $antiguo->fresh()?->codigo])
+        ->and($this->withToken($this->token)->getJson('/api/v1/estudiante/documentos')->json('data.*.codigo'))->toBe([$segunda->codigo, $primera->codigo]);
 });

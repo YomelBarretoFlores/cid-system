@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Data\SesionDeClase;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
@@ -43,6 +44,7 @@ it('lists the teacher\'s own current groups, latest period first, with their sch
             'codigo' => 'ING-5-M', 'estado' => 'abierto', 'idioma' => 'Inglés', 'nivel' => 'Intermedio', 'ciclo' => 5,
             'periodo' => 'Marzo 2027', 'periodo_inicio' => '2027-03-01', 'periodo_fin' => '2027-03-31',
             'sesiones' => [['dia' => 1, 'hora_inicio' => '07:00', 'hora_fin' => '09:00'], ['dia' => 3, 'hora_inicio' => '07:00', 'hora_fin' => '09:00']],
+            'horario' => SesionDeClase::compactar([new SesionDeClase(1, '07:00:00', '09:00:00'), new SesionDeClase(3, '07:00:00', '09:00:00')]),
         ]);
 });
 
