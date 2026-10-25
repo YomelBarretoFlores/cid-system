@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property EstadoPeriodo $estado
+ * @property CarbonImmutable $fecha_inicio
+ * @property CarbonImmutable $fecha_fin
  * @property CarbonImmutable $matricula_inicio
  * @property CarbonImmutable $matricula_fin
  * @property CarbonImmutable|null $actas_inicio

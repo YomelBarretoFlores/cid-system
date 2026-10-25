@@ -20,8 +20,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
+ * @property TipoVinculo $tipo_vinculo
  * @property CarbonImmutable $vigente_desde
  * @property CarbonImmutable|null $vigente_hasta
+ * @property-read Concepto $concepto
  */
 #[Table('pag_tarifas')]
 #[Fillable(['concepto_id', 'tipo_vinculo', 'monto', 'vigente_desde', 'vigente_hasta'])]
