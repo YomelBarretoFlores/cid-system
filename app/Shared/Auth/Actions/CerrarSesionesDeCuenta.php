@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Shared\Auth\Actions;
 
 use App\Shared\Auth\Enums\CierreDeSesiones;
-use App\Shared\Auth\Models\User;
+use App\Shared\Auth\Support\CuentaPorCorreo;
 use App\Shared\Support\Database\Transaccion;
-use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -19,8 +18,7 @@ final readonly class CerrarSesionesDeCuenta
     public function __invoke(string $email): CierreDeSesiones
     {
         $usuarioId = Transaccion::ejecutar(function () use ($email): int {
-            $usuario = User::query()->where('email', mb_strtolower(trim($email)))->lockForUpdate()->first()
-                ?? throw new ReglaDeNegocioIncumplida('No hay una cuenta con ese correo.');
+            $usuario = CuentaPorCorreo::bloquear($email);
 
             $usuario->forceFill(['remember_token' => Str::random(60)])->save();
 

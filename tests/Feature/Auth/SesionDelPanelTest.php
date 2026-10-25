@@ -47,6 +47,7 @@ it('uses the panel sign-in without "remember me", since a remembered session wou
 });
 
 it('starts the panel session only after the app code is accepted', function (): void {
+    $this->freezeSecond();
     $proveedor = Filament::getPanel('admin')->getMultiFactorAuthenticationProviders()['app'];
 
     $ingreso = Livewire::test(IngresarAlPanel::class)

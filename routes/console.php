@@ -19,7 +19,7 @@ Artisan::command('clasificacion:expirar', function (ExpirarSolicitudesDeClasific
     $this->info('Solicitudes de clasificación vencidas: '.$expirar());
 })->purpose('Mark placement test requests past their date as expired');
 
-Artisan::command('auth:reiniciar-doble-factor {correo} {--solo-sesiones : Only close the open sessions, keeping the second factor}', function (ReiniciarDobleFactor $reiniciar, CerrarSesionesDeCuenta $cerrarSesiones, string $correo): int {
+Artisan::command('auth:reiniciar-doble-factor {correo} {--solo-sesiones : Only cancel "remember me" and close the open sessions, keeping the second factor}', function (ReiniciarDobleFactor $reiniciar, CerrarSesionesDeCuenta $cerrarSesiones, string $correo): int {
     try {
         $cierre = $this->option('solo-sesiones') ? $cerrarSesiones($correo) : $reiniciar($correo);
     } catch (ReglaDeNegocioIncumplida $error) {

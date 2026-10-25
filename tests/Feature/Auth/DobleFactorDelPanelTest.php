@@ -80,6 +80,7 @@ it('asks for the app code after the password and signs in only with a valid one'
 });
 
 it('signs in once with each recovery code when the phone is lost', function (): void {
+    $this->freezeSecond();
     $usuario = personalDelPanel(conDobleFactor: true);
     $codigos = $this->proveedor->generateRecoveryCodes();
     $this->proveedor->saveRecoveryCodes($usuario, $codigos);
