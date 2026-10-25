@@ -24,6 +24,7 @@ use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Tests\Support\ActasFinales;
 
 beforeEach(function (): void {
@@ -126,10 +127,12 @@ it('issues in bulk the certificates completed in a period, once per student, and
     $emitidos = app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor);
     $repetidos = app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor);
     $constancias = app(EmitirConstanciasDeNotasDelActa::class)(Acta::query()->where('ciclo_numero', 4)->sole()->id, $this->emisor);
+    $constanciasRepetidas = app(EmitirConstanciasDeNotasDelActa::class)(Acta::query()->where('ciclo_numero', 4)->sole()->id, $this->emisor);
 
     expect(array_map(fn (Documento $documento): int => $documento->persona_id, $emitidos))->toBe([$this->ana->id])
         ->and($repetidos)->toBe([])
-        ->and(array_map(fn (Documento $documento): array => [$documento->persona_id, $documento->tipo], $constancias))->toBe([[$this->ana->id, TipoDocumento::ConstanciaNotas]]);
+        ->and(array_map(fn (Documento $documento): array => [$documento->persona_id, $documento->tipo], $constancias))->toBe([[$this->ana->id, TipoDocumento::ConstanciaNotas]])
+        ->and($constanciasRepetidas)->toBe([]);
 });
 
 it('voids a document once with a reason and keeps it otherwise unchanged', function (): void {
@@ -170,3 +173,23 @@ it('keeps issued documents locked in the database outside the Actions', function
     'deleting it' => [fn () => DB::table('cer_documentos')->delete(), 'un documento emitido no se elimina'],
     'a second valid certificate' => [fn () => DB::table('cer_documentos')->insert([...collect((array) DB::table('cer_documentos')->first())->except(['id'])->all(), 'codigo' => 'CILN-0000000000']), 'cer_documentos_certificado_vigente_unique'],
 ]);
+
+it('goes on with the rest of the period when one certificate was issued meanwhile by someone else', function (): void {
+    basicoCompleto($this->ana);
+    $beto = Persona::factory()->create();
+    $periodo = Acta::query()->where('ciclo_numero', 4)->sole()->periodo_id;
+    ActasFinales::historial($beto, 'Inglés', [[1, '14.00', 'aprobado'], [2, '14.00', 'aprobado'], [3, '14.00', 'aprobado'], [4, '14.00', 'aprobado']], periodoId: $periodo);
+    // Simulates another session issuing Ana's certificate between the eligibility check and the insert (the unique index rejects hers).
+    Documento::creating(function (Documento $documento): void {
+        if ($documento->persona_id === $this->ana->id && ! Documento::query()->where('persona_id', $this->ana->id)->exists()) {
+            DB::table('cer_documentos')->insert([...$documento->getAttributes(), 'codigo' => 'CILN-SIMULTANEO', 'detalle' => '{}', 'created_at' => now(), 'updated_at' => now()]);
+        }
+    });
+
+    Log::spy();
+
+    $emitidos = app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor);
+
+    expect(array_map(fn (Documento $documento): int => $documento->persona_id, $emitidos))->toBe([$beto->id]);
+    Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', ['regla' => 'La persona ya tiene un certificado vigente del nivel Básico de Inglés.'])->once();
+});

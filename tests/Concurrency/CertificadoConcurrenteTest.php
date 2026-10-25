@@ -15,7 +15,10 @@ it('issues one level certificate when two are requested for the same student at 
 
     $salidas = enParalelo('emitir-certificado.php', [[$persona->id, $emisor->id], [$persona->id, $emisor->id]]);
 
-    expect($salidas[1])->toBe('emitido')
-        ->and($salidas[0])->toStartWith('La persona ya tiene un certificado vigente del nivel Básico de Inglés')
+    $rechazos = array_values(array_filter($salidas, fn (string $salida): bool => $salida !== 'emitido'));
+
+    expect(array_count_values($salidas)['emitido'] ?? 0)->toBe(1)
+        ->and($rechazos)->toHaveCount(1)
+        ->and($rechazos[0])->toStartWith('La persona ya tiene un certificado vigente del nivel Básico de Inglés')
         ->and(Documento::query()->where('persona_id', $persona->id)->whereNull('anulado_en')->count())->toBe(1);
 });

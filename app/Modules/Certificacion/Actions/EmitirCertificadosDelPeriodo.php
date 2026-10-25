@@ -13,6 +13,8 @@ use App\Modules\Certificacion\Models\NotaFinal;
 use App\Modules\Certificacion\Support\EmisionDeDocumento;
 use App\Modules\Certificacion\Support\HistorialDeNotas;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 
 // Bulk issue: every student who passed a cycle in a closed acta of the period and has now completed its level gets the certificate once.
 final readonly class EmitirCertificadosDelPeriodo
@@ -32,7 +34,12 @@ final readonly class EmitirCertificadosDelPeriodo
                 continue;
             }
 
-            $emitidos[] = ($this->emitir)($personaId, $idioma, $nivel, $emisor);
+            try {
+                $emitidos[] = ($this->emitir)($personaId, $idioma, $nivel, $emisor);
+            } catch (ReglaDeNegocioIncumplida $error) {
+                // Issued meanwhile by someone else: the rest of the period still goes on.
+                RegistroDeRechazos::registrar($error);
+            }
         }
 
         return $emitidos;

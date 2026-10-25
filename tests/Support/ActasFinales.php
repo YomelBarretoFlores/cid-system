@@ -61,10 +61,12 @@ final class ActasFinales
         $docente = Docente::factory()->create();
         $esquema = EsquemaEvaluacion::factory()->create();
         $usuario = User::factory()->create();
+        $idiomaId = Idioma::factory()->create()->id;
 
         foreach ($ciclos as [$numero, $promedio, $estado]) {
             $nivel = NivelCurricular::cases()[intdiv($numero - 1, 4)];
-            $grupo = Grupo::factory()->create($periodoId === null ? [] : ['periodo_id' => $periodoId]);
+            $ciclo = Ciclo::query()->firstOrCreate(['idioma_id' => $idiomaId, 'numero' => $numero], ['nivel' => $nivel, 'nombre' => "{$nivel->etiqueta()} {$numero}", 'horas_lectivas' => 60]);
+            $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, ...($periodoId === null ? [] : ['periodo_id' => $periodoId])]);
             $actaId = DB::table('cer_actas')->insertGetId([
                 'grupo_id' => $grupo->id, 'periodo_id' => $grupo->periodo_id, 'estado' => 'abierta', 'grupo_codigo' => "G-{$numero}",
                 'idioma' => $idioma, 'nivel' => $nivel->value, 'ciclo_numero' => $numero, 'ciclo_nombre' => "{$nivel->etiqueta()} {$numero}",
@@ -79,7 +81,7 @@ final class ActasFinales
             ]);
 
             if ($estadoActa === 'cerrada') {
-                DB::table('cer_actas')->where('id', $actaId)->update(['estado' => 'cerrada', 'validada_por' => $usuario->id, 'validada_en' => now()->addMinutes($numero)]);
+                DB::table('cer_actas')->where('id', $actaId)->update(['estado' => 'cerrada', 'validada_por' => $usuario->id, 'validada_en' => now()->subMinutes(60 - $numero)]);
             }
         }
     }
