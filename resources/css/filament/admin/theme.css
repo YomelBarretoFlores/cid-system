@@ -230,6 +230,11 @@
         @apply w-[300px] rounded-[18px] p-3.5 shadow-dropdown ring-0;
     }
 
+    /* Filament anchors the calendar to the trigger, which starts after the inline calendar icon; pull it back to the field edge. */
+    &:has(.fi-input-wrp-prefix.fi-inline) .fi-fo-date-time-picker-panel {
+        @apply -ml-10;
+    }
+
     & .fi-fo-date-time-picker-month-select {
         @apply text-[15px] font-semibold;
     }
