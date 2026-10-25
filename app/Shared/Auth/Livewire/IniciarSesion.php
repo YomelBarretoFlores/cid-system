@@ -6,11 +6,11 @@ namespace App\Shared\Auth\Livewire;
 
 use App\Shared\Auth\Actions\AutenticarUsuario;
 use App\Shared\Auth\Enums\EntradaDelPortal;
+use App\Shared\Auth\Exceptions\CredencialesIncorrectas;
 use App\Shared\Auth\Support\DestinoTrasIngreso;
 use App\Shared\Support\Livewire\MensajesDeValidacion;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -46,11 +46,9 @@ final class IniciarSesion extends Component
 
         try {
             $usuario = app(AutenticarUsuario::class)($this->email, $this->password, (string) request()->ip());
-        } catch (ValidationException $error) {
+        } catch (CredencialesIncorrectas $error) {
             // As before, only wrong credentials clear the password; the attempt limit keeps it.
-            if (in_array(self::CREDENCIALES_INCORRECTAS, $error->errors()['email'] ?? [], true)) {
-                $this->reset('password');
-            }
+            $this->reset('password');
 
             throw $error;
         }

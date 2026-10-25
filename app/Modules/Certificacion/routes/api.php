@@ -16,5 +16,6 @@ Route::get('/documentos/{codigo}', VerificarDocumentoPorApi::class)
 Route::middleware(['auth:sanctum', 'correo.verificado', 'estudiante'])->prefix('estudiante')->group(function (): void {
     Route::get('/notas', ListarMisNotas::class)->name('api.estudiante.notas');
     Route::get('/documentos', ListarMisDocumentos::class)->name('api.estudiante.documentos');
-    Route::get('/documentos/{codigo}/pdf', DescargarMiDocumento::class)->where('codigo', '[A-Za-z0-9-]{1,30}')->name('api.estudiante.documentos.pdf');
+    // Each download renders a PDF, so it gets a tighter limit than the lists.
+    Route::get('/documentos/{codigo}/pdf', DescargarMiDocumento::class)->where('codigo', '[A-Za-z0-9-]{1,30}')->middleware('throttle:10,1')->name('api.estudiante.documentos.pdf');
 });

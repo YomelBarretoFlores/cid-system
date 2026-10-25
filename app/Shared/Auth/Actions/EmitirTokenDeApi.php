@@ -6,6 +6,7 @@ namespace App\Shared\Auth\Actions;
 
 use App\Shared\Auth\Data\TokenDeApi;
 use App\Shared\Auth\Support\PerfilesDelUsuario;
+use App\Shared\Support\Database\Transaccion;
 use Carbon\CarbonImmutable;
 
 final readonly class EmitirTokenDeApi
@@ -24,6 +25,13 @@ final readonly class EmitirTokenDeApi
         $perfiles = $this->perfiles->de($usuario->id);
         $expiraEn = CarbonImmutable::now()->addDays(self::DIAS_DE_VIGENCIA);
 
-        return new TokenDeApi($usuario->createToken($dispositivo, ['*'], $expiraEn)->plainTextToken, $expiraEn, $perfiles);
+        // One live token per device: signing in again from it replaces the previous token instead of piling up.
+        $token = Transaccion::ejecutar(function () use ($usuario, $dispositivo, $expiraEn): string {
+            $usuario->tokens()->where('name', $dispositivo)->delete();
+
+            return $usuario->createToken($dispositivo, ['*'], $expiraEn)->plainTextToken;
+        });
+
+        return new TokenDeApi($token, $expiraEn, $perfiles);
     }
 }

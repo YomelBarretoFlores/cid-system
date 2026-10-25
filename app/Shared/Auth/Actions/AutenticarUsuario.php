@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Auth\Actions;
 
+use App\Shared\Auth\Exceptions\CredencialesIncorrectas;
 use App\Shared\Auth\Models\User;
 use Illuminate\Auth\Events\Attempting;
 use Illuminate\Auth\Events\Failed;
@@ -41,7 +42,7 @@ final readonly class AutenticarUsuario
             RateLimiter::hit($clave);
             RateLimiter::hit($claveDeDireccion);
 
-            throw ValidationException::withMessages(['email' => self::CREDENCIALES_INCORRECTAS]);
+            throw CredencialesIncorrectas::withMessages(['email' => self::CREDENCIALES_INCORRECTAS]);
         }
 
         RateLimiter::clear($clave);

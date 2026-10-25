@@ -113,3 +113,11 @@ it('lists trámites and documents newest first', function (): void {
     expect($this->withToken($this->token)->getJson('/api/v1/estudiante/tramites')->json('data.*.codigo'))->toBe([$reciente->fresh()?->codigo, $antiguo->fresh()?->codigo])
         ->and($this->withToken($this->token)->getJson('/api/v1/estudiante/documentos')->json('data.*.codigo'))->toBe([$segunda->codigo, $primera->codigo]);
 });
+
+it('limits PDF downloads to 10 a minute per student', function (): void {
+    foreach (range(1, 10) as $pedido) {
+        $this->withToken($this->token)->getJson('/api/v1/estudiante/documentos/CIL-0001/pdf')->assertNotFound();
+    }
+
+    $this->withToken($this->token)->getJson('/api/v1/estudiante/documentos/CIL-0001/pdf')->assertTooManyRequests();
+});

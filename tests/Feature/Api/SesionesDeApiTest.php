@@ -174,3 +174,23 @@ it('says when a session without a token is asked to revoke it instead of pretend
         ->assertConflict()
         ->assertJsonPath('message', 'Esta sesión no usa un token que se pueda revocar.');
 });
+
+it('replaces the previous token of the same device instead of piling up live tokens', function (): void {
+    $primero = $this->postJson('/api/v1/sesiones', ['email' => 'rosa@ciln.test', 'password' => 'password', 'dispositivo' => 'App móvil'])->json('token');
+    $this->postJson('/api/v1/sesiones', ['email' => 'rosa@ciln.test', 'password' => 'password', 'dispositivo' => 'Tableta'])->assertCreated();
+    $this->postJson('/api/v1/sesiones', ['email' => 'rosa@ciln.test', 'password' => 'password', 'dispositivo' => 'App móvil'])->assertCreated();
+
+    expect(PersonalAccessToken::query()->orderBy('name')->pluck('name')->all())->toBe(['App móvil', 'Tableta'])
+        ->and(PersonalAccessToken::findToken((string) $primero))->toBeNull();
+});
+
+it('never revokes or describes a token of another account', function (): void {
+    $ajena = User::factory()->create();
+    $tokenAjeno = $ajena->createToken('Ajeno', expiresAt: now()->addDays(30))->plainTextToken;
+    $this->actingAs($this->estudiante, 'sanctum');
+
+    $this->withToken($tokenAjeno)->deleteJson('/api/v1/sesiones/actual')->assertConflict();
+    $this->withToken($tokenAjeno)->getJson('/api/v1/sesiones/actual')->assertOk()->assertJsonPath('dispositivo', null);
+
+    expect(PersonalAccessToken::findToken($tokenAjeno))->not->toBeNull();
+});

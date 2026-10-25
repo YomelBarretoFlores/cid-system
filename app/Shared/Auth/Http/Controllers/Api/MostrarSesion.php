@@ -22,6 +22,8 @@ final readonly class MostrarSesion
         /** @var User $usuario */
         $usuario = $request->user();
         $token = PersonalAccessToken::findToken((string) $request->bearerToken());
+        // Only the token of the authenticated account counts, whatever header a request also carries.
+        $token = $token?->tokenable_id === $request->user()?->getAuthIdentifier() ? $token : null;
 
         return response()->json([
             'dispositivo' => $token instanceof PersonalAccessToken ? $token->name : null,
