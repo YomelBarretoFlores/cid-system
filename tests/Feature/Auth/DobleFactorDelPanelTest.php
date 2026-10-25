@@ -32,8 +32,7 @@ function personalDelPanel(bool $conDobleFactor): User
 it('offers the authenticator app with recovery codes and a visible set-up button', function (): void {
     expect($this->proveedor)->toBeInstanceOf(AutenticacionPorApp::class)
         ->and($this->proveedor->isRecoverable())->toBeTrue()
-        ->and($this->proveedor->getActions()[0]->getName())->toBe('setUpAppAuthentication')
-        ->and($this->proveedor->getActions()[0]->isButton())->toBeTrue();
+        ->and(collect($this->proveedor->getActions())->first(fn ($accion): bool => $accion->getName() === 'setUpAppAuthentication')?->isButton())->toBeTrue();
 });
 
 it('leaves the authenticator app optional by default, so an account without it reaches the panel', function (): void {

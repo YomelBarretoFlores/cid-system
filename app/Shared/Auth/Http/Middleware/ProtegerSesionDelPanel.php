@@ -42,7 +42,7 @@ final class ProtegerSesionDelPanel
 
         // The mark names its account: a later sign-in of another account in the same browser starts unmarked.
         if (! is_array($marca) || ($marca['usuario'] ?? null) !== Filament::auth()->id() || ! is_int($marca['instante'] ?? null)) {
-            return $this->cerrar($request, 'sin_ingreso_del_panel', 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+            return $this->cerrar($request, 'sin_ingreso_del_panel', 'Vuelve a ingresar al panel desde su página de acceso.');
         }
 
         if (now()->getTimestamp() - $marca['instante'] > max(1, config()->integer('session.panel_lifetime')) * 60) {

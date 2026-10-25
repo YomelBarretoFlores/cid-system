@@ -66,7 +66,7 @@ it('refuses a session that was not opened by the panel sign-in and asks to sign 
     $this->be($this->personal);
     Log::spy();
 
-    assertSalidaDelPanel($this->get('/admin'), 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+    assertSalidaDelPanel($this->get('/admin'), 'Vuelve a ingresar al panel desde su página de acceso.');
     Log::shouldHaveReceived('info')->with('Se cerró una sesión del panel.', ['usuario_id' => $this->personal->id, 'causa' => 'sin_ingreso_del_panel']);
 });
 
@@ -77,7 +77,7 @@ it('sends staff who sign in on the portal to the panel sign-in', function (): vo
         ->call('ingresar')
         ->assertRedirect(route('filament.admin.pages.dashboard'));
 
-    assertSalidaDelPanel($this->get('/admin'), 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+    assertSalidaDelPanel($this->get('/admin'), 'Vuelve a ingresar al panel desde su página de acceso.');
 });
 
 it('closes the panel session after 30 minutes without activity, and each visit restarts the count', function (): void {
@@ -102,7 +102,7 @@ it('refuses the panel mark of another account signed in earlier in the same brow
 
     $respuesta = $this->withSession([ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD => ProtegerSesionDelPanel::marca($otraCuenta->id)])->get('/admin');
 
-    assertSalidaDelPanel($respuesta, 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+    assertSalidaDelPanel($respuesta, 'Vuelve a ingresar al panel desde su página de acceso.');
 });
 
 it('counts panel actions as activity and closes the session on an action after the limit', function (): void {
@@ -123,14 +123,14 @@ it('refuses a panel action from a session without the panel mark', function (): 
     $pagina = $this->get('/admin/profile')->assertOk();
     session()->forget(ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD);
 
-    assertSalidaDelPanel(accionDelPerfil($pagina), 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+    assertSalidaDelPanel(accionDelPerfil($pagina), 'Vuelve a ingresar al panel desde su página de acceso.');
 });
 
 it('refuses a session restored by a "remember me" cookie', function (): void {
     $cuenta = $this->personal->fresh();
     $cookie = $cuenta->id.'|'.$cuenta->remember_token.'|'.$cuenta->password;
 
-    assertSalidaDelPanel($this->withCookie(auth()->guard('web')->getRecallerName(), $cookie)->get('/admin'), 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+    assertSalidaDelPanel($this->withCookie(auth()->guard('web')->getRecallerName(), $cookie)->get('/admin'), 'Vuelve a ingresar al panel desde su página de acceso.');
 });
 
 it('takes the inactivity limit from the configuration, never below one minute', function (): void {
