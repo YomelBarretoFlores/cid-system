@@ -15,7 +15,9 @@ use App\Modules\Pagos\Enums\FuenteConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
+use App\Modules\Personas\Models\Persona;
 use Carbon\CarbonImmutable;
+use Tests\Support\PortalDocente;
 
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2026-10-24 10:30', 'America/Lima'));
@@ -39,6 +41,9 @@ it('publishes the open period with its groups, fees, dates and entries, without 
         'aula_id' => Aula::factory()->create(['codigo' => 'AULA-SECRETA'])->id, 'enlace_virtual' => 'https://meet.example.test/privado',
     ]);
     Horario::factory()->for($grupo)->create(['dia_semana' => 2, 'hora_inicio' => '19:00', 'hora_fin' => '21:15']);
+    [, $docente] = PortalDocente::docente();
+    Persona::query()->whereKey($docente->persona_id)->update(['nombres' => 'DocenteReservado']);
+    PortalDocente::asignar($grupo, $docente);
 
     $this->get('/')
         ->assertOk()
@@ -59,6 +64,7 @@ it('publishes the open period with its groups, fees, dates and entries, without 
         ->assertSee(route('verificacion.documento'), false)
         ->assertDontSee('AULA-SECRETA')
         ->assertDontSee('meet.example.test')
+        ->assertDontSee('DocenteReservado')
         ->assertDontSee('noindex')
         ->assertDontSee('laravel.com');
 });
@@ -90,3 +96,25 @@ it('dates each step of the period by the day in Lima, including its last day', f
     'before the period, late evening' => ['2026-10-19 23:30', ['Próximo', '20 oct – 3 nov', 'Próximo', '3 nov']],
     'last enrollment day, which is also the first day of classes, late evening' => ['2026-11-03 23:30', ['En curso', '20 oct – 3 nov', 'Hoy', '3 nov', 'Próximo', '20 dic']],
 ]);
+
+it('shows only the fees in force on the Lima day, late in the evening', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-10-31 23:30', 'America/Lima'));
+    $examen = Concepto::factory()->create(['codigo' => 'TUSNE-015', 'nombre' => 'Examen de clasificación']);
+    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '55.00', 'vigente_desde' => '2026-01-01', 'vigente_hasta' => '2026-10-31']);
+    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '65.00', 'vigente_desde' => '2026-11-01']);
+
+    $this->get('/')->assertOk()->assertSeeText('S/ 55.00')->assertDontSeeText('S/ 65.00');
+});
+
+it('escapes catalog names, also inside the data of the client filters', function (): void {
+    $periodo = periodoDePortada();
+    $periodo->update(['nombre' => '<img src=x onerror=alert(3)>']);
+    $idioma = Idioma::factory()->create(['nombre' => '<script>alert(1)</script>"\'x']);
+    Grupo::factory()->for($periodo)->for(Ciclo::factory()->for($idioma)->state(['numero' => 1]))->create(['estado' => EstadoGrupo::Abierto]);
+    Concepto::factory()->create(['nombre' => '<script>alert(2)</script>'])->tarifas()->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '10.00', 'vigente_desde' => '2026-01-01']);
+
+    expect($this->get('/')->assertOk()->getContent())
+        ->not->toContain('<script>alert(1)')
+        ->not->toContain('<script>alert(2)')
+        ->not->toContain('<img src=x');
+});

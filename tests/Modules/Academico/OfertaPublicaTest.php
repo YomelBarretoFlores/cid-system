@@ -83,6 +83,12 @@ it('reports a full group with no vacancies and hides inactive languages', functi
         ->sequence(fn ($grupo) => $grupo->vacantes->toBe(0));
 });
 
+it('treats a period already open for enrollment but starting later as upcoming', function (): void {
+    periodoPublico('2026-III', EstadoPeriodo::MatriculaAbierta, '2026-10-25', '2026-11-05');
+
+    expect(app(OfertaPublica::class)())->periodo->toBe('2026-III')->matriculaAbierta->toBeFalse();
+});
+
 it('has nothing to show when no period is open or planned ahead', function (): void {
     periodoPublico('2026-I', EstadoPeriodo::Cerrado, '2026-03-01', '2026-03-10');
     periodoPublico('2026-II', EstadoPeriodo::MatriculaAbierta, '2026-10-01', '2026-10-10');

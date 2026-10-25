@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Livewire\IniciarSesion;
 use App\Shared\Auth\Models\User;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Tests\Support\PortalDocente;
@@ -84,3 +85,7 @@ it('keeps sending signed-in staff from the entry pages to the panel, even with a
 
     $this->actingAs($usuario)->get(route('estudiante.ingresar'))->assertRedirect(route('filament.admin.pages.dashboard'));
 });
+
+it('does not let the browser switch the entry', function (): void {
+    Livewire::test(IniciarSesion::class)->set('entrada', 'docente');
+})->throws(CannotUpdateLockedPropertyException::class);

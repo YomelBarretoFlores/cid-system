@@ -1,4 +1,5 @@
 @php
+    use App\Modules\Academico\Enums\Modalidad;
     use App\Shared\Ui\Formato;
 
     $primerIdioma = collect($idiomas)->firstWhere('grupos', '>', 0)['nombre'] ?? ($idiomas[0]['nombre'] ?? '');
@@ -88,7 +89,7 @@
                 </div>
                 @if ($grupos !== [])
                     <div role="group" aria-label="Modalidad" class="flex flex-wrap gap-1.5">
-                        @foreach (['Todas', 'Presencial', 'Virtual', 'Semipresencial'] as $modalidad)
+                        @foreach (['Todas', ...array_map(fn (Modalidad $modalidad): string => $modalidad->etiqueta(), Modalidad::cases())] as $modalidad)
                             <button type="button" x-on:click="modalidad = @js($modalidad)" x-bind:aria-pressed="modalidad === @js($modalidad)"
                                 class="rounded-pildora bg-lienzo px-4 py-[9px] text-[14.5px] font-medium aria-pressed:bg-tinta aria-pressed:text-white" @if ($loop->first) aria-pressed="true" @endif>{{ $modalidad }}</button>
                         @endforeach

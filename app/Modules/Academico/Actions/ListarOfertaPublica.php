@@ -19,7 +19,8 @@ final readonly class ListarOfertaPublica implements OfertaPublica
     public function __invoke(): ?OfertaDelPeriodo
     {
         $hoy = CarbonImmutable::today('America/Lima')->toDateString();
-        $periodo = $this->conMatriculaAbierta($hoy) ?? $this->siguientePlanificado($hoy);
+        $abierto = $this->conMatriculaAbierta($hoy);
+        $periodo = $abierto ?? $this->conMatriculaPorAbrir($hoy);
 
         if (! $periodo instanceof Periodo) {
             return null;
@@ -27,7 +28,7 @@ final readonly class ListarOfertaPublica implements OfertaPublica
 
         return new OfertaDelPeriodo(
             periodo: $periodo->nombre,
-            matriculaAbierta: $periodo->estado === EstadoPeriodo::MatriculaAbierta && $periodo->matricula_inicio->toDateString() <= $hoy,
+            matriculaAbierta: $abierto instanceof Periodo,
             matriculaInicio: $periodo->matricula_inicio,
             matriculaFin: $periodo->matricula_fin,
             clasesInicio: $periodo->fecha_inicio,
@@ -46,7 +47,7 @@ final readonly class ListarOfertaPublica implements OfertaPublica
             ->first();
     }
 
-    private function siguientePlanificado(string $hoy): ?Periodo
+    private function conMatriculaPorAbrir(string $hoy): ?Periodo
     {
         return Periodo::query()
             ->whereIn('estado', [EstadoPeriodo::Planificado->value, EstadoPeriodo::MatriculaAbierta->value])

@@ -31,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(
             fn (Request $request): ?string => $request->is('api/*') ? null : route(EntradaDelPortal::delPedido($request)->ruta()),
         );
+        // Signed-in staff opening an entry page keep going to the panel, as before the teacher entry existed.
         $middleware->redirectUsersTo(fn (Request $request): string => match (true) {
             ! $request->user() instanceof User => route('estudiante.inicio'),
             $request->user()->can(User::ADMIN_PANEL_PERMISSION) => route('filament.admin.pages.dashboard'),
