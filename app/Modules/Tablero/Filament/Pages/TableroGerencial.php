@@ -9,16 +9,22 @@ use App\Modules\Academico\Contracts\CatalogoDePeriodos;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Tablero\Actions\ArmarTablero;
+use App\Modules\Tablero\Actions\ExportarTableroExcel;
+use App\Modules\Tablero\Actions\ExportarTableroPdf;
 use App\Modules\Tablero\Data\FiltrosDelTablero;
 use App\Modules\Tablero\Data\Tablero;
 use App\Modules\Tablero\Enums\PermisoTablero;
 use App\Modules\Tablero\Support\PeriodoPorDefecto;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Filament\AccionDeNegocio;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Spatie\LaravelPdf\PdfBuilder;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 final class TableroGerencial extends Page
 {
@@ -72,6 +78,41 @@ final class TableroGerencial extends Page
             return app(ArmarTablero::class)($this->filtros());
         } catch (ReglaDeNegocioIncumplida $error) {
             return $error->getMessage();
+        }
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('descargarPdf')
+                ->label('Exportar PDF')
+                ->icon(Heroicon::OutlinedDocumentArrowDown)
+                ->authorize(fn (): bool => self::canAccess())
+                ->action(fn (Action $action): ?PdfBuilder => $this->exportar($action, app(ExportarTableroPdf::class))),
+            Action::make('descargarExcel')
+                ->label('Excel')
+                ->icon(Heroicon::OutlinedTableCells)
+                ->color('gray')
+                ->authorize(fn (): bool => self::canAccess())
+                ->action(fn (Action $action): ?BinaryFileResponse => $this->exportar($action, app(ExportarTableroExcel::class))),
+        ];
+    }
+
+    /**
+     * @template TRespuesta
+     *
+     * @param  callable(Tablero): TRespuesta  $exportador
+     * @return TRespuesta|null
+     */
+    private function exportar(Action $action, callable $exportador): mixed
+    {
+        try {
+            return $exportador(app(ArmarTablero::class)($this->filtros()));
+        } catch (ReglaDeNegocioIncumplida $error) {
+            AccionDeNegocio::notificarError($error);
+            $action->halt();
+
+            return null;
         }
     }
 

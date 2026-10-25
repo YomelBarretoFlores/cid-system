@@ -1,16 +1,15 @@
-@use('App\Modules\Pagos\Data\ReporteDeRecaudacion', 'Reporte')
 @use('App\Modules\Pagos\Enums\PermisoPago')
-@use('App\Modules\Tablero\Support\DiasDeClase')
+@use('App\Modules\Tablero\Support\Cifras')
 @use('App\Modules\Tablero\Support\GraficoDeLinea')
 @use('App\Shared\Ui\Formato')
 @php
     $tablero = $this->tablero();
-    $porcentaje = fn (?float $valor): string => $valor === null ? '—' : number_format($valor, 1).' %';
+    $porcentaje = Cifras::porcentaje(...);
     $variacion = fn (string $comparacion, ?float $valor, $punto): string => $valor === null
         ? "{$comparacion}: sin periodo comparable"
-        : ($valor >= 0 ? '+' : '−').number_format(abs($valor), 1)." % frente a {$punto->periodo}";
-    $soles = fn (int $centimos): string => ($centimos < 0 ? '−' : '').'S/ '.Reporte::soles(abs($centimos));
-    $horas = fn (int $centesimas): string => number_format($centesimas / 100, 2).' h';
+        : Cifras::variacion($valor)." frente a {$punto->periodo}";
+    $soles = Cifras::soles(...);
+    $horas = Cifras::horas(...);
     $puedeVerPagos = auth()->user()?->can(PermisoPago::Ver->value) ?? false;
     $puedeReportar = auth()->user()?->can(PermisoPago::Reportar->value) ?? false;
 @endphp

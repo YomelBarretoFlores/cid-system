@@ -4,15 +4,24 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Models\Idioma;
+use App\Modules\Academico\Models\Periodo;
 use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
+use App\Modules\Tablero\Actions\ArmarTablero;
+use App\Modules\Tablero\Actions\ExportarTableroExcel;
+use App\Modules\Tablero\Actions\ExportarTableroPdf;
+use App\Modules\Tablero\Data\FiltrosDelTablero;
 use App\Modules\Tablero\Enums\PermisoTablero;
 use App\Modules\Tablero\Filament\Pages\TableroGerencial;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Livewire\Livewire;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\LaravelPdf\PdfBuilder;
 use Tests\Support\DatosDelTablero;
 
 beforeEach(function (): void {
@@ -79,4 +88,64 @@ it('links the pending payments and the revenue report only for staff who can see
     Livewire::test(TableroGerencial::class)
         ->assertSee(['Reporte de recaudación →', 'Todos los pagos →'])
         ->assertSeeHtml(route('filament.admin.resources.pagos.view', ['record' => $this->pendiente->id]));
+});
+
+it('falls back to the latest started period, or the latest one, when no period is in progress', function (): void {
+    $this->actingAs($this->directora);
+    $this->marzo->update(['estado' => EstadoPeriodo::Cerrado]);
+
+    Livewire::test(TableroGerencial::class)->assertSet('data.periodo_id', $this->marzo->id);
+
+    $this->travelTo(CarbonImmutable::parse('2027-01-15 10:00', 'America/Lima'));
+
+    Livewire::test(TableroGerencial::class)->assertSet('data.periodo_id', Periodo::query()->where('nombre', 'Abril 2027')->value('id'));
+});
+
+it('shows the growth against the previous period when there is one to compare with', function (): void {
+    DatosDelTablero::matricula(DatosDelTablero::grupo(Periodo::query()->where('nombre', 'Febrero 2027')->sole(), $this->ingles));
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)->assertSee('+100.0 % frente a Febrero 2027');
+});
+
+it('explains an unknown language instead of failing', function (): void {
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)
+        ->set('data.idioma_id', 999999)
+        ->assertSee('Elige un idioma válido.');
+});
+
+it('exports the dashboard with the same filters as a PDF', function (): void {
+    Pdf::fake();
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)->callAction('descargarPdf');
+
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'tablero-marzo-2027-2027-03-20.pdf'
+        && $pdf->contains(['TABLERO DE CONTROL GERENCIAL', 'Marzo 2027 · Todos los idiomas · Todos los niveles', 'S/ 160.00 (2 pagos)', 'ING-1-M', '07:00 – 09:00', 'Lun–Vie', '50.0 %']));
+});
+
+it('renders the dashboard as a real PDF file', function (): void {
+    $tablero = app(ArmarTablero::class)(new FiltrosDelTablero($this->marzo->id));
+
+    expect(app(ExportarTableroPdf::class)($tablero)->generatePdfContent())->toStartWith('%PDF');
+});
+
+it('exports one spreadsheet sheet per indicator, with amounts as numbers and names always as text', function (): void {
+    $this->ingles->update(['nombre' => '=HYPERLINK("http://x.test")']);
+    $this->actingAs($this->directora);
+
+    Livewire::test(TableroGerencial::class)->callAction('descargarExcel')->assertFileDownloaded('tablero-marzo-2027-2027-03-20.xlsx');
+
+    $archivo = app(ExportarTableroExcel::class)(app(ArmarTablero::class)(new FiltrosDelTablero($this->marzo->id)))->getFile()->getPathname();
+    $libro = IOFactory::load($archivo);
+    $recaudacion = $libro->getSheetByName('Recaudación');
+
+    expect($libro->getSheetNames())->toBe(['Resumen', 'Recaudación', 'Por validar', 'Rentabilidad', 'Matrículas', 'Deserción', 'Demanda horaria'])
+        ->and($recaudacion?->getCell('A2')->getDataType())->toBe(DataType::TYPE_STRING)
+        ->and($recaudacion?->getCell('A2')->getValue())->toBe('=HYPERLINK("http://x.test")')
+        ->and($recaudacion?->getCell('D2')->getValue())->toEqual(160)
+        ->and($libro->getSheetByName('Rentabilidad')?->getCell('H2')->getValue())->toEqual(80)
+        ->and($libro->getSheetByName('Resumen')?->getCell('B2')->getValue())->toBe('Marzo 2027 · Todos los idiomas · Todos los niveles');
 });

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Tablero\Data;
 
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Str;
+
 final readonly class Tablero
 {
     /**
@@ -21,6 +24,11 @@ final readonly class Tablero
         public Desercion $desercion,
         public array $demandaHoraria,
     ) {}
+
+    public function nombreDeArchivo(string $extension): string
+    {
+        return 'tablero-'.Str::slug($this->periodo).'-'.CarbonImmutable::now('America/Lima')->format('Y-m-d').".{$extension}";
+    }
 
     public function alcance(): string
     {
