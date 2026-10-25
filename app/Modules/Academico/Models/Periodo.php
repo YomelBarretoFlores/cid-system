@@ -20,9 +20,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property EstadoPeriodo $estado
  * @property CarbonImmutable $matricula_inicio
  * @property CarbonImmutable $matricula_fin
+ * @property CarbonImmutable|null $actas_inicio
+ * @property CarbonImmutable|null $actas_fin
  */
 #[Table('aca_periodos')]
-#[Fillable(['anio', 'numero', 'nombre', 'fecha_inicio', 'fecha_fin', 'matricula_inicio', 'matricula_fin', 'estado'])]
+#[Fillable(['anio', 'numero', 'nombre', 'fecha_inicio', 'fecha_fin', 'matricula_inicio', 'matricula_fin', 'actas_inicio', 'actas_fin', 'estado'])]
 #[UseFactory(PeriodoFactory::class)]
 #[UsePolicy(OfertaAcademicaPolicy::class)]
 final class Periodo extends Model
@@ -51,6 +53,8 @@ final class Periodo extends Model
             'fecha_fin' => 'date',
             'matricula_inicio' => 'date',
             'matricula_fin' => 'date',
+            'actas_inicio' => 'date',
+            'actas_fin' => 'date',
             'estado' => EstadoPeriodo::class,
         ];
     }

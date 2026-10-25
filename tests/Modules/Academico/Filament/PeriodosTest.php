@@ -106,7 +106,23 @@ it('refuses periods that break the calendar rules', function (array $cambios, st
     'end before the start' => [['fecha_fin' => '2027-03-31'], 'fecha_fin'],
     'enrollment ending before it starts' => [['matricula_fin' => '2027-03-19'], 'matricula_fin'],
     'enrollment ending after the period' => [['matricula_fin' => '2027-05-01'], 'matricula_fin'],
+    'grade calendar without its end' => [['actas_inicio' => '2027-04-28'], 'actas_fin'],
+    'grade calendar without its start' => [['actas_fin' => '2027-05-05'], 'actas_inicio'],
+    'grade calendar ending before it starts' => [['actas_inicio' => '2027-04-28', 'actas_fin' => '2027-04-27'], 'actas_fin'],
 ]);
+
+it('sets the grade calendar of a period, which may run past the end of classes', function (): void {
+    $this->actingAs($this->gestor);
+
+    Livewire::test(CreatePeriodo::class)
+        ->fillForm(datosDePeriodo(['actas_inicio' => '2027-04-28', 'actas_fin' => '2027-05-05']))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Periodo::query()->where('numero', 4)->sole())
+        ->actas_inicio->toDateString()->toBe('2027-04-28')
+        ->actas_fin->toDateString()->toBe('2027-05-05');
+});
 
 it('accepts an enrollment window of a single day ending with the period', function (): void {
     $this->actingAs($this->gestor);

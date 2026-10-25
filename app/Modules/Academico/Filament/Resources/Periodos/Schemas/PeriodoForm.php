@@ -38,6 +38,14 @@ final class PeriodoForm
                     ->afterOrEqual('matricula_inicio')
                     ->beforeOrEqual('fecha_fin')
                     ->helperText('La matrícula no puede terminar después del fin de clases.'),
+                DatePicker::make('actas_inicio')
+                    ->label('Actas finales desde')
+                    ->requiredWith('actas_fin')
+                    ->helperText('Días en que el docente puede validar y cerrar el acta final.'),
+                DatePicker::make('actas_fin')
+                    ->label('Actas finales hasta')
+                    ->requiredWith('actas_inicio')
+                    ->afterOrEqual('actas_inicio'),
             ]);
     }
 }

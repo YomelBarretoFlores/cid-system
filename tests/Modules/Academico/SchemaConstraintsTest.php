@@ -20,6 +20,8 @@ it('rejects rows that break an academic invariant', function (Closure $violation
     'cycle without lecture hours' => [fn () => Ciclo::factory()->create(['horas_lectivas' => 0]), 'aca_ciclos_horas_lectivas_check'],
     'period ending before it starts' => [fn () => Periodo::factory()->create(['fecha_fin' => '2027-02-01']), 'aca_periodos_fechas_check'],
     'enrollment closing after the period ends' => [fn () => Periodo::factory()->create(['matricula_fin' => '2027-04-15']), 'aca_periodos_matricula_check'],
+    'grade calendar with a start only' => [fn () => Periodo::factory()->create(['actas_inicio' => '2027-03-29']), 'aca_periodos_actas_check'],
+    'grade calendar ending before it starts' => [fn () => Periodo::factory()->create(['actas_inicio' => '2027-03-29', 'actas_fin' => '2027-03-28']), 'aca_periodos_actas_check'],
     'classroom without capacity' => [fn () => Aula::factory()->create(['capacidad' => 0]), 'aca_aulas_capacidad_check'],
     'minimum quota above maximum' => [fn () => Grupo::factory()->create(['cupo_minimo' => 30, 'cupo_maximo' => 25]), 'aca_grupos_cupos_check'],
     'negative minimum quota' => [fn () => Grupo::factory()->create(['cupo_minimo' => -1]), 'aca_grupos_cupos_check'],
