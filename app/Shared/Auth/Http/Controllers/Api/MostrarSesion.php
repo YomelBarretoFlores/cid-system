@@ -6,6 +6,7 @@ namespace App\Shared\Auth\Http\Controllers\Api;
 
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\PerfilesDelUsuario;
+use App\Shared\Auth\Support\TokenDeLaSesion;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -21,9 +22,7 @@ final readonly class MostrarSesion
     {
         /** @var User $usuario */
         $usuario = $request->user();
-        $token = PersonalAccessToken::findToken((string) $request->bearerToken());
-        // Only the token of the authenticated account counts, whatever header a request also carries.
-        $token = $token?->tokenable_id === $request->user()?->getAuthIdentifier() ? $token : null;
+        $token = TokenDeLaSesion::de($request);
 
         return response()->json([
             'dispositivo' => $token instanceof PersonalAccessToken ? $token->name : null,

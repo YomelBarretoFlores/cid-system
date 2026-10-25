@@ -9,6 +9,7 @@ use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Attempting;
 use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
@@ -193,4 +194,13 @@ it('never revokes or describes a token of another account', function (): void {
     $this->withToken($tokenAjeno)->getJson('/api/v1/sesiones/actual')->assertOk()->assertJsonPath('dispositivo', null);
 
     expect(PersonalAccessToken::findToken($tokenAjeno))->not->toBeNull();
+});
+
+it('fires the validated event on right credentials, as Auth::attempt did', function (): void {
+    Event::fake([Validated::class]);
+
+    $this->postJson('/api/v1/sesiones', ['email' => 'rosa@ciln.test', 'password' => 'password', 'dispositivo' => 'App'])->assertCreated();
+
+    Event::assertDispatchedTimes(Validated::class, 1);
+    Event::assertDispatched(Validated::class, fn (Validated $evento): bool => $evento->guard === 'web' && $evento->user->getAuthIdentifier() === $this->estudiante->id);
 });

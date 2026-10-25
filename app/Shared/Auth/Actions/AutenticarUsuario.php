@@ -8,6 +8,7 @@ use App\Shared\Auth\Exceptions\CredencialesIncorrectas;
 use App\Shared\Auth\Models\User;
 use Illuminate\Auth\Events\Attempting;
 use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
@@ -31,7 +32,7 @@ final readonly class AutenticarUsuario
         $this->asegurarIntentosDisponibles($clave, self::INTENTOS_POR_MINUTO);
         $this->asegurarIntentosDisponibles($claveDeDireccion, self::INTENTOS_POR_DIRECCION);
 
-        // The same steps as Auth::attempt without opening a session: its events, and the hash upgrade on success.
+        // The same steps as Auth::attempt without opening a session: Attempting, Failed or Validated, and the hash upgrade on success.
         $proveedor = Auth::guard('web')->getProvider();
         $credenciales = ['email' => $email, 'password' => $password];
         event(new Attempting('web', $credenciales, false));
@@ -45,6 +46,7 @@ final readonly class AutenticarUsuario
             throw CredencialesIncorrectas::withMessages(['email' => self::CREDENCIALES_INCORRECTAS]);
         }
 
+        event(new Validated('web', $usuario));
         RateLimiter::clear($clave);
         $proveedor->rehashPasswordIfRequired($usuario, $credenciales);
 

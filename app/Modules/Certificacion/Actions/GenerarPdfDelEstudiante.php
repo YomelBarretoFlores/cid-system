@@ -7,6 +7,7 @@ namespace App\Modules\Certificacion\Actions;
 use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Certificacion\Support\CodigoDeDocumento;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Logging\RegistroDeRechazos;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Spatie\LaravelPdf\PdfBuilder;
 
@@ -22,7 +23,10 @@ final readonly class GenerarPdfDelEstudiante
 
         try {
             return ($this->generar)((int) $id);
-        } catch (ReglaDeNegocioIncumplida) {
+        } catch (ReglaDeNegocioIncumplida $error) {
+            // The student only sees a missing document; the log keeps why it was refused.
+            RegistroDeRechazos::registrar($error);
+
             throw (new ModelNotFoundException)->setModel(Documento::class);
         }
     }

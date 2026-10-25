@@ -10,6 +10,7 @@ use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Log;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\PdfBuilder;
 use Tests\Support\ActasFinales;
@@ -120,4 +121,15 @@ it('limits PDF downloads to 10 a minute per student', function (): void {
     }
 
     $this->withToken($this->token)->getJson('/api/v1/estudiante/documentos/CIL-0001/pdf')->assertTooManyRequests();
+});
+
+it('logs why a PDF of the student was refused, while still answering 404', function (): void {
+    ActasFinales::historial($this->rosa, 'Inglés', [[1, '14.00', 'aprobado']]);
+    $anulada = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', $this->emisor);
+    app(AnularDocumento::class)($anulada->id, 'Se emitió por error.', $this->emisor);
+    Log::spy();
+
+    $this->withToken($this->token)->getJson("/api/v1/estudiante/documentos/{$anulada->codigo}/pdf")->assertNotFound();
+
+    Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', Mockery::on(fn (array $contexto): bool => str_contains($contexto['regla'], 'está anulado')))->once();
 });

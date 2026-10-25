@@ -24,6 +24,7 @@ final readonly class VerificarDocumento
             return $this->buscar($buscado);
         }
 
+        // The view shows the normalized code; the Action normalizes on its own for the API too.
         $codigo = $codigo === null ? null : CodigoDeDocumento::normalizar($codigo);
         $verificacion = $codigo === null ? null : ($this->verificar)($codigo);
 

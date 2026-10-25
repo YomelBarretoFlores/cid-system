@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Auth\Actions;
 
 use App\Shared\Auth\Data\TokenDeApi;
+use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\PerfilesDelUsuario;
 use App\Shared\Support\Database\Transaccion;
 use Carbon\CarbonImmutable;
@@ -27,6 +28,8 @@ final readonly class EmitirTokenDeApi
 
         // One live token per device: signing in again from it replaces the previous token instead of piling up.
         $token = Transaccion::ejecutar(function () use ($usuario, $dispositivo, $expiraEn): string {
+            // Locking the account serializes two sign-ins from the same device, so the second one sees and replaces the first token.
+            User::query()->whereKey($usuario->id)->lockForUpdate()->firstOrFail();
             $usuario->tokens()->where('name', $dispositivo)->delete();
 
             return $usuario->createToken($dispositivo, ['*'], $expiraEn)->plainTextToken;
