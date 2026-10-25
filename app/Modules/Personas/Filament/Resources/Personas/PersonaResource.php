@@ -18,6 +18,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 final class PersonaResource extends Resource
@@ -39,9 +41,6 @@ final class PersonaResource extends Resource
     protected static ?string $pluralModelLabel = 'personas';
 
     protected static ?string $recordTitleAttribute = 'etiqueta';
-
-    // Ley 29733: personal data stays inside this screen, out of the panel-wide search.
-    protected static bool $isGloballySearchable = false;
 
     public static function form(Schema $schema): Schema
     {
@@ -66,5 +65,19 @@ final class PersonaResource extends Resource
             'view' => ViewPersona::route('/{record}'),
             'edit' => EditPersona::route('/{record}/edit'),
         ];
+    }
+
+    // Same match as the people list (document prefix or names); Filament's default would query the computed label.
+    /**
+     * @param  Builder<Model>  $query
+     */
+    protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
+    {
+        $query->whereIn('id', Persona::query()->coincideCon($search)->select('id'));
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return $record instanceof Persona ? ['Vínculo' => $record->tipo_vinculo->etiqueta()] : [];
     }
 }

@@ -6,6 +6,9 @@ use App\Modules\Academico\Filament\Resources\Grupos\GrupoResource;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
 use App\Modules\Pagos\Models\Pago;
+use App\Modules\Personas\Enums\PermisoPersona;
+use App\Modules\Personas\Filament\Resources\Personas\PersonaResource;
+use App\Modules\Personas\Models\Persona;
 use App\Modules\Tramites\Filament\Resources\Tramites\TramiteResource;
 use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
@@ -56,4 +59,28 @@ it('collapses the sidebar with Ctrl+B or Cmd+B and names the shortcut on the but
     $this->get('/admin/pagos')->assertOk()
         ->assertSee('data-atajo="mod+b"', escape: false)
         ->assertSee('Contraer el menú (Ctrl o ⌘ + B)');
+});
+
+it('finds people by surname or document for staff who can see people, with their link to the CILN', function (): void {
+    $persona = Persona::factory()->create(['apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'nombres' => 'Rosa', 'numero_documento' => '41234567']);
+    Persona::factory()->create(['apellido_paterno' => 'Torres', 'nombres' => 'Luis']);
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoPersona::Ver->value]));
+    $recurso = PersonaResource::class;
+
+    foreach (['quispe mam', '4123'] as $termino) {
+        $resultados = $recurso::getGlobalSearchResults($termino);
+
+        expect($resultados)->toHaveCount(1)
+            ->and($resultados->first()->title)->toBe($persona->etiqueta)
+            ->and($resultados->first()->details)->toBe(['Vínculo' => $persona->tipo_vinculo->etiqueta()])
+            ->and($resultados->first()->url)->toBe($recurso::getUrl('view', ['record' => $persona]));
+    }
+
+    expect($recurso::canGloballySearch())->toBeTrue();
+});
+
+it('keeps people out of the panel search for staff without the people permission', function (): void {
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, 'pagos.ver']));
+
+    expect(PersonaResource::canGloballySearch())->toBeFalse();
 });
