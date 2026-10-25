@@ -91,6 +91,7 @@ it('describes each offered group with its schedule, classroom and live vacancies
         enlaceVirtual: null,
         vacantesDisponibles: 2,
         sesiones: [new SesionDeClase(1, '08:00:00', '10:00:00'), new SesionDeClase(3, '18:00:00', '20:00:00')],
+        aulaCodigo: 'A-101',
     )]);
 });
 

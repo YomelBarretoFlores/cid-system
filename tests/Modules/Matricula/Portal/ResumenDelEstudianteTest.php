@@ -10,6 +10,7 @@ use App\Modules\Academico\Models\Idioma;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use Tests\Support\PortalDocente;
 
 beforeEach(function (): void {
     $this->user = User::factory()->create();
@@ -32,4 +33,15 @@ it('shows an enrolled student the group, the weekly classes and the cycle in pro
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
         ->assertSeeInOrder(['Ya estás matriculado en Inglés · Ciclo 2.', 'Ver mis matrículas', 'Mar', '07:00', 'A-204', 'Cursando el ciclo 2']);
+});
+
+it('points a teacher without any enrollment to the groups instead of asking for an enrollment payment', function (): void {
+    [$docente] = PortalDocente::docente();
+
+    $this->actingAs($docente)->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertSee('Tus grupos están en Mis grupos.')
+        ->assertSee(route('docente.grupos'))
+        ->assertDontSee('Registra tu pago de matrícula.')
+        ->assertDontSee('Tu horario semanal');
 });

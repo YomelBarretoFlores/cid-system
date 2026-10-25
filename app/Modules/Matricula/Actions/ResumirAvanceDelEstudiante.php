@@ -61,20 +61,15 @@ final readonly class ResumirAvanceDelEstudiante
      */
     private function horario(Collection $activos): array
     {
-        $horario = array_fill(1, 6, []);
+        $horario = array_fill(1, 7, []);
 
         foreach ($activos as $grupo) {
             foreach ($grupo->sesiones as $sesion) {
-                $horario[$sesion->diaSemana][] = new ClaseDeLaSemana($grupo->idioma, substr($sesion->horaInicio, 0, 5), $this->aula($grupo));
+                $horario[$sesion->diaSemana][] = new ClaseDeLaSemana($grupo->idioma, substr($sesion->horaInicio, 0, 5), $grupo->aulaCodigo);
             }
         }
 
         return array_map(fn (array $clases): array => array_values(collect($clases)->sortBy('hora')->all()), $horario);
-    }
-
-    private function aula(FichaDeGrupo $grupo): ?string
-    {
-        return $grupo->aula === null ? null : explode(' · ', $grupo->aula)[0];
     }
 
     /**
@@ -88,7 +83,7 @@ final readonly class ResumirAvanceDelEstudiante
             ->map(fn (Matricula $matricula): ?AvanceEnIdioma => isset($grupos[$matricula->grupo_id]) ? new AvanceEnIdioma(
                 $grupos[$matricula->grupo_id]->idioma,
                 $grupos[$matricula->grupo_id]->cicloNumero,
-                $matricula->estado === EstadoMatricula::Activa,
+                $matricula->estado,
                 $grupos[$matricula->grupo_id]->periodo,
             ) : null)
             ->filter()->unique('idioma')->all());

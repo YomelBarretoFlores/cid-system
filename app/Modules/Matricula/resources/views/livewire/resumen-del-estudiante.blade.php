@@ -1,4 +1,5 @@
 @use('App\Modules\Academico\Data\SesionDeClase')
+@use('App\Modules\Matricula\Enums\EstadoMatricula')
 @use('App\Modules\Matricula\Enums\PasoDelEstudiante')
 @php
     $grupo = $avance->grupoActual;
@@ -8,6 +9,11 @@
         PasoDelEstudiante::SinPago => ['Registra tu pago de matrícula.', 'Sube el recibo en Mis pagos; cuando el CILN lo valide podrás elegir tu grupo.', 'Registrar pago', 'estudiante.pagos'],
     };
     $hoy = now('America/Lima')->dayOfWeekIso;
+    $soloDocente = $esDocente && $avance->idiomas === [] && $avance->paso === PasoDelEstudiante::SinPago;
+    if ($soloDocente) {
+        [$titulo, $descripcion, $accion, $ruta] = ['Tus grupos están en Mis grupos.', 'Registra allí la asistencia y las notas parciales.', 'Ir a mis grupos', 'docente.grupos'];
+    }
+    $dias = array_filter($avance->horario, fn (array $clases, int $dia): bool => $dia < 7 || $clases !== [], ARRAY_FILTER_USE_BOTH);
 @endphp
 <div class="flex flex-col gap-2 sm:gap-3.5">
     <section class="relative grid gap-7 overflow-hidden rounded-tarjeta bg-tarjeta p-6 sm:px-[34px] sm:py-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
@@ -19,7 +25,7 @@
                 <span class="text-[19px] font-semibold text-pretty">{{ $titulo }}</span>
                 <span class="text-pretty text-secundario">{{ $descripcion }}</span>
             </div>
-            <ul class="mt-1 flex flex-wrap gap-2" aria-label="Avance de tu matrícula">
+            <ul @class(['mt-1 flex flex-wrap gap-2', 'hidden' => $soloDocente]) aria-label="Avance de tu matrícula">
                 @foreach ([[PasoDelEstudiante::PagoValidado, 'Pago validado'], [PasoDelEstudiante::Matriculado, 'Matrícula']] as [$paso, $etiqueta])
                     @php($logrado = $avance->paso->alcanzo($paso))
                     <li @class(['flex items-center gap-2 rounded-pildora py-2 pr-3.5 pl-2 text-sm font-medium', 'bg-verde-fondo text-verde-texto' => $logrado, 'bg-lienzo text-apagado' => ! $logrado])>
@@ -38,14 +44,15 @@
         <x-portal.boton :href="route($ruta)" class="relative self-start lg:self-end">{{ $accion }} <x-heroicon-o-arrow-right aria-hidden="true" class="size-4" /></x-portal.boton>
     </section>
 
+    @unless ($soloDocente)
     <x-portal.tarjeta titulo="Tu horario semanal">
         <x-slot:acciones><span class="text-apagado">Grupos con matrícula activa</span></x-slot:acciones>
         @if ($grupo === null)
             <x-portal.vacio titulo="Aún no tienes clases." icono="heroicon-o-calendar-days">Cuando te matricules, aquí verás tus clases de cada día.</x-portal.vacio>
         @else
             <div class="-mx-1 overflow-x-auto px-1">
-                <div class="grid min-w-[560px] grid-cols-6 gap-2">
-                    @foreach ($avance->horario as $dia => $clases)
+                <div class="grid min-w-[560px] gap-2" style="grid-template-columns: repeat({{ count($dias) }}, minmax(0, 1fr))">
+                    @foreach ($dias as $dia => $clases)
                         <div @class(['flex min-h-[150px] flex-col gap-2 rounded-interna px-2.5 py-3', 'bg-acento-claro' => $dia === $hoy, 'bg-lienzo' => $dia !== $hoy])>
                             <span @class(['text-[13px]', 'font-semibold text-enlace' => $dia === $hoy, 'text-apagado' => $dia !== $hoy])>{{ SesionDeClase::DIAS_CORTOS[$dia] }}</span>
                             @foreach ($clases as $clase)
@@ -74,12 +81,12 @@
                             <x-ciln.hoja-bandera :idioma="$idioma->idioma" size="40" rot="-8" />
                             <span class="flex flex-col">
                                 <span class="text-[17px] font-semibold">{{ $idioma->idioma }}</span>
-                                <span class="text-[13.5px] text-terciario">{{ $idioma->activa ? "Cursando el ciclo {$idioma->ciclo}" : "Retirada del ciclo {$idioma->ciclo} en {$idioma->periodo}" }}</span>
+                                <span class="text-[13.5px] text-terciario">{{ match ($idioma->estado) { EstadoMatricula::Activa => "Cursando el ciclo {$idioma->ciclo}", EstadoMatricula::Retirada => "Retirada del ciclo {$idioma->ciclo} en {$idioma->periodo}" } }}</span>
                             </span>
                         </span>
                         <span class="grid grid-cols-12 gap-[3px]" role="img" aria-label="Ciclo {{ $idioma->ciclo }} de 12">
                             @for ($ciclo = 1; $ciclo <= 12; $ciclo++)
-                                <span @class(['h-[22px] rounded-md', 'bg-acento' => $ciclo < $idioma->ciclo, 'bg-oro-200' => $ciclo === $idioma->ciclo && $idioma->activa, 'bg-gris-fondo' => $ciclo > $idioma->ciclo || ($ciclo === $idioma->ciclo && ! $idioma->activa)])></span>
+                                <span @class(['h-[22px] rounded-md', 'bg-acento' => $ciclo < $idioma->ciclo, 'bg-oro-200' => $ciclo === $idioma->ciclo && $idioma->estado === EstadoMatricula::Activa, 'bg-gris-fondo' => $ciclo > $idioma->ciclo || ($ciclo === $idioma->ciclo && $idioma->estado !== EstadoMatricula::Activa)])></span>
                             @endfor
                         </span>
                         <span class="flex justify-between text-[12.5px] text-apagado"><span>Básico</span><span>Intermedio</span><span>Avanzado</span></span>
@@ -88,4 +95,5 @@
             </div>
         @endif
     </x-portal.tarjeta>
+    @endunless
 </div>

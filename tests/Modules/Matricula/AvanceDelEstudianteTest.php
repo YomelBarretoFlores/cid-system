@@ -11,6 +11,7 @@ use App\Modules\Academico\Models\Periodo;
 use App\Modules\Matricula\Actions\ResumirAvanceDelEstudiante;
 use App\Modules\Matricula\Data\AvanceEnIdioma;
 use App\Modules\Matricula\Data\ClaseDeLaSemana;
+use App\Modules\Matricula\Enums\EstadoMatricula;
 use App\Modules\Matricula\Enums\PasoDelEstudiante;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Enums\TipoConcepto;
@@ -48,9 +49,10 @@ it('tells an enrolled student so, with the weekly schedule of the active groups 
         ->and($avance->horario[1])->toEqual([new ClaseDeLaSemana('Inglés', '07:00', 'A-204')])
         ->and($avance->horario[3])->toEqual([new ClaseDeLaSemana('Inglés', '07:00', 'A-204')])
         ->and($avance->horario[6])->toBe([])
+        ->and($avance->horario[7])->toBe([])
         ->and($avance->idiomas)->toEqual([
-            new AvanceEnIdioma('Inglés', 2, true, '2026-II'),
-            new AvanceEnIdioma('Quechua', 1, false, '2026-I'),
+            new AvanceEnIdioma('Inglés', 2, EstadoMatricula::Activa, '2026-II'),
+            new AvanceEnIdioma('Quechua', 1, EstadoMatricula::Retirada, '2026-I'),
         ]);
 });
 

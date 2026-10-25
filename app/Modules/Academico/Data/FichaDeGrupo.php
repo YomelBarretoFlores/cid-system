@@ -29,7 +29,8 @@ final readonly class FichaDeGrupo
         public ?string $aula,
         public ?string $enlaceVirtual,
         public int $vacantesDisponibles,
-        public array $sesiones = [],
+        public array $sesiones,
+        public ?string $aulaCodigo,
     ) {}
 
     public static function desde(Grupo $grupo): self
@@ -49,6 +50,7 @@ final readonly class FichaDeGrupo
             enlaceVirtual: $grupo->enlace_virtual,
             vacantesDisponibles: max(0, $grupo->vacantes_disponibles),
             sesiones: array_values($grupo->horarios->map(fn (Horario $horario): SesionDeClase => SesionDeClase::desde($horario))->all()),
+            aulaCodigo: $grupo->aula?->codigo,
         );
     }
 

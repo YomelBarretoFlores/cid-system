@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-2 sm:gap-3.5">
-    <livewire:matricula.resumen-del-estudiante />
+    <livewire:matricula.resumen-del-estudiante :es-docente="$esDocente" />
 
     @if ($esDocente)
         <a href="{{ route('docente.grupos') }}" class="group flex items-center gap-4 rounded-tarjeta bg-tarjeta p-6 transition-shadow hover:shadow-[inset_0_0_0_2px_var(--color-oro-300)] focus-visible:shadow-foco focus-visible:outline-none">
