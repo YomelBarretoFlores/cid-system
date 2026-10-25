@@ -85,7 +85,9 @@ Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y c
 - KPIs financieros: ingresos por periodo/idioma/nivel, pagos pendientes de validación, rentabilidad por grupo (matrículas frente a horas docentes × tarifa).
 - KPIs académicos: matrículas y crecimiento, deserción por nivel e idioma, demanda horaria.
 - Filtros por periodo, idioma y nivel; exportación PDF/Excel.
-- Precalculado con el scheduler y caché. **Sin analítica predictiva ni ML** (excluido por el TdR).
+- Pantalla «Tablero gerencial» del panel, con el permiso `tablero.ver`. Se calcula en cada consulta con queries dedicadas sobre las tablas de cada módulo (tiempo real); si el volumen lo exige, se pasará a vistas materializadas. **Sin analítica predictiva ni ML** (excluido por el TdR).
+
+> Supuestos aplicados (morosidad como pagos pendientes de validación, atribución de la recaudación, costo docente, crecimiento, deserción y demanda horaria): ver [`decisiones-pendientes.md`](decisiones-pendientes.md) (#4, #80–#85).
 
 ## M6 · Tramites
 

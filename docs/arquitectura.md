@@ -73,7 +73,7 @@ tests/
 | Pagos | M2 | Registro y validación de pagos, desbloqueos, reportes de recaudación |
 | Docencia | M3 | Padrón, carga académica, asistencia y pre-actas, expediente de horas |
 | Certificacion | M4 | Actas finales (vista previa desde la pre-acta, cierre con bloqueo y rectificación autorizada), constancias y certificados con código único y QR, con verificación pública |
-| Tablero | M5 | KPIs descriptivos (solo lectura) |
+| Tablero | M5 | KPIs descriptivos (solo lectura, calculados en cada consulta), PDF y Excel |
 | Tramites | M6 | Portada pública (oferta, costos, fechas, requisitos y verificación, desde los contratos `OfertaPublica` y `TarifasVigentes`) y trámites con etapas configurables: escucha los eventos de Pagos para la tasa, emite documentos y mueve matrículas por contratos de Certificacion y Matricula, y notifica cada cambio por correo desde la cola |
 
 Detalle funcional: [`modulos.md`](modulos.md).
