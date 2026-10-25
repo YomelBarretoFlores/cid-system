@@ -87,7 +87,21 @@ Detalle funcional: [`modulos.md`](modulos.md).
 5. **Contratos solo donde hacen falta.** No se crean interfaces "por si acaso". Cada contrato es una interfaz invocable que implementa una Action del módulo dueño y se registra en `$bindings` de su `ServiceProvider` (por ejemplo `ReservaDeVacante` → `ReservarVacante`).
 6. **Ayudas compartidas** en `app/Shared/Support`: `RestriccionUnica` (reconoce qué índice único se violó para mostrar un error de formulario), `NormalizaCodigo` (códigos en mayúsculas y sin espacios), `AccionDeNegocio` (ejecuta una Action desde Filament y muestra su mensaje).
 7. **Transacciones**: siempre con `App\Shared\Support\Database\Transaccion::ejecutar`, nunca con `DB::transaction` (lo verifica `tests/Architecture/TransaccionesTest.php`). Reintenta deadlocks y explica esperas agotadas; desde el panel, sobre un registro ya cargado, se usa `reintentar: false`. Detalle en [ADR 0006](adr/0006-resiliencia-y-trazabilidad.md).
-8. **Reglas de negocio incumplidas** lanzan `App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida` con un mensaje para el usuario. Al conectar web, API y Filament, se mostrará ese mensaje (HTTP 422) sin detalles técnicos. El panel y el portal registran cada rechazo con `RegistroDeRechazos`, sin datos personales.
+8. **Reglas de negocio incumplidas** lanzan `App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida` con un mensaje para el usuario. En la API responde 422 con ese mensaje, sin detalles técnicos. El panel y el portal registran cada rechazo con `RegistroDeRechazos`, sin datos personales.
+
+## API REST v1
+
+Clientes externos (una app móvil, otro sistema de la UNASAM) leen datos en `/api/v1` con las mismas Actions que usan las pantallas. Solo lectura en esta versión ([`decisiones-pendientes.md`](decisiones-pendientes.md) #86–#90). La documentación OpenAPI la genera Scramble en `/docs/api`.
+
+| Acceso | Servicios |
+|---|---|
+| Sin token | `GET /oferta`, `GET /tarifas`, `GET /documentos/{codigo}` |
+| Sesión | `POST /sesiones` (token), `GET` y `DELETE /sesiones/actual` |
+| Estudiante (token, correo verificado y ficha) | `GET /estudiante/perfil`, `/matriculas`, `/notas`, `/pagos`, `/tramites`, `/documentos`, `/documentos/{codigo}/pdf` |
+| Docente (token, correo verificado y perfil docente) | `GET /docente/grupos` |
+
+- Las rutas de sesión están en `routes/api.php`; las de cada módulo, en su `routes/api.php` (el proveedor del módulo añade el prefijo `/api/v1`). Controladores delgados en `Http/Controllers/Api` y respuestas con JSON Resources en `Http/Resources`, nunca modelos.
+- Los identificadores públicos son ULID (matrículas, pagos) o el código del documento o del trámite, nunca el `id` interno.
 
 ## Sistema de diseño
 
