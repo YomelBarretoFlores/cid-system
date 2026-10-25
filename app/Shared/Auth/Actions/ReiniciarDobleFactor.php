@@ -10,6 +10,7 @@ use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Throwable;
 
 // For staff who lost both the phone and the recovery codes; the panel asks them to set it up again.
 final readonly class ReiniciarDobleFactor
@@ -30,10 +31,9 @@ final readonly class ReiniciarDobleFactor
             return $usuario->id;
         });
 
-        $sesionesCerradas = $this->cerrarSesiones($usuarioId);
-        Log::info('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuarioId, 'sesiones_cerradas' => $sesionesCerradas]);
+        Log::info('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuarioId]);
 
-        return $sesionesCerradas;
+        return $this->cerrarSesiones($usuarioId);
     }
 
     // The reset may follow a stolen phone, so the account's open sessions end too; only database sessions can be found by account.
@@ -43,7 +43,14 @@ final readonly class ReiniciarDobleFactor
             return false;
         }
 
-        DB::connection(config('session.connection'))->table(config()->string('session.table'))->where('user_id', $usuarioId)->delete();
+        try {
+            DB::connection(config('session.connection'))->table(config()->string('session.table'))->where('user_id', $usuarioId)->delete();
+        } catch (Throwable $error) {
+            // The reset already holds; the operator is told the sessions stay open and can run the command again.
+            Log::warning('No se pudieron cerrar las sesiones tras reiniciar el doble factor.', ['usuario_id' => $usuarioId, 'error' => $error::class]);
+
+            return false;
+        }
 
         return true;
     }

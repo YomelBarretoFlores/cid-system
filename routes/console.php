@@ -29,7 +29,7 @@ Artisan::command('auth:reiniciar-doble-factor {correo}', function (ReiniciarDobl
     $this->info('Se quitó el doble factor de la cuenta. Deberá configurarlo de nuevo al ingresar al panel.');
 
     if (! $sesionesCerradas) {
-        $this->warn('Las sesiones abiertas de la cuenta no se cerraron porque no se guardan en la base de datos (SESSION_DRIVER).');
+        $this->warn('No se pudieron cerrar las sesiones abiertas de la cuenta (no se guardan en la base de datos o falló la conexión). Revisa el log y vuelve a ejecutar el comando.');
     }
 
     return 0;

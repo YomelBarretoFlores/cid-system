@@ -22,6 +22,7 @@ it('clears the second factor of an account that lost its phone and its recovery 
 
     $this->artisan('auth:reiniciar-doble-factor', ['correo' => ' CAJA@ciln.test '])
         ->expectsOutput('Se quitó el doble factor de la cuenta. Deberá configurarlo de nuevo al ingresar al panel.')
+        ->doesntExpectOutputToContain('No se pudieron cerrar')
         ->assertSuccessful();
 
     expect($usuario->fresh())
@@ -30,7 +31,7 @@ it('clears the second factor of an account that lost its phone and its recovery 
         ->remember_token->not->toBe($recordarAntes)
         ->and(DB::table('sessions')->pluck('id')->all())->toBe(['sesion-de-otra']);
 
-    Log::shouldHaveReceived('info')->once()->with('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuario->id, 'sesiones_cerradas' => true]);
+    Log::shouldHaveReceived('info')->once()->with('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuario->id]);
 });
 
 it('still clears the second factor and warns when sessions are not stored in the database', function (): void {
@@ -42,7 +43,7 @@ it('still clears the second factor and warns when sessions are not stored in the
 
     $this->artisan('auth:reiniciar-doble-factor', ['correo' => 'caja@ciln.test'])
         ->expectsOutput('Se quitó el doble factor de la cuenta. Deberá configurarlo de nuevo al ingresar al panel.')
-        ->expectsOutput('Las sesiones abiertas de la cuenta no se cerraron porque no se guardan en la base de datos (SESSION_DRIVER).')
+        ->expectsOutput('No se pudieron cerrar las sesiones abiertas de la cuenta (no se guardan en la base de datos o falló la conexión). Revisa el log y vuelve a ejecutar el comando.')
         ->assertSuccessful();
 
     expect($usuario->fresh())
@@ -60,4 +61,19 @@ it('fails without changing anything when no account has that e-mail', function (
         ->assertFailed();
 
     expect($usuario->fresh()->getAppAuthenticationSecret())->toBe('SECRETO');
+});
+
+it('keeps the reset, logs it and warns when the sessions cannot be deleted', function (): void {
+    config(['session.driver' => 'database', 'session.connection' => 'conexion_inexistente']);
+    $usuario = User::factory()->create(['email' => 'caja@ciln.test']);
+    $usuario->saveAppAuthenticationSecret('SECRETO');
+    Log::spy();
+
+    $this->artisan('auth:reiniciar-doble-factor', ['correo' => 'caja@ciln.test'])
+        ->expectsOutput('No se pudieron cerrar las sesiones abiertas de la cuenta (no se guardan en la base de datos o falló la conexión). Revisa el log y vuelve a ejecutar el comando.')
+        ->assertSuccessful();
+
+    expect($usuario->fresh()->getAppAuthenticationSecret())->toBeNull();
+    Log::shouldHaveReceived('info')->once()->with('Se reinició el doble factor de una cuenta.', ['usuario_id' => $usuario->id]);
+    Log::shouldHaveReceived('warning')->once()->withArgs(fn (string $mensaje, array $contexto): bool => $contexto['usuario_id'] === $usuario->id && ! str_contains(json_encode($contexto), 'caja'));
 });

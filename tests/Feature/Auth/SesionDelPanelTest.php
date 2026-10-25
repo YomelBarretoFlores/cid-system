@@ -9,6 +9,7 @@ use App\Shared\Auth\Models\User;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\TestResponse;
 use Livewire\Livewire;
 
@@ -62,8 +63,10 @@ it('starts the panel session only after the app code is accepted', function (): 
 
 it('refuses a session that was not opened by the panel sign-in and asks to sign in there', function (): void {
     $this->be($this->personal);
+    Log::spy();
 
     assertSalidaDelPanel($this->get('/admin'), 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+    Log::shouldHaveReceived('info')->with('Se cerró una sesión del panel.', ['usuario_id' => $this->personal->id, 'causa' => 'sin_ingreso_del_panel']);
 });
 
 it('sends staff who sign in on the portal to the panel sign-in', function (): void {
@@ -87,7 +90,9 @@ it('closes the panel session after 30 minutes without activity, and each visit r
     $this->get('/admin')->assertOk();
 
     $this->travel(31)->minutes();
+    Log::spy();
     assertSalidaDelPanel($this->get('/admin'), 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
+    Log::shouldHaveReceived('info')->with('Se cerró una sesión del panel.', ['usuario_id' => $this->personal->id, 'causa' => 'inactividad']);
 });
 
 it('refuses the panel mark of another account signed in earlier in the same browser', function (): void {
