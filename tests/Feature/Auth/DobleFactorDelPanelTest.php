@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Shared\Auth\Filament\IngresarAlPanel;
 use App\Shared\Auth\Http\Middleware\ProtegerSesionDelPanel;
 use App\Shared\Auth\Models\User;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
@@ -50,9 +51,10 @@ it('stores the secret and the recovery codes encrypted and never shows them', fu
 });
 
 it('sends a panel account without the authenticator app to set it up first', function (): void {
-    $this->be(personalDelPanel(conDobleFactor: false));
+    $usuario = personalDelPanel(conDobleFactor: false);
+    $this->be($usuario);
 
-    $this->withSession([ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD => now()->getTimestamp()])
+    $this->withSession([ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD => ProtegerSesionDelPanel::marca($usuario->id)])
         ->get('/admin')
         ->assertRedirect(Filament::getPanel('admin')->getSetUpRequiredMultiFactorAuthenticationUrl());
 });
@@ -82,7 +84,7 @@ it('signs in once with each recovery code when the phone is lost', function (): 
     $codigos = $this->proveedor->generateRecoveryCodes();
     $this->proveedor->saveRecoveryCodes($usuario, $codigos);
 
-    $ingresarCon = fn (string $codigo) => Livewire::test(Login::class)
+    $ingresarCon = fn (string $codigo) => Livewire::test(IngresarAlPanel::class)
         ->fillForm(['email' => 'caja@ciln.test', 'password' => 'password'])
         ->call('authenticate')
         ->set('data.multiFactor.app.useRecoveryCode', true)
@@ -91,6 +93,7 @@ it('signs in once with each recovery code when the phone is lost', function (): 
 
     $ingresarCon($codigos[0])->assertHasNoErrors();
     $this->assertAuthenticatedAs($usuario);
+    expect(session(ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD))->toBe(ProtegerSesionDelPanel::marca($usuario->id));
     expect($usuario->fresh()->getAppAuthenticationRecoveryCodes())->toHaveCount(7);
 
     auth()->logout();

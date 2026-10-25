@@ -15,9 +15,21 @@ final class ProtegerSesionDelPanel
 {
     public const string ULTIMA_ACTIVIDAD = 'panel.ultima_actividad';
 
+    /**
+     * @return array{usuario: int|string, instante: int}
+     */
+    public static function marca(int|string $usuarioId): array
+    {
+        return ['usuario' => $usuarioId, 'instante' => now()->getTimestamp()];
+    }
+
     public static function registrarActividad(): void
     {
-        session()->put(self::ULTIMA_ACTIVIDAD, now()->getTimestamp());
+        $usuarioId = Filament::auth()->id();
+
+        if ($usuarioId !== null) {
+            session()->put(self::ULTIMA_ACTIVIDAD, self::marca($usuarioId));
+        }
     }
 
     /**
@@ -25,13 +37,14 @@ final class ProtegerSesionDelPanel
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $ultimaActividad = $request->session()->get(self::ULTIMA_ACTIVIDAD);
+        $marca = $request->session()->get(self::ULTIMA_ACTIVIDAD);
 
-        if (! is_int($ultimaActividad)) {
+        // The mark names its account: a later sign-in of another account in the same browser starts unmarked.
+        if (! is_array($marca) || ($marca['usuario'] ?? null) !== Filament::auth()->id() || ! is_int($marca['instante'] ?? null)) {
             return $this->cerrar($request, 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
         }
 
-        if (now()->getTimestamp() - $ultimaActividad > config()->integer('session.panel_lifetime') * 60) {
+        if (now()->getTimestamp() - $marca['instante'] > max(1, config()->integer('session.panel_lifetime')) * 60) {
             return $this->cerrar($request, 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
         }
 

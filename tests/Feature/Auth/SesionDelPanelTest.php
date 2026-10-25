@@ -42,7 +42,7 @@ it('starts the panel session only after the app code is accepted', function (): 
     $ingreso->set('data.multiFactor.app.code', $proveedor->getCurrentCode($this->personal))->call('authenticate');
 
     $this->assertAuthenticatedAs($this->personal);
-    expect(session(ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD))->toBe(now()->getTimestamp());
+    expect(session(ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD))->toBe(ProtegerSesionDelPanel::marca($this->personal->id));
 });
 
 it('refuses a session that was not opened by the panel sign-in and asks to sign in there', function (): void {
@@ -66,13 +66,30 @@ it('closes the panel session after 30 minutes without activity, and each visit r
 
     $this->travel(29)->minutes();
     $this->get('/admin')->assertOk();
-    expect(session(ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD))->toBe(now()->getTimestamp());
+    expect(session(ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD))->toBe(ProtegerSesionDelPanel::marca($this->personal->id));
 
-    $this->travel(29)->minutes();
+    $this->travel(30)->minutes();
     $this->get('/admin')->assertOk();
 
     $this->travel(31)->minutes();
     assertSalidaDelPanel($this->get('/admin'), 'Tu sesión del panel se cerró por inactividad. Vuelve a ingresar.');
+});
+
+it('refuses the panel mark of another account signed in earlier in the same browser', function (): void {
+    $otraCuenta = User::factory()->create()->givePermissionTo(User::ADMIN_PANEL_PERMISSION);
+    $this->be($this->personal);
+
+    $respuesta = $this->withSession([ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD => ProtegerSesionDelPanel::marca($otraCuenta->id)])->get('/admin');
+
+    assertSalidaDelPanel($respuesta, 'Ingresa al panel con tu correo, tu contraseña y el código de tu aplicación.');
+});
+
+it('takes the inactivity limit from the configuration, never below one minute', function (): void {
+    config(['session.panel_lifetime' => 0]);
+    $this->actingAs($this->personal);
+
+    $this->travel(59)->seconds();
+    $this->get('/admin')->assertOk();
 });
 
 it('takes the inactivity limit from the configuration', function (): void {

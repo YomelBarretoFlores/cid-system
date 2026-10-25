@@ -26,7 +26,7 @@ abstract class TestCase extends BaseTestCase
             $user->saveAppAuthenticationSecret(app(AppAuthentication::class)->generateSecret());
         }
 
-        $this->withSession([ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD => now()->getTimestamp()]);
+        $this->withSession([ProtegerSesionDelPanel::ULTIMA_ACTIVIDAD => ProtegerSesionDelPanel::marca($user->getAuthIdentifier())]);
 
         return parent::actingAs($user, $guard);
     }
