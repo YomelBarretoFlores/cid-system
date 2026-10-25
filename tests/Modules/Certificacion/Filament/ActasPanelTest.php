@@ -116,7 +116,7 @@ it('downloads the PDF of a closed acta from the panel and refuses it while under
     $this->actingAs($this->gestor)->get(route('panel.actas.pdf', $this->acta))->assertOk();
     Pdf::assertRespondedWithPdf(fn ($pdf): bool => $pdf->viewName === 'certificacion::pdf.acta-final');
 
-    $this->acta->update(['estado' => EstadoActa::Abierta]);
+    app(App\Modules\Certificacion\Actions\AutorizarRectificacion::class)($this->acta->id, 'Error al transcribir el examen final.', $this->gestor);
 
     $this->actingAs($this->gestor)->get(route('panel.actas.pdf', $this->acta))->assertNotFound();
 });

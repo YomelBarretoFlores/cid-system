@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Models\Grupo;
 use App\Modules\Certificacion\Actions\AutorizarRectificacion;
 use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Actions\RectificarNotasFinales;
@@ -15,6 +16,7 @@ use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\ActasFinales;
 use Tests\Support\PortalDocente;
@@ -143,3 +145,22 @@ it('lets only users with the actas permission authorize a rectification, and ans
         ->and($this->acta->refresh()->estado)->toBe(EstadoActa::Cerrada)
         ->and(Rectificacion::query()->count())->toBe(0);
 });
+
+it('keeps grades, reopening and rectifications locked in the database outside the Actions', function (Closure $cambio, string $mensaje): void {
+    expect(fn (): mixed => $cambio->call($this))->toThrow(QueryException::class, $mensaje);
+})->with([
+    'moving a grade from the closed acta to an open one' => [function (): void {
+        $abierta = DB::table('cer_actas')->insertGetId([...collect((array) DB::table('cer_actas')->first())->except(['id', 'grupo_id', 'validada_por', 'validada_en'])->all(),
+            'grupo_id' => Grupo::factory()->create()->id, 'estado' => 'abierta']);
+        DB::table('cer_notas_finales')->where('matricula_id', $this->ana->id)->update(['acta_id' => $abierta]);
+    }, 'una nota final no cambia de acta ni de estudiante'],
+    'reopening without a rectification' => [fn () => DB::table('cer_actas')->update(['estado' => 'abierta']), 'solo se reabre con una rectificación autorizada'],
+    'editing the reason of a rectification' => [function (): void {
+        autorizar();
+        DB::table('cer_rectificaciones')->update(['motivo' => 'Otro motivo cualquiera.']);
+    }, 'una rectificación solo registra cuándo se cerró el acta'],
+    'deleting a rectification' => [function (): void {
+        autorizar();
+        DB::table('cer_rectificaciones')->delete();
+    }, 'una rectificación no se elimina'],
+]);

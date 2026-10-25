@@ -69,7 +69,7 @@ final class DocenciaDemoSeeder extends Seeder
         foreach ($this->gruposDelPeriodo('cerrado', array_keys(self::GRUPOS_ANTERIORES)) as $grupo) {
             $docente = $docentes[self::GRUPOS_ANTERIORES[$grupo->codigo] ?? -1] ?? null;
 
-            if ($docente === null) {
+            if (! $docente instanceof Docente) {
                 continue;
             }
 

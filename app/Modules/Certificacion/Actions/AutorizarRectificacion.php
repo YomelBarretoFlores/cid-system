@@ -38,8 +38,9 @@ final readonly class AutorizarRectificacion
                 throw new ReglaDeNegocioIncumplida("El acta final del grupo {$acta->grupo_codigo} ya tiene una rectificación autorizada.");
             }
 
-            $acta->update(['estado' => EstadoActa::Abierta]);
+            // The rectification goes first: the database reopens a closed acta only when one is open.
             Rectificacion::query()->create(['acta_id' => $acta->id, 'motivo' => $motivo, 'autorizada_por' => $administrador->id, 'autorizada_en' => now()]);
+            $acta->update(['estado' => EstadoActa::Abierta]);
         });
     }
 }

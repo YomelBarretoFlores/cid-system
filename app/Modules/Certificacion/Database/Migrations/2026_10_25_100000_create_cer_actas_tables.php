@@ -81,7 +81,7 @@ return new class extends Migration
             DB::unprepared("CREATE TRIGGER {$tabla}_auditoria AFTER INSERT OR UPDATE OR DELETE ON {$tabla} FOR EACH ROW EXECUTE FUNCTION aud_registrar();");
         }
 
-        // A closed acta only changes by reopening it for a rectification; its grades never change while it is closed, and nothing is deleted.
+        // A closed acta only reopens with an open rectification; its grades never change or move while it is closed, and no row is deleted.
         DB::unprepared(<<<'SQL'
             CREATE OR REPLACE FUNCTION cer_controlar_acta() RETURNS trigger
             LANGUAGE plpgsql
@@ -94,6 +94,11 @@ return new class extends Migration
 
                 IF OLD.estado = 'cerrada' AND (to_jsonb(NEW) - ARRAY['estado', 'updated_at']) IS DISTINCT FROM (to_jsonb(OLD) - ARRAY['estado', 'updated_at']) THEN
                     RAISE EXCEPTION 'cer_actas: un acta cerrada no admite cambios en sus datos' USING ERRCODE = 'check_violation';
+                END IF;
+
+                IF OLD.estado = 'cerrada' AND NEW.estado = 'abierta'
+                    AND NOT EXISTS (SELECT 1 FROM cer_rectificaciones WHERE acta_id = NEW.id AND cerrada_en IS NULL) THEN
+                    RAISE EXCEPTION 'cer_actas: un acta cerrada solo se reabre con una rectificación autorizada' USING ERRCODE = 'check_violation';
                 END IF;
 
                 RETURN NEW;
@@ -111,6 +116,10 @@ return new class extends Migration
                     RAISE EXCEPTION 'cer_notas_finales: una nota final no se elimina' USING ERRCODE = 'check_violation';
                 END IF;
 
+                IF TG_OP = 'UPDATE' AND (NEW.acta_id, NEW.matricula_id) IS DISTINCT FROM (OLD.acta_id, OLD.matricula_id) THEN
+                    RAISE EXCEPTION 'cer_notas_finales: una nota final no cambia de acta ni de estudiante' USING ERRCODE = 'check_violation';
+                END IF;
+
                 IF (SELECT estado FROM cer_actas WHERE id = NEW.acta_id) = 'cerrada' THEN
                     RAISE EXCEPTION 'cer_notas_finales: el acta % está cerrada', NEW.acta_id USING ERRCODE = 'check_violation';
                 END IF;
@@ -120,6 +129,25 @@ return new class extends Migration
             $$;
             CREATE TRIGGER cer_notas_finales_bloqueo BEFORE INSERT OR UPDATE OR DELETE ON cer_notas_finales
                 FOR EACH ROW EXECUTE FUNCTION cer_controlar_notas_finales();
+
+            CREATE OR REPLACE FUNCTION cer_controlar_rectificaciones() RETURNS trigger
+            LANGUAGE plpgsql
+            SET search_path = pg_catalog, public, pg_temp
+            AS $$
+            BEGIN
+                IF TG_OP = 'DELETE' THEN
+                    RAISE EXCEPTION 'cer_rectificaciones: una rectificación no se elimina' USING ERRCODE = 'check_violation';
+                END IF;
+
+                IF OLD.cerrada_en IS NOT NULL OR (to_jsonb(NEW) - ARRAY['cerrada_en', 'updated_at']) IS DISTINCT FROM (to_jsonb(OLD) - ARRAY['cerrada_en', 'updated_at']) THEN
+                    RAISE EXCEPTION 'cer_rectificaciones: una rectificación solo registra cuándo se cerró el acta' USING ERRCODE = 'check_violation';
+                END IF;
+
+                RETURN NEW;
+            END;
+            $$;
+            CREATE TRIGGER cer_rectificaciones_bloqueo BEFORE UPDATE OR DELETE ON cer_rectificaciones
+                FOR EACH ROW EXECUTE FUNCTION cer_controlar_rectificaciones();
             SQL);
     }
 
@@ -129,6 +157,6 @@ return new class extends Migration
         Schema::dropIfExists('cer_notas_finales');
         Schema::dropIfExists('cer_actas');
 
-        DB::unprepared('DROP FUNCTION IF EXISTS cer_controlar_notas_finales(); DROP FUNCTION IF EXISTS cer_controlar_acta();');
+        DB::unprepared('DROP FUNCTION IF EXISTS cer_controlar_rectificaciones(); DROP FUNCTION IF EXISTS cer_controlar_notas_finales(); DROP FUNCTION IF EXISTS cer_controlar_acta();');
     }
 };
