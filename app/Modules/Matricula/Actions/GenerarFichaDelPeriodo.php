@@ -17,6 +17,7 @@ final readonly class GenerarFichaDelPeriodo
     public function __invoke(int $personaId, int $periodoId, bool $publica = false): PdfBuilder
     {
         $ficha = ($this->componer)($personaId, $periodoId);
+        abort_if($ficha->matriculas === [], 404);
         $verificacion = route('fichas.verificar', $ficha->codigo);
 
         return Pdf::view('matricula::pdf.ficha', ['ficha' => $ficha, 'publica' => $publica, 'verificacion' => $verificacion, 'qr' => CodigoQr::comoDataUri($verificacion)])

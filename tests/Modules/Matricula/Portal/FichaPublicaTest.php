@@ -71,6 +71,12 @@ it('answers not found for an unknown or malformed code', function (string $codig
     $this->get('/fichas/'.$codigo)->assertNotFound();
 })->with(['unknown' => '01KX0000000000000000000000', 'malformed' => 'no-es-un-codigo']);
 
+it('answers not found for a stored code whose period has no enrollment of that person', function (): void {
+    Ficha::query()->create(['codigo' => '01KX0000000000000000000001', 'persona_id' => $this->matricula->persona_id, 'periodo_id' => Periodo::factory()->create()->id]);
+
+    $this->get('/fichas/01KX0000000000000000000001')->assertNotFound();
+});
+
 it('limits how often the verification address answers', function (): void {
     foreach (range(1, 30) as $intento) {
         $this->get('/fichas/01KX0000000000000000000000')->assertNotFound();
