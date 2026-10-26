@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
@@ -18,8 +19,10 @@ beforeEach(function (): void {
     Pdf::fake();
     $this->usuario = User::factory()->create();
     $persona = Persona::factory()->create(['user_id' => $this->usuario->id, 'numero_documento' => '41234567', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'nombres' => 'Rosa']);
-    $grupo = Grupo::factory()->for(Ciclo::factory()->for(Idioma::factory()->state(['nombre' => 'Inglés'])))->for(Periodo::factory()->state(['nombre' => 'Enero 2027']))->create(['codigo' => 'ING-I-A']);
-    $this->matricula = Matricula::factory()->create(['persona_id' => $persona->id, 'grupo_id' => $grupo->id, 'pago_id' => Pago::factory()->validado()->create(['persona_id' => $persona->id])->id]);
+    $grupo = Grupo::factory()->for(Ciclo::factory()->for(Idioma::factory()->state(['nombre' => 'Inglés'])))->for(Periodo::factory()->state(['nombre' => 'Enero 2027']))
+        ->create(['codigo' => 'ING-I-A', 'modalidad' => Modalidad::Virtual, 'aula_id' => null, 'enlace_virtual' => 'https://meet.example.test/clase']);
+    $this->operacion = 'OP-PRIVADA-1';
+    $this->matricula = Matricula::factory()->create(['persona_id' => $persona->id, 'grupo_id' => $grupo->id, 'pago_id' => Pago::factory()->validado()->create(['persona_id' => $persona->id, 'numero_operacion' => $this->operacion])->id]);
 });
 
 it('prints on the record the verification address and the QR that opens it again', function (): void {
@@ -29,7 +32,9 @@ it('prints on the record the verification address and the QR that opens it again
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains(route('fichas.verificar', $codigo))
         && $pdf->contains('Puede verificar la validez de esta ficha')
         && $pdf->contains('data:image/png;base64,')
-        && $pdf->contains('DNI 41234567'));
+        && $pdf->contains('DNI 41234567')
+        && $pdf->contains('OP-PRIVADA-1')
+        && $pdf->contains('https://meet.example.test/clase'));
 });
 
 it('opens the same record from its verification address without signing in, with the document number masked', function (): void {
@@ -43,7 +48,10 @@ it('opens the same record from its verification address without signing in, with
         && $pdf->contains('Ficha de Matrícula')
         && $pdf->contains('QUISPE MAMANI, ROSA')
         && $pdf->contains('DNI ••••4567')
-        && ! $pdf->contains('41234567'));
+        && $pdf->contains('Verificado')
+        && ! $pdf->contains('41234567')
+        && ! $pdf->contains($this->operacion)
+        && ! $pdf->contains('meet.example.test'));
 });
 
 it('answers the public copy as a real PDF that search engines do not index', function (): void {

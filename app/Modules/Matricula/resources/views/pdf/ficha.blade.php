@@ -1,7 +1,7 @@
 @use('App\Modules\Matricula\Enums\EstadoMatricula')
 @use('App\Shared\Ui\CodigoDeBarras')
 @use('App\Shared\Ui\Formato')
-{{-- Laid out after the UNASAM SGA enrollment record; DOMPDF draws tables and simple CSS only (ADR 0005). --}}
+{{-- Laid out after the UNASAM SGA enrollment record; DOMPDF draws tables and simple CSS only (ADR 0005). The public copy leaves out the document number, the payment operation and the virtual class link. --}}
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -71,14 +71,14 @@
                         <td>{{ $grupo->horarioCompacto() === [] ? 'Por confirmar' : implode(' · ', $grupo->horarioCompacto()) }}</td>
                         <td>
                             {{ $grupo->aula ?? ($grupo->enlaceVirtual !== null ? 'Virtual' : 'Por asignar') }}
-                            @if ($grupo->aula === null && $grupo->enlaceVirtual !== null)
+                            @if (! $publica && $grupo->aula === null && $grupo->enlaceVirtual !== null)
                                 <div class="detalle">{{ $grupo->enlaceVirtual }}</div>
                             @endif
                         </td>
                         <td class="centro">{{ $matricula->condicion->etiqueta() }}</td>
                         <td>
                             {{ $matricula->estadoDelPago() }}
-                            @if ($matricula->pago !== null)
+                            @if (! $publica && $matricula->pago !== null)
                                 <div class="detalle">{{ $matricula->pago->concepto }} · {{ $matricula->pago->numeroOperacion }} ({{ $matricula->pago->medioPago }}) · {{ $matricula->pago->fechaPago->format('d/m/Y') }}</div>
                             @endif
                         </td>

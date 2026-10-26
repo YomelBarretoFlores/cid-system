@@ -138,7 +138,7 @@ it('lists every enrollment of the period on one record, marks a withdrawal and a
 
     $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $ingles))->assertOk();
 
-    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => collect(['INGLÉS · Ciclo 2', 'QUECHUA · Ciclo 1', '· Retirada', 'OP-QUE', 'total-pagado">S/ 80.00</td>', '2</strong> matrícula(s)'])->every(fn (string $texto): bool => $pdf->contains($texto))
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => collect(['INGLÉS · Ciclo 2', 'QUECHUA · Ciclo 1', '· Retirada', 'OP-QUE', 'total-pagado">S/ 80.00</td>', '<td class="monto">—</td>', '2</strong> matrícula(s)'])->every(fn (string $texto): bool => $pdf->contains($texto))
         && ! $pdf->contains('FRA-I-B') && ! $pdf->contains('S/ 140.00'));
 });
 
