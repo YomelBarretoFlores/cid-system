@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use App\Modules\Academico\Filament\Resources\Grupos\GrupoResource;
+use App\Modules\Academico\Filament\Resources\Idiomas\IdiomaResource;
+use App\Modules\Academico\Filament\Resources\Idiomas\Pages\ListIdiomas;
 use App\Modules\Academico\Models\Grupo;
+use App\Modules\Academico\Models\Idioma;
 use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Enums\PermisoPersona;
@@ -13,6 +16,7 @@ use App\Modules\Tramites\Filament\Resources\Tramites\TramiteResource;
 use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use Filament\Facades\Filament;
+use Livewire\Livewire;
 
 beforeEach(fn () => Filament::setCurrentPanel('admin'));
 
@@ -83,4 +87,28 @@ it('keeps people out of the panel search for staff without the people permission
     $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, 'pagos.ver']));
 
     expect(PersonaResource::canGloballySearch())->toBeFalse();
+});
+
+it('finds languages in the panel search and tables without typing accents or capitals', function (): void {
+    $frances = Idioma::factory()->create(['codigo' => 'FR', 'nombre' => 'Francés']);
+    $ingles = Idioma::factory()->create(['codigo' => 'EN', 'nombre' => 'Inglés']);
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, 'academico.ver']));
+
+    expect(IdiomaResource::getGlobalSearchResults('frances')->pluck('title')->all())->toBe(['Francés'])
+        ->and(IdiomaResource::getGlobalSearchResults('INGLÉS')->pluck('title')->all())->toBe(['Inglés']);
+
+    Livewire::test(ListIdiomas::class)
+        ->searchTable('ingles')
+        ->assertCanSeeTableRecords([$ingles])
+        ->assertCanNotSeeTableRecords([$frances]);
+});
+
+it('finds people without typing the accents or the ñ of their names', function (): void {
+    $persona = Persona::factory()->create(['apellido_paterno' => 'Núñez', 'apellido_materno' => 'Peña', 'nombres' => 'José', 'numero_documento' => '41234567']);
+    Persona::factory()->create(['apellido_paterno' => 'Torres', 'apellido_materno' => 'Salas', 'nombres' => 'Luis', 'numero_documento' => '87654321']);
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoPersona::Ver->value]));
+
+    foreach (['nunez pena', 'NUÑEZ', 'jose'] as $termino) {
+        expect(PersonaResource::getGlobalSearchResults($termino)->pluck('title')->all())->toBe([$persona->etiqueta]);
+    }
 });

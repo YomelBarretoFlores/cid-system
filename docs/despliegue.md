@@ -7,7 +7,7 @@
 | Componente | Requisito |
 |---|---|
 | PHP | 8.5 con `pdo_pgsql`, `pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring` |
-| Base de datos | PostgreSQL 18 |
+| Base de datos | PostgreSQL 18 compilado con ICU (lo traen los paquetes oficiales). La migración crea la intercalación `sin_tildes`, que permite buscar sin tildes ni mayúsculas en el panel; el usuario de la aplicación necesita permiso `CREATE` en el esquema `public`. |
 | Servidor web | Nginx o Apache apuntando a `public/` |
 | Procesos | Worker de colas supervisado (Supervisor o systemd) y cron del scheduler |
 | Correo | SMTP institucional |

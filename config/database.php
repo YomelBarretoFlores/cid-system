@@ -98,6 +98,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
+            'search_collation' => 'sin_tildes',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
             'lock_timeout' => env('DB_LOCK_TIMEOUT', '5s'),
             'statement_timeout' => env('DB_STATEMENT_TIMEOUT', '30s'),

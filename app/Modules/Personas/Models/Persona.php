@@ -79,7 +79,7 @@ final class Persona extends Model
 
         $query->where(fn (Builder $coincidencia) => $coincidencia
             ->whereLike('numero_documento', mb_strtoupper($termino).'%', caseSensitive: true)
-            ->orWhereRaw("concat_ws(' ', apellido_paterno, apellido_materno, nombres) ILIKE ?", ["%{$termino}%"]));
+            ->orWhereRaw("concat_ws(' ', apellido_paterno, apellido_materno, nombres) collate sin_tildes LIKE ?", ["%{$termino}%"]));
     }
 
     /**
