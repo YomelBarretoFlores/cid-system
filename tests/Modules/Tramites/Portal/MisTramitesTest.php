@@ -95,6 +95,6 @@ it('ignores a type that is not available and does not let the browser choose it'
         ->toThrow(CannotUpdateLockedPropertyException::class);
 });
 
-it('sends guests to the student entry', function (): void {
+it('sends guests to the portal sign-in', function (): void {
     $this->get(route('estudiante.tramites'))->assertRedirect(route('ingresar'));
 });

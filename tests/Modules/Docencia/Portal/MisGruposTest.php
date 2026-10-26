@@ -70,7 +70,7 @@ it('refuses a user whose person has no teacher profile', function (): void {
         ->assertSee('Tu cuenta no está vinculada a un perfil docente del CILN.');
 });
 
-it('sends a guest to the teacher entry', function (): void {
+it('sends a guest to the portal sign-in', function (): void {
     $this->get(route('docente.grupos'))->assertRedirect(route('ingresar'));
 });
 

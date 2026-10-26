@@ -114,7 +114,7 @@ it('asks a student without a validated enrollment payment to register one', func
         ->assertDontSee('Matricularme');
 });
 
-it('sends guests of the enrollment pages to the student login', function (string $ruta): void {
+it('sends guests of the enrollment pages to the portal sign-in', function (string $ruta): void {
     $this->get(route($ruta))->assertRedirect(route('ingresar'));
 })->with(['estudiante.matricula', 'estudiante.matriculas']);
 

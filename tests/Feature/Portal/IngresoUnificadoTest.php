@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Livewire\IniciarSesion;
 use App\Shared\Auth\Models\User;
+use App\Shared\Auth\Support\DestinoTrasIngreso;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Tests\Support\PortalDocente;
@@ -92,4 +93,12 @@ it('lands staff who also teach on the teacher module when they sign in through t
     Livewire::test(IniciarSesion::class)
         ->set('email', $usuario->email)->set('password', 'password')->call('ingresar')
         ->assertRedirect(route('docente.grupos'));
+});
+
+it('keeps a pending portal page whose path only starts like the panel, with its query string', function (): void {
+    [$usuario] = PortalDocente::docente();
+
+    expect(app(DestinoTrasIngreso::class)->trasIngresar($usuario, 'http://localhost/administracion?pagina=2'))->toBe('http://localhost/administracion?pagina=2')
+        ->and(app(DestinoTrasIngreso::class)->trasIngresar($usuario, 'http://localhost/admin/pagos?estado=pendiente'))->toBe(route('docente.grupos'))
+        ->and(app(DestinoTrasIngreso::class)->trasIngresar($usuario, ''))->toBe(route('docente.grupos'));
 });

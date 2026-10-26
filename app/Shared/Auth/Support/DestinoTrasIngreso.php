@@ -18,14 +18,12 @@ final readonly class DestinoTrasIngreso
         private FichaDelUsuario $fichaDelUsuario,
     ) {}
 
-    // The page asked for before signing in wins, except a panel page: the panel only accepts its own sign-in.
-    public function trasIngresar(User $usuario, mixed $pedido): string
-    {
-        $ruta = is_string($pedido) ? (string) parse_url($pedido, PHP_URL_PATH) : '';
-        $panel = '/'.trim(Filament::getPanel('admin')->getPath(), '/');
-        $esDelPanel = $ruta === $panel || str_starts_with($ruta, $panel.'/');
+    private const string PANEL = 'admin';
 
-        return is_string($pedido) && $pedido !== '' && ! $esDelPanel ? $pedido : $this->para($usuario);
+    // The page asked for before signing in wins, except a panel page: the panel only accepts sessions opened by its own sign-in.
+    public function trasIngresar(User $usuario, ?string $pedido): string
+    {
+        return $pedido === null || $pedido === '' || $this->esDelPanel($pedido) ? $this->para($usuario) : $pedido;
     }
 
     public function para(User $usuario): string
@@ -36,5 +34,13 @@ final readonly class DestinoTrasIngreso
             $usuario->can(User::ADMIN_PANEL_PERMISSION) => route('filament.admin.pages.dashboard'),
             default => route('estudiante.inicio'),
         };
+    }
+
+    private function esDelPanel(string $pedido): bool
+    {
+        $ruta = (string) parse_url($pedido, PHP_URL_PATH);
+        $panel = '/'.trim(Filament::getPanel(self::PANEL)->getPath(), '/');
+
+        return $ruta === $panel || str_starts_with($ruta, $panel.'/');
     }
 }

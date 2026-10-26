@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // The admin panel redirects its own guests to its login; every portal page goes to the single entry.
         $middleware->redirectGuestsTo(fn (Request $request): ?string => $request->is('api/*') ? null : route('ingresar'));
-        // Signed-in staff opening the entry keep going to the panel.
+        // Already signed in, staff opening the entry go to the panel; only a fresh portal sign-in puts the teacher and student modules first (DestinoTrasIngreso).
         $middleware->redirectUsersTo(fn (Request $request): string => match (true) {
             ! $request->user() instanceof User => route('estudiante.inicio'),
             $request->user()->can(User::ADMIN_PANEL_PERMISSION) => route('filament.admin.pages.dashboard'),

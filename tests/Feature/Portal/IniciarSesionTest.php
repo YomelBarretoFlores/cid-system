@@ -57,7 +57,7 @@ it('blocks the sixth attempt within a minute even with the right password', func
     $this->assertGuest();
 });
 
-it('sends guests of portal pages to the student login', function (): void {
+it('sends guests of portal pages to the portal sign-in', function (): void {
     $this->get(route('estudiante.inicio'))->assertRedirect(route('ingresar'));
 });
 
@@ -122,7 +122,7 @@ it('ends the other sessions of a student after a password change', function (): 
     $this->assertGuest();
 });
 
-it('sends signed-in staff from the student login to the admin panel', function (): void {
+it('sends signed-in staff from the portal sign-in to the admin panel', function (): void {
     Permission::findOrCreate(User::ADMIN_PANEL_PERMISSION);
     $staff = User::factory()->create();
     $staff->givePermissionTo(User::ADMIN_PANEL_PERMISSION);

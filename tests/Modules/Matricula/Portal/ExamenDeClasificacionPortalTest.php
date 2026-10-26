@@ -160,7 +160,7 @@ it('asks a student without an unused placement payment to register one', functio
         ->assertDontSee('Solicitar examen</button>', false);
 });
 
-it('sends guests of the placement test page to the student login', function (): void {
+it('sends guests of the placement test page to the portal sign-in', function (): void {
     $this->get(route('estudiante.clasificacion'))->assertRedirect(route('ingresar'));
 });
 
