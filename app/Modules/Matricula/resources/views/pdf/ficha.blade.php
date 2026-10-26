@@ -33,7 +33,7 @@
         </style>
     </head>
     <body>
-        <x-matricula::pdf.membrete laterales="150pt" />
+        <x-matricula::pdf.membrete laterales="150pt" :tamano-sga="true" />
 
         <div class="emision">{{ $ficha->emitidaEn->format('Y-m-d H:i:s') }}<br>{{ $ficha->codigo }}</div>
 

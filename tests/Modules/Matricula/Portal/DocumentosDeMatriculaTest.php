@@ -182,3 +182,13 @@ it('says the enrollment has no validated payment yet when none counts', function
         && $pdf->contains('pagos-verificados">0</td>')
         && ! $pdf->contains('Su matrícula fue validada por'));
 });
+
+it('prints the SGA-sized letterhead on the record and a narrower one on the A4 certificate', function (): void {
+    [$user, $matricula] = estudianteMatriculado();
+
+    $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $matricula))->assertOk();
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains('width: 150pt; height: 39pt;') && $pdf->contains('y Lenguas Nativas<br>'));
+
+    $this->actingAs($user)->get(route('estudiante.matriculas.constancia', $matricula))->assertOk();
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains('width: 112pt; height: 30pt;') && ! $pdf->contains('y Lenguas Nativas<br>'));
+});
