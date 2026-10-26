@@ -126,6 +126,10 @@
         .rotador > span:not(:first-child) {
             display: none;
         }
+
+        .indicador {
+            transition: none !important;
+        }
     }
 }
 

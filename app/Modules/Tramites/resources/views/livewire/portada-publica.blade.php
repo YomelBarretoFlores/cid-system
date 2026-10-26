@@ -16,7 +16,7 @@
     };
 @endphp
 <div x-data="{ idioma: @js($primerIdioma), modalidad: 'Todas', vinculo: @js($primerVinculo), conteos: @js($conteos) }" class="flex flex-col gap-3.5">
-    <header x-data="cabeceraCiln" x-bind:class="{ '-translate-y-[140%]': oculta, 'shadow-[0_12px_32px_rgb(29_27_22/0.08)]': desplazada }"
+    <header x-data="cabeceraCiln" x-on:focusin="oculta = false" x-bind:class="{ '-translate-y-[140%]': oculta, 'shadow-[0_12px_32px_rgb(29_27_22/0.08)]': desplazada }"
         class="sticky top-2 z-20 flex items-center gap-3 rounded-[20px] bg-tarjeta/90 py-2.5 pr-3 pl-[18px] shadow-[0_1px_2px_rgb(29_27_22/0.04)] backdrop-blur-md transition-[translate,box-shadow] duration-500 ease-salida sm:top-4">
         <x-ciln.marca href="#inicio" emblema="w-[50px]" />
         <nav aria-label="Secciones" class="ml-auto hidden text-[14.5px] whitespace-nowrap lg:flex">
@@ -53,6 +53,7 @@
                         @endif
                     </span>
                 @endif
+                {{-- Screen readers get this sentence; the visible headline below rotates the catalog languages in its place. Keep both in step. --}}
                 <h1 class="sr-only">Aprende un idioma en la UNASAM.</h1>
                 <p aria-hidden="true" class="text-[clamp(44px,6.4vw,92px)] leading-[0.98] font-semibold tracking-[-0.045em]">
                     <span class="linea-mascara" style="--orden: 0"><span>Aprende</span></span>
@@ -88,6 +89,7 @@
 
         @if ($idiomas !== [])
             <div aria-hidden="true" class="ticker overflow-hidden rounded-tarjeta bg-tinta py-5 text-white">
+                {{-- Two identical copies: the ticker keyframe moves the track by -50% to loop without a seam. --}}
                 <div class="ticker-pista">
                     @foreach ([1, 2] as $copia)
                         @foreach (array_merge($idiomas, $idiomas, $idiomas) as $idioma)
@@ -141,11 +143,11 @@
                 </div>
                 @if ($grupos !== [])
                     <div class="max-w-full overflow-x-auto">
-                        <div role="group" aria-label="Modalidad" x-data="indicadorCiln" class="relative flex w-max gap-1 rounded-pildora bg-lienzo p-1">
+                        <div role="group" aria-label="Modalidad" x-data="indicadorCiln" class="group relative flex w-max gap-1 rounded-pildora bg-lienzo p-1">
                             <span aria-hidden="true" x-bind:style="estilo" class="indicador absolute top-0 left-0 rounded-pildora bg-tinta"></span>
                             @foreach (['Todas', ...array_map(fn (Modalidad $modalidad): string => $modalidad->etiqueta(), Modalidad::cases())] as $modalidad)
                                 <button type="button" x-on:click="modalidad = @js($modalidad)" x-bind:aria-pressed="modalidad === @js($modalidad)"
-                                    class="relative rounded-pildora px-4 py-[9px] text-[14.5px] font-medium transition-colors duration-300 aria-pressed:text-white" @if ($loop->first) aria-pressed="true" @endif>{{ $modalidad }}</button>
+                                    class="relative rounded-pildora px-4 py-[9px] text-[14.5px] font-medium transition-colors duration-300 aria-pressed:bg-tinta aria-pressed:text-white group-data-listo:aria-pressed:bg-transparent" @if ($loop->first) aria-pressed="true" @endif>{{ $modalidad }}</button>
                             @endforeach
                         </div>
                     </div>
@@ -181,7 +183,7 @@
                     @foreach ($grupos as $grupo)
                         @php([$textoVacantes, $colorVacantes] = $vacantes($grupo))
                         <div x-show="idioma === @js($grupo->idioma) && (modalidad === 'Todas' || modalidad === @js($grupo->modalidad))" @if ($grupo->idioma !== $primerIdioma) x-cloak @endif
-                            x-transition:enter="transition duration-500 ease-salida" x-transition:enter-start="opacity-0 translate-y-2"
+                            x-transition:enter="transition duration-500 ease-salida motion-reduce:transition-none" x-transition:enter-start="opacity-0 translate-y-2"
                             class="mt-1.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-[14px] bg-tarjeta px-[18px] py-3.5 md:grid-cols-[100px_minmax(0,1.5fr)_minmax(0,1fr)_auto]">
                             <span class="font-semibold">Ciclo {{ Formato::romano($grupo->cicloNumero) }}</span>
                             <span class="col-start-1 flex flex-col md:col-start-auto">
@@ -224,7 +226,7 @@
             </div>
             <div data-revelar class="flex flex-col gap-3 rounded-tarjeta bg-tarjeta p-[clamp(20px,4vw,44px)]" style="--orden: 1">
                 @forelse ($vinculos as $vinculo)
-                    <div x-show="vinculo === @js($vinculo['clave'])" @unless ($loop->first) x-cloak @endunless x-transition:enter="transition duration-500 ease-salida" x-transition:enter-start="opacity-0 translate-y-2" class="flex flex-col gap-3">
+                    <div x-show="vinculo === @js($vinculo['clave'])" @unless ($loop->first) x-cloak @endunless x-transition:enter="transition duration-500 ease-salida motion-reduce:transition-none" x-transition:enter-start="opacity-0 translate-y-2" class="flex flex-col gap-3">
                         @foreach ($vinculo['tarifas'] as $tarifa)
                             <div @class(['grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-interna px-[18px] py-4', 'bg-acento-claro' => $loop->first, 'bg-tarjeta-interna' => ! $loop->first])>
                                 <span class="flex flex-col">
