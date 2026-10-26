@@ -23,7 +23,7 @@ Assumptions (to confirm with CILN, recorded in `docs/decisiones-pendientes.md`):
 |---|---|---|---|---|
 | T1 | S1, S2 | inline | done | 3a16119 |
 | T2 | S1, S3, A1, A3, A4 | inline (Risk: item 1, new table) | done, review approved | 7c1eb9d |
-| T3 | S2, A2 | inline (Risk: item 2, public route) | done | next commit |
+| T3 | S2, A2 | inline (Risk: item 2, public route) | done, review approved | 1ccd1bd, d5bd6dc |
 
 - T1: QR helper moved from Certificacion to `app/Shared/Ui` (Certificacion keeps working), Code128 barcode as a PNG data URI for DOMPDF, unit tests.
 - T2: `mat_fichas` (public code per person and period, unique), period record composed from every enrollment of the student in that period, new PDF layout with UNASAM and CILN logos, routes kept, portal "Mis matrículas" grouped by period with one record button per period, panel action unchanged, tests.
@@ -35,3 +35,4 @@ Assumptions (to confirm with CILN, recorded in `docs/decisiones-pendientes.md`):
 - L2 (exploration): the ficha is built per enrollment (`ComponerDocumentoDeMatricula`, code = enrollment ULID) with spatie/laravel-pdf on DOMPDF; the period is reachable through `FichaDeGrupo::periodoId` from `Academico\Contracts\DetalleDeGrupos`; `mat_matriculas` has no period column; QR is `Certificacion\Support\CodigoQr` (endroid, PNG data URI); the public verification (`/verificar/{codigo}`) shows masked HTML for `cer_documentos` only; no barcode code or package exists; `DocumentoDeMatriculaPorId` (per enrollment) is used by Certificacion and Tramites and stays.
 - L3 (review T2, approved): shared letterhead component for the ficha and the constancia; the Costo column shows only what adds to the total; the total test asserts its own cell; indentation fixed in "Mis matrículas"; the printed code becomes checkable with T3.
 - L4 (evidence): browser check on `ciln_preview` (dropped) as the demo student: "Mis matrículas" grouped by period with one record button; the record lists Inglés (active, S/ 80.00) and Quechua (withdrawn, "—") with total S/ 80.00, UNASAM and CILN logos, barcode, verification address and QR; Chrome's BarcodeDetector read the Code 128 as the record code and the QR as its address; `/fichas/{código}` opened the same record with "DNI ••••0001". `composer check`: 1531/1531.
+- L5 (review T3, approved): the public copy no longer shows the payment operation detail or the virtual class link (pinned by a test that fails if they come back); the withdrawn row's dash is asserted. Not changed: no cache for the public PDF render — it is throttled to 30 per minute per address and the code is unguessable.
