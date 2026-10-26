@@ -25,6 +25,21 @@ final readonly class FichaDelPeriodo
         return collect($this->matriculas)->min(fn (MatriculaDeLaFicha $matricula): CarbonImmutable => $matricula->matriculadoEn);
     }
 
+    public function pagosVerificados(): int
+    {
+        return count(array_filter($this->matriculas, fn (MatriculaDeLaFicha $matricula): bool => $matricula->centimosPagados() > 0));
+    }
+
+    // The latest validation among the payments that count, for the closing line of the record.
+    public function validadaEn(): ?CarbonImmutable
+    {
+        return collect($this->matriculas)
+            ->filter(fn (MatriculaDeLaFicha $matricula): bool => $matricula->centimosPagados() > 0)
+            ->map(fn (MatriculaDeLaFicha $matricula): ?CarbonImmutable => $matricula->pago?->validadoEn)
+            ->filter()
+            ->max();
+    }
+
     public function totalPagado(): string
     {
         $centimos = array_sum(array_map(fn (MatriculaDeLaFicha $matricula): int => $matricula->centimosPagados(), $this->matriculas));

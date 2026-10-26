@@ -54,9 +54,9 @@ it('gives the student the enrollment record with student, group, date, condition
         && collect([
             'Ficha de Matrícula', 'Enero 2027',
             'QUISPE MAMANI, ROSA ELENA', 'DNI 41234567',
-            'Grupo ING-II-A', 'INGLÉS · Ciclo 2', 'Mar, 18:00–20:00',
+            'ING-II-A', 'INGLÉS', '>II<', 'Mar, 18:00–20:00',
             '20/10/2026 10:30 AM', 'Regular',
-            'Verificado', 'Derecho de matrícula', 'OP-778899', 'S/ 80.00', 'Total pagado:',
+            'Verificado', 'Derecho de matrícula', 'OP-778899', '80.00', 'Costo total:', 'S/80.00', 'Su matrícula fue validada por',
         ])->every(fn (string $texto): bool => $pdf->contains($texto)));
 });
 
@@ -138,8 +138,8 @@ it('lists every enrollment of the period on one record, marks a withdrawal and a
 
     $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $ingles))->assertOk();
 
-    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => collect(['INGLÉS · Ciclo 2', 'QUECHUA · Ciclo 1', '· Retirada', 'OP-QUE', 'total-pagado">S/ 80.00</td>', '<td class="monto">—</td>', '2</strong> matrícula(s)'])->every(fn (string $texto): bool => $pdf->contains($texto))
-        && ! $pdf->contains('FRA-I-B') && ! $pdf->contains('S/ 140.00'));
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => collect(['INGLÉS', 'QUECHUA', '· Retirada', 'OP-QUE', 'total-pagado">S/80.00</td>', '<td class="derecha">—</td>', '2</strong> curso(s)'])->every(fn (string $texto): bool => $pdf->contains($texto))
+        && ! $pdf->contains('FRA-I-B') && ! $pdf->contains('S/140.00'));
 });
 
 it('keeps one code per student and period across downloads and gives another period its own', function (): void {

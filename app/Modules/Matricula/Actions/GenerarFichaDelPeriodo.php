@@ -21,7 +21,7 @@ final readonly class GenerarFichaDelPeriodo
         $verificacion = route('fichas.verificar', $ficha->codigo);
 
         return Pdf::view('matricula::pdf.ficha', ['ficha' => $ficha, 'publica' => $publica, 'verificacion' => $verificacion, 'qr' => CodigoQr::comoDataUri($verificacion)])
-            ->format('a4')
+            ->format('a3')
             ->inline('ficha-de-matricula-'.Str::slug($ficha->periodo).'.pdf');
     }
 }

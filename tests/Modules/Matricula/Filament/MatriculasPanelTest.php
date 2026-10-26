@@ -149,7 +149,7 @@ it('lets staff with the enrollment permission download the enrollment record', f
     Pdf::fake();
 
     $this->actingAs($this->lector)->get(route('panel.matriculas.ficha', $this->matricula))->assertOk();
-    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains('Ficha de Matrícula') && $pdf->contains('QUISPE MAMANI, ROSA') && $pdf->contains('Grupo ING-I-A'));
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains('Ficha de Matrícula') && $pdf->contains('QUISPE MAMANI, ROSA') && $pdf->contains('ING-I-A'));
 
     $this->actingAs(User::factory()->create()->givePermissionTo(User::ADMIN_PANEL_PERMISSION))
         ->get(route('panel.matriculas.ficha', $this->matricula))

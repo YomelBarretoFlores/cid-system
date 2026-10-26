@@ -24,6 +24,7 @@ final readonly class DescribirPago implements ConsultaDePago
             estado: $pago->estado,
             personaId: $pago->persona_id,
             tipo: $pago->concepto->tipo,
+            validadoEn: $pago->validado_en === null ? null : CarbonImmutable::parse($pago->validado_en)->setTimezone('America/Lima'),
         );
     }
 }

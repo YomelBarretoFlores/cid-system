@@ -30,7 +30,7 @@ it('prints on the record the verification address and the QR that opens it again
     $codigo = Ficha::query()->value('codigo');
 
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains(route('fichas.verificar', $codigo))
-        && $pdf->contains('Puede verificar la validez de esta ficha')
+        && $pdf->contains('Puede verificar la validez de esta constancia')
         && $pdf->contains('data:image/png;base64,')
         && $pdf->contains('DNI 41234567')
         && $pdf->contains('OP-PRIVADA-1')

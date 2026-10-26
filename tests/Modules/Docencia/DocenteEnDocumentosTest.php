@@ -49,7 +49,7 @@ it('shows the teacher on the enrollment record', function (Closure $grupo, strin
 
     $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $matricula))->assertOk();
 
-    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains("Docente: {$docente} ·"));
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains("Docente: {$docente}"));
 })->with([
     'assigned' => [fn (): Grupo => test()->conDocente, 'Huamán Torres, Julio César'],
     'not yet assigned' => [fn (): Grupo => test()->sinDocente, 'Por asignar'],
