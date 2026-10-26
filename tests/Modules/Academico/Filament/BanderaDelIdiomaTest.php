@@ -44,7 +44,7 @@ it('suggests the flag from the name when the language has none stored yet', func
         ->and(BanderaDeIdioma::sugeridaPara('Sueco'))->toBe(BanderaDeIdioma::Neutra);
 });
 
-it('draws the stored flag wherever the language name appears, even if the name changes', function (): void {
+it('draws the stored flag instead of guessing it from the name, also after a rename', function (): void {
     $idioma = Idioma::factory()->create(['nombre' => 'Ingles', 'bandera' => BanderaDeIdioma::ReinoUnido]);
 
     expect(hoja('Ingles'))->toContain('#012169')
@@ -57,4 +57,9 @@ it('draws the stored flag wherever the language name appears, even if the name c
 
     expect($idioma->refresh()->bandera)->toBe(BanderaDeIdioma::Japon)
         ->and(hoja('Ingles'))->toContain('#BC002D');
+
+    $idioma->update(['nombre' => 'Nihongo']);
+
+    expect(hoja('Nihongo'))->toContain('#BC002D')
+        ->and(Blade::render('<x-ciln.hoja-bandera bandera="desconocida" />'))->toContain('var(--color-acento)');
 });

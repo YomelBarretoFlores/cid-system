@@ -4,7 +4,7 @@
 @php
     $bandera = match (true) {
         $bandera instanceof BanderaDeIdioma => $bandera,
-        filled($bandera) => BanderaDeIdioma::from((string) $bandera),
+        filled($bandera) => BanderaDeIdioma::tryFrom((string) $bandera) ?? BanderaDeIdioma::Neutra,
         filled($idioma) => app(BanderasDeIdiomas::class)->para((string) $idioma),
         default => BanderaDeIdioma::Neutra,
     };
@@ -29,12 +29,6 @@
         default => null,
     };
     $wiphala = ['#E30613', '#F39200', '#FFED00', '#FFFFFF', '#009640', '#0069B4', '#6F2C91'];
-    $estrella = collect(range(0, 9))->map(function (int $punta) use ($ancho, $alto): string {
-        $radioPunta = $punta % 2 === 0 ? $alto * 0.2 : $alto * 0.08;
-        $angulo = deg2rad(-90 + $punta * 36);
-
-        return round($ancho * 0.24 + $radioPunta * cos($angulo), 2).','.round($alto * 0.32 + $radioPunta * sin($angulo), 2);
-    })->implode(' ');
 @endphp
 <span aria-hidden="true"
     {{ $attributes->class('relative inline-block shrink-0 overflow-hidden align-middle') }}
@@ -71,6 +65,14 @@
             <rect width="{{ $ancho * 0.4 }}" height="{{ $alto }}" fill="#006600" />
             <circle cx="{{ $ancho * 0.4 }}" cy="{{ $alto / 2 }}" r="{{ $alto * 0.22 }}" fill="#FFCC00" />
         @elseif ($bandera === BanderaDeIdioma::China)
+            @php
+        $estrella = collect(range(0, 9))->map(function (int $punta) use ($ancho, $alto): string {
+            $radioPunta = $punta % 2 === 0 ? $alto * 0.2 : $alto * 0.08;
+            $angulo = deg2rad(-90 + $punta * 36);
+
+            return round($ancho * 0.24 + $radioPunta * cos($angulo), 2).','.round($alto * 0.32 + $radioPunta * sin($angulo), 2);
+        })->implode(' ');
+            @endphp
             <rect width="{{ $ancho }}" height="{{ $alto }}" fill="#DE2910" />
             <polygon points="{{ $estrella }}" fill="#FFDE00" />
         @elseif ($bandera === BanderaDeIdioma::Japon)

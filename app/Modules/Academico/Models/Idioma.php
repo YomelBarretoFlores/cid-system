@@ -34,6 +34,7 @@ final class Idioma extends Model
     {
         // The flag lookup keeps one map per request; a saved language must show its new flag right away.
         self::saved(fn () => app()->forgetInstance(BanderasDeIdiomas::class));
+        self::deleted(fn () => app()->forgetInstance(BanderasDeIdiomas::class));
     }
 
     /**

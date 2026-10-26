@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('aca_idiomas', function (Blueprint $table): void {
-            // Null keeps the flag suggested by the name, so existing languages look the same.
+            // Null falls back to the flag suggested by the name; no existing row is changed.
             $table->string('bandera', 30)->nullable();
         });
     }

@@ -65,6 +65,8 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
 
     public function register(): void
     {
+        parent::register();
+
         $this->app->scoped(BanderasDeIdiomas::class, BanderasRegistradas::class);
     }
 }

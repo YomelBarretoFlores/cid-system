@@ -43,7 +43,7 @@ enum BanderaDeIdioma: string
         };
     }
 
-    // Languages created before flags could be chosen keep the flag their name already showed.
+    // For languages without a stored flag: the six names drawn before keep their flag, and other known names now get theirs.
     public static function sugeridaPara(string $idioma): self
     {
         return match (mb_strtolower(trim($idioma))) {
