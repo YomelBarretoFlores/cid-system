@@ -46,10 +46,10 @@ final class IniciarSesion extends Component
         Auth::login($usuario, $this->recordar);
         session()->regenerate();
 
-        $this->redirect(app(DestinoTrasIngreso::class)->trasIngresar($usuario, $this->pedido(session()->pull('url.intended'))));
+        $this->redirect(app(DestinoTrasIngreso::class)->trasIngresar($usuario, $this->urlPedida(session()->pull('url.intended'))));
     }
 
-    private function pedido(mixed $pedido): ?string
+    private function urlPedida(mixed $pedido): ?string
     {
         return is_string($pedido) ? $pedido : null;
     }

@@ -102,3 +102,12 @@ it('keeps a pending portal page whose path only starts like the panel, with its 
         ->and(app(DestinoTrasIngreso::class)->trasIngresar($usuario, 'http://localhost/admin/pagos?estado=pendiente'))->toBe(route('docente.grupos'))
         ->and(app(DestinoTrasIngreso::class)->trasIngresar($usuario, ''))->toBe(route('docente.grupos'));
 });
+
+it('falls back to the profile module when the pending page in the session is not a text', function (): void {
+    [$usuario] = PortalDocente::docente();
+    session()->put('url.intended', ['/estudiante/pagos']);
+
+    Livewire::test(IniciarSesion::class)
+        ->set('email', $usuario->email)->set('password', 'password')->call('ingresar')
+        ->assertRedirect(route('docente.grupos'));
+});
