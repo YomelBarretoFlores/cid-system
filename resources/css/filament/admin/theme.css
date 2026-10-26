@@ -225,6 +225,36 @@
     }
 }
 
+/* Filament keeps a few plain selects (card sorting, rows per page); where the browser lets us style them, their list matches the panel dropdowns. */
+@supports (appearance: base-select) {
+    select.fi-select-input,
+    select.fi-select-input::picker(select) {
+        appearance: base-select;
+    }
+
+    select.fi-select-input {
+        &::picker-icon {
+            display: none;
+        }
+
+        &::picker(select) {
+            @apply mt-1 min-w-36 rounded-interna border-0 bg-tarjeta p-1.5 shadow-dropdown;
+        }
+
+        & option {
+            @apply rounded-[10px] bg-transparent px-2.5 py-[9px] text-[14.5px] text-tinta hover:bg-acento-claro focus-visible:bg-acento-claro;
+
+            &:checked {
+                @apply bg-fila-hover font-semibold;
+            }
+
+            &::checkmark {
+                display: none;
+            }
+        }
+    }
+}
+
 .fi-select-input-search-ctn input {
     @apply rounded-[10px] bg-lienzo;
 }
