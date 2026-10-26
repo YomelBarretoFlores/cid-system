@@ -11,8 +11,16 @@ php docker/app/database.php wait
 php artisan migrate --force
 
 # Demo data only on an empty database, so a redeploy never seeds twice; the seeder itself refuses APP_ENV=production.
-if [[ "${DEMO_SEED:-false}" == "true" ]] && php docker/app/database.php empty; then
-    php artisan db:seed --force
+if [[ "${DEMO_SEED:-false}" == "true" ]]; then
+    vacia=0
+    php docker/app/database.php empty || vacia=$?
+    if (( vacia > 1 )); then
+        echo "Could not check whether the database is empty" >&2
+        exit 1
+    fi
+    if (( vacia == 0 )); then
+        php artisan db:seed --force
+    fi
 fi
 
 php artisan storage:link --force

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// Container start checks without booting Laravel: "wait" until PostgreSQL accepts connections, "empty" exits 0 when no user exists yet.
+// Container start checks without booting Laravel: "wait" until PostgreSQL accepts connections; "empty" exits 0 when no user exists yet, 1 when one does and 2 when it cannot tell.
 $conectar = fn (): PDO => new PDO(
     sprintf('pgsql:host=%s;port=%s;dbname=%s', getenv('DB_HOST') ?: '127.0.0.1', getenv('DB_PORT') ?: '5432', getenv('DB_DATABASE') ?: 'ciln'),
     getenv('DB_USERNAME') ?: null,
@@ -11,7 +11,12 @@ $conectar = fn (): PDO => new PDO(
 );
 
 if (($argv[1] ?? '') === 'empty') {
-    exit((int) $conectar()->query('select count(*) from users')->fetchColumn() === 0 ? 0 : 1);
+    try {
+        exit((int) $conectar()->query('select count(*) from users')->fetchColumn() === 0 ? 0 : 1);
+    } catch (PDOException $error) {
+        fwrite(STDERR, "Could not count users: {$error->getMessage()}\n");
+        exit(2);
+    }
 }
 
 for ($intento = 1; $intento <= 30; $intento++) {

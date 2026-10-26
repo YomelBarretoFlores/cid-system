@@ -85,7 +85,9 @@ El `Dockerfile` de la raíz arma una imagen para un entorno de demostración o d
 | Contenido | PHP 8.5-FPM, Nginx, worker de colas y scheduler en un solo contenedor, supervisados por `supervisord` (`docker/app/`) |
 | Puerto | `8080`; chequeo de salud en `GET /up` |
 | Arranque | Espera a PostgreSQL, ejecuta `migrate --force`, `storage:link` y `optimize` (`docker/app/entrypoint.sh`) |
-| Datos de demostración | Con `DEMO_SEED=true`, se cargan solo si la base no tiene usuarios; un nuevo despliegue no los repite |
+| Datos de demostración | Con `DEMO_SEED=true`, se cargan solo si la base no tiene usuarios; un nuevo despliegue no los repite. La carga es una sola transacción: si falla, no deja datos a medias y el siguiente arranque la intenta de nuevo |
+| Detención | Fijar un tiempo de gracia de al menos 100 s (en Swarm, `stop_grace_period`) para que el worker termine el trabajo en curso; con los 10 s por defecto, un trabajo cortado se reintenta |
+| Red | No publicar el puerto `8080`: el contenedor solo debe recibir tráfico del proxy. Con `TRUSTED_PROXIES=*`, quien llegue directo podría falsear su IP y el `https` |
 | Base de datos | PostgreSQL 18 aparte (imagen oficial `postgres:18`, que trae ICU) |
 | Persistencia | Montar un volumen en `/var/www/html/storage/app` para los archivos subidos |
 | Logs | Salida estándar del contenedor (`LOG_CHANNEL=stderr`) |

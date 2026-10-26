@@ -30,6 +30,7 @@ use App\Modules\Tramites\Enums\PermisoTramite;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 final class DatabaseSeeder extends Seeder
@@ -38,6 +39,12 @@ final class DatabaseSeeder extends Seeder
     {
         throw_if(app()->isProduction(), RuntimeException::class, 'Demo data must never be seeded in production.');
 
+        // All or nothing: a seed that fails halfway leaves no users, so the next container start seeds again (docker/app/entrypoint.sh).
+        DB::transaction($this->sembrar(...));
+    }
+
+    private function sembrar(): void
+    {
         User::factory()->create([
             'name' => 'Administrador Demo',
             'email' => 'admin@ciln.test',

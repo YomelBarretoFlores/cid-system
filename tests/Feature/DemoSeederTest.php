@@ -6,6 +6,7 @@ use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Certificacion\Database\Seeders\CertificacionDemoSeeder;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Enums\TipoDocumento;
@@ -33,6 +34,7 @@ use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DatabaseSeeder;
+use Illuminate\Database\Seeder;
 
 it('seeds consistent demo data for local development', function (): void {
     $this->seed(DatabaseSeeder::class);
@@ -153,3 +155,17 @@ it('refuses to seed demo data in production even when forced', function (): void
 
     app(DatabaseSeeder::class)->run();
 })->throws(RuntimeException::class, 'Demo data must never be seeded in production.');
+
+it('leaves no demo data behind when a later seeder fails, so the next container start seeds again', function (): void {
+    app()->bind(CertificacionDemoSeeder::class, fn (): Seeder => new class extends Seeder
+    {
+        public function run(): never
+        {
+            throw new RuntimeException('Seeder failed halfway.');
+        }
+    });
+
+    expect(fn () => $this->seed(DatabaseSeeder::class))->toThrow(RuntimeException::class, 'Seeder failed halfway.')
+        ->and(User::query()->count())->toBe(0)
+        ->and(Grupo::query()->count())->toBe(0);
+});

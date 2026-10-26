@@ -53,6 +53,7 @@ RUN composer dump-autoload --optimize --no-dev --no-interaction \
 
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 CMD curl -fsS http://127.0.0.1:8080/up || exit 1
+# The start period covers the wait for PostgreSQL (up to about 150 s) plus migrations.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=240s --retries=3 CMD curl -fsS http://127.0.0.1:8080/up || exit 1
 
 ENTRYPOINT ["ciln-entrypoint"]
