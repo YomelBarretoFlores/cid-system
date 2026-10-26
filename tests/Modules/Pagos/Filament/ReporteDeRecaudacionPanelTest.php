@@ -101,13 +101,45 @@ it('notifies an invalid range instead of downloading', function (string $accion,
 
 it('lists the detail per student as a paginated table', function (): void {
     $this->actingAs($this->tesorero);
-    Pago::factory()->validado()->for($this->matricula)->count(11)->create(['fecha_pago' => '2026-10-06']);
+    foreach (range(1, 11) as $numero) {
+        Pago::factory()->validado()->for($this->matricula)->create(['fecha_pago' => '2026-10-06', 'numero_operacion' => sprintf('LOTE-%02d', $numero)]);
+    }
 
     Livewire::test(ReporteDeRecaudacion::class)
         ->assertCountTableRecords(12)
-        ->assertSee('OP-1')
+        ->assertSee(['OP-1', 'LOTE-09'])
+        ->assertDontSee('LOTE-10')
         ->call('gotoPage', 2)
-        ->assertDontSee('OP-1');
+        ->assertSee(['LOTE-10', 'LOTE-11'])
+        ->assertDontSee(['OP-1', 'LOTE-09']);
+});
+
+it('goes back to the first page of the detail when the report range changes', function (): void {
+    $this->actingAs($this->tesorero);
+    foreach (range(1, 11) as $numero) {
+        Pago::factory()->validado()->for($this->matricula)->create(['fecha_pago' => '2026-10-06', 'numero_operacion' => sprintf('LOTE-%02d', $numero)]);
+    }
+
+    Livewire::test(ReporteDeRecaudacion::class)
+        ->call('gotoPage', 2)
+        ->assertSee('LOTE-10')
+        ->set('data.desde', '2026-09-01')
+        ->assertSee(['SETIEMBRE', 'OP-1'])
+        ->assertDontSee('LOTE-10');
+});
+
+it('sorts the detail by student ignoring accents', function (): void {
+    $this->actingAs($this->tesorero);
+    foreach (['Álvarez' => 'OP-ALVAREZ', 'Benites' => 'OP-BENITES'] as $apellido => $operacion) {
+        $persona = Persona::factory()->create(['apellido_paterno' => $apellido]);
+        Pago::factory()->validado()->for($this->matricula)->create(['persona_id' => $persona->id, 'fecha_pago' => '2026-10-07', 'numero_operacion' => $operacion]);
+    }
+
+    Livewire::test(ReporteDeRecaudacion::class)
+        ->sortTable('estudiante')
+        ->assertSeeInOrder(['OP-ALVAREZ', 'OP-BENITES'])
+        ->sortTable('estudiante', 'desc')
+        ->assertSeeInOrder(['OP-BENITES', 'OP-ALVAREZ']);
 });
 
 it('searches the detail per student without accents and sorts it by amount', function (): void {
