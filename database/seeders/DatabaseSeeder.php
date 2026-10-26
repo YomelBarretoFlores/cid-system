@@ -61,7 +61,7 @@ final class DatabaseSeeder extends Seeder
         $this->call(TramitesDemoSeeder::class);
     }
 
-    // A verified student enrolled in English I, withdrawn from Quechua I, and with an unused validated enrollment payment to try next period's enrollment.
+    // A verified student enrolled in English I, French I and Italian I, withdrawn from Quechua I, and with an unused validated enrollment payment to try next period's enrollment.
     private function estudianteDelPortal(): void
     {
         $user = User::factory()->create(['name' => 'Estudiante Demo', 'email' => 'estudiante@ciln.test']);
@@ -88,7 +88,7 @@ final class DatabaseSeeder extends Seeder
             'validado_por' => User::query()->where('email', 'caja@ciln.test')->value('id'),
         ]);
 
-        foreach ([['ING-1-M', EstadoMatricula::Activa], ['QUE-1-S', EstadoMatricula::Retirada]] as [$codigo, $estado]) {
+        foreach ([['ING-1-M', EstadoMatricula::Activa], ['FRA-1-N', EstadoMatricula::Activa], ['ITA-1-M', EstadoMatricula::Activa], ['QUE-1-S', EstadoMatricula::Retirada]] as [$codigo, $estado]) {
             $grupo = Grupo::query()->with('periodo')->where('codigo', $codigo)->whereRelation('periodo', 'estado', 'en_curso')->firstOrFail();
             $matriculadoEn = CarbonImmutable::parse($grupo->periodo->matricula_inicio->toDateString(), 'America/Lima')->setTime(9, 30);
             Matricula::factory()->create([

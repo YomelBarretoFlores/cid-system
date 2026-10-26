@@ -7,11 +7,13 @@ use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Matricula\Actions\AsignarCodigoDeFicha;
 use App\Modules\Matricula\Models\Ficha;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use Illuminate\Support\Str;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\PdfBuilder;
 
@@ -84,3 +86,20 @@ it('limits how often the verification address answers', function (): void {
 
     $this->get('/fichas/01KX0000000000000000000000')->assertTooManyRequests();
 });
+
+it('draws another code when a new one collides with an existing record', function (): void {
+    $otra = Persona::factory()->create();
+    Ficha::query()->create(['codigo' => '01KX0000000000000000000002', 'persona_id' => $otra->id, 'periodo_id' => Grupo::query()->findOrFail($this->matricula->grupo_id)->periodo_id]);
+    Str::createUlidsUsingSequence(['01KX0000000000000000000002', '01KX0000000000000000000003']);
+
+    expect(app(AsignarCodigoDeFicha::class)($this->matricula->persona_id, Grupo::query()->findOrFail($this->matricula->grupo_id)->periodo_id))->toBe('01KX0000000000000000000003')
+        ->and(Ficha::query()->pluck('codigo')->sort()->values()->all())->toBe(['01KX0000000000000000000002', '01KX0000000000000000000003']);
+})->after(fn () => Str::createUlidsNormally());
+
+it('stops with an error instead of a blank code when every drawn code collides', function (): void {
+    Ficha::query()->create(['codigo' => '01KX0000000000000000000002', 'persona_id' => Persona::factory()->create()->id, 'periodo_id' => Grupo::query()->findOrFail($this->matricula->grupo_id)->periodo_id]);
+    Str::createUlidsUsingSequence(array_fill(0, 3, '01KX0000000000000000000002'));
+
+    expect(fn () => app(AsignarCodigoDeFicha::class)($this->matricula->persona_id, Grupo::query()->findOrFail($this->matricula->grupo_id)->periodo_id))
+        ->toThrow(RuntimeException::class);
+})->after(fn () => Str::createUlidsNormally());

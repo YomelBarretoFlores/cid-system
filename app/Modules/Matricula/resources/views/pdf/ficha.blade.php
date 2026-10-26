@@ -77,7 +77,6 @@
                                         @endif
                                         <div class="segunda">
                                             {{ $grupo->modalidad }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }}
-                                            · {{ $grupo->horarioCompacto() === [] ? 'Horario por confirmar' : implode(' · ', $grupo->horarioCompacto()) }}
                                             · {{ $grupo->aula ?? ($grupo->enlaceVirtual !== null ? 'Virtual' : 'Aula por asignar') }}
                                             · Docente: {{ $matricula->docente ?? 'Por asignar' }}
                                             · Pago: {{ $matricula->estadoDelPago() }}@if (! $publica && $matricula->pago !== null) ({{ $matricula->pago->concepto }} · {{ $matricula->pago->numeroOperacion }} · {{ $matricula->pago->medioPago }} · {{ $matricula->pago->fechaPago->format('d/m/Y') }})@endif

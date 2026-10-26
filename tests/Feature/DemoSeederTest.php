@@ -80,7 +80,7 @@ it('seeds a verified portal student with an active enrollment and an unused vali
 
     expect($estudiante->hasVerifiedEmail())->toBeTrue()
         ->and($estudiante->can(User::ADMIN_PANEL_PERMISSION))->toBeFalse()
-        ->and(Matricula::query()->where(['persona_id' => $persona->id, 'estado' => 'activa'])->count())->toBe(1)
+        ->and(Matricula::query()->where(['persona_id' => $persona->id, 'estado' => 'activa'])->count())->toBe(3)
         ->and(Pago::query()->where(['persona_id' => $persona->id, 'estado' => EstadoPago::Validado])->whereNotIn('id', $usados)->count())->toBe(1);
 });
 
