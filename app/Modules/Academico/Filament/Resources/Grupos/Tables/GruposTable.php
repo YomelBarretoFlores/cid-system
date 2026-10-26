@@ -15,8 +15,13 @@ use App\Shared\Support\Filament\IdiomaConBandera;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
+use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\TextSize;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,24 +33,31 @@ final class GruposTable
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['periodo', 'ciclo.idioma', 'aula']))
+            ->contentGrid(['md' => 2, 'xl' => 3])
             ->columns([
-                TextColumn::make('codigo')->label('Código')->searchable()->sortable(),
-                TextColumn::make('periodo.nombre')->label('Periodo'),
-                TextColumn::make('ciclo.idioma.nombre')
-                    ->label('Idioma y ciclo')
-                    ->formatStateUsing(fn (Grupo $record): HtmlString => IdiomaConBandera::html($record->ciclo->idioma->nombre, GrupoForm::etiquetaDeCiclo($record->ciclo))),
-                TextColumn::make('modalidad')->label('Modalidad')->formatStateUsing(fn (Modalidad $state): string => $state->etiqueta()),
-                IconColumn::make('es_acelerado')->label('Acelerado')->boolean(),
-                TextColumn::make('aula.codigo')->label('Aula')->placeholder('Virtual'),
-                TextColumn::make('docente')->label('Docente')->state(fn (Grupo $record, ListGrupos $livewire): string => $livewire->docenteDelGrupo($record->id)),
-                TextColumn::make('cupo_maximo')->label('Cupo'),
-                TextColumn::make('matriculados')->label('Matriculados'),
-                TextColumn::make('vacantes_disponibles')->label('Vacantes'),
-                TextColumn::make('estado')
-                    ->label('Estado')
-                    ->badge()
-                    ->formatStateUsing(fn (EstadoGrupo $state): string => $state->etiqueta())
-                    ->color(fn (EstadoGrupo $state): string => $state->color()),
+                Stack::make([
+                    Split::make([
+                        TextColumn::make('codigo')->label('Código')->weight(FontWeight::SemiBold)->size(TextSize::Large)->searchable()->sortable(),
+                        TextColumn::make('estado')
+                            ->label('Estado')
+                            ->badge()
+                            ->grow(false)
+                            ->formatStateUsing(fn (EstadoGrupo $state): string => $state->etiqueta())
+                            ->color(fn (EstadoGrupo $state): string => $state->color()),
+                    ]),
+                    TextColumn::make('ciclo.idioma.nombre')
+                        ->label('Idioma y ciclo')
+                        ->formatStateUsing(fn (Grupo $record): HtmlString => IdiomaConBandera::html($record->ciclo->idioma->nombre, GrupoForm::etiquetaDeCiclo($record->ciclo))),
+                    TextColumn::make('periodo.nombre')->label('Periodo')->icon(Heroicon::OutlinedCalendar)->color('gray'),
+                    Split::make([
+                        TextColumn::make('modalidad')->label('Modalidad')->formatStateUsing(fn (Modalidad $state): string => $state->etiqueta())->color('gray'),
+                        TextColumn::make('aula.codigo')->label('Aula')->placeholder('Virtual')->prefix('Aula ')->color('gray'),
+                        TextColumn::make('es_acelerado')->label('Acelerado')->state(fn (Grupo $record): ?string => $record->es_acelerado ? 'Acelerado' : null)->badge()->color('info')->grow(false),
+                    ]),
+                    TextColumn::make('docente')->label('Docente')->icon(Heroicon::OutlinedUser)->state(fn (Grupo $record, ListGrupos $livewire): string => $livewire->docenteDelGrupo($record->id)),
+                    ViewColumn::make('matriculados')->label('Matriculados')->view('filament.admin.columnas.ocupacion'),
+                    TextColumn::make('vacantes_disponibles')->label('Vacantes')->formatStateUsing(fn (int $state): string => $state === 1 ? '1 vacante' : "{$state} vacantes")->color('gray'),
+                ])->space(2),
             ])
             ->defaultSort('codigo')
             ->filters([

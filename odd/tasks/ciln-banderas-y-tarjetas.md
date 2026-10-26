@@ -19,8 +19,8 @@ Assumptions:
 | ID | Specs | Route | Status | Commit |
 |---|---|---|---|---|
 | T1 | S2, S3, A1 | inline (Risk: item 1) | done, review approved | d047c18, 38908ea |
-| T2 | S1, A2 | inline | done | next commit |
-| T3 | S1 | inline | pending | — |
+| T2 | S1, A2 | inline | done | 0af1e4c, a9d6325 |
+| T3 | S1 | inline | done | last commit |
 
 - T1: nullable `bandera` column on `aca_idiomas` (no data change: a null flag falls back to the one suggested by the name), flag enum and lookup port in `Shared/Ui`, implementation in Academico, flag select with preview in the language form, `x-ciln.hoja-bandera` resolves the stored flag.
 - T2: flag next to the language in the Grupos, Solicitudes de clasificación and Matrículas tables.
@@ -32,3 +32,4 @@ Assumptions:
 - L2 (exploration): `resources/views/components/ciln/hoja-bandera.blade.php` maps lowercase names (inglés, francés, italiano, alemán, portugués, quechua) to drawings; anything else is a neutral leaf. 19 call sites pass the language name, so the component keeps that API and looks the stored flag up by name.
 - L3 (decision): no backfill in the migration; `BanderaDeIdioma::sugeridaPara()` keeps today's flags for null rows and pre-fills the form on edit, so existing data is untouched (smaller risk than an UPDATE). The lookup (`BanderasRegistradas`, scoped) is forgotten when an Idioma is saved.
 - L4 (review, approved): the name fallback is wider than before (Español, Japonés, Ruso, Chino, Coreano, Aimara now get a flag instead of the neutral leaf), comments corrected; unknown flag values fall back to the neutral leaf; lookup also forgotten on delete; rename covered by the test.
+- L5 (evidence): browser check on `ciln_preview` (dropped): Grupos cards with flag, status, period, modality and room, teacher, occupancy bar and vacancies; Docentes cards with one flag per language they can teach; language form select with every flag preview and the suggested one pre-selected. The masked bank account left the teacher card (Filament ignores hidden-by-default inside a card layout); it stays on the teacher's detail. `RegistroDePagoTest` used the UTC date and failed every evening after 19:00 Lima; fixed to the Lima date. `composer check`: 1500/1500.

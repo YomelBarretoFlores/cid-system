@@ -7,6 +7,10 @@ use App\Modules\Academico\Filament\Resources\Grupos\Pages\ListGrupos;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
+use App\Modules\Docencia\Enums\PermisoDocencia;
+use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ListDocentes;
+use App\Modules\Docencia\Models\Docente;
+use App\Modules\Docencia\Models\DocenteIdioma;
 use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Matricula\Filament\Resources\Matriculas\Pages\ListMatriculas;
@@ -47,4 +51,26 @@ it('shows the language flag next to the group in the enrollments table', functio
     Livewire::test(ListMatriculas::class)
         ->assertSeeHtml('data-idioma="Japonés"')
         ->assertSee('JAP-1-M');
+});
+
+it('shows groups as cards with their flag, status and how full they are', function (): void {
+    $this->grupo->forceFill(['cupo_maximo' => 20, 'matriculados' => 5])->save();
+
+    $lista = Livewire::test(ListGrupos::class);
+
+    expect($lista->instance()->getTable()->getContentGrid())->toBe(['md' => 2, 'xl' => 3]);
+    $lista->assertSeeHtml('data-idioma="Japonés"')
+        ->assertSeeText('5 de 20 matriculados')
+        ->assertSeeText('15 vacantes');
+});
+
+it('shows teachers as cards with the flags of the languages they can teach', function (): void {
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoDocencia::Ver->value]));
+    $docente = Docente::factory()->create();
+    DocenteIdioma::query()->create(['docente_id' => $docente->id, 'idioma_id' => $this->japones->id, 'nivel_maximo' => 'avanzado']);
+
+    $lista = Livewire::test(ListDocentes::class);
+
+    expect($lista->instance()->getTable()->getContentGrid())->toBe(['md' => 2, 'xl' => 3]);
+    $lista->assertSeeHtml('data-idioma="Japonés"')->assertSeeText($docente->codigo);
 });
