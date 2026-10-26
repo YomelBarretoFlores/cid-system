@@ -14,6 +14,7 @@
         "dedoc/scramble": "^0.13.49",
         "dompdf/dompdf": "^3.1",
         "endroid/qr-code": "^6.1",
+        "fakerphp/faker": "^1.23",
         "filament/filament": "^5.10",
         "laravel/framework": "^13.17",
         "laravel/sanctum": "^4.0",
@@ -27,7 +28,6 @@
     },
     "require-dev": {
         "driftingly/rector-laravel": "^2.7",
-        "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.13",
         "laravel/boost": "^2.10",
         "laravel/pail": "^1.2.5",

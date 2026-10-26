@@ -48,7 +48,7 @@ QUEUE_CONNECTION=database
 ## Base de datos y proxy
 
 - Dos roles de PostgreSQL: **dueño** (ejecuta `php artisan migrate`) y **aplicación** (lo usa Laravel en ejecución, sin ser dueño de tablas). Detalle en [`seguridad.md`](seguridad.md).
-- Si hay un proxy inverso o balanceador delante, configurar `trustProxies(at: ...)` en `bootstrap/app.php`; si no, la auditoría registra la IP del proxy en lugar de la del usuario.
+- Si hay un proxy inverso o balanceador delante, definir `TRUSTED_PROXIES` (`config/trustedproxy.php`) con sus direcciones o rangos separados por comas, o `*` para confiar en el proxy que llama a la aplicación. Sin esa variable, la auditoría registra la IP del proxy en lugar de la del usuario y los enlaces salen con `http`.
 
 ## Límites de sesión de PostgreSQL
 
@@ -75,3 +75,52 @@ Cada conexión abre con límites que evitan que una transacción trabada haga es
 - `php artisan about` muestra el entorno esperado.
 - Revisar `failed_jobs` y los logs tras el despliegue.
 - Respaldos programados (`spatie/laravel-backup`) y una restauración de prueba en staging.
+
+## Entorno de demostración con Docker
+
+El `Dockerfile` de la raíz arma una imagen para un entorno de demostración o de pruebas (staging), por ejemplo en un VPS con Dokploy. **No reemplaza la producción en la DSTI**, que sigue los pasos de arriba.
+
+| Aspecto | Detalle |
+|---|---|
+| Contenido | PHP 8.5-FPM, Nginx, worker de colas y scheduler en un solo contenedor, supervisados por `supervisord` (`docker/app/`) |
+| Puerto | `8080`; chequeo de salud en `GET /up` |
+| Arranque | Espera a PostgreSQL, ejecuta `migrate --force`, `storage:link` y `optimize` (`docker/app/entrypoint.sh`) |
+| Datos de demostración | Con `DEMO_SEED=true`, se cargan solo si la base no tiene usuarios; un nuevo despliegue no los repite |
+| Base de datos | PostgreSQL 18 aparte (imagen oficial `postgres:18`, que trae ICU) |
+| Persistencia | Montar un volumen en `/var/www/html/storage/app` para los archivos subidos |
+| Logs | Salida estándar del contenedor (`LOG_CHANNEL=stderr`) |
+
+Variables mínimas:
+
+```dotenv
+APP_ENV=staging
+APP_DEBUG=false
+APP_KEY=base64:...
+APP_URL=https://<subdominio>
+APP_LOCALE=es
+APP_FAKER_LOCALE=es_PE
+DB_CONNECTION=pgsql
+DB_HOST=<servicio de PostgreSQL>
+DB_PORT=5432
+DB_DATABASE=ciln
+DB_USERNAME=ciln
+DB_PASSWORD=...
+SESSION_DRIVER=database
+SESSION_SECURE_COOKIE=true
+QUEUE_CONNECTION=database
+CACHE_STORE=database
+LOG_CHANNEL=stderr
+MAIL_MAILER=log
+TRUSTED_PROXIES=*
+DEMO_SEED=true
+```
+
+`APP_ENV` debe ser `staging`, no `production`: el seeder de demostración se niega a correr en producción. `APP_KEY` se genera una vez con `php artisan key:generate --show` y no se cambia entre despliegues.
+
+Límites de este entorno frente a producción:
+
+- **Solo datos sintéticos** (Ley 29733). Nunca cargar datos reales de estudiantes.
+- **Contraseñas de demostración**: las cuentas `*@ciln.test` usan `password`. En una dirección pública, cambiarlas tras el primer despliegue o proteger el subdominio (por ejemplo, con Cloudflare Access).
+- **Un solo rol de PostgreSQL**: la aplicación se conecta como dueña de las tablas, sin la separación de roles que exige [`seguridad.md`](seguridad.md).
+- **Correo**: con `MAIL_MAILER=log` no se envían correos; la verificación de cuenta de un registro nuevo no llega. Para probarla, configurar un SMTP.
+- **Recursos**: en un servidor compartido, fijar límites de CPU y memoria al contenedor.
