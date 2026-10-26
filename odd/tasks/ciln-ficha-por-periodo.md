@@ -21,9 +21,9 @@ Assumptions (to confirm with CILN, recorded in `docs/decisiones-pendientes.md`):
 
 | ID | Specs | Route | Status | Commit |
 |---|---|---|---|---|
-| T1 | S1, S2 | inline | pending | — |
-| T2 | S1, S3, A1, A3, A4 | inline (Risk: item 1, new table) | pending | — |
-| T3 | S2, A2 | inline (Risk: item 2, public route) | pending | — |
+| T1 | S1, S2 | inline | done | 3a16119 |
+| T2 | S1, S3, A1, A3, A4 | inline (Risk: item 1, new table) | done, review approved | 7c1eb9d |
+| T3 | S2, A2 | inline (Risk: item 2, public route) | done | next commit |
 
 - T1: QR helper moved from Certificacion to `app/Shared/Ui` (Certificacion keeps working), Code128 barcode as a PNG data URI for DOMPDF, unit tests.
 - T2: `mat_fichas` (public code per person and period, unique), period record composed from every enrollment of the student in that period, new PDF layout with UNASAM and CILN logos, routes kept, portal "Mis matrículas" grouped by period with one record button per period, panel action unchanged, tests.
@@ -33,3 +33,5 @@ Assumptions (to confirm with CILN, recorded in `docs/decisiones-pendientes.md`):
 
 - L1 (user, 2026-10-26): "En mis descargas hay un archivo llamado 2026-2.pdf ... es ficha de matrícula de la misma UNASAM ... Sería bueno tomar en cuenta ese diseño. ... tiene un link de validez de la contancia, y ese QR cuando se escanea se muestra el mismo archivo nuevamente." then "Sí, hazla por periodo." and "Tienes el logo de la unasam?"
 - L2 (exploration): the ficha is built per enrollment (`ComponerDocumentoDeMatricula`, code = enrollment ULID) with spatie/laravel-pdf on DOMPDF; the period is reachable through `FichaDeGrupo::periodoId` from `Academico\Contracts\DetalleDeGrupos`; `mat_matriculas` has no period column; QR is `Certificacion\Support\CodigoQr` (endroid, PNG data URI); the public verification (`/verificar/{codigo}`) shows masked HTML for `cer_documentos` only; no barcode code or package exists; `DocumentoDeMatriculaPorId` (per enrollment) is used by Certificacion and Tramites and stays.
+- L3 (review T2, approved): shared letterhead component for the ficha and the constancia; the Costo column shows only what adds to the total; the total test asserts its own cell; indentation fixed in "Mis matrículas"; the printed code becomes checkable with T3.
+- L4 (evidence): browser check on `ciln_preview` (dropped) as the demo student: "Mis matrículas" grouped by period with one record button; the record lists Inglés (active, S/ 80.00) and Quechua (withdrawn, "—") with total S/ 80.00, UNASAM and CILN logos, barcode, verification address and QR; Chrome's BarcodeDetector read the Code 128 as the record code and the QR as its address; `/fichas/{código}` opened the same record with "DNI ••••0001". `composer check`: 1531/1531.

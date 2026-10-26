@@ -14,6 +14,16 @@ final class Formato
 
     private const array ROMANOS = [1 => 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 
+    // Public pages show only the last four characters of an identity document (Ley 29733): "DNI 41234567" becomes "DNI ••••4567".
+    public static function documentoOculto(string $documento): string
+    {
+        if (preg_match('/^(.*?)(\S+)$/u', $documento, $partes) !== 1) {
+            return '••••';
+        }
+
+        return $partes[1].str_repeat('•', max(0, mb_strlen($partes[2]) - 4)).mb_substr($partes[2], -4);
+    }
+
     public static function fechaCorta(CarbonInterface $fecha): string
     {
         return $fecha->day.' '.self::MESES[$fecha->month - 1].' '.$fecha->year;

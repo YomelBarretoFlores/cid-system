@@ -55,7 +55,7 @@
                                         </x-portal.dato>
                                         <x-portal.dato etiqueta="Docente">{{ $docentes[$matricula->grupo_id] ?? 'Por asignar' }}</x-portal.dato>
                                         <x-portal.dato etiqueta="Condición">{{ $matricula->condicion->etiqueta() }}</x-portal.dato>
-                                            <x-portal.dato etiqueta="Matriculado el">
+                                        <x-portal.dato etiqueta="Matriculado el">
                                             <time datetime="{{ $matricula->matriculado_en->toIso8601String() }}">{{ $matricula->matriculado_en->timezone('America/Lima')->format('d/m/Y H:i') }}</time>
                                         </x-portal.dato>
                                     </dl>

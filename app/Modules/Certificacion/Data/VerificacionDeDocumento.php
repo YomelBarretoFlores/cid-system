@@ -53,11 +53,7 @@ final readonly class VerificacionDeDocumento
 
     public static function ocultar(string $documento): string
     {
-        if (preg_match('/^(.*?)(\S+)$/u', $documento, $partes) !== 1) {
-            return '••••';
-        }
-
-        return $partes[1].str_repeat('•', max(0, mb_strlen($partes[2]) - 4)).mb_substr($partes[2], -4);
+        return Formato::documentoOculto($documento);
     }
 
     private static function resumen(Documento $documento): string
