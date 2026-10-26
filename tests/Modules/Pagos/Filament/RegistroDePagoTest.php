@@ -36,7 +36,7 @@ function datosDelRegistro(array $cambios = []): array
         'concepto_id' => test()->concepto->id,
         'medio_pago' => MedioPago::CajaPresencial->value,
         'numero_operacion' => 'rc-000123',
-        'fecha_pago' => now()->toDateString(),
+        'fecha_pago' => now('America/Lima')->toDateString(),
         'monto' => '150.00',
         'recibo' => UploadedFile::fake()->image('recibo.jpg'),
         ...$cambios,

@@ -20,7 +20,7 @@ final class BanderasRegistradas implements BanderasDeIdiomas
     {
         $this->porNombre ??= $this->guardadas();
 
-        return $this->porNombre[self::clave($idioma)] ?? BanderaDeIdioma::sugeridaPara($idioma);
+        return $this->porNombre[$this->clave($idioma)] ?? BanderaDeIdioma::sugeridaPara($idioma);
     }
 
     /**
@@ -31,13 +31,13 @@ final class BanderasRegistradas implements BanderasDeIdiomas
         $guardadas = [];
 
         foreach (Idioma::query()->toBase()->whereNotNull('bandera')->pluck('bandera', 'nombre') as $nombre => $bandera) {
-            $guardadas[self::clave((string) $nombre)] = BanderaDeIdioma::tryFrom((string) $bandera) ?? BanderaDeIdioma::sugeridaPara((string) $nombre);
+            $guardadas[$this->clave((string) $nombre)] = BanderaDeIdioma::tryFrom((string) $bandera) ?? BanderaDeIdioma::sugeridaPara((string) $nombre);
         }
 
         return $guardadas;
     }
 
-    private static function clave(string $idioma): string
+    private function clave(string $idioma): string
     {
         return mb_strtolower(trim($idioma));
     }

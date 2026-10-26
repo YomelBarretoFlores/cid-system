@@ -72,7 +72,8 @@ it('lists groups with their offer, classroom, quota and vacancies', function ():
 
     Livewire::test(ListGrupos::class)
         ->assertCanSeeTableRecords([$this->grupo, $virtual])
-        ->assertTableColumnFormattedStateSet('ciclo.idioma.nombre', 'Inglés · Ciclo 3 (Básico)', $this->grupo)
+        ->assertSeeHtml('data-idioma="Inglés"')
+        ->assertSeeText('Inglés · Ciclo 3 (Básico)')
         ->assertTableColumnFormattedStateSet('modalidad', 'Presencial', $this->grupo)
         ->assertTableColumnStateSet('aula.codigo', 'A-101', $this->grupo)
         ->assertTableColumnStateSet('matriculados', 5, $this->grupo)
