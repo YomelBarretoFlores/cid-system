@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\Certificacion\Support;
+namespace App\Shared\Ui;
 
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\ErrorCorrectionLevel;

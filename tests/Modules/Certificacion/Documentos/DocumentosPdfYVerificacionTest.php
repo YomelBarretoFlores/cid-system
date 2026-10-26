@@ -10,10 +10,10 @@ use App\Modules\Certificacion\Actions\GenerarDocumentoPdf;
 use App\Modules\Certificacion\Data\VerificacionDeDocumento;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Models\Documento;
-use App\Modules\Certificacion\Support\CodigoQr;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Ui\CodigoQr;
 use Carbon\CarbonImmutable;
 use Tests\Support\ActasFinales;
 
