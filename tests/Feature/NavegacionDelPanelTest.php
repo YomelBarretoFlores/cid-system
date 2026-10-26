@@ -6,14 +6,17 @@ use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\SolicitudC
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
 use App\Modules\Pagos\Models\Pago;
+use App\Modules\Personas\Models\Persona;
 use App\Modules\Tablero\Enums\PermisoTablero;
 use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Filament\Resources\Tramites\TramiteResource;
 use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Filament\ContadorDePendientes;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 
 beforeEach(fn () => Filament::setCurrentPanel('admin'));
@@ -79,5 +82,23 @@ it('shows the pending count in the sidebar', function (): void {
     Pago::factory()->pendiente()->count(2)->create();
     $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, 'pagos.ver']));
 
-    $this->get('/admin/pagos')->assertOk()->assertSeeInOrder(['fi-sidebar-item-badge-ctn', '2'], escape: false);
+    expect($this->get('/admin/pagos')->assertOk()->getContent())
+        ->toMatch('/fi-sidebar-item-badge-ctn.*?<span class="fi-badge-label">\s*2\s*<\/span>/s');
 });
+
+it('shows no badge in the sidebar when nothing is pending', function (): void {
+    Pago::factory()->validado()->create();
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, 'pagos.ver']));
+
+    $this->get('/admin/pagos')->assertOk()->assertDontSee('fi-sidebar-item-badge-ctn', escape: false);
+});
+
+it('caps the pending count at 99+', function (int $cantidad, ?string $insignia): void {
+    $filas = Persona::query()->fromSub(DB::query()->selectRaw('generate_series(1, ?) as id', [$cantidad]), 'per_personas');
+
+    expect(ContadorDePendientes::de($filas))->toBe($insignia);
+})->with([
+    'nothing pending' => [0, null],
+    'ninety-nine' => [99, '99'],
+    'one hundred' => [100, '99+'],
+]);
