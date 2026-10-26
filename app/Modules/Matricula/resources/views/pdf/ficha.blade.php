@@ -11,7 +11,7 @@
         <style>
             @page { margin: 28.5pt 34pt 34pt 34.5pt; }
             body { font-family: 'DejaVu Sans', sans-serif; font-size: 8.4pt; color: #212529; line-height: 1.2; }
-            .emision { text-align: right; font-size: 5.4pt; line-height: 1.35; margin-top: 19pt; }
+            .emision { text-align: right; font-size: 5.4pt; line-height: 1.35; margin-top: 10pt; }
             h1 { font-size: 18pt; font-weight: normal; margin: -11pt 0 0; }
             h1 span { font-size: 12pt; color: #868e96; }
             .estudiante { font-size: 10.8pt; margin-top: 6pt; }
@@ -104,7 +104,7 @@
                     <td class="derecha">S/{{ $ficha->totalPagado() }}</td>
                 </tr>
                 <tr class="total">
-                    <td colspan="4" rowspan="2"><img src="{{ CodigoDeBarras::comoDataUri($ficha->codigo, 1, 30) }}" alt="" height="22"></td>
+                    <td colspan="4" rowspan="2"><img src="{{ CodigoDeBarras::comoDataUri($ficha->codigo, 3, 54) }}" alt="" style="width: 396pt; height: 18pt;"></td>
                     <td colspan="2">Pagos verificados:</td>
                     <td class="derecha pagos-verificados">{{ $ficha->pagosVerificados() }}</td>
                 </tr>
@@ -126,7 +126,7 @@
                         Su matrícula aún no tiene pagos validados por Caja del CILN, con <strong>{{ count($ficha->matriculas) }}</strong> curso(s) registrados.
                     @endif
                 </td>
-                <td style="width: 80pt; text-align: right; vertical-align: top;"><img src="{{ $qr }}" alt="" width="76" height="76"></td>
+                <td style="width: 90pt; text-align: right; vertical-align: top;"><img src="{{ $qr }}" alt="" style="width: 84pt; height: 84pt;"></td>
             </tr>
         </table>
     </body>
