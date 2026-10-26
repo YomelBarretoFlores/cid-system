@@ -137,7 +137,7 @@ it('proposes the fee in force today for the student link type when a concept is 
 });
 
 it('sends guests to the portal sign-in', function (): void {
-    $this->get(route('estudiante.pagos'))->assertRedirect(route('estudiante.ingresar'));
+    $this->get(route('estudiante.pagos'))->assertRedirect(route('ingresar'));
 });
 
 it('refuses the page to an account without a student record', function (): void {

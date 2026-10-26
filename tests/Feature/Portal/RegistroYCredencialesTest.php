@@ -165,7 +165,7 @@ it('resets with a valid token and rotates the remember token', function (): void
 
     Livewire::test(RestablecerClave::class, ['token' => $token])
         ->set('email', 'ANA@correo.test')->set('password', 'nueva-clave2')->set('password_confirmation', 'nueva-clave2')
-        ->call('restablecer')->assertHasNoErrors()->assertRedirect(route('estudiante.ingresar'));
+        ->call('restablecer')->assertHasNoErrors()->assertRedirect(route('ingresar'));
 
     expect(Hash::check('nueva-clave2', $user->refresh()->password))->toBeTrue()->and($user->remember_token)->not->toBe('viejo');
 });

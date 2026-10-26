@@ -9,6 +9,6 @@
     @endif
 
     <x-slot:pie>
-        <a href="{{ route('estudiante.ingresar') }}" class="enlace">Volver a ingresar</a>
+        <a href="{{ route('ingresar') }}" class="enlace">Volver a ingresar</a>
     </x-slot:pie>
 </x-portal.acceso>

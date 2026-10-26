@@ -44,6 +44,6 @@
 
     <x-slot:pie>
         <span>¿Ya tienes cuenta?</span>
-        <a href="{{ route('estudiante.ingresar') }}" class="enlace font-semibold">Ingresa aquí</a>
+        <a href="{{ route('ingresar') }}" class="enlace font-semibold">Ingresa aquí</a>
     </x-slot:pie>
 </x-portal.acceso>

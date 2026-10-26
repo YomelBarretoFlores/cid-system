@@ -61,7 +61,7 @@ final class RestablecerClave extends Component
         }
 
         session()->flash('estado', 'Tu contraseña fue restablecida. Ya puedes ingresar.');
-        $this->redirectRoute('estudiante.ingresar');
+        $this->redirectRoute('ingresar');
     }
 
     public function render(): View

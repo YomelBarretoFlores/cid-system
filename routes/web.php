@@ -11,11 +11,14 @@ use App\Shared\Auth\Livewire\VerificarCorreo;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function (): void {
-    Route::livewire('/estudiante/ingresar', IniciarSesion::class)->name('estudiante.ingresar');
-    Route::livewire('/docente/ingresar', IniciarSesion::class)->name('docente.ingresar');
+    Route::livewire('/ingresar', IniciarSesion::class)->name('ingresar');
     Route::livewire('/recuperar-clave', SolicitarRestablecimiento::class)->name('password.request');
     Route::livewire('/restablecer-clave/{token}', RestablecerClave::class)->name('password.reset');
 });
+
+// The former separate entries for students and teachers keep working for saved links.
+Route::permanentRedirect('/estudiante/ingresar', '/ingresar');
+Route::permanentRedirect('/docente/ingresar', '/ingresar');
 
 Route::middleware('auth')->group(function (): void {
     Route::livewire('/verificar-correo', VerificarCorreo::class)->name('verification.notice');

@@ -71,7 +71,7 @@ it('refuses a user whose person has no teacher profile', function (): void {
 });
 
 it('sends a guest to the teacher entry', function (): void {
-    $this->get(route('docente.grupos'))->assertRedirect(route('docente.ingresar'));
+    $this->get(route('docente.grupos'))->assertRedirect(route('ingresar'));
 });
 
 it('shows the teacher portal on the home only to teachers', function (): void {

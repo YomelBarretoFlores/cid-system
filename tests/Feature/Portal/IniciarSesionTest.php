@@ -17,10 +17,10 @@ function intentarIngreso(string $email, string $password): Testable
         ->call('ingresar');
 }
 
-it('shows the student login page to guests', function (): void {
-    $this->get(route('estudiante.ingresar'))
+it('shows the portal login page to guests', function (): void {
+    $this->get(route('ingresar'))
         ->assertOk()
-        ->assertSee('Ingresar al portal del estudiante');
+        ->assertSee('Ingresar al portal del CILN');
 });
 
 it('logs a student in with a valid email and password', function (): void {
@@ -58,7 +58,7 @@ it('blocks the sixth attempt within a minute even with the right password', func
 });
 
 it('sends guests of portal pages to the student login', function (): void {
-    $this->get(route('estudiante.inicio'))->assertRedirect(route('estudiante.ingresar'));
+    $this->get(route('estudiante.inicio'))->assertRedirect(route('ingresar'));
 });
 
 it('keeps sending guests of the admin panel to the admin login', function (): void {
@@ -67,7 +67,7 @@ it('keeps sending guests of the admin panel to the admin login', function (): vo
 
 it('sends a signed-in user away from the login page', function (): void {
     $this->actingAs(User::factory()->create())
-        ->get(route('estudiante.ingresar'))
+        ->get(route('ingresar'))
         ->assertRedirect(route('estudiante.inicio'));
 });
 
@@ -80,7 +80,7 @@ it('asks an unverified user to verify the email before entering the portal', fun
 it('logs the student out and ends the session', function (): void {
     $this->actingAs(User::factory()->create())
         ->post(route('estudiante.salir'))
-        ->assertRedirect(route('estudiante.ingresar'));
+        ->assertRedirect(route('ingresar'));
 
     $this->assertGuest();
 });
@@ -118,7 +118,7 @@ it('ends the other sessions of a student after a password change', function (): 
 
     $user->forceFill(['password' => 'otra-clave9'])->save();
 
-    $this->get(route('estudiante.inicio'))->assertRedirect(route('estudiante.ingresar'));
+    $this->get(route('estudiante.inicio'))->assertRedirect(route('ingresar'));
     $this->assertGuest();
 });
 
@@ -128,6 +128,6 @@ it('sends signed-in staff from the student login to the admin panel', function (
     $staff->givePermissionTo(User::ADMIN_PANEL_PERMISSION);
 
     $this->actingAs($staff)
-        ->get(route('estudiante.ingresar'))
+        ->get(route('ingresar'))
         ->assertRedirect(route('filament.admin.pages.dashboard'));
 });

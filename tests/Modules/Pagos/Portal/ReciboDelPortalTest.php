@@ -46,5 +46,5 @@ it('answers not found when the receipt file is missing', function (): void {
 it('sends guests to the portal sign-in instead of the receipt', function (): void {
     $pago = Pago::factory()->create(['persona_id' => $this->persona->id]);
 
-    $this->get(route('estudiante.pagos.recibo', $pago))->assertRedirect(route('estudiante.ingresar'));
+    $this->get(route('estudiante.pagos.recibo', $pago))->assertRedirect(route('ingresar'));
 });

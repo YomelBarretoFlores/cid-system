@@ -1,4 +1,4 @@
-<x-portal.acceso :titulo="$entrada->titulo()" descripcion="Usa el correo y la contraseña de tu cuenta del CILN.">
+<x-portal.acceso titulo="Ingresar al portal del CILN" descripcion="Estudiantes y docentes, usen el correo y la contraseña de su cuenta del CILN.">
     <form wire:submit="ingresar" class="flex flex-col gap-4" novalidate>
         <x-portal.campo nombre="email" etiqueta="Correo" tipo="email" autocomplete="email" placeholder="tucorreo@gmail.com" required autofocus />
         <x-portal.campo nombre="password" etiqueta="Contraseña" tipo="password" autocomplete="current-password" required />
@@ -14,13 +14,7 @@
     </form>
 
     <x-slot:pie>
-        @if ($entrada === App\Shared\Auth\Enums\EntradaDelPortal::Docente)
-            <span>¿Eres estudiante?</span>
-            <a href="{{ route('estudiante.ingresar') }}" class="enlace font-semibold">Ingresa al portal del estudiante</a>
-        @else
-            <span>¿Aún no tienes cuenta?</span>
-            <a href="{{ route('estudiante.registro') }}" class="enlace font-semibold">Créala con tu documento y tu correo</a>
-            <span class="basis-full">¿Eres docente del CILN? <a href="{{ route('docente.ingresar') }}" class="enlace font-semibold">Ingresa al portal docente</a></span>
-        @endif
+        <span>¿Aún no tienes cuenta?</span>
+        <a href="{{ route('estudiante.registro') }}" class="enlace font-semibold">Créala con tu documento y tu correo</a>
     </x-slot:pie>
 </x-portal.acceso>

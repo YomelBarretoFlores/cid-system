@@ -52,7 +52,7 @@ it('sets the new password with a valid token and returns to the login', function
         ->set('password_confirmation', 'nueva-clave9')
         ->call('restablecer')
         ->assertHasNoErrors()
-        ->assertRedirect(route('estudiante.ingresar'));
+        ->assertRedirect(route('ingresar'));
 
     expect(Hash::check('nueva-clave9', $user->refresh()->password))->toBeTrue();
 });

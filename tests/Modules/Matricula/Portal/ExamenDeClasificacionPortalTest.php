@@ -161,7 +161,7 @@ it('asks a student without an unused placement payment to register one', functio
 });
 
 it('sends guests of the placement test page to the student login', function (): void {
-    $this->get(route('estudiante.clasificacion'))->assertRedirect(route('estudiante.ingresar'));
+    $this->get(route('estudiante.clasificacion'))->assertRedirect(route('ingresar'));
 });
 
 it('refuses the placement test page to an account without a student record', function (): void {

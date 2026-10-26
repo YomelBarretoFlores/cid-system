@@ -16,7 +16,7 @@ dataset('rutas del portal', [
 ]);
 
 it('redirects guests of every portal route to the portal login', function (string $ruta): void {
-    $this->get($ruta)->assertRedirect(route('estudiante.ingresar'));
+    $this->get($ruta)->assertRedirect(route('ingresar'));
 })->with('rutas del portal');
 
 it('sends unverified students of every portal route to the verification notice', function (string $ruta): void {
@@ -52,7 +52,7 @@ it('ends an open portal session once the password changes elsewhere', function (
     $this->actingAs($user)->get(route('estudiante.inicio'))->assertOk();
     $user->forceFill(['password' => 'otra-clave99'])->save();
 
-    $this->get(route('estudiante.inicio'))->assertRedirect(route('estudiante.ingresar'));
+    $this->get(route('estudiante.inicio'))->assertRedirect(route('ingresar'));
     $this->assertGuest();
 });
 

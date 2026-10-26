@@ -102,7 +102,7 @@ it('hides the documents of another student', function (string $ruta): void {
 it('keeps the documents behind the portal login', function (): void {
     [, $matricula] = estudianteMatriculado();
 
-    $this->get(route('estudiante.matriculas.ficha', $matricula))->assertRedirect(route('estudiante.ingresar'));
+    $this->get(route('estudiante.matriculas.ficha', $matricula))->assertRedirect(route('ingresar'));
 });
 
 it('links the record for every enrollment and the certificate only for active ones', function (): void {

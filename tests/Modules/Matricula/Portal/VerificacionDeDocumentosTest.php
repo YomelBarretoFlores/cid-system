@@ -59,7 +59,7 @@ it('P3 refuses an account without a person record', function (string $ruta): voi
 it('P4 redirects a guest to the portal login', function (string $ruta): void {
     [, $matricula] = verifEstudiante();
 
-    $this->get(route($ruta, $matricula))->assertRedirect(route('estudiante.ingresar'));
+    $this->get(route($ruta, $matricula))->assertRedirect(route('ingresar'));
 })->with(['estudiante.matriculas.ficha', 'estudiante.matriculas.constancia']);
 
 it('P5 refuses a constancia for a withdrawn enrollment and shows the error flash', function (): void {

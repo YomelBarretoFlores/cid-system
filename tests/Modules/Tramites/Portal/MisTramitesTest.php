@@ -96,5 +96,5 @@ it('ignores a type that is not available and does not let the browser choose it'
 });
 
 it('sends guests to the student entry', function (): void {
-    $this->get(route('estudiante.tramites'))->assertRedirect(route('estudiante.ingresar'));
+    $this->get(route('estudiante.tramites'))->assertRedirect(route('ingresar'));
 });

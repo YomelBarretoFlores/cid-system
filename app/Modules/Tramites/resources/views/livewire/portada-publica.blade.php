@@ -22,7 +22,7 @@
             @endforeach
         </nav>
         <div class="ml-auto flex shrink-0 gap-1.5 lg:ml-0">
-            <x-portal.boton variante="secundario" tamano="compacto" :href="route('estudiante.ingresar')">Ingresar</x-portal.boton>
+            <x-portal.boton variante="secundario" tamano="compacto" :href="route('ingresar')">Ingresar</x-portal.boton>
             <x-portal.boton tamano="compacto" :href="route('estudiante.registro')" class="hidden sm:inline-flex">Crear cuenta</x-portal.boton>
         </div>
     </header>
@@ -140,7 +140,7 @@
                         No hay grupos de <span x-text="idioma"></span> en esta modalidad. Prueba con otra.
                     </p>
                     <p class="px-[18px] pt-3.5 pb-2.5 text-[15px] text-secundario">
-                        ¿Ya sabes el idioma? Rinde el examen de clasificación desde el <a href="{{ route('estudiante.ingresar') }}" class="enlace font-medium">portal del estudiante</a> y empieza en un ciclo superior.
+                        ¿Ya sabes el idioma? Rinde el examen de clasificación desde el <a href="{{ route('ingresar') }}" class="enlace font-medium">portal del estudiante</a> y empieza en un ciclo superior.
                     </p>
                 </div>
             @endif
@@ -248,8 +248,7 @@
             Centro de Idiomas · Universidad Nacional Santiago Antúnez de Mayolo · Huaraz
         </span>
         <nav aria-label="Accesos" class="flex flex-wrap gap-[18px]">
-            <a href="{{ route('estudiante.ingresar') }}" class="enlace">Portal del estudiante</a>
-            <a href="{{ route('docente.ingresar') }}" class="enlace">Portal docente</a>
+            <a href="{{ route('ingresar') }}" class="enlace">Portal del estudiante y docente</a>
             <a href="{{ route('filament.admin.auth.login') }}" class="enlace">Personal del CILN</a>
         </nav>
     </footer>

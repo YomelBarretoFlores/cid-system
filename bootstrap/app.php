@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Modules\Docencia\Http\Middleware\RequierePerfilDocente;
 use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
-use App\Shared\Auth\Enums\EntradaDelPortal;
 use App\Shared\Auth\Http\Middleware\RequiereCorreoVerificado;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\DestinoTrasIngreso;
@@ -33,15 +32,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->throttleApi();
         $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'docente' => RequierePerfilDocente::class, 'correo.verificado' => RequiereCorreoVerificado::class]);
 
-        // The admin panel redirects its own guests to its login; teacher pages go to the teacher entry, the rest to the student entry.
-        $middleware->redirectGuestsTo(
-            fn (Request $request): ?string => $request->is('api/*') ? null : route(EntradaDelPortal::delPedido($request)->ruta()),
-        );
-        // Signed-in staff opening an entry page keep going to the panel, as before the teacher entry existed.
+        // The admin panel redirects its own guests to its login; every portal page goes to the single entry.
+        $middleware->redirectGuestsTo(fn (Request $request): ?string => $request->is('api/*') ? null : route('ingresar'));
+        // Signed-in staff opening the entry keep going to the panel.
         $middleware->redirectUsersTo(fn (Request $request): string => match (true) {
             ! $request->user() instanceof User => route('estudiante.inicio'),
             $request->user()->can(User::ADMIN_PANEL_PERMISSION) => route('filament.admin.pages.dashboard'),
-            default => app(DestinoTrasIngreso::class)->para($request->user(), EntradaDelPortal::delPedido($request)),
+            default => app(DestinoTrasIngreso::class)->para($request->user()),
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {

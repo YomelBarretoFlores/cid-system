@@ -16,6 +16,6 @@ final class CerrarSesion
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return to_route('estudiante.ingresar');
+        return to_route('ingresar');
     }
 }
