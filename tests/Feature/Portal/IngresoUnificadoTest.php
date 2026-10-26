@@ -19,6 +19,13 @@ it('shows a single entry for students and teachers with the link to create an ac
         ->assertDontSee('/estudiante/ingresar', false);
 });
 
+it('points staff from the single entry to the panel sign-in', function (): void {
+    $this->get('/ingresar')
+        ->assertOk()
+        ->assertSeeText('¿Eres personal del CILN?')
+        ->assertSee(route('filament.admin.auth.login'), false);
+});
+
 it('sends the former student and teacher entries to the single entry', function (string $anterior): void {
     $this->get($anterior)->assertStatus(302)->assertRedirect('/ingresar');
 })->with(['/estudiante/ingresar', '/docente/ingresar']);

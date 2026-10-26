@@ -117,3 +117,13 @@ it('escapes catalog names, also inside the data of the client filters', function
         ->not->toContain('<script>alert(2)')
         ->not->toContain('<img src=x');
 });
+
+it('gives staff a header button to the panel sign-in and keeps the headline readable as one sentence', function (): void {
+    periodoDePortada();
+
+    $this->get('/')
+        ->assertOk()
+        ->assertSeeInOrder(['<header', 'Personal CILN', '</header>'], false)
+        ->assertSee('href="'.route('filament.admin.auth.login').'"', false)
+        ->assertSee('<h1 class="sr-only">Aprende un idioma en la UNASAM.</h1>', false);
+});

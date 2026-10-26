@@ -16,5 +16,6 @@
     <x-slot:pie>
         <span>¿Aún no tienes cuenta?</span>
         <a href="{{ route('estudiante.registro') }}" class="enlace font-semibold">Créala con tu documento y tu correo</a>
+        <span class="basis-full text-[13.5px]">¿Eres personal del CILN? <a href="{{ route('filament.admin.auth.login') }}" class="enlace">Ingresa al panel administrativo</a></span>
     </x-slot:pie>
 </x-portal.acceso>

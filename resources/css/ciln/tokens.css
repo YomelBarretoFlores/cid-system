@@ -79,6 +79,8 @@
     --text-kpi--line-height: 1;
     --text-kpi--letter-spacing: -0.04em;
 
+    --ease-salida: cubic-bezier(0.22, 1, 0.36, 1);
+
     --animate-subir: subir 180ms ease-out;
     --animate-entrar: entrar 200ms ease-out;
 
