@@ -114,7 +114,7 @@ Portales y panel comparten una sola fuente de estilos ([ADR 0008](adr/0008-siste
 | Tema del panel y `tabla-reporte` | `resources/css/filament/admin/theme.css` |
 | Paletas del panel (copia en PHP, verificada por prueba) | `app/Shared/Ui/PaletaCiln.php` |
 | Layouts: base, portal con barra lateral, acceso dividido | `resources/views/components/layouts/` |
-| Identidad: emblema y hojas-bandera | `resources/views/components/ciln/` |
+| Identidad: emblema y banderas de idioma | `resources/views/components/ciln/` |
 | Controles y bloques del portal | `resources/views/components/portal/` |
 | Selector y calendario propios (Alpine), registrados una sola vez | `resources/js/ciln/` y `resources/js/app.js` |
 | Formatos de presentación compartidos (fecha corta) | `app/Shared/Ui/Formato.php` |

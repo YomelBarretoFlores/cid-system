@@ -16,3 +16,4 @@ Funcionalidades **fuera del TdR**. Se proponen al CILN **al final del desarrollo
 | M5 | Análisis de cohortes y resumen semanal por correo | Descriptivo |
 | M6 | Seguimiento de trámite sin login (código + DNI) | Con rate limiting |
 | Auth | Login con cuenta institucional (Socialite) | Solo si la UNASAM usa Google Workspace |
+| Transversal | Notificaciones dentro del sistema (campana en el panel y en los portales) | El TdR solo exige el correo por cada cambio de estado del trámite y su registro de envíos, que ya existen. Casos propuestos. Personal: pago registrado por validar, solicitud de clasificación nueva, trámite pagado por atender, pre-acta enviada por un docente. Estudiante: pago validado o rechazado (con motivo), trámite observado o finalizado, constancia o certificado listo, matrícula confirmada. Docente: grupo asignado, acta aprobada u observada. En el panel, los contadores del menú ya muestran lo pendiente |

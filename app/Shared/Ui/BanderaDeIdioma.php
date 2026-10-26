@@ -39,7 +39,7 @@ enum BanderaDeIdioma: string
             self::Japon => 'Japón',
             self::CoreaDelSur => 'Corea del Sur',
             self::Wiphala => 'Wiphala (lenguas originarias)',
-            self::Neutra => 'Sin bandera (hoja dorada)',
+            self::Neutra => 'Sin bandera (círculo dorado)',
         };
     }
 
