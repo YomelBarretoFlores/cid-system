@@ -10,6 +10,7 @@ use App\Modules\Pagos\Actions\ExportarRecaudacionPdf;
 use App\Modules\Pagos\Actions\GenerarReporteDeRecaudacion;
 use App\Modules\Pagos\Data\FiltrosDeRecaudacion;
 use App\Modules\Pagos\Data\ReporteDeRecaudacion as Reporte;
+use App\Modules\Pagos\Filament\Tables\DetalleDeRecaudacionTable;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -23,11 +24,16 @@ use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use UnitEnum;
 
-final class ReporteDeRecaudacion extends Page
+final class ReporteDeRecaudacion extends Page implements HasTable
 {
+    use InteractsWithTable;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartBar;
 
     protected static string|UnitEnum|null $navigationGroup = 'Reportes';
@@ -48,6 +54,8 @@ final class ReporteDeRecaudacion extends Page
      * @var array<string, mixed>|null
      */
     public ?array $data = [];
+
+    private Reporte|string|null $resultado = null;
 
     public static function canAccess(): bool
     {
@@ -74,13 +82,28 @@ final class ReporteDeRecaudacion extends Page
             ]);
     }
 
-    // The view shows either the report or the business reason it cannot be built.
+    public function table(Table $table): Table
+    {
+        return DetalleDeRecaudacionTable::configure($table, fn (): array => ($resultado = $this->resultado()) instanceof Reporte ? $resultado->detalle : []);
+    }
+
+    public function updatedData(): void
+    {
+        $this->resultado = null;
+        $this->resetPage();
+    }
+
+    // The view shows either the report or the business reason it cannot be built; the detail table reads the same result.
     public function resultado(): Reporte|string
     {
+        if ($this->resultado !== null) {
+            return $this->resultado;
+        }
+
         try {
-            return app(GenerarReporteDeRecaudacion::class)($this->filtros());
+            return $this->resultado = app(GenerarReporteDeRecaudacion::class)($this->filtros());
         } catch (ReglaDeNegocioIncumplida $error) {
-            return $error->getMessage();
+            return $this->resultado = $error->getMessage();
         }
     }
 

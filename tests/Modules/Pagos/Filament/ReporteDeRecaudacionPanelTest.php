@@ -6,6 +6,7 @@ use App\Modules\Pagos\Actions\ExportarRecaudacionPdf;
 use App\Modules\Pagos\Actions\GenerarReporteDeRecaudacion;
 use App\Modules\Pagos\Data\FiltrosDeRecaudacion;
 use App\Modules\Pagos\Enums\FuenteConcepto;
+use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Filament\Pages\ReporteDeRecaudacion;
@@ -97,3 +98,40 @@ it('notifies an invalid range instead of downloading', function (string $accion,
     'inverted range as CSV' => ['descargarCsv', '2026-10-31', 'La fecha inicial no puede ser posterior a la final.'],
     'malformed date' => ['descargarCsv', 'not-a-date', 'Escribe un rango de fechas válido.'],
 ]);
+
+it('lists the detail per student as a paginated table', function (): void {
+    $this->actingAs($this->tesorero);
+    Pago::factory()->validado()->for($this->matricula)->count(11)->create(['fecha_pago' => '2026-10-06']);
+
+    Livewire::test(ReporteDeRecaudacion::class)
+        ->assertCountTableRecords(12)
+        ->assertSee('OP-1')
+        ->call('gotoPage', 2)
+        ->assertDontSee('OP-1');
+});
+
+it('searches the detail per student without accents and sorts it by amount', function (): void {
+    $this->actingAs($this->tesorero);
+    $persona = Persona::factory()->create(['numero_documento' => '87654321', 'apellido_paterno' => 'Núñez', 'apellido_materno' => 'Peña', 'nombres' => 'José']);
+    Pago::factory()->validado()->for($this->matricula)->create(['persona_id' => $persona->id, 'monto' => '120.00', 'fecha_pago' => '2026-10-07', 'numero_operacion' => 'OP-2']);
+
+    Livewire::test(ReporteDeRecaudacion::class)
+        ->sortTable('monto', 'desc')
+        ->assertSeeInOrder(['OP-2', 'OP-1'])
+        ->searchTable('nunez')
+        ->assertSee('OP-2')
+        ->assertDontSee('OP-1')
+        ->searchTable('op-1')
+        ->assertSee('OP-1')
+        ->assertDontSee('OP-2');
+});
+
+it('filters the detail per student by payment method', function (): void {
+    $this->actingAs($this->tesorero);
+    Pago::factory()->validado()->for($this->matricula)->create(['medio_pago' => MedioPago::Transferencia, 'fecha_pago' => '2026-10-07', 'numero_operacion' => 'TRANSF-9']);
+
+    Livewire::test(ReporteDeRecaudacion::class)
+        ->filterTable('medio_pago', MedioPago::Transferencia->etiqueta())
+        ->assertSee('TRANSF-9')
+        ->assertDontSee('OP-1');
+});
