@@ -21,7 +21,7 @@
         <x-ciln.emblema decorativo class="absolute top-[8%] left-[10%] w-[78%] opacity-95" />
         @foreach ([['Inglés', 6, 6, 52, -24], ['Quechua', 70, 4, 48, 18], ['Francés', 2, 34, 44, -34], ['Alemán', 80, 26, 42, 10], ['Italiano', 8, 56, 42, -14], ['Portugués', 84, 48, 44, 22]] as [$idioma, $x, $y, $tamano, $giro])
             <span class="absolute drop-shadow-[0_4px_8px_rgb(29_27_22/0.12)]" style="left: {{ $x }}%; top: {{ $y }}%">
-                <x-ciln.hoja-bandera :idioma="$idioma" :size="$tamano" :rot="$giro" />
+                <x-ciln.hoja-bandera :idioma="$idioma" :size="$tamano" :rot="$giro" forma="hoja" />
             </span>
         @endforeach
         <div class="relative flex max-w-[420px] flex-col gap-2">

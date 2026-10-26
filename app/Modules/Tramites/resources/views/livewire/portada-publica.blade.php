@@ -54,7 +54,7 @@
                 <x-ciln.emblema decorativo class="absolute right-[6%] bottom-[6%] left-[14%] w-4/5" />
                 @foreach ([['Inglés', 12, 6, 56, -24], ['Quechua', 66, 2, 52, 18], ['Francés', 2, 32, 48, -34], ['Alemán', 80, 24, 44, 10], ['Italiano', 8, 58, 46, -14], ['Portugués', 84, 50, 48, 22]] as [$hoja, $x, $y, $tamano, $giro])
                     <span class="absolute drop-shadow-[0_4px_8px_rgb(29_27_22/0.12)]" style="left: {{ $x }}%; top: {{ $y }}%">
-                        <x-ciln.hoja-bandera :idioma="$hoja" :size="$tamano" :rot="$giro" />
+                        <x-ciln.hoja-bandera :idioma="$hoja" :size="$tamano" :rot="$giro" forma="hoja" />
                     </span>
                 @endforeach
             </div>
@@ -104,7 +104,7 @@
                     @foreach ($idiomas as $idioma)
                         <button type="button" x-on:click="idioma = @js($idioma['nombre'])" x-bind:aria-pressed="idioma === @js($idioma['nombre'])" @if ($idioma['nombre'] === $primerIdioma) aria-pressed="true" @endif
                             class="flex flex-col items-start gap-3 rounded-[20px] bg-tarjeta-interna px-3.5 py-4 text-left shadow-[inset_0_0_0_1px_var(--color-borde-interno)] aria-pressed:bg-fila-hover aria-pressed:shadow-[inset_0_0_0_2px_var(--color-acento)]">
-                            <x-ciln.hoja-bandera :idioma="$idioma['nombre']" size="44" rot="-10" />
+                            <x-ciln.hoja-bandera :idioma="$idioma['nombre']" size="44" />
                             <span class="flex flex-col">
                                 <span class="text-lg font-semibold">{{ $idioma['nombre'] }}</span>
                                 <span class="text-[13.5px] text-terciario">{{ $idioma['grupos'] }} {{ $idioma['grupos'] === 1 ? 'grupo' : 'grupos' }}</span>

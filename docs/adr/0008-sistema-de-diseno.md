@@ -12,11 +12,11 @@ Los portales (Blade + Livewire) y el panel (Filament) tenían estilos propios: a
 |---|---|
 | Fuente única de estilos | `resources/css/ciln/tokens.css` (bloque `@theme` de Tailwind 4): paletas `piedra` y `oro`, colores semánticos (`lienzo`, `tarjeta`, `tinta`, `secundario`, `acento`, `enlace`, pares de estado), radios, sombras y tamaños. Lo importan `resources/css/app.css` (portales) y `resources/css/filament/admin/theme.css` (panel). |
 | Repetición | Se resuelve con componentes Blade (`x-ciln.*` para la identidad, `x-portal.*` para controles y bloques) y con pocas utilidades `@utility` (`control`, `casilla`, `enlace`, `tarjeta-interna`, `columnas`, `tabla-reporte`). No se copian cadenas de clases entre pantallas ni se encadena `@apply`. |
-| Selectores y fechas | Sin controles nativos: en los portales, `x-portal.seleccion` (lista con búsqueda y hojas-bandera) y `x-portal.fecha` (calendario con vista de años), componentes Alpine registrados una vez; en el panel, `Select` y `DatePicker` configurados como no nativos para todo el panel. |
+| Selectores y fechas | Sin controles nativos: en los portales, `x-portal.seleccion` (lista con búsqueda y banderas) y `x-portal.fecha` (calendario con vista de años), componentes Alpine registrados una vez; en el panel, `Select` y `DatePicker` configurados como no nativos para todo el panel. |
 | Estados de controles | Por atributos de accesibilidad (`aria-invalid`, `aria-current`, `:checked`), no por clases condicionales. |
 | Panel | Tema propio de Filament (`->viteTheme()`); Filament conserva sus tablas, formularios y acciones. Sus paletas se pasan desde `App\Shared\Ui\PaletaCiln`, copia en PHP de `tokens.css`; la prueba `tests/Unit/PaletaCilnTest.php` falla si difieren. Sin barra superior: buscador y menú de usuario van en la barra lateral. Sin modo oscuro. |
 | Tipografía | Figtree alojada en el propio servidor (manifiesto de fuentes de Vite), sin pedidos a Google Fonts en tiempo de ejecución. |
-| Identidad | Emblema en WebP (`public/images/ciln/`) y hojas-bandera dibujadas en SVG (`x-ciln.hoja-bandera`). |
+| Identidad | Emblema en WebP (`public/images/ciln/`) y banderas de idioma dibujadas en SVG (`x-ciln.hoja-bandera`): circulares junto al nombre del idioma; en forma de hoja solo en las ilustraciones de la portada y del acceso. |
 
 ## Alternativas descartadas
 

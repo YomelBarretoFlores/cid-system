@@ -1,6 +1,6 @@
 @use('App\Shared\Ui\BanderaDeIdioma')
 @use('App\Shared\Ui\BanderasDeIdiomas')
-@props(['idioma' => null, 'bandera' => null, 'size' => 28, 'forma' => 'hoja', 'rot' => 0])
+@props(['idioma' => null, 'bandera' => null, 'size' => 28, 'forma' => 'circulo', 'rot' => 0])
 @php
     $bandera = match (true) {
         $bandera instanceof BanderaDeIdioma => $bandera,
@@ -8,7 +8,8 @@
         filled($idioma) => app(BanderasDeIdiomas::class)->para((string) $idioma),
         default => BanderaDeIdioma::Neutra,
     };
-    $ancho = (int) $size;
+    // A circle fills its whole box, so it is drawn smaller to weigh the same as the leaf next to a text.
+    $ancho = $forma === 'circulo' ? (int) round((int) $size * 0.8) : (int) $size;
     $alto = match ($forma) {
         'circulo' => $ancho,
         'pill' => (int) round($ancho * 0.66),

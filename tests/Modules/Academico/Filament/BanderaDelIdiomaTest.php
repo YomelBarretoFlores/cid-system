@@ -63,3 +63,10 @@ it('draws the stored flag instead of guessing it from the name, also after a ren
     expect(hoja('Nihongo'))->toContain('#BC002D')
         ->and(Blade::render('<x-ciln.hoja-bandera bandera="desconocida" />'))->toContain('var(--color-acento)');
 });
+
+it('draws the language flag as a circle unless a leaf is asked for', function (): void {
+    expect(Blade::render('<x-ciln.hoja-bandera bandera="francia" size="20" />'))
+        ->toContain('width: 16px; height: 16px; border-radius: 50%')
+        ->and(Blade::render('<x-ciln.hoja-bandera bandera="francia" size="20" forma="hoja" />'))
+        ->toContain('border-radius: 100% 0 100% 0');
+});
