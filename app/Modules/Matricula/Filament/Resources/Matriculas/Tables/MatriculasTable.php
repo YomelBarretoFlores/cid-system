@@ -15,6 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 final class MatriculasTable
 {
@@ -29,7 +30,7 @@ final class MatriculasTable
                         ->whereIn('persona_id', app(SubconsultaDePersonas::class)($search))),
                 TextColumn::make('grupo_id')
                     ->label('Grupo')
-                    ->formatStateUsing(fn (int $state, ListMatriculas $livewire): string => $livewire->etiquetaDeGrupo($state)),
+                    ->formatStateUsing(fn (int $state, ListMatriculas $livewire): HtmlString|string => $livewire->grupoConBandera($state)),
                 TextColumn::make('condicion')->label('Condición')->formatStateUsing(fn (CondicionMatricula $state): string => $state->etiqueta()),
                 TextColumn::make('estado')
                     ->label('Estado')

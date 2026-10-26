@@ -18,8 +18,8 @@ Assumptions:
 
 | ID | Specs | Route | Status | Commit |
 |---|---|---|---|---|
-| T1 | S2, S3, A1 | inline (Risk: item 1) | done | next commit |
-| T2 | S1, A2 | inline | pending | — |
+| T1 | S2, S3, A1 | inline (Risk: item 1) | done, review approved | d047c18, 38908ea |
+| T2 | S1, A2 | inline | done | next commit |
 | T3 | S1 | inline | pending | — |
 
 - T1: nullable `bandera` column on `aca_idiomas` (no data change: a null flag falls back to the one suggested by the name), flag enum and lookup port in `Shared/Ui`, implementation in Academico, flag select with preview in the language form, `x-ciln.hoja-bandera` resolves the stored flag.

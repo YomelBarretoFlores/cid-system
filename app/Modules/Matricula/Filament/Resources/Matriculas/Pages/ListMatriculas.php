@@ -9,9 +9,11 @@ use App\Modules\Academico\Data\FichaDeGrupo;
 use App\Modules\Matricula\Filament\Resources\Matriculas\MatriculaResource;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
+use App\Shared\Support\Filament\IdiomaConBandera;
 use Closure;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Collection;
+use Illuminate\Support\HtmlString;
 
 final class ListMatriculas extends ListRecords
 {
@@ -23,7 +25,7 @@ final class ListMatriculas extends ListRecords
     private ?array $personas = null;
 
     /**
-     * @var array<int, string>|null
+     * @var array<int, FichaDeGrupo>|null
      */
     private ?array $grupos = null;
 
@@ -35,14 +37,12 @@ final class ListMatriculas extends ListRecords
         return $this->personas[$personaId] ?? '—';
     }
 
-    public function etiquetaDeGrupo(int $grupoId): string
+    public function grupoConBandera(int $grupoId): HtmlString|string
     {
-        $this->grupos ??= array_map(
-            fn (FichaDeGrupo $grupo): string => "{$grupo->codigo} · {$grupo->periodo}",
-            app(DetalleDeGrupos::class)($this->deLaPagina(fn (Matricula $matricula): int => $matricula->grupo_id)),
-        );
+        $this->grupos ??= app(DetalleDeGrupos::class)($this->deLaPagina(fn (Matricula $matricula): int => $matricula->grupo_id));
+        $grupo = $this->grupos[$grupoId] ?? null;
 
-        return $this->grupos[$grupoId] ?? '—';
+        return $grupo instanceof FichaDeGrupo ? IdiomaConBandera::html($grupo->idioma, "{$grupo->codigo} · {$grupo->periodo}") : '—';
     }
 
     /**

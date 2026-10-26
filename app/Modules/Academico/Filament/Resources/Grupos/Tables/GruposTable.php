@@ -11,6 +11,7 @@ use App\Modules\Academico\Filament\Resources\Grupos\Pages\ListGrupos;
 use App\Modules\Academico\Filament\Resources\Grupos\Schemas\GrupoForm;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
+use App\Shared\Support\Filament\IdiomaConBandera;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -19,6 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 final class GruposTable
 {
@@ -31,7 +33,7 @@ final class GruposTable
                 TextColumn::make('periodo.nombre')->label('Periodo'),
                 TextColumn::make('ciclo.idioma.nombre')
                     ->label('Idioma y ciclo')
-                    ->formatStateUsing(fn (Grupo $record): string => GrupoForm::etiquetaDeCiclo($record->ciclo)),
+                    ->formatStateUsing(fn (Grupo $record): HtmlString => IdiomaConBandera::html($record->ciclo->idioma->nombre, GrupoForm::etiquetaDeCiclo($record->ciclo))),
                 TextColumn::make('modalidad')->label('Modalidad')->formatStateUsing(fn (Modalidad $state): string => $state->etiqueta()),
                 IconColumn::make('es_acelerado')->label('Acelerado')->boolean(),
                 TextColumn::make('aula.codigo')->label('Aula')->placeholder('Virtual'),

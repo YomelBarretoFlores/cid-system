@@ -10,11 +10,13 @@ use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Actions\AccionesDeSolicitudClasificacion;
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Pages\ListSolicitudesClasificacion;
 use App\Modules\Personas\Contracts\SubconsultaDePersonas;
+use App\Shared\Support\Filament\IdiomaConBandera;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 final class SolicitudesClasificacionTable
 {
@@ -29,7 +31,7 @@ final class SolicitudesClasificacionTable
                         ->whereIn('persona_id', app(SubconsultaDePersonas::class)($search))),
                 TextColumn::make('idioma_id')
                     ->label('Idioma')
-                    ->formatStateUsing(fn (int $state, ListSolicitudesClasificacion $livewire): string => $livewire->nombreDeIdioma($state)),
+                    ->formatStateUsing(fn (int $state, ListSolicitudesClasificacion $livewire): HtmlString => IdiomaConBandera::html($livewire->nombreDeIdioma($state))),
                 TextColumn::make('estado')
                     ->label('Estado')
                     ->badge()
