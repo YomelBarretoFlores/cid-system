@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion;
 
+use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Pages\ListSolicitudesClasificacion;
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Pages\ViewSolicitudClasificacion;
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Schemas\SolicitudClasificacionInfolist;
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Tables\SolicitudesClasificacionTable;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
+use App\Shared\Support\Filament\ContadorDePendientes;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -53,5 +55,15 @@ final class SolicitudClasificacionResource extends Resource
             'index' => ListSolicitudesClasificacion::route('/'),
             'view' => ViewSolicitudClasificacion::route('/{record}'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return ContadorDePendientes::de(SolicitudClasificacion::query()->where('estado', EstadoSolicitudClasificacion::PendienteEvaluacion));
+    }
+
+    public static function getNavigationBadgeTooltip(): string
+    {
+        return 'Solicitudes por evaluar';
     }
 }

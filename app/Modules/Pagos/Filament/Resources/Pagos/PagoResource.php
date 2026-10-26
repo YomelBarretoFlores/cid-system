@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Filament\Resources\Pagos;
 
+use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\CreatePago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ListPagos;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ViewPago;
@@ -11,6 +12,7 @@ use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoForm;
 use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoInfolist;
 use App\Modules\Pagos\Filament\Resources\Pagos\Tables\PagosTable;
 use App\Modules\Pagos\Models\Pago;
+use App\Shared\Support\Filament\ContadorDePendientes;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -79,5 +81,15 @@ final class PagoResource extends Resource
     public static function getGlobalSearchEloquentQuery(): Builder
     {
         return parent::getGlobalSearchEloquentQuery()->with('concepto');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return ContadorDePendientes::de(Pago::query()->where('estado', EstadoPago::Pendiente));
+    }
+
+    public static function getNavigationBadgeTooltip(): string
+    {
+        return 'Pagos por validar';
     }
 }

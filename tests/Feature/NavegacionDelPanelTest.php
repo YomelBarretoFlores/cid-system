@@ -2,7 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\SolicitudClasificacionResource;
+use App\Modules\Matricula\Models\SolicitudClasificacion;
+use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
+use App\Modules\Pagos\Models\Pago;
 use App\Modules\Tablero\Enums\PermisoTablero;
+use App\Modules\Tramites\Enums\EstadoTramite;
+use App\Modules\Tramites\Filament\Resources\Tramites\TramiteResource;
+use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
@@ -46,4 +53,31 @@ it('tells an account without sections that it has no permissions yet', function 
     $this->actingAs(User::factory()->create()->givePermissionTo(User::ADMIN_PANEL_PERMISSION));
 
     $this->get('/admin')->assertOk()->assertSee('Tu cuenta todavía no tiene secciones asignadas.');
+});
+
+it('counts next to the menu item the payments, placement requests and procedures waiting for staff', function (): void {
+    expect(PagoResource::getNavigationBadge())->toBeNull()
+        ->and(SolicitudClasificacionResource::getNavigationBadge())->toBeNull()
+        ->and(TramiteResource::getNavigationBadge())->toBeNull();
+
+    Pago::factory()->pendiente()->count(2)->create();
+    Pago::factory()->validado()->create();
+    SolicitudClasificacion::factory()->create();
+    SolicitudClasificacion::factory()->evaluada()->create();
+    Tramite::factory()->count(3)->create();
+    Tramite::factory()->create(['estado' => EstadoTramite::Observado, 'observacion' => 'Falta adjuntar el voucher.']);
+
+    expect(PagoResource::getNavigationBadge())->toBe('2')
+        ->and(PagoResource::getNavigationBadgeTooltip())->toBe('Pagos por validar')
+        ->and(SolicitudClasificacionResource::getNavigationBadge())->toBe('1')
+        ->and(SolicitudClasificacionResource::getNavigationBadgeTooltip())->toBe('Solicitudes por evaluar')
+        ->and(TramiteResource::getNavigationBadge())->toBe('3')
+        ->and(TramiteResource::getNavigationBadgeTooltip())->toBe('Trámites por atender');
+});
+
+it('shows the pending count in the sidebar', function (): void {
+    Pago::factory()->pendiente()->count(2)->create();
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, 'pagos.ver']));
+
+    $this->get('/admin/pagos')->assertOk()->assertSeeInOrder(['fi-sidebar-item-badge-ctn', '2'], escape: false);
 });

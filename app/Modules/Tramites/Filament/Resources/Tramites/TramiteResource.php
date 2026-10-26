@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Filament\Resources\Tramites;
 
+use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Filament\Resources\Tramites\Pages\ListTramites;
 use App\Modules\Tramites\Filament\Resources\Tramites\Pages\ViewTramite;
 use App\Modules\Tramites\Filament\Resources\Tramites\Schemas\TramiteInfolist;
 use App\Modules\Tramites\Filament\Resources\Tramites\Tables\TramitesTable;
 use App\Modules\Tramites\Models\Tramite;
+use App\Shared\Support\Filament\ContadorDePendientes;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -62,5 +64,15 @@ final class TramiteResource extends Resource
             'Tipo' => $record->tipo_nombre,
             'Estado' => $record->estado->etiqueta(),
         ] : [];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return ContadorDePendientes::de(Tramite::query()->where('estado', EstadoTramite::EnProceso));
+    }
+
+    public static function getNavigationBadgeTooltip(): string
+    {
+        return 'Trámites por atender';
     }
 }
