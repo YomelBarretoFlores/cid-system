@@ -19,7 +19,7 @@ it('shows a single entry for students and teachers with the link to create an ac
 });
 
 it('sends the former student and teacher entries to the single entry', function (string $anterior): void {
-    $this->get($anterior)->assertStatus(301)->assertRedirect('/ingresar');
+    $this->get($anterior)->assertStatus(302)->assertRedirect('/ingresar');
 })->with(['/estudiante/ingresar', '/docente/ingresar']);
 
 it('lands each account on the module of its profile', function (): void {
@@ -75,10 +75,19 @@ it('keeps sending signed-in staff from the entry to the panel, even with a perso
     $this->actingAs($usuario)->get('/ingresar')->assertRedirect(route('filament.admin.pages.dashboard'));
 });
 
-it('ignores a pending panel page when signing in through the portal', function (): void {
+it('ignores a pending panel page when signing in through the portal', function (string $pagina): void {
     [$usuario] = PortalDocente::docente();
 
-    $this->get('/admin')->assertRedirect('/admin/login');
+    $this->get($pagina)->assertRedirect('/admin/login');
+
+    Livewire::test(IniciarSesion::class)
+        ->set('email', $usuario->email)->set('password', 'password')->call('ingresar')
+        ->assertRedirect(route('docente.grupos'));
+})->with(['panel home' => '/admin', 'panel section' => '/admin/pagos']);
+
+it('lands staff who also teach on the teacher module when they sign in through the portal', function (): void {
+    [$usuario] = PortalDocente::docente();
+    $usuario->givePermissionTo(Permission::findOrCreate(User::ADMIN_PANEL_PERMISSION, 'web'));
 
     Livewire::test(IniciarSesion::class)
         ->set('email', $usuario->email)->set('password', 'password')->call('ingresar')

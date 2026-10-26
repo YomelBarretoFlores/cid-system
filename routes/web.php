@@ -17,8 +17,8 @@ Route::middleware('guest')->group(function (): void {
 });
 
 // The former separate entries for students and teachers keep working for saved links.
-Route::permanentRedirect('/estudiante/ingresar', '/ingresar');
-Route::permanentRedirect('/docente/ingresar', '/ingresar');
+Route::redirect('/estudiante/ingresar', '/ingresar');
+Route::redirect('/docente/ingresar', '/ingresar');
 
 Route::middleware('auth')->group(function (): void {
     Route::livewire('/verificar-correo', VerificarCorreo::class)->name('verification.notice');

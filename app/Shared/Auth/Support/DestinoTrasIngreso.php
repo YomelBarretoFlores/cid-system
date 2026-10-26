@@ -8,6 +8,7 @@ use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Data\FichaDeEstudiante;
 use App\Shared\Auth\Models\User;
+use Filament\Facades\Filament;
 
 // Where a signed-in user lands when no page was requested before: one entry and one account, the teacher module first for teachers who also study.
 final readonly class DestinoTrasIngreso
@@ -21,7 +22,8 @@ final readonly class DestinoTrasIngreso
     public function trasIngresar(User $usuario, mixed $pedido): string
     {
         $ruta = is_string($pedido) ? (string) parse_url($pedido, PHP_URL_PATH) : '';
-        $esDelPanel = $ruta === '/admin' || str_starts_with($ruta, '/admin/');
+        $panel = '/'.trim(Filament::getPanel('admin')->getPath(), '/');
+        $esDelPanel = $ruta === $panel || str_starts_with($ruta, $panel.'/');
 
         return is_string($pedido) && $pedido !== '' && ! $esDelPanel ? $pedido : $this->para($usuario);
     }
