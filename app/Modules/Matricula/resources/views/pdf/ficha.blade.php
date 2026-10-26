@@ -11,8 +11,6 @@
         <style>
             @page { margin: 28.5pt 34pt 34pt 34.5pt; }
             body { font-family: 'DejaVu Sans', sans-serif; font-size: 8.4pt; color: #212529; line-height: 1.2; }
-            .membrete { width: 100%; border-collapse: collapse; border-bottom: 0.6pt solid #dee2e6; }
-            .membrete td { vertical-align: top; padding: 0 0 14pt; line-height: 1.1; }
             .emision { text-align: right; font-size: 5.4pt; line-height: 1.35; margin-top: 19pt; }
             h1 { font-size: 18pt; font-weight: normal; margin: -11pt 0 0; }
             h1 span { font-size: 12pt; color: #868e96; }
@@ -35,16 +33,7 @@
         </style>
     </head>
     <body>
-        <table class="membrete">
-            <tr>
-                <td style="width: 160pt;"><img src="data:image/png;base64,{{ base64_encode((string) file_get_contents(resource_path('images/pdf/unasam.png'))) }}" alt="" width="150" height="40"></td>
-                <td style="text-align: center; padding-top: 0;">
-                    <span style="font-size: 10.8pt;">Universidad Nacional Santiago Antúnez de Mayolo</span><br>
-                    <span>Centro de Idiomas y Lenguas Nativas</span>
-                </td>
-                <td style="width: 160pt; text-align: right;"><img src="data:image/png;base64,{{ base64_encode((string) file_get_contents(resource_path('images/pdf/emblema.png'))) }}" alt="" height="36"></td>
-            </tr>
-        </table>
+        <x-matricula::pdf.membrete laterales="150pt" />
 
         <div class="emision">{{ $ficha->emitidaEn->format('Y-m-d H:i:s') }}<br>{{ $ficha->codigo }}</div>
 
@@ -102,10 +91,10 @@
                             </table>
                         </td>
                         <td class="centro">{{ $grupo->codigo }}</td>
-                        <td class="centro">{{ Formato::romano($grupo->cicloNumero) }}</td>
+                        <td class="centro ciclo">{{ Formato::romano($grupo->cicloNumero) }}</td>
                         <td class="centro">{{ $grupo->nivel }}</td>
                         <td class="centro">{{ $matricula->condicion->etiqueta() }}</td>
-                        <td class="derecha">{{ $matricula->centimosPagados() > 0 ? $matricula->pago?->monto : '—' }}</td>
+                        <td class="derecha costo">{{ $matricula->centimosPagados() > 0 ? $matricula->pago?->monto : '—' }}</td>
                     </tr>
                 @endforeach
                 <tr class="total">
@@ -118,7 +107,7 @@
                 <tr class="total">
                     <td colspan="4" rowspan="2"><img src="{{ CodigoDeBarras::comoDataUri($ficha->codigo, 1, 30) }}" alt="" height="22"></td>
                     <td colspan="2">Pagos verificados:</td>
-                    <td class="derecha">{{ $ficha->pagosVerificados() }}</td>
+                    <td class="derecha pagos-verificados">{{ $ficha->pagosVerificados() }}</td>
                 </tr>
                 <tr class="total">
                     <td colspan="2">Costo total:</td>

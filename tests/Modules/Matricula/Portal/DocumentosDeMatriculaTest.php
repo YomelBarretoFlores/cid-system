@@ -14,6 +14,7 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\FakePdfBuilder;
 use Spatie\LaravelPdf\PdfBuilder;
@@ -127,18 +128,24 @@ it('renders both documents as real PDF files', function (string $ruta): void {
 })->with(['estudiante.matriculas.ficha', 'estudiante.matriculas.constancia']);
 
 it('lists every enrollment of the period on one record, marks a withdrawal and adds only verified active payments', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-10-21 14:05:00+00'));
     [$user, $ingles] = estudianteMatriculado();
+    $this->travelBack();
     $periodo = Grupo::query()->findOrFail($ingles->grupo_id)->periodo_id;
     $quechua = Grupo::factory()->for(Ciclo::factory()->for(Idioma::factory()->state(['nombre' => 'Quechua']))->state(['numero' => 1]))->create(['periodo_id' => $periodo, 'codigo' => 'QUE-I-A']);
     $frances = Grupo::factory()->for(Ciclo::factory()->for(Idioma::factory()->state(['nombre' => 'Francés'])))->create(['codigo' => 'FRA-I-B']);
     foreach ([[$quechua, 'retirada', '60.00', 'OP-QUE'], [$frances, 'activa', '90.00', 'OP-FRA']] as [$grupo, $estado, $monto, $operacion]) {
-        $pago = Pago::factory()->validado()->create(['persona_id' => $ingles->persona_id, 'monto' => $monto, 'numero_operacion' => $operacion]);
+        $pago = Pago::factory()->validado()->create(['persona_id' => $ingles->persona_id, 'monto' => $monto, 'numero_operacion' => $operacion, 'validado_en' => '2026-10-25 20:00:00+00']);
         Matricula::factory()->{$estado}()->create(['persona_id' => $ingles->persona_id, 'grupo_id' => $grupo->id, 'pago_id' => $pago->id]);
     }
 
     $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $ingles))->assertOk();
 
-    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => collect(['INGLÉS', 'QUECHUA', '· Retirada', 'OP-QUE', 'total-pagado">S/80.00</td>', '<td class="derecha">—</td>', '2</strong> curso(s)'])->every(fn (string $texto): bool => $pdf->contains($texto))
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => collect([
+        'INGLÉS', 'QUECHUA', '· Retirada', 'OP-QUE', '<td class="centro ciclo">II</td>', '<td class="centro ciclo">I</td>',
+        '<td class="derecha costo">80.00</td>', '<td class="derecha costo">—</td>', 'pagos-verificados">1</td>', 'total-pagado">S/80.00</td>',
+        'en fecha y hora <strong>21/10/2026 09:05 AM</strong>', '2</strong> curso(s)',
+    ])->every(fn (string $texto): bool => $pdf->contains($texto))
         && ! $pdf->contains('FRA-I-B') && ! $pdf->contains('S/140.00'));
 });
 
@@ -164,4 +171,14 @@ it('groups the enrollments by period with one record link per period', function 
     $pagina = $this->actingAs($user)->get(route('estudiante.matriculas'))->assertOk()->assertSee('Periodo Enero 2027');
 
     expect(substr_count((string) $pagina->getContent(), 'Ficha de matrícula (PDF)'))->toBe(1);
+});
+
+it('says the enrollment has no validated payment yet when none counts', function (): void {
+    [$user, $matricula] = estudianteMatriculado(estadoDelPago: 'pendiente');
+
+    $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $matricula))->assertOk();
+
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains('aún no tiene pagos validados por Caja del CILN')
+        && $pdf->contains('pagos-verificados">0</td>')
+        && ! $pdf->contains('Su matrícula fue validada por'));
 });
