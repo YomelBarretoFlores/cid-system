@@ -8,6 +8,7 @@ use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Matricula\Enums\CondicionMatricula;
+use App\Modules\Matricula\Models\Ficha;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
@@ -49,14 +50,14 @@ it('gives the student the enrollment record with student, group, date, condition
     $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $matricula))->assertOk();
 
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->isInline()
-        && $pdf->downloadName === 'ficha-de-matricula-ING-II-A.pdf'
-        && $pdf->contains([
-            'FICHA DE MATRÍCULA', $matricula->ulid,
-            'Quispe Mamani, Rosa Elena', 'DNI 41234567',
-            'ING-II-A', 'Inglés', 'Ciclo 2', 'Enero 2027', 'Martes de 18:00 a 20:00',
-            '20/10/2026 10:30', 'Regular', 'Activa',
-            'Verificado', 'Derecho de matrícula', 'OP-778899', 'S/ 80.00',
-        ]));
+        && $pdf->downloadName === 'ficha-de-matricula-enero-2027.pdf'
+        && collect([
+            'Ficha de Matrícula', 'Enero 2027',
+            'QUISPE MAMANI, ROSA ELENA', 'DNI 41234567',
+            'Grupo ING-II-A', 'INGLÉS · Ciclo 2', 'Martes de 18:00 a 20:00',
+            '20/10/2026 10:30 AM', 'Regular',
+            'Verificado', 'Derecho de matrícula', 'OP-778899', 'S/ 80.00', 'Total pagado:',
+        ])->every(fn (string $texto): bool => $pdf->contains($texto)));
 });
 
 it('shows the current state of a payment voided after the enrollment', function (): void {
@@ -124,3 +125,43 @@ it('renders both documents as real PDF files', function (string $ruta): void {
 
     expect($this->actingAs($user)->get(route($ruta, $matricula))->assertOk()->getContent())->toStartWith('%PDF');
 })->with(['estudiante.matriculas.ficha', 'estudiante.matriculas.constancia']);
+
+it('lists every enrollment of the period on one record, marks a withdrawal and adds only verified active payments', function (): void {
+    [$user, $ingles] = estudianteMatriculado();
+    $periodo = Grupo::query()->findOrFail($ingles->grupo_id)->periodo_id;
+    $quechua = Grupo::factory()->for(Ciclo::factory()->for(Idioma::factory()->state(['nombre' => 'Quechua']))->state(['numero' => 1]))->create(['periodo_id' => $periodo, 'codigo' => 'QUE-I-A']);
+    $frances = Grupo::factory()->for(Ciclo::factory()->for(Idioma::factory()->state(['nombre' => 'Francés'])))->create(['codigo' => 'FRA-I-B']);
+    foreach ([[$quechua, 'retirada', '60.00', 'OP-QUE'], [$frances, 'activa', '90.00', 'OP-FRA']] as [$grupo, $estado, $monto, $operacion]) {
+        $pago = Pago::factory()->validado()->create(['persona_id' => $ingles->persona_id, 'monto' => $monto, 'numero_operacion' => $operacion]);
+        Matricula::factory()->{$estado}()->create(['persona_id' => $ingles->persona_id, 'grupo_id' => $grupo->id, 'pago_id' => $pago->id]);
+    }
+
+    $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $ingles))->assertOk();
+
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => collect(['INGLÉS · Ciclo 2', 'QUECHUA · Ciclo 1', '· Retirada', 'OP-QUE', 'Total pagado:', 'S/ 80.00</td>', '2</strong> matrícula(s)'])->every(fn (string $texto): bool => $pdf->contains($texto))
+        && ! $pdf->contains('FRA-I-B') && ! $pdf->contains('S/ 140.00'));
+});
+
+it('keeps one code per student and period across downloads and gives another period its own', function (): void {
+    [$user, $matricula] = estudianteMatriculado();
+    $otroPeriodo = Matricula::factory()->create(['persona_id' => $matricula->persona_id]);
+
+    foreach ([$matricula, $matricula, $otroPeriodo] as $cual) {
+        $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $cual))->assertOk();
+    }
+
+    $codigos = Ficha::query()->where('persona_id', $matricula->persona_id)->pluck('codigo');
+
+    expect($codigos)->toHaveCount(2)
+        ->and($codigos->unique())->toHaveCount(2);
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains($codigos->first()));
+});
+
+it('groups the enrollments by period with one record link per period', function (): void {
+    [$user, $ingles] = estudianteMatriculado();
+    Matricula::factory()->create(['persona_id' => $ingles->persona_id, 'grupo_id' => Grupo::factory()->create(['periodo_id' => Grupo::query()->findOrFail($ingles->grupo_id)->periodo_id])->id]);
+
+    $pagina = $this->actingAs($user)->get(route('estudiante.matriculas'))->assertOk()->assertSee('Periodo Enero 2027');
+
+    expect(substr_count((string) $pagina->getContent(), 'Ficha de matrícula (PDF)'))->toBe(1);
+});

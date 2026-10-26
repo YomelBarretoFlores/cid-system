@@ -95,7 +95,7 @@ it('P9 shows the link of a virtual group', function (): void {
     [$user, $matricula] = verifEstudiante(grupo: ['modalidad' => Modalidad::Virtual, 'enlace_virtual' => 'https://meet.example.test/abc-def']);
 
     $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $matricula))->assertOk();
-    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains(['Clase virtual', 'https://meet.example.test/abc-def', 'Virtual']));
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains('https://meet.example.test/abc-def') && $pdf->contains('Virtual'));
 });
 
 it('P10 prints the enrollment time in America/Lima across a date boundary', function (string $ruta, string $texto): void {
@@ -103,7 +103,7 @@ it('P10 prints the enrollment time in America/Lima across a date boundary', func
 
     $this->actingAs($user)->get(route($ruta, $matricula))->assertOk();
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains($texto) && ! $pdf->contains('20/10/2026'));
-})->with([['estudiante.matriculas.ficha', '19/10/2026 22:30'], ['estudiante.matriculas.constancia', 'registrada el 19/10/2026']]);
+})->with([['estudiante.matriculas.ficha', '19/10/2026 10:30 PM'], ['estudiante.matriculas.constancia', 'registrada el 19/10/2026']]);
 
 it('P11 answers a real inline PDF', function (string $ruta): void {
     Pdf::swap(app(PdfBuilder::class));
@@ -142,5 +142,5 @@ it('P14 escapes person data in the PDF', function (): void {
     Persona::query()->whereKey($matricula->persona_id)->update(['nombres' => '<script>x</script>']);
 
     $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $matricula))->assertOk();
-    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains('&lt;script&gt;') && ! $pdf->contains('<script>x'));
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains('&lt;SCRIPT&gt;') && ! $pdf->contains('<SCRIPT>') && ! $pdf->contains('<script>'));
 });
