@@ -8,6 +8,10 @@
             const alRedimensionar = componente.handleResize;
             let ancho = window.innerWidth;
 
+            if (typeof alRedimensionar !== 'function') {
+                return componente;
+            }
+
             componente.handleResize = function (anterior) {
                 if (window.innerWidth === ancho) {
                     return;
