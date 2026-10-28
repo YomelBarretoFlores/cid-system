@@ -74,6 +74,9 @@ final class AdminPanelProvider extends PanelProvider
             ->globalSearchFieldKeyBindingSuffix()
             ->userMenu(position: UserMenuPosition::Sidebar)
             ->login(IngresarAlPanel::class)
+            // Behind a high-latency link each full page load costs several round trips, so screens swap in place and are prefetched on hover.
+            ->spa(hasPrefetching: true)
+            ->spaUrlExceptions(['*/estudiante*', '*/docente*', '*/ingresar*'])
             ->profile(EditarPerfil::class, isSimple: false)
             // isRequired keeps the set-up page and the required hook registered; the setting decides per request whether it applies.
             ->multiFactorAuthentication([AutenticacionPorApp::make()->recoverable()->brandName('CILN - UNASAM')], isRequired: true)

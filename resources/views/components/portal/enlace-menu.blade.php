@@ -1,6 +1,6 @@
 @props(['ruta', 'icono', 'activo' => null, 'insignia' => null])
 @php($esActivo = request()->routeIs($activo ?? $ruta))
-<a href="{{ route($ruta) }}" x-bind:title="colapsado ? @js(trim(strip_tags((string) $slot))) : null"
+<a href="{{ route($ruta) }}" wire:navigate.hover x-bind:title="colapsado ? @js(trim(strip_tags((string) $slot))) : null"
     @if ($esActivo) aria-current="page" @endif
     @class([
         'relative flex items-center gap-3.5 rounded-xl p-2.5 text-[15.5px] text-tinta focus-visible:shadow-foco focus-visible:outline-none lg:in-data-colapsado:justify-center',

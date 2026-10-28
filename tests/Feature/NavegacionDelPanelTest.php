@@ -102,3 +102,14 @@ it('caps the pending count at 99+', function (int $cantidad, ?string $insignia):
     'ninety-nine' => [99, '99'],
     'one hundred' => [100, '99+'],
 ]);
+
+it('swaps panel screens in place and prefetches them on hover, leaving the portals as full page loads', function (): void {
+    $panel = Filament::getPanel('admin');
+    $staff = User::factory()->create();
+    $staff->givePermissionTo(Permission::findOrCreate(User::ADMIN_PANEL_PERMISSION));
+
+    expect($panel->hasSpaMode())->toBeTrue()
+        ->and($panel->hasSpaPrefetching())->toBeTrue()
+        ->and($panel->getSpaUrlExceptions())->toBe(['*/estudiante*', '*/docente*', '*/ingresar*']);
+    $this->actingAs($staff)->get('/admin')->assertOk()->assertSee('wire:navigate.hover', false);
+});

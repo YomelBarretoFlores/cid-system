@@ -70,3 +70,12 @@ it('links the portal sidebar to the admin panel only for users with the panel pe
 
     $this->get(route('estudiante.inicio'))->assertSee(route('filament.admin.pages.dashboard'));
 });
+
+it('moves between the portal sections without a full page load, prefetching on hover', function (): void {
+    $user = User::factory()->create();
+    Persona::factory()->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertSee('href="'.route('estudiante.pagos').'" wire:navigate.hover', false);
+});

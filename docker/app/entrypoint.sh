@@ -25,6 +25,7 @@ fi
 
 php artisan storage:link --force
 php artisan optimize
+php artisan filament:optimize
 chown -R www-data:www-data storage bootstrap/cache
 
 exec supervisord -c /etc/supervisor/conf.d/ciln.conf
