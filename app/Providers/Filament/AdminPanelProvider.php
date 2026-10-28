@@ -64,6 +64,7 @@ final class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->font('Figtree', provider: LocalFontProvider::class)
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => Vite::fonts()->toHtml())
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin.dropdown-sin-cierre-por-teclado'))
             ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn (): View => view('filament.admin.alternar-menu'))
             ->darkMode(false)
             ->topbar(false)

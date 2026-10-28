@@ -113,3 +113,10 @@ it('swaps panel screens in place and prefetches them on hover, leaving the porta
         ->and($panel->getSpaUrlExceptions())->toBe(['*/estudiante*', '*/docente*', '*/ingresar*']);
     $this->actingAs($staff)->get('/admin')->assertOk()->assertSee('wire:navigate.hover', false);
 });
+
+it('keeps panel dropdowns open when only the window height changes, as a phone keyboard does', function (): void {
+    $this->get('/admin/login')
+        ->assertOk()
+        ->assertSee("nombre !== 'filamentDropdown'", false)
+        ->assertSee('if (window.innerWidth === ancho)', false);
+});
