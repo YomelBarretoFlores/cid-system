@@ -2,7 +2,7 @@
     <livewire:matricula.resumen-del-estudiante :es-docente="$esDocente" />
 
     @if ($esDocente)
-        <a href="{{ route('docente.grupos') }}" class="group flex items-center gap-4 rounded-tarjeta bg-tarjeta p-6 transition-shadow hover:shadow-[inset_0_0_0_2px_var(--color-oro-300)] focus-visible:shadow-foco focus-visible:outline-none">
+        <a href="{{ route('filament.docente.pages.mis-grupos') }}" class="group flex items-center gap-4 rounded-tarjeta bg-tarjeta p-6 transition-shadow hover:shadow-[inset_0_0_0_2px_var(--color-oro-300)] focus-visible:shadow-foco focus-visible:outline-none">
             <span class="flex size-11 shrink-0 items-center justify-center rounded-control bg-acento-claro">
                 <x-heroicon-o-user-group aria-hidden="true" class="size-[22px] text-oro-600" />
             </span>

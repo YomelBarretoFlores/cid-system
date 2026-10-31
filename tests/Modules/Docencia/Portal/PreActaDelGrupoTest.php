@@ -29,7 +29,7 @@ beforeEach(function (): void {
 
 it('links the pre-acta from the list of groups', function (): void {
     $this->actingAs($this->usuario)
-        ->get(route('docente.grupos'))
+        ->get(route('filament.docente.pages.mis-grupos'))
         ->assertSee(route('docente.notas', $this->grupo->id));
 });
 

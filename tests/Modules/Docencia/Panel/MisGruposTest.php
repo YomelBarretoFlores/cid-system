@@ -34,12 +34,13 @@ it('lists the current groups of the teacher with language, level, period and sch
     PortalDocente::asignar(grupoDelPortal('ING-05-AJENO'), Docente::factory()->create());
 
     $this->actingAs($this->usuario)
-        ->get(route('docente.grupos'))
+        ->get(route('filament.docente.pages.mis-grupos'))
         ->assertOk()
         ->assertSeeInOrder(['Mis grupos', 'Grupo ING-05-A', 'Inglés · Ciclo 5 · Intermedio', 'Marzo 2027', 'Lun, 18:00–20:00'])
         ->assertDontSee('ING-05-CANCELADO')
         ->assertDontSee('ING-05-FINALIZADO')
-        ->assertDontSee('ING-05-AJENO');
+        ->assertDontSee('ING-05-AJENO')
+        ->assertSee(["/docente/grupos/{$grupo->id}/asistencia", "/docente/grupos/{$grupo->id}/notas", "/docente/grupos/{$grupo->id}/acta"]);
 });
 
 it('lists the groups of the latest period first, then by code', function (): void {
@@ -49,29 +50,15 @@ it('lists the groups of the latest period first, then by code', function (): voi
     PortalDocente::asignar(grupoDelPortal('ING-05-B'), $this->docente);
 
     $this->actingAs($this->usuario)
-        ->get(route('docente.grupos'))
+        ->get(route('filament.docente.pages.mis-grupos'))
         ->assertSeeInOrder(['Grupo ING-05-B', 'Grupo ING-05-C', 'Grupo ING-05-Z']);
 });
 
 it('tells a teacher without groups that none is assigned yet', function (): void {
     $this->actingAs($this->usuario)
-        ->get(route('docente.grupos'))
+        ->get(route('filament.docente.pages.mis-grupos'))
         ->assertOk()
         ->assertSee('Aún no tienes grupos asignados.');
-});
-
-it('refuses a user whose person has no teacher profile', function (): void {
-    $estudiante = User::factory()->create();
-    Persona::factory()->create(['user_id' => $estudiante->id]);
-
-    $this->actingAs($estudiante)
-        ->get(route('docente.grupos'))
-        ->assertForbidden()
-        ->assertSee('Tu cuenta no está vinculada a un perfil docente del CILN.');
-});
-
-it('sends a guest to the portal sign-in', function (): void {
-    $this->get(route('docente.grupos'))->assertRedirect(route('ingresar'));
 });
 
 it('shows the teacher portal on the home only to teachers', function (): void {
@@ -86,16 +73,16 @@ it('shows the teacher portal on the home only to teachers', function (): void {
     $this->actingAs($estudiante)
         ->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertDontSee(route('docente.grupos'))
+        ->assertDontSee(route('filament.docente.pages.mis-grupos'))
         ->assertDontSee('Registra la asistencia y las notas parciales de tus grupos.')
         ->assertSee(route('estudiante.matriculas'));
 });
 
 it('links the teacher portal from the header of every portal page only for teachers', function (): void {
-    $this->actingAs($this->usuario)->get(route('estudiante.matriculas'))->assertSee(route('docente.grupos'));
+    $this->actingAs($this->usuario)->get(route('estudiante.matriculas'))->assertSee(route('filament.docente.pages.mis-grupos'));
 
     $estudiante = User::factory()->create();
     Persona::factory()->create(['user_id' => $estudiante->id]);
 
-    $this->actingAs($estudiante)->get(route('estudiante.matriculas'))->assertOk()->assertDontSee(route('docente.grupos'));
+    $this->actingAs($estudiante)->get(route('estudiante.matriculas'))->assertOk()->assertDontSee(route('filament.docente.pages.mis-grupos'));
 });

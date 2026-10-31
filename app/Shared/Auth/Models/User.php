@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Auth\Models;
 
+use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Shared\Auth\Notifications\CorreoDeRestablecimiento;
 use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use Database\Factories\UserFactory;
@@ -40,9 +41,13 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
         'app_authentication_recovery_codes' => null,
     ];
 
+    // The teacher panel checks the email in its own middleware, so an unverified teacher is asked to verify instead of refused.
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->can(self::ADMIN_PANEL_PERMISSION);
+        return match ($panel->getId()) {
+            'docente' => app(DocenteDelUsuario::class)($this->id) !== null,
+            default => $this->can(self::ADMIN_PANEL_PERMISSION),
+        };
     }
 
     public function sendEmailVerificationNotification(): void

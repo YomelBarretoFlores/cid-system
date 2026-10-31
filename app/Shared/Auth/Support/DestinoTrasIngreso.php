@@ -29,7 +29,7 @@ final readonly class DestinoTrasIngreso
     public function para(User $usuario): string
     {
         return match (true) {
-            ($this->docenteDelUsuario)($usuario->id) !== null => route('docente.grupos'),
+            ($this->docenteDelUsuario)($usuario->id) !== null => route('filament.docente.pages.mis-grupos'),
             ($this->fichaDelUsuario)($usuario->id) instanceof FichaDeEstudiante => route('estudiante.inicio'),
             $usuario->can(User::ADMIN_PANEL_PERMISSION) => route('filament.admin.pages.dashboard'),
             default => route('estudiante.inicio'),

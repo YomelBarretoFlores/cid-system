@@ -41,7 +41,7 @@ it('points a teacher without any enrollment to the groups instead of asking for 
     $this->actingAs($docente)->get(route('estudiante.inicio'))
         ->assertOk()
         ->assertSee('Tus grupos están en Mis grupos.')
-        ->assertSee(route('docente.grupos'))
+        ->assertSee(route('filament.docente.pages.mis-grupos'))
         ->assertDontSee('Registra tu pago de matrícula.')
         ->assertDontSee('Tu horario semanal');
 });

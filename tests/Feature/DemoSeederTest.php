@@ -95,7 +95,7 @@ it('seeds a verified portal teacher who has the first demo group', function (): 
     expect($docente->hasVerifiedEmail())->toBeTrue()
         ->and($docente->can(User::ADMIN_PANEL_PERMISSION))->toBeFalse();
 
-    $this->actingAs($docente)->get(route('docente.grupos'))->assertOk()->assertSee("Grupo {$grupo->codigo}");
+    $this->actingAs($docente)->get(route('filament.docente.pages.mis-grupos'))->assertOk()->assertSee("Grupo {$grupo->codigo}");
 });
 
 it('seeds a fictitious hourly cost for every teacher category', function (): void {

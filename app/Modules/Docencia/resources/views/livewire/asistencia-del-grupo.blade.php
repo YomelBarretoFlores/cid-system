@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-2 sm:gap-3.5">
-    <x-portal.encabezado titulo="Asistencia del grupo {{ $grupo->codigo }}" :volver="route('docente.grupos')">
+    <x-portal.encabezado titulo="Asistencia del grupo {{ $grupo->codigo }}" :volver="route('filament.docente.pages.mis-grupos')">
         <x-slot:inicio><x-ciln.hoja-bandera :idioma="$grupo->idioma" size="40" class="max-sm:hidden" /></x-slot:inicio>
         {{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel->etiqueta() }} · {{ $grupo->periodo }}
         <x-slot:acciones>

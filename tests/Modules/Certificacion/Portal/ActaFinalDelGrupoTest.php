@@ -42,7 +42,7 @@ function cerrarActaDelCurso(): Acta
 }
 
 it('links the acta from the list of groups, the group tabs and the menu', function (): void {
-    $this->actingAs($this->usuario)->get(route('docente.grupos'))
+    $this->actingAs($this->usuario)->get(route('filament.docente.pages.mis-grupos'))
         ->assertSee(route('docente.acta', $this->grupo->id))
         ->assertSee(route('docente.actas'));
     $this->actingAs($this->usuario)->get(route('docente.notas', $this->grupo->id))->assertSee(route('docente.acta', $this->grupo->id));
@@ -207,10 +207,10 @@ it('marks the menu entry of the page the teacher is on', function (string $pagin
     $enlace = fn (string $ruta): bool => preg_match('/<a href="'.preg_quote(route($ruta), '/').'"[^>]*aria-current="page"/s', (string) $html) === 1;
 
     expect($enlace($entrada))->toBeTrue()
-        ->and($enlace($entrada === 'docente.actas' ? 'docente.grupos' : 'docente.actas'))->toBeFalse();
+        ->and($enlace($entrada === 'docente.actas' ? 'filament.docente.pages.mis-grupos' : 'docente.actas'))->toBeFalse();
 })->with([
     'the actas list' => ['actas', 'docente.actas'],
-    'the acta of a group' => ['acta', 'docente.grupos'],
+    'the acta of a group' => ['acta', 'filament.docente.pages.mis-grupos'],
 ]);
 
 it('lists an acta under rectification with its state', function (): void {

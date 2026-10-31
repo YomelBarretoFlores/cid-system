@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 final readonly class RequierePerfilDocente
 {
+    public const string RECHAZO = 'Tu cuenta no está vinculada a un perfil docente del CILN.';
+
     public function __construct(private DocenteDelUsuario $docenteDelUsuario) {}
 
     /**
@@ -20,7 +22,7 @@ final readonly class RequierePerfilDocente
     {
         $docenteId = ($this->docenteDelUsuario)((int) $request->user()?->getAuthIdentifier());
 
-        abort_if($docenteId === null, 403, 'Tu cuenta no está vinculada a un perfil docente del CILN.');
+        abort_if($docenteId === null, 403, self::RECHAZO);
 
         return $next($request);
     }

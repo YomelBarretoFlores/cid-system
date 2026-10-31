@@ -35,7 +35,7 @@ it('lands each account on the module of its profile', function (): void {
     $estudiante = User::factory()->create();
     Persona::factory()->create(['user_id' => $estudiante->id]);
 
-    foreach ([[$docente, 'docente.grupos'], [$estudiante, 'estudiante.inicio']] as [$usuario, $destino]) {
+    foreach ([[$docente, 'filament.docente.pages.mis-grupos'], [$estudiante, 'estudiante.inicio']] as [$usuario, $destino]) {
         Livewire::test(IniciarSesion::class)
             ->set('email', $usuario->email)->set('password', 'password')->call('ingresar')
             ->assertHasNoErrors()
@@ -71,7 +71,7 @@ it('sends a signed-in account away from the entry to the module of its profile',
     $estudiante = User::factory()->create();
     Persona::factory()->create(['user_id' => $estudiante->id]);
 
-    $this->actingAs($docente)->get('/ingresar')->assertRedirect(route('docente.grupos'));
+    $this->actingAs($docente)->get('/ingresar')->assertRedirect(route('filament.docente.pages.mis-grupos'));
     $this->actingAs($estudiante)->get('/ingresar')->assertRedirect(route('estudiante.inicio'));
 });
 
@@ -90,7 +90,7 @@ it('ignores a pending panel page when signing in through the portal', function (
 
     Livewire::test(IniciarSesion::class)
         ->set('email', $usuario->email)->set('password', 'password')->call('ingresar')
-        ->assertRedirect(route('docente.grupos'));
+        ->assertRedirect(route('filament.docente.pages.mis-grupos'));
 })->with(['panel home' => '/admin', 'panel section' => '/admin/pagos']);
 
 it('lands staff who also teach on the teacher module when they sign in through the portal', function (): void {
@@ -99,15 +99,15 @@ it('lands staff who also teach on the teacher module when they sign in through t
 
     Livewire::test(IniciarSesion::class)
         ->set('email', $usuario->email)->set('password', 'password')->call('ingresar')
-        ->assertRedirect(route('docente.grupos'));
+        ->assertRedirect(route('filament.docente.pages.mis-grupos'));
 });
 
 it('keeps a pending portal page whose path only starts like the panel, with its query string', function (): void {
     [$usuario] = PortalDocente::docente();
 
     expect(app(DestinoTrasIngreso::class)->trasIngresar($usuario, 'http://localhost/administracion?pagina=2'))->toBe('http://localhost/administracion?pagina=2')
-        ->and(app(DestinoTrasIngreso::class)->trasIngresar($usuario, 'http://localhost/admin/pagos?estado=pendiente'))->toBe(route('docente.grupos'))
-        ->and(app(DestinoTrasIngreso::class)->trasIngresar($usuario, ''))->toBe(route('docente.grupos'));
+        ->and(app(DestinoTrasIngreso::class)->trasIngresar($usuario, 'http://localhost/admin/pagos?estado=pendiente'))->toBe(route('filament.docente.pages.mis-grupos'))
+        ->and(app(DestinoTrasIngreso::class)->trasIngresar($usuario, ''))->toBe(route('filament.docente.pages.mis-grupos'));
 });
 
 it('falls back to the profile module when the pending page in the session is not a text', function (): void {
@@ -116,5 +116,5 @@ it('falls back to the profile module when the pending page in the session is not
 
     Livewire::test(IniciarSesion::class)
         ->set('email', $usuario->email)->set('password', 'password')->call('ingresar')
-        ->assertRedirect(route('docente.grupos'));
+        ->assertRedirect(route('filament.docente.pages.mis-grupos'));
 });

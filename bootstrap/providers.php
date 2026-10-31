@@ -12,6 +12,7 @@ use App\Modules\Tablero\TableroServiceProvider;
 use App\Modules\Tramites\TramitesServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\Filament\AdminPanelProvider;
+use App\Providers\Filament\DocentePanelProvider;
 use App\Shared\Audit\AuditServiceProvider;
 use App\Shared\Auth\AuthServiceProvider;
 
@@ -20,6 +21,7 @@ return [
     AuditServiceProvider::class,
     AuthServiceProvider::class,
     AdminPanelProvider::class,
+    DocentePanelProvider::class,
     AcademicoServiceProvider::class,
     PersonasServiceProvider::class,
     MatriculaServiceProvider::class,

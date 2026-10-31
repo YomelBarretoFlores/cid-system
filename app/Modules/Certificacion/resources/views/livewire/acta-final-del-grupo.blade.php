@@ -6,7 +6,7 @@
     $editable = $acta instanceof \App\Modules\Certificacion\Data\ActaDelGrupo && $acta->admiteRectificacion();
 @endphp
 <div class="flex flex-col gap-2 sm:gap-3.5">
-    <x-portal.encabezado titulo="Acta final del grupo {{ $curso->codigo }}" :volver="route('docente.grupos')">
+    <x-portal.encabezado titulo="Acta final del grupo {{ $curso->codigo }}" :volver="route('filament.docente.pages.mis-grupos')">
         <x-slot:inicio><x-ciln.hoja-bandera :idioma="$curso->idioma" size="40" class="max-sm:hidden" /></x-slot:inicio>
         {{ $curso->idioma }} · Ciclo {{ $curso->cicloNumero }} · {{ $curso->nivel->etiqueta() }} · {{ $curso->periodo }}
         <x-slot:acciones>

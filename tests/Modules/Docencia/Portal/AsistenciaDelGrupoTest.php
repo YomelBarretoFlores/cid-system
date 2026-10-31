@@ -31,7 +31,7 @@ beforeEach(function (): void {
 
 it('links the roll call from the list of groups', function (): void {
     $this->actingAs($this->usuario)
-        ->get(route('docente.grupos'))
+        ->get(route('filament.docente.pages.mis-grupos'))
         ->assertSee(route('docente.asistencia', $this->grupo->id));
 });
 

@@ -11,7 +11,7 @@
     $hoy = now('America/Lima')->dayOfWeekIso;
     $soloDocente = $esDocente && $avance->idiomas === [] && $avance->paso === PasoDelEstudiante::SinPago;
     if ($soloDocente) {
-        [$titulo, $descripcion, $accion, $ruta] = ['Tus grupos están en Mis grupos.', 'Registra allí la asistencia y las notas parciales.', 'Ir a mis grupos', 'docente.grupos'];
+        [$titulo, $descripcion, $accion, $ruta] = ['Tus grupos están en Mis grupos.', 'Registra allí la asistencia y las notas parciales.', 'Ir a mis grupos', 'filament.docente.pages.mis-grupos'];
     }
     $dias = array_filter($avance->horario, fn (array $clases, int $dia): bool => $dia < 7 || $clases !== [], ARRAY_FILTER_USE_BOTH);
 @endphp

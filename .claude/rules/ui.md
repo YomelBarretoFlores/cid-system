@@ -9,9 +9,9 @@ paths:
 
 # UI: Filament and Livewire
 
-- Filament 5 is only for staff panels (administration, coordination, cashier, BI). Public, student and teacher portals use Blade + Livewire 4 with our own design.
+- Filament 5 runs the staff panel (administration, coordination, cashier, BI) and the teacher panel at `/docente` (decision #95). Public and student portals use Blade + Livewire 4 with our own design.
 - Filament Resources, actions and Livewire components call module Actions. No business rules inside closures or components.
-- Resources live in `app/Modules/<Modulo>/Filament/Resources`; the admin panel discovers them automatically.
+- Resources live in `app/Modules/<Modulo>/Filament/Resources`; the admin panel discovers them automatically. Teacher screens live in `app/Modules/<Modulo>/Filament/Docente/Pages`, discovered only by the teacher panel.
 - Interfaces must be responsive, accessible (labels, contrast, keyboard) and mobile-first: the DSTI flagged the current UI for this (Informe 1.4).
 - Blade escapes output with `{{ }}`. Never use `{!! !!}` with user data.
 - Use Tailwind CSS 4 utilities; reuse Blade components instead of duplicating markup.

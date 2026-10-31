@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Auth;
 
+use App\Shared\Auth\Filament\SalidaDelPanel;
 use App\Shared\Auth\Models\User;
+use Filament\Auth\Http\Responses\Contracts\LogoutResponse;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -20,6 +22,11 @@ use Livewire\Livewire;
 
 final class AuthServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->bind(LogoutResponse::class, SalidaDelPanel::class);
+    }
+
     public function boot(): void
     {
         RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(60)->by((string) ($request->user('sanctum')?->getAuthIdentifier() ?? $request->ip())));
