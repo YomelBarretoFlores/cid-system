@@ -19,6 +19,8 @@ final readonly class NotaDelHistorial
         public string $periodo,
         public ?string $promedio,
         public EstadoFinal $estadoFinal,
+        public int $matriculaId,
+        public string $grupoCodigo,
     ) {}
 
     /**

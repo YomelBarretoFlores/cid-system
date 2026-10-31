@@ -10,37 +10,52 @@ use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Certificacion\Models\NotaFinal;
 use App\Shared\Support\Notas\Nota;
+use Illuminate\Database\Eloquent\Builder;
 
 // A student's final grades come only from closed actas; an acta under rectification counts again once it is closed.
 final class HistorialDeNotas
 {
-    private const int CICLOS_POR_NIVEL = 4;
+    public const int CICLOS_POR_NIVEL = 4;
+
+    private const array COLUMNAS = [
+        'cer_notas_finales.acta_id', 'cer_notas_finales.matricula_id', 'cer_notas_finales.promedio', 'cer_notas_finales.estado_final', 'cer_actas.grupo_codigo',
+        'cer_actas.idioma', 'cer_actas.nivel', 'cer_actas.ciclo_numero', 'cer_actas.ciclo_nombre', 'cer_actas.horas_lectivas', 'cer_actas.periodo',
+    ];
 
     /**
      * @return list<NotaDelHistorial> ordered by cycle and then by validation
      */
     public static function de(int $personaId, string $idioma): array
     {
-        return array_values(NotaFinal::query()
-            ->join('cer_actas', 'cer_actas.id', '=', 'cer_notas_finales.acta_id')
+        return array_values(self::cerradas()
             ->where('cer_notas_finales.persona_id', $personaId)
             ->where('cer_actas.idioma', $idioma)
-            ->where('cer_actas.estado', EstadoActa::Cerrada)
             ->orderBy('cer_actas.ciclo_numero')
             ->orderBy('cer_actas.validada_en')
-            ->get(['cer_notas_finales.acta_id', 'cer_notas_finales.promedio', 'cer_notas_finales.estado_final', 'cer_actas.idioma', 'cer_actas.nivel', 'cer_actas.ciclo_numero', 'cer_actas.ciclo_nombre', 'cer_actas.horas_lectivas', 'cer_actas.periodo'])
-            ->map(fn (NotaFinal $nota): NotaDelHistorial => new NotaDelHistorial(
-                actaId: $nota->acta_id,
-                idioma: (string) $nota->getAttribute('idioma'),
-                nivel: NivelCurricular::from((string) $nota->getAttribute('nivel')),
-                cicloNumero: (int) $nota->getAttribute('ciclo_numero'),
-                cicloNombre: (string) $nota->getAttribute('ciclo_nombre'),
-                horasLectivas: (int) $nota->getAttribute('horas_lectivas'),
-                periodo: (string) $nota->getAttribute('periodo'),
-                promedio: $nota->promedio,
-                estadoFinal: $nota->estado_final,
-            ))
+            ->get(self::COLUMNAS)
+            ->map(self::nota(...))
             ->all());
+    }
+
+    /**
+     * @param  list<int>  $matriculaIds
+     * @return array<int, NotaDelHistorial> by enrollment id, only enrollments whose acta is closed
+     */
+    public static function deMatriculas(array $matriculaIds): array
+    {
+        return self::cerradas()
+            ->whereIntegerInRaw('cer_notas_finales.matricula_id', $matriculaIds)
+            ->get(self::COLUMNAS)
+            ->mapWithKeys(fn (NotaFinal $nota): array => [$nota->matricula_id => self::nota($nota)])
+            ->all();
+    }
+
+    /**
+     * @return list<int>
+     */
+    public static function ciclosDelNivel(NivelCurricular $nivel): array
+    {
+        return range(($nivel->orden() - 1) * self::CICLOS_POR_NIVEL + 1, $nivel->orden() * self::CICLOS_POR_NIVEL);
     }
 
     /**
@@ -48,10 +63,8 @@ final class HistorialDeNotas
      */
     public static function idiomasDe(int $personaId): array
     {
-        $idiomas = NotaFinal::query()
-            ->join('cer_actas', 'cer_actas.id', '=', 'cer_notas_finales.acta_id')
+        $idiomas = self::cerradas()
             ->where('cer_notas_finales.persona_id', $personaId)
-            ->where('cer_actas.estado', EstadoActa::Cerrada)
             ->distinct()
             ->orderBy('cer_actas.idioma')
             ->pluck('cer_actas.idioma')
@@ -76,8 +89,7 @@ final class HistorialDeNotas
             }
         }
 
-        $ciclos = range(($nivel->orden() - 1) * self::CICLOS_POR_NIVEL + 1, $nivel->orden() * self::CICLOS_POR_NIVEL);
-        $delNivel = array_values(array_filter(array_map(fn (int $ciclo): ?NotaDelHistorial => $aprobadas[$ciclo] ?? null, $ciclos)));
+        $delNivel = array_values(array_filter(array_map(fn (int $ciclo): ?NotaDelHistorial => $aprobadas[$ciclo] ?? null, self::ciclosDelNivel($nivel))));
 
         return count($delNivel) === self::CICLOS_POR_NIVEL ? $delNivel : null;
     }
@@ -90,5 +102,32 @@ final class HistorialDeNotas
         $suma = array_sum(array_map(fn (NotaDelHistorial $nota): int => Nota::centesimos((string) $nota->promedio), $notas));
 
         return Nota::deCentesimos(intdiv($suma * 2 + count($notas), count($notas) * 2));
+    }
+
+    /**
+     * @return Builder<NotaFinal>
+     */
+    private static function cerradas(): Builder
+    {
+        return NotaFinal::query()
+            ->join('cer_actas', 'cer_actas.id', '=', 'cer_notas_finales.acta_id')
+            ->where('cer_actas.estado', EstadoActa::Cerrada);
+    }
+
+    private static function nota(NotaFinal $nota): NotaDelHistorial
+    {
+        return new NotaDelHistorial(
+            actaId: $nota->acta_id,
+            idioma: (string) $nota->getAttribute('idioma'),
+            nivel: NivelCurricular::from((string) $nota->getAttribute('nivel')),
+            cicloNumero: (int) $nota->getAttribute('ciclo_numero'),
+            cicloNombre: (string) $nota->getAttribute('ciclo_nombre'),
+            horasLectivas: (int) $nota->getAttribute('horas_lectivas'),
+            periodo: (string) $nota->getAttribute('periodo'),
+            promedio: $nota->promedio,
+            estadoFinal: $nota->estado_final,
+            matriculaId: $nota->matricula_id,
+            grupoCodigo: (string) $nota->getAttribute('grupo_codigo'),
+        );
     }
 }

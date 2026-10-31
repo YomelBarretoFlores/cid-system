@@ -48,6 +48,24 @@ final class ClasesDelHorario
     }
 
     /**
+     * Every class of the weekly schedule from the period start to the period end, oldest first.
+     *
+     * @return list<ClaseProgramada>
+     */
+    public static function delPeriodo(HorarioDeGrupo $grupo): array
+    {
+        $fin = CarbonImmutable::parse($grupo->periodoFin->toDateString(), self::ZONA);
+        $clases = [];
+
+        for ($dia = CarbonImmutable::parse($grupo->periodoInicio->toDateString(), self::ZONA); $dia->lte($fin); $dia = $dia->addDay()) {
+            $sesiones = array_filter($grupo->sesiones, fn (SesionDeClase $sesion): bool => $sesion->diaSemana === $dia->dayOfWeekIso);
+            array_push($clases, ...array_map(fn (SesionDeClase $sesion): ClaseProgramada => new ClaseProgramada($dia, $sesion), array_values($sesiones)));
+        }
+
+        return $clases;
+    }
+
+    /**
      * A student enrolled after the class date is not part of that class.
      *
      * @param  list<EstudianteDelGrupo>  $estudiantes

@@ -8,7 +8,9 @@ use App\Modules\Docencia\Actions\BuscarDocenteDelGrupo;
 use App\Modules\Docencia\Actions\BuscarDocenteDelUsuario;
 use App\Modules\Docencia\Actions\LeerNotasParcialesDelGrupo;
 use App\Modules\Docencia\Actions\NombrarDocentesDeGrupos;
+use App\Modules\Docencia\Actions\ResumirAsistenciaDeMatricula;
 use App\Modules\Docencia\Actions\VerificarCargaDelGrupo;
+use App\Modules\Docencia\Contracts\AsistenciaDeMatricula;
 use App\Modules\Docencia\Contracts\DocenteDelGrupo;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
@@ -29,6 +31,7 @@ final class DocenciaServiceProvider extends ModuleServiceProvider
         DocenteDelUsuario::class => BuscarDocenteDelUsuario::class,
         DocenteDelGrupo::class => BuscarDocenteDelGrupo::class,
         NotasParcialesDelGrupo::class => LeerNotasParcialesDelGrupo::class,
+        AsistenciaDeMatricula::class => ResumirAsistenciaDeMatricula::class,
     ];
 
     protected string $module = 'Docencia';

@@ -1,4 +1,4 @@
-@props(['titulo', 'codigo'])
+@props(['titulo', 'codigo' => null, 'imprimible' => false])
 {{-- DOMPDF lays out tables and simple CSS only (ADR 0005); colors are the hex values of the CILN tokens. --}}
 <!DOCTYPE html>
 <html lang="es">
@@ -25,9 +25,19 @@
             table.lista tr:nth-child(even) td { background: #fbfaf7; }
             .num { text-align: right; }
             .pie { position: fixed; bottom: -1.3cm; left: 0; right: 0; font-size: 7.5pt; color: #6e695e; text-align: center; }
+            @if ($imprimible)
+                body { max-width: 26cm; margin: 1.5cm auto; }
+                .pie { position: static; margin-top: 24px; }
+                .imprimir { margin-bottom: 14px; padding: 6px 14px; font: inherit; cursor: pointer; }
+                @media print { .imprimir { display: none; } body { margin: 0 auto; } }
+            @endif
         </style>
     </head>
     <body>
+        @if ($imprimible)
+            <button type="button" class="imprimir" onclick="window.print()">Imprimir</button>
+        @endif
+
         <table class="encabezado">
             <tr>
                 <td class="emblema"><img src="data:image/png;base64,{{ base64_encode((string) file_get_contents(resource_path('images/pdf/emblema.png'))) }}" alt="" width="54"></td>
@@ -36,7 +46,11 @@
                     <div class="sigla">CILN</div>
                     <div class="institucion">Centro de Idiomas y Lenguas Nativas</div>
                 </td>
-                <td class="codigo">Código del documento<br>{{ $codigo }}</td>
+                <td class="codigo">
+                    @if ($codigo)
+                        Código del documento<br>{{ $codigo }}
+                    @endif
+                </td>
             </tr>
         </table>
 
@@ -44,6 +58,6 @@
 
         {{ $slot }}
 
-        <div class="pie">Documento generado por el Sistema de Gestión Académica del CILN · Código {{ $codigo }}</div>
+        <div class="pie">Documento generado por el Sistema de Gestión Académica del CILN{{ $codigo ? " · Código {$codigo}" : '' }}</div>
     </body>
 </html>

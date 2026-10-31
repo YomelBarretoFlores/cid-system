@@ -40,6 +40,7 @@
                         <x-portal.enlace-menu ruta="estudiante.pagos" icono="heroicon-o-banknotes">Mis pagos</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.matricula" icono="heroicon-o-pencil-square">Matrícula</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.matriculas" icono="heroicon-o-academic-cap">Mis matrículas</x-portal.enlace-menu>
+                        <x-portal.enlace-menu ruta="estudiante.reportes" icono="heroicon-o-document-chart-bar">Reportes</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.clasificacion" icono="heroicon-o-clipboard-document-check">Clasificación</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.tramites" icono="heroicon-o-document-text" :insignia="$observados ?: null">Trámites</x-portal.enlace-menu>
                     </nav>

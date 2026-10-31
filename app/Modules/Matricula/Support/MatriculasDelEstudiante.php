@@ -20,4 +20,12 @@ final readonly class MatriculasDelEstudiante
         public array $grupos,
         public array $docentes,
     ) {}
+
+    /**
+     * @return array<int, int> group id by enrollment id
+     */
+    public function grupoPorMatricula(): array
+    {
+        return $this->matriculas->mapWithKeys(fn (Matricula $matricula): array => [$matricula->id => (int) $matricula->grupo_id])->all();
+    }
 }

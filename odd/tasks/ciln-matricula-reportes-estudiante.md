@@ -18,7 +18,7 @@ Branch: `feat/reportes-estudiante` (stacked on `feat/control-de-clases` 6a25287)
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S1–S8 | delegated (context backstop) | pending | — |
+| T1 | S1–S8 | delegated (context backstop) | done | see L2 |
 | T2 | all | inline | pending | — |
 
 T1 reports page, contracts and the five reports with their PDFs, docs. T2 browser check (desktop and phone, open each PDF). Route: one bounded writer; the reports share the page and the PDF layout, so they are not independent units.
@@ -26,3 +26,4 @@ T1 reports page, contracts and the five reports with their PDFs, docs. T2 browse
 ## Log
 
 - L1 (2026-10-31): "Bien, sube y une. Y sigues con lo que falta." E1 merged; E2 and E3 closed on their branches (not pushed); E4 stacks on E3.
+- L2 (2026-10-31): T1 done by a bounded writer. Page `estudiante.reportes` (`MisReportes`) with period selector and five PDFs (`.avance`, `.asistencia` per enrollment; `.boleta`, `.horario` and printable `.horario.imprimir` per period; `.record` per language or all), menu entry "Reportes". New contracts: Certificacion `AvanceDeNotas(grupoId, matriculaId)`, `BoletaDeNotas`, `RecordDeNotas`; Docencia `AsistenciaDeMatricula(matriculaId, grupoId)`. Shared code touched: `HistorialDeNotas` (one closed-acta query, `CICLOS_POR_NIVEL` public), `NotaDelHistorial` (+`matriculaId`, `grupoCodigo`), `ClasesDelHorario::delPeriodo()` (`hastaHoy` untouched), `x-pdf.documento` (`codigo` optional, `imprimible`). Assumptions #104–#106. RED: 28 new tests failed first. Writer's `composer check` rc=0, 1715 tests; parent spot check: Matricula, Certificacion, Docencia, Architecture and PDF smoke 714/714, Larastan clean.
