@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Modules\Certificacion\Contracts\MatriculasAprobadas;
 use App\Modules\Matricula\Actions\ExpirarSolicitudesDeClasificacion;
+use App\Modules\Matricula\Actions\HabilitarCiclosSiguientes;
 use App\Shared\Auth\Actions\CerrarSesionesDeCuenta;
 use App\Shared\Auth\Actions\ReiniciarDobleFactor;
 use App\Shared\Auth\Enums\CierreDeSesiones;
@@ -18,6 +20,10 @@ Artisan::command('inspire', function (): void {
 Artisan::command('clasificacion:expirar', function (ExpirarSolicitudesDeClasificacion $expirar): void {
     $this->info('Solicitudes de clasificación vencidas: '.$expirar());
 })->purpose('Mark placement test requests past their date as expired');
+
+Artisan::command('matricula:recalcular-habilitaciones', function (MatriculasAprobadas $aprobadas, HabilitarCiclosSiguientes $habilitar): void {
+    $this->info('Habilitaciones actualizadas: '.$habilitar($aprobadas()));
+})->purpose('Enable the next cycle for every student who passed a closed acta');
 
 Artisan::command('auth:reiniciar-doble-factor {correo} {--solo-sesiones : Only cancel "remember me" and close the open sessions, keeping the second factor}', function (ReiniciarDobleFactor $reiniciar, CerrarSesionesDeCuenta $cerrarSesiones, string $correo): int {
     try {

@@ -11,6 +11,8 @@ use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Certificacion\Data\ActaDelGrupo;
 use App\Modules\Certificacion\Data\FilaDelActa;
 use App\Modules\Certificacion\Enums\EstadoActa;
+use App\Modules\Certificacion\Enums\EstadoFinal;
+use App\Modules\Certificacion\Events\ActaCerrada;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\Rectificacion;
 use App\Modules\Certificacion\Support\ActaPrevia;
@@ -110,5 +112,8 @@ final readonly class CerrarActa
     private function validar(Acta $acta, User $usuario): void
     {
         $acta->update(['estado' => EstadoActa::Cerrada, 'validada_por' => $usuario->id, 'validada_en' => now()]);
+
+        $aprobadas = $acta->notas()->where('estado_final', EstadoFinal::Aprobado)->orderBy('matricula_id')->pluck('matricula_id')->all();
+        ActaCerrada::dispatch($acta->grupo_id, array_values(array_map(intval(...), $aprobadas)));
     }
 }
