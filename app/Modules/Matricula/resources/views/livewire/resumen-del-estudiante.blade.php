@@ -118,12 +118,12 @@
                             <x-ciln.hoja-bandera :idioma="$idioma->idioma" size="40" rot="-8" />
                             <span class="flex flex-col">
                                 <span class="text-[17px] font-semibold">{{ $idioma->idioma }}</span>
-                                <span class="text-[13.5px] text-terciario">{{ match ($idioma->estado) { EstadoMatricula::Activa => "Cursando el ciclo {$idioma->ciclo}", EstadoMatricula::Retirada => "Retirada del ciclo {$idioma->ciclo} en {$idioma->periodo}" } }}</span>
+                                <span class="text-[13.5px] text-terciario">{{ match (true) { $idioma->terminado => "Terminó el ciclo {$idioma->ciclo} en {$idioma->periodo}", $idioma->estado === EstadoMatricula::Activa => "Cursando el ciclo {$idioma->ciclo}", default => "Retirada del ciclo {$idioma->ciclo} en {$idioma->periodo}" } }}</span>
                             </span>
                         </span>
                         <span class="grid grid-cols-12 gap-[3px]" role="img" aria-label="Ciclo {{ $idioma->ciclo }} de 12">
                             @for ($ciclo = 1; $ciclo <= 12; $ciclo++)
-                                <span @class(['h-[22px] rounded-md', 'bg-acento' => $ciclo < $idioma->ciclo, 'bg-oro-200' => $ciclo === $idioma->ciclo && $idioma->estado === EstadoMatricula::Activa, 'bg-gris-fondo' => $ciclo > $idioma->ciclo || ($ciclo === $idioma->ciclo && $idioma->estado !== EstadoMatricula::Activa)])></span>
+                                <span @class(['h-[22px] rounded-md', 'bg-acento' => $ciclo < $idioma->ciclo || ($ciclo === $idioma->ciclo && $idioma->terminado), 'bg-oro-200' => $ciclo === $idioma->ciclo && $idioma->estado === EstadoMatricula::Activa && ! $idioma->terminado, 'bg-gris-fondo' => $ciclo > $idioma->ciclo || ($ciclo === $idioma->ciclo && $idioma->estado !== EstadoMatricula::Activa)])></span>
                             @endfor
                         </span>
                         <span class="flex justify-between text-[12.5px] text-apagado"><span>Básico</span><span>Intermedio</span><span>Avanzado</span></span>

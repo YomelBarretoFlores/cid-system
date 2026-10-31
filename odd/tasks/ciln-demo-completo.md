@@ -18,11 +18,13 @@ Branch: `feat/demo-completo` (from `main` c175838) · Delivery: one commit, push
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S1–S4 | delegated (context backstop) | pending | — |
-| T2 | all | inline | pending | — |
+| T1 | S1–S4 | delegated (context backstop) | done | see L2 |
+| T2 | all | inline | done | see L3 |
 
 T1 complement seeder, entrypoint, tests (Risk item 5: deploy entrypoint). T2 browser check on a preview seeded the old way and then completed, plus a fresh seed.
 
 ## Log
 
 - L1 (2026-10-31): "¿En qué secciones veo los cambios en el demo? Y además, ya completaste todas las implementaciones que mencionaste en el plan?" … "Dejemos así, pero, quiero que llenes datos para poder verlo completo, como por ejemplo llenar el sílabo, etc." Choice: "Completar sin borrar (Recommended)".
+- L2 (2026-10-31): T1 done by a bounded writer: `ComplementoDemoSeeder` (refuses production, one transaction, idempotent) with Docencia seeders for syllabi, delegates, class control and complete grades and Certificacion `HistorialDemoSeeder` (Portuguese cycles 1 and 2 closed in the two closed months before the last one); `DatabaseSeeder` calls it at the end; `docker/app/entrypoint.sh` runs it when `DEMO_SEED=true` and the database is not empty; `docs/despliegue.md`. The extra published syllabus goes to the previous month's ING-1-M (no other teacher teaches English cycle 1 in the demo). RED: 4 of 4 tests failed first.
+- L3 (2026-10-31): T2 browser check. A demo seeded with main and then completed showed past Portuguese enrollments in the weekly schedule and as "Cursando el ciclo 2": the home treated any active enrollment as current. Fixed in `ResumirAvanceDelEstudiante`: an enrollment whose period already ended (date compared in Lima) is a finished cycle ("Terminó el ciclo N en …") and leaves the schedule and the banner; the first version compared a UTC date with Lima's today and marked the last day as ended, caught and pinned by a test. Fresh seed: 3 syllabi, 6 delegates, 4 classes taken (2 confirmed, 1 observed, 1 sin confirmar), 8 grades, 2 closed actas, cycle 3 of Portuguese by approval; the student, teacher and staff sections all show them; no JS errors. Preview DB dropped. `composer check` rc=0, 1784 tests.

@@ -13,5 +13,6 @@ final readonly class AvanceEnIdioma
         public int $ciclo,
         public EstadoMatricula $estado,
         public string $periodo,
+        public bool $terminado = false,
     ) {}
 }

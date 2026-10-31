@@ -66,6 +66,7 @@ final class DatabaseSeeder extends Seeder
         $this->call(DocenciaDemoSeeder::class);
         $this->call(CertificacionDemoSeeder::class);
         $this->call(TramitesDemoSeeder::class);
+        $this->call(ComplementoDemoSeeder::class);
     }
 
     // A verified student enrolled in English I, French I and Italian I, withdrawn from Quechua I, and with an unused validated enrollment payment to try next period's enrollment.

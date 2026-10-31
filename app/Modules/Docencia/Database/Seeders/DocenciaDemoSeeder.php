@@ -11,11 +11,11 @@ use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Docencia\Actions\AsignarDocente;
-use App\Modules\Docencia\Actions\DesignarDelegado;
 use App\Modules\Docencia\Actions\GuardarDisponibilidad;
 use App\Modules\Docencia\Actions\RegistrarAsistencia;
 use App\Modules\Docencia\Actions\RegistrarCostoPorHora;
 use App\Modules\Docencia\Actions\RegistrarNotasParciales;
+use App\Modules\Docencia\Data\ClaseProgramada;
 use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Enums\EstadoAsistencia;
 use App\Modules\Docencia\Models\Docente;
@@ -27,7 +27,8 @@ use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
-// Synthetic teachers who teach the demo groups through the real Actions, with the attendance of the classes already given, a delegate per current group, partial grades and hourly costs.
+// Synthetic teachers who teach the demo groups through the real Actions, with the attendance of the classes already given, partial grades and hourly costs.
+// The delegates and the last classes of the demo student's English group are left to ComplementoDemoSeeder.
 final class DocenciaDemoSeeder extends Seeder
 {
     /**
@@ -61,8 +62,7 @@ final class DocenciaDemoSeeder extends Seeder
             $docentes[$posicion] = $this->docente($nombre, $documento, $categoria, $idiomas, $disponibilidad, $posicion === 0);
 
             foreach ($this->gruposDelPeriodo('en_curso', $grupos) as $grupo) {
-                $this->dictar($grupo, $docentes[$posicion], $administrador);
-                $this->designarDelegado($grupo, $docentes[$posicion]);
+                $this->dictar($grupo, $docentes[$posicion], $administrador, $grupo->codigo === ControlDeClasesDemoSeeder::GRUPO);
             }
         }
 
@@ -118,23 +118,10 @@ final class DocenciaDemoSeeder extends Seeder
         return Grupo::query()->whereIn('codigo', $codigos)->whereRelation('periodo', 'estado', $estado)->orderBy('id')->get();
     }
 
-    private function dictar(Grupo $grupo, Docente $docente, User $administrador): void
+    private function dictar(Grupo $grupo, Docente $docente, User $administrador, bool $reservarClases = false): void
     {
         app(AsignarDocente::class)($grupo->id, $docente->id, $administrador);
-        $this->tomarAsistencia($grupo, $docente, $this->usuarioDe($docente));
-    }
-
-    // The demo student delegates English I so their page fills once the teacher takes both calls; past classes are registro posterior and never reach a delegate.
-    private function designarDelegado(Grupo $grupo, Docente $docente): void
-    {
-        $estudiantes = app(EstudiantesDelGrupo::class)($grupo->id);
-        $demo = Persona::query()->whereRelation('user', 'email', 'estudiante@ciln.test')->value('id');
-        $delegado = $grupo->codigo === 'ING-1-M' ? collect($estudiantes)->firstWhere('personaId', $demo) : null;
-        $delegado ??= $estudiantes[0] ?? null;
-
-        if ($delegado instanceof EstudianteDelGrupo) {
-            app(DesignarDelegado::class)($grupo->id, $docente->id, $delegado->matriculaId, $this->usuarioDe($docente));
-        }
+        $this->tomarAsistencia($grupo, $docente, $this->usuarioDe($docente), $reservarClases);
     }
 
     // The demo teacher signs in as herself; the other synthetic teachers have no account, so the administrator records for them.
@@ -162,12 +149,18 @@ final class DocenciaDemoSeeder extends Seeder
     }
 
     // Mostly present; a few late arrivals and absences in a fixed pattern so every run looks the same.
-    private function tomarAsistencia(Grupo $grupo, Docente $docente, User $usuario): void
+    // Reserved classes stay untaken so the complement can take them with both calls at their real times.
+    private function tomarAsistencia(Grupo $grupo, Docente $docente, User $usuario, bool $reservarClases): void
     {
         $horario = app(HorariosDeGrupos::class)([$grupo->id])[$grupo->id];
         $estudiantes = app(EstudiantesDelGrupo::class)($grupo->id);
+        $reservadas = $reservarClases ? array_map(fn (ClaseProgramada $clase): string => $clase->clave(), ControlDeClasesDemoSeeder::reservadas($horario)) : [];
 
         foreach (ClasesDelHorario::hastaHoy($horario) as $numero => $clase) {
+            if (in_array($clase->clave(), $reservadas, true)) {
+                continue;
+            }
+
             $presentes = ClasesDelHorario::estudiantesDe($estudiantes, $clase->fecha);
             $estados = collect($presentes)->mapWithKeys(fn (EstudianteDelGrupo $estudiante, int $indice): array => [
                 $estudiante->matriculaId => match (($indice + $numero) % 9) {

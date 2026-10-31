@@ -20,6 +20,9 @@ if [[ "${DEMO_SEED:-false}" == "true" ]]; then
     fi
     if (( vacia == 0 )); then
         php artisan db:seed --force
+    else
+        # An existing demo is completed without deleting anything; every piece of the complement checks first.
+        php artisan db:seed --class='Database\Seeders\ComplementoDemoSeeder' --force
     fi
 fi
 
