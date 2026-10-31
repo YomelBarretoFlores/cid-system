@@ -63,6 +63,12 @@
 
                                 <div class="flex flex-col gap-2">
                                     @if ($matricula->estado === EstadoMatricula::Activa)
+                                        @if (in_array($matricula->grupo_id, $conSilabo, true))
+                                            <x-portal.boton variante="secundario" :href="route('estudiante.matriculas.silabo', $matricula)" tamano="compacto">
+                                                <x-heroicon-o-book-open aria-hidden="true" class="size-4" />
+                                                Sílabo<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
+                                            </x-portal.boton>
+                                        @endif
                                         <x-portal.boton variante="secundario" :href="route('estudiante.matriculas.constancia', $matricula)" target="_blank" rel="noopener" tamano="compacto">
                                             <x-heroicon-o-document-check aria-hidden="true" class="size-4" />
                                             Constancia de inscripción (PDF)<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
