@@ -6,7 +6,11 @@
     [$titulo, $descripcion, $accion, $ruta] = match ($avance->paso) {
         PasoDelEstudiante::Matriculado => ["Ya estás matriculado en {$grupo?->idioma} · Ciclo {$grupo?->cicloNumero}.", 'Descarga tu ficha y tu constancia desde Mis matrículas.', 'Ver mis matrículas', 'estudiante.matriculas'],
         PasoDelEstudiante::PagoValidado => ['Tu pago de matrícula ya fue validado.', 'Elige tu grupo mientras la matrícula esté abierta.', 'Elegir mi grupo', 'estudiante.matricula'],
-        PasoDelEstudiante::SinPago => ['Registra tu pago de matrícula.', 'Sube el recibo en Mis pagos; cuando el CILN lo valide podrás elegir tu grupo.', 'Registrar pago', 'estudiante.pagos'],
+        PasoDelEstudiante::SinPago => match (true) {
+            $avance->pagos->ultimoRechazo !== null => ['Tu último pago fue rechazado.', $avance->pagos->ultimoRechazo->motivo, 'Registrar pago', 'estudiante.pagos'],
+            $avance->pagos->matriculaPorValidar => ['Tu pago de matrícula está por validar.', 'Cuando el CILN lo valide podrás elegir tu grupo.', 'Ver mis pagos', 'estudiante.pagos'],
+            default => ['Registra tu pago de matrícula.', 'Sube el recibo en Mis pagos; cuando el CILN lo valide podrás elegir tu grupo.', 'Registrar pago', 'estudiante.pagos'],
+        },
     };
     $hoy = now('America/Lima')->dayOfWeekIso;
     $soloDocente = $esDocente && $avance->idiomas === [] && $avance->paso === PasoDelEstudiante::SinPago;
@@ -45,6 +49,39 @@
     </section>
 
     @unless ($soloDocente)
+    <div class="grid gap-2 sm:gap-3.5 lg:grid-cols-2">
+        <x-portal.tarjeta titulo="Mis pagos">
+            <x-slot:acciones><a href="{{ route('estudiante.pagos') }}" class="font-semibold underline underline-offset-2">Ir a mis pagos</a></x-slot:acciones>
+            <dl class="grid grid-cols-3 gap-2">
+                @foreach ([['Por validar', $avance->pagos->porValidar], ['Validados', $avance->pagos->validados], ['Para matrícula', $avance->pagosParaMatricula]] as [$etiqueta, $cantidad])
+                    <div class="tarjeta-interna flex flex-col gap-1 p-3.5">
+                        <dt class="text-[13px] text-terciario">{{ $etiqueta }}</dt>
+                        <dd class="text-[26px] leading-none font-semibold">{{ $cantidad }}</dd>
+                    </div>
+                @endforeach
+            </dl>
+            @if ($avance->pagos->montoDeMatricula !== null)
+                <p class="text-[14px] text-secundario">Matrícula: S/ {{ $avance->pagos->montoDeMatricula }} según tu vínculo.</p>
+            @endif
+        </x-portal.tarjeta>
+
+        <x-portal.tarjeta titulo="Mis documentos">
+            <ul class="flex flex-col gap-1">
+                @if ($avance->matriculaActual !== null)
+                    <x-portal.fila titulo="Ficha de matrícula" :detalle="'Periodo '.$grupo?->periodo">
+                        <x-slot:fin><a href="{{ route('estudiante.matriculas.ficha', $avance->matriculaActual) }}" target="_blank" rel="noopener" class="font-semibold underline underline-offset-2">Abrir PDF</a></x-slot:fin>
+                    </x-portal.fila>
+                    <x-portal.fila titulo="Constancia de inscripción" detalle="De tu matrícula vigente">
+                        <x-slot:fin><a href="{{ route('estudiante.matriculas.constancia', $avance->matriculaActual) }}" target="_blank" rel="noopener" class="font-semibold underline underline-offset-2">Abrir PDF</a></x-slot:fin>
+                    </x-portal.fila>
+                @endif
+                <x-portal.fila titulo="Constancias y certificados" detalle="Solicítalos y descárgalos desde Mis trámites">
+                    <x-slot:fin><a href="{{ route('estudiante.tramites') }}" class="font-semibold underline underline-offset-2">Ir a trámites</a></x-slot:fin>
+                </x-portal.fila>
+            </ul>
+        </x-portal.tarjeta>
+    </div>
+
     <x-portal.tarjeta titulo="Tu horario semanal">
         <x-slot:acciones><span class="text-apagado">Grupos con matrícula activa</span></x-slot:acciones>
         @if ($grupo === null)

@@ -12,16 +12,16 @@ use App\Modules\Matricula\Data\ClaseDeLaSemana;
 use App\Modules\Matricula\Enums\EstadoMatricula;
 use App\Modules\Matricula\Enums\PasoDelEstudiante;
 use App\Modules\Matricula\Models\Matricula;
-use App\Modules\Pagos\Contracts\PagosValidadosDePersona;
-use App\Modules\Pagos\Data\PagoValidado;
-use App\Modules\Pagos\Enums\TipoConcepto;
+use App\Modules\Matricula\Support\OpcionesDeMatricula;
+use App\Modules\Pagos\Contracts\ResumenDePagosDePersona;
 use Illuminate\Support\Collection;
 
 final readonly class ResumirAvanceDelEstudiante
 {
     public function __construct(
         private DetalleDeGrupos $detalleDeGrupos,
-        private PagosValidadosDePersona $pagosValidados,
+        private OpcionesDeMatricula $opciones,
+        private ResumenDePagosDePersona $resumenDePagos,
     ) {}
 
     public function __invoke(int $personaId): AvanceDelEstudiante
@@ -29,30 +29,23 @@ final readonly class ResumirAvanceDelEstudiante
         $matriculas = Matricula::query()->where('persona_id', $personaId)->orderByDesc('matriculado_en')->orderByDesc('id')->get()
             ->sortByDesc(fn (Matricula $matricula): bool => $matricula->estado === EstadoMatricula::Activa)->values();
         $grupos = ($this->detalleDeGrupos)(array_values(array_map(intval(...), $matriculas->pluck('grupo_id')->unique()->all())));
-        $activos = $matriculas->filter(fn (Matricula $matricula): bool => $matricula->estado === EstadoMatricula::Activa)
-            ->map(fn (Matricula $matricula): ?FichaDeGrupo => $grupos[$matricula->grupo_id] ?? null)->filter()->values();
+        $vigentes = $matriculas->filter(fn (Matricula $matricula): bool => $matricula->estado === EstadoMatricula::Activa && isset($grupos[$matricula->grupo_id]));
+        $activos = $vigentes->map(fn (Matricula $matricula): FichaDeGrupo => $grupos[$matricula->grupo_id])->values();
+        $pagosParaMatricula = count($this->opciones->pagosDisponibles($personaId));
 
         return new AvanceDelEstudiante(
-            paso: $this->paso($personaId, $activos->isNotEmpty(), $matriculas),
+            paso: match (true) {
+                $activos->isNotEmpty() => PasoDelEstudiante::Matriculado,
+                $pagosParaMatricula > 0 => PasoDelEstudiante::PagoValidado,
+                default => PasoDelEstudiante::SinPago,
+            },
             grupoActual: $activos->first(),
             horario: $this->horario($activos),
             idiomas: $this->idiomas($matriculas, $grupos),
+            pagos: ($this->resumenDePagos)($personaId),
+            pagosParaMatricula: $pagosParaMatricula,
+            matriculaActual: $vigentes->first()?->ulid,
         );
-    }
-
-    /**
-     * @param  Collection<int, Matricula>  $matriculas
-     */
-    private function paso(int $personaId, bool $matriculado, Collection $matriculas): PasoDelEstudiante
-    {
-        if ($matriculado) {
-            return PasoDelEstudiante::Matriculado;
-        }
-
-        $usados = $matriculas->pluck('pago_id')->filter()->all();
-        $disponibles = array_filter(($this->pagosValidados)($personaId, TipoConcepto::Matricula), fn (PagoValidado $pago): bool => ! in_array($pago->id, $usados, true));
-
-        return $disponibles === [] ? PasoDelEstudiante::SinPago : PasoDelEstudiante::PagoValidado;
     }
 
     /**
