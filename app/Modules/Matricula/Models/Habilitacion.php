@@ -14,6 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * The cycle a person is enabled to enroll in for a language. No row means the first cycle.
+ *
+ * @property int $ciclo_id
+ * @property OrigenHabilitacion $origen
  */
 #[Table('mat_habilitaciones')]
 #[Fillable(['persona_id', 'idioma_id', 'ciclo_id', 'origen', 'actualizado_por'])]

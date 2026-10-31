@@ -5,6 +5,31 @@
         <x-portal.alerta tipo="error">{{ $message }}</x-portal.alerta>
     @enderror
 
+    <x-portal.tarjeta titulo="Requisitos para matricularte" descripcion="El sistema comprueba lo mismo al confirmar tu matrícula.">
+        <ul class="flex flex-col gap-1">
+            @foreach ($requisitos as $requisito)
+                <x-portal.fila wire:key="requisito-{{ $loop->index }}" :titulo="$requisito->titulo">
+                    <x-slot:inicio>
+                        @if ($requisito->cumplido)
+                            <x-heroicon-o-check-circle aria-hidden="true" class="size-6 text-verde-texto" />
+                        @else
+                            <x-heroicon-o-exclamation-circle aria-hidden="true" class="size-6 text-ambar-texto" />
+                        @endif
+                    </x-slot:inicio>
+                    <x-slot:fin>
+                        <x-portal.insignia :color="$requisito->cumplido ? 'success' : 'warning'">{{ $requisito->cumplido ? 'Cumplido' : 'Pendiente' }}</x-portal.insignia>
+                    </x-slot:fin>
+                    @foreach ($requisito->detalle as $linea)
+                        <span>{{ $linea }}</span>
+                    @endforeach
+                    @if ($requisito->enlace !== null && ($requisito->textoDelEnlace !== null))
+                        <a href="{{ $requisito->enlace }}" class="font-semibold underline underline-offset-2">{{ $requisito->textoDelEnlace }}</a>
+                    @endif
+                </x-portal.fila>
+            @endforeach
+        </ul>
+    </x-portal.tarjeta>
+
     <form wire:submit="matricularme" class="columnas" novalidate>
         <x-portal.tarjeta titulo="Grupos disponibles" descripcion="Las vacantes se actualizan automáticamente cada 15 segundos." wire:poll.15s.visible>
             @forelse ($ofertaPorIdioma as $idioma => $grupos)

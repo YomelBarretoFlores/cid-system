@@ -18,6 +18,7 @@ use App\Modules\Academico\Actions\ListarGruposDelCiclo;
 use App\Modules\Academico\Actions\ListarGruposParaTraslado;
 use App\Modules\Academico\Actions\ListarOfertaDeMatricula;
 use App\Modules\Academico\Actions\ListarOfertaPublica;
+use App\Modules\Academico\Actions\ListarVentanasDeMatricula;
 use App\Modules\Academico\Actions\MoverVacante;
 use App\Modules\Academico\Actions\ReservarVacante;
 use App\Modules\Academico\Contracts\BloqueoDeGrupo;
@@ -36,6 +37,7 @@ use App\Modules\Academico\Contracts\OfertaDeMatricula;
 use App\Modules\Academico\Contracts\OfertaPublica;
 use App\Modules\Academico\Contracts\ReservaDeVacante;
 use App\Modules\Academico\Contracts\TrasladoDeVacante;
+use App\Modules\Academico\Contracts\VentanasDeMatricula;
 use App\Modules\Academico\Support\BanderasRegistradas;
 use App\Shared\Support\ModuleServiceProvider;
 use App\Shared\Ui\BanderasDeIdiomas;
@@ -62,6 +64,7 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         CursoDelGrupo::class => DescribirCursoDelGrupo::class,
         OfertaPublica::class => ListarOfertaPublica::class,
         CiclosDeGrupos::class => ListarCiclosDeGrupos::class,
+        VentanasDeMatricula::class => ListarVentanasDeMatricula::class,
     ];
 
     protected string $module = 'Academico';

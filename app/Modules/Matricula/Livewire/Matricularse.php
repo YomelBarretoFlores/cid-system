@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Matricula\Livewire;
 
-use App\Modules\Academico\Contracts\OfertaDeMatricula;
 use App\Modules\Academico\Data\FichaDeGrupo;
+use App\Modules\Matricula\Actions\EvaluarRequisitosDeMatricula;
 use App\Modules\Matricula\Actions\MatricularEstudiante;
-use App\Modules\Matricula\Models\Habilitacion;
-use App\Modules\Matricula\Models\Matricula;
-use App\Modules\Pagos\Contracts\PagosValidadosDePersona;
+use App\Modules\Matricula\Support\OpcionesDeMatricula;
 use App\Modules\Pagos\Data\PagoValidado;
-use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Logging\RegistroDeRechazos;
@@ -61,6 +58,7 @@ final class Matricularse extends Component
     public function render(): View
     {
         return view('matricula::livewire.matricularse', [
+            'requisitos' => app(EvaluarRequisitosDeMatricula::class)($this->personaId()),
             'ofertaPorIdioma' => $this->oferta()->groupBy('idioma'),
             'opcionesDePago' => $this->pagosDisponibles()->mapWithKeys(fn (PagoValidado $pago): array => [
                 $pago->id => "{$pago->concepto} · Operación {$pago->numeroOperacion} · S/ {$pago->monto} · {$pago->fechaPago->format('d/m/Y')}",
@@ -102,9 +100,7 @@ final class Matricularse extends Component
      */
     private function oferta(): Collection
     {
-        return $this->oferta ??= collect(app(OfertaDeMatricula::class)(
-            Habilitacion::query()->where('persona_id', $this->personaId())->pluck('ciclo_id', 'idioma_id')->all(),
-        ));
+        return $this->oferta ??= collect(app(OpcionesDeMatricula::class)->oferta($this->personaId()));
     }
 
     /**
@@ -112,13 +108,6 @@ final class Matricularse extends Component
      */
     private function pagosDisponibles(): Collection
     {
-        if ($this->pagosDisponibles instanceof Collection) {
-            return $this->pagosDisponibles;
-        }
-
-        $pagos = collect(app(PagosValidadosDePersona::class)($this->personaId(), TipoConcepto::Matricula));
-        $usados = Matricula::query()->whereIn('pago_id', $pagos->pluck('id'))->pluck('pago_id');
-
-        return $this->pagosDisponibles = $pagos->whereNotIn('id', $usados)->values();
+        return $this->pagosDisponibles ??= collect(app(OpcionesDeMatricula::class)->pagosDisponibles($this->personaId()));
     }
 }
