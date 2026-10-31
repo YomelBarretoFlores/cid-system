@@ -9,6 +9,7 @@ use App\Modules\Academico\Models\Periodo;
 use App\Modules\Docencia\Filament\Docente\Pages\AsistenciaDelGrupo;
 use App\Modules\Docencia\Models\Asistencia;
 use App\Modules\Docencia\Models\ClaseDictada;
+use App\Modules\Docencia\Models\Delegado;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
@@ -21,7 +22,7 @@ use Tests\Support\PortalDocente;
 
 beforeEach(function (): void {
     Filament::setCurrentPanel('docente');
-    $this->travelTo(CarbonImmutable::parse('2027-03-10 12:00', 'America/Lima'));
+    $this->travelTo(CarbonImmutable::parse('2027-03-10 18:05', 'America/Lima'));
     [$this->usuario, $this->docente] = PortalDocente::docente();
     $periodo = Periodo::factory()->create(['fecha_inicio' => '2027-03-01', 'fecha_fin' => '2027-04-25']);
     $this->grupo = Grupo::factory()->create(['codigo' => 'ING-01-A', 'periodo_id' => $periodo->id, 'estado' => EstadoGrupo::Abierto]);
@@ -62,11 +63,12 @@ it('starts a new roll call with everyone present and saves the marked states', f
         ->set("estados.{$this->ana->id}", 'tardanza')
         ->call('guardar')
         ->assertHasNoErrors()
-        ->assertSee('Asistencia del miércoles 10/03/2027 de 18:00 a 20:00 guardada.');
+        ->assertSee('Llamado de inicio del miércoles 10/03/2027 de 18:00 a 20:00 guardado.');
 
     $clase = ClaseDictada::query()->sole();
 
     expect($clase->fecha->toDateString())->toBe('2027-03-10')
+        ->and($clase->llamado_inicio_en?->setTimezone('America/Lima')->format('H:i'))->toBe('18:05')
         ->and($clase->registrado_por)->toBe($this->usuario->id)
         ->and(Asistencia::query()->where('clase_id', $clase->id)->pluck('estado', 'matricula_id')->map->value->all())->toEqualCanonicalizing([$this->ana->id => 'tardanza', $this->luis->id => 'presente']);
 });
@@ -155,4 +157,101 @@ it('refuses a class key with extra parts instead of saving the class it starts w
         ->assertSee('La fecha o la hora de la clase no es válida.');
 
     expect(ClaseDictada::query()->count())->toBe(0);
+});
+
+it('does not offer the class of today before its first call opens', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-03-10 17:49', 'America/Lima'));
+
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertSet('clase', '2027-03-08|18:00')
+        ->assertFormFieldExists('clase', fn (Select $campo): bool => ! array_key_exists('2027-03-10|18:00', $campo->getOptions()));
+});
+
+it('labels each class with its state', function (): void {
+    $clase = fn (string $fecha, array $datos = []): ClaseDictada => ClaseDictada::query()->create(['grupo_id' => $this->grupo->id, 'fecha' => $fecha, 'hora_inicio' => '18:00', 'hora_fin' => '20:00', 'docente_id' => $this->docente->id, 'registrado_por' => $this->usuario->id, ...$datos]);
+    $clase('2027-03-10', ['llamado_inicio_en' => now()]);
+    $clase('2027-03-08', ['registro_posterior' => true]);
+    $clase('2027-03-03', ['llamado_inicio_en' => '2027-03-03 23:00:00+00', 'llamado_cierre_en' => '2027-03-04 00:50:00+00', 'confirmacion' => 'confirmada', 'confirmada_por_matricula_id' => $this->ana->id, 'confirmada_en' => '2027-03-04 01:00:00+00']);
+
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertFormFieldExists('clase', fn (Select $campo): bool => $campo->getOptions() === [
+            '2027-03-10|18:00' => 'Miércoles 10/03/2027 de 18:00 a 20:00 · con llamado de inicio',
+            '2027-03-08|18:00' => 'Lunes 08/03/2027 de 18:00 a 20:00 · registro posterior',
+            '2027-03-03|18:00' => 'Miércoles 03/03/2027 de 18:00 a 20:00 · confirmada',
+            '2027-03-01|18:00' => 'Lunes 01/03/2027 de 18:00 a 20:00',
+        ]);
+});
+
+it('takes the second call only for the students present or late at the start', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->set("estados.{$this->ana->id}", 'falta')
+        ->call('guardar');
+    $this->travelTo(CarbonImmutable::parse('2027-03-10 19:50', 'America/Lima'));
+
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertSee('Guardar llamado de cierre')
+        ->assertDontSee('Quispe Rojas, Ana')
+        ->assertSet('estados', [$this->luis->id => 'presente'])
+        ->set("estados.{$this->luis->id}", 'falta')
+        ->call('guardar')
+        ->assertHasNoErrors()
+        ->assertSee('Llamado de cierre del miércoles 10/03/2027 de 18:00 a 20:00 guardado.');
+
+    $clase = ClaseDictada::query()->sole();
+
+    expect($clase->llamado_cierre_en?->setTimezone('America/Lima')->format('H:i'))->toBe('19:50')
+        ->and($clase->confirmacion?->value)->toBe('pendiente')
+        ->and(Asistencia::query()->where('clase_id', $clase->id)->pluck('estado_cierre', 'matricula_id')->map(fn ($estado): ?string => $estado?->value)->all())
+        ->toEqualCanonicalizing([$this->ana->id => null, $this->luis->id => 'falta']);
+});
+
+it('records an earlier class not taken in its windows as registro posterior', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->set('clase', '2027-03-08|18:00')
+        ->assertSee('Registro posterior: un solo llamado, sin confirmación del delegado.')
+        ->assertSee('Guardar registro posterior')
+        ->call('guardar')
+        ->assertHasNoErrors()
+        ->assertSee('Registro posterior del lunes 08/03/2027 de 18:00 a 20:00 guardado.');
+
+    expect(ClaseDictada::query()->sole()->only(['registro_posterior', 'llamado_inicio_en', 'confirmacion']))->toBe(['registro_posterior' => true, 'llamado_inicio_en' => null, 'confirmacion' => null]);
+});
+
+it('shows a class whose calls are over without a way to save it', function (): void {
+    Livewire::actingAs($this->usuario)->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])->call('guardar');
+    $this->travelTo(CarbonImmutable::parse('2027-03-10 20:31', 'America/Lima'));
+
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertSee('Los llamados de esta clase ya cerraron.')
+        ->assertDontSee('Guardar llamado')
+        ->assertSee('Quispe Rojas, Ana');
+});
+
+it('designates the delegate of the group from the attendance page', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertSee('Este grupo todavía no tiene delegado.')
+        ->callAction('designarDelegado', data: ['matricula' => $this->ana->id])
+        ->assertHasNoErrors()
+        ->assertSee('Delegado del grupo: Quispe Rojas, Ana.');
+
+    expect(Delegado::query()->sole()->only(['grupo_id', 'matricula_id', 'designado_por']))->toBe(['grupo_id' => $this->grupo->id, 'matricula_id' => $this->ana->id, 'designado_por' => $this->usuario->id]);
+});
+
+it('shows and logs a rejected delegate designation', function (): void {
+    Log::spy();
+    $pagina = Livewire::actingAs($this->usuario)->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id]);
+    $this->grupo->update(['estado' => EstadoGrupo::Finalizado]);
+    $mensaje = 'El grupo ING-01-A está Finalizado; el delegado solo se designa en grupos abiertos o cerrados.';
+
+    $pagina->callAction('designarDelegado', data: ['matricula' => $this->ana->id])->assertHasErrors(['asistencia' => $mensaje])->assertSee($mensaje);
+
+    expect(Delegado::query()->count())->toBe(0);
+    Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', Mockery::on(fn (array $contexto): bool => $contexto['regla'] === $mensaje))->once();
 });

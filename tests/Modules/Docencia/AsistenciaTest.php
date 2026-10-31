@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Tests\Support\PortalDocente;
 
 beforeEach(function (): void {
-    $this->travelTo(CarbonImmutable::parse('2027-03-10 12:00', 'America/Lima'));
+    $this->travelTo(CarbonImmutable::parse('2027-03-10 18:05', 'America/Lima'));
     [$this->usuario, $this->docente] = PortalDocente::docente();
     $periodo = Periodo::factory()->create(['fecha_inicio' => '2027-03-01', 'fecha_fin' => '2027-04-25']);
     $ciclo = Ciclo::factory()->create(['nivel' => NivelCurricular::Basico]);

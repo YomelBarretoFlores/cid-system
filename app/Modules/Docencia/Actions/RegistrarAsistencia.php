@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Modules\Docencia\Actions;
 
 use App\Modules\Academico\Contracts\BloqueoDeGrupo;
-use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Academico\Data\SesionDeClase;
 use App\Modules\Docencia\Enums\EstadoAsistencia;
 use App\Modules\Docencia\Models\Asistencia;
 use App\Modules\Docencia\Models\ClaseDictada;
 use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Modules\Docencia\Support\GrupoACargo;
+use App\Modules\Docencia\Support\MarcasDeAsistencia;
+use App\Modules\Docencia\Support\VentanasDeLlamado;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Shared\Auth\Models\User;
@@ -19,6 +20,7 @@ use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 
+/** First call of a class within its window, or the single call of a registro posterior once its windows passed. */
 final readonly class RegistrarAsistencia
 {
     public function __construct(
@@ -31,18 +33,22 @@ final readonly class RegistrarAsistencia
      */
     public function __invoke(int $grupoId, int $docenteId, string $fecha, string $horaInicio, array $estados, User $usuario): ClaseDictada
     {
-        $dia = $this->fecha($fecha, $horaInicio);
+        $dia = ClasesDelHorario::fechaDeClase($fecha, $horaInicio);
 
         return Transaccion::ejecutar(function () use ($grupoId, $docenteId, $dia, $horaInicio, $estados, $usuario): ClaseDictada {
             // Same lock as assignment and unassignment, so a teacher removed from the group cannot save after that change commits.
             $grupo = ($this->bloqueoDeGrupo)($grupoId);
             GrupoACargo::asegurar($grupo, $docenteId, 'la asistencia solo se registra');
-            $sesion = $this->sesion($grupo, $dia, $horaInicio);
-            $marcas = $this->marcas($estados, ClasesDelHorario::estudiantesDe(($this->estudiantesDelGrupo)($grupoId), $dia));
+            $sesion = ClasesDelHorario::sesionDelPeriodo($grupo, $dia, $horaInicio);
+            $ventanas = VentanasDeLlamado::de($dia, $sesion);
+            $ahora = ClasesDelHorario::ahora();
+            $this->asegurarAbierta($ventanas, $dia, $ahora);
+            $matriculas = array_map(fn (EstudianteDelGrupo $estudiante): int => $estudiante->matriculaId, ClasesDelHorario::estudiantesDe(($this->estudiantesDelGrupo)($grupoId), $dia));
+            $marcas = MarcasDeAsistencia::validar($estados, $matriculas, EstadoAsistencia::cases());
 
-            $clase = ClaseDictada::query()->firstOrNew(['grupo_id' => $grupoId, 'fecha' => $dia->toDateString(), 'hora_inicio' => $sesion->horaInicio]);
+            $clase = $this->clase($grupoId, $dia, $sesion);
             // The teacher who took the class keeps it (its hours are theirs); a later correction only changes who recorded it.
-            $clase->fill(['hora_fin' => $sesion->horaFin, 'docente_id' => $clase->docente_id ?? $docenteId, 'registrado_por' => $usuario->id])->save();
+            $clase->fill(['hora_fin' => $sesion->horaFin, 'docente_id' => $clase->docente_id ?? $docenteId, 'registrado_por' => $usuario->id, ...$this->llamado($clase, $ventanas, $ahora)])->save();
 
             foreach ($marcas as $matriculaId => $estado) {
                 Asistencia::query()->updateOrCreate(['clase_id' => $clase->id, 'matricula_id' => $matriculaId], ['estado' => $estado]);
@@ -52,49 +58,38 @@ final readonly class RegistrarAsistencia
         });
     }
 
-    private function fecha(string $fecha, string $horaInicio): CarbonImmutable
+    private function asegurarAbierta(VentanasDeLlamado $ventanas, CarbonImmutable $dia, CarbonImmutable $ahora): void
     {
-        $dia = preg_match('/^\d{4}-\d{2}-\d{2}\z/', $fecha) === 1 ? CarbonImmutable::createFromFormat('!Y-m-d', $fecha, ClasesDelHorario::ZONA) : null;
-
-        if (! $dia instanceof CarbonImmutable || $dia->toDateString() !== $fecha || preg_match('/^\d{2}:\d{2}\z/', $horaInicio) !== 1) {
-            throw new ReglaDeNegocioIncumplida('La fecha o la hora de la clase no es válida.');
+        if (! $ventanas->yaAbrio($ahora)) {
+            throw new ReglaDeNegocioIncumplida("Todavía no puedes registrar la asistencia de la clase del {$dia->format('d/m/Y')}. El llamado de inicio se abre a las {$ventanas->abreInicio()->format('H:i')}.");
         }
-
-        return $dia;
     }
 
-    private function sesion(HorarioDeGrupo $grupo, CarbonImmutable $dia, string $horaInicio): SesionDeClase
+    private function clase(int $grupoId, CarbonImmutable $dia, SesionDeClase $sesion): ClaseDictada
     {
-        if ($dia->toDateString() < $grupo->periodoInicio->toDateString() || $dia->toDateString() > $grupo->periodoFin->toDateString()) {
-            throw new ReglaDeNegocioIncumplida("El {$dia->format('d/m/Y')} está fuera del periodo del grupo {$grupo->codigo}.");
-        }
+        $clave = ['grupo_id' => $grupoId, 'fecha' => $dia->toDateString(), 'hora_inicio' => $sesion->horaInicio];
 
-        if ($dia->gt(ClasesDelHorario::hoy())) {
-            throw new ReglaDeNegocioIncumplida("Todavía no puedes registrar la asistencia de la clase del {$dia->format('d/m/Y')}.");
-        }
-
-        return ClasesDelHorario::sesionDe($grupo, $dia, $horaInicio)
-            ?? throw new ReglaDeNegocioIncumplida("El grupo {$grupo->codigo} no tiene clase el {$dia->format('d/m/Y')} a las {$horaInicio}.");
+        return ClaseDictada::query()->where($clave)->lockForUpdate()->first() ?? new ClaseDictada($clave);
     }
 
     /**
-     * @param  array<int, mixed>  $estados
-     * @param  list<EstudianteDelGrupo>  $estudiantes
-     * @return array<int, EstadoAsistencia>
+     * @return array<string, mixed>
      */
-    private function marcas(array $estados, array $estudiantes): array
+    private function llamado(ClaseDictada $clase, VentanasDeLlamado $ventanas, CarbonImmutable $ahora): array
     {
-        $matriculas = array_map(fn (EstudianteDelGrupo $estudiante): int => $estudiante->matriculaId, $estudiantes);
+        if ($ventanas->inicioAbierto($ahora)) {
+            if ($clase->llamado_cierre_en !== null) {
+                throw new ReglaDeNegocioIncumplida('Ya tomaste el llamado de cierre de esta clase; el llamado de inicio ya no se puede cambiar.');
+            }
 
-        if (array_diff(array_keys($estados), $matriculas) !== []) {
-            throw new ReglaDeNegocioIncumplida('La lista de estudiantes del grupo cambió; vuelve a cargarla.');
+            return ['llamado_inicio_en' => $clase->llamado_inicio_en ?? now()];
         }
 
-        if (array_diff($matriculas, array_keys($estados)) !== []) {
-            throw new ReglaDeNegocioIncumplida('Marca la asistencia de todos los estudiantes del grupo.');
+        if ($clase->llamado_inicio_en !== null) {
+            throw new ReglaDeNegocioIncumplida("El llamado de inicio de esta clase cerró a las {$ventanas->cierraInicio()->format('H:i')}.");
         }
 
-        return array_map(fn (mixed $estado): EstadoAsistencia => (is_string($estado) ? EstadoAsistencia::tryFrom($estado) : null)
-            ?? throw new ReglaDeNegocioIncumplida('El estado de asistencia no es válido.'), $estados);
+        // A correction of an earlier registro (posterior or anterior) keeps its kind.
+        return $clase->exists ? [] : ['registro_posterior' => true];
     }
 }

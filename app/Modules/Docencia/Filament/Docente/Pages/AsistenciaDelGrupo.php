@@ -6,26 +6,35 @@ namespace App\Modules\Docencia\Filament\Docente\Pages;
 
 use App\Modules\Academico\Contracts\HorariosDeGrupos;
 use App\Modules\Academico\Data\HorarioDeGrupo;
+use App\Modules\Docencia\Actions\DesignarDelegado;
 use App\Modules\Docencia\Actions\RegistrarAsistencia;
+use App\Modules\Docencia\Actions\RegistrarLlamadoDeCierre;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Docencia\Data\ClaseProgramada;
 use App\Modules\Docencia\Enums\EstadoAsistencia;
+use App\Modules\Docencia\Enums\Llamado;
 use App\Modules\Docencia\Models\Asistencia;
 use App\Modules\Docencia\Models\ClaseDictada;
 use App\Modules\Docencia\Support\ClasesDelHorario;
+use App\Modules\Docencia\Support\DelegadoDelGrupo;
+use App\Modules\Docencia\Support\EstadoDeLaClase;
 use App\Modules\Docencia\Support\GrupoACargo;
+use App\Modules\Docencia\Support\VentanasDeLlamado;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\PestanasDelGrupo;
 use App\Shared\Support\Logging\RegistroDeRechazos;
+use Closure;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Livewire\Attributes\Locked;
 
 final class AsistenciaDelGrupo extends Page
@@ -45,6 +54,10 @@ final class AsistenciaDelGrupo extends Page
 
     /** @var array<int, string> */
     public array $estados = [];
+
+    // The call shown when the class was loaded, so a save near a window edge goes to the call the teacher filled in.
+    #[Locked]
+    public Llamado $llamado = Llamado::Inicio;
 
     public ?string $guardada = null;
 
@@ -88,20 +101,12 @@ final class AsistenciaDelGrupo extends Page
                 ->label('Clase')
                 ->options(fn (): array => $this->opcionesDeClase())
                 ->selectablePlaceholder(false)
-                ->helperText('Solo clases del horario entre el inicio del periodo y hoy. Nunca una clase futura.')
+                ->helperText('Solo clases del horario cuyo llamado de inicio ya abrió. Nunca una clase futura.')
                 ->live(),
             Section::make('Estudiantes')
-                ->description('Guardar de nuevo corrige la asistencia de esta clase.')
-                ->schema(fn (): array => array_map(
-                    fn (EstudianteDelGrupo $estudiante): ToggleButtons => ToggleButtons::make("estados.{$estudiante->matriculaId}")
-                        ->label($estudiante->nombreCompleto)
-                        ->options(collect(EstadoAsistencia::cases())->mapWithKeys(fn (EstadoAsistencia $estado): array => [$estado->value => $estado->etiqueta()])->all())
-                        ->colors([EstadoAsistencia::Presente->value => 'success', EstadoAsistencia::Tardanza->value => 'warning', EstadoAsistencia::Falta->value => 'danger'])
-                        ->inline()
-                        ->grouped(),
-                    $this->estudiantes(),
-                ))
-                ->visible(fn (): bool => $this->estudiantes() !== []),
+                ->description(fn (): string => $this->descripcionDelLlamado())
+                ->schema(fn (): array => array_map($this->marcaDe(...), $this->estudiantesDelLlamado()))
+                ->visible(fn (): bool => $this->estudiantesDelLlamado() !== []),
         ]);
     }
 
@@ -112,24 +117,41 @@ final class AsistenciaDelGrupo extends Page
         $this->cargarEstados();
     }
 
-    public function guardar(RegistrarAsistencia $registrar): void
+    public function guardar(RegistrarAsistencia $registrar, RegistrarLlamadoDeCierre $cerrar): void
     {
         $this->guardada = null;
         $elegida = $this->claseElegida();
         [$fecha, $hora] = $elegida instanceof ClaseProgramada ? [$elegida->fecha->toDateString(), substr($elegida->sesion->horaInicio, 0, 5)] : ['', ''];
-        /** @var User $usuario */
-        $usuario = auth()->user();
+        $registro = $this->llamado === Llamado::Cierre ? $cerrar : $registrar;
 
-        try {
-            $registrar($this->grupoId, $this->docenteId(), $fecha, $hora, $this->estados, $usuario);
-        } catch (ReglaDeNegocioIncumplida $error) {
-            RegistroDeRechazos::registrar($error);
-            $this->addError('asistencia', $error->getMessage());
+        $clase = $this->intentar(fn (): ClaseDictada => $registro($this->grupoId, $this->docenteId(), $fecha, $hora, $this->estados, $this->usuario()));
 
-            return;
+        if ($clase instanceof ClaseDictada) {
+            $tipo = $clase->registro_posterior ? Llamado::Posterior : $this->llamado;
+            $this->guardada = "{$tipo->etiqueta()} del ".mb_lcfirst((string) $elegida?->descripcion()).' guardado.';
+            $this->cargarEstados();
         }
+    }
 
-        $this->guardada = 'Asistencia del '.mb_lcfirst((string) $elegida?->descripcion()).' guardada.';
+    /**
+     * @return array<Action>
+     */
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('designarDelegado')
+                ->label('Designar delegado')
+                ->icon(Heroicon::OutlinedIdentification)
+                ->modalDescription('El delegado confirma desde su celular que la clase se dictó.')
+                ->fillForm(fn (): array => ['matricula' => app(DelegadoDelGrupo::class)($this->grupoId)?->matriculaId])
+                ->schema([
+                    Select::make('matricula')
+                        ->label('Estudiante')
+                        ->options(fn (): array => collect(app(EstudiantesDelGrupo::class)($this->grupoId))->mapWithKeys(fn (EstudianteDelGrupo $estudiante): array => [$estudiante->matriculaId => $estudiante->nombreCompleto])->all())
+                        ->required(),
+                ])
+                ->action(fn (array $data) => $this->designarDelegado(is_numeric($data['matricula'] ?? null) ? (int) $data['matricula'] : 0)),
+        ];
     }
 
     /**
@@ -137,7 +159,12 @@ final class AsistenciaDelGrupo extends Page
      */
     protected function getViewData(): array
     {
-        return ['hayClases' => ClasesDelHorario::hastaHoy($this->grupo()) !== [], 'hayEstudiantes' => $this->estudiantes() !== []];
+        return [
+            'hayClases' => ClasesDelHorario::hastaHoy($this->grupo()) !== [],
+            'hayEstudiantes' => $this->estudiantes() !== [],
+            'boton' => $this->llamado->boton(),
+            'delegado' => app(DelegadoDelGrupo::class)($this->grupoId)?->nombreCompleto,
+        ];
     }
 
     protected function pestana(): string
@@ -150,16 +177,68 @@ final class AsistenciaDelGrupo extends Page
         return $this->grupoId;
     }
 
+    private function designarDelegado(int $matriculaId): void
+    {
+        $this->guardada = null;
+        $delegado = $this->intentar(fn (): mixed => app(DesignarDelegado::class)($this->grupoId, $this->docenteId(), $matriculaId, $this->usuario()));
+
+        if ($delegado !== null) {
+            $this->guardada = 'Delegado del grupo: '.app(DelegadoDelGrupo::class)($this->grupoId)?->nombreCompleto.'.';
+        }
+    }
+
+    /**
+     * @template T
+     *
+     * @param  Closure(): T  $operacion
+     * @return T|null
+     */
+    private function intentar(Closure $operacion): mixed
+    {
+        try {
+            return $operacion();
+        } catch (ReglaDeNegocioIncumplida $error) {
+            RegistroDeRechazos::registrar($error);
+            $this->addError('asistencia', $error->getMessage());
+
+            return null;
+        }
+    }
+
+    private function marcaDe(EstudianteDelGrupo $estudiante): ToggleButtons
+    {
+        return ToggleButtons::make("estados.{$estudiante->matriculaId}")
+            ->label($estudiante->nombreCompleto)
+            ->options(collect($this->llamado->estados())->mapWithKeys(fn (EstadoAsistencia $estado): array => [$estado->value => $estado->etiqueta()])->all())
+            ->colors([EstadoAsistencia::Presente->value => 'success', EstadoAsistencia::Tardanza->value => 'warning', EstadoAsistencia::Falta->value => 'danger'])
+            ->disabled($this->llamado === Llamado::Cerrado)
+            ->inline()
+            ->grouped();
+    }
+
+    private function descripcionDelLlamado(): string
+    {
+        $elegida = $this->claseElegida();
+        $ventanas = $elegida instanceof ClaseProgramada ? VentanasDeLlamado::de($elegida->fecha, $elegida->sesion) : null;
+
+        return match ($this->llamado) {
+            Llamado::Inicio => "Llamado de inicio: abierto hasta las {$ventanas?->cierraInicio()->format('H:i')}. Guardar de nuevo corrige este llamado.",
+            Llamado::Cierre => "Llamado de cierre: solo los estudiantes presentes o con tardanza al inicio. Abierto hasta las {$ventanas?->cierraCierre()->format('H:i')}.",
+            Llamado::Posterior => 'Registro posterior: un solo llamado, sin confirmación del delegado. Guardar de nuevo corrige la asistencia.',
+            Llamado::Cerrado => 'Los llamados de esta clase ya cerraron.',
+        };
+    }
+
     /**
      * @return array<string, string>
      */
     private function opcionesDeClase(): array
     {
         $registradas = ClaseDictada::query()->where('grupo_id', $this->grupoId)->get()
-            ->mapWithKeys(fn (ClaseDictada $clase): array => [$clase->fecha->toDateString().'|'.substr($clase->hora_inicio, 0, 5) => true]);
+            ->mapWithKeys(fn (ClaseDictada $clase): array => [$clase->fecha->toDateString().'|'.substr($clase->hora_inicio, 0, 5) => ' · '.EstadoDeLaClase::de($clase)->etiqueta()]);
 
         return collect(ClasesDelHorario::hastaHoy($this->grupo()))
-            ->mapWithKeys(fn (ClaseProgramada $opcion): array => [$opcion->clave() => $opcion->descripcion().(isset($registradas[$opcion->clave()]) ? ' · registrada' : '')])
+            ->mapWithKeys(fn (ClaseProgramada $opcion): array => [$opcion->clave() => $opcion->descripcion().($registradas[$opcion->clave()] ?? '')])
             ->all();
     }
 
@@ -167,11 +246,32 @@ final class AsistenciaDelGrupo extends Page
     {
         $elegida = $this->claseElegida();
         $clase = $elegida instanceof ClaseProgramada ? ClaseDictada::query()->where('grupo_id', $this->grupoId)->where('fecha', $elegida->fecha->toDateString())->where('hora_inicio', $elegida->sesion->horaInicio)->first() : null;
-        $guardados = $clase === null ? collect() : Asistencia::query()->where('clase_id', $clase->id)->get()->mapWithKeys(fn (Asistencia $asistencia): array => [$asistencia->matricula_id => $asistencia->estado->value]);
+        $this->llamado = $elegida instanceof ClaseProgramada ? EstadoDeLaClase::llamadoPara($clase, VentanasDeLlamado::de($elegida->fecha, $elegida->sesion)) : Llamado::Inicio;
+        $guardadas = $clase === null ? collect() : Asistencia::query()->where('clase_id', $clase->id)->get()->keyBy('matricula_id');
+        $estudiantes = $this->llamado === Llamado::Cierre
+            ? array_filter($this->estudiantes(), fn (EstudianteDelGrupo $estudiante): bool => ! in_array($guardadas->get($estudiante->matriculaId)?->estado, [null, EstadoAsistencia::Falta], true))
+            : $this->estudiantes();
 
-        $this->estados = collect($this->estudiantes())
-            ->mapWithKeys(fn (EstudianteDelGrupo $estudiante): array => [$estudiante->matriculaId => $guardados[$estudiante->matriculaId] ?? EstadoAsistencia::Presente->value])
+        $this->estados = collect($estudiantes)
+            ->mapWithKeys(fn (EstudianteDelGrupo $estudiante): array => [$estudiante->matriculaId => $this->estadoGuardado($guardadas->get($estudiante->matriculaId))])
             ->all();
+    }
+
+    private function estadoGuardado(?Asistencia $asistencia): string
+    {
+        $estado = $this->llamado === Llamado::Cierre ? $asistencia?->estado_cierre : $asistencia?->estado;
+
+        return ($estado ?? EstadoAsistencia::Presente)->value;
+    }
+
+    /**
+     * Students of the call loaded for the chosen class: the second call only lists those present or late at the start.
+     *
+     * @return list<EstudianteDelGrupo>
+     */
+    private function estudiantesDelLlamado(): array
+    {
+        return array_values(array_filter($this->estudiantes(), fn (EstudianteDelGrupo $estudiante): bool => array_key_exists($estudiante->matriculaId, $this->estados)));
     }
 
     private function claseElegida(): ?ClaseProgramada
@@ -198,5 +298,12 @@ final class AsistenciaDelGrupo extends Page
     private function docenteId(): int
     {
         return app(DocenteDelUsuario::class)((int) auth()->id()) ?? abort(403);
+    }
+
+    private function usuario(): User
+    {
+        $usuario = auth()->user();
+
+        return $usuario instanceof User ? $usuario : abort(403);
     }
 }

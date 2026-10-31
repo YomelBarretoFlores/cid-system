@@ -20,7 +20,7 @@ Branch: `feat/control-de-clases` (stacked on `feat/inicio-estudiante` 6fa8b02+) 
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S1–S7 | delegated (context backstop) | pending | — |
+| T1 | S1–S7 | delegated (context backstop) | done | see L3 |
 | T2 | S1, S3, S8 | pending decision | pending | — |
 | T3 | S9, S10 | pending decision | pending | — |
 | T4 | all | inline | pending | — |
@@ -31,3 +31,4 @@ T1 migrations, config, two calls and registro posterior in the attendance Action
 
 - L1 (2026-10-31): "Bien, arma ahora el plan. Una cosa más, revisa sobre el tema de asistencia también, te comento que en el sga el docente llama lista dos veces, al inicio de la clase y al final. Y al final el el estudiante delegado del curso ingresa sus credenciales o algo así para que se valide esa asistencia. Esto se hace para que se vea que el docente en verdad también está dictando clases. Y además, te comento que para el pago del docente se le resta si es que falta a clases, pero eso lo veremos más adelante /plan"
 - L2 (2026-10-31): delegate validation chosen by the user: "Desde su celular (Recommended)". Plan approved. User: "Bien, sube y une. Y sigues con lo que falta." E1 merged; E2 committed on `feat/inicio-estudiante`; E3 stacks on it.
+- L3 (2026-10-31): T1 done by a bounded writer. New `RegistrarLlamadoDeCierre`, `DesignarDelegado`, enums `ConfirmacionDeClase`, `EstadoDeClase`, `Llamado`, support `VentanasDeLlamado`, `EstadoDeLaClase::de(ClaseDictada, ?ahora)`, `DelegadoDelGrupo` (null when the enrollment is no longer active), `MarcasDeAsistencia`; `config/ciln.php` windows; migrations with named CHECKs (rows saved before read as "registro anterior"). `ClasesDelHorario::hastaHoy` lists today's class only once its first call opens (shared with the demo seeder). Existing tests changed: `AsistenciaTest` and `AsistenciaDelGrupoTest` clock 12:00 → 18:05 (today's 18:00 class is not open at noon any more) and the success message now names the call ("Llamado de inicio del … guardado."). Parent spot check: Pint, Rector, Larastan pass; Pest 1636/1637, the failure is a 60 s fixture timeout in an unrelated concurrency test; the baseline (6a9a01b) also fails a different concurrency test the same way under the same load, so it is environmental. `composer check` needs `COMPOSER_PROCESS_TIMEOUT=0` now. Open for T2: S8 asks the delegate to be present in the second call, but designation does not require it.
