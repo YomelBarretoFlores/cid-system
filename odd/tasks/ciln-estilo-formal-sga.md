@@ -67,3 +67,4 @@ T1: shared formal report layout, as a PDF and print component and a portal sheet
   - `FilaDelHorario` was replaced by `FranjaDelHorario` and `CeldaDelHorario`; only Matricula used it.
   - Tests: RED 4 of 6 new tests. Matricula and palette tests: 294 pass. `composer check` rc=0, 1793 tests.
   - Browser on `ciln_preview`: reports page at 1280 (every course colored) and at 390 (the grid scrolls inside its box, no page overflow, no JS errors). PDF and print view read back.
+- L4 (2026-10-31): `review assess` of aebfad8..3ced939: risk medium, review_due false (under_budget), so no native review ran. Preview DB dropped. Push and merge are the user's decision: `feat/demo-completo` and `feat/estilo-formal` are stacked and neither is pushed.
