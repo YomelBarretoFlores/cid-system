@@ -109,6 +109,7 @@ final class ActaFinalDelGrupo extends Page
                 ->icon(Heroicon::OutlinedArrowDownTray)
                 ->color('gray')
                 ->url(fn (): string => route('docente.acta.pdf', $this->grupoId))
+                ->openUrlInNewTab()
                 ->visible(fn (): bool => ($acta = $this->acta()) instanceof ActaDelGrupo && $acta->estaCerrada()),
             Action::make('validarActa')
                 ->label('Validar y cerrar acta')

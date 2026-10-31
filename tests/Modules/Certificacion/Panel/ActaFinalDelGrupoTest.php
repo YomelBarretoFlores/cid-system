@@ -79,6 +79,14 @@ it('closes the acta when the teacher validates it and then shows it read-only wi
     expect(Acta::query()->sole()->estado)->toBe(EstadoActa::Cerrada);
 });
 
+it('downloads the PDF with a full request instead of swapping the panel page in place', function (): void {
+    cerrarActaDelCurso();
+    $html = (string) $this->actingAs($this->usuario)->get(route('filament.docente.pages.grupos.acta', $this->grupo->id))->getContent();
+
+    expect(preg_match('/<a\\s[^>]*href="'.preg_quote(route('docente.acta.pdf', $this->grupo->id), '/').'"[^>]*>/s', $html, $enlace))->toBe(1)
+        ->and($enlace[0])->not->toContain('wire:navigate');
+});
+
 it('shows and logs a rejected validation outside the grade calendar and stores nothing', function (): void {
     Log::spy();
     $this->travelTo(CarbonImmutable::parse('2027-04-06 08:00', 'America/Lima'));
