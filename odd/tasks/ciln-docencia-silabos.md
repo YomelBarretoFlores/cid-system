@@ -22,7 +22,7 @@ Branch: `feat/silabos` (stacked on `feat/reportes-estudiante` d053c46) · Delive
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S1–S4 | delegated (context backstop) | pending | — |
+| T1 | S1–S4 | delegated (context backstop) | done | see L3 |
 | T2 | S5, S6 | delegated (context backstop) | pending | — |
 | T3 | all | inline | pending | — |
 
@@ -32,3 +32,4 @@ T1 data, teacher form, copy, publish, Mis grupos state (Risk item 2: who edits).
 
 - L1 (2026-10-31): "Sobre lo extra ya hay luz verde. Y además, sobre los sílabos es que los docentes suben su sílabo del curso que va a dictar en todo el periodo." … "Cómo sabes que es un formulario? Y si es así quisiera que sea como el sga, un formulario, ya que el sistema de sga se usa muy bien para los estudiantes. Si es posible que revises qué métodos usa el sga entonces síguelo o mejóralos."
 - L2 (2026-10-31): plan approved; "Bien, sube y une. Y sigues con lo que falta."
+- L3 (2026-10-31): T1 done by a bounded writer. Tables `doc_silabos`, `doc_silabo_semanas`, `doc_silabo_evaluaciones` with audit triggers and named CHECKs; Actions `GuardarSilabo`, `PublicarSilabo` (one message listing every missing part), `CopiarSilabo` (published, same `ciclo_id`, another group); page "Sílabo" at `/docente/grupos/{id}/silabo` with identification from the group, weeks from the period, evaluation from the scheme; "Mis grupos" badge Falta/Borrador/Publicado. Read API for T2: contracts `SilaboDelGrupo` (draft or published; check `estaPublicado()`) and `EstadosDeSilabos`. Assumptions: editable while the group is Programado, Abierto or Cerrado; required to publish are the five texts, each week's Saber and Actividades and each evaluation's Indicadores and Instrumento. RED caveat: the Actions were written just before their tests. Writer's `composer check` rc=0, 1751 tests; parent spot check 388/388.

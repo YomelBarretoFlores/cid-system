@@ -110,4 +110,23 @@ final class PortalDocente
 
         return array_map(fn (ClaseDictada $clase): ClaseDictada => $clase->refresh(), $clases);
     }
+
+    /**
+     * A complete syllabus as the teacher form sends it, with $prefijo in every text to tell syllabi apart.
+     *
+     * @param  list<string>  $codigos  evaluation component codes
+     * @return array<string, mixed>
+     */
+    public static function silaboCompleto(int $semanas, array $codigos, string $prefijo = ''): array
+    {
+        return [
+            'sumilla' => "{$prefijo}Curso básico de inglés.", 'competencias' => "{$prefijo}Se comunica en situaciones cotidianas.",
+            'capacidades' => "{$prefijo}Saluda y se presenta.", 'metodologia' => "{$prefijo}Enfoque comunicativo.", 'bibliografia' => "{$prefijo}Libro del curso.",
+            'semanas' => array_combine(range(1, $semanas), array_map(fn (int $semana): array => [
+                'unidad' => "{$prefijo}Unidad {$semana}", 'saber' => "{$prefijo}Vocabulario {$semana}", 'saber_hacer' => null, 'saber_ser' => null,
+                'actividades' => "{$prefijo}Diálogos {$semana}", 'recursos' => null,
+            ], range(1, $semanas))),
+            'evaluaciones' => array_combine($codigos, array_map(fn (string $codigo): array => ['indicadores' => "{$prefijo}Indicadores de {$codigo}", 'instrumento' => "{$prefijo}Rúbrica", 'semana' => null], $codigos)),
+        ];
+    }
 }

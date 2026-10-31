@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Filament\Docente\Pages;
 
+use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Docencia\Actions\ListarGruposDelDocente;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
+use App\Modules\Docencia\Contracts\EstadosDeSilabos;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Panel;
@@ -27,7 +29,7 @@ final class MisGrupos extends Page
 
     protected string $view = 'docencia::filament.docente.mis-grupos';
 
-    // A group's attendance, pre-acta and final acta pages keep "Mis grupos" marked in the menu.
+    // A group's attendance, pre-acta, final acta and syllabus pages keep "Mis grupos" marked in the menu.
     public static function getNavigationItemActiveRoutePattern(): array
     {
         return [self::getRouteName(), 'filament.docente.pages.grupos.*'];
@@ -45,6 +47,11 @@ final class MisGrupos extends Page
     {
         $docenteId = app(DocenteDelUsuario::class)((int) auth()->id()) ?? abort(403);
 
-        return ['grupos' => app(ListarGruposDelDocente::class)($docenteId)];
+        $grupos = app(ListarGruposDelDocente::class)($docenteId);
+
+        return [
+            'grupos' => $grupos,
+            'silabos' => app(EstadosDeSilabos::class)(array_map(fn (HorarioDeGrupo $grupo): int => $grupo->grupoId, $grupos)),
+        ];
     }
 }

@@ -1,4 +1,5 @@
 @use('App\Modules\Academico\Data\SesionDeClase')
+@use('App\Modules\Docencia\Enums\EstadoSilabo')
 <x-filament-panels::page>
     @if ($grupos === [])
         <x-filament::empty-state heading="Aún no tienes grupos asignados." description="Cuando la coordinación te asigne un grupo, aparecerá aquí." icon="heroicon-o-user-group" />
@@ -34,6 +35,10 @@
                                         @endforelse
                                     </dd>
                                 </div>
+                                <div>
+                                    <dt class="text-apagado">Sílabo</dt>
+                                    <dd class="flex"><x-filament::badge :color="EstadoSilabo::colorDe($silabos[$grupo->grupoId] ?? null)">{{ EstadoSilabo::etiquetaDe($silabos[$grupo->grupoId] ?? null) }}</x-filament::badge></dd>
+                                </div>
                             </dl>
 
                             <div class="mt-auto flex flex-wrap gap-2">
@@ -45,6 +50,9 @@
                                 </x-filament::button>
                                 <x-filament::button tag="a" :href="route('filament.docente.pages.grupos.acta', $grupo->grupoId)" size="sm" color="gray" outlined class="flex-1">
                                     Acta final<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
+                                </x-filament::button>
+                                <x-filament::button tag="a" :href="route('filament.docente.pages.grupos.silabo', $grupo->grupoId)" size="sm" color="gray" outlined class="flex-1">
+                                    Sílabo<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
                                 </x-filament::button>
                             </div>
                         </article>
