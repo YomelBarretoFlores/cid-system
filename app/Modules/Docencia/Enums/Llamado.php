@@ -9,6 +9,7 @@ enum Llamado: string
     case Inicio = 'inicio';
     case Cierre = 'cierre';
     case Posterior = 'posterior';
+    case Anterior = 'anterior';
     case Cerrado = 'cerrado';
 
     public function etiqueta(): string
@@ -17,8 +18,14 @@ enum Llamado: string
             self::Inicio => 'Llamado de inicio',
             self::Cierre => 'Llamado de cierre',
             self::Posterior => 'Registro posterior',
+            self::Anterior => 'Asistencia',
             self::Cerrado => 'Llamados cerrados',
         };
+    }
+
+    public function guardado(string $clase): string
+    {
+        return $this === self::Anterior ? "Asistencia del {$clase} guardada." : "{$this->etiqueta()} del {$clase} guardado.";
     }
 
     public function boton(): ?string

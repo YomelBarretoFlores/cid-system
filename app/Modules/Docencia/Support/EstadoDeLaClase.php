@@ -40,7 +40,11 @@ final class EstadoDeLaClase
         $ahora ??= ClasesDelHorario::ahora();
 
         if ($clase?->llamado_inicio_en === null) {
-            return $ventanas->inicioAbierto($ahora) ? Llamado::Inicio : Llamado::Posterior;
+            return match (true) {
+                $ventanas->inicioAbierto($ahora) => Llamado::Inicio,
+                $clase instanceof ClaseDictada && ! $clase->registro_posterior => Llamado::Anterior,
+                default => Llamado::Posterior,
+            };
         }
 
         if (! in_array($clase->confirmacion, [null, ConfirmacionDeClase::Pendiente], true)) {

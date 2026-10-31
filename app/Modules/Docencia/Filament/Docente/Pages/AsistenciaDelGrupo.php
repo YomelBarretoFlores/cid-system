@@ -128,7 +128,7 @@ final class AsistenciaDelGrupo extends Page
 
         if ($clase instanceof ClaseDictada) {
             $tipo = $clase->registro_posterior ? Llamado::Posterior : $this->llamado;
-            $this->guardada = "{$tipo->etiqueta()} del ".mb_lcfirst((string) $elegida?->descripcion()).' guardado.';
+            $this->guardada = $tipo->guardado(mb_lcfirst((string) $elegida?->descripcion()));
             $this->cargarEstados();
         }
     }
@@ -225,6 +225,7 @@ final class AsistenciaDelGrupo extends Page
             Llamado::Inicio => "Llamado de inicio: abierto hasta las {$ventanas?->cierraInicio()->format('H:i')}. Guardar de nuevo corrige este llamado.",
             Llamado::Cierre => "Llamado de cierre: solo los estudiantes presentes o con tardanza al inicio. Abierto hasta las {$ventanas?->cierraCierre()->format('H:i')}.",
             Llamado::Posterior => 'Registro posterior: un solo llamado, sin confirmación del delegado. Guardar de nuevo corrige la asistencia.',
+            Llamado::Anterior => 'Registrada antes de los dos llamados: guardar de nuevo corrige la asistencia, sin confirmación del delegado.',
             Llamado::Cerrado => 'Los llamados de esta clase ya cerraron.',
         };
     }

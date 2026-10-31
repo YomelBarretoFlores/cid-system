@@ -255,3 +255,21 @@ it('shows and logs a rejected delegate designation', function (): void {
     expect(Delegado::query()->count())->toBe(0);
     Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', Mockery::on(fn (array $contexto): bool => $contexto['regla'] === $mensaje))->once();
 });
+
+it('corrects a class saved before the two calls as plain attendance, not as registro posterior', function (): void {
+    $clase = ClaseDictada::query()->create(['grupo_id' => $this->grupo->id, 'fecha' => '2027-03-08', 'hora_inicio' => '18:00', 'hora_fin' => '20:00', 'docente_id' => $this->docente->id, 'registrado_por' => $this->usuario->id]);
+    Asistencia::query()->create(['clase_id' => $clase->id, 'matricula_id' => $this->ana->id, 'estado' => 'presente']);
+    Asistencia::query()->create(['clase_id' => $clase->id, 'matricula_id' => $this->luis->id, 'estado' => 'presente']);
+
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->set('clase', '2027-03-08|18:00')
+        ->assertDontSee('Registro posterior: un solo llamado')
+        ->set("estados.{$this->luis->id}", 'falta')
+        ->call('guardar')
+        ->assertHasNoErrors()
+        ->assertSee('Asistencia del lunes 08/03/2027 de 18:00 a 20:00 guardada.');
+
+    expect($clase->refresh())->registro_posterior->toBeFalse()->llamado_inicio_en->toBeNull()
+        ->and(Asistencia::query()->where('matricula_id', $this->luis->id)->value('estado')->value)->toBe('falta');
+});
