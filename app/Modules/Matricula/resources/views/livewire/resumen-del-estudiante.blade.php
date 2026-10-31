@@ -83,7 +83,7 @@
     </div>
 
     <x-portal.tarjeta titulo="Tu horario semanal">
-        <x-slot:acciones><span class="text-apagado">Grupos con matrícula activa</span></x-slot:acciones>
+        <x-slot:acciones><a href="{{ route('estudiante.reportes') }}" wire:navigate class="enlace">Ver horario completo</a></x-slot:acciones>
         @if ($grupo === null)
             <x-portal.vacio titulo="Aún no tienes clases." icono="heroicon-o-calendar-days">Cuando te matricules, aquí verás tus clases de cada día.</x-portal.vacio>
         @else

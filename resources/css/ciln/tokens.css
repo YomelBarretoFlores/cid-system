@@ -98,3 +98,15 @@
         }
     }
 }
+
+/* Course fills of the SGA-style schedule, read through var() from inline styles, so they live outside @theme (which drops unused variables). */
+:root {
+    --color-curso-1: #fff59d;
+    --color-curso-2: #b3e5fc;
+    --color-curso-3: #f8bbd0;
+    --color-curso-4: #c8e6c9;
+    --color-curso-5: #d1c4e9;
+    --color-curso-6: #ffe0b2;
+    --color-curso-7: #b2ebf2;
+    --color-curso-8: #f0f4c3;
+}

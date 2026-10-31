@@ -78,45 +78,18 @@
             </ul>
         </x-portal.tarjeta>
 
-        <x-portal.tarjeta titulo="Horario semanal" :descripcion="'Periodo '.$reportes->periodo">
+        <x-portal.hoja titulo="Horario personalizado" :periodo="$reportes->periodo">
             <x-slot:acciones>
-                <div class="flex flex-wrap gap-2">
-                    <x-matricula::reportes.pdf :href="route('estudiante.reportes.horario', $reportes->periodoId)" :descripcion="'del horario del periodo '.$reportes->periodo" />
-                    <x-portal.boton variante="secundario" :href="route('estudiante.reportes.horario.imprimir', $reportes->periodoId)" target="_blank" rel="noopener" tamano="compacto">
-                        <x-heroicon-o-printer aria-hidden="true" class="size-4" />
-                        Imprimir<span class="sr-only"> el horario del periodo {{ $reportes->periodo }}</span>
-                    </x-portal.boton>
-                </div>
+                <x-portal.boton variante="secundario" :href="route('estudiante.reportes.horario', $reportes->periodoId)" target="_blank" rel="noopener" tamano="compacto">PDF<span class="sr-only"> del horario del periodo {{ $reportes->periodo }}</span></x-portal.boton>
+                <x-portal.boton variante="secundario" :href="route('estudiante.reportes.horario.imprimir', $reportes->periodoId)" target="_blank" rel="noopener" tamano="compacto">Imprimir<span class="sr-only"> el horario del periodo {{ $reportes->periodo }}</span></x-portal.boton>
             </x-slot:acciones>
 
-            @if ($reportes->horario->filas === [])
-                <p class="text-secundario">No tienes clases programadas en este periodo.</p>
+            @if ($reportes->horario->grupos === [])
+                <p class="text-secundario">No tiene clases programadas en este periodo.</p>
             @else
-                <dl class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3">
-                    @foreach ($reportes->horario->dias as $numero => $dia)
-                        <x-portal.dato wire:key="dia-{{ $numero }}" :etiqueta="$dia">
-                            @foreach ($reportes->horario->filas as $fila)
-                                @isset($fila->celdas[$numero])
-                                    <span class="block">{{ $fila->horas }} · {{ implode(', ', $fila->celdas[$numero]) }}</span>
-                                @endisset
-                            @endforeach
-                        </x-portal.dato>
-                    @endforeach
-                </dl>
-                <ul role="list" class="flex flex-col">
-                    @foreach ($reportes->horario->grupos as $grupo)
-                        <x-portal.fila wire:key="leyenda-{{ $grupo->codigo }}" :titulo="$grupo->codigo.' · '.$grupo->idioma.' · Ciclo '.$grupo->cicloNumero" :detalle="'Docente: '.$grupo->docente">
-                            @if ($grupo->aula !== null)
-                                <span>Aula {{ $grupo->aula }}</span>
-                            @endif
-                            @if ($grupo->enlaceVirtual !== null)
-                                <a href="{{ $grupo->enlaceVirtual }}" target="_blank" rel="noopener noreferrer" class="enlace">Entrar a la clase virtual</a>
-                            @endif
-                        </x-portal.fila>
-                    @endforeach
-                </ul>
+                @include('matricula::documentos.horario', ['horario' => $reportes->horario, 'pdf' => false])
             @endif
-        </x-portal.tarjeta>
+        </x-portal.hoja>
     @endif
 
     @if ($records !== [])

@@ -40,8 +40,8 @@ Branch: `feat/estilo-formal` (stacked on `feat/demo-completo`) · Delivery: one 
 |----|-------|-------|--------|--------|
 | T1 | S2 | inline | done | see L2 |
 | T2 | S2, S4 | inline | done | see L2 |
-| T3 | S2, S3 | inline | pending | |
-| T4 | all | inline | pending | |
+| T3 | S2, S3 | inline | done | see L3 |
+| T4 | all | inline | done | see L3 |
 
 T1: shared formal report layout, as a PDF and print component and a portal sheet component with a formal table utility. T2: formal syllabus, covering the PDF, the student page, the admin view, the teacher form wording and the demo text. T3: SGA schedule, covering the grid data, page, PDF, print view and the home link. T4: browser check on desktop and phone, plus opening the PDFs.
 
@@ -58,3 +58,12 @@ T1: shared formal report layout, as a PDF and print component and a portal sheet
   - Demo text rewritten in the register of a UNASAM syllabus.
   - Tests: RED 4 tests on the new structure; Docencia plus syllabus plus demo tests: 390 pass.
   - Browser on `ciln_preview`: page at 1280 and 390 wide (no horizontal overflow, no JS errors), PDF read back, teacher form checked.
+- L3 (2026-10-31): T3 and T4 done.
+  - `ArmarHorarioSemanal` builds the SGA layout:
+    - Courses are sorted by code, numbered [01], [02]… and colored from `PaletaCiln::CURSO`, with eight pastels that keep dark text readable. Tokens `--color-curso-N` sit in `:root`, because `@theme` drops variables it sees unused. `PaletaCilnTest` keeps both equal.
+    - `CuadriculaDelHorario` builds 30-minute rows from the first class to the last, Monday to Saturday, and adds Sunday only when used. Cells read "[01] [A-204]" or "[02] [VIRTUAL]". An empty stretch of 2 hours or more becomes one "SIN CLASES" row; shorter gaps stay as empty rows.
+  - One body, `matricula::documentos.horario` ("Cursos y docentes" and "Mi horario"), is used by the PDF, the print view and the reports page. Hex colors go in the PDF and CSS variables on the page.
+  - The home "Tu horario semanal" links "Ver horario completo".
+  - `FilaDelHorario` was replaced by `FranjaDelHorario` and `CeldaDelHorario`; only Matricula used it.
+  - Tests: RED 4 of 6 new tests. Matricula and palette tests: 294 pass. `composer check` rc=0, 1793 tests.
+  - Browser on `ciln_preview`: reports page at 1280 (every course colored) and at 390 (the grid scrolls inside its box, no page overflow, no JS errors). PDF and print view read back.

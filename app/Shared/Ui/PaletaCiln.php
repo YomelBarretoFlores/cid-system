@@ -36,4 +36,31 @@ final class PaletaCiln
         900 => 'oklch(0.34 0.08 60)',
         950 => 'oklch(0.29 0.06 80)',
     ];
+
+    /** @var array<int, string> Flat pastel fills of the courses in the SGA-style schedule; dark text keeps its contrast on every one. */
+    public const array CURSO = [
+        1 => '#fff59d',
+        2 => '#b3e5fc',
+        3 => '#f8bbd0',
+        4 => '#c8e6c9',
+        5 => '#d1c4e9',
+        6 => '#ffe0b2',
+        7 => '#b2ebf2',
+        8 => '#f0f4c3',
+    ];
+
+    public static function color(int $numero): string
+    {
+        return self::CURSO[self::posicion($numero)];
+    }
+
+    public static function variable(int $numero): string
+    {
+        return 'var(--color-curso-'.self::posicion($numero).')';
+    }
+
+    private static function posicion(int $numero): int
+    {
+        return ($numero - 1) % count(self::CURSO) + 1;
+    }
 }

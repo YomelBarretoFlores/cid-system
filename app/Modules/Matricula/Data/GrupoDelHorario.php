@@ -10,12 +10,21 @@ final readonly class GrupoDelHorario
      * @param  list<string>  $horarios
      */
     public function __construct(
+        public string $numero,
+        public int $color,
         public string $codigo,
         public string $idioma,
         public int $cicloNumero,
+        public string $nivel,
+        public string $modalidad,
         public string $docente,
         public ?string $aula,
         public ?string $enlaceVirtual,
         public array $horarios,
     ) {}
+
+    public function lugar(): string
+    {
+        return $this->aula ?? ($this->enlaceVirtual === null ? 'Por asignar' : 'Virtual');
+    }
 }

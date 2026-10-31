@@ -11,4 +11,5 @@ it('keeps the Filament palettes equal to the shared design tokens', function (st
 })->with([
     ['piedra', PaletaCiln::PIEDRA],
     ['oro', PaletaCiln::ORO],
+    ['curso', PaletaCiln::CURSO],
 ]);

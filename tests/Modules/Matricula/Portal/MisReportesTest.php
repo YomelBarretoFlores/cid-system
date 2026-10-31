@@ -36,7 +36,7 @@ it('offers only the periods of the student, newest first, and shows the summarie
             'Avance de notas', 'Examen parcial', '15.00', 'Participación', 'Promedio parcial', '10.80',
             'Asistencia', '3 de 10', '67 %', '20 %',
             'Boleta de notas', 'ING-1-M', 'Acta abierta',
-            'Horario semanal', 'Lun', '18:00', 'Vega Ríos, Carlos', 'A-101 · Laboratorio 1',
+            'Horario personalizado', 'Vega Ríos, Carlos', 'A-101 · Laboratorio 1', 'LUNES', '18:00 - 18:30',
             'Récord por idioma', 'Quechua', '13.00', 'Faltan los ciclos 2, 3 y 4 del nivel Básico',
         ])
         ->assertSee(route('estudiante.reportes.avance', $this->matricula))
@@ -99,10 +99,10 @@ describe('PDF reports', function (): void {
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.horario', $this->periodo->id))->assertOk();
 
         Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'horario-marzo-2027.pdf'
-            && $pdf->contains(['HORARIO SEMANAL', 'Lunes', 'Miércoles', '18:00 – 20:00', 'ING-1-M', 'Vega Ríos, Carlos', 'A-101 · Laboratorio 1', 'https://meet.example.test/ing-1-m']));
+            && collect(['Horario personalizado', 'LUNES', 'MIÉRCOLES', '18:00 - 18:30', 'ING-1-M', 'Vega Ríos, Carlos', 'A-101 · Laboratorio 1', 'https://meet.example.test/ing-1-m'])->every(fn (string $texto): bool => $pdf->contains($texto)));
 
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.horario.imprimir', $this->periodo->id))
-            ->assertOk()->assertSee('HORARIO SEMANAL')->assertSee('Vega Ríos, Carlos')->assertSee('window.print()', false);
+            ->assertOk()->assertSee('Horario personalizado')->assertSee('Vega Ríos, Carlos')->assertSee('window.print()', false);
     });
 
     it('gives the record of one language or of every language with the informative notice', function (): void {
