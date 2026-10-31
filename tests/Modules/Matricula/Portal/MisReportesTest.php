@@ -157,3 +157,23 @@ it('keeps the reports page and the record behind the portal login', function ():
 it('adds the reports to the portal menu', function (): void {
     $this->actingAs($this->escenario['usuario'])->get(route('estudiante.matriculas'))->assertOk()->assertSee(route('estudiante.reportes'));
 });
+
+it('leaves a withdrawn enrollment out of the reports, like the acta does', function (): void {
+    $retirada = Matricula::factory()->retirada()->create(['persona_id' => $this->escenario['persona']->id, 'grupo_id' => Grupo::factory()->create(['codigo' => 'QUE-1-R', 'periodo_id' => $this->periodo->id])->id]);
+    Pdf::fake();
+
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes'))->assertOk()->assertSee('ING-1-M')->assertDontSee('QUE-1-R');
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.avance', $retirada))->assertNotFound();
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.asistencia', $retirada))->assertNotFound();
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.boleta', $this->periodo->id))->assertOk();
+
+    Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => ! str_contains(json_encode($pdf->viewData, JSON_UNESCAPED_UNICODE) ?: '', 'QUE-1-R'));
+});
+
+it('hides a period where every enrollment of the student was withdrawn', function (): void {
+    $otroPeriodo = Periodo::factory()->create(['nombre' => 'Abril 2027', 'fecha_inicio' => '2027-04-01', 'fecha_fin' => '2027-04-30']);
+    Matricula::factory()->retirada()->create(['persona_id' => $this->escenario['persona']->id, 'grupo_id' => Grupo::factory()->create(['periodo_id' => $otroPeriodo->id])->id]);
+
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes'))->assertOk()->assertDontSee('Abril 2027');
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.boleta', $otroPeriodo->id))->assertNotFound();
+});

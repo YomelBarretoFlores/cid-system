@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Matricula\Actions;
 
 use App\Modules\Academico\Data\FichaDeGrupo;
+use App\Modules\Matricula\Enums\EstadoMatricula;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Matricula\Support\MatriculasDelEstudiante;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
@@ -22,9 +23,11 @@ final readonly class BuscarMatriculasDelPeriodo
         $personaId = (($this->fichaDelUsuario)($userId) ?? abort(403))->personaId;
         $datos = ($this->listarMatriculas)($personaId);
         $grupos = array_filter($datos->grupos, fn (FichaDeGrupo $grupo): bool => $grupo->periodoId === $periodoId);
-        $matriculas = $datos->matriculas->filter(fn (Matricula $matricula): bool => isset($grupos[$matricula->grupo_id]))->values();
+        // Withdrawn enrollments stay out of the reports, as they stay out of the acta.
+        $matriculas = $datos->matriculas->filter(fn (Matricula $matricula): bool => $matricula->estado === EstadoMatricula::Activa && isset($grupos[$matricula->grupo_id]))->values();
 
         abort_if($matriculas->isEmpty(), 404);
+        $grupos = array_intersect_key($grupos, array_flip($matriculas->pluck('grupo_id')->all()));
 
         return new MatriculasDelEstudiante($matriculas, $grupos, array_intersect_key($datos->docentes, $grupos));
     }

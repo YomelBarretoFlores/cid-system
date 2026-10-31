@@ -7,6 +7,7 @@ namespace App\Modules\Matricula\Actions;
 use App\Modules\Academico\Contracts\CatalogoDePeriodos;
 use App\Modules\Academico\Contracts\DetalleDeGrupos;
 use App\Modules\Academico\Data\FichaDeGrupo;
+use App\Modules\Matricula\Enums\EstadoMatricula;
 use App\Modules\Matricula\Models\Matricula;
 
 final readonly class ListarPeriodosDelEstudiante
@@ -17,11 +18,11 @@ final readonly class ListarPeriodosDelEstudiante
     ) {}
 
     /**
-     * @return array<int, string> period id => name, newest first, only periods with an enrollment of the student
+     * @return array<int, string> period id => name, newest first, only periods with an active enrollment of the student
      */
     public function __invoke(int $personaId): array
     {
-        $grupoIds = array_values(array_map(intval(...), Matricula::query()->where('persona_id', $personaId)->distinct()->pluck('grupo_id')->all()));
+        $grupoIds = array_values(array_map(intval(...), Matricula::query()->where(['persona_id' => $personaId, 'estado' => EstadoMatricula::Activa])->distinct()->pluck('grupo_id')->all()));
 
         if ($grupoIds === []) {
             return [];
