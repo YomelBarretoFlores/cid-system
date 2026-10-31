@@ -22,7 +22,10 @@ if [[ "${DEMO_SEED:-false}" == "true" ]]; then
         php artisan db:seed --force
     else
         # An existing demo is completed without deleting anything; every piece of the complement checks first.
-        php artisan db:seed --class='Database\Seeders\ComplementoDemoSeeder' --force
+        # It is one transaction, so a failure leaves the demo as it was and must not keep it from starting.
+        if ! php artisan db:seed --class='Database\Seeders\ComplementoDemoSeeder' --force; then
+            echo "Warning: the demo complement failed; the demo starts without it" >&2
+        fi
     fi
 fi
 

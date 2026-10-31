@@ -50,7 +50,8 @@ function filasPorTabla(): array
 }
 
 // The demo as it was seeded before these features: every class without calls ("registro anterior"), no delegates, syllabi or record.
-function sembrarDemoAnterior(): void
+// With $registroAnterior false the classes stay "registro posterior", as the seed of the previous release saved them.
+function sembrarDemoAnterior(bool $registroAnterior = true): void
 {
     app()->bind(ComplementoDemoSeeder::class, fn (): Seeder => new class extends Seeder
     {
@@ -69,7 +70,9 @@ function sembrarDemoAnterior(): void
         app(RegistrarAsistencia::class)($grupo->id, $docenteId, $clase->fecha->toDateString(), '07:00', $presentes, CuentasDeDemo::usuarioDe($docenteId));
     }
 
-    ClaseDictada::query()->update(['registro_posterior' => false]);
+    if ($registroAnterior) {
+        ClaseDictada::query()->update(['registro_posterior' => false]);
+    }
 }
 
 /**
@@ -158,6 +161,27 @@ it('completes a demo seeded before these features without deleting what it had',
         ->and(Silabo::query()->pluck('estado')->map->value->sort()->values()->all())->toBe(['borrador', 'publicado', 'publicado'])
         ->and(historialDelEstudiante())->toBe(['Portugués 1 Julio 2026: cerrada aprobado', 'Portugués 2 Agosto 2026: cerrada aprobado'])
         ->and(cicloHabilitadoEnPortugues())->toBe('3 aprobacion');
+});
+
+it('takes no class and says why when the past classes were already saved as registro posterior', function (): void {
+    sembrarDemoAnterior(registroAnterior: false);
+
+    $this->artisan('db:seed', ['--class' => ComplementoDemoSeeder::class, '--force' => true])
+        ->expectsOutputToContain('Control de clases de demo: 0 clases tomadas; las clases pasadas ya tienen asistencia registrada.')
+        ->expectsOutputToContain('Historial de demo: 2 actas cerradas')
+        ->assertSuccessful();
+
+    expect(clasesConLlamados(grupoDelMes('ING-1-M')))->toBe([]);
+});
+
+it('leaves a database without the demo accounts untouched', function (): void {
+    $antes = filasPorTabla();
+
+    $this->artisan('db:seed', ['--class' => ComplementoDemoSeeder::class, '--force' => true])
+        ->expectsOutputToContain('Complemento de demo omitido: la base no tiene las cuentas de demostración.')
+        ->assertSuccessful();
+
+    expect(filasPorTabla())->toBe($antes);
 });
 
 it('refuses to complete demo data in production', function (): void {
