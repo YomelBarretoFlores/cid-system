@@ -1,0 +1,36 @@
+/* Formal tables of the SGA reports: thin grey borders, bold uppercase headers. */
+@utility tabla-formal {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+
+    & th,
+    & td {
+        border: 1px solid var(--color-piedra-400);
+        padding: 0.375rem 0.5rem;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    & th {
+        background-color: var(--color-piedra-50);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    & td.etiqueta {
+        width: 30%;
+        font-weight: 700;
+    }
+
+    & .centro {
+        text-align: center;
+    }
+}
+
+@utility titulo-formal {
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.2;
+}

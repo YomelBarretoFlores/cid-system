@@ -1,8 +1,10 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 @import '../../ciln/tokens.css';
+@import '../../ciln/formal.css';
 
 @source '../../../../app/Modules/*/Filament/**/*';
 @source '../../../../app/Modules/*/resources/views/filament/**/*';
+@source '../../../../app/Modules/*/resources/views/documentos/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../resources/views/components/ciln/**/*';
 

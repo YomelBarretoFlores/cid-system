@@ -95,11 +95,12 @@ it('shows a syllabus with every section in a modal, and offers it only when the 
     $modal = modalDelSilabo($pagina);
 
     test()->assertThat([
-        'Sílabo del grupo ING-1-M', 'I. Identificación', 'Inglés', 'Básico I', 'Marzo 2027 (1 mar 2027 al 31 mar 2027)', '60', 'Vega Ríos, Carlos',
-        'II. Sumilla, competencias y capacidades', 'Curso básico de inglés.', 'III. Programación semanal', '1 – 7 mar', 'Unidad 1', 'Vocabulario 1', 'Diálogos 1',
-        'IV. Evaluación', 'Examen parcial', '40 %', 'Indicadores de parcial', 'Rúbrica', 'V. Metodología y bibliografía', 'Enfoque comunicativo.', 'Libro del curso.',
+        'Sílabo del grupo ING-1-M', 'I. Datos generales', '1.2. Idioma', 'Inglés', 'Básico I', 'Marzo 2027 (1 mar 2027 al 31 mar 2027)', '60', 'Vega Ríos, Carlos',
+        'II. Sumilla', 'Curso básico de inglés.', 'V. Programación de contenidos', '1 – 7 mar', 'Unidad 1', 'Vocabulario 1', 'Diálogos 1',
+        'VI. Estrategias metodológicas', 'Enfoque comunicativo.', 'VII. Evaluación', 'Examen parcial', '40', 'Indicadores de parcial', 'Rúbrica',
+        'VIII. Referencias bibliográficas', '1. Libro del curso.',
     ], new SeeInOrder($modal));
-    expect($modal)->not->toContain('Borrador: los estudiantes todavía no lo ven.');
+    expect($modal)->not->toContain('Borrador: aún no publicado para los estudiantes.');
 });
 
 it('warns in the modal that a draft is not visible to students yet', function (): void {
@@ -107,7 +108,7 @@ it('warns in the modal that a draft is not visible to students yet', function ()
 
     $pagina = Livewire::test(Silabos::class)->mountAction(TestAction::make('ver')->table((string) $this->borrador->id));
 
-    test()->assertThat(['Sílabo del grupo ING-1-B', 'Borrador: los estudiantes todavía no lo ven.', 'Paz Soto, Lucía'], new SeeInOrder(modalDelSilabo($pagina)));
+    test()->assertThat(['Sílabo del grupo ING-1-B', 'Borrador: aún no publicado para los estudiantes.', 'Paz Soto, Lucía'], new SeeInOrder(modalDelSilabo($pagina)));
 });
 
 // Filament renders the mounted action's modal as a Livewire partial, outside the component HTML.

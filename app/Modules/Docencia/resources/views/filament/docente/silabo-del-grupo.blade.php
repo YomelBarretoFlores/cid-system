@@ -13,13 +13,13 @@
         <span>
             @switch($estado)
                 @case(EstadoSilabo::Publicado)
-                    Tus estudiantes ya pueden leerlo. Puedes corregirlo; cada cambio queda registrado.
+                    Visible para los estudiantes. Las modificaciones quedan registradas.
                     @break
                 @case(EstadoSilabo::Borrador)
-                    Tus estudiantes todavía no lo ven. Publícalo cuando esté completo.
+                    No visible para los estudiantes hasta su publicación.
                     @break
                 @default
-                    Aún no lo guardas. Puedes avanzar por partes como borrador.
+                    Sin registrar. Puede guardarse por partes como borrador.
             @endswitch
         </span>
     </p>

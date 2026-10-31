@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Database\Seeders;
 
-// Generic content of a first basic cycle; the bibliography names CILN material, not real titles.
+// Content of a first basic cycle in the register of a UNASAM syllabus; the bibliography cites CILN material and the CEFR, nothing copied.
 final class SilaboDeDemo
 {
     /**
@@ -13,18 +13,18 @@ final class SilaboDeDemo
      * @var list<array{0: string, 1: string, 2: string, 3: string, 4: string, 5: string}>
      */
     private const array SEMANAS = [
-        ['Unidad 1: Saludos y presentaciones', 'Saludos formales e informales, el alfabeto y los pronombres personales.', 'Se presenta y presenta a otras personas.', 'Respeta los turnos de palabra.', 'Diálogos en parejas y juego de roles de presentación.', 'Material del CILN, Unidad 1; audios de la unidad.'],
-        ['Unidad 2: Números y datos personales', 'Números del 0 al 100, la hora, los días y los meses.', 'Pide y da datos personales: edad, teléfono y dirección.', 'Valora la precisión al comunicar datos.', 'Llenado de una ficha de inscripción y dictado de números.', 'Material del CILN, Unidad 2; fichas de trabajo.'],
-        ['Unidad 3: La familia y las personas', 'Vocabulario de la familia, adjetivos y posesivos.', 'Describe a su familia y a sus compañeros.', 'Muestra respeto por la diversidad de las familias.', 'Árbol genealógico comentado y descripción oral.', 'Material del CILN, Unidad 3; imágenes de apoyo.'],
-        ['Unidad 4: La rutina diaria', 'Presente simple, verbos de rutina y adverbios de frecuencia.', 'Cuenta su día y pregunta por la rutina de otros.', 'Organiza su tiempo de estudio con responsabilidad.', 'Entrevista sobre rutinas y redacción de un párrafo breve.', 'Material del CILN, Unidad 4; plataforma del curso.'],
+        ['Unidad I: Saludos y presentaciones', 'Saludos formales e informales. El alfabeto. Pronombres personales.', 'Saluda, se presenta y presenta a otras personas.', 'Respeta los turnos de participación.', 'Exposición dialogada. Diálogos en pares. Juego de roles.', 'Texto del CILN, unidad I. Material de audio.'],
+        ['Unidad II: Números y datos personales', 'Números del 0 al 100. La hora. Días de la semana y meses del año.', 'Solicita y proporciona datos personales.', 'Valora la precisión en la comunicación.', 'Práctica guiada. Dictado de números. Llenado de una ficha de datos.', 'Texto del CILN, unidad II. Fichas de práctica.'],
+        ['Unidad III: La familia', 'Vocabulario de la familia. Adjetivos calificativos. Posesivos.', 'Describe a los miembros de su familia.', 'Respeta la diversidad familiar.', 'Elaboración y exposición de un árbol genealógico.', 'Texto del CILN, unidad III. Material gráfico.'],
+        ['Unidad IV: La rutina diaria', 'Presente simple. Verbos de rutina. Adverbios de frecuencia.', 'Describe su rutina diaria y la de otras personas.', 'Asume con responsabilidad la organización de su tiempo.', 'Entrevista en pares. Redacción de un párrafo breve.', 'Texto del CILN, unidad IV. Aula virtual del curso.'],
     ];
 
-    private const array REPASO = ['Repaso integrador', 'Contenidos de las unidades 1 a 4.', 'Mantiene una conversación breve sobre sí mismo.', 'Evalúa su propio avance.', 'Proyecto final oral en grupos y retroalimentación.', 'Material del CILN, unidades 1 a 4; rúbrica del proyecto.'];
+    private const array REPASO = ['Integración', 'Contenidos de las unidades I a IV.', 'Sostiene una conversación breve sobre temas personales.', 'Evalúa su propio aprendizaje.', 'Presentación oral del proyecto final. Retroalimentación.', 'Texto del CILN, unidades I a IV. Rúbrica del proyecto.'];
 
     private const array EVALUACIONES = [
-        'parcial' => ['Comprende y usa el vocabulario de las unidades 1 y 2 en textos breves.', 'Prueba escrita y oral'],
-        'final' => ['Se comunica en situaciones cotidianas con el contenido de todo el ciclo.', 'Prueba escrita y exposición oral'],
-        'participacion' => ['Participa en clase, cumple las tareas y colabora con sus compañeros.', 'Lista de cotejo'],
+        'parcial' => ['Comprende y utiliza el vocabulario y las estructuras de las unidades I y II en textos breves.', 'Prueba escrita y prueba oral'],
+        'final' => ['Se comunica en situaciones cotidianas con los contenidos de las unidades I a IV.', 'Prueba escrita y exposición oral'],
+        'participacion' => ['Participa en clase, cumple las tareas asignadas y trabaja en equipo.', 'Lista de cotejo'],
     ];
 
     /**
@@ -35,9 +35,9 @@ final class SilaboDeDemo
     {
         return [
             ...self::textos($idioma),
-            'capacidades' => "Comprende y produce textos orales y escritos breves en {$idioma} sobre su entorno inmediato; usa el vocabulario y las estructuras básicas del ciclo.",
-            'metodologia' => 'Enfoque comunicativo: cada sesión combina presentación, práctica guiada y práctica libre en parejas o grupos, con uso de audios y material del curso.',
-            'bibliografia' => "Material del CILN, Básico I de {$idioma}, unidades 1 a 4.\nGuía de pronunciación del CILN.\nDiccionario bilingüe de uso escolar.",
+            'capacidades' => "Comprende expresiones de uso frecuente referidas a información personal básica.\nSe presenta y presenta a otras personas, formulando y respondiendo preguntas sobre datos personales.\nDescribe a su familia y su rutina diaria con estructuras simples.\nRedacta textos breves y sencillos sobre temas cotidianos.",
+            'metodologia' => 'Se aplica el enfoque comunicativo orientado a la acción. Cada sesión comprende tres momentos: presentación del contenido, práctica controlada y práctica libre, mediante trabajo individual, en pares y en grupos. Se emplean recursos audiovisuales y el aula virtual del curso como apoyo al aprendizaje autónomo.',
+            'bibliografia' => 'Centro de Idiomas y Lenguas Nativas - UNASAM. (2026). '.mb_ucfirst($idioma)." Básico I: texto del estudiante. Huaraz: CILN.\nCentro de Idiomas y Lenguas Nativas - UNASAM. (2026). Guía de pronunciación. Huaraz: CILN.\nConsejo de Europa. (2002). Marco común europeo de referencia para las lenguas: aprendizaje, enseñanza, evaluación. Madrid: Ministerio de Educación, Cultura y Deporte; Anaya.",
             'semanas' => self::semanas($semanas, $semanas),
             'evaluaciones' => self::evaluaciones($semanas, $codigos),
         ];
@@ -57,8 +57,8 @@ final class SilaboDeDemo
     private static function textos(string $idioma): array
     {
         return [
-            'sumilla' => "Curso teórico-práctico que inicia al estudiante en el {$idioma} de uso cotidiano: saludos, datos personales, la familia y la rutina diaria.",
-            'competencias' => "Se comunica en {$idioma} en situaciones cotidianas sencillas, de forma oral y escrita, con un vocabulario básico.",
+            'sumilla' => "La asignatura pertenece al nivel básico del programa de {$idioma} del Centro de Idiomas y Lenguas Nativas. Es de naturaleza teórico-práctica y tiene como propósito desarrollar en el estudiante la competencia comunicativa elemental en {$idioma}. Comprende las unidades: I. Saludos y presentaciones; II. Números y datos personales; III. La familia; IV. La rutina diaria.",
+            'competencias' => "Se comunica en forma oral y escrita en {$idioma} en situaciones cotidianas elementales, utilizando expresiones y estructuras básicas con corrección y pertinencia, de acuerdo con el nivel A1 del Marco común europeo de referencia para las lenguas.",
         ];
     }
 
@@ -86,7 +86,7 @@ final class SilaboDeDemo
         $evaluaciones = [];
 
         foreach ($codigos as $codigo) {
-            [$indicadores, $instrumento] = self::EVALUACIONES[$codigo] ?? ['Demuestra los aprendizajes del ciclo.', 'Rúbrica'];
+            [$indicadores, $instrumento] = self::EVALUACIONES[$codigo] ?? ['Demuestra los aprendizajes del ciclo.', 'Rúbrica de evaluación'];
             $evaluaciones[$codigo] = ['indicadores' => $indicadores, 'instrumento' => $instrumento, 'semana' => match ($codigo) {
                 'parcial' => (int) ceil($semanas / 2),
                 'final' => $semanas,

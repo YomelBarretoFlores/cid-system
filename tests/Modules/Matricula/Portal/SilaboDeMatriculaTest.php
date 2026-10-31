@@ -36,13 +36,15 @@ it('shows the published syllabus with every section and a link to its PDF', func
         ->get(route('estudiante.matriculas.silabo', $this->matricula))
         ->assertOk()
         ->assertSeeInOrder([
-            'Sílabo', 'Inglés · Ciclo 1', route('estudiante.matriculas.silabo.pdf', $this->matricula),
-            'I. Identificación', 'ING-1-M', 'Básico I', 'Marzo 2027 (1 mar 2027 al 31 mar 2027)', '60', 'Lun · Mié, 18:00–20:00', 'A-101 · Laboratorio 1', 'Vega Ríos, Carlos',
-            'II. Sumilla, competencias y capacidades', 'Curso básico de inglés.', 'Se comunica en situaciones cotidianas.', 'Saluda y se presenta.',
-            'III. Programación semanal', 'Semana 1', '1 – 7 mar', 'Unidad 1', 'Vocabulario 1', 'Diálogos 1', 'Semana 5', '29 – 31 mar',
-            'IV. Evaluación', 'Examen parcial', '40 %', 'Indicadores de parcial', 'Rúbrica',
-            'V. Metodología y bibliografía', 'Enfoque comunicativo.', 'Libro del curso.',
-        ]);
+            'Sílabo', 'Marzo 2027', route('estudiante.matriculas.silabo.pdf', $this->matricula),
+            'I. Datos generales', '1.1. Grupo', 'ING-1-M', 'Básico I', 'Marzo 2027 (1 mar 2027 al 31 mar 2027)', '60', 'Lun · Mié, 18:00–20:00', 'A-101 · Laboratorio 1', 'Vega Ríos, Carlos',
+            'II. Sumilla', 'Curso básico de inglés.', 'III. Competencia', 'Se comunica en situaciones cotidianas.', 'IV. Capacidades', 'Saluda y se presenta.',
+            'V. Programación de contenidos', '1 – 7 mar', 'Unidad 1', 'Vocabulario 1', 'Diálogos 1', '29 – 31 mar',
+            'VI. Estrategias metodológicas', 'Enfoque comunicativo.',
+            'VII. Evaluación', 'Examen parcial', '40', 'Indicadores de parcial', 'Rúbrica',
+            'VIII. Referencias bibliográficas', '1. Libro del curso.',
+        ])
+        ->assertDontSee('tarjeta-interna');
 });
 
 it('gives the published syllabus as an inline PDF with every section', function (): void {
@@ -53,9 +55,10 @@ it('gives the published syllabus as an inline PDF with every section', function 
 
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->isInline() && $pdf->downloadName === 'silabo-ING-1-M.pdf' && $pdf->viewName === 'docencia::pdf.silabo'
         && collect([
-            'SÍLABO', 'I. Identificación', 'ING-1-M', 'Inglés', 'Básico I', 'Marzo 2027 (1 mar 2027 al 31 mar 2027)', 'Vega Ríos, Carlos', 'A-101 · Laboratorio 1',
-            'II. Sumilla, competencias y capacidades', 'Curso básico de inglés.', 'III. Programación semanal', 'Saber hacer', 'Saber ser', 'Recursos', '29 – 31 mar', 'Diálogos 5',
-            'IV. Evaluación', 'Peso (%)', 'Indicadores de final', 'Rúbrica', 'V. Metodología', 'Enfoque comunicativo.', 'Bibliografía', 'Libro del curso.',
+            'Sílabo', 'Marzo 2027', 'Inglés · Ciclo 1', 'I. Datos generales', 'ING-1-M', 'Inglés', 'Básico I', 'Marzo 2027 (1 mar 2027 al 31 mar 2027)', 'Vega Ríos, Carlos', 'A-101 · Laboratorio 1',
+            'II. Sumilla', 'Curso básico de inglés.', 'V. Programación de contenidos', 'Saber hacer', 'Saber ser', 'Recursos', '29 – 31 mar', 'Diálogos 5',
+            'VI. Estrategias metodológicas', 'Enfoque comunicativo.', 'VII. Evaluación', 'Peso (%)', 'Indicadores de final', 'Rúbrica',
+            'VIII. Referencias bibliográficas', '1. Libro del curso.', 'Docente del curso',
         ])->every(fn (string $texto): bool => $pdf->contains($texto))
         && ! $pdf->contains('BORRADOR'));
 });

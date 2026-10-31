@@ -99,16 +99,19 @@ final class SilaboDelGrupo extends Page
     {
         return $schema->components([
             $this->identificacion(),
-            Section::make('II. Sumilla, competencias y capacidades')
-                ->schema([$this->texto('sumilla'), $this->texto('competencias'), $this->texto('capacidades')]),
-            Section::make('III. Programación semanal')
-                ->description('Una fila por semana del periodo. Para publicar, cada semana necesita Saber y Actividades.')
+            Section::make('II. Sumilla')->schema([$this->texto('sumilla')]),
+            Section::make('III. Competencia')->schema([$this->texto('competencias')]),
+            Section::make('IV. Capacidades')->schema([$this->texto('capacidades')]),
+            Section::make('V. Programación de contenidos')
+                ->description('Una fila por semana del periodo. Saber y Actividades son obligatorios para publicar.')
                 ->schema(fn (): array => array_map($this->semana(...), array_keys($this->rangos()), $this->rangos())),
-            Section::make('IV. Evaluación')
-                ->description('Componentes y pesos del sistema de evaluación del grupo. Para publicar, completa los indicadores y el instrumento de cada uno.')
+            Section::make('VI. Estrategias metodológicas')->schema([$this->texto('metodologia')]),
+            Section::make('VII. Evaluación')
+                ->description('Componentes y pesos del sistema de evaluación vigente del grupo. Indicadores e instrumento son obligatorios para publicar.')
                 ->schema(fn (): array => $this->evaluaciones()),
-            Section::make('V. Metodología y bibliografía')
-                ->schema([$this->texto('metodologia'), $this->texto('bibliografia')]),
+            Section::make('VIII. Referencias bibliográficas')
+                ->description('Una referencia por línea.')
+                ->schema([$this->texto('bibliografia')]),
         ]);
     }
 
@@ -211,8 +214,8 @@ final class SilaboDelGrupo extends Page
         $ficha = app(DetalleDeGrupos::class)([$this->grupoId])[$this->grupoId] ?? null;
         $grupo = $this->grupo();
 
-        return Section::make('I. Identificación')
-            ->description('Datos del grupo registrados por la coordinación.')
+        return Section::make('I. Datos generales')
+            ->description('Registrados por la coordinación académica.')
             ->columns(['default' => 1, 'sm' => 2, 'lg' => 4])
             ->schema([
                 $this->dato('idioma', 'Idioma', $curso->idioma),
@@ -235,6 +238,7 @@ final class SilaboDelGrupo extends Page
     {
         return Textarea::make("silabo.{$campo}")
             ->label(ContenidoDelSilabo::TEXTOS[$campo])
+            ->hiddenLabel()
             ->markAsRequired()
             ->rows(4)
             ->autosize()

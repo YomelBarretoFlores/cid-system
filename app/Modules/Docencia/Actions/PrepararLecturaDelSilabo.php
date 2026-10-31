@@ -35,7 +35,7 @@ final readonly class PrepararLecturaDelSilabo implements LecturaDelSilabo
 
         $ficha = ($this->detalleDeGrupos)([$grupoId])[$grupoId] ?? null;
 
-        return new SilaboParaLeer($grupoId, $curso->codigo, "{$curso->idioma} · Ciclo {$curso->cicloNumero}", [
+        return new SilaboParaLeer($grupoId, $curso->codigo, "{$curso->idioma} · Ciclo {$curso->cicloNumero}", $curso->periodo, [
             'Grupo' => $curso->codigo,
             'Idioma' => $curso->idioma,
             'Ciclo' => "{$curso->cicloNumero} · {$curso->cicloNombre}",

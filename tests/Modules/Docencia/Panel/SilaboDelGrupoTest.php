@@ -48,11 +48,12 @@ it('fills the identification from the group and gives one row per period week an
         ->assertOk()
         ->assertSeeInOrder([
             'Sílabo del grupo ING-1-M', 'Falta',
-            'I. Identificación', 'Inglés', 'Básico I', 'Básico', 'Marzo 2027', '60', 'Lun, 18:00–20:00', 'A-101 · Laboratorio 1', 'Vega Ríos, Carlos',
-            'II. Sumilla, competencias y capacidades', 'Sumilla',
-            'III. Programación semanal', 'Semana 1 · 1 – 7 mar', 'Saber', 'Actividades', 'Semana 5 · 29 – 31 mar',
-            'IV. Evaluación', 'Examen parcial · 40 %', 'Indicadores', 'Instrumento', 'Examen final · 40 %', 'Participación · 20 %',
-            'V. Metodología y bibliografía',
+            'I. Datos generales', 'Inglés', 'Básico I', 'Básico', 'Marzo 2027', '60', 'Lun, 18:00–20:00', 'A-101 · Laboratorio 1', 'Vega Ríos, Carlos',
+            'II. Sumilla', 'III. Competencia', 'IV. Capacidades',
+            'V. Programación de contenidos', 'Semana 1 · 1 – 7 mar', 'Saber', 'Actividades', 'Semana 5 · 29 – 31 mar',
+            'VI. Estrategias metodológicas',
+            'VII. Evaluación', 'Examen parcial · 40 %', 'Indicadores', 'Instrumento', 'Examen final · 40 %', 'Participación · 20 %',
+            'VIII. Referencias bibliográficas', 'Una referencia por línea.',
         ])
         ->assertDontSee('Semana 6');
 
