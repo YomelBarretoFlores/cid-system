@@ -34,8 +34,9 @@ final readonly class PrepararLecturaDelSilabo implements LecturaDelSilabo
         }
 
         $ficha = ($this->detalleDeGrupos)([$grupoId])[$grupoId] ?? null;
+        $docente = ($this->docenteDelGrupo)($grupoId)->nombreCompleto ?? 'Por asignar';
 
-        return new SilaboParaLeer($grupoId, $curso->codigo, "{$curso->idioma} · Ciclo {$curso->cicloNumero}", $curso->periodo, [
+        return new SilaboParaLeer($grupoId, $curso->codigo, "{$curso->idioma} · Ciclo {$curso->cicloNumero}", $curso->periodo, $docente, [
             'Grupo' => $curso->codigo,
             'Idioma' => $curso->idioma,
             'Ciclo' => "{$curso->cicloNumero} · {$curso->cicloNombre}",
@@ -44,7 +45,7 @@ final readonly class PrepararLecturaDelSilabo implements LecturaDelSilabo
             'Horas lectivas' => (string) $curso->horasLectivas,
             'Horario' => $ficha instanceof FichaDeGrupo && $ficha->sesiones !== [] ? implode(' / ', $ficha->horarioCompacto()) : 'Por confirmar',
             'Aula' => $this->aula($ficha),
-            'Docente' => ($this->docenteDelGrupo)($grupoId)->nombreCompleto ?? 'Por asignar',
+            'Docente' => $docente,
         ], $contenido);
     }
 

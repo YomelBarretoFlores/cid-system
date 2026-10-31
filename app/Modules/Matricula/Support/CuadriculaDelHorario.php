@@ -52,7 +52,8 @@ final class CuadriculaDelHorario
                 continue;
             }
 
-            array_push($franjas, ...$this->hueco($vacias), ...[new FranjaDelHorario($this->rotulo($inicio), $celdas)]);
+            array_push($franjas, ...$this->hueco($vacias));
+            $franjas[] = new FranjaDelHorario($this->rotulo($inicio), $celdas);
             $vacias = [];
         }
 

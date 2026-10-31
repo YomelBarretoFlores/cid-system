@@ -3,7 +3,7 @@
     :periodo="$silabo->periodo"
     :persona="$silabo->curso"
     :codigo="$silabo->grupo"
-    :datos="['Docente' => $silabo->identificacion['Docente'] ?? 'Por asignar', 'Estado' => $silabo->estaPublicado() ? 'Publicado' : 'Borrador']"
+    :datos="['Docente' => $silabo->docente, 'Estado' => $silabo->estaPublicado() ? 'Publicado' : 'Borrador']"
     :emitido="now()->timezone('America/Lima')->format('Y-m-d H:i:s')"
     horizontal
 >
@@ -17,7 +17,7 @@
         <tr>
             <td style="width: 60%;"></td>
             <td style="text-align: center; border-top: 0.6pt solid #212529; padding-top: 4pt; font-size: 7.6pt;">
-                {{ $silabo->identificacion['Docente'] ?? 'Por asignar' }}<br>Docente del curso
+                {{ $silabo->docente }}<br>Docente del curso
             </td>
         </tr>
     </table>

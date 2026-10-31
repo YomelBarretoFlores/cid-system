@@ -68,3 +68,17 @@ T1: shared formal report layout, as a PDF and print component and a portal sheet
   - Tests: RED 4 of 6 new tests. Matricula and palette tests: 294 pass. `composer check` rc=0, 1793 tests.
   - Browser on `ciln_preview`: reports page at 1280 (every course colored) and at 390 (the grid scrolls inside its box, no page overflow, no JS errors). PDF and print view read back.
 - L4 (2026-10-31): `review assess` of aebfad8..3ced939: risk medium, review_due false (under_budget), so no native review ran. Preview DB dropped. Push and merge are the user's decision: `feat/demo-completo` and `feat/estilo-formal` are stacked and neither is pushed.
+- L5 (2026-10-31): native review of 977dc39..4d9f7de (four lenses, lineage review-96f041306ffde9b0; the stop hook asked for it and the user granted it) approved and acknowledged (authority burned). Advisories applied:
+  - One place rule for the course list and the grid (`GrupoDelHorario::lugarEnLaCuadricula`): a course without classroom or link reads "Por asignar" / "[POR ASIGNAR]".
+  - Groups without sessions keep the course list and say "No tiene clases programadas en este periodo." instead of an empty grid.
+  - The syllabus teacher is a typed field (`SilaboParaLeer::$docente`).
+  - The gap rows are flushed in plain statements.
+  - The `docs/modulos.md` reports row is fixed.
+
+  RED: 2 new tests failed first. Matricula and Docencia tests: 654 pass; Larastan clean.
+
+  Left for later:
+  - overlapping courses in one cell take the first course's color;
+  - the PDF and page copies of the formal table CSS are not tied by a test;
+  - the partial-accounts case of the demo guard is untested;
+  - the weight assertion is a bare "40".

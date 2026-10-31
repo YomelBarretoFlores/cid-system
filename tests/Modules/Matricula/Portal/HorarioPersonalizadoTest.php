@@ -85,6 +85,24 @@ it('adds Sunday only when a class falls on it and keeps short gaps as empty rows
         ->and(array_slice(franjasLeidas($horario), 5, 3))->toBe(['09:30 - 10:00 6=[02] [VIRTUAL]', '10:00 - 10:30 ', '10:30 - 11:00 7=[01] [A-101]']);
 });
 
+it('names a course without classroom or link the same way in the course list and in the grid', function (): void {
+    Grupo::query()->where('codigo', 'ITA-1-M')->update(['enlace_virtual' => null]);
+
+    $horario = horarioDelPeriodo();
+
+    expect($horario->grupos[1]->lugar())->toBe('Por asignar')
+        ->and($horario->franjas[0]->celdas[2][0]->etiqueta())->toBe('[02] [POR ASIGNAR]');
+});
+
+it('keeps the course list and says there are no classes when the groups have no schedule yet', function (): void {
+    Horario::query()->delete();
+
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes'))
+        ->assertOk()
+        ->assertSeeInOrder(['Horario personalizado', 'Cursos y docentes', '[01]', 'Mi horario', 'No tiene clases programadas en este periodo.'])
+        ->assertDontSee('SIN CLASES');
+});
+
 it('prints the course list and the grid in the PDF and the print view, with the student and the issue time', function (): void {
     Pdf::fake();
     $textos = [

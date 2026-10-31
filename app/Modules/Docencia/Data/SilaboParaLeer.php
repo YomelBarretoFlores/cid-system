@@ -14,6 +14,7 @@ final readonly class SilaboParaLeer
         public string $grupo,
         public string $curso,
         public string $periodo,
+        public string $docente,
         public array $identificacion,
         public DatosDelSilabo $contenido,
     ) {}

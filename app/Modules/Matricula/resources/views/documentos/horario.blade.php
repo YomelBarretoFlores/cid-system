@@ -31,34 +31,38 @@
 </div>
 
 <h2 class="titulo-formal">Mi horario</h2>
-<div class="overflow-x-auto">
-    <table class="tabla-formal min-w-[720px]">
-        <thead>
-            <tr>
-                <th style="width: 13%;">HORA</th>
-                @foreach ($horario->dias as $dia)
-                    <th>{{ mb_strtoupper($dia) }}</th>
+@if ($horario->franjas === [])
+    <p>No tiene clases programadas en este periodo.</p>
+@else
+    <div class="overflow-x-auto">
+        <table class="tabla-formal min-w-[720px]">
+            <thead>
+                <tr>
+                    <th style="width: 13%;">HORA</th>
+                    @foreach ($horario->dias as $dia)
+                        <th>{{ mb_strtoupper($dia) }}</th>
+                    @endforeach
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($horario->franjas as $franja)
+                    @if ($franja->sinClases)
+                        <tr><td colspan="{{ count($horario->dias) + 1 }}" class="separador">SIN CLASES</td></tr>
+                    @else
+                        <tr>
+                            <td class="centro" style="white-space: nowrap;">{{ $franja->horas }}</td>
+                            @foreach (array_keys($horario->dias) as $dia)
+                                @php($celdas = $franja->celdas[$dia] ?? [])
+                                <td class="centro" @if ($celdas !== []) style="{{ $fondo($celdas[0]->color) }}" @endif>
+                                    @foreach ($celdas as $celda)
+                                        {{ $celda->etiqueta() }}@if (! $loop->last)<br>@endif
+                                    @endforeach
+                                </td>
+                            @endforeach
+                        </tr>
+                    @endif
                 @endforeach
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($horario->franjas as $franja)
-                @if ($franja->sinClases)
-                    <tr><td colspan="{{ count($horario->dias) + 1 }}" class="separador">SIN CLASES</td></tr>
-                @else
-                    <tr>
-                        <td class="centro" style="white-space: nowrap;">{{ $franja->horas }}</td>
-                        @foreach (array_keys($horario->dias) as $dia)
-                            @php($celdas = $franja->celdas[$dia] ?? [])
-                            <td class="centro" @if ($celdas !== []) style="{{ $fondo($celdas[0]->color) }}" @endif>
-                                @foreach ($celdas as $celda)
-                                    {{ $celda->etiqueta() }}@if (! $loop->last)<br>@endif
-                                @endforeach
-                            </td>
-                        @endforeach
-                    </tr>
-                @endif
-            @endforeach
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
+@endif

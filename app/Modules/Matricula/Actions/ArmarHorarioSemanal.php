@@ -32,7 +32,7 @@ final readonly class ArmarHorarioSemanal
 
         foreach ($fichas as $indice => $ficha) {
             $grupos[] = $this->grupo($ficha, $indice + 1, $datos->docentes[$ficha->id] ?? 'Por asignar');
-            $celda = new CeldaDelHorario($grupos[$indice]->numero, $ficha->aulaCodigo ?? ($ficha->enlaceVirtual === null ? '—' : 'VIRTUAL'), $indice + 1);
+            $celda = new CeldaDelHorario($grupos[$indice]->numero, $grupos[$indice]->lugarEnLaCuadricula(), $indice + 1);
             array_push($clases, ...array_map(fn (SesionDeClase $sesion): array => [$celda, $sesion], $ficha->sesiones));
         }
 
@@ -43,7 +43,7 @@ final readonly class ArmarHorarioSemanal
     {
         return new GrupoDelHorario(
             sprintf('%02d', $posicion), $posicion, $ficha->codigo, $ficha->idioma, $ficha->cicloNumero, $ficha->nivel, $ficha->modalidad,
-            $docente, $ficha->aula, $ficha->enlaceVirtual, $ficha->horarioCompacto(),
+            $docente, $ficha->aula, $ficha->aulaCodigo, $ficha->enlaceVirtual, $ficha->horarioCompacto(),
         );
     }
 }
