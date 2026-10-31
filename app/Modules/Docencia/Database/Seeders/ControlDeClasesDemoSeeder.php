@@ -66,8 +66,8 @@ final class ControlDeClasesDemoSeeder extends Seeder
             $this->tomar($grupo->id, (int) $docenteId, $clase, $delegado, self::RESPUESTAS[$posicion]);
         }
 
-        // A demo seeded by the previous release saved its past classes as registro posterior, which never go to the delegate.
-        $this->command?->info('Control de clases de demo: '.count($clases).' clases tomadas'.($clases === [] ? '; las clases pasadas ya tienen asistencia registrada.' : ''));
+        // Empty when the period has no finished class left without attendance, e.g. a demo seeded by the previous release (registro posterior).
+        $this->command?->info('Control de clases de demo: '.count($clases).' clases tomadas'.($clases === [] ? '; no quedan clases pasadas sin asistencia registrada.' : ''));
     }
 
     private function yaRespondidas(int $grupoId): bool

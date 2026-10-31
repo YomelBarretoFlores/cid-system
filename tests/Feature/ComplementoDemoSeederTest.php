@@ -167,7 +167,7 @@ it('takes no class and says why when the past classes were already saved as regi
     sembrarDemoAnterior(registroAnterior: false);
 
     $this->artisan('db:seed', ['--class' => ComplementoDemoSeeder::class, '--force' => true])
-        ->expectsOutputToContain('Control de clases de demo: 0 clases tomadas; las clases pasadas ya tienen asistencia registrada.')
+        ->expectsOutputToContain('Control de clases de demo: 0 clases tomadas; no quedan clases pasadas sin asistencia registrada.')
         ->expectsOutputToContain('Historial de demo: 2 actas cerradas')
         ->assertSuccessful();
 
