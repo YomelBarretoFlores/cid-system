@@ -82,3 +82,10 @@ T1: shared formal report layout, as a PDF and print component and a portal sheet
   - the PDF and page copies of the formal table CSS are not tied by a test;
   - the partial-accounts case of the demo guard is untested;
   - the weight assertion is a bare "40".
+- L6 (2026-10-31): the stop hook asked again for 977dc39..0d93219, and the user granted the review. Four-lens native review (lineage review-9eb33ac95f894d4c) approved and acknowledged (authority burned). Its non-blocking advisories are left as later work:
+  - the PDF and page copies of the formal table CSS differ slightly (border grey, label width);
+  - the cell color is recomputed as position + 1 instead of read from the group;
+  - an overlapping cell takes the first course's color;
+  - gaps of exactly 90 and 120 minutes are not tested;
+  - the partial set of demo accounts is not tested;
+  - the non-fatal complement is signalled only on stderr.
