@@ -16,6 +16,14 @@ trait PestanasDelGrupo
 
     abstract protected function grupoDeLaPestana(): int;
 
+    // The portal routes only matched numeric groups; the panel slugs match anything, so a typed URL like /docente/grupos/abc stays a 404.
+    protected static function grupoDeLaRuta(string $grupo): int
+    {
+        abort_unless(ctype_digit($grupo), 404);
+
+        return (int) $grupo;
+    }
+
     public static function getSubNavigationPosition(): SubNavigationPosition
     {
         return SubNavigationPosition::Top;

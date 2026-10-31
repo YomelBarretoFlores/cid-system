@@ -87,6 +87,30 @@ it('downloads the PDF with a full request instead of swapping the panel page in 
         ->and($enlace[0])->not->toContain('wire:navigate');
 });
 
+it('closes the acta once the teacher confirms the header action', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(ActaFinalDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertActionEnabled('validarActa')
+        ->callAction('validarActa')
+        ->assertHasNoErrors()
+        ->assertSee('Acta final validada y cerrada.')
+        ->assertActionHidden('validarActa')
+        ->assertActionVisible('descargarPdf');
+
+    expect(Acta::query()->sole()->estado)->toBe(EstadoActa::Cerrada);
+});
+
+it('disables the header action outside the grade calendar and closes nothing', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-04-06 08:00', 'America/Lima'));
+
+    Livewire::actingAs($this->usuario)
+        ->test(ActaFinalDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertActionDisabled('validarActa')
+        ->callAction('validarActa');
+
+    expect(Acta::query()->count())->toBe(0);
+});
+
 it('shows and logs a rejected validation outside the grade calendar and stores nothing', function (): void {
     Log::spy();
     $this->travelTo(CarbonImmutable::parse('2027-04-06 08:00', 'America/Lima'));

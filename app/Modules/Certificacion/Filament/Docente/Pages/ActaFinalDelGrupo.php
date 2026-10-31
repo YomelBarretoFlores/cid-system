@@ -49,8 +49,9 @@ final class ActaFinalDelGrupo extends Page
         return 'grupos.acta';
     }
 
-    public function mount(int $grupo): void
+    public function mount(string $grupo): void
     {
+        $grupo = self::grupoDeLaRuta($grupo);
         $this->asegurarAcceso($grupo);
         $this->grupoId = $grupo;
         $this->cargarNotas();

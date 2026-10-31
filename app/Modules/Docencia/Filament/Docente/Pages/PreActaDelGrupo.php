@@ -46,8 +46,9 @@ final class PreActaDelGrupo extends Page
         return 'grupos.notas';
     }
 
-    public function mount(int $grupo): void
+    public function mount(string $grupo): void
     {
+        $grupo = self::grupoDeLaRuta($grupo);
         abort_unless(GrupoACargo::tiene($this->docenteId(), $grupo), 404);
 
         $this->grupoId = $grupo;

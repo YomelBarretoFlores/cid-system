@@ -67,3 +67,9 @@ it('still signs staff out to the panel sign-in', function (): void {
         ->post(route('filament.admin.auth.logout'))
         ->assertRedirect(route('filament.admin.auth.login'));
 });
+
+it('answers not found for a group segment that is not a number', function (string $pagina): void {
+    [$usuario] = PortalDocente::docente();
+
+    $this->actingAs($usuario)->get("/docente/grupos/abc/{$pagina}")->assertNotFound();
+})->with(['asistencia', 'notas', 'acta']);
