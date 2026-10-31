@@ -58,7 +58,7 @@ it('lands staff without a person record on the panel', function (): void {
 it('sends guests of portal pages to the single entry and back to the requested page after signing in', function (): void {
     [$usuario] = PortalDocente::docente();
 
-    $this->get(route('docente.actas'))->assertRedirect(route('ingresar'));
+    $this->get(route('filament.docente.pages.actas'))->assertRedirect(route('ingresar'));
     $this->get(route('estudiante.pagos'))->assertRedirect(route('ingresar'));
 
     Livewire::test(IniciarSesion::class)

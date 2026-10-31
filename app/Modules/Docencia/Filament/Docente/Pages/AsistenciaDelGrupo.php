@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\Docencia\Livewire;
+namespace App\Modules\Docencia\Filament\Docente\Pages;
 
 use App\Modules\Academico\Contracts\HorariosDeGrupos;
 use App\Modules\Academico\Data\HorarioDeGrupo;
@@ -18,15 +18,26 @@ use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Filament\PestanasDelGrupo;
 use App\Shared\Support\Logging\RegistroDeRechazos;
-use Illuminate\Contracts\View\View;
-use Livewire\Attributes\Layout;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Pages\Page;
+use Filament\Panel;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Livewire\Attributes\Locked;
-use Livewire\Component;
 
-#[Layout('components.layouts.portal')]
-final class AsistenciaDelGrupo extends Component
+final class AsistenciaDelGrupo extends Page
 {
+    use PestanasDelGrupo;
+
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?string $slug = 'grupos/{grupo}/asistencia';
+
+    protected string $view = 'docencia::filament.docente.asistencia-del-grupo';
+
     #[Locked]
     public int $grupoId;
 
@@ -36,6 +47,11 @@ final class AsistenciaDelGrupo extends Component
     public array $estados = [];
 
     public ?string $guardada = null;
+
+    public static function getRelativeRouteName(Panel $panel): string
+    {
+        return 'grupos.asistencia';
+    }
 
     public function mount(int $grupo): void
     {
@@ -50,6 +66,42 @@ final class AsistenciaDelGrupo extends Component
     {
         // The page may stay open after the group moves to another teacher; reads stop too, not only saves.
         abort_unless(GrupoACargo::tiene($this->docenteId(), $this->grupoId), 404);
+    }
+
+    public function getTitle(): string
+    {
+        return "Asistencia del grupo {$this->grupo()->codigo}";
+    }
+
+    public function getSubheading(): string
+    {
+        $grupo = $this->grupo();
+
+        return "{$grupo->idioma} · Ciclo {$grupo->cicloNumero} · {$grupo->nivel->etiqueta()} · {$grupo->periodo}";
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            Select::make('clase')
+                ->label('Clase')
+                ->options(fn (): array => $this->opcionesDeClase())
+                ->selectablePlaceholder(false)
+                ->helperText('Solo clases del horario entre el inicio del periodo y hoy. Nunca una clase futura.')
+                ->live(),
+            Section::make('Estudiantes')
+                ->description('Guardar de nuevo corrige la asistencia de esta clase.')
+                ->schema(fn (): array => array_map(
+                    fn (EstudianteDelGrupo $estudiante): ToggleButtons => ToggleButtons::make("estados.{$estudiante->matriculaId}")
+                        ->label($estudiante->nombreCompleto)
+                        ->options(collect(EstadoAsistencia::cases())->mapWithKeys(fn (EstadoAsistencia $estado): array => [$estado->value => $estado->etiqueta()])->all())
+                        ->colors([EstadoAsistencia::Presente->value => 'success', EstadoAsistencia::Tardanza->value => 'warning', EstadoAsistencia::Falta->value => 'danger'])
+                        ->inline()
+                        ->grouped(),
+                    $this->estudiantes(),
+                ))
+                ->visible(fn (): bool => $this->estudiantes() !== []),
+        ]);
     }
 
     public function updatedClase(): void
@@ -79,19 +131,35 @@ final class AsistenciaDelGrupo extends Component
         $this->guardada = 'Asistencia del '.mb_lcfirst((string) $elegida?->descripcion()).' guardada.';
     }
 
-    public function render(): View
+    /**
+     * @return array<string, mixed>
+     */
+    protected function getViewData(): array
     {
-        $grupo = $this->grupo();
+        return ['hayClases' => ClasesDelHorario::hastaHoy($this->grupo()) !== [], 'hayEstudiantes' => $this->estudiantes() !== []];
+    }
+
+    protected function pestana(): string
+    {
+        return 'asistencia';
+    }
+
+    protected function grupoDeLaPestana(): int
+    {
+        return $this->grupoId;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function opcionesDeClase(): array
+    {
         $registradas = ClaseDictada::query()->where('grupo_id', $this->grupoId)->get()
             ->mapWithKeys(fn (ClaseDictada $clase): array => [$clase->fecha->toDateString().'|'.substr($clase->hora_inicio, 0, 5) => true]);
 
-        return view('docencia::livewire.asistencia-del-grupo', [
-            'grupo' => $grupo,
-            'clases' => ClasesDelHorario::hastaHoy($grupo),
-            'registradas' => $registradas,
-            'estudiantes' => $this->estudiantes(),
-            'opciones' => EstadoAsistencia::cases(),
-        ])->title("Asistencia · {$grupo->codigo}");
+        return collect(ClasesDelHorario::hastaHoy($this->grupo()))
+            ->mapWithKeys(fn (ClaseProgramada $opcion): array => [$opcion->clave() => $opcion->descripcion().(isset($registradas[$opcion->clave()]) ? ' · registrada' : '')])
+            ->all();
     }
 
     private function cargarEstados(): void

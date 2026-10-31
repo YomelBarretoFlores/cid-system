@@ -7,14 +7,10 @@ use App\Modules\Certificacion\Http\Controllers\DescargarActaFinalParaPersonal;
 use App\Modules\Certificacion\Http\Controllers\DescargarDocumentoDelEstudiante;
 use App\Modules\Certificacion\Http\Controllers\DescargarDocumentoParaPersonal;
 use App\Modules\Certificacion\Http\Controllers\VerificarDocumento;
-use App\Modules\Certificacion\Livewire\ActaFinalDelGrupo;
-use App\Modules\Certificacion\Livewire\MisActasFinales;
 use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'auth.session', 'verified', 'docente'])->group(function (): void {
-    Route::livewire('/docente/actas', MisActasFinales::class)->name('docente.actas');
-    Route::livewire('/docente/grupos/{grupo}/acta', ActaFinalDelGrupo::class)->whereNumber('grupo')->name('docente.acta');
     Route::get('/docente/grupos/{grupo}/acta/pdf', DescargarActaFinalDelDocente::class)->whereNumber('grupo')->name('docente.acta.pdf');
 });
 

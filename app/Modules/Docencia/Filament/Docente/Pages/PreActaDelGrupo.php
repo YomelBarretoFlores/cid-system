@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\Docencia\Livewire;
+namespace App\Modules\Docencia\Filament\Docente\Pages;
 
 use App\Modules\Academico\Contracts\EsquemaDelGrupo;
 use App\Modules\Academico\Contracts\HorariosDeGrupos;
@@ -17,15 +17,27 @@ use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Filament\PestanasDelGrupo;
 use App\Shared\Support\Logging\RegistroDeRechazos;
-use Illuminate\Contracts\View\View;
-use Livewire\Attributes\Layout;
+use Filament\Forms\Components\TextInput;
+use Filament\Pages\Page;
+use Filament\Panel;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
+use Filament\Schemas\Schema;
 use Livewire\Attributes\Locked;
-use Livewire\Component;
 
-#[Layout('components.layouts.portal')]
-final class PreActaDelGrupo extends Component
+final class PreActaDelGrupo extends Page
 {
+    use PestanasDelGrupo;
+
+    protected static bool $shouldRegisterNavigation = false;
+
+    protected static ?string $slug = 'grupos/{grupo}/notas';
+
+    protected string $view = 'docencia::filament.docente.pre-acta-del-grupo';
+
     #[Locked]
     public int $grupoId;
 
@@ -33,6 +45,11 @@ final class PreActaDelGrupo extends Component
     public array $notas = [];
 
     public ?string $guardadas = null;
+
+    public static function getRelativeRouteName(Panel $panel): string
+    {
+        return 'grupos.notas';
+    }
 
     public function mount(int $grupo): void
     {
@@ -46,6 +63,42 @@ final class PreActaDelGrupo extends Component
     {
         // The page may stay open after the group moves to another teacher; reads stop too, not only saves.
         abort_unless(GrupoACargo::tiene($this->docenteId(), $this->grupoId), 404);
+    }
+
+    public function getTitle(): string
+    {
+        return "Pre-acta del grupo {$this->grupo()->codigo}";
+    }
+
+    public function getSubheading(): string
+    {
+        $grupo = $this->grupo();
+
+        return "{$grupo->idioma} · Ciclo {$grupo->cicloNumero} · {$grupo->nivel->etiqueta()} · {$grupo->periodo}";
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        $esquema = $this->esquema();
+
+        if (! $esquema instanceof EsquemaDeEvaluacion) {
+            return $schema->components([]);
+        }
+
+        return $schema->components([
+            Section::make('Notas parciales')
+                ->description($esquema->nombre.' · notas de 0 a '.self::numero($esquema->notaMaxima).', con hasta dos decimales. Deja en blanco lo que aún no evalúas.')
+                ->schema([
+                    Text::make(collect($esquema->componentes)->map(fn (ComponenteDeEvaluacion $componente): string => $componente->nombre.' · '.self::numero($componente->peso).' %')->implode('   ·   '))->color('gray'),
+                    ...array_map(fn (EstudianteDelGrupo $estudiante): Fieldset => Fieldset::make($estudiante->nombreCompleto)
+                        ->columns(['default' => 2, 'md' => min(4, count($esquema->componentes))])
+                        ->schema(array_map(fn (ComponenteDeEvaluacion $componente): TextInput => TextInput::make("notas.{$estudiante->matriculaId}.{$componente->id}")
+                            ->label($componente->nombre)
+                            ->inputMode('decimal')
+                            ->placeholder('—')
+                            ->extraInputAttributes(['aria-label' => "{$componente->nombre} de {$estudiante->nombreCompleto}"]), $esquema->componentes)), $this->estudiantes()),
+                ]),
+        ]);
     }
 
     public function guardar(RegistrarNotasParciales $registrar): void
@@ -67,20 +120,27 @@ final class PreActaDelGrupo extends Component
         $this->guardadas = 'Notas parciales guardadas.';
     }
 
-    public function render(): View
-    {
-        $grupo = $this->grupo();
-
-        return view('docencia::livewire.pre-acta-del-grupo', [
-            'grupo' => $grupo,
-            'esquema' => $this->esquema(),
-            'estudiantes' => $this->estudiantes(),
-        ])->title("Pre-acta · {$grupo->codigo}");
-    }
-
     public static function numero(string $decimal): string
     {
         return str_contains($decimal, '.') ? rtrim(rtrim($decimal, '0'), '.') : $decimal;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function getViewData(): array
+    {
+        return ['hayEsquema' => $this->esquema() instanceof EsquemaDeEvaluacion, 'hayEstudiantes' => $this->estudiantes() !== []];
+    }
+
+    protected function pestana(): string
+    {
+        return 'notas';
+    }
+
+    protected function grupoDeLaPestana(): int
+    {
+        return $this->grupoId;
     }
 
     private function cargarNotas(): void

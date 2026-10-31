@@ -6,18 +6,21 @@ use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Periodo;
-use App\Modules\Docencia\Livewire\AsistenciaDelGrupo;
+use App\Modules\Docencia\Filament\Docente\Pages\AsistenciaDelGrupo;
 use App\Modules\Docencia\Models\Asistencia;
 use App\Modules\Docencia\Models\ClaseDictada;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 use Tests\Support\PortalDocente;
 
 beforeEach(function (): void {
+    Filament::setCurrentPanel('docente');
     $this->travelTo(CarbonImmutable::parse('2027-03-10 12:00', 'America/Lima'));
     [$this->usuario, $this->docente] = PortalDocente::docente();
     $periodo = Periodo::factory()->create(['fecha_inicio' => '2027-03-01', 'fecha_fin' => '2027-04-25']);
@@ -32,15 +35,23 @@ beforeEach(function (): void {
 it('links the roll call from the list of groups', function (): void {
     $this->actingAs($this->usuario)
         ->get(route('filament.docente.pages.mis-grupos'))
-        ->assertSee(route('docente.asistencia', $this->grupo->id));
+        ->assertSee(route('filament.docente.pages.grupos.asistencia', $this->grupo->id));
 });
 
 it('offers the classes held so far, newest first, and the students in alphabetical order', function (): void {
     $this->actingAs($this->usuario)
-        ->get(route('docente.asistencia', $this->grupo->id))
+        ->get(route('filament.docente.pages.grupos.asistencia', $this->grupo->id))
         ->assertOk()
-        ->assertSeeInOrder(['Asistencia del grupo ING-01-A', 'Miércoles 10/03/2027 de 18:00 a 20:00', 'Lunes 08/03/2027 de 18:00 a 20:00', 'Miércoles 03/03/2027 de 18:00 a 20:00', 'Lunes 01/03/2027 de 18:00 a 20:00', 'Álvarez Mejía, Luis', 'Quispe Rojas, Ana'])
-        ->assertDontSee('15/03/2027');
+        ->assertSeeInOrder(['Asistencia del grupo ING-01-A', 'Álvarez Mejía, Luis', 'Quispe Rojas, Ana']);
+
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertFormFieldExists('clase', fn (Select $campo): bool => $campo->getOptions() === [
+            '2027-03-10|18:00' => 'Miércoles 10/03/2027 de 18:00 a 20:00',
+            '2027-03-08|18:00' => 'Lunes 08/03/2027 de 18:00 a 20:00',
+            '2027-03-03|18:00' => 'Miércoles 03/03/2027 de 18:00 a 20:00',
+            '2027-03-01|18:00' => 'Lunes 01/03/2027 de 18:00 a 20:00',
+        ]);
 });
 
 it('starts a new roll call with everyone present and saves the marked states', function (): void {
@@ -67,7 +78,7 @@ it('loads the saved states when an earlier class is chosen and marks it as recor
 
     Livewire::actingAs($this->usuario)
         ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
-        ->assertSee('Lunes 08/03/2027 de 18:00 a 20:00 · registrada')
+        ->assertFormFieldExists('clase', fn (Select $campo): bool => $campo->getOptions()['2027-03-08|18:00'] === 'Lunes 08/03/2027 de 18:00 a 20:00 · registrada')
         ->set('clase', '2027-03-08|18:00')
         ->assertSet('estados', [$this->luis->id => 'presente', $this->ana->id => 'falta']);
 });
@@ -118,7 +129,7 @@ it('tells the teacher when no class has been held yet', function (): void {
     $this->travelTo(CarbonImmutable::parse('2027-02-20 12:00', 'America/Lima'));
 
     $this->actingAs($this->usuario)
-        ->get(route('docente.asistencia', $this->grupo->id))
+        ->get(route('filament.docente.pages.grupos.asistencia', $this->grupo->id))
         ->assertOk()
         ->assertSee('Este grupo todavía no tiene clases para registrar.');
 });

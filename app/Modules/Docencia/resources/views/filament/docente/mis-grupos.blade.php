@@ -1,9 +1,7 @@
 @use('App\Modules\Academico\Data\SesionDeClase')
 <x-filament-panels::page>
     @if ($grupos === [])
-        <x-filament::section>
-            <x-ciln.sin-datos>Aún no tienes grupos asignados. Cuando la coordinación te asigne un grupo, aparecerá aquí.</x-ciln.sin-datos>
-        </x-filament::section>
+        <x-filament::empty-state heading="Aún no tienes grupos asignados." description="Cuando la coordinación te asigne un grupo, aparecerá aquí." icon="heroicon-o-user-group" />
     @else
         <ul role="list" class="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
             @foreach ($grupos as $grupo)
@@ -39,13 +37,13 @@
                             </dl>
 
                             <div class="mt-auto flex flex-wrap gap-2">
-                                <x-filament::button tag="a" :href="route('docente.asistencia', $grupo->grupoId)" size="sm" class="flex-1">
+                                <x-filament::button tag="a" :href="route('filament.docente.pages.grupos.asistencia', $grupo->grupoId)" size="sm" class="flex-1">
                                     Tomar asistencia<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
                                 </x-filament::button>
-                                <x-filament::button tag="a" :href="route('docente.notas', $grupo->grupoId)" size="sm" color="gray" outlined class="flex-1">
+                                <x-filament::button tag="a" :href="route('filament.docente.pages.grupos.notas', $grupo->grupoId)" size="sm" color="gray" outlined class="flex-1">
                                     Pre-acta<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
                                 </x-filament::button>
-                                <x-filament::button tag="a" :href="route('docente.acta', $grupo->grupoId)" size="sm" color="gray" outlined class="flex-1">
+                                <x-filament::button tag="a" :href="route('filament.docente.pages.grupos.acta', $grupo->grupoId)" size="sm" color="gray" outlined class="flex-1">
                                     Acta final<span class="sr-only"> del grupo {{ $grupo->codigo }}</span>
                                 </x-filament::button>
                             </div>

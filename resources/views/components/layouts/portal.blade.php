@@ -15,11 +15,11 @@
     class="grid grid-cols-[minmax(0,1fr)] content-start gap-2 transition-[grid-template-columns] sm:gap-3.5 lg:grid-cols-[264px_minmax(0,1fr)] lg:content-stretch lg:data-colapsado:grid-cols-[88px_minmax(0,1fr)]">
     <aside x-data="{ abierto: false }" class="flex flex-col gap-5 rounded-tarjeta bg-tarjeta px-4 py-5 lg:sticky lg:top-[30px] lg:max-h-[calc(100vh-60px)] lg:overflow-auto lg:px-[18px] lg:pt-[26px] lg:in-data-colapsado:px-3">
         <div class="flex items-center justify-between gap-3 lg:in-data-colapsado:flex-col">
-            <a href="{{ route(request()->routeIs('docente.*') ? 'filament.docente.pages.mis-grupos' : 'estudiante.inicio') }}" class="flex items-center gap-3 px-1.5 text-tinta lg:in-data-colapsado:px-0">
+            <a href="{{ route('estudiante.inicio') }}" class="flex items-center gap-3 px-1.5 text-tinta lg:in-data-colapsado:px-0">
                 <x-ciln.emblema class="w-[54px] lg:in-data-colapsado:w-12" />
                 <span class="flex flex-col leading-[1.1] lg:in-data-colapsado:hidden">
                     <span class="text-lg/[1.1] font-semibold tracking-[-0.01em] whitespace-nowrap">Centro de Idiomas</span>
-                    <span class="text-[12.5px] tracking-[0.12em] text-apagado">{{ request()->routeIs('docente.*') ? 'PORTAL DOCENTE' : 'UNASAM' }}</span>
+                    <span class="text-[12.5px] tracking-[0.12em] text-apagado">UNASAM</span>
                 </span>
             </a>
             @auth
@@ -42,10 +42,6 @@
                         <x-portal.enlace-menu ruta="estudiante.matriculas" icono="heroicon-o-academic-cap">Mis matrículas</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.clasificacion" icono="heroicon-o-clipboard-document-check">Clasificación</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.tramites" icono="heroicon-o-document-text" :insignia="$observados ?: null">Trámites</x-portal.enlace-menu>
-                        @if ($esDocente)
-                            <x-portal.enlace-menu ruta="filament.docente.pages.mis-grupos" :activo="['filament.docente.pages.mis-grupos', 'docente.asistencia', 'docente.notas', 'docente.acta']" icono="heroicon-o-user-group">Mis grupos</x-portal.enlace-menu>
-                            <x-portal.enlace-menu ruta="docente.actas" icono="heroicon-o-document-check">Actas finales</x-portal.enlace-menu>
-                        @endif
                     </nav>
                 @endif
 
@@ -60,10 +56,15 @@
                         <span aria-hidden="true" class="flex size-10 shrink-0 items-center justify-center rounded-full bg-oro-100 font-semibold text-oro-950">{{ $iniciales }}</span>
                         <span class="flex min-w-0 flex-col gap-0.5 lg:in-data-colapsado:sr-only">
                             <span class="truncate font-medium">{{ $usuario->name }}</span>
-                            <span class="self-start rounded-pildora bg-oro-300 px-2 text-xs text-oro-950">{{ $esDocente ? 'Docente' : 'Estudiante' }}</span>
+                            <span class="self-start rounded-pildora bg-oro-300 px-2 text-xs text-oro-950">Estudiante</span>
                         </span>
                     </div>
                     <div class="flex flex-col gap-2.5 px-1.5 text-[14.5px] lg:in-data-colapsado:items-center lg:in-data-colapsado:px-0">
+                        @if ($esDocente)
+                            <a href="{{ route('filament.docente.pages.mis-grupos') }}" title="Portal docente" class="flex items-center gap-3 text-tinta hover:text-enlace-hover">
+                                <x-heroicon-o-user-group aria-hidden="true" class="size-[19px] text-apagado" /><span class="lg:in-data-colapsado:sr-only">Portal docente</span>
+                            </a>
+                        @endif
                         @can(User::ADMIN_PANEL_PERMISSION)
                             <a href="{{ route('filament.admin.pages.dashboard') }}" title="Panel administrativo" class="flex items-center gap-3 text-tinta hover:text-enlace-hover">
                                 <x-heroicon-o-squares-2x2 aria-hidden="true" class="size-[19px] text-apagado" /><span class="lg:in-data-colapsado:sr-only">Panel administrativo</span>

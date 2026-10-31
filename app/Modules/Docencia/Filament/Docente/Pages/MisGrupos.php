@@ -27,6 +27,12 @@ final class MisGrupos extends Page
 
     protected string $view = 'docencia::filament.docente.mis-grupos';
 
+    // A group's attendance, pre-acta and final acta pages keep "Mis grupos" marked in the menu.
+    public static function getNavigationItemActiveRoutePattern(): array
+    {
+        return [self::getRouteName(), 'filament.docente.pages.grupos.*'];
+    }
+
     public static function getRoutePath(Panel $panel): string
     {
         return '/';

@@ -8,7 +8,6 @@ use App\Modules\Docencia\Http\Middleware\AutenticarAlPanelDocente;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use Filament\Actions\Action;
-use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Icons\Heroicon;
@@ -21,9 +20,6 @@ final class DocentePanelProvider extends PanelProvider
     {
         $panel = AparienciaDelPanel::aplicar($panel->id('docente')->path('docente'), 'PORTAL DOCENTE')
             ->spaUrlExceptions(['*/admin*', '*/estudiante*', '*/ingresar*'])
-            ->navigationItems([
-                NavigationItem::make('Actas finales')->icon(Heroicon::OutlinedDocumentCheck)->sort(2)->url(fn (): string => route('docente.actas')),
-            ])
             ->userMenuItems([
                 Action::make('portalDelEstudiante')
                     ->label('Mi portal de estudiante')

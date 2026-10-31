@@ -9,13 +9,14 @@ use App\Modules\Certificacion\Data\ActaDelGrupo;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
-use App\Modules\Certificacion\Livewire\ActaFinalDelGrupo;
-use App\Modules\Certificacion\Livewire\MisActasFinales;
+use App\Modules\Certificacion\Filament\Docente\Pages\ActaFinalDelGrupo;
+use App\Modules\Certificacion\Filament\Docente\Pages\MisActasFinales;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\NotaFinal;
 use App\Modules\Docencia\Models\Docente;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -24,6 +25,7 @@ use Tests\Support\ActasFinales;
 use Tests\Support\PortalDocente;
 
 beforeEach(function (): void {
+    Filament::setCurrentPanel('docente');
     $this->travelTo(CarbonImmutable::parse('2027-03-30 10:00', 'America/Lima'));
     $this->curso = ActasFinales::curso();
     $this->grupo = $this->curso['grupo'];
@@ -43,22 +45,22 @@ function cerrarActaDelCurso(): Acta
 
 it('links the acta from the list of groups, the group tabs and the menu', function (): void {
     $this->actingAs($this->usuario)->get(route('filament.docente.pages.mis-grupos'))
-        ->assertSee(route('docente.acta', $this->grupo->id))
-        ->assertSee(route('docente.actas'));
-    $this->actingAs($this->usuario)->get(route('docente.notas', $this->grupo->id))->assertSee(route('docente.acta', $this->grupo->id));
+        ->assertSee(route('filament.docente.pages.grupos.acta', $this->grupo->id))
+        ->assertSee(route('filament.docente.pages.actas'));
+    $this->actingAs($this->usuario)->get(route('filament.docente.pages.grupos.notas', $this->grupo->id))->assertSee(route('filament.docente.pages.grupos.acta', $this->grupo->id));
 });
 
 it('previews the acta from the pre-acta with the course, teacher, averages and final states, and the grade calendar', function (): void {
     $this->actingAs($this->usuario)
-        ->get(route('docente.acta', $this->grupo->id))
+        ->get(route('filament.docente.pages.grupos.acta', $this->grupo->id))
         ->assertOk()
         ->assertSeeInOrder([
             'Acta final del grupo ING-1-M', 'Vista previa', 'Fechas para validar: del 29 mar 2027 al 5 abr 2027.',
             'Inglés', 'Básico · Básico I', 'Marzo 2027', 'Vega Ríos, Carlos', 'ID '.$this->curso['docente']->id,
             'Alva Prueba, Ana', 'DNI 70000001', '15', '12', '18', '14.40', 'Aprobado',
             'Bravo Prueba, Ana', 'DNI 70000002', '8', '10', '—', '7.20', 'Desaprobado',
-            'Validar y cerrar acta',
         ])
+        ->assertSee('Validar y cerrar acta')
         ->assertDontSee('Descargar acta (PDF)');
 
     expect(Acta::query()->count())->toBe(0);
@@ -118,7 +120,7 @@ it('tells the teacher when the group has no evaluation scheme', function (): voi
     EsquemaEvaluacion::query()->update(['vigente_desde' => '2028-01-01']);
 
     $this->actingAs($this->usuario)
-        ->get(route('docente.acta', $this->grupo->id))
+        ->get(route('filament.docente.pages.grupos.acta', $this->grupo->id))
         ->assertOk()
         ->assertSee('El grupo ING-1-M no tiene un sistema de evaluación vigente; pide a coordinación que lo registre.')
         ->assertDontSee('Validar y cerrar acta');
@@ -128,9 +130,9 @@ it('hides the acta and its PDF from teachers not in charge of the group and from
     cerrarActaDelCurso();
     [$otro] = PortalDocente::docente();
 
-    $this->actingAs($otro)->get(route('docente.acta', $this->grupo->id))->assertNotFound();
+    $this->actingAs($otro)->get(route('filament.docente.pages.grupos.acta', $this->grupo->id))->assertNotFound();
     $this->actingAs($otro)->get(route('docente.acta.pdf', $this->grupo->id))->assertNotFound();
-    $this->actingAs(User::factory()->create())->get(route('docente.acta', $this->grupo->id))->assertForbidden();
+    $this->actingAs(User::factory()->create())->get(route('filament.docente.pages.grupos.acta', $this->grupo->id))->assertForbidden();
 });
 
 it('stops the open page once the group moves to another teacher', function (): void {
@@ -178,7 +180,8 @@ it('lists the actas the teacher closed with their state', function (): void {
     Livewire::actingAs($this->usuario)
         ->test(MisActasFinales::class)
         ->assertSeeInOrder(['ING-1-M · Inglés Básico I', 'Marzo 2027 · 1 de 2 aprobados · validada el 30 mar 2027', 'Cerrada'])
-        ->assertSee(route('docente.acta', $this->grupo->id));
+        ->assertSee(route('filament.docente.pages.grupos.acta', $this->grupo->id));
+    $this->actingAs($this->usuario)->get(route('filament.docente.pages.actas'))->assertOk()->assertSee('ING-1-M · Inglés Básico I');
 
     [$otro] = PortalDocente::docente();
     Livewire::actingAs($otro)->test(MisActasFinales::class)
@@ -203,13 +206,13 @@ it('shows and logs a rejected rectified grade and keeps the acta as it was', fun
 });
 
 it('marks the menu entry of the page the teacher is on', function (string $pagina, string $entrada): void {
-    $html = $this->actingAs($this->usuario)->get($pagina === 'actas' ? route('docente.actas') : route('docente.acta', $this->grupo->id))->getContent();
-    $enlace = fn (string $ruta): bool => preg_match('/<a href="'.preg_quote(route($ruta), '/').'"[^>]*aria-current="page"/s', (string) $html) === 1;
+    $html = $this->actingAs($this->usuario)->get($pagina === 'actas' ? route('filament.docente.pages.actas') : route('filament.docente.pages.grupos.acta', $this->grupo->id))->getContent();
+    $enlace = fn (string $ruta): bool => preg_match('/<a\s+href="'.preg_quote(route($ruta), '/').'"[^>]*aria-current="page"/s', (string) $html) === 1;
 
     expect($enlace($entrada))->toBeTrue()
-        ->and($enlace($entrada === 'docente.actas' ? 'filament.docente.pages.mis-grupos' : 'docente.actas'))->toBeFalse();
+        ->and($enlace($entrada === 'filament.docente.pages.actas' ? 'filament.docente.pages.mis-grupos' : 'filament.docente.pages.actas'))->toBeFalse();
 })->with([
-    'the actas list' => ['actas', 'docente.actas'],
+    'the actas list' => ['actas', 'filament.docente.pages.actas'],
     'the acta of a group' => ['acta', 'filament.docente.pages.mis-grupos'],
 ]);
 
@@ -224,6 +227,6 @@ it('shows the validation day in Lima time, also late at night', function (): voi
     $this->travelTo(CarbonImmutable::parse('2027-03-30 23:30', 'America/Lima'));
     cerrarActaDelCurso();
 
-    $this->actingAs($this->usuario)->get(route('docente.acta', $this->grupo->id))->assertSee('Validada el 30 mar 2027.');
+    $this->actingAs($this->usuario)->get(route('filament.docente.pages.grupos.acta', $this->grupo->id))->assertSee('Validada el 30 mar 2027.');
     Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertSee('validada el 30 mar 2027');
 });
