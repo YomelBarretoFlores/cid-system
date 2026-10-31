@@ -1,6 +1,6 @@
 # ADR 0003: Filament para administración, Blade + Livewire para portales
 
-- Estado: aceptado (2026-10-24)
+- Estado: aceptado (2026-10-24); modificado el 2026-10-31: el portal docente pasa a un panel Filament propio (decisión pendiente #95, cerrada)
 
 ## Contexto
 
@@ -8,8 +8,8 @@ Se necesitan paneles de gestión y BI, un portal público y portales de estudian
 
 ## Decisión
 
-- **Filament 5**: panel administrativo (administración, coordinación, caja, BI).
-- **Blade + Livewire 4 con diseño propio**: portal público, estudiantes y docentes.
+- **Filament 5**: panel administrativo (administración, coordinación, caja, BI) y panel docente en `/docente` (mis grupos, asistencia, pre-acta, acta final y actas finales).
+- **Blade + Livewire 4 con diseño propio**: portal público y portal del estudiante.
 - **API REST** con Sanctum y JSON Resources en `/api/v1`, como entregable independiente.
 - Web, API y Filament llaman a las mismas Actions.
 
@@ -25,3 +25,4 @@ Se necesitan paneles de gestión y BI, un portal público y portales de estudian
 
 - Un solo stack (PHP + Livewire) para mantener.
 - Filament no cubre la API: se construye aparte.
+- El panel docente comparte con el administrativo la apariencia y el flujo de cada solicitud (`AparienciaDelPanel`), pero no su ingreso: el docente entra por `/ingresar` como el estudiante, conserva la sesión del portal y no usa el doble factor del personal. Sus páginas viven en `app/Modules/<Modulo>/Filament/Docente/Pages` y solo las descubre ese panel. Desde el menú de usuario, "Mi portal de estudiante" lleva al portal del estudiante; todo docente lo ve, porque su persona ya cuenta como ficha de estudiante.

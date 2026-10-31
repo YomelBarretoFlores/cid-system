@@ -7,8 +7,8 @@
 ```mermaid
 flowchart TB
     subgraph P[Presentación]
-        Portal[Portal público, estudiantes y docentes<br/>Blade + Livewire]
-        Admin[Panel administrativo y BI<br/>Filament]
+        Portal[Portal público y de estudiantes<br/>Blade + Livewire]
+        Admin[Panel administrativo y BI, y panel docente<br/>Filament]
         API[API REST /api/v1<br/>Sanctum + Scramble]
     end
     subgraph M[Módulos de dominio]
