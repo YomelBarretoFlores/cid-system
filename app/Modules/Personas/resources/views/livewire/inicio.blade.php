@@ -1,4 +1,6 @@
 <div class="flex flex-col gap-2 sm:gap-3.5">
+    <livewire:docencia.clases-por-confirmar-resumen />
+
     <livewire:matricula.resumen-del-estudiante :es-docente="$esDocente" />
 
     @if ($esDocente)

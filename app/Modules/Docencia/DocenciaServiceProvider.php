@@ -14,7 +14,9 @@ use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
 use App\Modules\Docencia\Contracts\NotasParcialesDelGrupo;
 use App\Modules\Docencia\Contracts\VerificacionDeCargaDocente;
+use App\Modules\Docencia\Livewire\ClasesPorConfirmarResumen;
 use App\Shared\Support\ModuleServiceProvider;
+use Livewire\Livewire;
 
 final class DocenciaServiceProvider extends ModuleServiceProvider
 {
@@ -30,4 +32,11 @@ final class DocenciaServiceProvider extends ModuleServiceProvider
     ];
 
     protected string $module = 'Docencia';
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        Livewire::component('docencia.clases-por-confirmar-resumen', ClasesPorConfirmarResumen::class);
+    }
 }
