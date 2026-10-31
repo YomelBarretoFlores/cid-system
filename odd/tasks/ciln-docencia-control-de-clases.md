@@ -1,0 +1,33 @@
+# CILN class control: two roll calls and delegate confirmation (E3)
+
+Objective: each class gets a roll call at the start and another at the end, and the course delegate confirms from their own phone that the class was taught, so the CILN can prove the teacher taught it. Coordination sees which classes were confirmed. Teacher pay deductions are out of scope (later; the TdR leaves payroll to the DGF).
+Branch: `feat/control-de-clases` (stacked on `feat/inicio-estudiante` 6fa8b02+) · Delivery: one commit per unit, push and merge decided by the user · Test runner: Pest (`php artisan test`). Plan: `~/.claude/plans/agile-orbiting-wreath.md` (E3).
+
+## Specs
+
+- S1 (user, L1): "en el sga el docente llama lista dos veces, al inicio de la clase y al final. Y al final el el estudiante delegado del curso ingresa sus credenciales o algo así para que se valide esa asistencia. Esto se hace para que se vea que el docente en verdad también está dictando clases." The user chose that the delegate confirms "Desde su celular": in their own student portal, nobody types a password on someone else's device.
+- S2 (plan E3, data, additive migrations with the audit trigger already on these tables): `doc_asistencias.estado_cierre` nullable (`presente`, `falta`); `doc_clases_dictadas` gains `llamado_inicio_en`, `llamado_cierre_en`, `registro_posterior` (boolean, default false), `confirmacion` nullable (`pendiente`, `confirmada`, `observada`), `confirmada_por_matricula_id` (FK `mat_matriculas`), `confirmada_en`, `observacion`. New table `doc_delegados`: `grupo_id` unique, `matricula_id`, `designado_por`, timestamps, audit trigger. Rows saved before this change keep their meaning ("registro anterior").
+- S3 (plan E3, effective state, assumption): if `estado_cierre` is `falta` the attendance counts as Falta ("se retiró"); otherwise the first call's state counts.
+- S4 (plan E3, windows in `config/ciln.php`, assumptions): first call from 10 minutes before the start to the end of the class, on the class date in Lima, with Presente, Tardanza or Falta; second call from 15 minutes before the end to 30 minutes after, with Presente or Falta, only for students present or late in the first call, and only after the first call. Closing the second call leaves the class "por confirmar".
+- S5 (plan E3): a past class not registered in its windows can still be registered as today, in one call, marked as registro posterior; it never goes to the delegate.
+- S6 (plan E3): the teacher designates the delegate in the panel (attendance page action "Designar delegado"), choosing among the group's active students; one delegate per group; it can be changed. A delegate whose enrollment is no longer active is not a delegate.
+- S7 (plan E3): the class selector on the teacher's attendance page shows each class state: registrada, por confirmar, confirmada, observada, sin confirmar, registro posterior.
+- S8 (plan E3, delegate): a card on the student home and a page `estudiante.clases` list the pending classes of the delegate's group (date, time, teacher, how many present) with "Sí, se dictó" and "No se dictó / observar"; observing requires a comment. `ConfirmarClaseDictada` locks the class and checks that the person is the current delegate, the second call is closed, the delegate is present in the second call, it is within the window (up to 2 hours after the end, configurable) and the class was not resolved before. A refusal is logged with `RegistroDeRechazos`. When the window passes unanswered the class reads "sin confirmar" (computed, not stored).
+- S9 (plan E3, coordination): read-only admin page "Control de clases" filtered by period, teacher, group and state (confirmada, observada, sin confirmar, registro posterior). The hours report (`ConsolidarHorasDictadas`) keeps its calculation and shows how many classes were confirmed and how many were not.
+- S10 (plan E3, docs): ADR 0009 "Control de clases con dos llamados y confirmación del delegado"; `modulos.md`, `seguridad.md` (the delegate only confirms classes of their group); new assumptions in `decisiones-pendientes.md` (windows, effective state, who designates, registro posterior). The demo seeds delegates and confirmations through the Actions.
+
+## Tasks
+
+| ID | Specs | Route | Status | Commit |
+|----|-------|-------|--------|--------|
+| T1 | S1–S7 | delegated (context backstop) | pending | — |
+| T2 | S1, S3, S8 | pending decision | pending | — |
+| T3 | S9, S10 | pending decision | pending | — |
+| T4 | all | inline | pending | — |
+
+T1 migrations, config, two calls and registro posterior in the attendance Action and the teacher page, `DesignarDelegado`, class states (Risk items 1 and 2). T2 `ConfirmarClaseDictada`, delegate page and home card (Risk item 2). T3 coordination page, hours report counts, demo, ADR and docs. T4 browser check (teacher two calls, delegate confirms on a phone). Route: T1 delegated to one bounded writer because the parent session passed the ~150k context backstop; units are sequential (T2 needs T1's data), so no parallel writers.
+
+## Log
+
+- L1 (2026-10-31): "Bien, arma ahora el plan. Una cosa más, revisa sobre el tema de asistencia también, te comento que en el sga el docente llama lista dos veces, al inicio de la clase y al final. Y al final el el estudiante delegado del curso ingresa sus credenciales o algo así para que se valide esa asistencia. Esto se hace para que se vea que el docente en verdad también está dictando clases. Y además, te comento que para el pago del docente se le resta si es que falta a clases, pero eso lo veremos más adelante /plan"
+- L2 (2026-10-31): delegate validation chosen by the user: "Desde su celular (Recommended)". Plan approved. User: "Bien, sube y une. Y sigues con lo que falta." E1 merged; E2 committed on `feat/inicio-estudiante`; E3 stacks on it.
