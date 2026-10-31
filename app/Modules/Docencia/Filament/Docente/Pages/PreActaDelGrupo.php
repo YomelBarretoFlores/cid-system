@@ -19,13 +19,8 @@ use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\PestanasDelGrupo;
 use App\Shared\Support\Logging\RegistroDeRechazos;
-use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
 use Filament\Panel;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Text;
-use Filament\Schemas\Schema;
 use Livewire\Attributes\Locked;
 
 final class PreActaDelGrupo extends Page
@@ -77,30 +72,6 @@ final class PreActaDelGrupo extends Page
         return "{$grupo->idioma} · Ciclo {$grupo->cicloNumero} · {$grupo->nivel->etiqueta()} · {$grupo->periodo}";
     }
 
-    public function form(Schema $schema): Schema
-    {
-        $esquema = $this->esquema();
-
-        if (! $esquema instanceof EsquemaDeEvaluacion) {
-            return $schema->components([]);
-        }
-
-        return $schema->components([
-            Section::make('Notas parciales')
-                ->description($esquema->nombre.' · notas de 0 a '.self::numero($esquema->notaMaxima).', con hasta dos decimales. Deja en blanco lo que aún no evalúas.')
-                ->schema([
-                    Text::make(collect($esquema->componentes)->map(fn (ComponenteDeEvaluacion $componente): string => $componente->nombre.' · '.self::numero($componente->peso).' %')->implode('   ·   '))->color('gray'),
-                    ...array_map(fn (EstudianteDelGrupo $estudiante): Fieldset => Fieldset::make($estudiante->nombreCompleto)
-                        ->columns(['default' => 2, 'md' => min(4, count($esquema->componentes))])
-                        ->schema(array_map(fn (ComponenteDeEvaluacion $componente): TextInput => TextInput::make("notas.{$estudiante->matriculaId}.{$componente->id}")
-                            ->label($componente->nombre)
-                            ->inputMode('decimal')
-                            ->placeholder('—')
-                            ->extraInputAttributes(['aria-label' => "{$componente->nombre} de {$estudiante->nombreCompleto}"]), $esquema->componentes)), $this->estudiantes()),
-                ]),
-        ]);
-    }
-
     public function guardar(RegistrarNotasParciales $registrar): void
     {
         $this->guardadas = null;
@@ -130,7 +101,7 @@ final class PreActaDelGrupo extends Page
      */
     protected function getViewData(): array
     {
-        return ['hayEsquema' => $this->esquema() instanceof EsquemaDeEvaluacion, 'hayEstudiantes' => $this->estudiantes() !== []];
+        return ['esquema' => $this->esquema(), 'estudiantes' => $this->estudiantes()];
     }
 
     protected function pestana(): string

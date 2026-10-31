@@ -16,7 +16,7 @@
                                         <span class="text-sm text-terciario">{{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel->etiqueta() }}</span>
                                     </div>
                                 </div>
-                                <x-filament::badge :color="$grupo->estado->color()">{{ $grupo->estado->etiqueta() }}</x-filament::badge>
+                                <span class="shrink-0"><x-filament::badge :color="$grupo->estado->color()">{{ $grupo->estado->etiqueta() }}</x-filament::badge></span>
                             </header>
 
                             <dl class="grid gap-2.5 text-sm">
