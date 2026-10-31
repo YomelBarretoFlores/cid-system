@@ -8,6 +8,8 @@ use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Docencia\Actions\ConfirmarClaseDictada;
+use App\Modules\Docencia\Actions\DesignarDelegado;
 use App\Modules\Docencia\Actions\RegistrarAsistencia;
 use App\Modules\Docencia\Actions\RegistrarLlamadoDeCierre;
 use App\Modules\Docencia\Models\CargaAcademica;
@@ -74,5 +76,38 @@ final class PortalDocente
         }
 
         return $clase->refresh();
+    }
+
+    /**
+     * One class of the group per state, through the Actions, with every student present and the first one as delegate.
+     * Keys: confirmada (01/03), observada (03/03), pendiente (08/03), inicio (10/03, first call only),
+     * posterior (15/03, registered on 17/03) and anterior (17/03, saved before the two calls existed).
+     *
+     * @param  list<Matricula>  $estudiantes
+     * @return array<string, ClaseDictada>
+     */
+    public static function clasesEnCadaEstado(Grupo $grupo, Docente $docente, User $usuario, array $estudiantes): array
+    {
+        $presentes = array_fill_keys(array_map(fn (Matricula $matricula): int => $matricula->id, $estudiantes), 'presente');
+        $delegado = $estudiantes[0];
+        app(DesignarDelegado::class)($grupo->id, $docente->id, $delegado->id, $usuario);
+
+        $clases = [
+            'confirmada' => self::dictarClase($grupo, $docente, $usuario, $presentes, $presentes, '2027-03-01'),
+            'observada' => self::dictarClase($grupo, $docente, $usuario, $presentes, $presentes, '2027-03-03'),
+            'pendiente' => self::dictarClase($grupo, $docente, $usuario, $presentes, $presentes, '2027-03-08'),
+            'inicio' => self::dictarClase($grupo, $docente, $usuario, $presentes, null, '2027-03-10'),
+        ];
+
+        Carbon::setTestNow(CarbonImmutable::parse('2027-03-01 20:10', 'America/Lima'));
+        app(ConfirmarClaseDictada::class)($clases['confirmada']->id, $delegado->persona_id, true, null);
+        Carbon::setTestNow(CarbonImmutable::parse('2027-03-03 20:10', 'America/Lima'));
+        app(ConfirmarClaseDictada::class)($clases['observada']->id, $delegado->persona_id, false, 'El docente llegó a las 19:30.');
+
+        Carbon::setTestNow(CarbonImmutable::parse('2027-03-17 10:00', 'America/Lima'));
+        $clases['posterior'] = app(RegistrarAsistencia::class)($grupo->id, $docente->id, '2027-03-15', '18:00', $presentes, $usuario);
+        $clases['anterior'] = ClaseDictada::query()->create(['grupo_id' => $grupo->id, 'fecha' => '2027-03-17', 'hora_inicio' => '18:00', 'hora_fin' => '20:00', 'docente_id' => $docente->id, 'registrado_por' => $usuario->id]);
+
+        return array_map(fn (ClaseDictada $clase): ClaseDictada => $clase->refresh(), $clases);
     }
 }

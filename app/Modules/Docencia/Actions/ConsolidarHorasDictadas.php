@@ -8,9 +8,12 @@ use App\Modules\Academico\Contracts\HorariosDeGrupos;
 use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Docencia\Data\ExpedienteDeHoras;
 use App\Modules\Docencia\Data\LineaDeHoras;
+use App\Modules\Docencia\Enums\EstadoDeClase;
 use App\Modules\Docencia\Models\ClaseDictada;
 use App\Modules\Docencia\Models\CostoPorHora;
 use App\Modules\Docencia\Models\Docente;
+use App\Modules\Docencia\Support\ClasesDelHorario;
+use App\Modules\Docencia\Support\EstadoDeLaClase;
 use App\Modules\Personas\Contracts\FichasDePersonas;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
@@ -70,14 +73,18 @@ final readonly class ConsolidarHorasDictadas
     private function lineas(Collection $clases, array $grupos, Collection $costos): array
     {
         $lineas = [];
+        $ahora = ClasesDelHorario::ahora();
 
         foreach ($clases as $clase) {
             $grupo = $grupos[$clase->grupo_id];
             $costo = $costos->first(fn (CostoPorHora $vigente): bool => $vigente->vigente_desde->lte($clase->fecha) && ($vigente->vigente_hasta === null || $vigente->vigente_hasta->gte($clase->fecha)));
             $centimos = $costo === null ? null : $this->centimos($costo->costo_hora);
             $clave = "{$grupo->idioma}\0{$grupo->nivel->value}\0".($centimos ?? '-');
-            $lineas[$clave] ??= ['idioma' => $grupo->idioma, 'orden' => $grupo->nivel->orden(), 'nivel' => $grupo->nivel->etiqueta(), 'costo' => $centimos, 'minutos' => 0];
+            $lineas[$clave] ??= ['idioma' => $grupo->idioma, 'orden' => $grupo->nivel->orden(), 'nivel' => $grupo->nivel->etiqueta(), 'costo' => $centimos, 'minutos' => 0, 'confirmadas' => 0, 'noConfirmadas' => 0];
             $lineas[$clave]['minutos'] += $this->minutos($clase);
+            $estado = EstadoDeLaClase::de($clase, $ahora);
+            $lineas[$clave]['confirmadas'] += (int) ($estado === EstadoDeClase::Confirmada);
+            $lineas[$clave]['noConfirmadas'] += (int) in_array($estado, [EstadoDeClase::Observada, EstadoDeClase::SinConfirmar], true);
         }
 
         // Language, then curricular level, then cost; hours without a cost close each language and level.
@@ -87,14 +94,15 @@ final readonly class ConsolidarHorasDictadas
     }
 
     /**
-     * @param  array{idioma: string, orden: int, nivel: string, costo: ?int, minutos: int}  $linea
+     * @param  array{idioma: string, orden: int, nivel: string, costo: ?int, minutos: int, confirmadas: int, noConfirmadas: int}  $linea
      */
     private function linea(array $linea): LineaDeHoras
     {
         // Hours are rounded once per line, and the amount is computed from those hours so anyone can reproduce it.
         $centesimas = intdiv($linea['minutos'] * 100 + 30, 60);
+        $monto = $linea['costo'] === null ? null : intdiv($centesimas * $linea['costo'] + 50, 100);
 
-        return new LineaDeHoras($linea['idioma'], $linea['nivel'], $centesimas, $linea['costo'], $linea['costo'] === null ? null : intdiv($centesimas * $linea['costo'] + 50, 100));
+        return new LineaDeHoras($linea['idioma'], $linea['nivel'], $centesimas, $linea['costo'], $monto, $linea['confirmadas'], $linea['noConfirmadas']);
     }
 
     private function minutos(ClaseDictada $clase): int

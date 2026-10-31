@@ -21,6 +21,7 @@ use Filament\Actions\Testing\TestAction;
 use Livewire\Livewire;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\PdfBuilder;
+use Tests\Support\PortalDocente;
 
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2027-03-20 12:00', 'America/Lima'));
@@ -87,10 +88,10 @@ it('downloads every line of the month as a CSV that spreadsheets open safely', f
     $contenido = $respuesta->effects['download']['content'] ?? '';
     $csv = base64_decode($contenido, true) ?: $contenido;
 
-    expect($csv)->toStartWith("\u{FEFF}Periodo,Código,Docente,Categoría,Idioma,Nivel,\"Total de horas\",\"Costo por hora (S/)\",\"Monto bruto referencial (S/)\"")
-        ->and($csv)->toContain("\"Marzo 2027\",{$this->luis->codigo},\"'=Alva Paz, Luis\",Tercero,Inglés,Básico,2.00,\"Sin costo vigente\",")
-        ->and($csv)->toContain("\"Marzo 2027\",{$this->rosa->codigo},\"Rímac Huaylas, Rosa\",Contratado,Inglés,Básico,3.50,1250.00,4375.00")
-        ->and($csv)->toContain('Total,,,,,,5.50,,4375.00')
+    expect($csv)->toStartWith("\u{FEFF}Periodo,Código,Docente,Categoría,Idioma,Nivel,\"Total de horas\",\"Costo por hora (S/)\",\"Monto bruto referencial (S/)\",\"Clases confirmadas\",\"Clases no confirmadas\"")
+        ->and($csv)->toContain("\"Marzo 2027\",{$this->luis->codigo},\"'=Alva Paz, Luis\",Tercero,Inglés,Básico,2.00,\"Sin costo vigente\",,0,0")
+        ->and($csv)->toContain("\"Marzo 2027\",{$this->rosa->codigo},\"Rímac Huaylas, Rosa\",Contratado,Inglés,Básico,3.50,1250.00,4375.00,0,0")
+        ->and($csv)->toContain('Total,,,,,,5.50,,4375.00,0,0')
         ->and($csv)->toContain('"Nota: las horas sin costo vigente no suman al monto total."')
         ->and($csv)->not->toContain('Febrero');
 });
@@ -123,3 +124,24 @@ it('notifies instead of downloading the PDF of a teacher without hours in the mo
         ->assertNotified('El docente no tiene horas dictadas en este mes.')
         ->assertNoFileDownloaded();
 })->with(['sin horas', null, 'abc', 1.5e30, -1, '1.5']);
+
+it('shows how many classes the delegate confirmed and how many were not confirmed on the page and the PDF', function (): void {
+    [$usuario, $docente] = PortalDocente::docente();
+    $docente->update(['condicion_laboral' => CondicionLaboral::Tercero]);
+    Persona::query()->whereKey($docente->persona_id)->update(['apellido_paterno' => 'Ramos', 'apellido_materno' => 'Vega', 'nombres' => 'Julia']);
+    [$grupo, $estudiantes] = PortalDocente::grupoConEstudiantes($docente, 'Quispe');
+    PortalDocente::clasesEnCadaEstado($grupo, $docente, $usuario, $estudiantes);
+    $this->travelTo(CarbonImmutable::parse('2027-03-20 12:00', 'America/Lima'));
+    $this->actingAs($this->tesorero);
+
+    $this->get(ExpedienteDeHorasDocentes::getUrl())
+        ->assertOk()
+        ->assertSeeInOrder(['Confirmadas', 'No confirmadas', 'Ramos Vega, Julia', '12.00 h', '<td class="text-right">1</td>', '<td class="text-right">2</td>', 'Total de', '12.00 h', '<td class="text-right">1</td>', '<td class="text-right">2</td>'], false);
+
+    $expediente = app(ConsolidarHorasDictadas::class)(2027, 3, $docente->id)[0];
+    $html = view('docencia::pdf.expediente-de-horas', ['expediente' => $expediente])->render();
+
+    expect($html)->toContain('<td class="monto">12.00</td>')
+        ->and($html)->toContain('<th class="monto">Clases confirmadas</th><th class="monto">Clases no confirmadas</th>')
+        ->and($html)->toContain('<td class="monto">1</td><td class="monto">2</td></tr>');
+});

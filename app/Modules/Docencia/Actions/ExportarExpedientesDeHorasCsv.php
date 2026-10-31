@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final readonly class ExportarExpedientesDeHorasCsv
 {
-    private const array ENCABEZADO = ['Periodo', 'Código', 'Docente', 'Categoría', 'Idioma', 'Nivel', 'Total de horas', 'Costo por hora (S/)', 'Monto bruto referencial (S/)'];
+    private const array ENCABEZADO = ['Periodo', 'Código', 'Docente', 'Categoría', 'Idioma', 'Nivel', 'Total de horas', 'Costo por hora (S/)', 'Monto bruto referencial (S/)', 'Clases confirmadas', 'Clases no confirmadas'];
 
     /**
      * @param  list<ExpedienteDeHoras>  $expedientes
@@ -47,7 +47,9 @@ final readonly class ExportarExpedientesDeHorasCsv
     {
         $horas = array_sum(array_map(fn (ExpedienteDeHoras $expediente): int => $expediente->horasTotalesCentesimas(), $expedientes));
         $monto = array_sum(array_map(fn (ExpedienteDeHoras $expediente): int => $expediente->montoTotalCentimos(), $expedientes));
-        fputcsv($salida, ['Total', '', '', '', '', '', LineaDeHoras::decimal($horas), '', LineaDeHoras::decimal($monto)], escape: '');
+        $confirmadas = array_sum(array_map(fn (ExpedienteDeHoras $expediente): int => $expediente->clasesConfirmadas(), $expedientes));
+        $noConfirmadas = array_sum(array_map(fn (ExpedienteDeHoras $expediente): int => $expediente->clasesNoConfirmadas(), $expedientes));
+        fputcsv($salida, ['Total', '', '', '', '', '', LineaDeHoras::decimal($horas), '', LineaDeHoras::decimal($monto), (string) $confirmadas, (string) $noConfirmadas], escape: '');
 
         if (array_any($expedientes, fn (ExpedienteDeHoras $expediente): bool => $expediente->tieneHorasSinCosto())) {
             fputcsv($salida, ['Nota: las horas sin costo vigente no suman al monto total.'], escape: '');
@@ -62,6 +64,7 @@ final readonly class ExportarExpedientesDeHorasCsv
         return [
             $expediente->periodo(), $expediente->codigo, $expediente->nombre, $expediente->categoria, $linea->idioma, $linea->nivel,
             $linea->horas(), $linea->costoPorHora() ?? 'Sin costo vigente', $linea->monto() ?? '',
+            (string) $linea->clasesConfirmadas, (string) $linea->clasesNoConfirmadas,
         ];
     }
 

@@ -15,8 +15,10 @@ use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Certificacion\Models\NotaFinal;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
 use App\Modules\Docencia\Enums\PermisoDocencia;
+use App\Modules\Docencia\Models\CargaAcademica;
 use App\Modules\Docencia\Models\ClaseDictada;
 use App\Modules\Docencia\Models\CostoPorHora;
+use App\Modules\Docencia\Support\DelegadoDelGrupo;
 use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Matricula\Models\Matricula;
@@ -168,4 +170,16 @@ it('leaves no demo data behind when a later seeder fails, so the next container 
     expect(fn () => $this->seed(DatabaseSeeder::class))->toThrow(RuntimeException::class, 'Seeder failed halfway.')
         ->and(User::query()->count())->toBe(0)
         ->and(Grupo::query()->count())->toBe(0);
+});
+
+it('seeds a delegate for every current demo group, the demo student in English I', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $grupos = Grupo::query()->whereRelation('periodo', 'estado', 'en_curso')->whereIn('id', CargaAcademica::query()->select('grupo_id'))->get();
+    $delegados = $grupos->mapWithKeys(fn (Grupo $grupo): array => [$grupo->codigo => app(DelegadoDelGrupo::class)($grupo->id)?->personaId]);
+    $estudiante = Persona::query()->whereRelation('user', 'email', 'estudiante@ciln.test')->value('id');
+
+    expect($grupos)->not->toBeEmpty()
+        ->and($delegados->filter()->count())->toBe($grupos->count())
+        ->and($delegados['ING-1-M'])->toBe($estudiante);
 });

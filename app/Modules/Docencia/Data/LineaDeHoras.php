@@ -12,6 +12,8 @@ final readonly class LineaDeHoras
         public int $centesimasDeHora,
         public ?int $costoCentimos,
         public ?int $montoCentimos,
+        public int $clasesConfirmadas = 0,
+        public int $clasesNoConfirmadas = 0,
     ) {}
 
     public function horas(): string

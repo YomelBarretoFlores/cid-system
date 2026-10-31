@@ -69,6 +69,18 @@ final readonly class ExpedienteDeHoras
         return LineaDeHoras::decimal($this->montoTotalCentimos());
     }
 
+    // Informative until the CILN defines deductions: the hours and the amount count every class.
+    public function clasesConfirmadas(): int
+    {
+        return array_sum(array_map(fn (LineaDeHoras $linea): int => $linea->clasesConfirmadas, $this->lineas));
+    }
+
+    // Observed by the delegate or left unanswered past the window.
+    public function clasesNoConfirmadas(): int
+    {
+        return array_sum(array_map(fn (LineaDeHoras $linea): int => $linea->clasesNoConfirmadas, $this->lineas));
+    }
+
     public function tieneHorasSinCosto(): bool
     {
         return array_any($this->lineas, fn (LineaDeHoras $linea): bool => $linea->costoCentimos === null);

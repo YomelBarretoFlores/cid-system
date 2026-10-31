@@ -33,7 +33,7 @@ it('orders the sidebar by daily work, with every section in its group', function
         '' => ['Tablero gerencial'],
         'Atención' => ['Matrículas', 'Solicitudes de clasificación', 'Pagos', 'Trámites', 'Personas'],
         'Oferta académica' => ['Periodos', 'Idiomas y ciclos', 'Grupos', 'Aulas'],
-        'Docencia' => ['Docentes', 'Expediente de horas', 'Costos por hora'],
+        'Docencia' => ['Docentes', 'Expediente de horas', 'Costos por hora', 'Control de clases'],
         'Certificación' => ['Actas finales', 'Constancias y certificados'],
         'Reportes' => ['Reporte de recaudación'],
         'Configuración' => ['Conceptos y tarifas', 'Tipos de trámite'],

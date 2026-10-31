@@ -11,6 +11,7 @@ use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Docencia\Actions\AsignarDocente;
+use App\Modules\Docencia\Actions\DesignarDelegado;
 use App\Modules\Docencia\Actions\GuardarDisponibilidad;
 use App\Modules\Docencia\Actions\RegistrarAsistencia;
 use App\Modules\Docencia\Actions\RegistrarCostoPorHora;
@@ -26,7 +27,7 @@ use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
-// Synthetic teachers who teach the demo groups through the real Actions, with the attendance of the classes already given, partial grades and hourly costs.
+// Synthetic teachers who teach the demo groups through the real Actions, with the attendance of the classes already given, a delegate per current group, partial grades and hourly costs.
 final class DocenciaDemoSeeder extends Seeder
 {
     /**
@@ -61,6 +62,7 @@ final class DocenciaDemoSeeder extends Seeder
 
             foreach ($this->gruposDelPeriodo('en_curso', $grupos) as $grupo) {
                 $this->dictar($grupo, $docentes[$posicion], $administrador);
+                $this->designarDelegado($grupo, $docentes[$posicion]);
             }
         }
 
@@ -120,6 +122,19 @@ final class DocenciaDemoSeeder extends Seeder
     {
         app(AsignarDocente::class)($grupo->id, $docente->id, $administrador);
         $this->tomarAsistencia($grupo, $docente, $this->usuarioDe($docente));
+    }
+
+    // The demo student delegates English I so their page fills once the teacher takes both calls; past classes are registro posterior and never reach a delegate.
+    private function designarDelegado(Grupo $grupo, Docente $docente): void
+    {
+        $estudiantes = app(EstudiantesDelGrupo::class)($grupo->id);
+        $demo = Persona::query()->whereRelation('user', 'email', 'estudiante@ciln.test')->value('id');
+        $delegado = $grupo->codigo === 'ING-1-M' ? collect($estudiantes)->firstWhere('personaId', $demo) : null;
+        $delegado ??= $estudiantes[0] ?? null;
+
+        if ($delegado instanceof EstudianteDelGrupo) {
+            app(DesignarDelegado::class)($grupo->id, $docente->id, $delegado->matriculaId, $this->usuarioDe($docente));
+        }
     }
 
     // The demo teacher signs in as herself; the other synthetic teachers have no account, so the administrator records for them.

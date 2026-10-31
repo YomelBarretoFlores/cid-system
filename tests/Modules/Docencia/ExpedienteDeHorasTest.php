@@ -16,7 +16,9 @@ use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\PortalDocente;
 
 beforeEach(function (): void {
     $this->usuario = User::factory()->create();
@@ -135,4 +137,20 @@ it('indexes the class date the report filters on', function (): void {
     $indices = collect(DB::select("select indexdef from pg_indexes where tablename = 'doc_clases_dictadas'"))->pluck('indexdef');
 
     expect($indices->contains(fn (string $definicion): bool => preg_match('/\\(fecha[,)]/', $definicion) === 1))->toBeTrue();
+});
+
+it('counts the classes the delegate confirmed and the observed or unconfirmed ones without changing the hours', function (): void {
+    [$usuario, $docente] = PortalDocente::docente();
+    [$grupo, $estudiantes] = PortalDocente::grupoConEstudiantes($docente, 'Quispe', 'Álvarez');
+    PortalDocente::clasesEnCadaEstado($grupo, $docente, $usuario, $estudiantes);
+
+    $this->travelTo(CarbonImmutable::parse('2027-03-20 12:00', 'America/Lima'));
+    $expediente = expedienteDe(2027, 3, $docente);
+
+    expect([$expediente->clasesConfirmadas(), $expediente->clasesNoConfirmadas(), $expediente->horasTotales()])->toBe([1, 2, '12.00'])
+        ->and(array_map(fn (LineaDeHoras $linea): array => [$linea->clasesConfirmadas, $linea->clasesNoConfirmadas], $expediente->lineas))->toBe([[1, 2]]);
+
+    $this->travelTo(CarbonImmutable::parse('2027-03-08 21:00', 'America/Lima'));
+
+    expect([expedienteDe(2027, 3, $docente)->clasesConfirmadas(), expedienteDe(2027, 3, $docente)->clasesNoConfirmadas()])->toBe([1, 1]);
 });
