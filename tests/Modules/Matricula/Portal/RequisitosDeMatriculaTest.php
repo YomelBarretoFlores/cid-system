@@ -23,6 +23,7 @@ use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\ActasFinales;
 
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2027-03-10 09:00', 'America/Lima'));
@@ -73,17 +74,24 @@ it('explains when the enrollment period has not opened yet or none is scheduled'
         ->and(fn (): Matricula => intentarMatricula($this->grupo))->toThrow(ReglaDeNegocioIncumplida::class);
 });
 
-it('shows the enabled cycle of each language with its origin and the expected condition', function (): void {
+it('shows the enabled cycle of each language with its origin, and that a cycle without a closed acta is still being taken', function (): void {
     Habilitacion::factory()->create(['persona_id' => $this->persona->id, 'idioma_id' => $this->idioma->id, 'ciclo_id' => $this->ciclo2->id, 'origen' => OrigenHabilitacion::Aprobacion]);
     $pasado = Periodo::factory()->create(['nombre' => 'Enero 2027']);
     Matricula::factory()->activa()->create(['persona_id' => $this->persona->id, 'grupo_id' => Grupo::factory()->for($pasado)->for($this->ciclo2)->create()->id]);
     $grupoDos = Grupo::factory()->for($this->periodo)->for($this->ciclo2)->create(['codigo' => 'ING-2-A']);
 
     expect(requisitosDelEstudiante()['Ciclo que te corresponde'])->toBe([true, [
-        'Inglés: Ciclo 2 (Básico), por aprobación del ciclo anterior; lo llevarías como repitente.',
+        'Inglés: Ciclo 2 (Básico), por aprobación del ciclo anterior; lo estás cursando: si lo apruebas, al cerrarse el acta se habilitará el ciclo siguiente.',
         'En los demás idiomas empiezas en el ciclo 1, o puedes rendir el examen de clasificación.',
     ]])
         ->and(intentarMatricula($grupoDos)->condicion)->toBe(CondicionMatricula::Repitente);
+});
+
+it('says the student would repeat a cycle already graded in a closed acta', function (): void {
+    ActasFinales::historial($this->persona, 'Francés', [[1, '09.00', 'desaprobado']]);
+    $frances = Idioma::query()->latest('id')->firstOrFail();
+
+    expect(requisitosDelEstudiante()['Ciclo que te corresponde'][1])->toContain("{$frances->nombre}: Ciclo 1 (Básico), desde el inicio del programa; lo llevarías como repitente.");
 });
 
 it('asks for a payment when there is no validated one left to use, and the enrollment refuses too', function (): void {

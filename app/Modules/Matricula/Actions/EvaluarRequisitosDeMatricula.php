@@ -12,6 +12,7 @@ use App\Modules\Academico\Data\FichaDeGrupo;
 use App\Modules\Academico\Data\GrupoData;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Academico\Data\VentanaDeMatricula;
+use App\Modules\Certificacion\Contracts\MatriculasCalificadas;
 use App\Modules\Matricula\Data\RequisitoDeMatricula;
 use App\Modules\Matricula\Enums\EstadoMatricula;
 use App\Modules\Matricula\Models\Habilitacion;
@@ -32,6 +33,7 @@ final readonly class EvaluarRequisitosDeMatricula
         private CatalogoDeIdiomas $catalogo,
         private CiclosDeGrupos $ciclosDeGrupos,
         private DetalleDeGrupos $detalleDeGrupos,
+        private MatriculasCalificadas $matriculasCalificadas,
     ) {}
 
     /**
@@ -40,18 +42,21 @@ final readonly class EvaluarRequisitosDeMatricula
     public function __invoke(int $personaId): array
     {
         $oferta = collect($this->opciones->oferta($personaId));
-        $activas = array_values(array_map(intval(...), Matricula::query()
+        $activas = collect(Matricula::query()
             ->where(['persona_id' => $personaId, 'estado' => EstadoMatricula::Activa])
-            ->pluck('grupo_id')->all()));
+            ->pluck('grupo_id', 'id')->all())->map(intval(...));
         $ofertados = array_values(array_map(fn (FichaDeGrupo $grupo): int => $grupo->id, $oferta->all()));
-        $ciclos = ($this->ciclosDeGrupos)([...$ofertados, ...$activas]);
+        $ciclos = ($this->ciclosDeGrupos)([...$ofertados, ...$activas->values()->all()]);
         $clavesOfertadas = array_map(fn (int $grupoId): string => $this->clave($ciclos, $grupoId), $ofertados);
-        $enConflicto = array_values(array_filter($activas, fn (int $grupoId): bool => in_array($this->clave($ciclos, $grupoId), $clavesOfertadas, true)));
-        $cursadas = collect(array_diff($activas, $enConflicto))->map(fn (int $grupoId): ?GrupoData => $ciclos[$grupoId] ?? null)->filter();
+        [$enConflicto, $otras] = [
+            $activas->filter(fn (int $grupoId): bool => in_array($this->clave($ciclos, $grupoId), $clavesOfertadas, true)),
+            $activas->reject(fn (int $grupoId): bool => in_array($this->clave($ciclos, $grupoId), $clavesOfertadas, true)),
+        ];
+        $enConflicto = array_values($enConflicto->all());
 
         return [
             $this->periodo(),
-            $this->ciclo($personaId, $cursadas),
+            $this->ciclo($personaId, $this->segunCalificacion($otras, $ciclos, true), $this->segunCalificacion($otras, $ciclos, false)),
             $this->pago($personaId),
             $this->grupos($oferta, array_map(fn (int $grupoId): string => $this->clave($ciclos, $grupoId), $enConflicto), $ciclos),
             $this->unicidad($enConflicto),
@@ -90,16 +95,33 @@ final readonly class EvaluarRequisitosDeMatricula
     }
 
     /**
-     * @param  Collection<int, GrupoData>  $cursadas  active enrollments in other periods, which make the student a repeater
+     * @param  Collection<int, int>  $otras  group per active enrollment of other periods
+     * @param  array<int, GrupoData>  $ciclos
+     * @return Collection<int, GrupoData>
      */
-    private function ciclo(int $personaId, Collection $cursadas): RequisitoDeMatricula
+    private function segunCalificacion(Collection $otras, array $ciclos, bool $calificadas): Collection
+    {
+        $conActaCerrada = ($this->matriculasCalificadas)(array_values(array_map(intval(...), $otras->keys()->all())));
+
+        return $otras
+            ->filter(fn (int $grupoId, int $matriculaId): bool => in_array($matriculaId, $conActaCerrada, true) === $calificadas)
+            ->map(fn (int $grupoId): ?GrupoData => $ciclos[$grupoId] ?? null)
+            ->filter()
+            ->values();
+    }
+
+    /**
+     * @param  Collection<int, GrupoData>  $cursadas  graded in a closed acta, which makes the student a repeater
+     * @param  Collection<int, GrupoData>  $enCurso  not graded yet
+     */
+    private function ciclo(int $personaId, Collection $cursadas, Collection $enCurso): RequisitoDeMatricula
     {
         $habilitaciones = Habilitacion::query()->where('persona_id', $personaId)->get()->keyBy('idioma_id');
-        $conHistoria = $habilitaciones->keys()->merge($cursadas->pluck('idiomaId'))->unique();
+        $conHistoria = $habilitaciones->keys()->merge($cursadas->pluck('idiomaId'))->merge($enCurso->pluck('idiomaId'))->unique();
 
         $lineas = collect(($this->catalogo)())
             ->filter(fn (IdiomaDelCatalogo $idioma): bool => $idioma->activo && $conHistoria->contains($idioma->id))
-            ->flatMap(fn (IdiomaDelCatalogo $idioma): array => $this->lineaDelIdioma($idioma, $habilitaciones->get($idioma->id), $cursadas));
+            ->flatMap(fn (IdiomaDelCatalogo $idioma): array => $this->lineaDelIdioma($idioma, $habilitaciones->get($idioma->id), $cursadas, $enCurso));
 
         $lineas->push(($lineas->isEmpty() ? 'En todos los idiomas ' : 'En los demás idiomas ').self::OTROS_IDIOMAS);
 
@@ -108,9 +130,10 @@ final readonly class EvaluarRequisitosDeMatricula
 
     /**
      * @param  Collection<int, GrupoData>  $cursadas
+     * @param  Collection<int, GrupoData>  $enCurso
      * @return list<string>
      */
-    private function lineaDelIdioma(IdiomaDelCatalogo $idioma, ?Habilitacion $habilitacion, Collection $cursadas): array
+    private function lineaDelIdioma(IdiomaDelCatalogo $idioma, ?Habilitacion $habilitacion, Collection $cursadas, Collection $enCurso): array
     {
         $cicloId = $habilitacion->ciclo_id ?? array_key_first($idioma->ciclos);
         $ciclo = $cicloId === null ? null : ($idioma->ciclos[$cicloId] ?? null);
@@ -120,9 +143,14 @@ final readonly class EvaluarRequisitosDeMatricula
         }
 
         $origen = $habilitacion instanceof Habilitacion ? 'por '.lcfirst($habilitacion->origen->etiqueta()) : 'desde el inicio del programa';
-        $repite = $cursadas->contains(fn (GrupoData $grupo): bool => $grupo->cicloId === $cicloId) ? '; lo llevarías como repitente' : '';
+        $delCiclo = fn (GrupoData $grupo): bool => $grupo->cicloId === $cicloId;
+        $situacion = match (true) {
+            $enCurso->contains($delCiclo) => '; lo estás cursando: si lo apruebas, al cerrarse el acta se habilitará el ciclo siguiente',
+            $cursadas->contains($delCiclo) => '; lo llevarías como repitente',
+            default => '',
+        };
 
-        return ["{$idioma->nombre}: {$ciclo}, {$origen}{$repite}."];
+        return ["{$idioma->nombre}: {$ciclo}, {$origen}{$situacion}."];
     }
 
     private function pago(int $personaId): RequisitoDeMatricula
