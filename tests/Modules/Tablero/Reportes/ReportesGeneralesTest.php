@@ -2,11 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\NivelCurricular;
+use App\Modules\Academico\Models\Idioma;
+use App\Modules\Academico\Models\Periodo;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Docencia\Contracts\AsistenciaDeMatricula;
 use App\Modules\Docencia\Enums\PermisoDocencia;
+use App\Modules\Docencia\Models\CargaAcademica;
+use App\Modules\Docencia\Models\Docente;
 use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Matricula\Models\Matricula;
+use App\Modules\Personas\Models\Persona;
 use App\Modules\Tablero\Actions\ExportarReporteGeneralExcel;
 use App\Modules\Tablero\Actions\GenerarReporteDeAsistencia;
 use App\Modules\Tablero\Actions\GenerarReporteDeCargaDocente;
@@ -20,12 +26,14 @@ use App\Modules\Tablero\Filament\Pages\ReporteDeMatriculados;
 use App\Modules\Tablero\Filament\Pages\ReporteDeNotas;
 use App\Shared\Auth\Models\User;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
 use Livewire\Livewire;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\PdfBuilder;
 use Tests\Support\ActasFinales;
+use Tests\Support\DatosDelTablero;
 use Tests\Support\ReportesDelEstudiante;
 
 beforeEach(function (): void {
@@ -55,10 +63,41 @@ it('lists the enrolled students of the period per group with condition, state an
         ->and(filasDe($reporte, 'Detalle de matriculados')[1])->toMatchArray([1 => 'ING-1-M', 2 => 'DNI 41234567', 3 => 'Quispe Mamani, Rosa', 5 => 'Regular', 6 => 'Activa']);
 });
 
-it('keeps another period, language or group out of the report', function (): void {
-    $vacio = app(GenerarReporteDeMatriculados::class)(new FiltrosDeReporte(periodoId: $this->grupo->periodo_id, grupoId: $this->grupo->id + 999));
+it('keeps another period, language, level or group out of the report', function (): void {
+    $frances = Idioma::factory()->create(['nombre' => 'Francés']);
+    $mismoPeriodo = DatosDelTablero::grupo(Periodo::query()->findOrFail($this->grupo->periodo_id), $frances, 5, NivelCurricular::Intermedio, ['codigo' => 'FRA-5-T']);
+    DatosDelTablero::matricula($mismoPeriodo);
+    DatosDelTablero::matricula(DatosDelTablero::grupo(DatosDelTablero::periodo('Abril 2027', '2027-04-01', '2027-04-30', numero: 9), $frances, 1, atributos: ['codigo' => 'FRA-1-A']));
+    $grupos = fn (FiltrosDeReporte $filtros): array => array_column(filasDe(app(GenerarReporteDeMatriculados::class)($filtros), 'Resumen por grupo'), 0);
+    $periodoId = $this->grupo->periodo_id;
 
-    expect(filasDe($vacio, 'Detalle de matriculados'))->toBe([]);
+    expect($grupos(new FiltrosDeReporte($periodoId)))->toBe(['FRA-5-T', 'ING-1-M'])
+        ->and($grupos(new FiltrosDeReporte($periodoId, idiomaId: $frances->id)))->toBe(['FRA-5-T'])
+        ->and($grupos(new FiltrosDeReporte($periodoId, nivel: NivelCurricular::Basico)))->toBe(['ING-1-M'])
+        ->and($grupos(new FiltrosDeReporte($periodoId, grupoId: $this->grupo->id)))->toBe(['ING-1-M'])
+        ->and($grupos(new FiltrosDeReporte($periodoId, grupoId: $this->grupo->id + 999)))->toBe([]);
+});
+
+it('keeps two teachers with the same name apart in the teaching load', function (): void {
+    $homonimo = Docente::factory()->create(['persona_id' => Persona::factory()->create(['apellido_paterno' => 'Vega', 'apellido_materno' => 'Ríos', 'nombres' => 'Carlos'])->id]);
+    $otroGrupo = DatosDelTablero::grupo(Periodo::query()->findOrFail($this->grupo->periodo_id), Idioma::factory()->create(['nombre' => 'Quechua']), 1, atributos: ['codigo' => 'QUE-1-M']);
+    DatosDelTablero::horario($otroGrupo, [2], '08:00', '10:00');
+    CargaAcademica::query()->create(['grupo_id' => $otroGrupo->id, 'docente_id' => $homonimo->id, 'asignado_por' => $this->escenario['curso']['usuario']->id]);
+
+    expect(array_column(filasDe(app(GenerarReporteDeCargaDocente::class)($this->filtros), 'Carga por docente'), 1))->toBe([1, 1]);
+});
+
+it('offers only the groups of the chosen period, language and level, and clears the group when those change', function (): void {
+    $usuario = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoMatricula::Ver->value]);
+    $frances = Idioma::factory()->create(['nombre' => 'Francés']);
+    DatosDelTablero::grupo(Periodo::query()->findOrFail($this->grupo->periodo_id), $frances, 5, NivelCurricular::Intermedio, ['codigo' => 'FRA-5-T']);
+
+    Livewire::actingAs($usuario)->test(ReporteDeMatriculados::class)
+        ->assertFormFieldExists('grupo_id', fn (Select $campo): bool => array_values($campo->getOptions()) === ['FRA-5-T', 'ING-1-M'])
+        ->set('data.grupo_id', $this->grupo->id)
+        ->set('data.idioma_id', $frances->id)
+        ->assertSet('data.grupo_id', null)
+        ->assertFormFieldExists('grupo_id', fn (Select $campo): bool => array_values($campo->getOptions()) === ['FRA-5-T']);
 });
 
 it('gives the attendance of each student over held and programmed classes, as the attendance contract does', function (): void {
@@ -124,5 +163,6 @@ it('writes each section as an Excel sheet with numbers as numbers and text as te
     expect($libro->getSheetNames())->toBe(['Clases por grupo', 'Asistencia por estudiante'])
         ->and($hoja?->getCell('C2')->getValue())->toBe('Quispe Mamani, Rosa')
         ->and($hoja?->getCell('C2')->getDataType())->toBe(DataType::TYPE_STRING)
-        ->and($hoja?->getCell('G2')->getValue())->toEqual(67);
+        ->and($hoja?->getCell('G2')->getValue())->toBe(67)
+        ->and($hoja?->getCell('G2')->getDataType())->toBe(DataType::TYPE_NUMERIC);
 });

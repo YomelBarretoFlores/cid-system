@@ -46,4 +46,16 @@ Branch: `feat/reportes-generales` (stacked on `feat/documentos-formales`). Deliv
   - Mistake caught by Larastan: I overwrote the existing `Tablero/Support/Porcentaje.php`. It was restored from git, and the new helper is `CifrasDelReporte`.
   - RED: the 11 new tests failed first. Tablero, Feature and Architecture: 359 pass. `composer check` rc=0, 1908 tests.
   - A real PDF was rendered and read back: the formal SGA layout, with both sections.
+- L4 (2026-11-01): native review of dd1126f..bcb195d.
+  - Escalated with item 2, because the pages decide who sees students' data. Lenses: risk and reliability. Lineage review-d830e0660b1667eb.
+  - The user granted it; it was approved and acknowledged.
+  - Applied after RED tests:
+    - the teaching load is grouped by teacher, not by name, so two teachers who share a name stay apart;
+    - the group list follows the chosen period, language and level, and a change of language or level clears the chosen group;
+    - the filter test now covers period, language, level and group;
+    - the Excel test asserts a numeric cell.
+  - Refuted: "several actas per group", because `cer_actas.grupo_id` has a unique index.
+  - Left for later: the per-group queries of the attendance report. They are fine for a period's groups, and caching can come if volume demands it.
+
+  D6 is complete.
 

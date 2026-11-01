@@ -22,7 +22,7 @@ use stdClass;
 /**
  * Assigned hours follow the group's weekly schedule over the period; taught hours are the classes the teacher of the load gave.
  *
- * @phpstan-type Carga array{docente: string, codigo: string, idioma: string, nivel: string, dias: string, asignados: int, dictados: int, confirmados: int}
+ * @phpstan-type Carga array{docenteId: int, docente: string, codigo: string, idioma: string, nivel: string, dias: string, asignados: int, dictados: int, confirmados: int}
  */
 final readonly class GenerarReporteDeCargaDocente
 {
@@ -58,10 +58,11 @@ final readonly class GenerarReporteDeCargaDocente
     {
         $filas = [];
 
-        foreach (collect($cargas)->groupBy('docente') as $docente => $delDocente) {
+        // Grouped by teacher, not by name: two teachers can share a name.
+        foreach (collect($cargas)->groupBy('docenteId') as $delDocente) {
             $asignados = (int) $delDocente->sum('asignados');
             $dictados = (int) $delDocente->sum('dictados');
-            $filas[] = [(string) $docente, $delDocente->count(), CifrasDelReporte::horas($asignados), CifrasDelReporte::horas($dictados), CifrasDelReporte::porcentaje($dictados, $asignados)];
+            $filas[] = [(string) ($delDocente->first()['docente'] ?? ''), $delDocente->count(), CifrasDelReporte::horas($asignados), CifrasDelReporte::horas($dictados), CifrasDelReporte::porcentaje($dictados, $asignados)];
         }
 
         return $filas;
@@ -90,7 +91,7 @@ final readonly class GenerarReporteDeCargaDocente
             $horaria = CargaHoraria::de($grupo);
             $dictado = $minutos->get($fila->grupo_id.'-'.$fila->docente_id);
             $cargas[] = [
-                'docente' => $fichas[(int) $fila->persona_id]->nombreCompleto ?? '', 'codigo' => $grupo->codigo, 'idioma' => $grupo->idioma, 'nivel' => $horaria->nivel,
+                'docenteId' => (int) $fila->docente_id, 'docente' => $fichas[(int) $fila->persona_id]->nombreCompleto ?? '', 'codigo' => $grupo->codigo, 'idioma' => $grupo->idioma, 'nivel' => $horaria->nivel,
                 'dias' => $horaria->dias, 'asignados' => $horaria->minutos, 'dictados' => (int) ($dictado->minutos ?? 0), 'confirmados' => (int) ($dictado->confirmados ?? 0),
             ];
         }

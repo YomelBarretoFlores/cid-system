@@ -19,7 +19,6 @@ use App\Shared\Support\Filament\AccionDeNegocio;
 use App\Shared\Support\Filament\DescargaDePdf;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -50,11 +49,13 @@ trait ReporteGeneralDelPanel
                 Select::make('periodo_id')->label('Periodo académico')->options(fn (): array => app(CatalogoDePeriodos::class)())->required()->selectablePlaceholder(false)->live()
                     ->afterStateUpdated(fn (Set $set): mixed => $set('grupo_id', null)),
                 Select::make('idioma_id')->label('Idioma')->placeholder('Todos los idiomas')
-                    ->options(fn (): array => collect(app(CatalogoDeIdiomas::class)())->mapWithKeys(fn (IdiomaDelCatalogo $idioma): array => [$idioma->id => $idioma->nombre])->all())->live(),
+                    ->options(fn (): array => collect(app(CatalogoDeIdiomas::class)())->mapWithKeys(fn (IdiomaDelCatalogo $idioma): array => [$idioma->id => $idioma->nombre])->all())->live()
+                    ->afterStateUpdated(fn (Set $set): mixed => $set('grupo_id', null)),
                 Select::make('nivel')->label('Nivel')->placeholder('Todos los niveles')
-                    ->options(collect(NivelCurricular::cases())->mapWithKeys(fn (NivelCurricular $nivel): array => [$nivel->value => $nivel->etiqueta()])->all())->live(),
+                    ->options(collect(NivelCurricular::cases())->mapWithKeys(fn (NivelCurricular $nivel): array => [$nivel->value => $nivel->etiqueta()])->all())->live()
+                    ->afterStateUpdated(fn (Set $set): mixed => $set('grupo_id', null)),
                 Select::make('grupo_id')->label('Grupo')->placeholder('Todos los grupos')->searchable()->live()
-                    ->options(fn (Get $get): array => $this->gruposDelPeriodo($get('periodo_id'))),
+                    ->options(fn (): array => $this->gruposElegibles()),
             ]);
     }
 
@@ -109,15 +110,19 @@ trait ReporteGeneralDelPanel
     }
 
     /**
+     * The groups that match the chosen period, language and level.
+     *
      * @return array<int, string>
      */
-    private function gruposDelPeriodo(mixed $periodoId): array
+    private function gruposElegibles(): array
     {
-        if (! is_numeric($periodoId)) {
+        try {
+            $filtros = $this->filtros();
+        } catch (ReglaDeNegocioIncumplida) {
             return [];
         }
 
-        return GruposDelPeriodo::consulta(new FiltrosDeReporte((int) $periodoId)->delTablero())->orderBy('g.codigo')->pluck('g.codigo', 'g.id')
+        return GruposDelPeriodo::consulta($filtros->delTablero())->orderBy('g.codigo')->pluck('g.codigo', 'g.id')
             ->mapWithKeys(fn (mixed $codigo, mixed $id): array => [(int) $id => (string) $codigo])->all();
     }
 
