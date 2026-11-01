@@ -12,6 +12,7 @@ use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use Carbon\CarbonInterface;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -40,11 +41,11 @@ final class EditPeriodo extends EditRecord
      */
     private function actualizar(Model $record, array $data): Model
     {
-        $antes = [$record->getAttribute('fecha_inicio'), $record->getAttribute('fecha_fin')];
+        [$desde, $hasta] = [$record->getAttribute('fecha_inicio'), $record->getAttribute('fecha_fin')];
         $periodo = parent::handleRecordUpdate($record, $data);
 
-        if ([$periodo->getAttribute('fecha_inicio'), $periodo->getAttribute('fecha_fin')] != $antes) {
-            app(VerificarCrucesDelPeriodo::class)($periodo->getKey());
+        if ($desde instanceof CarbonInterface && $hasta instanceof CarbonInterface && [$periodo->getAttribute('fecha_inicio'), $periodo->getAttribute('fecha_fin')] != [$desde, $hasta]) {
+            app(VerificarCrucesDelPeriodo::class)((int) $periodo->getKey(), $desde, $hasta);
         }
 
         return $periodo;

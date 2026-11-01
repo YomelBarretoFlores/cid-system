@@ -11,7 +11,11 @@ return new class extends Migration
     public function up(): void
     {
         DB::unprepared(<<<'SQL'
-            CREATE OR REPLACE FUNCTION aca_asegurar_aula_libre(p_grupo bigint) RETURNS void
+            DROP FUNCTION IF EXISTS aca_asegurar_aula_libre(bigint);
+
+            -- Judges only what a write can newly cause: one schedule line (p_horario), or the periods a date change
+            -- starts to overlap (outside p_desde_anterior..p_hasta_anterior). A share saved before this rule stays readable and editable.
+            CREATE OR REPLACE FUNCTION aca_asegurar_aula_libre(p_grupo bigint, p_horario bigint, p_desde_anterior date, p_hasta_anterior date) RETURNS void
                 LANGUAGE plpgsql
                 SET search_path = pg_catalog, public, pg_temp
             AS $$
@@ -35,8 +39,9 @@ return new class extends Migration
                 JOIN public.aca_horarios h2 ON h2.dia_semana = h.dia_semana AND h2.hora_inicio < h.hora_fin AND h2.hora_fin > h.hora_inicio
                 JOIN public.aca_grupos otro ON otro.id = h2.grupo_id AND otro.id <> g.id AND otro.aula_id = g.aula_id AND otro.estado <> 'cancelado'
                 JOIN public.aca_periodos p2 ON p2.id = otro.periodo_id AND p2.fecha_inicio <= g.fecha_fin AND p2.fecha_fin >= g.fecha_inicio
+                    AND (p_desde_anterior IS NULL OR NOT (p2.fecha_inicio <= p_hasta_anterior AND p2.fecha_fin >= p_desde_anterior))
                 JOIN public.aca_aulas a ON a.id = g.aula_id
-                WHERE h.grupo_id = g.id
+                WHERE h.grupo_id = g.id AND (p_horario IS NULL OR h.id = p_horario)
                 LIMIT 1;
 
                 IF FOUND THEN
@@ -50,7 +55,7 @@ return new class extends Migration
                 SET search_path = pg_catalog, public, pg_temp
             AS $$
             BEGIN
-                PERFORM public.aca_asegurar_aula_libre(NEW.grupo_id);
+                PERFORM public.aca_asegurar_aula_libre(NEW.grupo_id, NEW.id, NULL, NULL);
                 RETURN NULL;
             END
             $$;
@@ -60,7 +65,7 @@ return new class extends Migration
                 SET search_path = pg_catalog, public, pg_temp
             AS $$
             BEGIN
-                PERFORM public.aca_asegurar_aula_libre(NEW.id);
+                PERFORM public.aca_asegurar_aula_libre(NEW.id, NULL, NULL, NULL);
                 RETURN NULL;
             END
             $$;
@@ -73,7 +78,7 @@ return new class extends Migration
                 grupo bigint;
             BEGIN
                 FOR grupo IN SELECT id FROM public.aca_grupos WHERE periodo_id = NEW.id ORDER BY id LOOP
-                    PERFORM public.aca_asegurar_aula_libre(grupo);
+                    PERFORM public.aca_asegurar_aula_libre(grupo, NULL, OLD.fecha_inicio, OLD.fecha_fin);
                 END LOOP;
 
                 RETURN NULL;
@@ -83,7 +88,9 @@ return new class extends Migration
             CREATE CONSTRAINT TRIGGER aca_horarios_aula_libre AFTER INSERT OR UPDATE ON aca_horarios
                 DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION aca_horarios_aula_libre();
             CREATE CONSTRAINT TRIGGER aca_grupos_aula_libre AFTER UPDATE OF aula_id, periodo_id, estado ON aca_grupos
-                DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION aca_grupos_aula_libre();
+                DEFERRABLE INITIALLY DEFERRED FOR EACH ROW
+                WHEN (OLD.aula_id IS DISTINCT FROM NEW.aula_id OR OLD.periodo_id IS DISTINCT FROM NEW.periodo_id OR (OLD.estado = 'cancelado' AND NEW.estado <> 'cancelado'))
+                EXECUTE FUNCTION aca_grupos_aula_libre();
             CREATE CONSTRAINT TRIGGER aca_periodos_aula_libre AFTER UPDATE OF fecha_inicio, fecha_fin ON aca_periodos
                 DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION aca_periodos_aula_libre();
             SQL);
@@ -98,7 +105,7 @@ return new class extends Migration
             DROP FUNCTION IF EXISTS aca_periodos_aula_libre();
             DROP FUNCTION IF EXISTS aca_grupos_aula_libre();
             DROP FUNCTION IF EXISTS aca_horarios_aula_libre();
-            DROP FUNCTION IF EXISTS aca_asegurar_aula_libre(bigint);
+            DROP FUNCTION IF EXISTS aca_asegurar_aula_libre(bigint, bigint, date, date);
             SQL);
     }
 };

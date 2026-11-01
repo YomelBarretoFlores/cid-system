@@ -106,3 +106,21 @@ it('accepts new dates that cause no clash', function (): void {
 
     expect($this->abril->refresh()->fecha_fin->toDateString())->toBe('2027-05-05');
 });
+
+it('accepts new dates for a period that only keep a classroom share saved before the rule', function (): void {
+    $legado = grupoEnAula($this->bimestre, 'ING-L');
+    DB::statement('SET CONSTRAINTS ALL IMMEDIATE');
+    DB::statement('ALTER TABLE aca_horarios DISABLE TRIGGER aca_horarios_aula_libre');
+    Horario::factory()->for($legado)->create(['dia_semana' => 5, 'hora_inicio' => '16:00', 'hora_fin' => '18:00']);
+    DB::statement('ALTER TABLE aca_horarios ENABLE TRIGGER aca_horarios_aula_libre');
+    $gestor = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoAcademico::valores()]);
+
+    Livewire::actingAs($gestor)
+        ->test(EditPeriodo::class, ['record' => $this->bimestre->getRouteKey()])
+        ->fillForm(['fecha_fin' => '2027-05-10'])
+        ->call('save')
+        ->assertHasNoFormErrors()
+        ->assertNotNotified('El aula A-101 ya está ocupada por el grupo FRA-01 el Viernes de 16:00 a 18:00, en un periodo que se cruza con las nuevas fechas del grupo ING-L.');
+
+    expect($this->bimestre->refresh()->fecha_fin->toDateString())->toBe('2027-05-10');
+});

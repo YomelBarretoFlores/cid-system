@@ -62,3 +62,21 @@ it('makes the database refuse a teacher clash written outside the Actions', func
 
     expect(fn () => DB::transaction(fn (): CargaAcademica => PortalDocente::asignar($dos, $docente)))->toThrow(QueryException::class, "docente {$docente->codigo} con dos grupos a la misma hora");
 });
+
+it('keeps working with a classroom shared across overlapping periods before this rule existed, while refusing a new clash', function (): void {
+    // Saved before the rule: the guard only judges writes that can create a clash.
+    $legado = grupoConAulaA101($this->bimestre, 'ING-L');
+    DB::statement('SET CONSTRAINTS ALL IMMEDIATE');
+    DB::statement('ALTER TABLE aca_horarios DISABLE TRIGGER aca_horarios_aula_libre');
+    DB::table('aca_horarios')->insert(['grupo_id' => $legado->id, 'dia_semana' => 5, 'hora_inicio' => '16:00', 'hora_fin' => '18:00', 'created_at' => now(), 'updated_at' => now()]);
+    DB::statement('ALTER TABLE aca_horarios ENABLE TRIGGER aca_horarios_aula_libre');
+    DB::statement('SET CONSTRAINTS ALL IMMEDIATE');
+
+    DB::table('aca_grupos')->where('id', $legado->id)->update(['estado' => 'abierto']);
+    DB::table('aca_horarios')->insert(['grupo_id' => $legado->id, 'dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '10:00', 'created_at' => now(), 'updated_at' => now()]);
+    DB::table('aca_periodos')->where('id', $this->bimestre->id)->update(['fecha_fin' => '2027-05-10']);
+
+    expect($legado->horarios()->count())->toBe(2)
+        ->and(fn () => DB::transaction(fn (): bool => DB::table('aca_periodos')->where('id', $this->bimestre->id)->update(['fecha_fin' => '2027-06-30']) > 0))->not->toThrow(QueryException::class)
+        ->and(fn () => DB::transaction(fn (): bool => DB::table('aca_horarios')->insert(['grupo_id' => $legado->id, 'dia_semana' => 5, 'hora_inicio' => '17:30', 'hora_fin' => '19:00', 'created_at' => now(), 'updated_at' => now()])))->toThrow(QueryException::class, 'aula A-101 ocupada');
+});

@@ -47,4 +47,10 @@ Branch: `feat/cruces-carga` (stacked on `feat/pagos-boleta-original`) · Deliver
   - `EditPeriodo` moved its body to `actualizar()` so the panel-transaction rule recognises `reintentar: false`.
   - Docs: `modelo-de-datos.md` constraint table (also the D2 voucher and fingerprint rows).
   - `composer check` rc=0, 1859 tests, including the teacher concurrency test.
+- L5 (2026-11-01): native review of 28eb62c..62e410f (escalated with item 4 because of the trigger locks; lenses risk, resilience, reliability; lineage review-450db7af9e4a0584) was granted by the user.
+  - Two CRITICAL findings, the same root cause: before this change, groups of different periods with overlapping dates could share a classroom. The guards judged every schedule line of a group and fired on any state change, so data saved before the rule would block valid writes (closing a group, an unrelated schedule line, a period edit) with a raw database error.
+  - Bounded correction:
+    - the guards judge only what a write can newly cause: the changed schedule line; a change of classroom or period, or reactivating a cancelled or finalised group (`WHEN` clauses); for a period's new dates, only the periods they start to overlap;
+    - `VerificarCrucesDelPeriodo` applies the same rule with the previous dates passed from `EditPeriodo`.
+  - RED: 2 new tests failed first. `composer check` rc=0, 1861 tests.
 
