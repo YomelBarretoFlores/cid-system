@@ -192,3 +192,16 @@ it('shows each section as a paginated table with search and sorting, and keeps t
         ->assertSeeInOrder(['Zeta9', 'Zeta8'])
         ->assertDontSee('Quispe Mamani, Rosa');
 });
+
+it('clears the table search when the filters change and keeps the period and scope above the table', function (): void {
+    $usuario = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoMatricula::Ver->value]);
+
+    Livewire::actingAs($usuario)->test(ReporteDeMatriculados::class)
+        ->assertSee(['Marzo 2027', 'Idioma: Todos'])
+        ->set('seccion', 1)
+        ->searchTable('quispe')
+        ->set('data.nivel', 'basico')
+        ->assertSet('tableSearch', '')
+        ->assertSet('seccion', 1)
+        ->assertSee('Quispe Mamani, Rosa');
+});

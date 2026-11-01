@@ -93,6 +93,13 @@ trait ReporteGeneralDelPanel
     public function updatedData(): void
     {
         $this->resultado = null;
+        $this->tableSearch = '';
+        $reporte = $this->reporte();
+
+        if (! $reporte instanceof ReporteGeneral || ! isset($reporte->secciones[$this->seccion])) {
+            $this->seccion = 0;
+        }
+
         $this->reconstruirTabla();
     }
 

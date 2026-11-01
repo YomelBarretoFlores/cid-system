@@ -15,7 +15,7 @@ Branch: `fix/sidebar-y-reportes`. Delivery: one commit per unit; the user decide
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S1, S3 | inline | done | see L2 |
+| T1 | S1, S3 | inline | done | 703faeb (S3), 47c99e7 (S1); see L2, L3 |
 | T2 | S2 | inline | blocked: not reproduced, needs the user's screen | |
 
 ## Log
@@ -31,3 +31,13 @@ Branch: `fix/sidebar-y-reportes`. Delivery: one commit per unit; the user decide
   - RED: the new test failed first. Tablero: 56 pass.
   - Browser on the demo data: 36 results paginated by 10, no formal sheet, no JS errors, no horizontal overflow at 390 px.
   - Not reproduced in headless Chrome (S2): frame-by-frame width, visibility and opacity of the sidebar in the portal, the staff panel and the teacher panel show no change besides the active item.
+- L3 (2026-11-01): the review of the whole candidate exceeded the context budget, because the design HTML is 3 MB.
+  - The commit was split: 703faeb holds the design reference (S3, passive) and 47c99e7 the code.
+  - Native review of 703faeb..47c99e7 (lenses reliability and readability, lineage review-db31efdad5e014b0) was granted by the user, approved and acknowledged.
+  - Applied:
+    - a filter change clears the table search and keeps a valid section;
+    - empty cells sort first in both numeric and text columns;
+    - the period and the scope show above the table again;
+    - the docblock says search covers text columns.
+  - Tablero, Feature and Architecture: 363 pass. One earlier run showed a single error that did not repeat; watch for flakiness.
+

@@ -7,6 +7,13 @@
     @if (is_string($reporte))
         <x-filament::section>{{ $reporte }}</x-filament::section>
     @else
+        <p class="text-sm text-gray-600">
+            <strong>{{ $reporte->periodo }}</strong>
+            @foreach ($reporte->alcance as $etiqueta => $valor)
+                · {{ $etiqueta }}: {{ $valor }}
+            @endforeach
+        </p>
+
         @if (count($reporte->secciones) > 1)
             <x-filament::tabs>
                 @foreach ($reporte->secciones as $indice => $seccion)

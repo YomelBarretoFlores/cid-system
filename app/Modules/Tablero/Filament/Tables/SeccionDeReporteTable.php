@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
- * One section of a general report on screen: columns c0..cN as the report defines them; search, sorting and pages work on the rows already built.
+ * One section of a general report on screen: columns c0..cN as the report defines them; search (text columns only), sorting and pages work on the rows already built.
  *
  * @phpstan-type Fila array<string, string|int|float|null>
  */
@@ -71,11 +71,21 @@ final class SeccionDeReporteTable
                 self::normalizado((string) $busqueda),
             )))
             ->when($columna, fn (Collection $todas, string $columna): Collection => $todas->sortBy(
-                fn (array $fila): string|int|float => is_string($fila[$columna] ?? null) ? self::normalizado($fila[$columna]) : $fila[$columna] ?? -1,
+                fn (array $fila): string|float => self::claveDeOrden($fila[$columna] ?? null, $columnas[(int) substr($columna, 1)] ?? null),
                 descending: $direccion === 'desc',
             ));
 
         return new LengthAwarePaginator($filas->forPage($numero, $porPagina), $filas->count(), $porPagina, $numero);
+    }
+
+    // Empty cells sort first in ascending order, in numeric and in text columns alike.
+    private static function claveDeOrden(string|int|float|null $valor, ?ColumnaDeReporte $columna): string|float
+    {
+        if ($columna?->tipo->esNumero() === true) {
+            return $valor === null ? -INF : (float) $valor;
+        }
+
+        return self::normalizado((string) $valor);
     }
 
     // Same rule as the panel searches: accents and capitals do not matter.
