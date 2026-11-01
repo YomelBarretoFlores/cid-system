@@ -85,6 +85,7 @@ Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y c
 | Funcionalidad | Reglas |
 |---|---|
 | Actas finales | Solo el docente asignado y en fechas del calendario; promedio según el esquema configurable (el acta guarda copia del esquema usado); estados Aprobado/Desaprobado/NSP |
+| Pre acta | PDF de las notas registradas hasta el momento en un grupo abierto, marcado "PRE ACTA — documento de trabajo, sin valor oficial": lo descarga el docente del grupo (página de notas) y la coordinación con el permiso `certificacion.actas` (ficha del grupo). Cuando el acta se cierra, solo queda el acta final |
 | Cierre | Bloqueo automático al validar; cambios posteriores requieren autorización del Administrador y quedan en la auditoría |
 | Constancias y certificados | PDF institucional, emisión masiva o individual. Cada documento nuevo recibe un número por tipo y año ("N.º 000123-2027"), asignado al emitirlo con el contador bloqueado y único en la base de datos; los emitidos antes no tienen número. Firmantes administrables (Configuración → Firmantes, permiso `certificacion.documentos`): cargo, nombre, qué documentos firma y vigencia; cada documento imprime los vigentes en su fecha de emisión |
 | Verificación QR | Código único (ULID) que no caduca; portal público con datos mínimos y rate limiting |

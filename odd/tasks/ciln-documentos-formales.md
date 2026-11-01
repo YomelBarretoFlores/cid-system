@@ -26,7 +26,7 @@ Branch: `feat/documentos-formales` (stacked on `feat/catalogos-administrables`) 
 |----|-------|-------|--------|--------|
 | T1 | S3, S4 | inline | done | see L3 |
 | T2 | S1, S2 (certificate, constancias, acta) | inline | done | see L4 |
-| T3 | S2 (pre-acta) | inline | pending | |
+| T3 | S2 (pre-acta) | inline | done | see L5 |
 
 ## Log
 
@@ -59,4 +59,12 @@ Branch: `feat/documentos-formales` (stacked on `feat/catalogos-administrables`) 
   - New `x-pdf.firmas` component: with no signers it leaves one line for "Dirección del Centro de Idiomas y Lenguas Nativas".
   - Real PDFs rendered and read back: the certificate fits one page, and the constancia and acta show their signers.
   - RED: 4 new tests failed first. Certificacion, Tramites, Matricula and Feature: 809 pass.
+- L5 (2026-11-01): T3 done.
+  - `GenerarPreActaPdf` builds the PDF from `ActaPrevia::armar`, in landscape; it is refused once the acta is closed.
+  - The view `certificacion::pdf.pre-acta` carries the red mark "PRE ACTA — documento de trabajo, sin valor oficial".
+  - Routes:
+    - `docente.preacta.pdf`: teacher middleware plus `AccesoDelDocente`, 404 for another teacher;
+    - `panel.grupos.preacta.pdf`: admin panel plus `certificacion.actas`, otherwise 403.
+  - Buttons: "Descargar pre acta (PDF)" on the teacher's grades page, and "Pre acta (PDF)" on the group page for coordination, visible only with the actas permission. The buttons link by route name, so no module imports another's classes.
+  - RED: 5 new tests failed first. Certificacion, Academico, Docencia and Architecture: 781 pass. `composer check` rc=0, 1896 tests.
 

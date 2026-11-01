@@ -19,8 +19,10 @@ use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\PestanasDelGrupo;
 use App\Shared\Support\Logging\RegistroDeRechazos;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Panel;
+use Filament\Support\Icons\Heroicon;
 use Livewire\Attributes\Locked;
 
 final class PreActaDelGrupo extends Page
@@ -95,6 +97,20 @@ final class PreActaDelGrupo extends Page
     public static function numero(string $decimal): string
     {
         return str_contains($decimal, '.') ? rtrim(rtrim($decimal, '0'), '.') : $decimal;
+    }
+
+    /**
+     * @return array<Action>
+     */
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('descargarPreActa')
+                ->label('Descargar pre acta (PDF)')
+                ->icon(Heroicon::OutlinedDocumentArrowDown)
+                ->url(fn (): string => route('docente.preacta.pdf', $this->grupoId))
+                ->openUrlInNewTab(),
+        ];
     }
 
     /**
