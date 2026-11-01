@@ -24,10 +24,11 @@ trait CatalogoAdministrable
         });
     }
 
-    // Codes fit 40 characters; a name that slugs like an existing code gets the next free suffix.
+    // Codes fit 40 characters; a name without letters or digits becomes "item", and one that slugs like an existing code gets the next free suffix.
     private static function codigoLibre(string $nombre): string
     {
         $base = rtrim(mb_substr(Str::slug($nombre, '_'), 0, 36), '_');
+        $base = $base === '' ? 'item' : $base;
         $codigo = $base;
 
         for ($sufijo = 2; static::query()->where('codigo', $codigo)->exists(); $sufijo++) {

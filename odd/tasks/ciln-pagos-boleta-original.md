@@ -110,4 +110,10 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
     - the cashier gets 403 on Medios de pago; admin sees the six channels with "Transferencia bancaria";
     - the student page has no overflow at 390 px and no JS errors.
   - The portal heading now asks the student to bring the original voucher.
+- L10 (2026-11-01): native review of cf73d45..28eb62c (escalated with item 1 because the source of stored concepts moves to a catalog; lenses risk and reliability; lineage review-5b3b9b03a1ee6b16) was granted by the user, approved and acknowledged.
+  - Applied after a RED test: a name with no letters or digits gets the code `item`, instead of an empty code the CHECK would refuse.
+  - Left for later:
+    - rolling back the migrations maps the new channels to `otro` and the new sources to `tupa`;
+    - editing a concept whose source is inactive is untested.
+  - D2 is complete: T1 to T4.
 

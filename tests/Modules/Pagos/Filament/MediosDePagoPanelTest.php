@@ -137,3 +137,9 @@ it('keeps a generated code within 40 characters and apart from an existing one',
     expect(mb_strlen($largo->codigo))->toBeLessThanOrEqual(40)
         ->and($parecido->codigo)->toBe('pagalo_pe_2');
 });
+
+it('gives a name without letters or digits a usable code', function (): void {
+    $medio = MedioDePago::query()->create(['nombre' => '¡¿—?!', 'orden' => 10]);
+
+    expect($medio->codigo)->toBe('item');
+});
