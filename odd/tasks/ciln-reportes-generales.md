@@ -58,4 +58,13 @@ Branch: `feat/reportes-generales` (stacked on `feat/documentos-formales`). Deliv
   - Left for later: the per-group queries of the attendance report. They are fine for a period's groups, and caching can come if volume demands it.
 
   D6 is complete.
+- L5 (2026-11-01): browser check against the demo data.
+  - Scratch database `ciln_preview_d6`, migrated and seeded. `ciln_preview` was left half-migrated by an earlier session and was not touched.
+  - Server on `localhost:8011`.
+  - The four pages render their formal tables:
+    - Matriculados: 6 groups and 36 enrolments;
+    - Asistencia: 6 groups and 34 students;
+    - Notas: 6 groups;
+    - Carga docente: 3 teachers and 6 loads.
+  - No JavaScript errors and no horizontal overflow at 390 px.
 
