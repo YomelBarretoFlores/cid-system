@@ -24,7 +24,7 @@ Branch: `feat/documentos-diseno` (stacked on `fix/sidebar-y-reportes`). Delivery
 |----|-------|-------|--------|--------|
 | T1 | S1 | inline | done | see L2 |
 | T2 | S2 (grade in words, certificate, constancias) | inline | done | see L3 |
-| T3 | S2, S3 (acta, pre-acta, acta verification) | inline | pending | |
+| T3 | S2, S3 (acta, pre-acta, acta verification) | inline | done | see L4 |
 | T4 | S2 (student reports: boleta, récord, avance, asistencia) | inline | pending | |
 
 ## Log
@@ -55,4 +55,17 @@ Branch: `feat/documentos-diseno` (stacked on `fix/sidebar-y-reportes`). Delivery
   - Constancias: "LA DIRECCIÓN … que suscribe: HACE CONSTAR: Que, …". The notas constancia has an "En letras" column and a total/average row.
   - Real PDFs rendered and read back: the certificate fits one landscape page, the constancia one portrait page.
   - RED: 2 design tests and the unit tests failed first. Unit, Certificacion, Matricula and Feature: 774 pass.
+- L4 (2026-11-01): T3 done.
+  - Acta final, following the design:
+    - "Acta N.º" under the title, the CERRADA · date box and compact course data;
+    - an "En letras" column and failed conditions in bold;
+    - a summary of matriculados, aprobados, desaprobados and NSP, plus the scale note;
+    - QR, seal and signatures, all on one landscape page with 4 students.
+  - Acta verification: `GenerarActaFinalPdf` puts `URL::signedRoute('verificacion.acta')` in the QR.
+  - `VerificarActa` (`signed` + `throttle:30,1`, noindex) shows group, language, level and cycle, period, state, closing date and the number of students. It never shows names, documents, grades or the teacher.
+  - Pre-acta: same letterhead plus a faint "SIN VALOR OFICIAL" watermark.
+  - `x-pdf.firmas` gains an `espacio` prop.
+  - RED: 3 new tests failed or errored first. Certificacion, Docencia, Feature and Architecture: 836 pass.
+  - Real PDFs read back: the acta and the pre-acta fit one page.
+  - Risk item 2 (a new public route): an independent verifier comes next.
 

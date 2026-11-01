@@ -1,7 +1,7 @@
-@props(['firmas' => [], 'sello' => false])
+@props(['firmas' => [], 'sello' => false, 'espacio' => 46])
 {{-- Signature lines over each signer's name and position, with space for the handwritten signature; the dashed circle marks where the seal goes. --}}
 @php($lineas = $firmas === [] ? [['nombre' => '', 'cargo' => 'Dirección del Centro de Idiomas y Lenguas Nativas']] : $firmas)
-<table style="width: 100%; margin-top: 46px; page-break-inside: avoid; border-collapse: collapse;">
+<table style="width: 100%; margin-top: {{ $espacio }}px; page-break-inside: avoid; border-collapse: collapse;">
     <tr>
         @if ($sello)
             <td style="width: 90px; text-align: center; vertical-align: middle;">

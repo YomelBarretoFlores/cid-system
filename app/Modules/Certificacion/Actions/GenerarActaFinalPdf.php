@@ -11,6 +11,8 @@ use App\Modules\Certificacion\Enums\GrupoDeFirma;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Support\FirmasDelDocumento;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Ui\CodigoQr;
+use Illuminate\Support\Facades\URL;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\PdfBuilder;
 
@@ -30,8 +32,13 @@ final readonly class GenerarActaFinalPdf
         $validada = ($datos->validadaEn ?? now())->setTimezone('America/Lima');
         $firmas = [['nombre' => $datos->docente, 'cargo' => 'Docente del curso'], ...FirmasDelDocumento::de(GrupoDeFirma::Actas, $validada)];
 
+        // A signed link: acta numbers are sequential, so an unsigned URL would let anyone walk through every acta.
+        $verificacion = URL::signedRoute('verificacion.acta', ['acta' => $acta->id]);
+
         return Pdf::view('certificacion::pdf.acta-final', [
             'acta' => $datos,
+            'verificacion' => $verificacion,
+            'qr' => CodigoQr::comoDataUri($verificacion),
             'codigo' => sprintf('ACTA-%06d', $acta->id),
             'firmas' => $firmas,
             'denominacion' => ($this->denominacionDelAnio)((int) $validada->format('Y')),

@@ -1,5 +1,6 @@
 @use('App\Shared\Ui\Formato')
 <x-pdf.documento titulo="PRE ACTA DE EVALUACIÓN">
+    <div style="position: fixed; top: 7cm; left: 0; right: 0; text-align: center; font-family: 'DejaVu Sans', sans-serif; font-size: 54pt; font-weight: bold; letter-spacing: 6px; color: #a3261c; opacity: 0.07;">SIN VALOR OFICIAL</div>
     <p style="text-align: center; margin: -6px 0 12px; font-size: 9pt; font-weight: bold; color: #a3261c; letter-spacing: 1px;">PRE ACTA — documento de trabajo, sin valor oficial</p>
 
     <h2>Datos del curso</h2>
