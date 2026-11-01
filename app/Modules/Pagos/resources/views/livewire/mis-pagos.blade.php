@@ -1,7 +1,7 @@
 @use('App\Modules\Pagos\Enums\EstadoPago')
 <div class="flex flex-col gap-2 sm:gap-3.5">
     <x-portal.encabezado titulo="Mis pagos">
-        Registra tus pagos con el recibo escaneado. El CILN los revisa y aquí verás si fueron validados.
+        Registra tus pagos con la foto o el PDF de tu boleta y lleva la boleta original al CILN para validarla. Aquí verás si fueron validados.
     </x-portal.encabezado>
 
     <div class="columnas">

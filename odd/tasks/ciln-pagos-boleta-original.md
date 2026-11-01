@@ -100,4 +100,14 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
   - `CreateConcepto` wraps creation in a savepoint, so a code taken at the same time stays a form error inside an outer transaction.
   - RED: 5 new tests failed first.
   - Pagos, Feature, Tramites, Unit, Matricula, Certificacion, Tablero and Concurrency: 1157 tests pass. Pint, Larastan and Rector are clean.
+- L9 (2026-11-01): checks.
+  - `composer check` rc=0, 1847 tests. The architecture rule then required `CreateConcepto` to use `Transaccion::ejecutar(..., reintentar: false)` (ec3afac).
+  - Demo data: seeded `main` into `ciln_preview` and migrated with this branch. Payments by channel and state, with their totals, and the source of every concept are identical before and after. All 112 stored payments read `exige_boleta_original = false`, so no voucher check was invented.
+  - Browser:
+    - the cashier opens a pending payment;
+    - the modal says "Valide solo con la boleta original en la mano." and refuses an unchecked box;
+    - checked, it validates and the page shows "Boleta original verificada por";
+    - the cashier gets 403 on Medios de pago; admin sees the six channels with "Transferencia bancaria";
+    - the student page has no overflow at 390 px and no JS errors.
+  - The portal heading now asks the student to bring the original voucher.
 
