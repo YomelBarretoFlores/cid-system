@@ -1,4 +1,4 @@
-@props(['titulo', 'codigo' => null, 'imprimible' => false])
+@props(['titulo', 'codigo' => null, 'numero' => null, 'imprimible' => false])
 {{-- DOMPDF lays out tables and simple CSS only (ADR 0005); colors are the hex values of the CILN tokens. --}}
 <!DOCTYPE html>
 <html lang="es">
@@ -47,6 +47,9 @@
                     <div class="institucion">Centro de Idiomas y Lenguas Nativas</div>
                 </td>
                 <td class="codigo">
+                    @if ($numero)
+                        <strong style="color: #1d1b16; font-size: 9.5pt;">{{ $numero }}</strong><br>
+                    @endif
                     @if ($codigo)
                         Código del documento<br>{{ $codigo }}
                     @endif

@@ -1,8 +1,9 @@
 @use('Carbon\CarbonImmutable')
 @php($detalle = $documento->detalle)
-<x-pdf.documento titulo="CONSTANCIA DE MATRÍCULA" :codigo="$documento->codigo">
+<x-pdf.documento titulo="CONSTANCIA DE MATRÍCULA" :codigo="$documento->codigo" :numero="$documento->numeroOficial()">
     <p style="text-align: justify; margin-top: 18px;">
-        El Centro de Idiomas y Lenguas Nativas de la Universidad Nacional Santiago Antúnez de Mayolo hace constar que
+        La Dirección del Centro de Idiomas y Lenguas Nativas de la Universidad Nacional Santiago Antúnez de Mayolo
+        <strong>HACE CONSTAR</strong> que
         <strong>{{ $documento->estudiante_nombre }}</strong>, identificado(a) con {{ $documento->estudiante_documento }}, se encuentra matriculado(a)
         en el curso de <strong>{{ $documento->idioma }}</strong>, con los siguientes datos:
     </p>
@@ -17,7 +18,9 @@
     </table>
 
     <p style="text-align: justify; margin-top: 16px;">Se expide la presente a solicitud de la persona interesada, para los fines que estime conveniente.</p>
-    <p style="text-align: right; margin-top: 22px;">Huaraz, {{ $emitidoEl }}</p>
+    <p style="text-align: right; margin-top: 22px;">{{ $lugarYFecha ?? 'Huaraz, '.$emitidoEl }}</p>
+
+    <x-pdf.firmas :firmas="$firmas ?? []" />
 
     <x-pdf.verificacion :codigo="$documento->codigo" :qr="$qr" :url="$verificacion" :emitido-el="$emitidoEl" />
 </x-pdf.documento>

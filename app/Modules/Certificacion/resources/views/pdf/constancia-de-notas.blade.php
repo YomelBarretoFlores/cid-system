@@ -1,8 +1,9 @@
 @use('App\Modules\Academico\Enums\NivelCurricular')
 @use('App\Modules\Certificacion\Enums\EstadoFinal')
-<x-pdf.documento titulo="CONSTANCIA DE NOTAS" :codigo="$documento->codigo">
+<x-pdf.documento titulo="CONSTANCIA DE NOTAS" :codigo="$documento->codigo" :numero="$documento->numeroOficial()">
     <p style="text-align: justify; margin-top: 18px;">
-        El Centro de Idiomas y Lenguas Nativas de la Universidad Nacional Santiago Antúnez de Mayolo hace constar que
+        La Dirección del Centro de Idiomas y Lenguas Nativas de la Universidad Nacional Santiago Antúnez de Mayolo
+        <strong>HACE CONSTAR</strong> que
         <strong>{{ $documento->estudiante_nombre }}</strong>, identificado(a) con {{ $documento->estudiante_documento }}, registra en
         <strong>{{ $documento->idioma }}</strong> las siguientes notas finales, según las actas cerradas:
     </p>
@@ -26,7 +27,10 @@
     </table>
 
     <p style="margin-top: 10px; font-size: 8.5pt; color: #5e5a50;">Escala vigesimal (0 a 20). NSP: no se presentó.</p>
-    <p style="text-align: right; margin-top: 18px;">Huaraz, {{ $emitidoEl }}</p>
+    <p style="text-align: justify; margin-top: 16px;">Se expide la presente a solicitud de la persona interesada, para los fines que estime conveniente.</p>
+    <p style="text-align: right; margin-top: 18px;">{{ $lugarYFecha ?? 'Huaraz, '.$emitidoEl }}</p>
+
+    <x-pdf.firmas :firmas="$firmas ?? []" />
 
     <x-pdf.verificacion :codigo="$documento->codigo" :qr="$qr" :url="$verificacion" :emitido-el="$emitidoEl" />
 </x-pdf.documento>

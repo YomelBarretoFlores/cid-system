@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Actions;
 
+use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Documento;
+use App\Modules\Certificacion\Support\FirmasDelDocumento;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Ui\CodigoQr;
 use App\Shared\Ui\Formato;
@@ -22,12 +24,17 @@ final readonly class GenerarDocumentoPdf
         }
 
         $verificacion = route('verificacion.documento', $documento->codigo);
-
-        return Pdf::view($documento->tipo->vistaPdf(), [
+        $emitido = $documento->emitido_en->setTimezone('America/Lima');
+        $pdf = Pdf::view($documento->tipo->vistaPdf(), [
             'documento' => $documento,
             'verificacion' => $verificacion,
             'qr' => CodigoQr::comoDataUri($verificacion),
-            'emitidoEl' => Formato::fechaCorta($documento->emitido_en->setTimezone('America/Lima')),
-        ])->format('a4')->inline($documento->tipo->archivoPdf($documento->codigo));
+            'emitidoEl' => Formato::fechaCorta($emitido),
+            'lugarYFecha' => 'Huaraz, '.Formato::fechaLarga($emitido),
+            'firmas' => FirmasDelDocumento::de($documento->tipo->grupoDeFirma(), $emitido),
+        ])->format('a4');
+
+        // A certificate is a landscape page like a diploma; constancias are letters.
+        return ($documento->tipo === TipoDocumento::CertificadoNivel ? $pdf->landscape() : $pdf)->inline($documento->tipo->archivoPdf($documento->codigo));
     }
 }

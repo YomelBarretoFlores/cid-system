@@ -25,7 +25,7 @@ Branch: `feat/documentos-formales` (stacked on `feat/catalogos-administrables`) 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S3, S4 | inline | done | see L3 |
-| T2 | S1, S2 (certificate, constancias, acta) | inline | pending | |
+| T2 | S1, S2 (certificate, constancias, acta) | inline | done | see L4 |
 | T3 | S2 (pre-acta) | inline | pending | |
 
 ## Log
@@ -47,4 +47,16 @@ Branch: `feat/documentos-formales` (stacked on `feat/catalogos-administrables`) 
   - `Documento::numeroOficial()` gives "N.º 000123-2027".
   - `Firmante::firmanEn(GrupoDeFirma, fecha)`. `FirmanteResource` lives under Configuración.
   - RED: 5 new tests failed first (classes missing). Certificacion, Tramites, Feature and Concurrency: 547 pass.
+- L4 (2026-11-01): T2 done.
+  - The level certificate is its own A4 landscape page:
+    - double frame in the CILN gold, the UNASAM mark and the CILN emblem;
+    - "CERTIFICADO / de culminación de nivel", "Otorgado a" and the name large;
+    - formal text, "Huaraz, 10 de abril de 2027", the signers' lines;
+    - QR, number and code at the foot.
+  - `GenerarDocumentoPdf` passes `firmas` (the signers in force on the issue date for the document's group), `lugarYFecha`, and landscape for the certificate.
+  - Constancias open "La Dirección del Centro … HACE CONSTAR que", close with "Se expide la presente…", and show the number in the header and the signature block.
+  - The acta final has signature lines for the teacher ("Docente del curso") and the acta signers in force on its validation date.
+  - New `x-pdf.firmas` component: with no signers it leaves one line for "Dirección del Centro de Idiomas y Lenguas Nativas".
+  - Real PDFs rendered and read back: the certificate fits one page, and the constancia and acta show their signers.
+  - RED: 4 new tests failed first. Certificacion, Tramites, Matricula and Feature: 809 pass.
 
