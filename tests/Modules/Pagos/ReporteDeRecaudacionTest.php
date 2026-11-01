@@ -17,9 +17,9 @@ use App\Modules\Pagos\Data\FilaDeIdioma;
 use App\Modules\Pagos\Data\FiltrosDeRecaudacion;
 use App\Modules\Pagos\Data\ReporteDeRecaudacion;
 use App\Modules\Pagos\Enums\FuenteConcepto;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -43,7 +43,7 @@ beforeEach(function (): void {
 function pagoValidado(Concepto $concepto, Persona $persona, string $monto, string $fecha, string $operacion): Pago
 {
     return Pago::factory()->validado()->for($concepto)->create([
-        'persona_id' => $persona->id, 'monto' => $monto, 'fecha_pago' => $fecha, 'numero_operacion' => $operacion, 'medio_pago' => MedioPago::CajaPresencial,
+        'persona_id' => $persona->id, 'monto' => $monto, 'fecha_pago' => $fecha, 'numero_operacion' => $operacion, 'medio_pago_id' => MedioDePago::idDe('caja_presencial'),
     ]);
 }
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Pagos\Filament\Resources\Pagos\Schemas;
 
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Support\AlertasDePago;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
@@ -44,7 +43,7 @@ final class PagoInfolist
                         TextEntry::make('concepto.nombre')->label('Concepto TUPA/TUSNE'),
                         TextEntry::make('monto')->label('Monto')->money('PEN'),
                         TextEntry::make('tarifa.monto')->label('Tarifa vigente')->money('PEN')->placeholder('Sin tarifa'),
-                        TextEntry::make('medio_pago')->label('Medio de pago')->formatStateUsing(fn (MedioPago $state): string => $state->etiqueta()),
+                        TextEntry::make('medioDePago.nombre')->label('Medio de pago'),
                         TextEntry::make('numero_operacion')->label('N.° de recibo u operación')->copyable(),
                         TextEntry::make('fecha_pago')->label('Fecha de pago')->date('d/m/Y'),
                         TextEntry::make('registrador.name')->label('Registrado por')->placeholder('La propia persona'),

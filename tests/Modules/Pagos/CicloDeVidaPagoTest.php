@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Modules\Pagos\Enums\MedioPago;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\QueryException;
@@ -57,11 +57,11 @@ it('still lets a pending payment be corrected and a validated one be voided', fu
 });
 
 it('frees the operation number of a rejected payment so it can be registered again', function (): void {
-    Pago::factory()->rechazado()->create(['medio_pago' => MedioPago::BancoNacion, 'numero_operacion' => 'OP-777']);
+    Pago::factory()->rechazado()->create(['medio_pago_id' => MedioDePago::idDe('banco_nacion'), 'numero_operacion' => 'OP-777']);
 
-    $nuevo = Pago::factory()->create(['medio_pago' => MedioPago::BancoNacion, 'numero_operacion' => 'OP-777']);
+    $nuevo = Pago::factory()->create(['medio_pago_id' => MedioDePago::idDe('banco_nacion'), 'numero_operacion' => 'OP-777']);
 
     expect($nuevo->exists)->toBeTrue()
-        ->and(fn () => Pago::factory()->create(['medio_pago' => MedioPago::BancoNacion, 'numero_operacion' => 'OP-777']))
+        ->and(fn () => Pago::factory()->create(['medio_pago_id' => MedioDePago::idDe('banco_nacion'), 'numero_operacion' => 'OP-777']))
         ->toThrow(QueryException::class, 'pag_pagos_operacion_unique');
 });

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\MedioPago;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Shared\Audit\ContextoAuditoria;
 use App\Shared\Auth\Models\User;
@@ -40,16 +40,16 @@ it('rejects payments whose state lacks its required data', function (Closure $pa
 ]);
 
 it('rejects the same operation number twice for the same payment method', function (): void {
-    Pago::factory()->create(['medio_pago' => MedioPago::BancoNacion, 'numero_operacion' => 'OP-12345']);
+    Pago::factory()->create(['medio_pago_id' => MedioDePago::idDe('banco_nacion'), 'numero_operacion' => 'OP-12345']);
 
-    expect(fn () => Pago::factory()->create(['medio_pago' => MedioPago::BancoNacion, 'numero_operacion' => ' op-12345 ']))
+    expect(fn () => Pago::factory()->create(['medio_pago_id' => MedioDePago::idDe('banco_nacion'), 'numero_operacion' => ' op-12345 ']))
         ->toThrow(QueryException::class, 'pag_pagos_operacion_unique');
 });
 
 it('allows the same operation number on a different payment method', function (): void {
-    Pago::factory()->create(['medio_pago' => MedioPago::BancoNacion, 'numero_operacion' => '000123']);
+    Pago::factory()->create(['medio_pago_id' => MedioDePago::idDe('banco_nacion'), 'numero_operacion' => '000123']);
 
-    expect(Pago::factory()->create(['medio_pago' => MedioPago::PagaloPe, 'numero_operacion' => '000123'])->exists)->toBeTrue();
+    expect(Pago::factory()->create(['medio_pago_id' => MedioDePago::idDe('pagalo_pe'), 'numero_operacion' => '000123'])->exists)->toBeTrue();
 });
 
 it('rejects operation numbers that bypass normalization', function (): void {

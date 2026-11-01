@@ -34,10 +34,10 @@ final class AlertasDePago
     {
         $otro = Pago::query()
             ->where('numero_operacion', $pago->numero_operacion)
-            ->where('medio_pago', '<>', $pago->medio_pago)
+            ->where('medio_pago_id', '<>', $pago->medio_pago_id)
             ->where('estado', '<>', EstadoPago::Rechazado)
             ->first();
 
-        return $otro === null ? null : "El número de operación {$pago->numero_operacion} también figura en otro pago registrado con {$otro->medio_pago->etiqueta()}.";
+        return $otro === null ? null : "El número de operación {$pago->numero_operacion} también figura en otro pago registrado con {$otro->medioDePago->nombre}.";
     }
 }

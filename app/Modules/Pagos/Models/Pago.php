@@ -6,7 +6,6 @@ namespace App\Modules\Pagos\Models;
 
 use App\Modules\Pagos\Database\Factories\PagoFactory;
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Policies\PagoPolicy;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -25,7 +24,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $monto
  * @property CarbonImmutable $fecha_pago
  * @property EstadoPago $estado
- * @property MedioPago $medio_pago
+ * @property int $medio_pago_id
+ * @property-read MedioDePago $medioDePago
  * @property ?int $registrado_por
  * @property bool $exige_boleta_original
  * @property ?int $boleta_original_verificada_por
@@ -38,7 +38,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Table('pag_pagos')]
 #[RouteKey('ulid')]
 #[Fillable([
-    'persona_id', 'concepto_id', 'tarifa_id', 'monto', 'medio_pago', 'numero_operacion', 'fecha_pago',
+    'persona_id', 'concepto_id', 'tarifa_id', 'monto', 'medio_pago_id', 'numero_operacion', 'fecha_pago',
     'recibo_path', 'estado', 'registrado_por', 'validado_por', 'validado_en', 'motivo_rechazo',
     'anulado_por', 'anulado_en', 'motivo_anulacion', 'boleta_original_verificada_por', 'boleta_original_verificada_en', 'justificacion_monto', 'recibo_sha256',
 ])]
@@ -75,6 +75,14 @@ final class Pago extends Model
     public function tarifa(): BelongsTo
     {
         return $this->belongsTo(Tarifa::class);
+    }
+
+    /**
+     * @return BelongsTo<MedioDePago, $this>
+     */
+    public function medioDePago(): BelongsTo
+    {
+        return $this->belongsTo(MedioDePago::class, 'medio_pago_id');
     }
 
     /**
@@ -121,7 +129,6 @@ final class Pago extends Model
     {
         return [
             'monto' => 'decimal:2',
-            'medio_pago' => MedioPago::class,
             'fecha_pago' => 'date',
             'estado' => EstadoPago::class,
             'validado_en' => 'datetime',

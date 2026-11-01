@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\CreatePago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ListPagos;
 use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
@@ -34,7 +34,7 @@ function datosDelRegistro(array $cambios = []): array
     return [
         'persona_id' => test()->persona->id,
         'concepto_id' => test()->concepto->id,
-        'medio_pago' => MedioPago::CajaPresencial->value,
+        'medio_pago_id' => (string) MedioDePago::idDe('caja_presencial'),
         'numero_operacion' => 'rc-000123',
         'fecha_pago' => now('America/Lima')->toDateString(),
         'monto' => '150.00',

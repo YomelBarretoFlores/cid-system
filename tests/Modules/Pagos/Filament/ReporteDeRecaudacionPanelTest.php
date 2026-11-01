@@ -6,11 +6,11 @@ use App\Modules\Pagos\Actions\ExportarRecaudacionPdf;
 use App\Modules\Pagos\Actions\GenerarReporteDeRecaudacion;
 use App\Modules\Pagos\Data\FiltrosDeRecaudacion;
 use App\Modules\Pagos\Enums\FuenteConcepto;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Filament\Pages\ReporteDeRecaudacion;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -160,10 +160,10 @@ it('searches the detail per student without accents and sorts it by amount', fun
 
 it('filters the detail per student by payment method', function (): void {
     $this->actingAs($this->tesorero);
-    Pago::factory()->validado()->for($this->matricula)->create(['medio_pago' => MedioPago::Transferencia, 'fecha_pago' => '2026-10-07', 'numero_operacion' => 'TRANSF-9']);
+    Pago::factory()->validado()->for($this->matricula)->create(['medio_pago_id' => MedioDePago::idDe('transferencia'), 'fecha_pago' => '2026-10-07', 'numero_operacion' => 'TRANSF-9']);
 
     Livewire::test(ReporteDeRecaudacion::class)
-        ->filterTable('medio_pago', MedioPago::Transferencia->etiqueta())
+        ->filterTable('medio_pago', 'Transferencia')
         ->assertSee('TRANSF-9')
         ->assertDontSee('OP-1');
 });

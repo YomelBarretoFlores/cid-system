@@ -7,9 +7,9 @@ namespace App\Modules\Pagos\Livewire;
 use App\Modules\Pagos\Actions\ListarPagosDeEstudiante;
 use App\Modules\Pagos\Actions\RegistrarPago;
 use App\Modules\Pagos\Data\RegistroDePago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoForm;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
@@ -40,7 +40,7 @@ final class MisPagos extends Component
 
     public string $concepto_id = '';
 
-    public string $medio_pago = '';
+    public string $medio_pago_id = '';
 
     public string $numero_operacion = '';
 
@@ -86,7 +86,7 @@ final class MisPagos extends Component
         return view('pagos::livewire.mis-pagos', [
             'pagos' => app(ListarPagosDeEstudiante::class)($this->ficha()->personaId),
             'conceptos' => Concepto::query()->where('activo', true)->orderBy('nombre')->pluck('nombre', 'id')->all(),
-            'mediosDePago' => collect(MedioPago::cases())->mapWithKeys(fn (MedioPago $medio): array => [$medio->value => $medio->etiqueta()])->all(),
+            'mediosDePago' => MedioDePago::query()->activos()->pluck('nombre', 'id')->all(),
             'hoy' => $this->hoy(),
         ]);
     }
@@ -98,7 +98,7 @@ final class MisPagos extends Component
     {
         return [
             'concepto_id' => ['required', 'integer'],
-            'medio_pago' => ['required', Rule::enum(MedioPago::class)],
+            'medio_pago_id' => ['required', 'integer', Rule::exists('pag_medios_pago', 'id')->where('activo', true)],
             'numero_operacion' => ['required', 'string', 'max:40'],
             'fecha_pago' => ['required', 'date_format:Y-m-d', 'before_or_equal:'.$this->hoy()],
             'monto' => ['required', 'numeric', 'decimal:0,2', 'gt:0', 'max:99999999.99'],
@@ -116,7 +116,8 @@ final class MisPagos extends Component
         return [
             ...$this->mensajesComunes(),
             'concepto_id.integer' => 'Elige un concepto de la lista.',
-            'medio_pago.enum' => 'Elige un medio de pago de la lista.',
+            'medio_pago_id.exists' => 'Elige un medio de pago de la lista.',
+            'medio_pago_id.integer' => 'Elige un medio de pago de la lista.',
             'fecha_pago.date_format' => 'Escribe una fecha de pago válida.',
             'fecha_pago.before_or_equal' => 'La fecha de pago no puede ser posterior a hoy.',
             'monto.numeric' => $montoInvalido,
@@ -137,7 +138,7 @@ final class MisPagos extends Component
         return [
             ...$this->atributosComunes(),
             'concepto_id' => 'concepto',
-            'medio_pago' => 'medio de pago',
+            'medio_pago_id' => 'medio de pago',
             'numero_operacion' => 'número de operación',
             'fecha_pago' => 'fecha de pago',
             'monto' => 'monto',
@@ -161,7 +162,7 @@ final class MisPagos extends Component
         return new RegistroDePago(
             personaId: $this->ficha()->personaId,
             conceptoId: (int) $this->concepto_id,
-            medioPago: MedioPago::from($this->medio_pago),
+            medioPagoId: (int) $this->medio_pago_id,
             numeroOperacion: $this->numero_operacion,
             fechaPago: CarbonImmutable::parse($this->fecha_pago),
             monto: $this->monto,

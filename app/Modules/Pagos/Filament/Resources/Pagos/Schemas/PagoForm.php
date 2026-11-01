@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Filament\Resources\Pagos\Schemas;
 
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use Carbon\CarbonImmutable;
@@ -36,10 +36,10 @@ final class PagoForm
                     ->label('Concepto TUPA/TUSNE')
                     ->options(fn (): array => Concepto::query()->where('activo', true)->orderBy('nombre')->pluck('nombre', 'id')->all())
                     ->required(),
-                Select::make('medio_pago')
+                Select::make('medio_pago_id')
                     ->label('Medio de pago')
-                    ->options(collect(MedioPago::cases())->mapWithKeys(fn (MedioPago $medio): array => [$medio->value => $medio->etiqueta()])->all())
-                    ->default(MedioPago::CajaPresencial->value)
+                    ->options(fn (): array => MedioDePago::query()->activos()->pluck('nombre', 'id')->all())
+                    ->default(fn (): ?int => MedioDePago::query()->activos()->value('id'))
                     ->required(),
                 TextInput::make('numero_operacion')->label('N.° de recibo u operación')->required()->maxLength(40),
                 DatePicker::make('fecha_pago')

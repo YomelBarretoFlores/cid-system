@@ -6,6 +6,7 @@ namespace App\Modules\Pagos\Actions;
 
 use App\Modules\Pagos\Data\RegistroDePago;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
@@ -38,6 +39,7 @@ final readonly class RegistrarPago
         $extension = $this->extensionDelRecibo($recibo);
         $huella = (string) hash_file('sha256', $recibo->getRealPath());
         // Fail fast before storing the receipt; the binding read happens under lock below.
+        $this->asegurarMedioDisponible($registro->medioPagoId);
         $this->tarifaAplicable($registro);
         $ruta = $recibo->storeAs("recibos/{$registro->fechaPago->format('Y')}", Str::ulid().".{$extension}", self::DISCO);
 
@@ -49,7 +51,7 @@ final readonly class RegistrarPago
                 // Locks concept, then fee (the order RegistrarTarifa uses), waiting for any fee change in progress.
                 'tarifa_id' => $this->tarifaAplicable($registro, bloquear: true)->id,
                 'monto' => $registro->monto,
-                'medio_pago' => $registro->medioPago,
+                'medio_pago_id' => $registro->medioPagoId,
                 'numero_operacion' => $registro->numeroOperacion,
                 'fecha_pago' => $registro->fechaPago,
                 'recibo_path' => $ruta,
@@ -68,6 +70,13 @@ final readonly class RegistrarPago
         return RestriccionUnica::es($error, 'pag_pagos_recibo_sha256_unique')
             ? new ReglaDeNegocioIncumplida('Esta boleta ya fue registrada en otro pago.', previous: $error)
             : new ReglaDeNegocioIncumplida('Ese número de operación ya fue registrado con este medio de pago.', previous: $error);
+    }
+
+    private function asegurarMedioDisponible(int $medioPagoId): void
+    {
+        if (! MedioDePago::query()->whereKey($medioPagoId)->where('activo', true)->exists()) {
+            throw new ReglaDeNegocioIncumplida('El medio de pago no está disponible.');
+        }
     }
 
     private function extensionDelRecibo(UploadedFile $recibo): string

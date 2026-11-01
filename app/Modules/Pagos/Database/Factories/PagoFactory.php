@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\Pagos\Database\Factories;
 
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -26,7 +26,7 @@ final class PagoFactory extends Factory
             'concepto_id' => Concepto::factory(),
             'tarifa_id' => null,
             'monto' => '150.00',
-            'medio_pago' => MedioPago::BancoNacion,
+            'medio_pago_id' => fn (): int => MedioDePago::idDe('banco_nacion'),
             'numero_operacion' => fake()->unique()->numerify('########'),
             'fecha_pago' => now()->toDateString(),
             'recibo_path' => 'recibos/'.fake()->uuid().'.pdf',

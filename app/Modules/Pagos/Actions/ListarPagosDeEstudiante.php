@@ -16,7 +16,7 @@ final readonly class ListarPagosDeEstudiante
     public function __invoke(int $personaId): Collection
     {
         return Pago::query()
-            ->with('concepto:id,nombre')
+            ->with(['concepto:id,nombre', 'medioDePago:id,codigo,nombre'])
             ->where('persona_id', $personaId)
             ->orderByDesc('fecha_pago')
             ->orderByDesc('id')

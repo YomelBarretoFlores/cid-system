@@ -36,7 +36,7 @@ it('orders the sidebar by daily work, with every section in its group', function
         'Docencia' => ['Docentes', 'Expediente de horas', 'Costos por hora', 'Control de clases', 'Sílabos'],
         'Certificación' => ['Actas finales', 'Constancias y certificados'],
         'Reportes' => ['Reporte de recaudación'],
-        'Configuración' => ['Conceptos y tarifas', 'Tipos de trámite'],
+        'Configuración' => ['Conceptos y tarifas', 'Medios de pago', 'Tipos de trámite'],
     ]);
 });
 

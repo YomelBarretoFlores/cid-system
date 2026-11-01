@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Livewire\MisPagos;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
@@ -36,7 +36,7 @@ function sondaRegistrarPago(array $cambios = []): Testable
     $componente = Livewire::actingAs(test()->alumno)->test(MisPagos::class);
 
     foreach ([
-        'concepto_id' => (string) test()->conceptoSonda->id, 'medio_pago' => MedioPago::BancoNacion->value,
+        'concepto_id' => (string) test()->conceptoSonda->id, 'medio_pago_id' => (string) MedioDePago::idDe('banco_nacion'),
         'numero_operacion' => 'OP-SONDA-1', 'fecha_pago' => CarbonImmutable::today('America/Lima')->toDateString(),
         'monto' => '180.00', 'recibo' => UploadedFile::fake()->createWithContent('recibo.pdf', "%PDF-1.4\n%%EOF\n"), ...$cambios,
     ] as $campo => $valor) {

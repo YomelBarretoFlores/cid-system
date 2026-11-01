@@ -28,7 +28,7 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
 |----|-------|-------|--------|--------|
 | T1 | S1, S2, S3, S5 | inline | done | see L3 |
 | T2 | S4 | inline | done | see L5 |
-| T3 | S6 | inline | pending | |
+| T3 | S6 | inline | done | see L6 |
 | T4 | S7 | inline | pending | |
 
 ## Log
@@ -71,4 +71,21 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
   - The concurrency fixture now writes unique receipt bytes per run, because payments survive between runs.
   - RED: 2 of 3 new tests failed first.
   - Pagos, Feature, Tramites and Concurrency: 651 tests pass.
+- L6 (2026-11-01): T3 done.
+  - Migration `2026_11_01_100200_turn_payment_channels_into_a_catalog`:
+    - creates `pag_medios_pago` (unique code and name, CHECKs, audit trigger), seeded with six channels including Tesorería UNASAM;
+    - fills `pag_pagos.medio_pago_id` from the old code, with the lifecycle trigger disabled only around that UPDATE;
+    - rebuilds `pag_pagos_operacion_unique` on `(medio_pago_id, numero_operacion)` and drops the enum column;
+    - its `down()` maps codes that did not exist before to `otro`.
+  - Shared code reused later by D4 and T4:
+    - `CatalogoAdministrable`: code from the name, `idDe`, scope `activos`;
+    - `CatalogoEnElPanel`: form and table;
+    - `CatalogoDePagosPolicy`: `pagos.configurar`, no delete.
+  - `MedioDePagoResource` lives under Configuración.
+  - Every use of the `MedioPago` enum moved to the relation. The API still returns `medio_pago` (the code) and `medio_pago_etiqueta`.
+  - `RegistrarPago` refuses an inactive channel.
+  - The receipt test helper gives each receipt name its own bytes.
+  - Found while testing: running Concurrency before Modules leaves the last concurrency test's rows behind. That only comes from the order of an ad-hoc run; `composer check` runs Concurrency last.
+  - RED: the new panel tests failed first (class missing).
+  - Pagos, Feature, Tramites, Matricula, Certificacion, Tablero and Concurrency: 1112 tests pass. Pint, Larastan and Rector are clean.
 

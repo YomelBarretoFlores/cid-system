@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Livewire\MisPagos;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
@@ -39,7 +39,7 @@ function registrarPagoEnElPortal(array $cambios = []): Testable
 {
     $datos = [
         'concepto_id' => (string) test()->concepto->id,
-        'medio_pago' => MedioPago::BancoNacion->value,
+        'medio_pago_id' => (string) MedioDePago::idDe('banco_nacion'),
         'numero_operacion' => ' op-2027-001 ',
         'fecha_pago' => CarbonImmutable::today('America/Lima')->toDateString(),
         'monto' => '150.00',

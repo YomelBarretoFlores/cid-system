@@ -14,7 +14,7 @@
                 <ul class="-mx-3.5 flex flex-col gap-1" role="list">
                     @foreach ($pagos as $pago)
                         <x-portal.fila wire:key="pago-{{ $pago->ulid }}" :titulo="$pago->concepto->nombre"
-                            :detalle="$pago->numero_operacion.' · '.$pago->medio_pago->etiqueta().' · '.$pago->fecha_pago->format('d/m/Y')">
+                            :detalle="$pago->numero_operacion.' · '.$pago->medioDePago->nombre.' · '.$pago->fecha_pago->format('d/m/Y')">
                             <x-slot:inicio><x-heroicon-o-banknotes aria-hidden="true" class="size-[22px] text-oro-600" /></x-slot:inicio>
                             <x-slot:fin>
                                 <span class="font-semibold whitespace-nowrap">S/ {{ $pago->monto }}</span>
@@ -44,7 +44,7 @@
                 <x-portal.seleccion nombre="concepto_id" etiqueta="Concepto" :opciones="$conceptos" vacio="Elige el concepto que pagaste" vivo />
 
                 <div class="grid gap-3 sm:grid-cols-2">
-                    <x-portal.seleccion nombre="medio_pago" etiqueta="Medio de pago" :opciones="$mediosDePago" vacio="Elige cómo pagaste" />
+                    <x-portal.seleccion nombre="medio_pago_id" etiqueta="Medio de pago" :opciones="$mediosDePago" vacio="Elige cómo pagaste" />
                     <x-portal.fecha nombre="fecha_pago" etiqueta="Fecha de pago" :max="$hoy" />
                 </div>
 

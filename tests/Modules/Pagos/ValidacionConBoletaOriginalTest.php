@@ -8,6 +8,7 @@ use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Events\PagoValidado;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ListPagos;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ViewPago;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Models\Persona;
@@ -140,7 +141,7 @@ it('validates from the panel with the original voucher checkbox and the justific
 it('warns the cashier about an amount different from the fee and an operation number used with another channel', function (): void {
     $pago = pagoConTarifa('120.00', '150.00');
     $pago->update(['numero_operacion' => '00012345']);
-    Pago::factory()->create(['numero_operacion' => '00012345', 'medio_pago' => 'pagalo_pe']);
+    Pago::factory()->create(['numero_operacion' => '00012345', 'medio_pago_id' => MedioDePago::idDe('pagalo_pe')]);
     $this->actingAs($this->cajero);
 
     Livewire::test(ViewPago::class, ['record' => $pago->getRouteKey()])
@@ -168,7 +169,7 @@ it('refuses a justification longer than 500 characters', function (): void {
 
 it('leaves out a rejected payment from the other-channel warning and hides the section without alerts', function (): void {
     $pago = Pago::factory()->create(['numero_operacion' => '00012345']);
-    Pago::factory()->rechazado()->create(['numero_operacion' => '00012345', 'medio_pago' => 'pagalo_pe']);
+    Pago::factory()->rechazado()->create(['numero_operacion' => '00012345', 'medio_pago_id' => MedioDePago::idDe('pagalo_pe')]);
     $this->actingAs($this->cajero);
 
     Livewire::test(ViewPago::class, ['record' => $pago->getRouteKey()])

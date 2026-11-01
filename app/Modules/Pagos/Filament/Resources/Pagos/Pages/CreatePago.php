@@ -6,7 +6,6 @@ namespace App\Modules\Pagos\Filament\Resources\Pagos\Pages;
 
 use App\Modules\Pagos\Actions\RegistrarPago;
 use App\Modules\Pagos\Data\RegistroDePago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
@@ -25,14 +24,14 @@ final class CreatePago extends CreateRecord
     protected static bool $canCreateAnother = false;
 
     /**
-     * @param  array{persona_id: int|string, concepto_id: int|string, medio_pago: string, numero_operacion: string, fecha_pago: string, monto: int|float|string, recibo: UploadedFile}  $data
+     * @param  array{persona_id: int|string, concepto_id: int|string, medio_pago_id: int|string, numero_operacion: string, fecha_pago: string, monto: int|float|string, recibo: UploadedFile}  $data
      */
     protected function handleRecordCreation(array $data): Model
     {
         $registro = new RegistroDePago(
             personaId: (int) $data['persona_id'],
             conceptoId: (int) $data['concepto_id'],
-            medioPago: MedioPago::from($data['medio_pago']),
+            medioPagoId: (int) $data['medio_pago_id'],
             numeroOperacion: $data['numero_operacion'],
             fechaPago: CarbonImmutable::parse($data['fecha_pago']),
             monto: (string) $data['monto'],

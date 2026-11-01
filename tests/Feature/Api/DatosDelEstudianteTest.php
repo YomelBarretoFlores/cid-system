@@ -10,8 +10,8 @@ use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
 use App\Modules\Matricula\Models\Matricula;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -77,7 +77,7 @@ it('lists only the student\'s own enrollments, newest first, with their group, s
 
 it('lists only the student\'s own payments, newest first, with their state and the reason of a rejection', function (): void {
     $concepto = Concepto::factory()->create(['nombre' => 'Derecho de matrícula']);
-    $validado = Pago::factory()->validado()->for($concepto)->create(['persona_id' => $this->rosa->id, 'monto' => '80.00', 'fecha_pago' => '2027-03-10', 'medio_pago' => MedioPago::CajaPresencial, 'numero_operacion' => 'OP-1']);
+    $validado = Pago::factory()->validado()->for($concepto)->create(['persona_id' => $this->rosa->id, 'monto' => '80.00', 'fecha_pago' => '2027-03-10', 'medio_pago_id' => MedioDePago::idDe('caja_presencial'), 'numero_operacion' => 'OP-1']);
     $rechazado = Pago::factory()->rechazado()->for($concepto)->create(['persona_id' => $this->rosa->id, 'monto' => '80.00', 'fecha_pago' => '2027-03-15', 'numero_operacion' => 'OP-2']);
     Pago::factory()->for($concepto)->create(['persona_id' => $this->otra->id, 'numero_operacion' => 'AJENO']);
 
@@ -86,7 +86,7 @@ it('lists only the student\'s own payments, newest first, with their state and t
     expect($respuesta->json('data.*.id'))->toBe([$rechazado->ulid, $validado->ulid])
         ->and($respuesta->json('data.1'))->toBe([
             'id' => $validado->ulid, 'concepto' => 'Derecho de matrícula', 'monto' => '80.00', 'fecha_pago' => '2027-03-10',
-            'medio_pago' => 'caja_presencial', 'medio_pago_etiqueta' => MedioPago::CajaPresencial->etiqueta(), 'numero_operacion' => 'OP-1',
+            'medio_pago' => 'caja_presencial', 'medio_pago_etiqueta' => 'Caja presencial', 'numero_operacion' => 'OP-1',
             'estado' => 'validado', 'estado_etiqueta' => 'Validado', 'motivo_rechazo' => null,
         ])
         ->and($respuesta->json('data.0.motivo_rechazo'))->toBe($rechazado->motivo_rechazo);

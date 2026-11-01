@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Pagos\Filament\Resources\Pagos\Tables;
 
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Actions\AccionesDePago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ListPagos;
 use App\Modules\Personas\Contracts\SubconsultaDePersonas;
@@ -31,7 +30,7 @@ final class PagosTable
                         ->whereIn('persona_id', app(SubconsultaDePersonas::class)($search))),
                 TextColumn::make('concepto.nombre')->label('Concepto'),
                 TextColumn::make('monto')->label('Monto')->money('PEN'),
-                TextColumn::make('medio_pago')->label('Medio')->formatStateUsing(fn (MedioPago $state): string => $state->etiqueta()),
+                TextColumn::make('medioDePago.nombre')->label('Medio'),
                 TextColumn::make('fecha_pago')->label('Fecha de pago')->date('d/m/Y')->sortable(),
                 TextColumn::make('estado')
                     ->label('Estado')
@@ -47,7 +46,7 @@ final class PagosTable
             ->filters([
                 SelectFilter::make('estado')->label('Estado')->options(self::opciones(EstadoPago::cases())),
                 SelectFilter::make('concepto')->label('Concepto')->relationship('concepto', 'nombre')->preload(),
-                SelectFilter::make('medio_pago')->label('Medio')->options(self::opciones(MedioPago::cases())),
+                SelectFilter::make('medio_pago_id')->label('Medio')->relationship('medioDePago', 'nombre'),
                 Filter::make('fecha_pago')
                     ->schema([
                         DatePicker::make('desde')->label('Pagado desde'),
@@ -64,11 +63,11 @@ final class PagosTable
     }
 
     /**
-     * @param  list<EstadoPago|MedioPago>  $casos
+     * @param  list<EstadoPago>  $casos
      * @return array<string, string>
      */
     private static function opciones(array $casos): array
     {
-        return collect($casos)->mapWithKeys(fn (EstadoPago|MedioPago $caso): array => [$caso->value => $caso->etiqueta()])->all();
+        return collect($casos)->mapWithKeys(fn (EstadoPago $caso): array => [$caso->value => $caso->etiqueta()])->all();
     }
 }

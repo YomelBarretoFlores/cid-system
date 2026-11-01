@@ -19,11 +19,11 @@ use App\Modules\Pagos\Data\FilaDeIdioma;
 use App\Modules\Pagos\Data\FiltrosDeRecaudacion;
 use App\Modules\Pagos\Data\ReporteDeRecaudacion as Reporte;
 use App\Modules\Pagos\Enums\FuenteConcepto;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Filament\Pages\ReporteDeRecaudacion;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -42,7 +42,7 @@ beforeEach(function (): void {
 
 function recaudacionPago(Concepto $c, Persona $p, string $monto, string $fecha, string $op): Pago
 {
-    return Pago::factory()->validado()->for($c)->create(['persona_id' => $p->id, 'monto' => $monto, 'fecha_pago' => $fecha, 'numero_operacion' => $op, 'medio_pago' => MedioPago::CajaPresencial]);
+    return Pago::factory()->validado()->for($c)->create(['persona_id' => $p->id, 'monto' => $monto, 'fecha_pago' => $fecha, 'numero_operacion' => $op, 'medio_pago_id' => MedioDePago::idDe('caja_presencial')]);
 }
 
 function recaudacionReporte(string $desde = '2026-10-01', string $hasta = '2026-10-31', ?int $c = null, ?int $p = null): Reporte

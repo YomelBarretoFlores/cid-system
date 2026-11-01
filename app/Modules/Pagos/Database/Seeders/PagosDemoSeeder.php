@@ -8,9 +8,9 @@ use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\FuenteConcepto;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
@@ -36,7 +36,7 @@ final class PagosDemoSeeder extends Seeder
         'TRA-01' => ['Trámite académico', TipoConcepto::Tramite, ['estudiante_unasam' => '15.00', 'docente_administrativo_unasam' => '15.00', 'publico_general' => '20.00']],
     ];
 
-    private const array MEDIOS = [MedioPago::BancoNacion, MedioPago::PagaloPe, MedioPago::CajaPresencial];
+    private const array MEDIOS = ['banco_nacion', 'pagalo_pe', 'tesoreria_unasam'];
 
     private int $secuencia = 0;
 
@@ -97,7 +97,7 @@ final class PagosDemoSeeder extends Seeder
 
         return Pago::factory()->create([
             'persona_id' => $personaId, 'concepto_id' => $tarifa->concepto_id, 'tarifa_id' => $tarifa->id, 'monto' => $tarifa->monto,
-            'medio_pago' => self::MEDIOS[$this->secuencia % 3], 'numero_operacion' => sprintf('%08d', 48210000 + $this->secuencia++),
+            'medio_pago_id' => MedioDePago::idDe(self::MEDIOS[$this->secuencia % 3]), 'numero_operacion' => sprintf('%08d', 48210000 + $this->secuencia++),
             'fecha_pago' => $fecha->toDateString(), 'estado' => $estado,
             'motivo_rechazo' => $estado === EstadoPago::Rechazado ? 'El monto no coincide con el recibo.' : null,
             ...$revisado,

@@ -6,7 +6,7 @@ namespace App\Modules\Pagos\Filament\Tables;
 
 use App\Modules\Pagos\Data\DetalleDeRecaudacion;
 use App\Modules\Pagos\Data\ReporteDeRecaudacion;
-use App\Modules\Pagos\Enums\MedioPago;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Shared\Support\Filament\IdiomaConBandera;
 use App\Shared\Ui\Formato;
 use Carbon\CarbonImmutable;
@@ -54,7 +54,7 @@ final class DetalleDeRecaudacionTable
                 TextColumn::make('monto')->label('Monto')->formatStateUsing(fn (array $record): string => 'S/ '.ReporteDeRecaudacion::soles($record['monto']))->weight(FontWeight::SemiBold)->alignEnd()->sortable(),
             ])
             ->filters([
-                SelectFilter::make('medio_pago')->label('Medio de pago')->options(collect(MedioPago::cases())->mapWithKeys(fn (MedioPago $medio): array => [$medio->etiqueta() => $medio->etiqueta()])->all()),
+                SelectFilter::make('medio_pago')->label('Medio de pago')->options(MedioDePago::query()->orderBy('orden')->pluck('nombre', 'nombre')->all()),
                 SelectFilter::make('idioma')->label('Idioma')->options(fn (): array => collect($detalle())->pluck('idioma')->unique()->sort()->mapWithKeys(fn (string $idioma): array => [$idioma => $idioma])->all()),
             ])
             ->searchable()

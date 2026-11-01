@@ -5,8 +5,8 @@ declare(strict_types=1);
 use App\Modules\Pagos\Actions\RegistrarPago;
 use App\Modules\Pagos\Data\RegistroDePago;
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
@@ -36,7 +36,7 @@ function registro(array $cambios = []): RegistroDePago
     return new RegistroDePago(...[
         'personaId' => test()->persona->id,
         'conceptoId' => test()->concepto->id,
-        'medioPago' => MedioPago::BancoNacion,
+        'medioPagoId' => MedioDePago::idDe('banco_nacion'),
         'numeroOperacion' => ' op-2027-001 ',
         'fechaPago' => CarbonImmutable::parse('2027-02-20'),
         'monto' => '120.00',
@@ -44,9 +44,15 @@ function registro(array $cambios = []): RegistroDePago
     ]);
 }
 
+// Each name gets its own bytes, so two receipts of one test differ unless they share a name.
 function reciboPdf(string $nombre = 'recibo.pdf'): UploadedFile
 {
-    return UploadedFile::fake()->createWithContent($nombre, "%PDF-1.4\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
+    return UploadedFile::fake()->createWithContent($nombre, contenidoDelRecibo($nombre));
+}
+
+function contenidoDelRecibo(string $nombre): string
+{
+    return "%PDF-1.4\n% {$nombre}\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n";
 }
 
 it('registers a pending payment with its receipt and the fee that applied', function (UploadedFile $recibo, string $extension): void {
@@ -98,7 +104,7 @@ it('refuses a concept that is no longer offered', function (): void {
 it('refuses an operation number already registered and discards the uploaded receipt', function (): void {
     $primero = app(RegistrarPago::class)(registro(), reciboPdf());
 
-    expect(fn () => app(RegistrarPago::class)(registro(['numeroOperacion' => 'OP-2027-001']), reciboPdf()))
+    expect(fn () => app(RegistrarPago::class)(registro(['numeroOperacion' => 'OP-2027-001']), reciboPdf('otro.pdf')))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Ese número de operación ya fue registrado con este medio de pago.');
     expect(Pago::query()->count())->toBe(1)
         ->and(Storage::disk('local')->allFiles())->toBe([$primero->recibo_path]);
@@ -109,14 +115,14 @@ it('keeps the fingerprint of the receipt file', function (): void {
 
     $pago = app(RegistrarPago::class)(registro(), $recibo);
 
-    expect($pago->refresh()->recibo_sha256)->toBe(hash('sha256', "%PDF-1.4\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n"));
+    expect($pago->refresh()->recibo_sha256)->toBe(hash('sha256', contenidoDelRecibo('recibo.pdf')));
 });
 
 it('refuses a receipt file already used by another payment and stores nothing', function (): void {
-    app(RegistrarPago::class)(registro(), reciboPdf('primero.pdf'));
+    app(RegistrarPago::class)(registro(), reciboPdf('boleta.pdf'));
     $archivos = count(Storage::disk('local')->allFiles());
 
-    expect(fn () => app(RegistrarPago::class)(registro(['numeroOperacion' => 'OTRA-OPERACION']), reciboPdf('copia.pdf')))
+    expect(fn () => app(RegistrarPago::class)(registro(['numeroOperacion' => 'OTRA-OPERACION']), reciboPdf('boleta.pdf')))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Esta boleta ya fue registrada en otro pago.')
         ->and(Pago::query()->count())->toBe(1)
         ->and(count(Storage::disk('local')->allFiles()))->toBe($archivos);

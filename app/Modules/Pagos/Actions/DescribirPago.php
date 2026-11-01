@@ -13,12 +13,12 @@ final readonly class DescribirPago implements ConsultaDePago
 {
     public function __invoke(int $pagoId): DetalleDePago
     {
-        $pago = Pago::query()->with('concepto')->whereKey($pagoId)->firstOrFail();
+        $pago = Pago::query()->with(['concepto', 'medioDePago'])->whereKey($pagoId)->firstOrFail();
 
         return new DetalleDePago(
             concepto: $pago->concepto->nombre,
             numeroOperacion: $pago->numero_operacion,
-            medioPago: $pago->medio_pago->etiqueta(),
+            medioPago: $pago->medioDePago->nombre,
             monto: (string) $pago->monto,
             fechaPago: CarbonImmutable::parse($pago->fecha_pago),
             estado: $pago->estado,
