@@ -168,3 +168,11 @@ it('refuses to close a scheme in force before today, which would leave graded da
 
     expect($esquema->refresh()->vigente_hasta?->toDateString())->toBe('2027-02-10');
 });
+
+it('still renames a scheme whose validity already ended', function (): void {
+    $esquema = guardarEsquema(datosDeEsquema(['vigenteDesde' => CarbonImmutable::parse('2026-01-01'), 'vigenteHasta' => CarbonImmutable::parse('2026-12-31')]));
+
+    guardarEsquema(datosDeEsquema(['nombre' => 'Esquema 2026', 'vigenteDesde' => CarbonImmutable::parse('2026-01-01'), 'vigenteHasta' => CarbonImmutable::parse('2026-12-31')]), $esquema->id);
+
+    expect($esquema->refresh()->nombre)->toBe('Esquema 2026');
+});

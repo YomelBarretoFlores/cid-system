@@ -6,11 +6,14 @@ use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Docencia\Models\CondicionLaboral;
+use App\Modules\Docencia\Models\CostoPorHora;
 use App\Modules\Docencia\Models\Docente;
+use App\Modules\Docencia\Models\GradoAcademico;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Tablero\Actions\CalcularRentabilidadPorGrupo;
 use App\Modules\Tablero\Data\FilaDeRentabilidad;
 use App\Modules\Tablero\Data\FiltrosDelTablero;
+use App\Shared\Auth\Models\User;
 use Tests\Support\DatosDelTablero;
 
 beforeEach(function (): void {
@@ -25,7 +28,7 @@ beforeEach(function (): void {
     DatosDelTablero::grupo($this->marzo, $this->ingles, atributos: ['codigo' => 'ING-1-X', 'estado' => EstadoGrupo::Cancelado]);
     $grupoDeAbril = DatosDelTablero::grupo($abril, $this->ingles, atributos: ['codigo' => 'ING-1-A']);
 
-    $contratado = Docente::factory()->create(['condicion_laboral_id' => CondicionLaboral::idDe('contratado')]);
+    $this->contratado = $contratado = Docente::factory()->create(['condicion_laboral_id' => CondicionLaboral::idDe('contratado')]);
     $tercero = Docente::factory()->create(['condicion_laboral_id' => CondicionLaboral::idDe('tercero')]);
     DatosDelTablero::costo('contratado', '40.00', '2027-01-01', '2027-03-15');
     DatosDelTablero::costo('contratado', '50.00', '2027-03-16');
@@ -65,4 +68,14 @@ it('keeps only the groups of the chosen language and level', function (): void {
 
     expect(array_map(fn (FilaDeRentabilidad $fila): string => $fila->codigo, $calcular(new FiltrosDelTablero($this->marzo->id, $this->quechua->id))->filas))->toBe(['QUE-1-T'])
         ->and(array_map(fn (FilaDeRentabilidad $fila): string => $fila->codigo, $calcular(new FiltrosDelTablero($this->marzo->id, null, NivelCurricular::Intermedio))->filas))->toBe(['ING-5-M']);
+});
+
+it('prices the hours of a teacher with a degree by the degree rate, and before it by the condition rate', function (): void {
+    $this->contratado->update(['grado_academico_id' => GradoAcademico::idDe('magister')]);
+    CostoPorHora::query()->create(['grado_academico_id' => GradoAcademico::idDe('magister'), 'costo_hora' => '70.00', 'vigente_desde' => '2027-03-15', 'registrado_por' => User::factory()->create()->id]);
+
+    $basico = app(CalcularRentabilidadPorGrupo::class)(new FiltrosDelTablero($this->marzo->id))->filas[0];
+
+    // 10 March: 2 h at the condition rate of 40.00; 20 March: 1.5 h at the degree rate of 70.00 instead of the condition rate of 50.00.
+    expect([$basico->codigo, $basico->costoCentimos])->toBe(['ING-1-M', 18500]);
 });

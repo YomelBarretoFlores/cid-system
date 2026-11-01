@@ -101,8 +101,10 @@ final readonly class GuardarEsquemaDeEvaluacion
 
         $hoy = CarbonImmutable::today('America/Lima');
 
-        // Closing it in the past would leave days already graded without a scheme.
-        if ($datos->vigenteHasta instanceof CarbonImmutable && $datos->vigenteHasta->toDateString() < $hoy->toDateString()) {
+        // Moving the end into the past would leave days already graded without a scheme; an end already past stays as it is.
+        $cambiaElFin = $datos->vigenteHasta?->toDateString() !== $esquema->vigente_hasta?->toDateString();
+
+        if ($cambiaElFin && $datos->vigenteHasta instanceof CarbonImmutable && $datos->vigenteHasta->toDateString() < $hoy->toDateString()) {
             throw new ReglaDeNegocioIncumplida("Un sistema vigente no puede terminar antes de hoy ({$hoy->format('d/m/Y')}).");
         }
 

@@ -68,4 +68,14 @@ Branch: `feat/catalogos-administrables` (stacked on `feat/cruces-carga`) · Deli
   - One CRITICAL finding: a first degree rate with a past start would have repriced classes already priced by the condition rate, changing delivered hour reports and dashboard costs.
   - Bounded correction: a degree rate that starts today or earlier is refused while a condition rate covers those dates ("Hay horas ya dictadas con el costo anterior por condición laboral; el costo por grado debe empezar después de hoy."). A fresh install without condition rates may still start in the past.
   - RED test first. Docencia, Tablero and the demo seeder test: 441 pass.
+- L7 (2026-11-01): the targeted validation approved the correction and the review was acknowledged (lineage review-90b7ffb686eb7d4f). From its warnings, fixed after RED tests:
+  - a scheme whose validity already ended can still be renamed; the past-end refusal applies only when the end date changes;
+  - group profitability has a test for degree rates overriding condition rates by date.
+
+  Left for later:
+  - the active-degree check runs outside the advisory lock;
+  - rolling back maps new conditions to `tercero` and drops degree rates;
+  - the "(tarifa anterior)" label has no direct test.
+
+  `composer check` rc=0, 1882 tests. D4 is complete: T1 to T3.
 
