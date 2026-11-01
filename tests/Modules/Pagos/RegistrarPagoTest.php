@@ -103,3 +103,30 @@ it('refuses an operation number already registered and discards the uploaded rec
     expect(Pago::query()->count())->toBe(1)
         ->and(Storage::disk('local')->allFiles())->toBe([$primero->recibo_path]);
 });
+
+it('keeps the fingerprint of the receipt file', function (): void {
+    $recibo = reciboPdf();
+
+    $pago = app(RegistrarPago::class)(registro(), $recibo);
+
+    expect($pago->refresh()->recibo_sha256)->toBe(hash('sha256', "%PDF-1.4\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n"));
+});
+
+it('refuses a receipt file already used by another payment and stores nothing', function (): void {
+    app(RegistrarPago::class)(registro(), reciboPdf('primero.pdf'));
+    $archivos = count(Storage::disk('local')->allFiles());
+
+    expect(fn () => app(RegistrarPago::class)(registro(['numeroOperacion' => 'OTRA-OPERACION']), reciboPdf('copia.pdf')))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Esta boleta ya fue registrada en otro pago.')
+        ->and(Pago::query()->count())->toBe(1)
+        ->and(count(Storage::disk('local')->allFiles()))->toBe($archivos);
+});
+
+it('accepts again the receipt of a rejected payment', function (): void {
+    $rechazado = app(RegistrarPago::class)(registro(), reciboPdf());
+    $rechazado->forceFill(['estado' => EstadoPago::Rechazado, 'validado_por' => User::factory()->create()->id, 'validado_en' => now(), 'motivo_rechazo' => 'Ilegible.'])->save();
+
+    $nuevo = app(RegistrarPago::class)(registro(['numeroOperacion' => 'OTRA-OPERACION']), reciboPdf());
+
+    expect($nuevo->refresh()->recibo_sha256)->toBe($rechazado->refresh()->recibo_sha256);
+});

@@ -27,7 +27,7 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S1, S2, S3, S5 | inline | done | see L3 |
-| T2 | S4 | inline | pending | |
+| T2 | S4 | inline | done | see L5 |
 | T3 | S6 | inline | pending | |
 | T4 | S7 | inline | pending | |
 
@@ -65,4 +65,10 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
     - `ValidarPago` enforces the 500-character justification limit;
     - new tests prove that a rejected payment is left out of the other-channel warning and that the warning section is hidden without alerts.
   - Left for later: the alert queries run on every render, without memoising.
+- L5 (2026-11-01): T2 done.
+  - Migration `2026_11_01_100100_add_receipt_fingerprint_to_pag_pagos` adds `recibo_sha256` (CHECK on 64 hex characters) and the partial unique index `pag_pagos_recibo_sha256_unique`, which excludes rejected payments.
+  - `RegistrarPago` hashes the upload. A duplicate is told apart from a repeated operation number through `RestriccionUnica`, and the stored file is deleted.
+  - The concurrency fixture now writes unique receipt bytes per run, because payments survive between runs.
+  - RED: 2 of 3 new tests failed first.
+  - Pagos, Feature, Tramites and Concurrency: 651 tests pass.
 

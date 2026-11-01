@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?int $boleta_original_verificada_por
  * @property ?CarbonImmutable $boleta_original_verificada_en
  * @property ?string $justificacion_monto
+ * @property ?string $recibo_sha256
  * @property-read ?Tarifa $tarifa
  * @property-read Concepto $concepto
  */
@@ -39,7 +40,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'persona_id', 'concepto_id', 'tarifa_id', 'monto', 'medio_pago', 'numero_operacion', 'fecha_pago',
     'recibo_path', 'estado', 'registrado_por', 'validado_por', 'validado_en', 'motivo_rechazo',
-    'anulado_por', 'anulado_en', 'motivo_anulacion', 'boleta_original_verificada_por', 'boleta_original_verificada_en', 'justificacion_monto',
+    'anulado_por', 'anulado_en', 'motivo_anulacion', 'boleta_original_verificada_por', 'boleta_original_verificada_en', 'justificacion_monto', 'recibo_sha256',
 ])]
 #[UseFactory(PagoFactory::class)]
 #[UsePolicy(PagoPolicy::class)]

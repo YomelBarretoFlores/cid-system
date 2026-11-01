@@ -22,7 +22,7 @@ function cerrarTarifaMientrasSeRegistraUnPago(array $esperas, float $retrasoDelC
     $concepto = Concepto::factory()->create();
     $tarifa = Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'vigente_desde' => '2026-01-01']);
     $recibo = (string) tempnam(sys_get_temp_dir(), 'recibo');
-    file_put_contents($recibo, "%PDF-1.4\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
+    file_put_contents($recibo, "%PDF-1.4\n% ".uniqid('', true)."\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
     $conexion = config('database.connections.pgsql');
     $inicio = microtime(true) + 2;
 
@@ -74,7 +74,7 @@ it('applies the new fee to a payment registered while the fee is being replaced'
     $concepto = Concepto::factory()->create();
     $anterior = Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'vigente_desde' => '2026-01-01']);
     $recibo = (string) tempnam(sys_get_temp_dir(), 'recibo');
-    file_put_contents($recibo, "%PDF-1.4\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
+    file_put_contents($recibo, "%PDF-1.4\n% ".uniqid('', true)."\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
     $conexion = config('database.connections.pgsql');
     $inicio = microtime(true) + 2;
 

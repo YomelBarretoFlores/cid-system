@@ -10,6 +10,7 @@ use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use finfo;
@@ -35,6 +36,7 @@ final readonly class RegistrarPago
     public function __invoke(RegistroDePago $registro, UploadedFile $recibo, ?User $registradoPor = null): Pago
     {
         $extension = $this->extensionDelRecibo($recibo);
+        $huella = (string) hash_file('sha256', $recibo->getRealPath());
         // Fail fast before storing the receipt; the binding read happens under lock below.
         $this->tarifaAplicable($registro);
         $ruta = $recibo->storeAs("recibos/{$registro->fechaPago->format('Y')}", Str::ulid().".{$extension}", self::DISCO);
@@ -51,15 +53,21 @@ final readonly class RegistrarPago
                 'numero_operacion' => $registro->numeroOperacion,
                 'fecha_pago' => $registro->fechaPago,
                 'recibo_path' => $ruta,
+                'recibo_sha256' => $huella,
                 'registrado_por' => $registradoPor?->id,
             ]));
         } catch (Throwable $error) {
             Storage::disk(self::DISCO)->delete((string) $ruta);
 
-            throw $error instanceof UniqueConstraintViolationException
-                ? new ReglaDeNegocioIncumplida('Ese número de operación ya fue registrado con este medio de pago.', previous: $error)
-                : $error;
+            throw $error instanceof UniqueConstraintViolationException ? $this->duplicado($error) : $error;
         }
+    }
+
+    private function duplicado(UniqueConstraintViolationException $error): ReglaDeNegocioIncumplida
+    {
+        return RestriccionUnica::es($error, 'pag_pagos_recibo_sha256_unique')
+            ? new ReglaDeNegocioIncumplida('Esta boleta ya fue registrada en otro pago.', previous: $error)
+            : new ReglaDeNegocioIncumplida('Ese número de operación ya fue registrado con este medio de pago.', previous: $error);
     }
 
     private function extensionDelRecibo(UploadedFile $recibo): string
