@@ -99,6 +99,13 @@ final readonly class GuardarEsquemaDeEvaluacion
             throw new ReglaDeNegocioIncumplida("El sistema «{$esquema->nombre}» ya está vigente; para cambiar componentes, pesos o notas, cierra su vigencia y crea uno nuevo.");
         }
 
+        $hoy = CarbonImmutable::today('America/Lima');
+
+        // Closing it in the past would leave days already graded without a scheme.
+        if ($datos->vigenteHasta instanceof CarbonImmutable && $datos->vigenteHasta->toDateString() < $hoy->toDateString()) {
+            throw new ReglaDeNegocioIncumplida("Un sistema vigente no puede terminar antes de hoy ({$hoy->format('d/m/Y')}).");
+        }
+
         $esquema->update(['nombre' => trim($datos->nombre), 'vigente_hasta' => $datos->vigenteHasta]);
 
         return $esquema;

@@ -156,3 +156,15 @@ it('creates and edits a scheme from the panel', function (): void {
     expect($esquema->refresh()->nombre)->toBe('Inglés básico 2027')
         ->and($esquema->componentes()->pluck('peso', 'codigo')->all())->toBe(['parcial' => '60.00', 'final' => '40.00']);
 });
+
+it('refuses to close a scheme in force before today, which would leave graded days without a scheme', function (): void {
+    $esquema = guardarEsquema(datosDeEsquema(['vigenteDesde' => CarbonImmutable::parse('2027-01-01')]));
+
+    expect(fn (): EsquemaEvaluacion => guardarEsquema(datosDeEsquema(['vigenteDesde' => CarbonImmutable::parse('2027-01-01'), 'vigenteHasta' => CarbonImmutable::parse('2027-02-09')]), $esquema->id))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Un sistema vigente no puede terminar antes de hoy (10/02/2027).')
+        ->and($esquema->refresh()->vigente_hasta)->toBeNull();
+
+    guardarEsquema(datosDeEsquema(['vigenteDesde' => CarbonImmutable::parse('2027-01-01'), 'vigenteHasta' => CarbonImmutable::parse('2027-02-10')]), $esquema->id);
+
+    expect($esquema->refresh()->vigente_hasta?->toDateString())->toBe('2027-02-10');
+});

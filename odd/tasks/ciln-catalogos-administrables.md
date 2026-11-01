@@ -61,4 +61,7 @@ Branch: `feat/catalogos-administrables` (stacked on `feat/cruces-carga`) · Deli
   - RED: 6 new tests failed first (classes missing). Docencia, Tablero and Feature: 720 tests pass.
   - `composer check` rc=0, 1878 tests.
   - Demo data: seeded `main` and migrated with this branch. The 3 teachers keep their condition and the 3 condition rates keep amount and validity.
+- L5 (2026-11-01): the review of all of D4 did not fit the reviewer budget, so it was split. T1 (aade970..ffc87b9; lenses risk and reliability; lineage review-2d80853560e47bb8) was granted by the user, approved and acknowledged.
+  - Applied after a RED test: a scheme in force cannot be closed before today ("Un sistema vigente no puede terminar antes de hoy (dd/mm/aaaa)."), which would leave graded days without a scheme.
+  - Left for later: a new scheme can still start in the past to fill an uncovered gap (needed for first-day setup).
 
