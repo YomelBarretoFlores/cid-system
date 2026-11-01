@@ -88,4 +88,8 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
   - Found while testing: running Concurrency before Modules leaves the last concurrency test's rows behind. That only comes from the order of an ad-hoc run; `composer check` runs Concurrency last.
   - RED: the new panel tests failed first (class missing).
   - Pagos, Feature, Tramites, Matricula, Certificacion, Tablero and Concurrency: 1112 tests pass. Pint, Larastan and Rector are clean.
+- L7 (2026-11-01): native review of f668169..cf73d45 (escalated with item 1 because the migration rewrites the channel of stored payments; lenses risk, reliability, resilience; lineage review-9e3538b253aac491) was granted by the user.
+  - One CRITICAL finding: the catalog had renamed the transfer channel from "Transferencia bancaria" to "Transferencia", silently changing the API, report and portal labels. Fixed in cf73d45 within the bounded correction; the targeted validation approved it and the review was acknowledged.
+  - Then fixed a warning, after a RED test: a generated code now stays within 40 characters and takes a free suffix (`_2`…) when it collides.
+  - Left for later: `down()` maps the new channels to `otro`, which could collide with an existing `(otro, número)` when rolling back.
 

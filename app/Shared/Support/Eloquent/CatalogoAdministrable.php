@@ -20,8 +20,21 @@ trait CatalogoAdministrable
     public static function bootCatalogoAdministrable(): void
     {
         static::creating(function (Model $catalogo): void {
-            $catalogo->setAttribute('codigo', $catalogo->getAttribute('codigo') ?? Str::slug((string) $catalogo->getAttribute('nombre'), '_'));
+            $catalogo->setAttribute('codigo', $catalogo->getAttribute('codigo') ?? static::codigoLibre((string) $catalogo->getAttribute('nombre')));
         });
+    }
+
+    // Codes fit 40 characters; a name that slugs like an existing code gets the next free suffix.
+    private static function codigoLibre(string $nombre): string
+    {
+        $base = rtrim(mb_substr(Str::slug($nombre, '_'), 0, 36), '_');
+        $codigo = $base;
+
+        for ($sufijo = 2; static::query()->where('codigo', $codigo)->exists(); $sufijo++) {
+            $codigo = "{$base}_{$sufijo}";
+        }
+
+        return $codigo;
     }
 
     public static function idDe(string $codigo): int

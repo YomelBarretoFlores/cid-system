@@ -129,3 +129,11 @@ it('keeps the operation number unique per channel among payments not rejected', 
     $otro = Pago::factory()->create(['numero_operacion' => 'OP-77', 'medio_pago_id' => MedioDePago::query()->where('codigo', 'tesoreria_unasam')->value('id')]);
     expect($otro->exists)->toBeTrue();
 });
+
+it('keeps a generated code within 40 characters and apart from an existing one', function (): void {
+    $largo = MedioDePago::query()->create(['nombre' => 'Depósito en cuenta corriente del Banco de Crédito del Perú', 'orden' => 8]);
+    $parecido = MedioDePago::query()->create(['nombre' => 'Pagalo pe', 'orden' => 9]);
+
+    expect(mb_strlen($largo->codigo))->toBeLessThanOrEqual(40)
+        ->and($parecido->codigo)->toBe('pagalo_pe_2');
+});
