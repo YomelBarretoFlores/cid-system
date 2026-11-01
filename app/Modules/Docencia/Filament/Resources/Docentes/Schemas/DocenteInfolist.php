@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Filament\Resources\Docentes\Schemas;
 
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Enums\EstadoDocente;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ViewDocente;
 use Filament\Infolists\Components\TextEntry;
@@ -37,7 +36,8 @@ final class DocenteInfolist
                         TextEntry::make('ruc')->label('RUC')->copyable(),
                         TextEntry::make('banco')->label('Banco'),
                         TextEntry::make('cuenta_enmascarada')->label('Número de cuenta'),
-                        TextEntry::make('condicion_laboral')->label('Condición laboral')->formatStateUsing(fn (CondicionLaboral $state): string => $state->etiqueta()),
+                        TextEntry::make('condicionLaboral.nombre')->label('Condición laboral'),
+                        TextEntry::make('gradoAcademico.nombre')->label('Grado académico')->placeholder('Sin registrar'),
                     ]),
                 Section::make('Perfil académico')
                     ->schema([

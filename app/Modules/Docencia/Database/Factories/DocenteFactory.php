@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Database\Factories;
 
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Enums\EstadoDocente;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,7 +25,7 @@ final class DocenteFactory extends Factory
             'ruc' => fake()->unique()->numerify('10#########'),
             'banco' => 'Banco de la Nación',
             'cuenta_bancaria' => fake()->numerify('04-###-######'),
-            'condicion_laboral' => CondicionLaboral::Contratado,
+            'condicion_laboral_id' => fn (): int => CondicionLaboral::idDe('contratado'),
             'estado' => EstadoDocente::Activo,
         ];
     }

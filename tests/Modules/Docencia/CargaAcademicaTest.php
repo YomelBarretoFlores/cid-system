@@ -19,9 +19,9 @@ use App\Modules\Docencia\Actions\ResumirCargaDelDocente;
 use App\Modules\Docencia\Data\CargaHoraria;
 use App\Modules\Docencia\Data\DatosDeDocente;
 use App\Modules\Docencia\Data\IdiomaHabilitado;
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Enums\EstadoDocente;
 use App\Modules\Docencia\Models\CargaAcademica;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -59,7 +59,7 @@ function asignar(Grupo $grupo, ?Docente $docente = null): CargaAcademica
 
 function datosConIdiomas(Docente $docente, array $idiomas): DatosDeDocente
 {
-    return new DatosDeDocente($docente->persona_id, $docente->correo_institucional, $docente->ruc, $docente->banco, $docente->cuenta_bancaria, CondicionLaboral::Contratado, $idiomas);
+    return new DatosDeDocente($docente->persona_id, $docente->correo_institucional, $docente->ruc, $docente->banco, $docente->cuenta_bancaria, CondicionLaboral::idDe('contratado'), null, $idiomas);
 }
 
 it('assigns a teacher to a group and records who did it', function (): void {

@@ -18,6 +18,7 @@ use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Modules\Docencia\Models\CargaAcademica;
 use App\Modules\Docencia\Models\ClaseDictada;
 use App\Modules\Docencia\Models\CostoPorHora;
+use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Support\DelegadoDelGrupo;
 use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Enums\PermisoMatricula;
@@ -101,11 +102,12 @@ it('seeds a verified portal teacher who has the first demo group', function (): 
     $this->actingAs($docente)->get(route('filament.docente.pages.mis-grupos'))->assertOk()->assertSee("Grupo {$grupo->codigo}");
 });
 
-it('seeds a fictitious hourly cost for every teacher category', function (): void {
+it('seeds a fictitious hourly cost for every academic degree and gives every demo teacher a degree', function (): void {
     $this->seed(DatabaseSeeder::class);
 
-    expect(CostoPorHora::query()->whereNull('vigente_hasta')->orderBy('condicion_laboral')->pluck('costo_hora', 'condicion_laboral')->mapWithKeys(fn (string $costo, string $categoria): array => [$categoria => $costo])->all())
-        ->toBe(['contratado' => '45.00', 'nombrado' => '50.00', 'tercero' => '40.00']);
+    expect(CostoPorHora::query()->with('gradoAcademico')->whereNull('vigente_hasta')->get()->mapWithKeys(fn (CostoPorHora $costo): array => [$costo->gradoAcademico?->codigo => $costo->costo_hora])->sortKeys()->all())
+        ->toBe(['bachiller' => '45.00', 'certificado' => '40.00', 'doctor' => '60.00', 'magister' => '55.00', 'titulado' => '50.00'])
+        ->and(Docente::query()->whereNull('grado_academico_id')->count())->toBe(0);
 });
 
 it('closes the final grade sheets of the previous month, one of them reopened for a rectification', function (): void {

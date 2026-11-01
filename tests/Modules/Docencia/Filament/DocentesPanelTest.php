@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Idioma;
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Enums\EstadoDocente;
 use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Modules\Docencia\Filament\Resources\Docentes\DocenteResource;
@@ -12,6 +11,7 @@ use App\Modules\Docencia\Filament\Resources\Docentes\Pages\CreateDocente;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\EditDocente;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ListDocentes;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ViewDocente;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -27,7 +27,7 @@ beforeEach(function (): void {
     ]);
     $this->docente = Docente::factory()->create([
         'persona_id' => $this->persona->id, 'correo_institucional' => 'rrimac@unasam.test', 'ruc' => '10401234567',
-        'banco' => 'Banco de la Nación', 'cuenta_bancaria' => '04-123-456789', 'condicion_laboral' => CondicionLaboral::Nombrado,
+        'banco' => 'Banco de la Nación', 'cuenta_bancaria' => '04-123-456789', 'condicion_laboral_id' => CondicionLaboral::idDe('nombrado'),
     ]);
     $this->docente->idiomas()->create(['idioma_id' => $this->ingles->id, 'nivel_maximo' => NivelCurricular::Intermedio]);
     $this->undoRepeaterFake = Repeater::fake();
@@ -45,7 +45,7 @@ function formularioDeDocente(array $cambios = []): array
         'ruc' => '10777777777',
         'banco' => 'BBVA',
         'cuenta_bancaria' => '0011-0222-0333',
-        'condicion_laboral' => CondicionLaboral::Tercero->value,
+        'condicion_laboral_id' => CondicionLaboral::idDe('tercero'),
         'idiomas' => [['idioma_id' => test()->ingles->id, 'nivel_maximo' => NivelCurricular::Basico->value]],
         ...$cambios,
     ];
@@ -92,8 +92,8 @@ it('registers a teacher from the panel', function (): void {
 
     $docente = Docente::query()->where('persona_id', $datos['persona_id'])->firstOrFail();
 
-    expect([$docente->ruc, $docente->cuenta_bancaria, $docente->condicion_laboral, $docente->idiomas()->count()])
-        ->toBe(['10777777777', '0011-0222-0333', CondicionLaboral::Tercero, 1]);
+    expect([$docente->ruc, $docente->cuenta_bancaria, $docente->condicionLaboral->codigo, $docente->idiomas()->count()])
+        ->toBe(['10777777777', '0011-0222-0333', 'tercero', 1]);
 });
 
 it('tells why a teacher cannot be registered and saves nothing', function (): void {

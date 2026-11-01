@@ -9,9 +9,10 @@ use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Docencia\Data\DatosDeDocente;
 use App\Modules\Docencia\Data\IdiomaHabilitado;
-use App\Modules\Docencia\Enums\CondicionLaboral;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Models\DocenteIdioma;
+use App\Modules\Docencia\Models\GradoAcademico;
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use Filament\Forms\Components\Repeater;
@@ -19,6 +20,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 final class DocenteForm
 {
@@ -40,7 +42,8 @@ final class DocenteForm
                             ->required()
                             ->columnSpanFull(),
                         TextInput::make('correo_institucional')->label('Correo institucional')->email()->required()->maxLength(120),
-                        Select::make('condicion_laboral')->label('Condición laboral')->options(CondicionLaboral::opciones())->required(),
+                        Select::make('condicion_laboral_id')->label('Condición laboral')->options(fn (?Docente $record): array => self::opciones(CondicionLaboral::query(), $record?->condicion_laboral_id))->required(),
+                        Select::make('grado_academico_id')->label('Grado académico')->options(fn (?Docente $record): array => self::opciones(GradoAcademico::query(), $record?->grado_academico_id))->placeholder('Sin registrar')->helperText('Define el costo por hora.'),
                     ]),
                 Section::make('Datos para el expediente')
                     ->columns(3)
@@ -71,11 +74,24 @@ final class DocenteForm
     {
         return [
             ...$docente->only(['persona_id', 'correo_institucional', 'ruc', 'banco', 'cuenta_bancaria']),
-            'condicion_laboral' => $docente->condicion_laboral->value,
+            'condicion_laboral_id' => $docente->condicion_laboral_id,
+            'grado_academico_id' => $docente->grado_academico_id,
             'idiomas' => $docente->idiomas()->orderBy('id')->get()
                 ->map(fn (DocenteIdioma $idioma): array => ['idioma_id' => $idioma->idioma_id, 'nivel_maximo' => $idioma->nivel_maximo->value])
                 ->all(),
         ];
+    }
+
+    /**
+     * Active items, plus the inactive one the teacher already has so editing keeps it.
+     *
+     * @param  Builder<CondicionLaboral>|Builder<GradoAcademico>  $catalogo
+     * @return array<int, string>
+     */
+    private static function opciones(Builder $catalogo, ?int $actual): array
+    {
+        return $catalogo->where(fn (Builder $consulta): Builder => $consulta->where('activo', true)->when($actual !== null, fn (Builder $o): Builder => $o->orWhereKey($actual)))
+            ->orderBy('orden')->orderBy('nombre')->pluck('nombre', 'id')->all();
     }
 
     /**
@@ -91,7 +107,8 @@ final class DocenteForm
             ruc: trim(self::texto($data['ruc'] ?? null)),
             banco: self::texto($data['banco'] ?? null),
             cuentaBancaria: self::texto($data['cuenta_bancaria'] ?? null),
-            condicion: CondicionLaboral::from(self::texto($data['condicion_laboral'] ?? null)),
+            condicionLaboralId: self::entero($data['condicion_laboral_id'] ?? null),
+            gradoAcademicoId: is_numeric($data['grado_academico_id'] ?? null) ? (int) $data['grado_academico_id'] : null,
             idiomas: array_values(array_map(fn (mixed $fila): IdiomaHabilitado => new IdiomaHabilitado(
                 self::entero(is_array($fila) ? ($fila['idioma_id'] ?? null) : null),
                 NivelCurricular::from(self::texto(is_array($fila) ? ($fila['nivel_maximo'] ?? null) : null)),

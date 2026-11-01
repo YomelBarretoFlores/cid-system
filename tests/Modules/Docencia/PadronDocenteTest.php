@@ -8,9 +8,9 @@ use App\Modules\Docencia\Actions\CambiarEstadoDocente;
 use App\Modules\Docencia\Actions\GuardarDocente;
 use App\Modules\Docencia\Data\DatosDeDocente;
 use App\Modules\Docencia\Data\IdiomaHabilitado;
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Enums\EstadoDocente;
 use App\Modules\Docencia\Enums\PermisoDocencia;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -31,7 +31,7 @@ function datosDeDocente(array $cambios = []): DatosDeDocente
         'ruc' => '10456789012',
         'banco' => 'Banco de la Nación',
         'cuentaBancaria' => '04-123-456789',
-        'condicion' => CondicionLaboral::Contratado,
+        'condicionLaboralId' => CondicionLaboral::idDe('contratado'), 'gradoAcademicoId' => null,
         'idiomas' => [
             new IdiomaHabilitado(test()->ingles->id, NivelCurricular::Avanzado),
             new IdiomaHabilitado(test()->quechua->id, NivelCurricular::Basico),
@@ -70,7 +70,7 @@ it('registers a teacher with a code, an encrypted account and the languages enab
             'banco' => 'Banco de la Nación',
             'cuenta_bancaria' => '04-123-456789',
         ])
-        ->and([$docente->condicion_laboral, $docente->estado])->toBe([CondicionLaboral::Contratado, EstadoDocente::Activo])
+        ->and([$docente->condicionLaboral->codigo, $docente->estado])->toBe(['contratado', EstadoDocente::Activo])
         ->and($fila->cuenta_bancaria)->not->toContain('456789')
         ->and($docente->cuenta_enmascarada)->toBe('•••• 6789')
         ->and($docente->idiomas()->orderBy('idioma_id')->get()->map(fn ($habilitado): array => [$habilitado->idioma_id, $habilitado->nivel_maximo])->all())
@@ -84,13 +84,13 @@ it('updates the profile and replaces the enabled languages, keeping the person',
     app(GuardarDocente::class)(datosDeDocente([
         'personaId' => $otra->id,
         'banco' => 'BCP',
-        'condicion' => CondicionLaboral::Tercero,
+        'condicionLaboralId' => CondicionLaboral::idDe('tercero'), 'gradoAcademicoId' => null,
         'idiomas' => [new IdiomaHabilitado($this->quechua->id, NivelCurricular::Intermedio)],
     ]), $docente->id);
 
     $docente->refresh();
 
-    expect([$docente->persona_id, $docente->banco, $docente->condicion_laboral])->toBe([$this->persona->id, 'BCP', CondicionLaboral::Tercero])
+    expect([$docente->persona_id, $docente->banco, $docente->condicionLaboral->codigo])->toBe([$this->persona->id, 'BCP', 'tercero'])
         ->and($docente->idiomas()->get()->map(fn ($habilitado): array => [$habilitado->idioma_id, $habilitado->nivel_maximo])->all())
         ->toBe([[$this->quechua->id, NivelCurricular::Intermedio]]);
 });

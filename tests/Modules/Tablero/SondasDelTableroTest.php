@@ -8,7 +8,7 @@ use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Idioma;
-use App\Modules\Docencia\Enums\CondicionLaboral;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Pagos\Enums\PermisoPago;
@@ -98,9 +98,9 @@ it('P-rent: cost change on class date, two categories, cancelled group, no cost'
     T::costo('contratado', '40.00', '2027-01-01', '2027-03-09');
     T::costo('contratado', '50.00', '2027-03-10');
     T::costo('nombrado', '60.00', '2027-01-01');
-    $c = Docente::factory()->create(['condicion_laboral' => CondicionLaboral::Contratado]);
-    $n = Docente::factory()->create(['condicion_laboral' => CondicionLaboral::Nombrado]);
-    $t = Docente::factory()->create(['condicion_laboral' => CondicionLaboral::Tercero]);
+    $c = Docente::factory()->create(['condicion_laboral_id' => CondicionLaboral::idDe('contratado')]);
+    $n = Docente::factory()->create(['condicion_laboral_id' => CondicionLaboral::idDe('nombrado')]);
+    $t = Docente::factory()->create(['condicion_laboral_id' => CondicionLaboral::idDe('tercero')]);
     T::clase($g, $c, '2027-03-09', '07:00', '09:00'); // 2h x 40
     T::clase($g, $c, '2027-03-10', '07:00', '09:00'); // 2h x 50
     T::clase($g, $n, '2027-03-11', '07:00', '08:30'); // 1.5h x 60

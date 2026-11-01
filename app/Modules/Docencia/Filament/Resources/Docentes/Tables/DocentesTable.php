@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Filament\Resources\Docentes\Tables;
 
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Enums\EstadoDocente;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ListDocentes;
 use App\Modules\Docencia\Models\Docente;
@@ -43,13 +42,15 @@ final class DocentesTable
                     ]),
                     TextColumn::make('codigo')->label('ID docente')->color('gray')->searchable(),
                     TextColumn::make('idiomas')->label('Idiomas')->state(fn (Docente $record, ListDocentes $livewire): HtmlString|string => $livewire->idiomasDelDocente($record)),
-                    TextColumn::make('condicion_laboral')->label('Condición')->formatStateUsing(fn (CondicionLaboral $state): string => $state->etiqueta())->color('gray'),
+                    TextColumn::make('condicionLaboral.nombre')->label('Condición')->color('gray'),
+                    TextColumn::make('gradoAcademico.nombre')->label('Grado')->placeholder('Sin registrar')->color('gray'),
                     TextColumn::make('correo_institucional')->label('Correo institucional')->icon(Heroicon::OutlinedEnvelope)->color('gray'),
                 ])->space(2),
             ])
             ->filters([
                 SelectFilter::make('estado')->label('Estado')->options(EstadoDocente::opciones()),
-                SelectFilter::make('condicion_laboral')->label('Condición laboral')->options(CondicionLaboral::opciones()),
+                SelectFilter::make('condicion_laboral_id')->label('Condición laboral')->relationship('condicionLaboral', 'nombre'),
+                SelectFilter::make('grado_academico_id')->label('Grado académico')->relationship('gradoAcademico', 'nombre'),
             ])
             ->recordActions([
                 ViewAction::make(),

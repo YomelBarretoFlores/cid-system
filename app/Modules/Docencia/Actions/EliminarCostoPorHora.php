@@ -18,8 +18,8 @@ final readonly class EliminarCostoPorHora
     {
         Transaccion::ejecutar(function () use ($costoId): void {
             // Same advisory lock as registering, taken first, so both queue per category in one order.
-            $categoria = (CostoPorHora::query()->whereKey($costoId)->first() ?? throw new ReglaDeNegocioIncumplida(self::YA_NO_EXISTE))->condicion_laboral;
-            DB::select('select pg_advisory_xact_lock(hashtext(?))', ["doc_costos_hora:{$categoria->value}"]);
+            $clave = (CostoPorHora::query()->whereKey($costoId)->first() ?? throw new ReglaDeNegocioIncumplida(self::YA_NO_EXISTE))->claveDeBloqueo();
+            DB::select('select pg_advisory_xact_lock(hashtext(?))', [$clave]);
             $costo = CostoPorHora::query()->whereKey($costoId)->lockForUpdate()->first() ?? throw new ReglaDeNegocioIncumplida(self::YA_NO_EXISTE);
 
             // A cost already in effect fed reports that may have been delivered; only a future one can go.

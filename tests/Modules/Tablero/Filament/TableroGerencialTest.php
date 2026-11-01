@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
-use App\Modules\Docencia\Enums\CondicionLaboral;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
@@ -39,7 +39,7 @@ beforeEach(function (): void {
     DatosDelTablero::matricula($grupo, DatosDelTablero::pago(TipoConcepto::Matricula, '80.00', '2027-02-21'), retirada: true);
     $this->pendiente = DatosDelTablero::pago(TipoConcepto::Pension, '180.00', '2027-03-18', 'pendiente');
     DatosDelTablero::costo('contratado', '40.00', '2027-01-01');
-    DatosDelTablero::clase($grupo, Docente::factory()->create(['condicion_laboral' => CondicionLaboral::Contratado]), '2027-03-02', '07:00', '09:00');
+    DatosDelTablero::clase($grupo, Docente::factory()->create(['condicion_laboral_id' => CondicionLaboral::idDe('contratado')]), '2027-03-02', '07:00', '09:00');
 });
 
 it('opens the dashboard only to staff with the dashboard permission', function (): void {

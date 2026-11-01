@@ -16,9 +16,10 @@ use App\Modules\Docencia\Actions\RegistrarAsistencia;
 use App\Modules\Docencia\Actions\RegistrarCostoPorHora;
 use App\Modules\Docencia\Actions\RegistrarNotasParciales;
 use App\Modules\Docencia\Data\ClaseProgramada;
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Enums\EstadoAsistencia;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
+use App\Modules\Docencia\Models\GradoAcademico;
 use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
@@ -34,12 +35,12 @@ final class DocenciaDemoSeeder extends Seeder
     /**
      * Teacher, document, category, enabled languages, availability (days, from, to) and group codes of the current period.
      *
-     * @var list<array{0: array{0: string, 1: string, 2: string}, 1: string, 2: CondicionLaboral, 3: list<string>, 4: array{0: list<int>, 1: string, 2: string}, 5: list<string>}>
+     * @var list<array{0: array{0: string, 1: string, 2: string}, 1: string, 2: array{0: string, 1: string}, 3: list<string>, 4: array{0: list<int>, 1: string, 2: string}, 5: list<string>}>
      */
     private const array DOCENTES = [
-        [['Docente', 'Demo', 'Ana'], '70000002', CondicionLaboral::Contratado, ['ING', 'ITA'], [[1, 2, 3, 4, 5], '07:00', '13:00'], ['ING-1-M', 'ITA-1-M']],
-        [['Vega', 'Ríos', 'Carlos'], '70000003', CondicionLaboral::Nombrado, ['ING', 'POR', 'FRA'], [[1, 2, 3, 4, 5], '15:00', '21:00'], ['ING-5-N', 'POR-1-T', 'FRA-1-N']],
-        [['Shuan', 'Ramírez', 'Julián'], '70000004', CondicionLaboral::Tercero, ['QUE'], [[6], '08:00', '19:00'], ['QUE-1-S']],
+        [['Docente', 'Demo', 'Ana'], '70000002', ['contratado', 'magister'], ['ING', 'ITA'], [[1, 2, 3, 4, 5], '07:00', '13:00'], ['ING-1-M', 'ITA-1-M']],
+        [['Vega', 'Ríos', 'Carlos'], '70000003', ['nombrado', 'titulado'], ['ING', 'POR', 'FRA'], [[1, 2, 3, 4, 5], '15:00', '21:00'], ['ING-5-N', 'POR-1-T', 'FRA-1-N']],
+        [['Shuan', 'Ramírez', 'Julián'], '70000004', ['tercero', 'bachiller'], ['QUE'], [[6], '08:00', '19:00'], ['QUE-1-S']],
     ];
 
     /**
@@ -51,9 +52,9 @@ final class DocenciaDemoSeeder extends Seeder
     {
         $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
 
-        // Fictitious hourly costs per category so the hours report shows amounts.
-        foreach ([[CondicionLaboral::Nombrado, '50.00'], [CondicionLaboral::Contratado, '45.00'], [CondicionLaboral::Tercero, '40.00']] as [$categoria, $costo]) {
-            app(RegistrarCostoPorHora::class)($categoria, $costo, CarbonImmutable::today('America/Lima')->startOfYear(), null, $administrador);
+        // Fictitious hourly costs per academic degree so the hours report shows amounts.
+        foreach (['certificado' => '40.00', 'bachiller' => '45.00', 'titulado' => '50.00', 'magister' => '55.00', 'doctor' => '60.00'] as $grado => $costo) {
+            app(RegistrarCostoPorHora::class)(GradoAcademico::idDe($grado), $costo, CarbonImmutable::today('America/Lima')->startOfYear(), null, $administrador);
         }
 
         $docentes = [];
@@ -83,9 +84,10 @@ final class DocenciaDemoSeeder extends Seeder
     /**
      * @param  array{0: string, 1: string, 2: string}  $nombre
      * @param  list<string>  $idiomas
+     * @param  array{0: string, 1: string}  $categoria  employment condition and academic degree codes
      * @param  array{0: list<int>, 1: string, 2: string}  $disponibilidad
      */
-    private function docente(array $nombre, string $documento, CondicionLaboral $categoria, array $idiomas, array $disponibilidad, bool $conCuenta): Docente
+    private function docente(array $nombre, string $documento, array $categoria, array $idiomas, array $disponibilidad, bool $conCuenta): Docente
     {
         $usuario = $conCuenta ? User::factory()->create(['name' => 'Docente Demo', 'email' => 'docente@ciln.test']) : null;
         $correo = $conCuenta ? 'docente@ciln.test' : "docente.{$documento}@ciln.test";
@@ -95,7 +97,7 @@ final class DocenciaDemoSeeder extends Seeder
         ]);
         $docente = Docente::factory()->create([
             'persona_id' => $persona->id, 'correo_institucional' => "docente.{$documento}@ciln.test", 'ruc' => "10{$documento}0",
-            'condicion_laboral' => $categoria,
+            'condicion_laboral_id' => CondicionLaboral::idDe($categoria[0]), 'grado_academico_id' => GradoAcademico::idDe($categoria[1]),
         ]);
 
         foreach (Idioma::query()->whereIn('codigo', $idiomas)->pluck('id') as $idiomaId) {

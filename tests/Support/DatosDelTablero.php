@@ -11,6 +11,7 @@ use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Docencia\Models\ClaseDictada;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\CostoPorHora;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Matricula\Models\Matricula;
@@ -75,7 +76,7 @@ final class DatosDelTablero
     public static function costo(string $condicion, string $costoHora, string $desde, ?string $hasta = null): CostoPorHora
     {
         return CostoPorHora::query()->create([
-            'condicion_laboral' => $condicion, 'costo_hora' => $costoHora, 'vigente_desde' => $desde,
+            'condicion_laboral_id' => CondicionLaboral::idDe($condicion), 'costo_hora' => $costoHora, 'vigente_desde' => $desde,
             'vigente_hasta' => $hasta, 'registrado_por' => User::factory()->create()->id,
         ]);
     }

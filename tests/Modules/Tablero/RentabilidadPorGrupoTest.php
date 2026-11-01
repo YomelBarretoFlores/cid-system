@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Idioma;
-use App\Modules\Docencia\Enums\CondicionLaboral;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Tablero\Actions\CalcularRentabilidadPorGrupo;
@@ -25,8 +25,8 @@ beforeEach(function (): void {
     DatosDelTablero::grupo($this->marzo, $this->ingles, atributos: ['codigo' => 'ING-1-X', 'estado' => EstadoGrupo::Cancelado]);
     $grupoDeAbril = DatosDelTablero::grupo($abril, $this->ingles, atributos: ['codigo' => 'ING-1-A']);
 
-    $contratado = Docente::factory()->create(['condicion_laboral' => CondicionLaboral::Contratado]);
-    $tercero = Docente::factory()->create(['condicion_laboral' => CondicionLaboral::Tercero]);
+    $contratado = Docente::factory()->create(['condicion_laboral_id' => CondicionLaboral::idDe('contratado')]);
+    $tercero = Docente::factory()->create(['condicion_laboral_id' => CondicionLaboral::idDe('tercero')]);
     DatosDelTablero::costo('contratado', '40.00', '2027-01-01', '2027-03-15');
     DatosDelTablero::costo('contratado', '50.00', '2027-03-16');
 

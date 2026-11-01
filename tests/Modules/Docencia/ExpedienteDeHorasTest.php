@@ -9,8 +9,8 @@ use App\Modules\Academico\Models\Idioma;
 use App\Modules\Docencia\Actions\ConsolidarHorasDictadas;
 use App\Modules\Docencia\Data\ExpedienteDeHoras;
 use App\Modules\Docencia\Data\LineaDeHoras;
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Models\ClaseDictada;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\CostoPorHora;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
@@ -26,14 +26,14 @@ beforeEach(function (): void {
     $this->quechua = Grupo::factory()->create(['ciclo_id' => Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Quechua']))->create(['nivel' => NivelCurricular::Intermedio])->id]);
     $this->docente = Docente::factory()->create([
         'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Rímac', 'apellido_materno' => 'Huaylas', 'nombres' => 'Rosa'])->id,
-        'condicion_laboral' => CondicionLaboral::Contratado,
+        'condicion_laboral_id' => CondicionLaboral::idDe('contratado'),
     ]);
     costoDe('contratado', '40.00', '2027-01-01');
 });
 
 function costoDe(string $categoria, string $costo, string $desde, ?string $hasta = null): CostoPorHora
 {
-    return CostoPorHora::query()->create(['condicion_laboral' => $categoria, 'costo_hora' => $costo, 'vigente_desde' => $desde, 'vigente_hasta' => $hasta, 'registrado_por' => test()->usuario->id]);
+    return CostoPorHora::query()->create(['condicion_laboral_id' => CondicionLaboral::idDe($categoria), 'costo_hora' => $costo, 'vigente_desde' => $desde, 'vigente_hasta' => $hasta, 'registrado_por' => test()->usuario->id]);
 }
 
 function claseDictada(Grupo $grupo, string $fecha, string $inicio, string $fin, ?Docente $docente = null): ClaseDictada
@@ -95,7 +95,7 @@ it('lists hours without a valid cost apart and leaves them out of the total', fu
 
 it('uses the cost of the current category of the teacher', function (): void {
     costoDe('nombrado', '60.00', '2027-01-01');
-    $this->docente->update(['condicion_laboral' => CondicionLaboral::Nombrado]);
+    $this->docente->update(['condicion_laboral_id' => CondicionLaboral::idDe('nombrado')]);
     claseDictada($this->ingles, '2027-03-01', '18:00', '19:00');
 
     expect(expedienteDe(2027, 3))->categoria->toBe('Nombrado')

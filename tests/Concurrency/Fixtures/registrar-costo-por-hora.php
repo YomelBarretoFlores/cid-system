@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\Docencia\Actions\RegistrarCostoPorHora;
-use App\Modules\Docencia\Enums\CondicionLaboral;
+use App\Modules\Docencia\Models\GradoAcademico;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
@@ -39,7 +39,7 @@ if (! $visto) {
 
 try {
     DB::transaction(function () use ($app, $orden, $desde, $costo, $usuario): void {
-        $app->make(RegistrarCostoPorHora::class)(CondicionLaboral::Contratado, $costo, CarbonImmutable::parse($desde), null, $usuario);
+        $app->make(RegistrarCostoPorHora::class)(GradoAcademico::idDe('titulado'), $costo, CarbonImmutable::parse($desde), null, $usuario);
 
         if ($orden === 'primero') {
             usleep(1_000_000);

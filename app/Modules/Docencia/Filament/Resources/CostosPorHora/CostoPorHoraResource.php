@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Docencia\Filament\Resources\CostosPorHora;
 
 use App\Modules\Docencia\Actions\EliminarCostoPorHora;
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Filament\Resources\CostosPorHora\Pages\ListCostosPorHora;
 use App\Modules\Docencia\Models\CostoPorHora;
 use App\Shared\Support\Filament\AccionDeNegocio;
@@ -16,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 final class CostoPorHoraResource extends Resource
@@ -41,8 +41,9 @@ final class CostoPorHoraResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['gradoAcademico', 'condicionLaboral']))
             ->columns([
-                TextColumn::make('condicion_laboral')->label('Categoría')->formatStateUsing(fn (CondicionLaboral $state): string => $state->etiqueta()),
+                TextColumn::make('categoria')->label('Grado académico')->state(fn (CostoPorHora $record): string => $record->categoria()),
                 TextColumn::make('costo_hora')->label('Costo por hora')->money('PEN'),
                 TextColumn::make('vigente_desde')->label('Desde')->date('d/m/Y')->sortable(),
                 TextColumn::make('vigente_hasta')->label('Hasta')->date('d/m/Y')->placeholder('Sin fecha de cierre'),

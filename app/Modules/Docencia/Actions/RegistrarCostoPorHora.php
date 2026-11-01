@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Actions;
 
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Models\CostoPorHora;
+use App\Modules\Docencia\Models\GradoAcademico;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -15,25 +15,29 @@ use Illuminate\Support\Facades\DB;
 
 final readonly class RegistrarCostoPorHora
 {
-    public const string SUPERPOSICION = 'La vigencia se superpone con otro costo por hora de esta categoría.';
+    public const string SUPERPOSICION = 'La vigencia se superpone con otro costo por hora de este grado académico.';
 
     private const string EXCLUSION_VIOLATION = '23P01';
 
-    public function __invoke(CondicionLaboral $categoria, string $costo, CarbonImmutable $desde, ?CarbonImmutable $hasta, User $usuario): CostoPorHora
+    public function __invoke(int $gradoAcademicoId, string $costo, CarbonImmutable $desde, ?CarbonImmutable $hasta, User $usuario): CostoPorHora
     {
         $this->validar($costo, $desde, $hasta);
 
-        return Transaccion::ejecutar(function () use ($categoria, $costo, $desde, $hasta, $usuario): CostoPorHora {
-            // A category has no stable row to lock before its first cost, so its changes queue on a transaction-scoped advisory lock.
-            DB::select('select pg_advisory_xact_lock(hashtext(?))', ["doc_costos_hora:{$categoria->value}"]);
-            $abierto = CostoPorHora::query()->where('condicion_laboral', $categoria)->whereNull('vigente_hasta')->first();
+        if (! GradoAcademico::query()->whereKey($gradoAcademicoId)->where('activo', true)->exists()) {
+            throw new ReglaDeNegocioIncumplida('El grado académico no está disponible.');
+        }
+
+        return Transaccion::ejecutar(function () use ($gradoAcademicoId, $costo, $desde, $hasta, $usuario): CostoPorHora {
+            // A degree has no stable row to lock before its first cost, so its changes queue on a transaction-scoped advisory lock.
+            DB::select('select pg_advisory_xact_lock(hashtext(?))', ["doc_costos_hora:grado:{$gradoAcademicoId}"]);
+            $abierto = CostoPorHora::query()->where('grado_academico_id', $gradoAcademicoId)->whereNull('vigente_hasta')->first();
             $reemplazado = $abierto !== null && $desde->gt($abierto->vigente_desde) ? $abierto : null;
 
             if ($reemplazado instanceof CostoPorHora) {
                 $this->asegurarReemplazo($desde, $hasta);
             }
 
-            return self::traducirSuperposicion(fn (): CostoPorHora => $this->crear($categoria, $costo, $desde, $hasta, $usuario, $reemplazado));
+            return self::traducirSuperposicion(fn (): CostoPorHora => $this->crear($gradoAcademicoId, $costo, $desde, $hasta, $usuario, $reemplazado));
         });
     }
 
@@ -48,12 +52,12 @@ final readonly class RegistrarCostoPorHora
         }
     }
 
-    private function crear(CondicionLaboral $categoria, string $costo, CarbonImmutable $desde, ?CarbonImmutable $hasta, User $usuario, ?CostoPorHora $reemplazado): CostoPorHora
+    private function crear(int $gradoAcademicoId, string $costo, CarbonImmutable $desde, ?CarbonImmutable $hasta, User $usuario, ?CostoPorHora $reemplazado): CostoPorHora
     {
         $reemplazado?->update(['vigente_hasta' => $desde->subDay()->toDateString()]);
 
         return CostoPorHora::query()->create([
-            'condicion_laboral' => $categoria,
+            'grado_academico_id' => $gradoAcademicoId,
             'costo_hora' => $costo,
             'vigente_desde' => $desde->toDateString(),
             'vigente_hasta' => $hasta?->toDateString(),

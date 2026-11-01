@@ -6,6 +6,7 @@ use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Modules\Docencia\Filament\Resources\CostosPorHora\CostoPorHoraResource;
 use App\Modules\Docencia\Filament\Resources\CostosPorHora\Pages\ListCostosPorHora;
 use App\Modules\Docencia\Models\CostoPorHora;
+use App\Modules\Docencia\Models\GradoAcademico;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Testing\TestAction;
@@ -14,7 +15,7 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2027-05-10 12:00', 'America/Lima'));
     $this->gestor = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoDocencia::Costos->value]);
-    $this->vigente = CostoPorHora::query()->create(['condicion_laboral' => 'contratado', 'costo_hora' => '40.00', 'vigente_desde' => '2027-01-01', 'registrado_por' => $this->gestor->id]);
+    $this->vigente = CostoPorHora::query()->create(['grado_academico_id' => GradoAcademico::idDe('titulado'), 'costo_hora' => '40.00', 'vigente_desde' => '2027-01-01', 'registrado_por' => $this->gestor->id]);
 });
 
 it('keeps the hourly costs away from users without the costs permission', function (): void {
@@ -28,7 +29,7 @@ it('lists the costs with their category, amount and validity', function (): void
 
     Livewire::test(ListCostosPorHora::class)
         ->assertCanSeeTableRecords([$this->vigente])
-        ->assertTableColumnFormattedStateSet('condicion_laboral', 'Contratado', $this->vigente)
+        ->assertTableColumnStateSet('categoria', 'Titulado', $this->vigente)
         ->assertSee('Sin fecha de cierre');
 });
 
@@ -36,7 +37,7 @@ it('registers a cost from a date, closing the open one the day before', function
     $this->actingAs($this->gestor);
 
     Livewire::test(ListCostosPorHora::class)
-        ->callAction('registrarCosto', data: ['condicion_laboral' => 'contratado', 'costo_hora' => '47.50', 'vigente_desde' => '2027-06-01'])
+        ->callAction('registrarCosto', data: ['grado_academico_id' => GradoAcademico::idDe('titulado'), 'costo_hora' => '47.50', 'vigente_desde' => '2027-06-01'])
         ->assertHasNoFormErrors()
         ->assertNotified('Costo por hora registrado');
 
@@ -48,14 +49,14 @@ it('shows a rejected cost as a notification', function (): void {
     $this->actingAs($this->gestor);
 
     Livewire::test(ListCostosPorHora::class)
-        ->callAction('registrarCosto', data: ['condicion_laboral' => 'contratado', 'costo_hora' => '47.50', 'vigente_desde' => '2026-12-01', 'vigente_hasta' => '2027-01-15'])
-        ->assertNotified('La vigencia se superpone con otro costo por hora de esta categoría.');
+        ->callAction('registrarCosto', data: ['grado_academico_id' => GradoAcademico::idDe('titulado'), 'costo_hora' => '47.50', 'vigente_desde' => '2026-12-01', 'vigente_hasta' => '2027-01-15'])
+        ->assertNotified('La vigencia se superpone con otro costo por hora de este grado académico.');
 
     expect(CostoPorHora::query()->count())->toBe(1);
 });
 
 it('offers to delete only a cost not yet in effect', function (): void {
-    $futuro = CostoPorHora::query()->create(['condicion_laboral' => 'tercero', 'costo_hora' => '30.00', 'vigente_desde' => '2027-07-01', 'registrado_por' => $this->gestor->id]);
+    $futuro = CostoPorHora::query()->create(['grado_academico_id' => GradoAcademico::idDe('bachiller'), 'costo_hora' => '30.00', 'vigente_desde' => '2027-07-01', 'registrado_por' => $this->gestor->id]);
     $this->actingAs($this->gestor);
 
     Livewire::test(ListCostosPorHora::class)

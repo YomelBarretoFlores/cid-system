@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Data;
 
-use App\Modules\Docencia\Enums\CondicionLaboral;
-
 final readonly class DatosDeDocente
 {
     /**
@@ -18,7 +16,8 @@ final readonly class DatosDeDocente
         public string $banco,
         #[\SensitiveParameter]
         public string $cuentaBancaria,
-        public CondicionLaboral $condicion,
+        public int $condicionLaboralId,
+        public ?int $gradoAcademicoId,
         public array $idiomas,
     ) {}
 }

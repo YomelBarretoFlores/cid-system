@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\Docencia\Filament\Resources\CostosPorHora\Pages;
 
 use App\Modules\Docencia\Actions\RegistrarCostoPorHora;
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Filament\Resources\CostosPorHora\CostoPorHoraResource;
 use App\Modules\Docencia\Models\CostoPorHora;
+use App\Modules\Docencia\Models\GradoAcademico;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Carbon\CarbonImmutable;
@@ -29,11 +29,11 @@ final class ListCostosPorHora extends ListRecords
                 ->label('Nuevo costo por hora')
                 ->icon(Heroicon::OutlinedPlus)
                 ->authorize('create')
-                ->modalDescription('Si la categoría tiene un costo abierto, se cierra el día anterior al inicio del nuevo.')
+                ->modalDescription('El costo por hora depende del grado académico del docente. Si el grado tiene un costo abierto, se cierra el día anterior al inicio del nuevo.')
                 ->schema([
-                    Select::make('condicion_laboral')
-                        ->label('Categoría (condición laboral)')
-                        ->options(collect(CondicionLaboral::cases())->mapWithKeys(fn (CondicionLaboral $condicion): array => [$condicion->value => $condicion->etiqueta()])->all())
+                    Select::make('grado_academico_id')
+                        ->label('Grado académico')
+                        ->options(fn (): array => GradoAcademico::query()->activos()->pluck('nombre', 'id')->all())
                         ->required(),
                     TextInput::make('costo_hora')->label('Costo por hora')->prefix('S/')->numeric()->minValue(0.01)->maxValue(99999999.99)->required(),
                     DatePicker::make('vigente_desde')->label('Vigente desde')->required(),
@@ -42,7 +42,7 @@ final class ListCostosPorHora extends ListRecords
                 ->action(fn (Action $action, array $data) => AccionDeNegocio::ejecutar(
                     $action,
                     fn (): CostoPorHora => app(RegistrarCostoPorHora::class)(
-                        CondicionLaboral::from($data['condicion_laboral']),
+                        (int) $data['grado_academico_id'],
                         (string) $data['costo_hora'],
                         CarbonImmutable::parse($data['vigente_desde']),
                         filled($data['vigente_hasta'] ?? null) ? CarbonImmutable::parse($data['vigente_hasta']) : null,

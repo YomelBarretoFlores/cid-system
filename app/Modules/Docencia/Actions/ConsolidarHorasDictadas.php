@@ -45,29 +45,42 @@ final readonly class ConsolidarHorasDictadas
             ->orderBy('fecha')
             ->get();
 
-        $docentes = Docente::query()->whereIntegerInRaw('id', $docenteId === null ? $clases->pluck('docente_id')->unique()->all() : [$docenteId])->get();
+        $docentes = Docente::query()->with(['gradoAcademico', 'condicionLaboral'])->whereIntegerInRaw('id', $docenteId === null ? $clases->pluck('docente_id')->unique()->all() : [$docenteId])->get();
         $grupos = ($this->horariosDeGrupos)(array_values(array_map(intval(...), $clases->pluck('grupo_id')->unique()->all())));
         $nombres = ($this->fichasDePersonas)(array_values(array_map(intval(...), $docentes->pluck('persona_id')->all())));
 
-        $costos = CostoPorHora::query()->get()->groupBy(fn (CostoPorHora $costo): string => $costo->condicion_laboral->value);
+        $costos = CostoPorHora::query()->get();
 
         $expedientes = $docentes->map(fn (Docente $docente): ExpedienteDeHoras => new ExpedienteDeHoras(
             docenteId: $docente->id,
             codigo: $docente->codigo,
             nombre: isset($nombres[$docente->persona_id]) ? $nombres[$docente->persona_id]->nombreCompleto : $docente->codigo,
-            categoria: $docente->condicion_laboral->etiqueta(),
+            categoria: $docente->gradoAcademico->nombre ?? $docente->condicionLaboral->nombre,
             anio: $anio,
             mes: $mes,
-            lineas: $this->lineas($clases->where('docente_id', $docente->id), $grupos, $costos->get($docente->condicion_laboral->value, new Collection)),
+            lineas: $this->lineas($clases->where('docente_id', $docente->id), $grupos, $this->costosDe($docente, $costos)),
         ));
 
         return array_values($expedientes->sortBy(fn (ExpedienteDeHoras $expediente): string => Str::lower(Str::ascii($expediente->nombre)))->all());
     }
 
     /**
+     * The rate of the teacher's degree wins on every date it covers; before it, the earlier rate of the employment condition applies.
+     *
+     * @param  Collection<int, CostoPorHora>  $costos
+     * @return Collection<int, CostoPorHora>
+     */
+    private function costosDe(Docente $docente, Collection $costos): Collection
+    {
+        $delGrado = $docente->grado_academico_id === null ? new Collection : $costos->where('grado_academico_id', $docente->grado_academico_id);
+
+        return $delGrado->concat($costos->where('condicion_laboral_id', $docente->condicion_laboral_id))->values();
+    }
+
+    /**
      * @param  Collection<int, ClaseDictada>  $clases
      * @param  array<int, HorarioDeGrupo>  $grupos
-     * @param  Collection<int, CostoPorHora>  $costos  costs of the teacher's category
+     * @param  Collection<int, CostoPorHora>  $costos  costs of the teacher's degree first, then of the employment condition
      * @return list<LineaDeHoras>
      */
     private function lineas(Collection $clases, array $grupos, Collection $costos): array

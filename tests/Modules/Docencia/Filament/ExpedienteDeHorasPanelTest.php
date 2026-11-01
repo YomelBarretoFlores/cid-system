@@ -8,10 +8,10 @@ use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Docencia\Actions\ConsolidarHorasDictadas;
 use App\Modules\Docencia\Actions\ExportarExpedienteDeHorasPdf;
-use App\Modules\Docencia\Enums\CondicionLaboral;
 use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Modules\Docencia\Filament\Pages\ExpedienteDeHorasDocentes;
 use App\Modules\Docencia\Models\ClaseDictada;
+use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\CostoPorHora;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
@@ -27,9 +27,9 @@ beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2027-03-20 12:00', 'America/Lima'));
     $this->tesorero = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoDocencia::Reportar->value]);
     $grupo = Grupo::factory()->create(['ciclo_id' => Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Inglés']))->create(['nivel' => NivelCurricular::Basico])->id]);
-    $this->rosa = Docente::factory()->create(['persona_id' => Persona::factory()->create(['apellido_paterno' => 'Rímac', 'apellido_materno' => 'Huaylas', 'nombres' => 'Rosa'])->id, 'condicion_laboral' => CondicionLaboral::Contratado]);
-    $this->luis = Docente::factory()->create(['persona_id' => Persona::factory()->create(['apellido_paterno' => '=Alva', 'apellido_materno' => 'Paz', 'nombres' => 'Luis'])->id, 'condicion_laboral' => CondicionLaboral::Tercero]);
-    CostoPorHora::query()->create(['condicion_laboral' => 'contratado', 'costo_hora' => '1250.00', 'vigente_desde' => '2027-01-01', 'registrado_por' => $this->tesorero->id]);
+    $this->rosa = Docente::factory()->create(['persona_id' => Persona::factory()->create(['apellido_paterno' => 'Rímac', 'apellido_materno' => 'Huaylas', 'nombres' => 'Rosa'])->id, 'condicion_laboral_id' => CondicionLaboral::idDe('contratado')]);
+    $this->luis = Docente::factory()->create(['persona_id' => Persona::factory()->create(['apellido_paterno' => '=Alva', 'apellido_materno' => 'Paz', 'nombres' => 'Luis'])->id, 'condicion_laboral_id' => CondicionLaboral::idDe('tercero')]);
+    CostoPorHora::query()->create(['condicion_laboral_id' => CondicionLaboral::idDe('contratado'), 'costo_hora' => '1250.00', 'vigente_desde' => '2027-01-01', 'registrado_por' => $this->tesorero->id]);
     foreach ([[$this->rosa, '2027-03-01', '18:00', '20:00'], [$this->rosa, '2027-03-03', '18:00', '19:30'], [$this->luis, '2027-03-02', '08:00', '10:00'], [$this->rosa, '2027-02-26', '18:00', '20:00']] as [$docente, $fecha, $inicio, $fin]) {
         ClaseDictada::query()->create(['grupo_id' => $grupo->id, 'fecha' => $fecha, 'hora_inicio' => $inicio, 'hora_fin' => $fin, 'docente_id' => $docente->id, 'registrado_por' => $this->tesorero->id]);
     }
@@ -127,7 +127,7 @@ it('notifies instead of downloading the PDF of a teacher without hours in the mo
 
 it('shows how many classes the delegate confirmed and how many were not confirmed on the page and the PDF', function (): void {
     [$usuario, $docente] = PortalDocente::docente();
-    $docente->update(['condicion_laboral' => CondicionLaboral::Tercero]);
+    $docente->update(['condicion_laboral_id' => CondicionLaboral::idDe('tercero')]);
     Persona::query()->whereKey($docente->persona_id)->update(['apellido_paterno' => 'Ramos', 'apellido_materno' => 'Vega', 'nombres' => 'Julia']);
     [$grupo, $estudiantes] = PortalDocente::grupoConEstudiantes($docente, 'Quispe');
     PortalDocente::clasesEnCadaEstado($grupo, $docente, $usuario, $estudiantes);

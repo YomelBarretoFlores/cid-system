@@ -58,7 +58,8 @@ final readonly class GuardarDocente
             'ruc' => $datos->ruc,
             'banco' => trim($datos->banco),
             'cuenta_bancaria' => $cuenta,
-            'condicion_laboral' => $datos->condicion,
+            'condicion_laboral_id' => $datos->condicionLaboralId,
+            'grado_academico_id' => $datos->gradoAcademicoId,
         ])->save();
 
         $docente->idiomas()->whereNotIn('idioma_id', array_map(fn (IdiomaHabilitado $idioma): int => $idioma->idiomaId, $datos->idiomas))->delete();

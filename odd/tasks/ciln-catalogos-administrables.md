@@ -27,8 +27,8 @@ Branch: `feat/catalogos-administrables` (stacked on `feat/cruces-carga`) · Deli
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S1 | inline | done | see L3 |
-| T2 | S2 | inline | pending | |
-| T3 | S3 | inline | pending | |
+| T2 | S2 | inline | done | see L4 |
+| T3 | S3 | inline | done | see L4 |
 
 ## Log
 
@@ -46,4 +46,19 @@ Branch: `feat/catalogos-administrables` (stacked on `feat/cruces-carga`) · Deli
   - Real seed into `ciln_preview`: the demo scheme sums 100.
   - Docs: `modulos.md`, `despliegue.md` (first-day configuration), #121.
   - RED: 11 new tests failed first. `composer check` rc=0, 1872 tests.
+- L4 (2026-11-01): T2 and T3 done together. They share the Docente form, `doc_costos_hora` and the factories, so one commit (about 800 lines with tests).
+  - Migration `2026_11_01_120100`:
+    - creates `doc_condiciones_laborales` and `doc_grados_academicos` (seeded, audited);
+    - moves `doc_docentes.condicion_laboral` to `condicion_laboral_id` and adds `grado_academico_id`;
+    - gives `doc_costos_hora` exactly one of `condicion_laboral_id` or `grado_academico_id`, with one GiST exclusion each;
+    - stored rates and teachers keep their condition; the down/up test proves it.
+  - `RegistrarCostoPorHora(gradoAcademicoId, …)` locks per degree; `EliminarCostoPorHora` locks per the row's own key.
+  - `ConsolidarHorasDictadas` lists the degree rates first, then the condition rates, so a class takes the first rate covering its date.
+  - `CalcularRentabilidadPorGrupo` takes `coalesce(degree rate, condition rate)` per class date.
+  - New screens in Configuración: Condiciones laborales and Grados académicos (`docencia.gestionar`, `CatalogoDeDocenciaPolicy`). The Docente form has Condición laboral and Grado académico. The rate list shows "Grado académico", or "Condición (tarifa anterior)".
+  - The demo gives each teacher a degree and fictitious rates per degree.
+  - Docs: #49 resolved, #122, `modulos.md`.
+  - RED: 6 new tests failed first (classes missing). Docencia, Tablero and Feature: 720 tests pass.
+  - `composer check` rc=0, 1878 tests.
+  - Demo data: seeded `main` and migrated with this branch. The 3 teachers keep their condition and the 3 condition rates keep amount and validity.
 
