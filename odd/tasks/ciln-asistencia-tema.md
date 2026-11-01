@@ -49,3 +49,10 @@ Branch: `feat/asistencia-tema` · Delivery: one commit per unit, push and merge 
   - The reports page keeps its summary; the class detail stays in the PDF.
   - RED: 4 new assertions failed first.
   - `composer check` rc=0, 1814 tests.
+- L5 (2026-11-01): checked with the demo data.
+  - Seeded `main` into `ciln_preview` from a main worktree with its own vendor. 92 late arrivals were stored.
+  - Migrated with this branch: all 92 became presente and 92 audit rows (tardanza → presente) were written. The attended count per enrollment (70 enrollments) is identical before and after.
+  - Browser, teacher page at 1280 and 390: Presente and Ausente only, the "Tema dictado en la sesión" field, no page overflow, no JS errors.
+  - Defect found: a closed class with no topic showed the syllabus suggestion as if it had been written. Fixed so the suggestion appears only while a call is open, and a closed class shows "Sin tema registrado". RED test first.
+  - The attendance PDF shows the Tema column ("—" for demo classes recorded before this change).
+

@@ -109,7 +109,12 @@ final class AsistenciaDelGrupo extends Page
                 ->live(),
             Textarea::make('tema')
                 ->label('Tema dictado en la sesión')
-                ->helperText(fn (): string => $this->llamado === Llamado::Inicio ? 'Obligatorio al tomar el llamado de cierre.' : 'Obligatorio.')
+                ->helperText(fn (): ?string => match ($this->llamado) {
+                    Llamado::Inicio => 'Obligatorio al tomar el llamado de cierre.',
+                    Llamado::Cierre, Llamado::Posterior => 'Obligatorio.',
+                    Llamado::Anterior, Llamado::Cerrado => null,
+                })
+                ->placeholder(fn (): ?string => $this->llamado === Llamado::Cerrado ? 'Sin tema registrado' : null)
                 ->rows(2)
                 ->maxLength(1000)
                 ->disabled(fn (): bool => $this->llamado === Llamado::Cerrado)
@@ -260,7 +265,7 @@ final class AsistenciaDelGrupo extends Page
         $clase = $elegida instanceof ClaseProgramada ? ClaseDictada::query()->where('grupo_id', $this->grupoId)->where('fecha', $elegida->fecha->toDateString())->where('hora_inicio', $elegida->sesion->horaInicio)->first() : null;
         $this->llamado = $elegida instanceof ClaseProgramada ? EstadoDeLaClase::llamadoPara($clase, VentanasDeLlamado::de($elegida->fecha, $elegida->sesion)) : Llamado::Inicio;
         $guardadas = $clase === null ? collect() : Asistencia::query()->where('clase_id', $clase->id)->get()->keyBy('matricula_id');
-        $this->tema = $clase->tema ?? ($elegida instanceof ClaseProgramada ? TemaDeLaClase::sugerido(TemaDeLaClase::semanaDelSilabo($this->grupo(), $elegida->fecha)) : null);
+        $this->tema = $clase->tema ?? $this->temaSugerido($elegida);
         $estudiantes = $this->llamado === Llamado::Cierre
             ? array_filter($this->estudiantes(), fn (EstudianteDelGrupo $estudiante): bool => ! in_array($guardadas->get($estudiante->matriculaId)?->estado, [null, EstadoAsistencia::Falta], true))
             : $this->estudiantes();
@@ -268,6 +273,16 @@ final class AsistenciaDelGrupo extends Page
         $this->estados = collect($estudiantes)
             ->mapWithKeys(fn (EstudianteDelGrupo $estudiante): array => [$estudiante->matriculaId => $this->estadoGuardado($guardadas->get($estudiante->matriculaId))])
             ->all();
+    }
+
+    // A closed class keeps what was recorded; suggesting the syllabus there would read as a topic that was never written.
+    private function temaSugerido(?ClaseProgramada $elegida): ?string
+    {
+        if (! $elegida instanceof ClaseProgramada || $this->llamado === Llamado::Cerrado) {
+            return null;
+        }
+
+        return TemaDeLaClase::sugerido(TemaDeLaClase::semanaDelSilabo($this->grupo(), $elegida->fecha));
     }
 
     private function estadoGuardado(?Asistencia $asistencia): string

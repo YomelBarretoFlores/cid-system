@@ -149,3 +149,16 @@ it('loads the saved topic instead of the suggestion when the class is chosen aga
         ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
         ->assertSet('tema', 'Repaso general');
 });
+
+it('suggests nothing for a class whose calls already closed without a topic', function (): void {
+    Filament::setCurrentPanel('docente');
+    silaboDelGrupo(EstadoSilabo::Publicado);
+    aLaHora('18:05');
+    primerLlamado(null);
+    aLaHora('21:00');
+
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertSet('tema', null)
+        ->assertSee('Sin tema registrado');
+});
