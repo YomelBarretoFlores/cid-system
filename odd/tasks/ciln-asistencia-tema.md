@@ -55,4 +55,10 @@ Branch: `feat/asistencia-tema` · Delivery: one commit per unit, push and merge 
   - Browser, teacher page at 1280 and 390: Presente and Ausente only, the "Tema dictado en la sesión" field, no page overflow, no JS errors.
   - Defect found: a closed class with no topic showed the syllabus suggestion as if it had been written. Fixed so the suggestion appears only while a call is open, and a closed class shows "Sin tema registrado". RED test first.
   - The attendance PDF shows the Tema column ("—" for demo classes recorded before this change).
+- L6 (2026-11-01): `review assess` was escalated with item 1 (the migration rewrites stored attendance states). Native review of main..f03d9c7 (lenses risk, readability, reliability; lineage review-a01460f612eae370) was granted by the user, approved and acknowledged. Non-blocking suggestions, left for later:
+  - the demo week lookup repeats `TemaDeLaClase::semanaDelSilabo`;
+  - the two `fill` calls in `RegistrarAsistencia` depend on their order;
+  - a sentence in `modulos.md` restates the rule;
+  - a saved topic cannot be cleared back to empty in the first call;
+  - line breaks in the topic are collapsed into spaces.
 
