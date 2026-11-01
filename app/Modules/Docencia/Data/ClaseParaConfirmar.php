@@ -21,5 +21,6 @@ final readonly class ClaseParaConfirmar
         public bool $puedeConfirmar,
         public ConfirmacionDeClase $confirmacion,
         public ?string $observacion,
+        public ?string $tema,
     ) {}
 }

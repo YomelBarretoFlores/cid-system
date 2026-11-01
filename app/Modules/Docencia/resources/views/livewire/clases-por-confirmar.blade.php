@@ -28,6 +28,11 @@
                         <x-portal.insignia color="warning">Por confirmar</x-portal.insignia>
                     </header>
 
+                    <dl class="flex flex-col gap-0.5">
+                        <dt class="text-[13px] font-semibold text-terciario">Tema dictado</dt>
+                        <dd class="text-[15px]">{{ $clase->tema ?? 'Sin tema registrado' }}</dd>
+                    </dl>
+
                     <p class="text-[14.5px] text-secundario">{{ $clase->presentes }} de {{ $clase->estudiantes }} estudiantes presentes al cierre. Puedes responder hasta las {{ $clase->vence->format('H:i') }}.</p>
 
                     @if (! $clase->puedeConfirmar)

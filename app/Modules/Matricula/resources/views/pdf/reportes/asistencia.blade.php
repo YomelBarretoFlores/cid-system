@@ -18,12 +18,13 @@
         <p>Aún no hay clases con tu asistencia registrada.</p>
     @else
         <table class="lista">
-            <thead><tr><th>Fecha</th><th>Hora</th><th>Llamado de inicio</th><th>Llamado de cierre</th><th>Resultado</th><th>Estado de la clase</th></tr></thead>
+            <thead><tr><th>Fecha</th><th>Hora</th><th>Tema</th><th>Llamado de inicio</th><th>Llamado de cierre</th><th>Resultado</th><th>Estado de la clase</th></tr></thead>
             <tbody>
                 @foreach ($asistencia->clases as $clase)
                     <tr>
                         <td>{{ $clase->fecha->format('d/m/Y') }}</td>
                         <td>{{ $clase->horario }}</td>
+                        <td>{{ $clase->tema ?? '—' }}</td>
                         <td>{{ $clase->inicio->etiqueta() }}</td>
                         <td>{{ $clase->cierre?->etiqueta() ?? '—' }}</td>
                         <td><strong>{{ $clase->efectivo->etiqueta() }}</strong></td>

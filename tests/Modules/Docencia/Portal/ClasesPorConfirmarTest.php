@@ -162,3 +162,11 @@ it('shows the delegate how many classes wait for them on the portal home', funct
     'the delegate after the window' => ['22:01', fn (): Matricula => $this->ana, false],
     'a student who is not the delegate' => ['20:10', fn (): Matricula => $this->luis, false],
 ]);
+
+it('shows the delegate the topic the teacher wrote so the class can be checked', function (): void {
+    enElPortalALas('20:10');
+
+    $this->actingAs(usuarioDeLaMatricula($this->ana))
+        ->get(route('estudiante.clases'))
+        ->assertSeeInOrder(['Clase del 10/03/2027', 'Tema dictado', 'Saludos y presentaciones', 'Sí, se dictó']);
+});

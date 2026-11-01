@@ -27,7 +27,7 @@ Branch: `feat/asistencia-tema` · Delivery: one commit per unit, push and merge 
 |----|-------|-------|--------|--------|
 | T1 | S1 | inline | done | see L3 |
 | T2 | S2, S3 | inline | done | see L3 |
-| T3 | S4 | inline | pending | |
+| T3 | S4 | inline | done | see L4 |
 
 ## Log
 
@@ -41,3 +41,11 @@ Branch: `feat/asistencia-tema` · Delivery: one commit per unit, push and merge 
   - The demo seeders write the syllabus topic (`SilaboDeDemo::temaDeLaClase`).
   - Docs: #47 resolved, #105 adjusted, #113 new, ADR 0009, `modulos.md`.
   - RED: 13 of 16 new tests failed first. GREEN: Docencia, Matricula, Feature and Concurrency, 997 tests pass. Pint, Larastan and Rector are clean.
+- L4 (2026-11-01): T3 done.
+  - The topic travels in `AsistenciaDeClase` and `ClaseParaConfirmar`.
+  - The delegado's page shows "Tema dictado", or "Sin tema registrado".
+  - The attendance PDF has a Tema column ("—" for classes without one).
+  - Control de clases has a "Tema dictado" column.
+  - The reports page keeps its summary; the class detail stays in the PDF.
+  - RED: 4 new assertions failed first.
+  - `composer check` rc=0, 1814 tests.

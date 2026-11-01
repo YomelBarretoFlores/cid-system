@@ -132,6 +132,7 @@ final readonly class BandejaDelDelegado
                 puedeConfirmar: $presentes->contains('matricula_id', $delegaciones[$clase->grupo_id] ?? null),
                 confirmacion: $clase->confirmacion ?? ConfirmacionDeClase::Pendiente,
                 observacion: $clase->observacion,
+                tema: $clase->tema,
             );
         };
     }

@@ -65,6 +65,7 @@ final class ControlDeClases extends Page implements HasTable
                 TextColumn::make('horario')->label('Horario')->state(fn (ClaseDictada $record): string => substr($record->hora_inicio, 0, 5).' – '.substr($record->hora_fin, 0, 5)),
                 TextColumn::make('grupo_id')->label('Grupo')->formatStateUsing(fn (int $state): string => $this->nombres()['grupos'][$state] ?? '—'),
                 TextColumn::make('docente_id')->label('Docente')->formatStateUsing(fn (int $state): string => $this->nombres()['docentes'][$state] ?? '—'),
+                TextColumn::make('tema')->label('Tema dictado')->placeholder('—')->wrap()->limit(120),
                 TextColumn::make('presentes')->label('Presentes al cierre')->state(fn (ClaseDictada $record): string => "{$record->getAttribute('presentes_count')} / {$record->getAttribute('asistencias_count')}"),
                 TextColumn::make('estado')
                     ->label('Estado')

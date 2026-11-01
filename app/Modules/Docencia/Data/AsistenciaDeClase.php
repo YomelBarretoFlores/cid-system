@@ -16,5 +16,6 @@ final readonly class AsistenciaDeClase
         public ?EstadoAsistencia $cierre,
         public EstadoAsistencia $efectivo,
         public string $estadoDeLaClase,
+        public ?string $tema,
     ) {}
 }

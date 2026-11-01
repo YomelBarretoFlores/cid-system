@@ -78,3 +78,12 @@ it('filters the classes by teacher, group and period', function (string $filtro,
     'group' => ['grupo', fn (): int => $this->otroGrupo->id, true],
     'period' => ['periodo', fn (): int => $this->grupo->periodo_id, false],
 ]);
+
+it('shows the topic of each class, and a dash for a class saved before topics existed', function (): void {
+    $this->actingAs($this->coordinador);
+
+    Livewire::test(ControlDeClases::class)
+        ->assertTableColumnStateSet('tema', 'Saludos y presentaciones', $this->clases['confirmada'])
+        ->assertTableColumnStateSet('tema', 'Saludos y presentaciones', $this->clases['posterior'])
+        ->assertTableColumnStateSet('tema', null, $this->clases['anterior']);
+});

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Docencia\Contracts\AsistenciaDeMatricula;
 use App\Modules\Docencia\Data\AsistenciaDeClase;
+use App\Modules\Docencia\Models\ClaseDictada;
 use Carbon\CarbonImmutable;
 use Tests\Support\PortalDocente;
 use Tests\Support\ReportesDelEstudiante;
@@ -51,4 +52,17 @@ it('has no percentages without classes', function (): void {
     expect($asistencia)->dictadas->toBe(0)->programadas->toBe(16)
         ->and($asistencia->porcentajeSobreDictadas())->toBeNull()
         ->and($asistencia->porcentajeSobreProgramadas())->toBe(0);
+});
+
+it('gives the topic of each class, empty for a class saved before topics existed', function (): void {
+    $escenario = ReportesDelEstudiante::escenario();
+    ClaseDictada::query()->where('fecha', '2027-03-01')->update(['tema' => null]);
+
+    $asistencia = app(AsistenciaDeMatricula::class)($escenario['matricula']->id, $escenario['matricula']->grupo_id);
+
+    expect(array_map(fn (AsistenciaDeClase $clase): array => [$clase->fecha->toDateString(), $clase->tema], $asistencia->clases))->toBe([
+        ['2027-03-01', null],
+        ['2027-03-03', 'Saludos y presentaciones'],
+        ['2027-03-08', 'Saludos y presentaciones'],
+    ]);
 });

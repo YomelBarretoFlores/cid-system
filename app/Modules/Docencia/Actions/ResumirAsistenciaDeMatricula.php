@@ -39,6 +39,7 @@ final readonly class ResumirAsistenciaDeMatricula implements AsistenciaDeMatricu
                     cierre: $cierre,
                     efectivo: EstadoAsistencia::efectivo($inicio, $cierre),
                     estadoDeLaClase: EstadoDeLaClase::de($clase, $ahora)->etiqueta(),
+                    tema: $clase->tema,
                 );
             });
 
