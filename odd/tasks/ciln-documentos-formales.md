@@ -67,4 +67,12 @@ Branch: `feat/documentos-formales` (stacked on `feat/catalogos-administrables`) 
     - `panel.grupos.preacta.pdf`: admin panel plus `certificacion.actas`, otherwise 403.
   - Buttons: "Descargar pre acta (PDF)" on the teacher's grades page, and "Pre acta (PDF)" on the group page for coordination, visible only with the actas permission. The buttons link by route name, so no module imports another's classes.
   - RED: 5 new tests failed first. Certificacion, Academico, Docencia and Architecture: 781 pass. `composer check` rc=0, 1896 tests.
+- L6 (2026-11-01): native review of 9586297..3acf13e (escalated with item 2 because new routes decide who sees grades; lenses risk and reliability; lineage review-ab4bb2535a3b50c0) was granted by the user, approved and acknowledged.
+  - Applied after a RED test: the signers in force are frozen in `detalle.firmas` when a document is issued, so editing a signer never rewrites issued documents. Documents issued before keep the live lookup by issue date.
+  - Left for later:
+    - the acta's signers are still looked up live by its validation date;
+    - the certificate no longer lists the cycles (by design; the constancia de notas has them);
+    - numbering has no concurrency test.
+
+  D5 is complete: T1 to T3.
 

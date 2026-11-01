@@ -38,6 +38,9 @@ final readonly class EmisionDeDocumento
                 return Transaccion::ejecutar(function () use ($datos, $tipo, $personaId, $ficha, $emisor): Documento {
                     $anio = (int) now('America/Lima')->format('Y');
 
+                    // The signers in force are frozen in the document, like the rest of it, so editing a signer never rewrites issued documents.
+                    $datos['detalle'] = [...$datos['detalle'], 'firmas' => FirmasDelDocumento::de($tipo->grupoDeFirma(), now('America/Lima'))];
+
                     return Documento::query()->create([
                         ...$datos, 'codigo' => CodigoDeDocumento::nuevo(), 'tipo' => $tipo, 'persona_id' => $personaId,
                         'estudiante_nombre' => $ficha->nombreCompleto, 'estudiante_documento' => $ficha->documento,

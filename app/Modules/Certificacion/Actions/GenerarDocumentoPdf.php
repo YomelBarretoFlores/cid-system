@@ -31,7 +31,7 @@ final readonly class GenerarDocumentoPdf
             'qr' => CodigoQr::comoDataUri($verificacion),
             'emitidoEl' => Formato::fechaCorta($emitido),
             'lugarYFecha' => 'Huaraz, '.Formato::fechaLarga($emitido),
-            'firmas' => FirmasDelDocumento::de($documento->tipo->grupoDeFirma(), $emitido),
+            'firmas' => $documento->detalle['firmas'] ?? FirmasDelDocumento::de($documento->tipo->grupoDeFirma(), $emitido),
         ])->format('a4');
 
         // A certificate is a landscape page like a diploma; constancias are letters.

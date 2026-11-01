@@ -71,3 +71,10 @@ it('prints the acta final with signature lines for the teacher and the acta sign
     expect(htmlDelPdf(app(GenerarActaFinalPdf::class)($actaId)))->toContain('Vega Ríos, Carlos', 'Docente del curso', 'Mg. Luis Paredes Vega', 'Coordinador Académico')
         ->not->toContain('Dr. Mario Huerta Ríos');
 });
+
+it('keeps the signers a document was issued with, even if a signer changes later', function (): void {
+    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    Firmante::query()->where('nombre', 'Dr. Mario Huerta Ríos')->update(['nombre' => 'Dr. Otro Nombre']);
+
+    expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($constancia->id)))->toContain('Dr. Mario Huerta Ríos')->not->toContain('Dr. Otro Nombre');
+});
