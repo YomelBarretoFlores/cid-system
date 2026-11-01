@@ -163,7 +163,7 @@ it('filters the detail per student by payment method', function (): void {
     Pago::factory()->validado()->for($this->matricula)->create(['medio_pago_id' => MedioDePago::idDe('transferencia'), 'fecha_pago' => '2026-10-07', 'numero_operacion' => 'TRANSF-9']);
 
     Livewire::test(ReporteDeRecaudacion::class)
-        ->filterTable('medio_pago', 'Transferencia')
+        ->filterTable('medio_pago', 'Transferencia bancaria')
         ->assertSee('TRANSF-9')
         ->assertDontSee('OP-1');
 });

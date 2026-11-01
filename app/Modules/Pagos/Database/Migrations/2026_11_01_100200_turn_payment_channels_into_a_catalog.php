@@ -15,7 +15,7 @@ return new class extends Migration
         'tesoreria_unasam' => 'Tesorería UNASAM',
         'pagalo_pe' => 'Págalo.pe',
         'banco_nacion' => 'Banco de la Nación',
-        'transferencia' => 'Transferencia',
+        'transferencia' => 'Transferencia bancaria',
         'otro' => 'Otro',
     ];
 

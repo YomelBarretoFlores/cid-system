@@ -34,13 +34,13 @@ function migracionDeMediosDePago(): Migration
     return require base_path('app/Modules/Pagos/Database/Migrations/2026_11_01_100200_turn_payment_channels_into_a_catalog.php');
 }
 
-it('offers the payment channels of the CILN in order, Tesorería UNASAM included', function (): void {
+it('offers the payment channels of the CILN in order with the labels they had before, Tesorería UNASAM included', function (): void {
     expect(MedioDePago::query()->activos()->pluck('nombre', 'codigo')->all())->toBe([
         'caja_presencial' => 'Caja presencial',
         'tesoreria_unasam' => 'Tesorería UNASAM',
         'pagalo_pe' => 'Págalo.pe',
         'banco_nacion' => 'Banco de la Nación',
-        'transferencia' => 'Transferencia',
+        'transferencia' => 'Transferencia bancaria',
         'otro' => 'Otro',
     ]);
 });
