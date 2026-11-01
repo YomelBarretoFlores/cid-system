@@ -24,16 +24,7 @@ final class EditPeriodo extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         try {
-            return Transaccion::ejecutar(function () use ($record, $data): Model {
-                $antes = [$record->getAttribute('fecha_inicio'), $record->getAttribute('fecha_fin')];
-                $periodo = parent::handleRecordUpdate($record, $data);
-
-                if ([$periodo->getAttribute('fecha_inicio'), $periodo->getAttribute('fecha_fin')] != $antes) {
-                    app(VerificarCrucesDelPeriodo::class)($periodo->getKey());
-                }
-
-                return $periodo;
-            }, reintentar: false);
+            return Transaccion::ejecutar(fn (): Model => $this->actualizar($record, $data), reintentar: false);
         } catch (ReglaDeNegocioIncumplida $error) {
             AccionDeNegocio::detener($error);
         } catch (UniqueConstraintViolationException $error) {
@@ -42,6 +33,21 @@ final class EditPeriodo extends EditRecord
                 ? ValidationException::withMessages(['data.numero' => PeriodoForm::PERIODO_REPETIDO])
                 : $error;
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function actualizar(Model $record, array $data): Model
+    {
+        $antes = [$record->getAttribute('fecha_inicio'), $record->getAttribute('fecha_fin')];
+        $periodo = parent::handleRecordUpdate($record, $data);
+
+        if ([$periodo->getAttribute('fecha_inicio'), $periodo->getAttribute('fecha_fin')] != $antes) {
+            app(VerificarCrucesDelPeriodo::class)($periodo->getKey());
+        }
+
+        return $periodo;
     }
 
     protected function getHeaderActions(): array

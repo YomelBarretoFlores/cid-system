@@ -20,7 +20,7 @@ Branch: `feat/cruces-carga` (stacked on `feat/pagos-boleta-original`) · Deliver
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S1, S2 | inline | done | see L3 |
-| T2 | S3 | inline | pending | |
+| T2 | S3 | inline | done | see L4 |
 
 ## Log
 
@@ -38,4 +38,13 @@ Branch: `feat/cruces-carga` (stacked on `feat/pagos-boleta-original`) · Deliver
   - `GruposTest` "another period" now uses a non-overlapping April period.
   - Docs: #22 widened, #43 resolved, `modulos.md`.
   - RED: 8 of 10 new tests failed first. The remaining 4 failing are the database guards of T2.
+- L4 (2026-11-01): T2 done.
+  - Classroom guard: `aca_asegurar_aula_libre()` on `aca_horarios`, `aca_grupos` (aula, periodo, estado) and `aca_periodos` (dates).
+  - Teacher guard: `doc_asegurar_docente_sin_cruces()` on `doc_cargas_academicas`, `aca_horarios`, `aca_grupos` (periodo, estado) and `aca_periodos`.
+  - Both lock the classroom or the teacher like the Actions do.
+  - Found in the first run: immediate triggers fired before the Actions' own checks, so `EditPeriodo` and `GuardarHorario` showed a database error instead of the message. The guards became `DEFERRABLE INITIALLY DEFERRED` constraint triggers, checked at commit.
+  - The guard tests run `SET CONSTRAINTS ALL IMMEDIATE`, because the test transaction never commits.
+  - `EditPeriodo` moved its body to `actualizar()` so the panel-transaction rule recognises `reintentar: false`.
+  - Docs: `modelo-de-datos.md` constraint table (also the D2 voucher and fingerprint rows).
+  - `composer check` rc=0, 1859 tests, including the teacher concurrency test.
 

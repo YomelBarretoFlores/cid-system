@@ -85,6 +85,10 @@ erDiagram
 | Un pago nunca se borra | trigger `pag_pagos_sin_borrado` |
 | Un pago desbloquea una sola matrícula o solicitud | `UNIQUE (pago_id)` en `mat_matriculas` y `mat_solicitudes_clasificacion` |
 | La auditoría no se modifica, borra ni trunca | triggers `aud_registros_inmutable`, `aud_registros_sin_truncate` |
+| Un pago validado desde este cambio tiene la boleta original verificada (quién y cuándo) | `pag_pagos_boleta_original_check` |
+| El mismo archivo de recibo no está en dos pagos no rechazados | índice único parcial `pag_pagos_recibo_sha256_unique` |
+| Un aula no tiene dos grupos a la misma hora en periodos que se superponen en fechas (al cambiar horario, aula, periodo, estado o fechas del periodo) | triggers de restricción diferidos `aca_horarios_aula_libre`, `aca_grupos_aula_libre`, `aca_periodos_aula_libre` (`aca_asegurar_aula_libre()`) |
+| Un docente no tiene dos grupos vigentes a la misma hora en periodos que se superponen | triggers de restricción diferidos `doc_cargas_academicas_sin_cruces`, `doc_aca_horarios_docente_sin_cruces`, `doc_aca_grupos_docente_sin_cruces`, `doc_aca_periodos_docente_sin_cruces` |
 
 ## Decisiones de diseño
 
