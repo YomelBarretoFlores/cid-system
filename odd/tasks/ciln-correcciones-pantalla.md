@@ -40,4 +40,10 @@ Branch: `fix/sidebar-y-reportes`. Delivery: one commit per unit; the user decide
     - the period and the scope show above the table again;
     - the docblock says search covers text columns.
   - Tablero, Feature and Architecture: 363 pass. One earlier run showed a single error that did not repeat; watch for flakiness.
+- L4 (2026-11-01): user: "Lo vi en el panel de administración, uso brave."
+  - Investigated in the staff panel.
+  - Filament's sidebar store puts the menu scroll back in a `requestAnimationFrame` after `livewire:navigated`. At that event the new menu is still hidden (no size), and font preload links are appended to `<head>` again on every SPA navigation.
+  - A swap-time scroll restore was written and tested, but real composited frames (a normal Chrome window, screencast) showed no jump with or without it. It was discarded as unproven.
+  - Collapsed-menu navigation could not be driven reliably.
+  - Next: a screen recording from the user (Brave), noting which option was clicked and whether the menu was scrolled or collapsed.
 
