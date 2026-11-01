@@ -36,7 +36,7 @@ it('allows only the payment lifecycle transitions', function (EstadoPago $origen
 it('validates a pending payment recording who validated it and when', function (): void {
     $pago = Pago::factory()->create();
 
-    $resultado = app(ValidarPago::class)($pago->id, $this->cajero);
+    $resultado = app(ValidarPago::class)($pago->id, $this->cajero, boletaOriginalVerificada: true);
 
     expect($pago->refresh())
         ->estado->toBe(EstadoPago::Validado)
@@ -51,7 +51,7 @@ it('treats validating an already validated payment as a harmless retry', functio
     $pago = Pago::factory()->validado()->create();
     $validadorOriginal = $pago->validado_por;
 
-    $resultado = app(ValidarPago::class)($pago->id, $this->cajero);
+    $resultado = app(ValidarPago::class)($pago->id, $this->cajero, boletaOriginalVerificada: true);
 
     expect($pago->refresh()->validado_por)->toBe($validadorOriginal)
         ->and($resultado->is($pago))->toBeTrue()
@@ -62,7 +62,7 @@ it('treats validating an already validated payment as a harmless retry', functio
 it('refuses to validate a rejected or voided payment', function (string $estado, string $mensaje): void {
     $pago = Pago::factory()->{$estado}()->create();
 
-    expect(fn () => app(ValidarPago::class)($pago->id, $this->cajero))
+    expect(fn () => app(ValidarPago::class)($pago->id, $this->cajero, boletaOriginalVerificada: true))
         ->toThrow(ReglaDeNegocioIncumplida::class, $mensaje);
     expect($pago->refresh()->estado->value)->toBe($estado);
     Event::assertNotDispatched(PagoValidado::class);

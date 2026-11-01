@@ -87,13 +87,15 @@ final class DatabaseSeeder extends Seeder
             ->where('tipo_vinculo', TipoVinculo::PublicoGeneral)
             ->sole();
 
+        $cajero = User::query()->where('email', 'caja@ciln.test')->value('id');
         $pagar = fn (string $fecha): Pago => Pago::factory()->validado()->create([
             'persona_id' => $persona->id,
             'concepto_id' => $tarifa->concepto_id,
             'tarifa_id' => $tarifa->id,
             'monto' => $tarifa->monto,
             'fecha_pago' => $fecha,
-            'validado_por' => User::query()->where('email', 'caja@ciln.test')->value('id'),
+            'validado_por' => $cajero,
+            'boleta_original_verificada_por' => $cajero,
         ]);
 
         foreach ([['ING-1-M', EstadoMatricula::Activa], ['FRA-1-N', EstadoMatricula::Activa], ['ITA-1-M', EstadoMatricula::Activa], ['QUE-1-S', EstadoMatricula::Retirada]] as [$codigo, $estado]) {

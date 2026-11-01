@@ -63,11 +63,11 @@ it('waits for the fee and moves on when Pagos validates a payment of that concep
     $matricula = pagoDeConstancia($this->persona, Concepto::factory()->create(['tipo' => TipoConcepto::Matricula]));
     $propio = pagoDeConstancia($this->persona, $this->constancia);
 
-    app(ValidarPago::class)($otraPersona->id, $this->cajero);
-    app(ValidarPago::class)($matricula->id, $this->cajero);
+    app(ValidarPago::class)($otraPersona->id, $this->cajero, boletaOriginalVerificada: true);
+    app(ValidarPago::class)($matricula->id, $this->cajero, boletaOriginalVerificada: true);
     expect($tramite->refresh()->estado)->toBe(EstadoTramite::PendientePago);
 
-    app(ValidarPago::class)($propio->id, $this->cajero);
+    app(ValidarPago::class)($propio->id, $this->cajero, boletaOriginalVerificada: true);
 
     expect($tramite->refresh())->estado->toBe(EstadoTramite::EnProceso)->etapa_actual->toBe(1)->pago_id->toBe($propio->id);
 });
@@ -90,7 +90,7 @@ it('observes the waiting trámite when its receipt is rejected and clears it whe
 
     expect($tramite->refresh())->estado->toBe(EstadoTramite::Observado)->observacion->toBe(ObservarPorPagoRechazado::OBSERVACION);
 
-    app(ValidarPago::class)(pagoDeConstancia($this->persona, $this->constancia)->id, $this->cajero);
+    app(ValidarPago::class)(pagoDeConstancia($this->persona, $this->constancia)->id, $this->cajero, boletaOriginalVerificada: true);
 
     expect($tramite->refresh())->estado->toBe(EstadoTramite::EnProceso)->observacion->toBeNull()->etapa_actual->toBe(1);
 });
@@ -98,7 +98,7 @@ it('observes the waiting trámite when its receipt is rejected and clears it whe
 it('returns an unfinished trámite to pending payment when its payment is voided, and leaves a finished one as it is', function (): void {
     $tramite = tramiteDeConstancia($this->persona, $this->matricula);
     $pago = pagoDeConstancia($this->persona, $this->constancia);
-    app(ValidarPago::class)($pago->id, $this->cajero);
+    app(ValidarPago::class)($pago->id, $this->cajero, boletaOriginalVerificada: true);
 
     app(AnularPago::class)($pago->id, $this->cajero, 'Depósito duplicado por error del banco.');
 

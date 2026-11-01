@@ -9,9 +9,11 @@ use App\Modules\Pagos\Actions\RechazarPago;
 use App\Modules\Pagos\Actions\ValidarPago;
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Models\Pago;
+use App\Modules\Pagos\Support\AlertasDePago;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
@@ -45,11 +47,29 @@ final class AccionesDePago
             ->label('Validar')
             ->icon(Heroicon::OutlinedCheckCircle)
             ->color('success')
-            ->requiresConfirmation()
-            ->modalDescription('Confirme que el recibo coincide con el monto, la fecha y el número de operación registrados.')
-            ->action(fn (Action $action, Pago $record) => AccionDeNegocio::ejecutar(
+            ->modalHeading('Validar pago')
+            ->modalDescription(fn (Pago $record): string => implode(' ', ['Valide solo con la boleta original en la mano.', ...AlertasDePago::de($record)]))
+            ->modalSubmitActionLabel('Validar')
+            ->schema([
+                Checkbox::make('boleta_original')
+                    ->label('Tengo la boleta original y coincide con el número, la fecha y el monto registrados')
+                    ->accepted()
+                    ->validationMessages(['accepted' => 'Valide el pago solo con la boleta original en la mano.']),
+                Textarea::make('justificacion_monto')
+                    ->label('Justificación del monto distinto de la tarifa')
+                    ->visible(fn (Pago $record): bool => AlertasDePago::diferenciaDeMonto($record) !== null)
+                    ->required()
+                    ->maxLength(500)
+                    ->rows(3),
+            ])
+            ->action(fn (Action $action, Pago $record, array $data) => AccionDeNegocio::ejecutar(
                 $action,
-                fn (User $usuario): Pago => app(ValidarPago::class)($record->id, $usuario),
+                fn (User $usuario): Pago => app(ValidarPago::class)(
+                    $record->id,
+                    $usuario,
+                    boletaOriginalVerificada: ($data['boleta_original'] ?? false) === true,
+                    justificacionMonto: is_string($data['justificacion_monto'] ?? null) ? $data['justificacion_monto'] : null,
+                ),
                 'Pago validado',
             ));
     }

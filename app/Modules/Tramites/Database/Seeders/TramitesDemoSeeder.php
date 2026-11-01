@@ -98,7 +98,17 @@ final class TramitesDemoSeeder extends Seeder
         return Pago::factory()->create([
             'persona_id' => $persona->id, 'concepto_id' => $tarifa->concepto_id, 'tarifa_id' => $tarifa->id, 'monto' => $tarifa->monto,
             'numero_operacion' => sprintf('%08d', 59310000 + $this->operacion++), 'fecha_pago' => now('America/Lima')->toDateString(),
-            'estado' => $estado, ...($estado === EstadoPago::Validado ? ['validado_por' => User::query()->where('email', 'caja@ciln.test')->value('id'), 'validado_en' => now()] : []),
+            'estado' => $estado, ...($estado === EstadoPago::Validado ? $this->revision() : []),
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function revision(): array
+    {
+        $cajero = User::query()->where('email', 'caja@ciln.test')->value('id');
+
+        return ['validado_por' => $cajero, 'validado_en' => now(), 'boleta_original_verificada_por' => $cajero, 'boleta_original_verificada_en' => now()];
     }
 }

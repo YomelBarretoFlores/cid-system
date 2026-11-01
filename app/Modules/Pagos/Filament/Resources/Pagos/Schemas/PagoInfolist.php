@@ -7,6 +7,7 @@ namespace App\Modules\Pagos\Filament\Resources\Pagos\Schemas;
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\MedioPago;
 use App\Modules\Pagos\Models\Pago;
+use App\Modules\Pagos\Support\AlertasDePago;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -19,6 +20,15 @@ final class PagoInfolist
         return $schema
             ->columns(1)
             ->components([
+                Section::make('Revise antes de validar')
+                    ->visible(fn (Pago $record): bool => $record->estado === EstadoPago::Pendiente && AlertasDePago::de($record) !== [])
+                    ->schema([
+                        TextEntry::make('alertas')
+                            ->hiddenLabel()
+                            ->state(fn (Pago $record): array => AlertasDePago::de($record))
+                            ->listWithLineBreaks()
+                            ->color('warning'),
+                    ]),
                 Section::make('Pago')
                     ->columns(3)
                     ->schema([
@@ -46,6 +56,8 @@ final class PagoInfolist
                     ->schema([
                         TextEntry::make('validador.name')->label('Revisado por'),
                         TextEntry::make('validado_en')->label('Revisado el')->dateTime('d/m/Y H:i'),
+                        TextEntry::make('verificadorDeBoleta.name')->label('Boleta original verificada por')->visible(fn (Pago $record): bool => $record->boleta_original_verificada_por !== null),
+                        TextEntry::make('justificacion_monto')->label('Justificación del monto')->visible(fn (Pago $record): bool => $record->justificacion_monto !== null)->columnSpan(2),
                         TextEntry::make('motivo_rechazo')->label('Motivo del rechazo')->visible(fn (Pago $record): bool => $record->motivo_rechazo !== null),
                     ]),
                 Section::make('Anulación')

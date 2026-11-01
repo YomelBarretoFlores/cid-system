@@ -81,7 +81,7 @@ it('counts a payment validated and drops it once voided; pending and rejected ne
     $pago = Pago::factory()->for($this->mat)->create(['persona_id' => $this->persona->id, 'monto' => '80.00', 'fecha_pago' => '2026-10-05', 'numero_operacion' => 'X1']);
     Pago::factory()->rechazado()->for($this->mat)->create(['fecha_pago' => '2026-10-05', 'numero_operacion' => 'R1']);
     expect(recaudacionReporte()->operaciones)->toBe(0);
-    app(ValidarPago::class)($pago->id, $this->tesorero);
+    app(ValidarPago::class)($pago->id, $this->tesorero, boletaOriginalVerificada: true);
     expect(recaudacionReporte()->totalCentimos)->toBe(8000);
     app(AnularPago::class)($pago->id, $this->tesorero, 'Error de registro');
     expect(recaudacionReporte()->operaciones)->toBe(0)->and(recaudacionReporte()->totalCentimos)->toBe(0);

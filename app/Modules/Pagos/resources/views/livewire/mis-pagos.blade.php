@@ -1,3 +1,4 @@
+@use('App\Modules\Pagos\Enums\EstadoPago')
 <div class="flex flex-col gap-2 sm:gap-3.5">
     <x-portal.encabezado titulo="Mis pagos">
         Registra tus pagos con el recibo escaneado. El CILN los revisa y aquí verás si fueron validados.
@@ -19,6 +20,9 @@
                                 <span class="font-semibold whitespace-nowrap">S/ {{ $pago->monto }}</span>
                                 <x-portal.insignia :color="$pago->estado->color()">{{ $pago->estado->etiqueta() }}</x-portal.insignia>
                             </x-slot:fin>
+                            @if ($pago->estado === EstadoPago::Pendiente)
+                                <p class="text-secundario">Acércate al CILN con tu boleta original para validarla.</p>
+                            @endif
                             @if ($pago->motivo_rechazo)
                                 <p class="text-rojo-texto">Motivo del rechazo: {{ $pago->motivo_rechazo }}</p>
                             @endif

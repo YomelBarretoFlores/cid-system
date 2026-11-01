@@ -92,7 +92,8 @@ final class PagosDemoSeeder extends Seeder
     {
         $vinculo = Persona::query()->whereKey($personaId)->value('tipo_vinculo');
         $tarifa = Tarifa::query()->whereRelation('concepto', 'codigo', $codigo)->where('tipo_vinculo', $vinculo)->sole();
-        $revisado = $estado === EstadoPago::Pendiente ? [] : ['validado_por' => $cajero->id, 'validado_en' => min(now(), $fecha->setTime(17, 0))];
+        $revisadoEn = min(now(), $fecha->setTime(17, 0));
+        $revisado = $estado === EstadoPago::Pendiente ? [] : ['validado_por' => $cajero->id, 'validado_en' => $revisadoEn, 'boleta_original_verificada_por' => $cajero->id, 'boleta_original_verificada_en' => $revisadoEn];
 
         return Pago::factory()->create([
             'persona_id' => $personaId, 'concepto_id' => $tarifa->concepto_id, 'tarifa_id' => $tarifa->id, 'monto' => $tarifa->monto,

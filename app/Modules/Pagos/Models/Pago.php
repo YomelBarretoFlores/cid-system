@@ -26,6 +26,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable $fecha_pago
  * @property EstadoPago $estado
  * @property MedioPago $medio_pago
+ * @property ?int $registrado_por
+ * @property bool $exige_boleta_original
+ * @property ?int $boleta_original_verificada_por
+ * @property ?CarbonImmutable $boleta_original_verificada_en
+ * @property ?string $justificacion_monto
+ * @property-read ?Tarifa $tarifa
  * @property-read Concepto $concepto
  */
 #[Table('pag_pagos')]
@@ -33,7 +39,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'persona_id', 'concepto_id', 'tarifa_id', 'monto', 'medio_pago', 'numero_operacion', 'fecha_pago',
     'recibo_path', 'estado', 'registrado_por', 'validado_por', 'validado_en', 'motivo_rechazo',
-    'anulado_por', 'anulado_en', 'motivo_anulacion',
+    'anulado_por', 'anulado_en', 'motivo_anulacion', 'boleta_original_verificada_por', 'boleta_original_verificada_en', 'justificacion_monto',
 ])]
 #[UseFactory(PagoFactory::class)]
 #[UsePolicy(PagoPolicy::class)]
@@ -81,6 +87,14 @@ final class Pago extends Model
     /**
      * @return BelongsTo<User, $this>
      */
+    public function verificadorDeBoleta(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'boleta_original_verificada_por');
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function registrador(): BelongsTo
     {
         return $this->belongsTo(User::class, 'registrado_por');
@@ -111,6 +125,8 @@ final class Pago extends Model
             'estado' => EstadoPago::class,
             'validado_en' => 'datetime',
             'anulado_en' => 'datetime',
+            'exige_boleta_original' => 'boolean',
+            'boleta_original_verificada_en' => 'immutable_datetime',
         ];
     }
 }

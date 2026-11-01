@@ -41,11 +41,17 @@ final class PagoFactory extends Factory
 
     public function validado(): static
     {
-        return $this->state([
-            'estado' => EstadoPago::Validado,
-            'validado_por' => User::factory(),
-            'validado_en' => now(),
-        ]);
+        return $this->state(function (): array {
+            $validador = User::factory()->create()->id;
+
+            return [
+                'estado' => EstadoPago::Validado,
+                'validado_por' => $validador,
+                'validado_en' => now(),
+                'boleta_original_verificada_por' => $validador,
+                'boleta_original_verificada_en' => now(),
+            ];
+        });
     }
 
     public function rechazado(): static

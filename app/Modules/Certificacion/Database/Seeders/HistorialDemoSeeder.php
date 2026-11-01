@@ -108,10 +108,11 @@ final class HistorialDemoSeeder extends Seeder
     {
         $tarifa = Tarifa::query()->whereRelation('concepto', 'codigo', 'MAT-01')->where('tipo_vinculo', TipoVinculo::PublicoGeneral)->sole();
         $matriculadoEn = CarbonImmutable::parse($periodo->matricula_inicio->toDateString(), 'America/Lima')->setTime(9, 30);
+        $cajero = User::query()->where('email', 'caja@ciln.test')->value('id');
         $pago = Pago::factory()->validado()->create([
             'persona_id' => $personaId, 'concepto_id' => $tarifa->concepto_id, 'tarifa_id' => $tarifa->id, 'monto' => $tarifa->monto,
-            'fecha_pago' => $matriculadoEn->toDateString(), 'validado_en' => $matriculadoEn,
-            'validado_por' => User::query()->where('email', 'caja@ciln.test')->value('id'),
+            'fecha_pago' => $matriculadoEn->toDateString(), 'validado_en' => $matriculadoEn, 'boleta_original_verificada_en' => $matriculadoEn,
+            'validado_por' => $cajero, 'boleta_original_verificada_por' => $cajero,
         ]);
         $matricula = Matricula::factory()->create(['persona_id' => $personaId, 'grupo_id' => $grupo->id, 'pago_id' => $pago->id, 'matriculado_en' => $matriculadoEn]);
         $grupo->increment('matriculados');

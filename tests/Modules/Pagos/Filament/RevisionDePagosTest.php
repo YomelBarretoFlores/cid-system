@@ -25,7 +25,7 @@ it('validates a pending payment from the list, recording the cashier', function 
     $this->actingAs($this->cajero);
 
     Livewire::test(ListPagos::class)
-        ->callAction(TestAction::make('validar')->table($this->pendiente))
+        ->callAction(TestAction::make('validar')->table($this->pendiente), data: ['boleta_original' => true])
         ->assertNotified('Pago validado');
 
     expect($this->pendiente->refresh())

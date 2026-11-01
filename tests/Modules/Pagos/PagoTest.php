@@ -71,7 +71,7 @@ it('audits who validated a payment and when, from the request context', function
     $pago = Pago::factory()->create();
     app(ContextoAuditoria::class)->establecer($cajero->id, '10.10.1.20');
 
-    $pago->update(['estado' => EstadoPago::Validado, 'validado_por' => $cajero->id, 'validado_en' => now()]);
+    $pago->update(['estado' => EstadoPago::Validado, 'validado_por' => $cajero->id, 'validado_en' => now(), 'boleta_original_verificada_por' => $cajero->id, 'boleta_original_verificada_en' => now()]);
 
     $registro = DB::table('aud_registros')
         ->where(['tabla' => 'pag_pagos', 'registro_id' => $pago->id, 'operacion' => 'UPDATE'])
