@@ -35,7 +35,7 @@ it('orders the sidebar by daily work, with every section in its group', function
         'Oferta académica' => ['Periodos', 'Idiomas y ciclos', 'Grupos', 'Aulas'],
         'Docencia' => ['Docentes', 'Expediente de horas', 'Costos por hora', 'Control de clases', 'Sílabos'],
         'Certificación' => ['Actas finales', 'Constancias y certificados'],
-        'Reportes' => ['Reporte de recaudación'],
+        'Reportes' => ['Reporte de recaudación', 'Matriculados', 'Asistencia por grupo', 'Notas por periodo', 'Carga docente'],
         'Configuración' => ['Conceptos y tarifas', 'Medios de pago', 'Tipos de trámite', 'Fuentes TUPA/TUSNE', 'Sistemas de evaluación', 'Condiciones laborales', 'Grados académicos', 'Firmantes'],
     ]);
 });

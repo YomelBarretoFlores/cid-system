@@ -97,6 +97,11 @@ Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y c
 - KPIs académicos: matrículas y crecimiento, deserción por nivel e idioma, demanda horaria.
 - Filtros por periodo, idioma y nivel; exportación PDF/Excel.
 - Pantalla «Tablero gerencial» del panel, con el permiso `tablero.ver`. Se calcula en cada consulta con queries dedicadas sobre las tablas de cada módulo (tiempo real); si el volumen lo exige, se pasará a vistas materializadas. **Sin analítica predictiva ni ML** (excluido por el TdR).
+- Reportes generales en el grupo «Reportes» del panel. Todos se filtran por periodo (obligatorio, por defecto el que está en curso), idioma, nivel y grupo, se muestran en formato formal y se descargan en PDF (A4 horizontal, estilo SGA) y en Excel (una hoja por sección, con números como números):
+  - **Matriculados** (`matricula.ver`): resumen por grupo (activos y retirados) y detalle con documento, vínculo, condición, estado y fecha de matrícula.
+  - **Asistencia por grupo** (`docencia.reportar`): clases programadas, dictadas, confirmadas, observadas y sin confirmar por grupo, y por estudiante los presentes, los ausentes y los porcentajes sobre las clases dictadas y sobre las programadas. Se calculan igual que en el reporte de asistencia del estudiante.
+  - **Notas por periodo** (`certificacion.actas`): por grupo, el docente, el estado del acta («Sin acta», «En rectificación», «Cerrada»), los aprobados, desaprobados y NSP, y el promedio del grupo (tomado de las notas finales del acta).
+  - **Carga docente** (`docencia.reportar`): por docente y por grupo, las horas asignadas según el horario del periodo, las horas dictadas y las confirmadas, y el avance.
 
 > Supuestos aplicados (morosidad como pagos pendientes de validación, atribución de la recaudación, costo docente, crecimiento, deserción y demanda horaria): ver [`decisiones-pendientes.md`](decisiones-pendientes.md) (#4, #80–#85).
 
