@@ -64,4 +64,8 @@ Branch: `feat/catalogos-administrables` (stacked on `feat/cruces-carga`) · Deli
 - L5 (2026-11-01): the review of all of D4 did not fit the reviewer budget, so it was split. T1 (aade970..ffc87b9; lenses risk and reliability; lineage review-2d80853560e47bb8) was granted by the user, approved and acknowledged.
   - Applied after a RED test: a scheme in force cannot be closed before today ("Un sistema vigente no puede terminar antes de hoy (dd/mm/aaaa)."), which would leave graded days without a scheme.
   - Left for later: a new scheme can still start in the past to fill an uncovered gap (needed for first-day setup).
+- L6 (2026-11-01): native review of ffc87b9..9dde1c7 (T2, T3 and the closing fix; escalated with item 1; lenses risk and reliability; lineage review-90b7ffb686eb7d4f) was granted by the user.
+  - One CRITICAL finding: a first degree rate with a past start would have repriced classes already priced by the condition rate, changing delivered hour reports and dashboard costs.
+  - Bounded correction: a degree rate that starts today or earlier is refused while a condition rate covers those dates ("Hay horas ya dictadas con el costo anterior por condición laboral; el costo por grado debe empezar después de hoy."). A fresh install without condition rates may still start in the past.
+  - RED test first. Docencia, Tablero and the demo seeder test: 441 pass.
 

@@ -105,3 +105,13 @@ it('keeps the condition of every teacher and the rates already registered when t
 
     expect([$docente->refresh()->condicionLaboral->codigo, $costo->refresh()->condicionLaboral?->codigo, $costo->grado_academico_id])->toBe(['tercero', 'tercero', null]);
 });
+
+it('refuses a degree rate that would reprice classes already priced by the employment condition, and allows it from tomorrow', function (): void {
+    CostoPorHora::query()->create(['condicion_laboral_id' => CondicionLaboral::idDe('contratado'), 'costo_hora' => '40.00', 'vigente_desde' => '2027-01-01', 'registrado_por' => $this->usuario->id]);
+    $magister = GradoAcademico::idDe('magister');
+
+    expect(fn () => app(RegistrarCostoPorHora::class)($magister, '60.00', CarbonImmutable::parse('2027-01-01'), null, $this->usuario))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Hay horas ya dictadas con el costo anterior por condición laboral; el costo por grado debe empezar después de hoy.')
+        ->and(CostoPorHora::query()->whereNotNull('grado_academico_id')->count())->toBe(0)
+        ->and(app(RegistrarCostoPorHora::class)($magister, '60.00', CarbonImmutable::parse('2027-02-11'), null, $this->usuario)->exists)->toBeTrue();
+});

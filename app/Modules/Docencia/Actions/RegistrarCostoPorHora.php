@@ -30,6 +30,7 @@ final readonly class RegistrarCostoPorHora
         return Transaccion::ejecutar(function () use ($gradoAcademicoId, $costo, $desde, $hasta, $usuario): CostoPorHora {
             // A degree has no stable row to lock before its first cost, so its changes queue on a transaction-scoped advisory lock.
             DB::select('select pg_advisory_xact_lock(hashtext(?))', ["doc_costos_hora:grado:{$gradoAcademicoId}"]);
+            $this->asegurarSinRepreciar($desde);
             $abierto = CostoPorHora::query()->where('grado_academico_id', $gradoAcademicoId)->whereNull('vigente_hasta')->first();
             $reemplazado = $abierto !== null && $desde->gt($abierto->vigente_desde) ? $abierto : null;
 
@@ -64,6 +65,25 @@ final readonly class RegistrarCostoPorHora
             'cerro_costo_id' => $reemplazado?->id,
             'registrado_por' => $usuario->id,
         ]);
+    }
+
+    // A degree rate wins over the condition rate on every date, so starting it in the past would reprice hours already reported.
+    private function asegurarSinRepreciar(CarbonImmutable $desde): void
+    {
+        $hoy = CarbonImmutable::today('America/Lima')->toDateString();
+
+        if ($desde->toDateString() > $hoy) {
+            return;
+        }
+
+        $condicionCubre = CostoPorHora::query()->whereNotNull('condicion_laboral_id')
+            ->where('vigente_desde', '<=', $hoy)
+            ->where(fn ($vigencia) => $vigencia->whereNull('vigente_hasta')->orWhere('vigente_hasta', '>=', $desde->toDateString()))
+            ->exists();
+
+        if ($condicionCubre) {
+            throw new ReglaDeNegocioIncumplida('Hay horas ya dictadas con el costo anterior por condición laboral; el costo por grado debe empezar después de hoy.');
+        }
     }
 
     private function asegurarReemplazo(CarbonImmutable $desde, ?CarbonImmutable $hasta): void
