@@ -53,4 +53,10 @@ Branch: `feat/cruces-carga` (stacked on `feat/pagos-boleta-original`) · Deliver
     - the guards judge only what a write can newly cause: the changed schedule line; a change of classroom or period, or reactivating a cancelled or finalised group (`WHEN` clauses); for a period's new dates, only the periods they start to overlap;
     - `VerificarCrucesDelPeriodo` applies the same rule with the previous dates passed from `EditPeriodo`.
   - RED: 2 new tests failed first. `composer check` rc=0, 1861 tests.
+- L6 (2026-11-01): the targeted validation approved the correction and the review was acknowledged (lineage review-450db7af9e4a0584). Non-blocking warnings, left for later:
+  - if the deferred guard fires at commit in `EditPeriodo` (only when the Action missed a clash), the user sees a database error instead of a message;
+  - `VerificarCrucesDelPeriodo` locks every group of the period and then each classroom. A concurrent schedule change takes group, then classroom, so there is a deadlock window, and panel transactions do not retry;
+  - the teacher guard paths for `aca_grupos` and `aca_periodos` have no direct test.
+
+  D3 is complete: T1 and T2.
 
