@@ -12,6 +12,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $esquema_id
+ * @property string $codigo
+ * @property string $nombre
+ * @property string $peso
+ * @property int $orden
+ */
 #[Table('aca_componentes_evaluacion')]
 #[Fillable(['esquema_id', 'codigo', 'nombre', 'peso', 'orden'])]
 #[UseFactory(ComponenteEvaluacionFactory::class)]

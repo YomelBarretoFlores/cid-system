@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Modules\Academico\Database\Seeders;
 
+use App\Modules\Academico\Actions\GuardarEsquemaDeEvaluacion;
+use App\Modules\Academico\Data\DatosDeEsquema;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
-use App\Modules\Academico\Models\EsquemaEvaluacion;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
@@ -101,14 +102,15 @@ final class AcademicoDemoSeeder extends Seeder
 
         $this->grupos($anterior, [self::COHORTE[3]], $idiomas, $aulas, EstadoGrupo::Cerrado);
 
-        EsquemaEvaluacion::query()->create([
-            'nombre' => 'Esquema general (demo)', 'nota_maxima' => '20.00',
-            'nota_minima_aprobatoria' => '11.00', 'vigente_desde' => $hoy->subMonths(6)->startOfYear()->toDateString(),
-        ])->componentes()->createMany([
-            ['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'peso' => '40.00', 'orden' => 1],
-            ['codigo' => 'final', 'nombre' => 'Examen final', 'peso' => '40.00', 'orden' => 2],
-            ['codigo' => 'participacion', 'nombre' => 'Participación', 'peso' => '20.00', 'orden' => 3],
-        ]);
+        app(GuardarEsquemaDeEvaluacion::class)(new DatosDeEsquema(
+            nombre: 'Esquema general (demo)', idiomaId: null, nivel: null, notaMaxima: '20', notaMinimaAprobatoria: '11',
+            vigenteDesde: $hoy->subMonths(6)->startOfYear(), vigenteHasta: null,
+            componentes: [
+                ['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'peso' => '40'],
+                ['codigo' => 'final', 'nombre' => 'Examen final', 'peso' => '40'],
+                ['codigo' => 'participacion', 'nombre' => 'Participación', 'peso' => '20'],
+            ],
+        ));
     }
 
     private function idiomaConCiclos(string $codigo, string $nombre, bool $esLenguaNativa): Idioma

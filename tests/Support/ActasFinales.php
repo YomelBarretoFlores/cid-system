@@ -34,14 +34,18 @@ final class ActasFinales
         $periodo = Periodo::factory()->create(['nombre' => 'Marzo 2027', 'actas_inicio' => '2027-03-29', 'actas_fin' => '2027-04-05']);
         $grupo = Grupo::factory()->create(['codigo' => 'ING-1-M', 'ciclo_id' => $ciclo->id, 'periodo_id' => $periodo->id, 'estado' => EstadoGrupo::Cerrado]);
         PortalDocente::asignar($grupo, $docente);
-        $esquema = EsquemaEvaluacion::factory()->create(['nombre' => 'Esquema general', 'idioma_id' => $idioma->id, 'nota_maxima' => '20.00', 'nota_minima_aprobatoria' => '11.00', 'vigente_desde' => '2027-01-01']);
 
-        return [
-            'grupo' => $grupo, 'usuario' => $usuario, 'docente' => $docente,
-            'parcial' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'peso' => '40.00', 'orden' => 1]),
-            'final' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'nombre' => 'Examen final', 'peso' => '40.00', 'orden' => 2]),
-            'participacion' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'participacion', 'nombre' => 'Participación', 'peso' => '20.00', 'orden' => 3]),
-        ];
+        // One transaction, so the scheme and its components reach the commit-time weights check together (concurrency tests commit).
+        return DB::transaction(function () use ($idioma, $grupo, $usuario, $docente): array {
+            $esquema = EsquemaEvaluacion::factory()->create(['nombre' => 'Esquema general', 'idioma_id' => $idioma->id, 'nota_maxima' => '20.00', 'nota_minima_aprobatoria' => '11.00', 'vigente_desde' => '2027-01-01']);
+
+            return [
+                'grupo' => $grupo, 'usuario' => $usuario, 'docente' => $docente,
+                'parcial' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'peso' => '40.00', 'orden' => 1]),
+                'final' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'nombre' => 'Examen final', 'peso' => '40.00', 'orden' => 2]),
+                'participacion' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'participacion', 'nombre' => 'Participación', 'peso' => '20.00', 'orden' => 3]),
+            ];
+        });
     }
 
     public static function estudiante(Grupo $grupo, string $apellido, ?string $documento = null): Matricula
@@ -59,7 +63,12 @@ final class ActasFinales
     public static function historial(Persona $persona, string $idioma, array $ciclos, string $estadoActa = 'cerrada', ?int $periodoId = null): void
     {
         $docente = Docente::factory()->create();
-        $esquema = EsquemaEvaluacion::factory()->create();
+        $esquema = DB::transaction(function (): EsquemaEvaluacion {
+            $esquema = EsquemaEvaluacion::factory()->create();
+            ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'peso' => '100.00', 'orden' => 1]);
+
+            return $esquema;
+        });
         $usuario = User::factory()->create();
         $idiomaId = Idioma::factory()->create()->id;
 

@@ -76,6 +76,13 @@ Cada conexión abre con límites que evitan que una transacción trabada haga es
 - Revisar `failed_jobs` y los logs tras el despliegue.
 - Respaldos programados (`spatie/laravel-backup`) y una restauración de prueba en staging.
 
+## Configuración del primer día
+
+Antes de abrir la matrícula, la coordinación registra en el panel (Configuración):
+
+- **Sistemas de evaluación**: al menos uno general (sin idioma ni nivel) con sus componentes, cuyos pesos suman 100, y la nota mínima aprobatoria. Sin un sistema vigente, el docente no puede registrar notas y el acta no se cierra ("pide a coordinación que lo registre").
+- **Medios de pago** y **fuentes TUPA/TUSNE**: vienen precargados; se desactivan o renombran según el CILN.
+
 ## Entorno de demostración con Docker
 
 El `Dockerfile` de la raíz arma una imagen para un entorno de demostración o de pruebas (staging), por ejemplo en un VPS con Dokploy. **No reemplaza la producción en la DSTI**, que sigue los pasos de arriba.

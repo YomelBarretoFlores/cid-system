@@ -8,7 +8,7 @@ Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md
 - Grupo: código, idioma, nivel (Básico, Intermedio, Avanzado), ciclo (I a XII), modalidad (Presencial, Virtual, Semipresencial; Acelerado).
 - Capacidad: cupo máximo, cupo mínimo de apertura, vacantes en tiempo real. `CHECK` vacantes ≥ 0.
 - Asignación: docente, aula (física o enlace virtual), horario (días y rango de horas).
-- **Esquema de evaluación configurable** por idioma/nivel/periodo: componentes (Parcial, Final, Participación), pesos (suman 100 %) y nota mínima. Se construye con Certificacion.
+- **Sistemas de evaluación administrables** (Configuración → Sistemas de evaluación, permisos `academico.ver` / `academico.gestionar`): idioma y nivel opcionales, componentes con pesos que suman 100 (la base de datos lo verifica al confirmar), nota máxima y mínima aprobatoria y vigencia. Dos sistemas del mismo idioma y nivel no se superponen; uno ya vigente solo cambia su nombre y su fecha de fin (para cambiar componentes se cierra y se crea otro). Ambas tablas tienen auditoría.
 
 | Pantalla (menú "Oferta académica") | Reglas |
 |---|---|

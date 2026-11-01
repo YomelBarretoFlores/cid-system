@@ -6,20 +6,34 @@ namespace App\Modules\Academico\Models;
 
 use App\Modules\Academico\Database\Factories\EsquemaEvaluacionFactory;
 use App\Modules\Academico\Enums\NivelCurricular;
+use App\Modules\Academico\Policies\OfertaAcademicaPolicy;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property string $nombre
+ * @property ?int $idioma_id
+ * @property ?NivelCurricular $nivel
+ * @property string $nota_maxima
+ * @property string $nota_minima_aprobatoria
+ * @property CarbonInterface $vigente_desde
+ * @property ?CarbonInterface $vigente_hasta
+ */
 #[Table('aca_esquemas_evaluacion')]
 #[Fillable([
     'nombre', 'idioma_id', 'nivel', 'nota_maxima', 'nota_minima_aprobatoria',
     'vigente_desde', 'vigente_hasta',
 ])]
 #[UseFactory(EsquemaEvaluacionFactory::class)]
+#[UsePolicy(OfertaAcademicaPolicy::class)]
 final class EsquemaEvaluacion extends Model
 {
     /** @use HasFactory<EsquemaEvaluacionFactory> */
