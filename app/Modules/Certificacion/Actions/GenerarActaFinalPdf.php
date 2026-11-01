@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Actions;
 
+use App\Modules\Certificacion\Contracts\DenominacionDelAnio;
 use App\Modules\Certificacion\Data\ActaDelGrupo;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\GrupoDeFirma;
@@ -15,6 +16,8 @@ use Spatie\LaravelPdf\PdfBuilder;
 
 final readonly class GenerarActaFinalPdf
 {
+    public function __construct(private DenominacionDelAnio $denominacionDelAnio) {}
+
     public function __invoke(int $actaId): PdfBuilder
     {
         $acta = Acta::query()->with('notas')->findOrFail($actaId);
@@ -24,9 +27,15 @@ final readonly class GenerarActaFinalPdf
         }
 
         $datos = ActaDelGrupo::desde($acta);
-        $firmas = [['nombre' => $datos->docente, 'cargo' => 'Docente del curso'], ...FirmasDelDocumento::de(GrupoDeFirma::Actas, ($datos->validadaEn ?? now())->setTimezone('America/Lima'))];
+        $validada = ($datos->validadaEn ?? now())->setTimezone('America/Lima');
+        $firmas = [['nombre' => $datos->docente, 'cargo' => 'Docente del curso'], ...FirmasDelDocumento::de(GrupoDeFirma::Actas, $validada)];
 
-        return Pdf::view('certificacion::pdf.acta-final', ['acta' => $datos, 'codigo' => sprintf('ACTA-%06d', $acta->id), 'firmas' => $firmas])
+        return Pdf::view('certificacion::pdf.acta-final', [
+            'acta' => $datos,
+            'codigo' => sprintf('ACTA-%06d', $acta->id),
+            'firmas' => $firmas,
+            'denominacion' => ($this->denominacionDelAnio)((int) $validada->format('Y')),
+        ])
             ->format('a4')
             ->landscape()
             ->inline("acta-final-{$acta->grupo_codigo}.pdf");

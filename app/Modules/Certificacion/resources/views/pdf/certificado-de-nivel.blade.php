@@ -42,6 +42,10 @@
                     </tr>
                 </table>
 
+                @if (filled($denominacion ?? null))
+                    <p style="text-align: center; font-style: italic; font-size: 9pt; color: #4a463d; margin: 8px 0 0;">«{{ $denominacion }}»</p>
+                @endif
+
                 <p class="titulo">CERTIFICADO</p>
                 <p class="subtitulo sans">de culminación de nivel</p>
 

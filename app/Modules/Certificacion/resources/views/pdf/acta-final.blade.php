@@ -1,5 +1,5 @@
 @use('App\Shared\Ui\Formato')
-<x-pdf.documento titulo="ACTA FINAL DE EVALUACIÓN" :codigo="$codigo">
+<x-pdf.documento titulo="ACTA FINAL DE EVALUACIÓN" :codigo="$codigo" :denominacion="$denominacion ?? null">
     <h2>Datos del curso</h2>
     <table class="datos">
         <tr><th>Idioma</th><td>{{ $acta->idioma }}</td><th>Periodo académico</th><td>{{ $acta->periodo }}</td></tr>

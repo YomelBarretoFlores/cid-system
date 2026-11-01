@@ -7,6 +7,7 @@ namespace App\Modules\Certificacion;
 use App\Modules\Certificacion\Actions\ArmarBoletaDeNotas;
 use App\Modules\Certificacion\Actions\ArmarRecordDeNotas;
 use App\Modules\Certificacion\Actions\ConsultarAvanceDeNotas;
+use App\Modules\Certificacion\Actions\ConsultarDenominacionDelAnio;
 use App\Modules\Certificacion\Actions\EmitirDocumentoParaTramite;
 use App\Modules\Certificacion\Actions\ListarIdiomasConNotasCerradas;
 use App\Modules\Certificacion\Actions\ListarMatriculasAprobadas;
@@ -14,6 +15,7 @@ use App\Modules\Certificacion\Actions\ListarMatriculasCalificadas;
 use App\Modules\Certificacion\Actions\ListarNivelesPorCertificar;
 use App\Modules\Certificacion\Contracts\AvanceDeNotas;
 use App\Modules\Certificacion\Contracts\BoletaDeNotas;
+use App\Modules\Certificacion\Contracts\DenominacionDelAnio;
 use App\Modules\Certificacion\Contracts\DocumentoParaTramite;
 use App\Modules\Certificacion\Contracts\IdiomasConNotasCerradas;
 use App\Modules\Certificacion\Contracts\MatriculasAprobadas;
@@ -36,6 +38,7 @@ final class CertificacionServiceProvider extends ModuleServiceProvider
         AvanceDeNotas::class => ConsultarAvanceDeNotas::class,
         BoletaDeNotas::class => ArmarBoletaDeNotas::class,
         RecordDeNotas::class => ArmarRecordDeNotas::class,
+        DenominacionDelAnio::class => ConsultarDenominacionDelAnio::class,
     ];
 
     protected string $module = 'Certificacion';

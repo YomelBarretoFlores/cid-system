@@ -1,6 +1,6 @@
 @use('Carbon\CarbonImmutable')
 @php($detalle = $documento->detalle)
-<x-pdf.documento titulo="CONSTANCIA DE MATRÍCULA" :codigo="$documento->codigo" :numero="$documento->numeroOficial()">
+<x-pdf.documento titulo="CONSTANCIA DE MATRÍCULA" :codigo="$documento->codigo" :numero="$documento->numeroOficial()" :denominacion="$denominacion ?? null">
     <p style="text-align: justify; margin-top: 18px;">
         La Dirección del Centro de Idiomas y Lenguas Nativas de la Universidad Nacional Santiago Antúnez de Mayolo
         <strong>HACE CONSTAR</strong> que

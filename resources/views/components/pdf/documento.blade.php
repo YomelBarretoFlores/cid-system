@@ -1,4 +1,4 @@
-@props(['titulo', 'codigo' => null, 'numero' => null, 'imprimible' => false])
+@props(['titulo', 'codigo' => null, 'numero' => null, 'denominacion' => null, 'imprimible' => false])
 {{-- DOMPDF lays out tables and simple CSS only (ADR 0005); colors are the hex values of the CILN tokens. --}}
 <!DOCTYPE html>
 <html lang="es">
@@ -14,6 +14,7 @@
             .institucion { font-size: 8.5pt; color: #5e5a50; }
             .sigla { font-size: 15pt; font-weight: bold; letter-spacing: 1px; }
             .codigo { text-align: right; font-size: 8pt; color: #5e5a50; }
+            .denominacion { text-align: center; font-style: italic; font-size: 8.5pt; color: #5e5a50; margin: -6px 0 12px; }
             h1 { font-size: 13pt; text-align: center; letter-spacing: 1px; margin: 0 0 14px; }
             h2 { font-size: 10pt; color: #8d5406; border-bottom: 1px solid #eae9e5; padding-bottom: 3px; margin: 14px 0 6px; }
             table.datos { width: 100%; border-collapse: collapse; }
@@ -56,6 +57,10 @@
                 </td>
             </tr>
         </table>
+
+        @if (filled($denominacion))
+            <p class="denominacion">«{{ $denominacion }}»</p>
+        @endif
 
         <h1>{{ $titulo }}</h1>
 
