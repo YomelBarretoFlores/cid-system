@@ -12,9 +12,10 @@ use App\Modules\Tablero\Filament\Concerns\ReporteGeneralDelPanel;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Contracts\HasTable;
 use UnitEnum;
 
-final class ReporteDeNotas extends Page
+final class ReporteDeNotas extends Page implements HasTable
 {
     use ReporteGeneralDelPanel;
 

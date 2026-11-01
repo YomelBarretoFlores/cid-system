@@ -143,6 +143,7 @@ it('filters the page and downloads the report as a formal PDF and as Excel', fun
 
     Livewire::actingAs($usuario)->test(ReporteDeMatriculados::class)
         ->assertSet('data.periodo_id', $this->grupo->periodo_id)
+        ->set('seccion', 1)
         ->assertSee('Quispe Mamani, Rosa')
         ->set('data.grupo_id', $this->grupo->id + 999)
         ->assertDontSee('Quispe Mamani, Rosa')
@@ -165,4 +166,29 @@ it('writes each section as an Excel sheet with numbers as numbers and text as te
         ->and($hoja?->getCell('C2')->getDataType())->toBe(DataType::TYPE_STRING)
         ->and($hoja?->getCell('G2')->getValue())->toBe(67)
         ->and($hoja?->getCell('G2')->getDataType())->toBe(DataType::TYPE_NUMERIC);
+});
+
+it('shows each section as a paginated table with search and sorting, and keeps the formal sheet for the export', function (): void {
+    $usuario = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoMatricula::Ver->value]);
+    foreach (range(1, 11) as $numero) {
+        ActasFinales::estudiante($this->grupo, 'Zeta'.$numero, (string) (70000100 + $numero));
+    }
+
+    Livewire::actingAs($usuario)->test(ReporteDeMatriculados::class)
+        ->assertSee(['Resumen por grupo', 'Detalle de matriculados'])
+        ->assertDontSeeHtml('tabla-formal')
+        ->assertCountTableRecords(1)
+        ->set('seccion', 1)
+        ->assertCountTableRecords(12)
+        ->assertSee('Quispe Mamani, Rosa')
+        ->call('gotoPage', 2)
+        ->assertDontSee('Quispe Mamani, Rosa')
+        ->searchTable('quispe')
+        ->assertCountTableRecords(1)
+        ->searchTable('')
+        ->sortTable('c3')
+        ->assertSeeInOrder(['Quispe Mamani, Rosa', 'Zeta1'])
+        ->sortTable('c3', 'desc')
+        ->assertSeeInOrder(['Zeta9', 'Zeta8'])
+        ->assertDontSee('Quispe Mamani, Rosa');
 });

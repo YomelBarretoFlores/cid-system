@@ -7,16 +7,14 @@
     @if (is_string($reporte))
         <x-filament::section>{{ $reporte }}</x-filament::section>
     @else
-        <section class="flex min-w-0 flex-col gap-4 border border-piedra-300 bg-tarjeta p-4 text-[13px] sm:p-7">
-            <p class="titulo-formal">{{ $reporte->titulo }} <span class="text-apagado">{{ $reporte->periodo }}</span></p>
-            <p>
-                @foreach ($reporte->alcance as $etiqueta => $valor)
-                    <strong>{{ $etiqueta }}:</strong> {{ $valor }}@unless ($loop->last) · @endunless
+        @if (count($reporte->secciones) > 1)
+            <x-filament::tabs>
+                @foreach ($reporte->secciones as $indice => $seccion)
+                    <x-filament::tabs.item :active="$this->seccion === $indice" wire:click="$set('seccion', {{ $indice }})">{{ $seccion->titulo }}</x-filament::tabs.item>
                 @endforeach
-            </p>
-            <div class="flex flex-col gap-3 overflow-x-auto">
-                @include('tablero::documentos.reporte-general')
-            </div>
-        </section>
+            </x-filament::tabs>
+        @endif
+
+        {{ $this->table }}
     @endif
 </x-filament-panels::page>

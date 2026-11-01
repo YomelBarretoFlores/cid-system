@@ -12,6 +12,7 @@ use App\Modules\Tablero\Actions\ExportarReporteGeneralExcel;
 use App\Modules\Tablero\Actions\ExportarReporteGeneralPdf;
 use App\Modules\Tablero\Data\FiltrosDeReporte;
 use App\Modules\Tablero\Data\ReporteGeneral;
+use App\Modules\Tablero\Filament\Tables\SeccionDeReporteTable;
 use App\Modules\Tablero\Support\GruposDelPeriodo;
 use App\Modules\Tablero\Support\PeriodoPorDefecto;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -22,16 +23,25 @@ use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Table;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 // Filters, on-screen table and PDF/Excel downloads shared by the general reports; each page only says how to build its report.
 trait ReporteGeneralDelPanel
 {
+    use InteractsWithTable;
+
     /**
      * @var array<string, mixed>|null
      */
     public ?array $data = [];
+
+    // The section shown in the table; the PDF and the Excel always carry every section.
+    public int $seccion = 0;
+
+    private ReporteGeneral|string|null $resultado = null;
 
     abstract protected function generar(FiltrosDeReporte $filtros): ReporteGeneral;
 
@@ -59,14 +69,45 @@ trait ReporteGeneralDelPanel
             ]);
     }
 
-    // The view shows either the report or the business reason it cannot be built.
+    // The view shows either the report or the business reason it cannot be built; the table reads the same result.
     public function reporte(): ReporteGeneral|string
     {
-        try {
-            return $this->generar($this->filtros());
-        } catch (ReglaDeNegocioIncumplida $error) {
-            return $error->getMessage();
+        if ($this->resultado !== null) {
+            return $this->resultado;
         }
+
+        try {
+            return $this->resultado = $this->generar($this->filtros());
+        } catch (ReglaDeNegocioIncumplida $error) {
+            return $this->resultado = $error->getMessage();
+        }
+    }
+
+    public function table(Table $table): Table
+    {
+        $reporte = $this->reporte();
+
+        return SeccionDeReporteTable::configure($table, $reporte instanceof ReporteGeneral ? ($reporte->secciones[$this->seccion] ?? null) : null);
+    }
+
+    public function updatedData(): void
+    {
+        $this->resultado = null;
+        $this->reconstruirTabla();
+    }
+
+    public function updatedSeccion(): void
+    {
+        $this->tableSearch = '';
+        $this->tableSort = null;
+        $this->reconstruirTabla();
+    }
+
+    // The table is built before Livewire applies the request's changes, so a new section or new filters need it built again.
+    private function reconstruirTabla(): void
+    {
+        $this->table = $this->table($this->makeTable());
+        $this->resetPage();
     }
 
     public function getView(): string
