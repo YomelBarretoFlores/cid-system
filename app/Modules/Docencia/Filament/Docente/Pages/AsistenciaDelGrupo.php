@@ -19,6 +19,7 @@ use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Modules\Docencia\Support\DelegadoDelGrupo;
 use App\Modules\Docencia\Support\EstadoDeLaClase;
 use App\Modules\Docencia\Support\GrupoACargo;
+use App\Modules\Docencia\Support\TemaDeLaClase;
 use App\Modules\Docencia\Support\VentanasDeLlamado;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
@@ -29,6 +30,7 @@ use App\Shared\Support\Logging\RegistroDeRechazos;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Pages\Page;
 use Filament\Panel;
@@ -54,6 +56,8 @@ final class AsistenciaDelGrupo extends Page
 
     /** @var array<int, string> */
     public array $estados = [];
+
+    public ?string $tema = null;
 
     // The call shown when the class was loaded, so a save near a window edge goes to the call the teacher filled in.
     #[Locked]
@@ -103,6 +107,13 @@ final class AsistenciaDelGrupo extends Page
                 ->selectablePlaceholder(false)
                 ->helperText('Solo clases del horario cuyo llamado de inicio ya abrió. Nunca una clase futura.')
                 ->live(),
+            Textarea::make('tema')
+                ->label('Tema dictado en la sesión')
+                ->helperText(fn (): string => $this->llamado === Llamado::Inicio ? 'Obligatorio al tomar el llamado de cierre.' : 'Obligatorio.')
+                ->rows(2)
+                ->maxLength(1000)
+                ->disabled(fn (): bool => $this->llamado === Llamado::Cerrado)
+                ->visible(fn (): bool => $this->estudiantesDelLlamado() !== []),
             Section::make('Estudiantes')
                 ->description(fn (): string => $this->descripcionDelLlamado())
                 ->schema(fn (): array => array_map($this->marcaDe(...), $this->estudiantesDelLlamado()))
@@ -124,7 +135,7 @@ final class AsistenciaDelGrupo extends Page
         [$fecha, $hora] = $elegida instanceof ClaseProgramada ? [$elegida->fecha->toDateString(), substr($elegida->sesion->horaInicio, 0, 5)] : ['', ''];
         $registro = $this->llamado === Llamado::Cierre ? $cerrar : $registrar;
 
-        $clase = $this->intentar(fn (): ClaseDictada => $registro($this->grupoId, $this->docenteId(), $fecha, $hora, $this->estados, $this->usuario()));
+        $clase = $this->intentar(fn (): ClaseDictada => $registro($this->grupoId, $this->docenteId(), $fecha, $hora, $this->estados, $this->usuario(), $this->tema));
 
         if ($clase instanceof ClaseDictada) {
             $tipo = $clase->registro_posterior ? Llamado::Posterior : $this->llamado;
@@ -210,7 +221,7 @@ final class AsistenciaDelGrupo extends Page
         return ToggleButtons::make("estados.{$estudiante->matriculaId}")
             ->label($estudiante->nombreCompleto)
             ->options(collect($this->llamado->estados())->mapWithKeys(fn (EstadoAsistencia $estado): array => [$estado->value => $estado->etiqueta()])->all())
-            ->colors([EstadoAsistencia::Presente->value => 'success', EstadoAsistencia::Tardanza->value => 'warning', EstadoAsistencia::Falta->value => 'danger'])
+            ->colors([EstadoAsistencia::Presente->value => 'success', EstadoAsistencia::Falta->value => 'danger'])
             ->disabled($this->llamado === Llamado::Cerrado)
             ->inline()
             ->grouped();
@@ -223,7 +234,7 @@ final class AsistenciaDelGrupo extends Page
 
         return match ($this->llamado) {
             Llamado::Inicio => "Llamado de inicio: abierto hasta las {$ventanas?->cierraInicio()->format('H:i')}. Guardar de nuevo corrige este llamado.",
-            Llamado::Cierre => "Llamado de cierre: solo los estudiantes presentes o con tardanza al inicio. Abierto hasta las {$ventanas?->cierraCierre()->format('H:i')}.",
+            Llamado::Cierre => "Llamado de cierre: solo los estudiantes presentes al inicio. Abierto hasta las {$ventanas?->cierraCierre()->format('H:i')}.",
             Llamado::Posterior => 'Registro posterior: un solo llamado, sin confirmación del delegado. Guardar de nuevo corrige la asistencia.',
             Llamado::Anterior => 'Registrada antes de los dos llamados: guardar de nuevo corrige la asistencia, sin confirmación del delegado.',
             Llamado::Cerrado => 'Los llamados de esta clase ya cerraron.',
@@ -249,6 +260,7 @@ final class AsistenciaDelGrupo extends Page
         $clase = $elegida instanceof ClaseProgramada ? ClaseDictada::query()->where('grupo_id', $this->grupoId)->where('fecha', $elegida->fecha->toDateString())->where('hora_inicio', $elegida->sesion->horaInicio)->first() : null;
         $this->llamado = $elegida instanceof ClaseProgramada ? EstadoDeLaClase::llamadoPara($clase, VentanasDeLlamado::de($elegida->fecha, $elegida->sesion)) : Llamado::Inicio;
         $guardadas = $clase === null ? collect() : Asistencia::query()->where('clase_id', $clase->id)->get()->keyBy('matricula_id');
+        $this->tema = $clase->tema ?? ($elegida instanceof ClaseProgramada ? TemaDeLaClase::sugerido(TemaDeLaClase::semanaDelSilabo($this->grupo(), $elegida->fecha)) : null);
         $estudiantes = $this->llamado === Llamado::Cierre
             ? array_filter($this->estudiantes(), fn (EstudianteDelGrupo $estudiante): bool => ! in_array($guardadas->get($estudiante->matriculaId)?->estado, [null, EstadoAsistencia::Falta], true))
             : $this->estudiantes();

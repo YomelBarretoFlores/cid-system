@@ -92,7 +92,7 @@ describe('PDF reports', function (): void {
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.asistencia', $this->matricula))->assertOk();
 
         Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'asistencia-ING-1-M.pdf'
-            && $pdf->contains(['REPORTE DE ASISTENCIA', '01/03/2027', '03/03/2027', '08/03/2027', 'Tardanza', 'Falta', 'sin confirmar', '3', '10', '67 %', '20 %']));
+            && $pdf->contains(['REPORTE DE ASISTENCIA', '01/03/2027', '03/03/2027', '08/03/2027', 'Presente', 'Ausente', 'sin confirmar', '3', '10', '67 %', '20 %']));
     });
 
     it('gives the weekly schedule of the period as PDF and as printable page', function (): void {

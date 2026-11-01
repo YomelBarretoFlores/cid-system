@@ -60,7 +60,7 @@ it('starts a new roll call with everyone present and saves the marked states', f
         ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
         ->assertSet('clase', '2027-03-10|18:00')
         ->assertSet('estados', [$this->luis->id => 'presente', $this->ana->id => 'presente'])
-        ->set("estados.{$this->ana->id}", 'tardanza')
+        ->set("estados.{$this->ana->id}", 'falta')
         ->call('guardar')
         ->assertHasNoErrors()
         ->assertSee('Llamado de inicio del miércoles 10/03/2027 de 18:00 a 20:00 guardado.');
@@ -70,7 +70,7 @@ it('starts a new roll call with everyone present and saves the marked states', f
     expect($clase->fecha->toDateString())->toBe('2027-03-10')
         ->and($clase->llamado_inicio_en?->setTimezone('America/Lima')->format('H:i'))->toBe('18:05')
         ->and($clase->registrado_por)->toBe($this->usuario->id)
-        ->and(Asistencia::query()->where('clase_id', $clase->id)->pluck('estado', 'matricula_id')->map->value->all())->toEqualCanonicalizing([$this->ana->id => 'tardanza', $this->luis->id => 'presente']);
+        ->and(Asistencia::query()->where('clase_id', $clase->id)->pluck('estado', 'matricula_id')->map->value->all())->toEqualCanonicalizing([$this->ana->id => 'falta', $this->luis->id => 'presente']);
 });
 
 it('loads the saved states when an earlier class is chosen and marks it as recorded', function (): void {
@@ -184,7 +184,7 @@ it('labels each class with its state', function (): void {
         ]);
 });
 
-it('takes the second call only for the students present or late at the start', function (): void {
+it('takes the second call only for the students present at the start', function (): void {
     Livewire::actingAs($this->usuario)
         ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
         ->set("estados.{$this->ana->id}", 'falta')
@@ -197,6 +197,7 @@ it('takes the second call only for the students present or late at the start', f
         ->assertDontSee('Quispe Rojas, Ana')
         ->assertSet('estados', [$this->luis->id => 'presente'])
         ->set("estados.{$this->luis->id}", 'falta')
+        ->set('tema', 'Saludos y presentaciones')
         ->call('guardar')
         ->assertHasNoErrors()
         ->assertSee('Llamado de cierre del miércoles 10/03/2027 de 18:00 a 20:00 guardado.');
@@ -215,11 +216,12 @@ it('records an earlier class not taken in its windows as registro posterior', fu
         ->set('clase', '2027-03-08|18:00')
         ->assertSee('Registro posterior: un solo llamado, sin confirmación del delegado.')
         ->assertSee('Guardar registro posterior')
+        ->set('tema', 'El alfabeto')
         ->call('guardar')
         ->assertHasNoErrors()
         ->assertSee('Registro posterior del lunes 08/03/2027 de 18:00 a 20:00 guardado.');
 
-    expect(ClaseDictada::query()->sole()->only(['registro_posterior', 'llamado_inicio_en', 'confirmacion']))->toBe(['registro_posterior' => true, 'llamado_inicio_en' => null, 'confirmacion' => null]);
+    expect(ClaseDictada::query()->sole()->only(['registro_posterior', 'llamado_inicio_en', 'confirmacion', 'tema']))->toBe(['registro_posterior' => true, 'llamado_inicio_en' => null, 'confirmacion' => null, 'tema' => 'El alfabeto']);
 });
 
 it('shows a class whose calls are over without a way to save it', function (): void {

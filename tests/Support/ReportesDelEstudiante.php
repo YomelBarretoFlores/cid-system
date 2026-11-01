@@ -33,7 +33,7 @@ final class ReportesDelEstudiante
         $matricula = Matricula::factory()->activa()->create(['persona_id' => $persona->id, 'grupo_id' => $grupo->id, 'matriculado_en' => '2027-02-20 15:00:00+00']);
         ActasFinales::preActa($matricula, [$curso['parcial']->id => '15.00', $curso['final']->id => '12.00']);
 
-        foreach ([['2027-03-01', 'presente', 'presente'], ['2027-03-03', 'tardanza', 'falta'], ['2027-03-08', 'tardanza', 'presente']] as [$fecha, $inicio, $cierre]) {
+        foreach ([['2027-03-01', 'presente', 'presente'], ['2027-03-03', 'presente', 'falta'], ['2027-03-08', 'presente', 'presente']] as [$fecha, $inicio, $cierre]) {
             PortalDocente::dictarClase($grupo, $curso['docente'], $curso['usuario'], [$matricula->id => $inicio], [$matricula->id => $cierre], $fecha);
         }
 

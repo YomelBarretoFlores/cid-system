@@ -23,7 +23,7 @@ beforeEach(function (): void {
         $this->grupo,
         $this->docente,
         $this->usuario,
-        [$this->ana->id => 'presente', $this->luis->id => 'tardanza', $this->rosa->id => 'falta'],
+        [$this->ana->id => 'presente', $this->luis->id => 'presente', $this->rosa->id => 'falta'],
         [$this->ana->id => 'presente', $this->luis->id => 'falta'],
     );
 });

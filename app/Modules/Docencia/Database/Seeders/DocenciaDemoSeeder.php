@@ -148,7 +148,7 @@ final class DocenciaDemoSeeder extends Seeder
         app(RegistrarNotasParciales::class)($grupo->id, $docente->id, $notas, $this->usuarioDe($docente));
     }
 
-    // Mostly present; a few late arrivals and absences in a fixed pattern so every run looks the same.
+    // Mostly present, with a few absences in a fixed pattern so every run looks the same.
     // Reserved classes stay untaken so the complement can take them with both calls at their real times.
     private function tomarAsistencia(Grupo $grupo, Docente $docente, User $usuario, bool $reservarClases): void
     {
@@ -164,13 +164,12 @@ final class DocenciaDemoSeeder extends Seeder
             $presentes = ClasesDelHorario::estudiantesDe($estudiantes, $clase->fecha);
             $estados = collect($presentes)->mapWithKeys(fn (EstudianteDelGrupo $estudiante, int $indice): array => [
                 $estudiante->matriculaId => match (($indice + $numero) % 9) {
-                    4 => EstadoAsistencia::Tardanza->value,
                     7 => EstadoAsistencia::Falta->value,
                     default => EstadoAsistencia::Presente->value,
                 },
             ])->all();
 
-            app(RegistrarAsistencia::class)($grupo->id, $docente->id, $clase->fecha->toDateString(), substr($clase->sesion->horaInicio, 0, 5), $estados, $usuario);
+            app(RegistrarAsistencia::class)($grupo->id, $docente->id, $clase->fecha->toDateString(), substr($clase->sesion->horaInicio, 0, 5), $estados, $usuario, SilaboDeDemo::temaDeLaClase($horario, $clase->fecha));
         }
     }
 

@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Database\Seeders;
 
+use App\Modules\Academico\Data\HorarioDeGrupo;
+use App\Modules\Docencia\Support\SemanasDelPeriodo;
+use App\Modules\Docencia\Support\TemaDeLaClase;
+use Carbon\CarbonImmutable;
+
 // Content of a first basic cycle in the register of a UNASAM syllabus; the bibliography cites CILN material and the CEFR, nothing copied.
 final class SilaboDeDemo
 {
@@ -60,6 +65,22 @@ final class SilaboDeDemo
             'sumilla' => "La asignatura pertenece al nivel básico del programa de {$idioma} del Centro de Idiomas y Lenguas Nativas. Es de naturaleza teórico-práctica y tiene como propósito desarrollar en el estudiante la competencia comunicativa elemental en {$idioma}. Comprende las unidades: I. Saludos y presentaciones; II. Números y datos personales; III. La familia; IV. La rutina diaria.",
             'competencias' => "Se comunica en forma oral y escrita en {$idioma} en situaciones cotidianas elementales, utilizando expresiones y estructuras básicas con corrección y pertinencia, de acuerdo con el nivel A1 del Marco común europeo de referencia para las lenguas.",
         ];
+    }
+
+    // The topic a demo teacher writes for a class: its syllabus week when published, else the demo week it falls in.
+    public static function temaDeLaClase(HorarioDeGrupo $horario, CarbonImmutable $fecha): string
+    {
+        $publicado = TemaDeLaClase::sugerido(TemaDeLaClase::semanaDelSilabo($horario, $fecha));
+
+        if ($publicado !== null) {
+            return $publicado;
+        }
+
+        $rangos = SemanasDelPeriodo::rangos($horario->periodoInicio, $horario->periodoFin);
+        $semana = (int) collect($rangos)->search(fn (array $rango): bool => $fecha->startOfDay()->betweenIncluded($rango[0], $rango[1]));
+        $fila = $semana === count($rangos) ? self::REPASO : self::SEMANAS[max(0, $semana - 1) % count(self::SEMANAS)];
+
+        return "{$fila[0]}: {$fila[1]}";
     }
 
     /**

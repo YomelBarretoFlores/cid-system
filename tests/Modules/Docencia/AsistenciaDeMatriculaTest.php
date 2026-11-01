@@ -17,13 +17,12 @@ it('lists every class of the student with both calls, the effective state and th
         $clase->fecha->toDateString(), $clase->horario, $clase->inicio->etiqueta(), $clase->cierre?->etiqueta(), $clase->efectivo->etiqueta(), $clase->estadoDeLaClase,
     ], $asistencia->clases))->toBe([
         ['2027-03-01', '18:00 – 20:00', 'Presente', 'Presente', 'Presente', 'sin confirmar'],
-        ['2027-03-03', '18:00 – 20:00', 'Tardanza', 'Falta', 'Falta', 'sin confirmar'],
-        ['2027-03-08', '18:00 – 20:00', 'Tardanza', 'Presente', 'Tardanza', 'sin confirmar'],
+        ['2027-03-03', '18:00 – 20:00', 'Presente', 'Ausente', 'Ausente', 'sin confirmar'],
+        ['2027-03-08', '18:00 – 20:00', 'Presente', 'Presente', 'Presente', 'sin confirmar'],
     ])->and($asistencia)
         ->programadas->toBe(10)
         ->dictadas->toBe(3)
-        ->presentes->toBe(1)
-        ->tardanzas->toBe(1)
+        ->presentes->toBe(2)
         ->faltas->toBe(1)
         ->and($asistencia->porcentajeSobreDictadas())->toBe(67)
         ->and($asistencia->porcentajeSobreProgramadas())->toBe(20);

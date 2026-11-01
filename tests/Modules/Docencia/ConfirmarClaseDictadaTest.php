@@ -22,7 +22,7 @@ beforeEach(function (): void {
         $this->grupo,
         $this->docente,
         $this->usuario,
-        [$this->ana->id => 'presente', $this->luis->id => 'tardanza', $this->rosa->id => 'falta'],
+        [$this->ana->id => 'presente', $this->luis->id => 'presente', $this->rosa->id => 'falta'],
         [$this->ana->id => 'presente', $this->luis->id => 'falta'],
     );
 });
@@ -122,6 +122,6 @@ it('refuses to confirm a class whose closing call was not taken', function (Clos
     'registro posterior' => [function (): ClaseDictada {
         horaDeConfirmar('20:10');
 
-        return app(RegistrarAsistencia::class)($this->grupo->id, $this->docente->id, '2027-03-08', '18:00', [$this->ana->id => 'presente', $this->luis->id => 'presente', $this->rosa->id => 'presente'], $this->usuario)->refresh();
+        return app(RegistrarAsistencia::class)($this->grupo->id, $this->docente->id, '2027-03-08', '18:00', [$this->ana->id => 'presente', $this->luis->id => 'presente', $this->rosa->id => 'presente'], $this->usuario, 'Saludos y presentaciones')->refresh();
     }, 'Esta clase es un registro posterior; no necesita la confirmación del delegado.'],
 ]);

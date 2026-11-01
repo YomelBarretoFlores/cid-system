@@ -35,7 +35,7 @@ beforeEach(function (): void {
 
 function registrarAsistencia(array $estados, string $fecha = '2027-03-08', string $hora = '18:00', ?Docente $docente = null): ClaseDictada
 {
-    return app(RegistrarAsistencia::class)(test()->grupo->id, ($docente ?? test()->docente)->id, $fecha, $hora, $estados, test()->usuario);
+    return app(RegistrarAsistencia::class)(test()->grupo->id, ($docente ?? test()->docente)->id, $fecha, $hora, $estados, test()->usuario, 'Saludos y presentaciones');
 }
 
 function estadosDeLaClase(ClaseDictada $clase): array
@@ -44,11 +44,11 @@ function estadosDeLaClase(ClaseDictada $clase): array
 }
 
 it('records the class with its times, teacher and recorder, and the state of each student', function (): void {
-    $clase = registrarAsistencia([$this->ana->id => 'presente', $this->luis->id => 'tardanza']);
+    $clase = registrarAsistencia([$this->ana->id => 'presente', $this->luis->id => 'presente']);
 
     expect($clase->only(['grupo_id', 'docente_id', 'registrado_por']))->toBe(['grupo_id' => $this->grupo->id, 'docente_id' => $this->docente->id, 'registrado_por' => $this->usuario->id])
         ->and([$clase->fecha->toDateString(), $clase->hora_inicio, $clase->hora_fin])->toBe(['2027-03-08', '18:00:00', '20:00:00'])
-        ->and(estadosDeLaClase($clase))->toBe([$this->ana->id => 'presente', $this->luis->id => 'tardanza'])
+        ->and(estadosDeLaClase($clase))->toBe([$this->ana->id => 'presente', $this->luis->id => 'presente'])
         ->and(DB::table('aud_registros')->whereIn('tabla', ['doc_clases_dictadas', 'doc_asistencias'])->count())->toBe(3);
 });
 
@@ -129,7 +129,7 @@ it('keeps the teacher who took the class when the new teacher corrects it', func
     [$usuarioNuevo, $nuevo] = PortalDocente::docente();
     PortalDocente::asignar($this->grupo, $nuevo);
 
-    $clase = app(RegistrarAsistencia::class)($this->grupo->id, $nuevo->id, '2027-03-08', '18:00', [$this->ana->id => 'falta', $this->luis->id => 'presente'], $usuarioNuevo);
+    $clase = app(RegistrarAsistencia::class)($this->grupo->id, $nuevo->id, '2027-03-08', '18:00', [$this->ana->id => 'falta', $this->luis->id => 'presente'], $usuarioNuevo, 'Saludos y presentaciones');
 
     expect([$clase->refresh()->docente_id, $clase->registrado_por])->toBe([$this->docente->id, $usuarioNuevo->id])
         ->and(estadosDeLaClase($clase))->toBe([$this->ana->id => 'falta', $this->luis->id => 'presente']);

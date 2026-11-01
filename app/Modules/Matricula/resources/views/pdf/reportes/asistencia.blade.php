@@ -8,7 +8,7 @@
     <table class="datos">
         <tr><th>Clases programadas</th><td>{{ $asistencia->programadas }}</td></tr>
         <tr><th>Clases dictadas</th><td>{{ $asistencia->dictadas }}</td></tr>
-        <tr><th>Presente · Tardanza · Falta</th><td>{{ $asistencia->presentes }} · {{ $asistencia->tardanzas }} · {{ $asistencia->faltas }}</td></tr>
+        <tr><th>Presente · Ausente</th><td>{{ $asistencia->presentes }} · {{ $asistencia->faltas }}</td></tr>
         <tr><th>Asistencia sobre dictadas</th><td>{{ $asistencia->porcentajeSobreDictadas() === null ? '—' : $asistencia->porcentajeSobreDictadas().' %' }}</td></tr>
         <tr><th>Asistencia sobre programadas</th><td>{{ $asistencia->porcentajeSobreProgramadas() === null ? '—' : $asistencia->porcentajeSobreProgramadas().' %' }}</td></tr>
     </table>
@@ -33,5 +33,5 @@
             </tbody>
         </table>
     @endif
-    <p style="margin-top: 10px; font-size: 8.5pt; color: #5e5a50;">La tardanza cuenta como asistencia. Una falta en el llamado de cierre convierte la clase en falta.</p>
+    <p style="margin-top: 10px; font-size: 8.5pt; color: #5e5a50;">Una ausencia en el llamado de cierre convierte la clase en ausencia.</p>
 </x-pdf.documento>

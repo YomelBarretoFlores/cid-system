@@ -6,14 +6,12 @@ namespace App\Modules\Docencia\Data;
 
 use App\Modules\Docencia\Enums\EstadoAsistencia;
 
-// A late arrival counts as attended; percentages are whole numbers rounded half up.
+// Percentages are whole numbers rounded half up.
 final readonly class AsistenciaDelEstudiante
 {
     public int $dictadas;
 
     public int $presentes;
-
-    public int $tardanzas;
 
     public int $faltas;
 
@@ -26,7 +24,6 @@ final readonly class AsistenciaDelEstudiante
     ) {
         $this->dictadas = count($clases);
         $this->presentes = $this->contar(EstadoAsistencia::Presente);
-        $this->tardanzas = $this->contar(EstadoAsistencia::Tardanza);
         $this->faltas = $this->contar(EstadoAsistencia::Falta);
     }
 
@@ -42,7 +39,7 @@ final readonly class AsistenciaDelEstudiante
 
     private function porcentaje(int $total): ?int
     {
-        return $total === 0 ? null : intdiv(($this->presentes + $this->tardanzas) * 200 + $total, $total * 2);
+        return $total === 0 ? null : intdiv($this->presentes * 200 + $total, $total * 2);
     }
 
     private function contar(EstadoAsistencia $estado): int

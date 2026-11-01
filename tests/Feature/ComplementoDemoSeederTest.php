@@ -67,7 +67,7 @@ function sembrarDemoAnterior(bool $registroAnterior = true): void
     foreach (ControlDeClasesDemoSeeder::reservadas(app(HorariosDeGrupos::class)([$grupo->id])[$grupo->id]) as $clase) {
         $presentes = collect(ClasesDelHorario::estudiantesDe($estudiantes, $clase->fecha))
             ->mapWithKeys(fn (EstudianteDelGrupo $estudiante): array => [$estudiante->matriculaId => EstadoAsistencia::Presente->value])->all();
-        app(RegistrarAsistencia::class)($grupo->id, $docenteId, $clase->fecha->toDateString(), '07:00', $presentes, CuentasDeDemo::usuarioDe($docenteId));
+        app(RegistrarAsistencia::class)($grupo->id, $docenteId, $clase->fecha->toDateString(), '07:00', $presentes, CuentasDeDemo::usuarioDe($docenteId), 'Saludos y presentaciones');
     }
 
     if ($registroAnterior) {

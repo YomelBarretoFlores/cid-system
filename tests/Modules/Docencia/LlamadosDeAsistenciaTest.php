@@ -45,12 +45,12 @@ function aLas(string $hora, string $fecha = '2027-03-10'): void
 
 function llamadoDeInicio(array $estados, string $fecha = '2027-03-10'): ClaseDictada
 {
-    return app(RegistrarAsistencia::class)(test()->grupo->id, test()->docente->id, $fecha, '18:00', $estados, test()->usuario);
+    return app(RegistrarAsistencia::class)(test()->grupo->id, test()->docente->id, $fecha, '18:00', $estados, test()->usuario, 'Saludos y presentaciones');
 }
 
 function llamadoDeCierre(array $estados, string $fecha = '2027-03-10', ?Docente $docente = null): ClaseDictada
 {
-    return app(RegistrarLlamadoDeCierre::class)(test()->grupo->id, ($docente ?? test()->docente)->id, $fecha, '18:00', $estados, test()->usuario);
+    return app(RegistrarLlamadoDeCierre::class)(test()->grupo->id, ($docente ?? test()->docente)->id, $fecha, '18:00', $estados, test()->usuario, 'Saludos y presentaciones');
 }
 
 function marcasDelCierre(ClaseDictada $clase): array
@@ -63,7 +63,7 @@ function inicioTomado(): ClaseDictada
 {
     aLas('18:05');
 
-    return llamadoDeInicio([test()->ana->id => 'presente', test()->luis->id => 'tardanza', test()->rosa->id => 'falta']);
+    return llamadoDeInicio([test()->ana->id => 'presente', test()->luis->id => 'presente', test()->rosa->id => 'falta']);
 }
 
 function enLimaALas(?CarbonImmutable $momento): ?string
@@ -74,11 +74,11 @@ function enLimaALas(?CarbonImmutable $momento): ?string
 it('takes the first call from ten minutes before the start until the end of the class', function (string $hora): void {
     aLas($hora);
 
-    $clase = llamadoDeInicio([$this->ana->id => 'presente', $this->luis->id => 'tardanza', $this->rosa->id => 'falta'])->refresh();
+    $clase = llamadoDeInicio([$this->ana->id => 'presente', $this->luis->id => 'presente', $this->rosa->id => 'falta'])->refresh();
 
     expect(enLimaALas($clase->llamado_inicio_en))->toBe("2027-03-10 {$hora}")
         ->and([$clase->registro_posterior, $clase->llamado_cierre_en, $clase->confirmacion])->toBe([false, null, null])
-        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', null], $this->luis->id => ['tardanza', null], $this->rosa->id => ['falta', null]]);
+        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', null], $this->luis->id => ['presente', null], $this->rosa->id => ['falta', null]]);
 })->with(['when it opens' => '17:50', 'when it closes' => '20:00']);
 
 it('refuses the roll call of today before its first call opens and saves nothing', function (): void {
@@ -94,20 +94,20 @@ it('corrects the first call within its window and keeps the time it was taken', 
     inicioTomado();
     aLas('19:30');
 
-    $clase = llamadoDeInicio([$this->ana->id => 'falta', $this->luis->id => 'presente', $this->rosa->id => 'tardanza'])->refresh();
+    $clase = llamadoDeInicio([$this->ana->id => 'falta', $this->luis->id => 'presente', $this->rosa->id => 'presente'])->refresh();
 
     expect(ClaseDictada::query()->count())->toBe(1)
         ->and(enLimaALas($clase->llamado_inicio_en))->toBe('2027-03-10 18:05')
-        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['falta', null], $this->luis->id => ['presente', null], $this->rosa->id => ['tardanza', null]]);
+        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['falta', null], $this->luis->id => ['presente', null], $this->rosa->id => ['presente', null]]);
 });
 
 it('records a class not registered in its windows as registro posterior, in one call', function (string $hora, string $fecha): void {
     aLas($hora);
 
-    $clase = llamadoDeInicio([$this->ana->id => 'presente', $this->luis->id => 'falta', $this->rosa->id => 'tardanza'], $fecha)->refresh();
+    $clase = llamadoDeInicio([$this->ana->id => 'presente', $this->luis->id => 'falta', $this->rosa->id => 'presente'], $fecha)->refresh();
 
     expect([$clase->registro_posterior, $clase->llamado_inicio_en, $clase->llamado_cierre_en, $clase->confirmacion])->toBe([true, null, null, null])
-        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', null], $this->luis->id => ['falta', null], $this->rosa->id => ['tardanza', null]])
+        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', null], $this->luis->id => ['falta', null], $this->rosa->id => ['presente', null]])
         ->and(EstadoDeLaClase::de($clase))->toBe(EstadoDeClase::RegistroPosterior);
 })->with([
     'today after the first call closed' => ['20:01', '2027-03-10'],
@@ -120,11 +120,11 @@ it('refuses to change the first call once its window closed', function (): void 
 
     expect(fn (): ClaseDictada => llamadoDeInicio([$this->ana->id => 'falta', $this->luis->id => 'falta', $this->rosa->id => 'falta']))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El llamado de inicio de esta clase cerró a las 20:00.')
-        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', null], $this->luis->id => ['tardanza', null], $this->rosa->id => ['falta', null]])
+        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', null], $this->luis->id => ['presente', null], $this->rosa->id => ['falta', null]])
         ->and($clase->refresh()->registro_posterior)->toBeFalse();
 });
 
-it('takes the second call for the students present or late and leaves the class to be confirmed', function (string $hora): void {
+it('takes the second call for the students present and leaves the class to be confirmed', function (string $hora): void {
     $clase = inicioTomado();
     aLas($hora);
 
@@ -133,7 +133,7 @@ it('takes the second call for the students present or late and leaves the class 
 
     expect(enLimaALas($clase->llamado_cierre_en))->toBe("2027-03-10 {$hora}")
         ->and($clase->confirmacion)->toBe(ConfirmacionDeClase::Pendiente)
-        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', 'presente'], $this->luis->id => ['tardanza', 'falta'], $this->rosa->id => ['falta', null]])
+        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', 'presente'], $this->luis->id => ['presente', 'falta'], $this->rosa->id => ['falta', null]])
         ->and(EstadoDeLaClase::de($clase))->toBe(EstadoDeClase::PorConfirmar);
 })->with(['when it opens' => '19:45', 'when it closes' => '20:30']);
 
@@ -147,7 +147,7 @@ it('corrects the second call within its window and keeps the time it was taken',
     $clase->refresh();
 
     expect(enLimaALas($clase->llamado_cierre_en))->toBe('2027-03-10 19:50')
-        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', 'falta'], $this->luis->id => ['tardanza', 'presente'], $this->rosa->id => ['falta', null]]);
+        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', 'falta'], $this->luis->id => ['presente', 'presente'], $this->rosa->id => ['falta', null]]);
 });
 
 it('refuses a second call that breaks a rule and changes nothing', function (Closure $preparar, string $mensaje): void {
@@ -164,7 +164,7 @@ it('refuses a second call that breaks a rule and changes nothing', function (Clo
     'another teacher' => [fn (): array => [2 => Docente::factory()->create()], 'No tienes a cargo el grupo ING-01-A.'],
     'student absent at the start' => [fn (): array => [0 => [$this->ana->id => 'presente', $this->luis->id => 'presente', $this->rosa->id => 'presente']], 'La lista de estudiantes del grupo cambió; vuelve a cargarla.'],
     'missing student' => [fn (): array => [0 => [$this->ana->id => 'presente']], 'Marca la asistencia de todos los estudiantes del grupo.'],
-    'late is not a second call state' => [fn (): array => [0 => [$this->ana->id => 'presente', $this->luis->id => 'tardanza']], 'El estado de asistencia no es válido.'],
+    'a late arrival' => [fn (): array => [0 => [$this->ana->id => 'presente', $this->luis->id => 'tardanza']], 'El estado de asistencia no es válido.'],
 ]);
 
 it('refuses a second call for a class without a first call', function (Closure $preparar, string $mensaje): void {
@@ -190,7 +190,7 @@ it('refuses to change the first call once the second call was taken', function (
 
     expect(fn (): ClaseDictada => llamadoDeInicio([$this->ana->id => 'falta', $this->luis->id => 'falta', $this->rosa->id => 'falta']))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Ya tomaste el llamado de cierre de esta clase; el llamado de inicio ya no se puede cambiar.')
-        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', 'presente'], $this->luis->id => ['tardanza', 'presente'], $this->rosa->id => ['falta', null]]);
+        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', 'presente'], $this->luis->id => ['presente', 'presente'], $this->rosa->id => ['falta', null]]);
 });
 
 it('refuses to change the second call once the delegate reviewed the class', function (): void {
@@ -201,7 +201,7 @@ it('refuses to change the second call once the delegate reviewed the class', fun
 
     expect(fn (): ClaseDictada => llamadoDeCierre([$this->ana->id => 'falta', $this->luis->id => 'falta']))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El delegado ya revisó esta clase; el llamado de cierre ya no se puede cambiar.')
-        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', 'presente'], $this->luis->id => ['tardanza', 'presente'], $this->rosa->id => ['falta', null]]);
+        ->and(marcasDelCierre($clase))->toBe([$this->ana->id => ['presente', 'presente'], $this->luis->id => ['presente', 'presente'], $this->rosa->id => ['falta', null]]);
 });
 
 it('reads the state of a class from its calls, its confirmation and the time', function (Closure $preparar, string $ahora, EstadoDeClase $estado, string $etiqueta): void {
@@ -254,7 +254,7 @@ it('counts a student absent in the second call as absent, otherwise the first ca
     expect(EstadoAsistencia::efectivo($inicio, $cierre))->toBe($efectivo);
 })->with([
     'left before the end' => [EstadoAsistencia::Presente, EstadoAsistencia::Falta, EstadoAsistencia::Falta],
-    'late and stayed' => [EstadoAsistencia::Tardanza, EstadoAsistencia::Presente, EstadoAsistencia::Tardanza],
+    'present and stayed' => [EstadoAsistencia::Presente, EstadoAsistencia::Presente, EstadoAsistencia::Presente],
     'absent at the start' => [EstadoAsistencia::Falta, null, EstadoAsistencia::Falta],
     'one call only' => [EstadoAsistencia::Presente, null, EstadoAsistencia::Presente],
 ]);

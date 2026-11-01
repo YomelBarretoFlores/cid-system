@@ -49,7 +49,7 @@ try {
     } elseif ($operacion === 'notas') {
         $app->make(RegistrarNotasParciales::class)((int) $grupoId, (int) $docenteId, json_decode($estados, true), $usuario);
     } else {
-        $app->make(RegistrarAsistencia::class)((int) $grupoId, (int) $docenteId, $fecha, '18:00', json_decode($estados, true), $usuario);
+        $app->make(RegistrarAsistencia::class)((int) $grupoId, (int) $docenteId, $fecha, '18:00', json_decode($estados, true), $usuario, 'Saludos y presentaciones');
     }
     echo "{$operacion}: hecho";
 } catch (ReglaDeNegocioIncumplida $error) {

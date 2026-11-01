@@ -68,11 +68,11 @@ final class PortalDocente
     public static function dictarClase(Grupo $grupo, Docente $docente, User $usuario, array $inicio, ?array $cierre = null, string $fecha = '2027-03-10'): ClaseDictada
     {
         Carbon::setTestNow(CarbonImmutable::parse("{$fecha} 18:05", 'America/Lima'));
-        $clase = app(RegistrarAsistencia::class)($grupo->id, $docente->id, $fecha, '18:00', $inicio, $usuario);
+        $clase = app(RegistrarAsistencia::class)($grupo->id, $docente->id, $fecha, '18:00', $inicio, $usuario, 'Saludos y presentaciones');
 
         if ($cierre !== null) {
             Carbon::setTestNow(CarbonImmutable::parse("{$fecha} 19:50", 'America/Lima'));
-            app(RegistrarLlamadoDeCierre::class)($grupo->id, $docente->id, $fecha, '18:00', $cierre, $usuario);
+            app(RegistrarLlamadoDeCierre::class)($grupo->id, $docente->id, $fecha, '18:00', $cierre, $usuario, 'Saludos y presentaciones');
         }
 
         return $clase->refresh();
@@ -105,7 +105,7 @@ final class PortalDocente
         app(ConfirmarClaseDictada::class)($clases['observada']->id, $delegado->persona_id, false, 'El docente llegó a las 19:30.');
 
         Carbon::setTestNow(CarbonImmutable::parse('2027-03-17 10:00', 'America/Lima'));
-        $clases['posterior'] = app(RegistrarAsistencia::class)($grupo->id, $docente->id, '2027-03-15', '18:00', $presentes, $usuario);
+        $clases['posterior'] = app(RegistrarAsistencia::class)($grupo->id, $docente->id, '2027-03-15', '18:00', $presentes, $usuario, 'Saludos y presentaciones');
         $clases['anterior'] = ClaseDictada::query()->create(['grupo_id' => $grupo->id, 'fecha' => '2027-03-17', 'hora_inicio' => '18:00', 'hora_fin' => '20:00', 'docente_id' => $docente->id, 'registrado_por' => $usuario->id]);
 
         return array_map(fn (ClaseDictada $clase): ClaseDictada => $clase->refresh(), $clases);

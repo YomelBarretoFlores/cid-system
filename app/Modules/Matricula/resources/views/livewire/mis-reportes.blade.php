@@ -53,7 +53,7 @@
 
                     <dl class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3">
                         <x-portal.dato etiqueta="Clases dictadas">{{ $asistencia->dictadas }} de {{ $asistencia->programadas }} programadas</x-portal.dato>
-                        <x-portal.dato etiqueta="Presente · Tardanza · Falta">{{ $asistencia->presentes }} · {{ $asistencia->tardanzas }} · {{ $asistencia->faltas }}</x-portal.dato>
+                        <x-portal.dato etiqueta="Presente · Ausente">{{ $asistencia->presentes }} · {{ $asistencia->faltas }}</x-portal.dato>
                         <x-portal.dato etiqueta="Sobre clases dictadas">{{ $asistencia->porcentajeSobreDictadas() === null ? '—' : $asistencia->porcentajeSobreDictadas().' %' }}</x-portal.dato>
                         <x-portal.dato etiqueta="Sobre clases programadas">{{ $asistencia->porcentajeSobreProgramadas() === null ? '—' : $asistencia->porcentajeSobreProgramadas().' %' }}</x-portal.dato>
                     </dl>

@@ -13,6 +13,7 @@ use App\Modules\Docencia\Models\ClaseDictada;
 use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Modules\Docencia\Support\GrupoACargo;
 use App\Modules\Docencia\Support\MarcasDeAsistencia;
+use App\Modules\Docencia\Support\TemaDeLaClase;
 use App\Modules\Docencia\Support\VentanasDeLlamado;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
@@ -30,19 +31,21 @@ final readonly class RegistrarLlamadoDeCierre
     ) {}
 
     /**
-     * @param  array<int, mixed>  $estados  state per enrollment id, only for the students present or late in the first call
+     * @param  array<int, mixed>  $estados  state per enrollment id, only for the students present in the first call
      */
-    public function __invoke(int $grupoId, int $docenteId, string $fecha, string $horaInicio, array $estados, User $usuario): ClaseDictada
+    public function __invoke(int $grupoId, int $docenteId, string $fecha, string $horaInicio, array $estados, User $usuario, ?string $tema = null): ClaseDictada
     {
         $dia = ClasesDelHorario::fechaDeClase($fecha, $horaInicio);
+        $tema = TemaDeLaClase::normalizar($tema);
 
-        return Transaccion::ejecutar(function () use ($grupoId, $docenteId, $dia, $horaInicio, $estados, $usuario): ClaseDictada {
+        return Transaccion::ejecutar(function () use ($grupoId, $docenteId, $dia, $horaInicio, $estados, $usuario, $tema): ClaseDictada {
             $grupo = ($this->bloqueoDeGrupo)($grupoId);
             GrupoACargo::asegurar($grupo, $docenteId, 'la asistencia solo se registra');
             $sesion = ClasesDelHorario::sesionDelPeriodo($grupo, $dia, $horaInicio);
             $ahora = ClasesDelHorario::ahora();
             $this->asegurarVentana(VentanasDeLlamado::de($dia, $sesion), $dia, $ahora);
             $clase = $this->claseConLlamadoDeInicio($grupoId, $dia, $sesion);
+            $tema = TemaDeLaClase::exigir($tema ?? $clase->tema);
             $presentes = $this->presentesAlInicio($clase, $dia);
             $marcas = MarcasDeAsistencia::validar($estados, array_map(intval(...), $presentes->keys()->all()), [EstadoAsistencia::Presente, EstadoAsistencia::Falta]);
 
@@ -50,7 +53,7 @@ final readonly class RegistrarLlamadoDeCierre
                 $asistencia->update(['estado_cierre' => $marcas[$matriculaId]]);
             }
 
-            $clase->fill(['llamado_cierre_en' => $clase->llamado_cierre_en ?? now(), 'confirmacion' => ConfirmacionDeClase::Pendiente, 'registrado_por' => $usuario->id])->save();
+            $clase->fill(['llamado_cierre_en' => $clase->llamado_cierre_en ?? now(), 'confirmacion' => ConfirmacionDeClase::Pendiente, 'registrado_por' => $usuario->id, 'tema' => $tema])->save();
 
             return $clase;
         });
@@ -87,7 +90,7 @@ final readonly class RegistrarLlamadoDeCierre
     }
 
     /**
-     * Students present or late in the first call who are still enrolled, keyed by enrollment id.
+     * Students present in the first call who are still enrolled, keyed by enrollment id.
      *
      * @return Collection<int, Asistencia>
      */
