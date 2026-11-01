@@ -157,3 +157,30 @@ it('tells the student to bring the original voucher while the payment is pending
         ->assertOk()
         ->assertSee('Acércate al CILN con tu boleta original para validarla.');
 });
+
+it('refuses a justification longer than 500 characters', function (): void {
+    $pago = pagoConTarifa('120.00', '150.00');
+
+    expect(fn () => app(ValidarPago::class)($pago->id, $this->cajero, boletaOriginalVerificada: true, justificacionMonto: str_repeat('a', 501)))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'La justificación del monto no puede pasar de 500 caracteres.')
+        ->and($pago->refresh()->estado)->toBe(EstadoPago::Pendiente);
+});
+
+it('leaves out a rejected payment from the other-channel warning and hides the section without alerts', function (): void {
+    $pago = Pago::factory()->create(['numero_operacion' => '00012345']);
+    Pago::factory()->rechazado()->create(['numero_operacion' => '00012345', 'medio_pago' => 'pagalo_pe']);
+    $this->actingAs($this->cajero);
+
+    Livewire::test(ViewPago::class, ['record' => $pago->getRouteKey()])
+        ->assertDontSee('también figura en otro pago')
+        ->assertDontSee('Revise antes de validar');
+});
+
+it('builds a validated payment whose voucher was checked by its validator, creating no extra user when both are given', function (): void {
+    $usuarios = User::query()->count();
+
+    $pago = Pago::factory()->validado()->create(['validado_por' => $this->cajero->id, 'boleta_original_verificada_por' => $this->cajero->id]);
+
+    expect(User::query()->count())->toBe($usuarios)
+        ->and(Pago::factory()->validado()->create())->validado_por->toBe(Pago::query()->latest('id')->value('boleta_original_verificada_por'));
+});

@@ -64,6 +64,10 @@ final readonly class ValidarPago
             return null;
         }
 
+        if (mb_strlen($justificacion) > 500) {
+            throw new ReglaDeNegocioIncumplida('La justificación del monto no puede pasar de 500 caracteres.');
+        }
+
         return $justificacion !== '' ? $justificacion : throw new ReglaDeNegocioIncumplida("{$diferencia} Escribe la justificación para validarlo.");
     }
 }

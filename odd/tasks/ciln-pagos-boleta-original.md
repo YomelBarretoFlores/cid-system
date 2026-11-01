@@ -59,4 +59,10 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
   - Docs: `modulos.md`, decisions #114 to #117.
   - RED: 11 new tests, all failing first.
   - GREEN: Pagos, Tramites, Feature, Matricula, Tablero, Certificacion and Concurrency, 1097 tests. Larastan, Rector and Pint are clean.
+- L4 (2026-11-01): `review assess` of 13ba086..f668169 was escalated with item 2 (the validation guard). Native review (lenses risk, reliability, resilience; lineage review-2cedda8898261916) was granted by the user, approved and acknowledged.
+  - Applied after RED tests:
+    - the factory `validado()` state is lazy again: the voucher checker copies the validator and no extra user is created;
+    - `ValidarPago` enforces the 500-character justification limit;
+    - new tests prove that a rejected payment is left out of the other-channel warning and that the warning section is hidden without alerts.
+  - Left for later: the alert queries run on every render, without memoising.
 

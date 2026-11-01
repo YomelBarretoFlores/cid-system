@@ -30,8 +30,8 @@ it('accepts every complete state', function (string $estado, EstadoPago $esperad
 it('rejects payments whose state lacks its required data', function (Closure $pago, string $constraint): void {
     expect($pago)->toThrow(QueryException::class, $constraint);
 })->with([
-    'validated without validator' => [fn () => Pago::factory()->validado()->create(['validado_por' => null]), 'pag_pagos_datos_estado_check'],
-    'validated without date' => [fn () => Pago::factory()->validado()->create(['validado_en' => null]), 'pag_pagos_datos_estado_check'],
+    'validated without validator' => [fn () => Pago::factory()->validado()->create(['validado_por' => null, 'exige_boleta_original' => false, 'boleta_original_verificada_en' => null]), 'pag_pagos_datos_estado_check'],
+    'validated without date' => [fn () => Pago::factory()->validado()->create(['validado_en' => null, 'exige_boleta_original' => false, 'boleta_original_verificada_por' => null]), 'pag_pagos_datos_estado_check'],
     'rejected without reason' => [fn () => Pago::factory()->rechazado()->create(['motivo_rechazo' => '  ']), 'pag_pagos_datos_estado_check'],
     'pending with a validator' => [fn () => Pago::factory()->create(['validado_por' => User::factory(), 'validado_en' => now()]), 'pag_pagos_datos_estado_check'],
     'voided without reason' => [fn () => Pago::factory()->anulado()->create(['motivo_anulacion' => null]), 'pag_pagos_anulacion_check'],
