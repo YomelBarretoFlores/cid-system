@@ -23,7 +23,7 @@ Branch: `feat/documentos-diseno` (stacked on `fix/sidebar-y-reportes`). Delivery
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S1 | inline | done | see L2 |
-| T2 | S2 (grade in words, certificate, constancias) | inline | pending | |
+| T2 | S2 (grade in words, certificate, constancias) | inline | done | see L3 |
 | T3 | S2, S3 (acta, pre-acta, acta verification) | inline | pending | |
 | T4 | S2 (student reports: boleta, récord, avance, asistencia) | inline | pending | |
 
@@ -41,3 +41,18 @@ Branch: `feat/documentos-diseno` (stacked on `fix/sidebar-y-reportes`). Delivery
   - `EmisionDeDocumento` freezes `detalle.denominacion`. `GenerarDocumentoPdf` reads it, and falls back to the issue year for older documents. `GenerarActaFinalPdf` uses the validation year.
   - `x-pdf.documento` gains a `denominacion` prop, printed as «…» above the title; the certificate prints it too.
   - RED: 3 new tests errored first. Certificacion, Tramites, Feature and Architecture: 540 pass.
+- L3 (2026-11-01): T2 done.
+  - `Formato::notaEnLetras` ("15.59" gives "Quince con cincuenta y nueve"; hundredths below ten keep "cero") and `Formato::numeroEnLetras` (0–999, feminine for hours).
+  - Shared PDF components follow the design:
+    - `x-pdf.documento`: UNASAM mark | "Centro de Idiomas y Lenguas Nativas / CILN" with the emblem, a gold double rule, the denomination, a spaced serif title and the number under it;
+    - `x-pdf.firmas`: an optional dashed seal circle;
+    - `x-pdf.verificacion`: QR, code, URL and issue date as a footer.
+  - Certificate:
+    - double gold frame with corners and the emblem as a watermark;
+    - "La Dirección … otorga el presente certificado a" and the name underlined;
+    - cycle range in Roman numerals, hours and grade in words;
+    - QR with number and code, seal and signers.
+  - Constancias: "LA DIRECCIÓN … que suscribe: HACE CONSTAR: Que, …". The notas constancia has an "En letras" column and a total/average row.
+  - Real PDFs rendered and read back: the certificate fits one landscape page, the constancia one portrait page.
+  - RED: 2 design tests and the unit tests failed first. Unit, Certificacion, Matricula and Feature: 774 pass.
+

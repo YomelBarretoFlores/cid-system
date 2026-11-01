@@ -37,3 +37,27 @@ it('writes long dates and cycle numbers the way the public page shows them', fun
         ->and(Formato::romano(9))->toBe('IX')
         ->and(Formato::romano(13))->toBe('13');
 });
+
+it('writes a grade in words, with its hundredths', function (?string $nota, string $esperado): void {
+    expect(Formato::notaEnLetras($nota))->toBe($esperado);
+})->with([
+    ['15.59', 'Quince con cincuenta y nueve'],
+    ['16.00', 'Dieciséis'],
+    ['10.20', 'Diez con veinte'],
+    ['14.75', 'Catorce con setenta y cinco'],
+    ['11', 'Once'],
+    ['20.00', 'Veinte'],
+    ['0.00', 'Cero'],
+    ['9.05', 'Nueve con cero cinco'],
+    ['18.21', 'Dieciocho con veintiuno'],
+    [null, '—'],
+]);
+
+it('writes amounts in words, feminine when they count hours', function (): void {
+    expect(Formato::numeroEnLetras(240, femenino: true))->toBe('doscientas cuarenta')
+        ->and(Formato::numeroEnLetras(60, femenino: true))->toBe('sesenta')
+        ->and(Formato::numeroEnLetras(121, femenino: true))->toBe('ciento veintiuna')
+        ->and(Formato::numeroEnLetras(100))->toBe('cien')
+        ->and(Formato::numeroEnLetras(501))->toBe('quinientos uno')
+        ->and(Formato::numeroEnLetras(1000))->toBe('1000');
+});

@@ -40,7 +40,7 @@ it('prints the level certificate in landscape, as a formal certificate with its 
 
     expect($pdf->orientation)->toBe('Landscape')
         ->and(htmlDelPdf($pdf))->toContain(
-            'CERTIFICADO', 'Otorgado a', 'Alva Prueba, Ana', 'DNI 70000001', 'Básico', 'Inglés', '240 horas lectivas', '14.69',
+            'CERTIFICADO', 'otorga el presente certificado a', 'Alva Prueba, Ana', 'DNI 70000001', 'Básico', 'Inglés', '(240) horas lectivas', '14.69',
             'Huaraz, 10 de abril de 2027', 'Dr. Mario Huerta Ríos', 'Director del Centro de Idiomas y Lenguas Nativas', 'Mg. Luis Paredes Vega', 'Coordinador Académico',
             'N.º 000001-2027', $certificado->codigo, 'data:image/png;base64,',
         );
@@ -77,4 +77,18 @@ it('keeps the signers a document was issued with, even if a signer changes later
     Firmante::query()->where('nombre', 'Dr. Mario Huerta Ríos')->update(['nombre' => 'Dr. Otro Nombre']);
 
     expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($constancia->id)))->toContain('Dr. Mario Huerta Ríos')->not->toContain('Dr. Otro Nombre');
+});
+
+it('writes the hours and the final grade in words on the certificate, with a space for the seal', function (): void {
+    $certificado = app(EmitirCertificadoDeNivel::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
+
+    expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($certificado->id)))
+        ->toContain('doscientas cuarenta (240) horas lectivas', 'Catorce con sesenta y nueve (14.69)', 'ciclos I al IV', 'Sello');
+});
+
+it('writes each grade in words on the constancia de notas, with the total and the average', function (): void {
+    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+
+    expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($constancia->id)))
+        ->toContain('En letras', 'Catorce', 'Quince con cincuenta', 'Total / promedio', '240', 'que suscribe', 'Sello');
 });
