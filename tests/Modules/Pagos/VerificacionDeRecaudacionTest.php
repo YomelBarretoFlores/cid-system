@@ -18,11 +18,11 @@ use App\Modules\Pagos\Data\FilaDeConcepto;
 use App\Modules\Pagos\Data\FilaDeIdioma;
 use App\Modules\Pagos\Data\FiltrosDeRecaudacion;
 use App\Modules\Pagos\Data\ReporteDeRecaudacion as Reporte;
-use App\Modules\Pagos\Enums\FuenteConcepto;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Filament\Pages\ReporteDeRecaudacion;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
@@ -34,9 +34,9 @@ use Spatie\Permission\PermissionRegistrar;
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2026-10-24 10:00', 'America/Lima'));
     $this->tesorero = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoPago::Reportar->value]);
-    $this->mat = Concepto::factory()->create(['codigo' => 'MAT-01', 'nombre' => 'Derecho de matrícula', 'tipo' => TipoConcepto::Matricula, 'fuente' => FuenteConcepto::Tupa]);
-    $this->pen = Concepto::factory()->create(['codigo' => 'PEN-01', 'nombre' => 'Pensión', 'tipo' => TipoConcepto::Pension, 'fuente' => FuenteConcepto::Tusne]);
-    $this->exa = Concepto::factory()->create(['codigo' => 'EXC-01', 'nombre' => 'Examen', 'tipo' => TipoConcepto::ExamenClasificacion, 'fuente' => FuenteConcepto::Tupa]);
+    $this->mat = Concepto::factory()->create(['codigo' => 'MAT-01', 'nombre' => 'Derecho de matrícula', 'tipo' => TipoConcepto::Matricula, 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
+    $this->pen = Concepto::factory()->create(['codigo' => 'PEN-01', 'nombre' => 'Pensión', 'tipo' => TipoConcepto::Pension, 'fuente_id' => FuenteDeConcepto::idDe('tusne')]);
+    $this->exa = Concepto::factory()->create(['codigo' => 'EXC-01', 'nombre' => 'Examen', 'tipo' => TipoConcepto::ExamenClasificacion, 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
     $this->persona = Persona::factory()->create(['numero_documento' => '41234567', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'nombres' => 'Rosa']);
 });
 
@@ -179,7 +179,7 @@ it('after revocation the next Livewire update still renders the report detail', 
 });
 
 it('neutralizes formula cells and escapes commas and quotes in the CSV', function (): void {
-    $c = Concepto::factory()->create(['codigo' => '=CMD', 'nombre' => 'Raro', 'tipo' => TipoConcepto::Pension, 'fuente' => FuenteConcepto::Tusne]);
+    $c = Concepto::factory()->create(['codigo' => '=CMD', 'nombre' => 'Raro', 'tipo' => TipoConcepto::Pension, 'fuente_id' => FuenteDeConcepto::idDe('tusne')]);
     $leading = ['+Suma', '-Resta', '@Arroba', "\tTab", "\rCr"];
     foreach ($leading as $i => $ap) {
         $p = Persona::factory()->create(['apellido_paterno' => $ap, 'apellido_materno' => 'X', 'nombres' => 'Y']);

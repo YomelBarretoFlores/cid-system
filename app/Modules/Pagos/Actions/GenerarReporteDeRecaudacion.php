@@ -62,7 +62,7 @@ final readonly class GenerarReporteDeRecaudacion
     private function pagosValidados(FiltrosDeRecaudacion $filtros): Collection
     {
         return Pago::query()
-            ->with(['concepto', 'medioDePago'])
+            ->with(['concepto.fuenteDeConcepto', 'medioDePago'])
             ->where('estado', EstadoPago::Validado)
             ->whereBetween('fecha_pago', [$filtros->desde->toDateString(), $filtros->hasta->toDateString()])
             ->when($filtros->conceptoId, fn ($query, int $conceptoId) => $query->where('concepto_id', $conceptoId))
@@ -113,7 +113,7 @@ final readonly class GenerarReporteDeRecaudacion
             $filas[$concepto->codigo] = new FilaDeConcepto(
                 codigo: $concepto->codigo,
                 nombre: $concepto->nombre,
-                fuente: $concepto->fuente->etiqueta(),
+                fuente: $concepto->fuenteDeConcepto->nombre,
                 centimos: ($previa->centimos ?? 0) + self::centimos((string) $pago->monto),
                 operaciones: ($previa->operaciones ?? 0) + 1,
             );

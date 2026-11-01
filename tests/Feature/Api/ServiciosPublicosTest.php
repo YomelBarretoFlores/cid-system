@@ -14,8 +14,8 @@ use App\Modules\Academico\Models\Periodo;
 use App\Modules\Certificacion\Actions\AnularDocumento;
 use App\Modules\Certificacion\Actions\EmitirCertificadoDeNivel;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
-use App\Modules\Pagos\Enums\FuenteConcepto;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
@@ -60,7 +60,7 @@ it('answers an empty offer when no period is open or about to open', function ()
 });
 
 it('lists the fees in force today in Lima with their amount as a decimal string', function (): void {
-    $concepto = Concepto::factory()->create(['codigo' => 'TUSNE-012', 'nombre' => 'Matrícula por ciclo', 'fuente' => FuenteConcepto::Tusne]);
+    $concepto = Concepto::factory()->create(['codigo' => 'TUSNE-012', 'nombre' => 'Matrícula por ciclo', 'fuente_id' => FuenteDeConcepto::idDe('tusne')]);
     Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '180.00', 'vigente_desde' => '2026-03-01']);
     Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '120.00', 'vigente_desde' => '2026-10-25']);
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Modules\Academico\Data\GrupoOfertado;
 use App\Modules\Academico\Data\OfertaDelPeriodo;
 use App\Modules\Pagos\Data\TarifaVigente;
-use App\Modules\Pagos\Enums\FuenteConcepto;
 use App\Modules\Personas\Enums\TipoVinculo;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
@@ -145,7 +144,6 @@ return [
         OfertaDelPeriodo::class,
         GrupoOfertado::class,
         TarifaVigente::class,
-        FuenteConcepto::class,
         TipoVinculo::class,
     ],
 

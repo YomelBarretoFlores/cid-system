@@ -7,9 +7,9 @@ namespace App\Modules\Pagos\Database\Seeders;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Enums\FuenteConcepto;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
@@ -43,7 +43,7 @@ final class PagosDemoSeeder extends Seeder
     public function run(): void
     {
         foreach (self::CONCEPTOS as $codigo => [$nombre, $tipo, $montos]) {
-            $concepto = Concepto::query()->create(['codigo' => $codigo, 'nombre' => $nombre, 'tipo' => $tipo, 'fuente' => FuenteConcepto::Tupa]);
+            $concepto = Concepto::query()->create(['codigo' => $codigo, 'nombre' => $nombre, 'tipo' => $tipo, 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
 
             foreach ($montos as $vinculo => $monto) {
                 $concepto->tarifas()->create(['tipo_vinculo' => TipoVinculo::from($vinculo), 'monto' => $monto, 'vigente_desde' => '2026-01-01']);

@@ -29,7 +29,7 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
 | T1 | S1, S2, S3, S5 | inline | done | see L3 |
 | T2 | S4 | inline | done | see L5 |
 | T3 | S6 | inline | done | see L6 |
-| T4 | S7 | inline | pending | |
+| T4 | S7 | inline | done | see L8 |
 
 ## Log
 
@@ -92,4 +92,12 @@ Branch: `feat/pagos-boleta-original` (stacked on `feat/asistencia-tema`) · Deli
   - One CRITICAL finding: the catalog had renamed the transfer channel from "Transferencia bancaria" to "Transferencia", silently changing the API, report and portal labels. Fixed in cf73d45 within the bounded correction; the targeted validation approved it and the review was acknowledged.
   - Then fixed a warning, after a RED test: a generated code now stays within 40 characters and takes a free suffix (`_2`…) when it collides.
   - Left for later: `down()` maps the new channels to `otro`, which could collide with an existing `(otro, número)` when rolling back.
+- L8 (2026-11-01): T4 done.
+  - Migration `2026_11_01_100300_turn_fee_sources_into_a_catalog` creates `pag_fuentes_concepto` (TUPA, TUSNE) and moves `pag_conceptos.fuente` to `fuente_id`.
+  - `FuenteDeConceptoResource` lives under Configuración. The concept form offers the active sources plus the one the concept already has.
+  - `TarifaVigente` now carries `fuente` (code) and `fuenteEtiqueta`, so the public API keeps its fields. `FuenteConcepto` left the `serializable_classes` allowlist.
+  - The home cache key moved to `portada-publica:v2`, so a payload cached by the previous release is never unserialised.
+  - `CreateConcepto` wraps creation in a savepoint, so a code taken at the same time stays a form error inside an outer transaction.
+  - RED: 5 new tests failed first.
+  - Pagos, Feature, Tramites, Unit, Matricula, Certificacion, Tablero and Concurrency: 1157 tests pass. Pint, Larastan and Rector are clean.
 

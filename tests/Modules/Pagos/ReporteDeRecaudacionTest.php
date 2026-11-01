@@ -16,9 +16,9 @@ use App\Modules\Pagos\Data\FilaDeConcepto;
 use App\Modules\Pagos\Data\FilaDeIdioma;
 use App\Modules\Pagos\Data\FiltrosDeRecaudacion;
 use App\Modules\Pagos\Data\ReporteDeRecaudacion;
-use App\Modules\Pagos\Enums\FuenteConcepto;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
@@ -26,9 +26,9 @@ use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 
 beforeEach(function (): void {
-    $this->matricula = Concepto::factory()->create(['codigo' => 'MAT-01', 'nombre' => 'Derecho de matrícula', 'tipo' => TipoConcepto::Matricula, 'fuente' => FuenteConcepto::Tupa]);
-    $this->pension = Concepto::factory()->create(['codigo' => 'PEN-01', 'nombre' => 'Pensión mensual', 'tipo' => TipoConcepto::Pension, 'fuente' => FuenteConcepto::Tusne]);
-    $this->examen = Concepto::factory()->create(['codigo' => 'EXC-01', 'nombre' => 'Examen de clasificación', 'tipo' => TipoConcepto::ExamenClasificacion, 'fuente' => FuenteConcepto::Tupa]);
+    $this->matricula = Concepto::factory()->create(['codigo' => 'MAT-01', 'nombre' => 'Derecho de matrícula', 'tipo' => TipoConcepto::Matricula, 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
+    $this->pension = Concepto::factory()->create(['codigo' => 'PEN-01', 'nombre' => 'Pensión mensual', 'tipo' => TipoConcepto::Pension, 'fuente_id' => FuenteDeConcepto::idDe('tusne')]);
+    $this->examen = Concepto::factory()->create(['codigo' => 'EXC-01', 'nombre' => 'Examen de clasificación', 'tipo' => TipoConcepto::ExamenClasificacion, 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
 
     $this->ingles = Idioma::factory()->create(['nombre' => 'Inglés']);
     $this->enero = Periodo::factory()->create(['nombre' => 'Enero 2027']);

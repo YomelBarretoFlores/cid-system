@@ -23,8 +23,8 @@ final class TarifaVigenteResource extends JsonResource
         return [
             'codigo' => $tarifa->codigo,
             'concepto' => $tarifa->concepto,
-            'fuente' => $tarifa->fuente->value,
-            'fuente_etiqueta' => $tarifa->fuente->etiqueta(),
+            'fuente' => $tarifa->fuente,
+            'fuente_etiqueta' => $tarifa->fuenteEtiqueta,
             'vinculo' => $tarifa->tipoVinculo->value,
             'vinculo_etiqueta' => $tarifa->tipoVinculo->etiqueta(),
             'monto' => $tarifa->monto,

@@ -9,8 +9,8 @@ use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
-use App\Modules\Pagos\Enums\FuenteConcepto;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
 use Carbon\CarbonImmutable;
@@ -25,7 +25,7 @@ beforeEach(function (): void {
     ]);
     $this->ingles = Idioma::factory()->create(['nombre' => 'Inglés']);
     $this->grupo = Grupo::factory()->for($this->periodo)->for(Ciclo::factory()->for($this->ingles)->state(['numero' => 1]))->create(['estado' => EstadoGrupo::Abierto, 'cupo_maximo' => 20]);
-    $this->concepto = Concepto::factory()->create(['codigo' => 'TUSNE-012', 'nombre' => 'Matrícula por ciclo', 'fuente' => FuenteConcepto::Tusne]);
+    $this->concepto = Concepto::factory()->create(['codigo' => 'TUSNE-012', 'nombre' => 'Matrícula por ciclo', 'fuente_id' => FuenteDeConcepto::idDe('tusne')]);
 });
 
 it('builds the public page once and serves the same content for a few minutes', function (): void {

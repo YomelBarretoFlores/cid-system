@@ -231,7 +231,7 @@
                             <div @class(['grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-interna px-[18px] py-4', 'bg-acento-claro' => $loop->first, 'bg-tarjeta-interna' => ! $loop->first])>
                                 <span class="flex flex-col">
                                     <span class="text-[17px] font-semibold">{{ $tarifa->concepto }}</span>
-                                    <span class="text-[13.5px] text-terciario">{{ $tarifa->codigo }} · {{ $tarifa->fuente->etiqueta() }}</span>
+                                    <span class="text-[13.5px] text-terciario">{{ $tarifa->codigo }} · {{ $tarifa->fuenteEtiqueta }}</span>
                                 </span>
                                 <span class="text-[26px] font-medium tracking-[-0.03em] whitespace-nowrap">S/ {{ $tarifa->monto }}</span>
                             </div>

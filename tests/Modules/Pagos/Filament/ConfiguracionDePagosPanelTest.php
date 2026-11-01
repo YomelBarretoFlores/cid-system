@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Modules\Pagos\Enums\FuenteConcepto;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Filament\Resources\Conceptos\ConceptoResource;
@@ -11,6 +10,7 @@ use App\Modules\Pagos\Filament\Resources\Conceptos\Pages\EditConcepto;
 use App\Modules\Pagos\Filament\Resources\Conceptos\Pages\ListConceptos;
 use App\Modules\Pagos\Filament\Resources\Conceptos\RelationManagers\TarifasRelationManager;
 use App\Modules\Pagos\Models\Concepto;
+use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
@@ -46,14 +46,14 @@ it('lists concepts with their source, type and status', function (): void {
     Livewire::test(ListConceptos::class)
         ->assertCanSeeTableRecords([$this->concepto])
         ->assertTableColumnFormattedStateSet('tipo', 'Matrícula', $this->concepto)
-        ->assertTableColumnFormattedStateSet('fuente', 'TUPA', $this->concepto);
+        ->assertTableColumnStateSet('fuenteDeConcepto.nombre', 'TUPA', $this->concepto);
 });
 
 it('creates a concept with a normalized code', function (): void {
     $this->actingAs($this->administrador);
 
     Livewire::test(CreateConcepto::class)
-        ->fillForm(['codigo' => ' tusne-07 ', 'nombre' => 'Constancia de estudios', 'tipo' => TipoConcepto::Constancia->value, 'fuente' => FuenteConcepto::Tusne->value])
+        ->fillForm(['codigo' => ' tusne-07 ', 'nombre' => 'Constancia de estudios', 'tipo' => TipoConcepto::Constancia->value, 'fuente_id' => FuenteDeConcepto::idDe('tusne')])
         ->call('create')
         ->assertHasNoFormErrors();
 
@@ -66,7 +66,7 @@ it('refuses a repeated concept code', function (): void {
     $this->actingAs($this->administrador);
 
     Livewire::test(CreateConcepto::class)
-        ->fillForm(['codigo' => 'tupa-010', 'nombre' => 'Otro', 'tipo' => TipoConcepto::Otro->value, 'fuente' => FuenteConcepto::Tupa->value])
+        ->fillForm(['codigo' => 'tupa-010', 'nombre' => 'Otro', 'tipo' => TipoConcepto::Otro->value, 'fuente_id' => FuenteDeConcepto::idDe('tupa')])
         ->call('create')
         ->assertHasFormErrors(['codigo']);
 
@@ -76,11 +76,11 @@ it('refuses a repeated concept code', function (): void {
 it('reports a code created by someone else at the same time as a form error', function (): void {
     $this->actingAs($this->administrador);
     Concepto::creating(function (Concepto $nuevo): void {
-        DB::table('pag_conceptos')->insert(['codigo' => $nuevo->codigo, 'nombre' => 'Simultáneo', 'tipo' => 'otro', 'fuente' => 'tupa', 'activo' => true]);
+        DB::table('pag_conceptos')->insert(['codigo' => $nuevo->codigo, 'nombre' => 'Simultáneo', 'tipo' => 'otro', 'fuente_id' => FuenteDeConcepto::idDe('tupa'), 'activo' => true]);
     });
 
     Livewire::test(CreateConcepto::class)
-        ->fillForm(['codigo' => 'tupa-099', 'nombre' => 'Otro', 'tipo' => TipoConcepto::Otro->value, 'fuente' => FuenteConcepto::Tupa->value])
+        ->fillForm(['codigo' => 'tupa-099', 'nombre' => 'Otro', 'tipo' => TipoConcepto::Otro->value, 'fuente_id' => FuenteDeConcepto::idDe('tupa')])
         ->call('create')
         ->assertHasFormErrors(['codigo']);
 });
