@@ -213,8 +213,9 @@ it('refuses a schedule line when another group of the period uses the classroom 
         ->and($grupo->horarios()->count())->toBe(0);
 });
 
-it('allows the same classroom and time in another period, back to back, or for a virtual group', function (): void {
-    $otroPeriodo = Grupo::factory()->create(['aula_id' => $this->aula->id]);
+it('allows the same classroom and time in another period that does not overlap, back to back, or for a virtual group', function (): void {
+    $abril = Periodo::factory()->create(['fecha_inicio' => '2027-04-01', 'fecha_fin' => '2027-04-30']);
+    $otroPeriodo = Grupo::factory()->create(['periodo_id' => $abril->id, 'aula_id' => $this->aula->id]);
     Horario::factory()->for($otroPeriodo)->create(['dia_semana' => 5, 'hora_inicio' => '16:00', 'hora_fin' => '18:00']);
     $contiguo = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'aula_id' => $this->aula->id]);
     Horario::factory()->for($contiguo)->create(['dia_semana' => 5, 'hora_inicio' => '14:00', 'hora_fin' => '16:00']);

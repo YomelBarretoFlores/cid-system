@@ -10,6 +10,7 @@ use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
+use App\Modules\Academico\Models\Periodo;
 use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -107,16 +108,16 @@ final readonly class GuardarGrupo
         $cambiaDeAula = $grupo->aula_id !== $aula->id || $grupo->periodo_id !== $datos->periodoId;
 
         if ($grupo->exists && $cambiaDeAula) {
-            $this->asegurarAulaLibre($grupo, $aula, $datos->periodoId);
+            $this->asegurarAulaLibre($grupo, $aula, Periodo::query()->findOrFail($datos->periodoId));
         }
     }
 
-    private function asegurarAulaLibre(Grupo $grupo, Aula $aula, int $periodoId): void
+    private function asegurarAulaLibre(Grupo $grupo, Aula $aula, Periodo $periodo): void
     {
         foreach ($grupo->horarios as $horario) {
             $choque = Horario::query()
                 ->with('grupo')
-                ->ocupanAula($aula->id, $periodoId, $grupo->id)
+                ->ocupanAula($aula->id, $periodo, $grupo->id)
                 ->seCruzaCon($horario->dia_semana, $horario->hora_inicio, $horario->hora_fin)
                 ->first();
 

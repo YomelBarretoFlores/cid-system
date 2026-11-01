@@ -56,14 +56,16 @@ final class Horario extends Model
      * @param  Builder<self>  $query
      */
     #[Scope]
-    protected function ocupanAula(Builder $query, int $aulaId, int $periodoId, int $exceptoGrupoId): void
+    protected function ocupanAula(Builder $query, int $aulaId, Periodo $periodo, int $exceptoGrupoId): void
     {
-        // A cancelled group no longer holds its classroom.
+        // A cancelled group no longer holds its classroom; a group of any period whose dates overlap does.
         $query->where('grupo_id', '!=', $exceptoGrupoId)
             ->whereHas('grupo', fn (Builder $grupo) => $grupo
                 ->where('aula_id', $aulaId)
-                ->where('periodo_id', $periodoId)
-                ->where('estado', '!=', EstadoGrupo::Cancelado->value));
+                ->where('estado', '!=', EstadoGrupo::Cancelado->value)
+                ->whereHas('periodo', fn (Builder $otro) => $otro
+                    ->where('fecha_inicio', '<=', $periodo->fecha_fin)
+                    ->where('fecha_fin', '>=', $periodo->fecha_inicio)));
     }
 
     /**

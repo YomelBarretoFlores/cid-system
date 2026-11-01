@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Academico\Filament\Resources\Periodos\Pages;
 
+use App\Modules\Academico\Actions\VerificarCrucesDelPeriodo;
 use App\Modules\Academico\Filament\Resources\Periodos\Actions\AccionesDePeriodo;
 use App\Modules\Academico\Filament\Resources\Periodos\PeriodoResource;
 use App\Modules\Academico\Filament\Resources\Periodos\Schemas\PeriodoForm;
@@ -23,7 +24,16 @@ final class EditPeriodo extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         try {
-            return Transaccion::ejecutar(fn (): Model => parent::handleRecordUpdate($record, $data), reintentar: false);
+            return Transaccion::ejecutar(function () use ($record, $data): Model {
+                $antes = [$record->getAttribute('fecha_inicio'), $record->getAttribute('fecha_fin')];
+                $periodo = parent::handleRecordUpdate($record, $data);
+
+                if ([$periodo->getAttribute('fecha_inicio'), $periodo->getAttribute('fecha_fin')] != $antes) {
+                    app(VerificarCrucesDelPeriodo::class)($periodo->getKey());
+                }
+
+                return $periodo;
+            }, reintentar: false);
         } catch (ReglaDeNegocioIncumplida $error) {
             AccionDeNegocio::detener($error);
         } catch (UniqueConstraintViolationException $error) {

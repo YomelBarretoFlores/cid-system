@@ -81,7 +81,7 @@ final readonly class GuardarHorario
         $aula = Aula::query()->whereKey($grupo->aula_id)->lockForUpdate()->firstOrFail();
         $choque = Horario::query()
             ->with('grupo')
-            ->ocupanAula($aula->id, $grupo->periodo_id, $grupo->id)
+            ->ocupanAula($aula->id, $grupo->periodo, $grupo->id)
             ->seCruzaCon($diaSemana, $inicio, $fin)
             ->first();
 
