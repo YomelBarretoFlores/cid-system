@@ -37,4 +37,9 @@ enum TipoDocumento: string
             self::CertificadoNivel => 'certificado-de-nivel',
         };
     }
+
+    public function grupoDeFirma(): GrupoDeFirma
+    {
+        return $this === self::CertificadoNivel ? GrupoDeFirma::Certificados : GrupoDeFirma::Constancias;
+    }
 }

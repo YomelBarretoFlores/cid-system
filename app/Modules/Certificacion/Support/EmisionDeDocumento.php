@@ -35,11 +35,16 @@ final readonly class EmisionDeDocumento
 
         for ($intento = 1; ; $intento++) {
             try {
-                return Transaccion::ejecutar(fn (): Documento => Documento::query()->create([
-                    ...$datos, 'codigo' => CodigoDeDocumento::nuevo(), 'tipo' => $tipo, 'persona_id' => $personaId,
-                    'estudiante_nombre' => $ficha->nombreCompleto, 'estudiante_documento' => $ficha->documento,
-                    'emitido_por' => $emisor->id, 'emitido_en' => now(),
-                ]));
+                return Transaccion::ejecutar(function () use ($datos, $tipo, $personaId, $ficha, $emisor): Documento {
+                    $anio = (int) now('America/Lima')->format('Y');
+
+                    return Documento::query()->create([
+                        ...$datos, 'codigo' => CodigoDeDocumento::nuevo(), 'tipo' => $tipo, 'persona_id' => $personaId,
+                        'estudiante_nombre' => $ficha->nombreCompleto, 'estudiante_documento' => $ficha->documento,
+                        'emitido_por' => $emisor->id, 'emitido_en' => now(),
+                        'anio_numero' => $anio, 'numero' => NumeracionDeDocumentos::siguiente($tipo, $anio),
+                    ]);
+                });
             } catch (UniqueConstraintViolationException $error) {
                 $this->traducir($error, $intento, $duplicado);
             }

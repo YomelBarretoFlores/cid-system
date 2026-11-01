@@ -86,7 +86,7 @@ Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y c
 |---|---|
 | Actas finales | Solo el docente asignado y en fechas del calendario; promedio según el esquema configurable (el acta guarda copia del esquema usado); estados Aprobado/Desaprobado/NSP |
 | Cierre | Bloqueo automático al validar; cambios posteriores requieren autorización del Administrador y quedan en la auditoría |
-| Constancias y certificados | PDF institucional, emisión masiva o individual; correlativo único |
+| Constancias y certificados | PDF institucional, emisión masiva o individual. Cada documento nuevo recibe un número por tipo y año ("N.º 000123-2027"), asignado al emitirlo con el contador bloqueado y único en la base de datos; los emitidos antes no tienen número. Firmantes administrables (Configuración → Firmantes, permiso `certificacion.documentos`): cargo, nombre, qué documentos firma y vigencia; cada documento imprime los vigentes en su fecha de emisión |
 | Verificación QR | Código único (ULID) que no caduca; portal público con datos mínimos y rate limiting |
 | Notas en el portal | Contratos para el portal del estudiante: `AvanceDeNotas` (pre-acta y promedio parcial con `ActaPrevia` y `PromedioFinal`, o las notas del acta cerrada), `BoletaDeNotas` (nota final solo de actas cerradas) y `RecordDeNotas` (historial por idioma de `HistorialDeNotas` con ciclos faltantes del nivel). No recalculan promedios fuera de Certificacion |
 
