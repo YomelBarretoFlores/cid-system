@@ -137,3 +137,12 @@ it('paints each rotating word of the headline with the colors of its language fl
         ->assertSee('style="background-image: linear-gradient(90deg, #3C3B6E, #B22234)">inglés</span>', false)
         ->assertSee('style="background-image: linear-gradient(90deg, #E30613, #F39200, #C9A800, #009640, #0069B4, #6F2C91)">quechua</span>', false);
 });
+
+it('links to the dates section from the header and footer only when the home shows it', function (): void {
+    $this->get('/')->assertOk()->assertDontSee(route('portada').'#fechas', false);
+    $this->get(route('verificacion.documento'))->assertOk()->assertDontSee(route('portada').'#fechas', false);
+
+    periodoDePortada();
+
+    $this->get('/')->assertOk()->assertSee('href="'.route('portada').'#fechas"', false);
+});

@@ -1,4 +1,4 @@
-@props(['verificar' => true, 'fondo' => 'var(--color-papel)'])
+@props(['verificar' => true, 'fondo' => 'var(--color-papel)', 'secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'preguntas' => 'Preguntas']])
 <footer {{ $attributes->class('relative bg-marino-900 text-white') }}>
     <div aria-hidden="true" class="nubes absolute inset-x-0 -top-px h-10" style="--nube: {{ $fondo }}"></div>
     <div @class(['mx-auto grid max-w-[1200px] grid-cols-[minmax(0,1fr)] gap-12 px-4 pt-24 pb-10 sm:px-6', 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)]' => $verificar, 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]' => ! $verificar])>
@@ -15,7 +15,7 @@
         <div class="grid grid-cols-2 gap-6 text-[14.5px]">
             <nav aria-label="Secciones de la portada" class="flex flex-col gap-2.5">
                 <span class="mb-1 text-[15px] font-semibold">Portada</span>
-                @foreach (['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'fechas' => 'Fechas', 'preguntas' => 'Preguntas'] as $ancla => $seccion)
+                @foreach ($secciones as $ancla => $seccion)
                     <a href="{{ route('portada') }}#{{ $ancla }}" class="self-start text-celeste-100/80 transition-colors hover:text-white">{{ $seccion }}</a>
                 @endforeach
             </nav>

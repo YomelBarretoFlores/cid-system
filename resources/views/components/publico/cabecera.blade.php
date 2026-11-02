@@ -1,4 +1,4 @@
-@props(['secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'fechas' => 'Fechas', 'preguntas' => 'Preguntas', 'verificar' => 'Verificar']])
+@props(['secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'preguntas' => 'Preguntas', 'verificar' => 'Verificar']])
 <header x-data="cabeceraCiln" x-on:focusin="oculta = false" x-bind:class="{ '-translate-y-[140%]': oculta && ! menu, 'shadow-[0_10px_30px_rgb(10_46_82/0.10)] bg-white/95': desplazada || menu }"
     {{ $attributes->class('sticky top-0 z-30 bg-papel/90 backdrop-blur-md transition-[translate,box-shadow,background-color] duration-500 ease-salida') }}>
     <div class="mx-auto flex max-w-[1200px] items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">

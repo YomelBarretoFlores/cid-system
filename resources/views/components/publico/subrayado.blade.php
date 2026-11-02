@@ -1,0 +1,2 @@
+@props(['dibujado' => false])
+<svg aria-hidden="true" viewBox="0 0 200 14" preserveAspectRatio="none" {{ $attributes->class('absolute left-0 w-full overflow-visible text-celeste-300') }}><path d="M3 9.5C42 4.5 101 2.5 197 6.5" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" @if ($dibujado) pathLength="1" class="trazo-a-mano" @endif /><path d="M22 12.5C71 9 128 8.6 178 10.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" @if ($dibujado) pathLength="1" class="trazo-a-mano" style="--orden: 1" @endif /></svg>

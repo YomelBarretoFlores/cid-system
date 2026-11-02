@@ -54,10 +54,6 @@
         animation-delay: calc(var(--orden, 0) * 120ms + 300ms), calc(var(--orden, 0) * -1.3s);
     }
 
-    .aura {
-        animation: aura 9s ease-in-out infinite alternate;
-    }
-
     .js-movimiento [data-revelar] {
         opacity: 0;
         transform: translateY(28px);
@@ -72,51 +68,17 @@
         transform: none;
     }
 
-    .ticker {
-        mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-    }
-
-    .ticker-pista {
-        display: flex;
-        width: max-content;
-        animation: ticker 45s linear infinite;
-    }
-
-    .ticker:hover .ticker-pista {
-        animation-play-state: paused;
-    }
-
     .indicador {
         transition:
             transform 450ms var(--ease-salida),
             width 450ms var(--ease-salida);
     }
 
-    @supports (animation-timeline: view()) {
-        .palabra {
-            opacity: 0.16;
-            animation: iluminar linear both;
-            animation-timeline: view();
-            animation-range: cover calc(18% + var(--i) / var(--n) * 30%) cover calc(26% + var(--i) / var(--n) * 30%);
-        }
-
-        .trazo {
-            transform-origin: left;
-            animation: trazar linear both;
-            animation-timeline: view();
-            animation-range: entry 0% cover 25%;
-        }
-    }
-
     @media (prefers-reduced-motion: reduce) {
         .linea-mascara > span,
         .aparecer,
         .rotador > span,
-        .flotar,
-        .aura,
-        .ticker-pista,
-        .palabra,
-        .trazo {
+        .flotar {
             animation: none !important;
             transition: none !important;
             transform: none !important;
@@ -160,29 +122,5 @@
 @keyframes flotar {
     50% {
         translate: 0 -10px;
-    }
-}
-
-@keyframes aura {
-    to {
-        transform: scale(1.08) rotate(6deg);
-    }
-}
-
-@keyframes ticker {
-    to {
-        transform: translateX(-50%);
-    }
-}
-
-@keyframes iluminar {
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes trazar {
-    from {
-        transform: scaleX(0);
     }
 }

@@ -1,5 +1,6 @@
 @php
     use App\Modules\Academico\Enums\Modalidad;
+    use App\Shared\Ui\BanderaDeIdioma;
     use App\Shared\Ui\BanderasDeIdiomas;
     use App\Shared\Ui\Formato;
 
@@ -9,8 +10,8 @@
     $banderas = app(BanderasDeIdiomas::class);
     $saludos = ['Inglés' => 'Hello', 'Quechua' => 'Allillanchu', 'Francés' => 'Bonjour', 'Italiano' => 'Ciao', 'Portugués' => 'Olá', 'Alemán' => 'Hallo', 'Chino' => 'Nǐ hǎo', 'Japonés' => 'Konnichiwa', 'Ruso' => 'Privet', 'Coreano' => 'Annyeong'];
     $palabrasDelTitular = $nombresDeIdiomas === []
-        ? [['un idioma', 'linear-gradient(90deg, #1D62A8, #3D8FDB)']]
-        : array_map(fn (string $nombre): array => [mb_strtolower($nombre), 'linear-gradient(90deg, '.implode(', ', $banderas->para($nombre)->colores()).')'], $nombresDeIdiomas);
+        ? [['un idioma', BanderaDeIdioma::Neutra->degradado()]]
+        : array_map(fn (string $nombre): array => [mb_strtolower($nombre), $banderas->para($nombre)->degradado()], $nombresDeIdiomas);
     $modalidades = Modalidad::cases();
     $etiquetasDeModalidad = array_map(fn (Modalidad $modalidad): string => $modalidad->etiqueta(), $modalidades);
     $detallesDeModalidad = [
@@ -26,7 +27,7 @@
         default => [$grupo->vacantes.($grupo->vacantes === 1 ? ' vacante' : ' vacantes'), $grupo->vacantes <= 5 ? 'warning' : 'success'],
     };
     $secciones = array_filter(
-        ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'fechas' => 'Fechas', 'preguntas' => 'Preguntas', 'verificar' => 'Verificar'],
+        ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'fechas' => 'Fechas', 'preguntas' => 'Preguntas'],
         fn (string $ancla): bool => $ancla !== 'fechas' || $fechas !== [],
         ARRAY_FILTER_USE_KEY,
     );
@@ -41,7 +42,7 @@
     $tarjeta = 'rounded-3xl border border-marino-900/8 bg-white shadow-[0_1px_2px_rgb(10_46_82/0.05)]';
 @endphp
 <div x-data="{ idioma: @js($primerIdioma), modalidad: 'Todas', conteos: @js($conteos) }" class="tema-publico min-h-screen overflow-x-clip bg-papel text-marino-900">
-    <x-publico.cabecera :secciones="$secciones" />
+    <x-publico.cabecera :secciones="[...$secciones, 'verificar' => 'Verificar']" />
 
     <main id="contenido" x-data="revelarCiln">
         <section id="inicio" class="relative">
@@ -73,7 +74,7 @@
                                         <span x-bind:class="clase({{ $loop->index }})" @class(['palabra-bandera', 'actual' => $loop->first]) style="background-image: {{ $colores }}">{{ $palabra }}</span>
                                     @endforeach
                                 </span>
-                                <svg viewBox="0 0 200 14" preserveAspectRatio="none" class="absolute -bottom-[0.1em] left-0 h-[0.15em] w-full overflow-visible text-celeste-300"><path d="M3 9.5C42 4.5 101 2.5 197 6.5" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" /><path d="M22 12.5C71 9 128 8.6 178 10.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" /></svg>
+                                <x-publico.subrayado class="-bottom-[0.1em] h-[0.15em]" />
                             </span>
                         </span>
                     </span>
@@ -421,5 +422,5 @@
         </section>
     </main>
 
-    <x-publico.pie fondo="var(--color-celeste-100)" />
+    <x-publico.pie :secciones="$secciones" fondo="var(--color-celeste-100)" />
 </div>

@@ -68,6 +68,11 @@ enum BanderaDeIdioma: string
         };
     }
 
+    public function degradado(): string
+    {
+        return 'linear-gradient(90deg, '.implode(', ', $this->colores()).')';
+    }
+
     // For languages without a stored flag: the six names drawn before keep their flag, and other known names now get theirs.
     public static function sugeridaPara(string $idioma): self
     {

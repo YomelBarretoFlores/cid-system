@@ -163,8 +163,11 @@ export const cinta = () => ({
         let largo = copia.getComputedTextLength();
         document.fonts?.ready.then(() => (largo = copia.getComputedTextLength()));
 
+        // Before the font loads the text can measure 0, so the ribbon waits instead of dividing by it.
         const paso = (ahora) => {
-            ruta.setAttribute('startOffset', String(-(((ahora - inicio) * VELOCIDAD_DE_LA_CINTA) % largo)));
+            if (largo > 0) {
+                ruta.setAttribute('startOffset', String(-(((ahora - inicio) * VELOCIDAD_DE_LA_CINTA) % largo)));
+            }
             this.cuadro = requestAnimationFrame(paso);
         };
         this.cuadro = requestAnimationFrame(paso);
