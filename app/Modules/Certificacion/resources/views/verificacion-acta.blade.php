@@ -1,7 +1,7 @@
 @use('App\Modules\Certificacion\Enums\EstadoActa')
 @use('App\Shared\Ui\Formato')
 <x-layouts.base title="Verificar acta" :indexable="false" :marco="false">
-<div class="flex min-h-screen flex-col bg-papel text-marino-900">
+<div class="tema-publico flex min-h-screen flex-col bg-papel text-marino-900">
     <x-publico.cabecera />
     <main id="contenido" class="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-4 px-4 pt-12 pb-24 sm:px-6 sm:pt-16">
         <x-publico.titulo resaltado="acta" etiqueta="Verificación de actas" nivel="p">Verifica un</x-publico.titulo>

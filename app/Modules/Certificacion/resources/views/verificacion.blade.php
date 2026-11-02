@@ -1,5 +1,5 @@
 <x-layouts.base title="Verificar documento" :indexable="false" :marco="false">
-<div class="flex min-h-screen flex-col bg-papel text-marino-900">
+<div class="tema-publico flex min-h-screen flex-col bg-papel text-marino-900">
     <x-publico.cabecera />
     <main id="contenido" class="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-4 px-4 pt-12 pb-24 sm:px-6 sm:pt-16">
         <x-publico.titulo resaltado="documento" etiqueta="Verificación de documentos" :nivel="$verificacion ? 'p' : 'h1'">Verifica un</x-publico.titulo>

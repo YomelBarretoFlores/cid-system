@@ -128,6 +128,7 @@ export const indicador = () => ({
 
 // Hides the sticky header while scrolling down and brings it back on the way up or when it holds the keyboard focus.
 export const cabecera = () => ({
+    menu: false,
     oculta: false,
     desplazada: false,
     ultimo: 0,
