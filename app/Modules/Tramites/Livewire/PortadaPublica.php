@@ -10,7 +10,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 // The public home page; choosing a language, a modality or a link filters on the client, without requests.
-#[Layout('components.layouts.base')]
+#[Layout('components.layouts.base', ['marco' => false])]
 final class PortadaPublica extends Component
 {
     public function render(): View
