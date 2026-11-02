@@ -66,6 +66,18 @@ it('previews the acta from the pre-acta with the course, teacher, averages and f
     expect(Acta::query()->count())->toBe(0);
 });
 
+it('shows the stages of the acta, from the grades still missing to the closed acta', function (): void {
+    $this->actingAs($this->usuario)
+        ->get(route('filament.docente.pages.grupos.acta', $this->grupo->id))
+        ->assertSeeInOrder(['Registra las notas', '5 de 6 notas', 'Revisa el acta', 'Cuando completes las notas', 'Valida y cierra', 'Hasta el 5 abr', 'Vista previa']);
+
+    cerrarActaDelCurso();
+
+    $this->actingAs($this->usuario)
+        ->get(route('filament.docente.pages.grupos.acta', $this->grupo->id))
+        ->assertSeeInOrder(['Registra las notas', '5 de 6 notas', 'Revisa el acta', 'Revisada', 'Valida y cierra', 'Cerrada', 'Validada el 30 mar 2027.']);
+});
+
 it('closes the acta when the teacher validates it and then shows it read-only with its PDF', function (): void {
     Livewire::actingAs($this->usuario)
         ->test(ActaFinalDelGrupo::class, ['grupo' => $this->grupo->id])
@@ -211,9 +223,10 @@ it('lists the actas the teacher closed with their state', function (): void {
 
     Livewire::actingAs($this->usuario)
         ->test(MisActasFinales::class)
-        ->assertSeeInOrder(['ING-1-M · Inglés Básico I', 'Marzo 2027 · 1 de 2 aprobados · validada el 30 mar 2027', 'Cerrada'])
-        ->assertSee(route('filament.docente.pages.grupos.acta', $this->grupo->id));
-    $this->actingAs($this->usuario)->get(route('filament.docente.pages.actas'))->assertOk()->assertSee('ING-1-M · Inglés Básico I');
+        ->assertSeeInOrder(['Grupo', 'Periodo', 'Estado', 'Validada', 'ING-1-M', 'Inglés Básico I · 1 de 2 aprobados', 'Marzo 2027', 'Cerrada', '30 mar 2027', 'Abrir', 'PDF'])
+        ->assertSee(route('filament.docente.pages.grupos.acta', $this->grupo->id))
+        ->assertSee(route('docente.acta.pdf', $this->grupo->id));
+    $this->actingAs($this->usuario)->get(route('filament.docente.pages.actas'))->assertOk()->assertSee(['ING-1-M', 'Inglés Básico I · 1 de 2 aprobados']);
 
     [$otro] = PortalDocente::docente();
     Livewire::actingAs($otro)->test(MisActasFinales::class)
@@ -260,5 +273,5 @@ it('shows the validation day in Lima time, also late at night', function (): voi
     cerrarActaDelCurso();
 
     $this->actingAs($this->usuario)->get(route('filament.docente.pages.grupos.acta', $this->grupo->id))->assertSee('Validada el 30 mar 2027.');
-    Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertSee('validada el 30 mar 2027');
+    Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertSee('30 mar 2027')->assertDontSee('31 mar 2027');
 });

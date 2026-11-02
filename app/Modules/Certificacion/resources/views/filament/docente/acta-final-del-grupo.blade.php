@@ -15,6 +15,7 @@
     @else
         @php($resumen = ActaFinalDelGrupo::resumen($acta->filas))
         <x-filament::section>
+            <x-ciln.pasos :pasos="$etapas" etiqueta="Etapas del acta final" class="mb-4" />
             @if ($acta->estaCerrada())
                 <p class="flex flex-wrap items-center gap-2.5 text-sm">
                     <x-filament::badge color="success">Cerrada</x-filament::badge>

@@ -13,7 +13,7 @@
         <x-filament::empty-state heading="El grupo no tiene estudiantes matriculados." icon="heroicon-o-user-group" />
     @else
         <x-filament::section heading="Camino al acta final" description="Las notas guardadas aquí forman el acta; la validas en la pestaña Acta final dentro de las fechas del periodo.">
-            @include('docencia::filament.docente.pasos-del-llamado', ['pasos' => $etapas, 'etiqueta' => 'Etapas del acta final'])
+            <x-ciln.pasos :pasos="$etapas" etiqueta="Etapas del acta final" />
             @if ($etapas[1][3] === 'actual')
                 <div class="mt-4">
                     <x-filament::button tag="a" :href="route('filament.docente.pages.grupos.acta', $this->grupoId)" color="gray">Revisar el acta final</x-filament::button>

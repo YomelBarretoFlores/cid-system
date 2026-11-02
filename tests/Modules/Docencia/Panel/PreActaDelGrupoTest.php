@@ -126,7 +126,7 @@ it('points the teacher to review and close the acta once every grade is in and t
     $this->actingAs($this->usuario)
         ->get(route('filament.docente.pages.grupos.notas', $this->grupo->id))
         ->assertOk()
-        ->assertSeeInOrder(['Registra las notas', '4 de 4 notas', 'Revisa el acta', 'Ábrela en Acta final', 'Valida y cierra', 'Hasta el 31 mar'])
+        ->assertSeeInOrder(['Registra las notas', '4 de 4 notas', 'Revisa el acta', 'Revisa los promedios antes de validar', 'Valida y cierra', 'Hasta el 31 mar'])
         ->assertSee(route('filament.docente.pages.grupos.acta', $this->grupo->id));
 });
 

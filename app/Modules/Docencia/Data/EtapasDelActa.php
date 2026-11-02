@@ -24,7 +24,7 @@ final readonly class EtapasDelActa
             [1, 'Registra las notas', "{$registradas} de {$esperadas} notas", $cerrada || $completas ? 'hecho' : 'actual'],
             [2, 'Revisa el acta', match (true) {
                 $cerrada => 'Revisada',
-                $completas => 'Ábrela en Acta final',
+                $completas => 'Revisa los promedios antes de validar',
                 default => 'Cuando completes las notas',
             }, match (true) {
                 $cerrada => 'hecho',

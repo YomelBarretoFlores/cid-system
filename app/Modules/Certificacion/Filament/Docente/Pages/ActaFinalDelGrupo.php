@@ -15,10 +15,12 @@ use App\Modules\Certificacion\Data\FilaDelActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Certificacion\Models\Rectificacion;
 use App\Modules\Certificacion\Support\AccesoDelDocente;
+use App\Modules\Docencia\Data\EtapasDelActa;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\PestanasDelGrupo;
 use App\Shared\Support\Logging\RegistroDeRechazos;
+use Carbon\CarbonImmutable;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
@@ -138,7 +140,18 @@ final class ActaFinalDelGrupo extends Page
             'problema' => $acta instanceof ActaDelGrupo ? null : $acta,
             'editable' => $this->esEditable(),
             'motivo' => $acta instanceof ActaDelGrupo && $acta->admiteRectificacion() ? $this->motivoDeRectificacion($acta) : null,
+            'etapas' => $acta instanceof ActaDelGrupo ? $this->etapas($acta, $curso) : [],
         ];
+    }
+
+    /**
+     * @return list<array{int, string, string, 'hecho'|'actual'|'pendiente'}>
+     */
+    private function etapas(ActaDelGrupo $acta, DatosDelCurso $curso): array
+    {
+        $registradas = array_sum(array_map(fn (FilaDelActa $fila): int => count($fila->notas), $acta->filas));
+
+        return EtapasDelActa::de($registradas, count($acta->filas) * count($acta->componentes), $acta->estado, $curso->actasInicio, $curso->actasFin, CarbonImmutable::now('America/Lima'));
     }
 
     protected function pestana(): string

@@ -17,7 +17,7 @@ Branch: `feat/reportes-y-notas-diseno` (from main ab9c820). Delivery: one commit
 |----|-------|-------|--------|--------|
 | T1 | S2, S5 | inline | done | see L2 |
 | T2 | S3 | inline | done | see L3 |
-| T3 | S4 | inline | pending | |
+| T3 | S4 | inline | done | see L4 |
 
 ## Log
 
@@ -28,3 +28,4 @@ Branch: `feat/reportes-y-notas-diseno` (from main ab9c820). Delivery: one commit
   - "Descargar en PDF" side panel: boleta, avance and asistencia per group, horario (and the print version), récord per language and complete.
   - The home "Ver horario completo" opens `?ver=horario`. Checks: Matricula suite 297 passed; desktop and 390 px captures with no overflow and no JS errors.
 - L3 (2026-11-01): T2 done. New `Docencia\Data\EtapasDelActa::de()` builds the stages Registra las notas ("R de E notas"), Revisa el acta and Valida y cierra (window "Del … al …", "Hasta el …" while open, "Cerrada", "Sin fechas de actas") as done/current/pending. `PreActaDelGrupo` counts saved grades of active students per component (`NotasParcialesDelGrupo`), reads the acta state (`EstadosDeActas`) and the window (`CursoDelGrupo`), shows the stages with the steps view and a "Revisar el acta final" button when review is current, and replaces the weight badges with per-component progress cards. Checks: Docencia suite 395 passed; capture of /docente/grupos/1/notas with no JS errors.
+- L4 (2026-11-01): T3 done. The steps markup moves to the shared `x-ciln.pasos` (done steps show a check), used by the attendance calls, the pre-acta and the acta page. `ActaFinalDelGrupo` shows the acta stages (`EtapasDelActa` from the acta rows, its state and the course window) above its state message; stage 2 now reads "Revisa los promedios antes de validar" so it fits both pages. `MisActasFinales` becomes a table with Grupo (code, language and cycle, approved count), Periodo, Estado, Validada (Lima date) and the actions Abrir and PDF (closed actas only). Checks: composer check rc=0 (1948 tests; an earlier run hit the pre-existing Tablero period-number flake, see follow-ups); Certificacion + Docencia 541 passed; captures of /docente/actas, /docente/grupos/1/acta and /docente/grupos/1/asistencia with no JS errors and no mobile overflow.
