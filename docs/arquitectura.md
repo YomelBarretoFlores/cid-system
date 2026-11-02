@@ -112,6 +112,7 @@ Portales y panel comparten una sola fuente de estilos ([ADR 0008](adr/0008-siste
 | Colores, radios, sombras, tamaños | `resources/css/ciln/tokens.css` |
 | Utilidades de portal (`control`, `casilla`, `enlace`, `tarjeta-interna`, `columnas`) | `resources/css/app.css` |
 | Tema del panel y `tabla-reporte` | `resources/css/filament/admin/theme.css` |
+| Tema propio del panel docente (importa el del personal y agrega solo lo del docente) | `resources/css/filament/docente/theme.css` |
 | Paletas del panel (copia en PHP, verificada por prueba) | `app/Shared/Ui/PaletaCiln.php` |
 | Layouts: base, portal con barra lateral, acceso dividido | `resources/views/components/layouts/` |
 | Identidad: emblema y banderas de idioma | `resources/views/components/ciln/` |

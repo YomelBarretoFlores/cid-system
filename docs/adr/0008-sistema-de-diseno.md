@@ -10,7 +10,7 @@ Los portales (Blade + Livewire) y el panel (Filament) tenían estilos propios: a
 
 | Tema | Decisión |
 |---|---|
-| Fuente única de estilos | `resources/css/ciln/tokens.css` (bloque `@theme` de Tailwind 4): paletas `piedra` y `oro`, colores semánticos (`lienzo`, `tarjeta`, `tinta`, `secundario`, `acento`, `enlace`, pares de estado), radios, sombras y tamaños. Lo importan `resources/css/app.css` (portales) y `resources/css/filament/admin/theme.css` (panel). |
+| Fuente única de estilos | `resources/css/ciln/tokens.css` (bloque `@theme` de Tailwind 4): paletas `piedra` y `oro`, colores semánticos (`lienzo`, `tarjeta`, `tinta`, `secundario`, `acento`, `enlace`, pares de estado), radios, sombras y tamaños. Lo importan `resources/css/app.css` (portales) y `resources/css/filament/admin/theme.css` (paneles); el panel docente usa `resources/css/filament/docente/theme.css`, que importa el anterior. |
 | Repetición | Se resuelve con componentes Blade (`x-ciln.*` para la identidad, `x-portal.*` para controles y bloques) y con pocas utilidades `@utility` (`control`, `casilla`, `enlace`, `tarjeta-interna`, `columnas`, `tabla-reporte`). No se copian cadenas de clases entre pantallas ni se encadena `@apply`. |
 | Selectores y fechas | Sin controles nativos: en los portales, `x-portal.seleccion` (lista con búsqueda y banderas) y `x-portal.fecha` (calendario con vista de años), componentes Alpine registrados una vez; en el panel, `Select` y `DatePicker` configurados como no nativos para todo el panel. |
 | Estados de controles | Por atributos de accesibilidad (`aria-invalid`, `aria-current`, `:checked`), no por clases condicionales. |

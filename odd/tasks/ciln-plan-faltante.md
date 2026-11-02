@@ -19,7 +19,7 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
 |----|-------|-------|--------|--------|
 | T1 | S2, S6 | inline | done | see L2 |
 | T2 | S3 | inline | done | see L3 |
-| T3 | S4 | inline | pending | |
+| T3 | S4 | inline | done | see L4 |
 | T4 | S5, S7 | inline | pending | |
 
 ## Log
@@ -29,3 +29,4 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
 - L3 (2026-11-01): T2 done. New Tramites contract `TramitesEnProceso` (`ContarTramitesEnProceso`). `ResumenDelEstudiante` passes the placement exams still to sit (pending and not expired, with the language from `CatalogoDeIdiomas`), the procedures in process and `Matricula\Support\PlazosDeLaSemana` (enrollment closings from `VentanasDeMatricula`, start and end of the acta window of the current group from `CursoDelGrupo`, only when they fall in the current week). Te toca a ti adds "Rinde tu examen de clasificación de X." with its last day; Le toca al CILN adds "Tu(s) trámite(s) … en revisión" with an "En revisión" badge; Esta semana prints the deadlines on their day, also for a student without classes.
   - The Tablero flake (explicit period number 9 against a random factory number in the same year) hit twice, so ReportesGeneralesTest now puts that extra period in 2028 (separate commit).
   - Checks: composer check rc=0 (1953 tests); home capture with no JS errors and no mobile overflow.
+- L4 (2026-11-01): T3 done. New `resources/css/filament/docente/theme.css` imports the staff theme and adds the teacher-only styles (present/absent as rounded pills with touch-sized buttons, bolder student names). `AparienciaDelPanel::aplicar` takes the theme name (default admin); `DocentePanelProvider` passes docente; Vite builds both. Docs: arquitectura.md and ADR 0008. Checks: composer check rc=0 (1954 tests); /docente loads docente/theme.css with no JS errors.

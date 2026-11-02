@@ -27,14 +27,14 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 // The staff and teacher panels share one look and one request pipeline; each panel adds only its own access rules.
 final class AparienciaDelPanel
 {
-    public static function aplicar(Panel $panel, string $subtitulo): Panel
+    public static function aplicar(Panel $panel, string $subtitulo, string $tema = 'admin'): Panel
     {
         return $panel
             ->brandName('CILN - UNASAM')
             ->brandLogo(fn (): View => view('filament.admin.marca', ['subtitulo' => $subtitulo]))
             ->brandLogoHeight('auto')
             ->favicon(asset('favicon.ico'))
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->viteTheme("resources/css/filament/{$tema}/theme.css")
             ->font('Figtree', provider: LocalFontProvider::class)
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => Vite::fonts()->toHtml())
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin.dropdown-sin-cierre-por-teclado'))

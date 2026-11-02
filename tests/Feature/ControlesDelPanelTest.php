@@ -24,3 +24,9 @@ it('names the default order of card grids instead of showing a dash', function (
 
     Livewire::test(ListGrupos::class)->assertSeeHtml('Predeterminado');
 });
+
+it('gives the teacher panel its own theme on top of the staff one', function (): void {
+    expect(Filament::getPanel('docente')->getViteTheme())->toBe('resources/css/filament/docente/theme.css')
+        ->and(Filament::getPanel('admin')->getViteTheme())->toBe('resources/css/filament/admin/theme.css')
+        ->and((string) file_get_contents(resource_path('css/filament/docente/theme.css')))->toContain("@import '../admin/theme.css';");
+});

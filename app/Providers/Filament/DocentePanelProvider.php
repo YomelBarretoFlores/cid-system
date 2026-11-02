@@ -18,7 +18,7 @@ final class DocentePanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        $panel = AparienciaDelPanel::aplicar($panel->id('docente')->path('docente'), 'PORTAL DOCENTE')
+        $panel = AparienciaDelPanel::aplicar($panel->id('docente')->path('docente'), 'PORTAL DOCENTE', 'docente')
             ->spaUrlExceptions(['*/admin*', '*/estudiante*', '*/ingresar*'])
             ->userMenuItems([
                 Action::make('portalDelEstudiante')

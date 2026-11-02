@@ -1,0 +1,14 @@
+@import '../admin/theme.css';
+
+/* Teacher panel only: the present/absent choice of each student is a pill with a touch-sized target, since attendance is often taken on a phone. */
+.fi-fo-toggle-buttons.fi-btn-group {
+    @apply overflow-hidden rounded-pildora;
+
+    & .fi-btn {
+        @apply min-h-10 px-4 sm:min-h-9;
+    }
+}
+
+.fi-fo-toggle-buttons-wrp .fi-fo-field-label-content {
+    @apply font-medium text-tinta;
+}
