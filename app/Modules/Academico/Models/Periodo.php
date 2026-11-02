@@ -32,6 +32,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[UsePolicy(OfertaAcademicaPolicy::class)]
 final class Periodo extends Model
 {
+    // Matches the aca_periodos_numero_check constraint: at most twelve periods in a year.
+    public const int NUMERO_MAXIMO = 12;
+
     /** @use HasFactory<PeriodoFactory> */
     use HasFactory, RenuevaContenidoPublico;
 

@@ -8,6 +8,7 @@ use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Models\Periodo;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use LogicException;
 
 /**
  * @extends Factory<Periodo>
@@ -33,9 +34,13 @@ final class PeriodoFactory extends Factory
     // A number not taken in that year nor by another period of the same test (count() builds them all before saving), so explicit numbers never collide.
     private function numeroLibre(int $anio): int
     {
-        $libres = array_values(array_diff(range(1, 12), Periodo::query()->where('anio', $anio)->pluck('numero')->all()));
+        $libres = array_values(array_diff(range(1, Periodo::NUMERO_MAXIMO), Periodo::query()->where('anio', $anio)->pluck('numero')->all()));
 
-        return $libres === [] ? fake()->numberBetween(1, 12) : fake()->unique()->randomElement($libres);
+        if ($libres === []) {
+            throw new LogicException("No quedan números de periodo libres en {$anio}.");
+        }
+
+        return fake()->unique()->randomElement($libres);
     }
 
     public function conMatriculaAbierta(): static

@@ -19,3 +19,9 @@ it('frees the number a dashboard scenario asks for when the factory already used
     expect((int) $pedido->numero)->toBe((int) $alAzar->numero)
         ->and((int) $alAzar->refresh()->numero)->not->toBe((int) $pedido->numero);
 });
+
+it('says clearly when a year has no period number left instead of failing on the unique constraint', function (): void {
+    Periodo::factory()->count(Periodo::NUMERO_MAXIMO)->create(['anio' => 2027]);
+
+    expect(fn (): Periodo => Periodo::factory()->create(['anio' => 2027]))->toThrow(LogicException::class, 'No quedan números de periodo libres en 2027.');
+});

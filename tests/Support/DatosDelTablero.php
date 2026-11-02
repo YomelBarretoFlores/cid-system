@@ -20,6 +20,7 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\DB;
+use LogicException;
 
 // Small academic and payment scenarios for the management dashboard, built straight on the factories.
 final class DatosDelTablero
@@ -38,11 +39,12 @@ final class DatosDelTablero
     private static function liberarNumero(int $anio, int $numero): void
     {
         $usados = Periodo::query()->where('anio', $anio)->pluck('numero')->map(fn (mixed $usado): int => (int) $usado)->all();
-        $libre = array_values(array_diff(range(1, 12), $usados, [$numero]))[0] ?? null;
-
-        if (in_array($numero, $usados, true) && $libre !== null) {
-            Periodo::query()->where(['anio' => $anio, 'numero' => $numero])->update(['numero' => $libre]);
+        if (! in_array($numero, $usados, true)) {
+            return;
         }
+
+        $libre = array_values(array_diff(range(1, Periodo::NUMERO_MAXIMO), $usados))[0] ?? throw new LogicException("No quedan números de periodo libres en {$anio} para liberar el {$numero}.");
+        Periodo::query()->where(['anio' => $anio, 'numero' => $numero])->update(['numero' => $libre]);
     }
 
     /**
