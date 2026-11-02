@@ -37,3 +37,4 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
   - Trámites: the proposal has no screen for it; it stays as it is.
   - Checks: composer check rc=0 (1955 tests); desktop and 390 px captures with no JS errors or overflow.
 - L6 (2026-11-01): every task of the feature is done; the sidebar blink still waits for the user's recording.
+- L7 (2026-11-01): native review review-2f983390729630c1 (readability + reliability, consent granted by the user) approved and acknowledged over ca64909..1e962de. Advisory R3-archivo-stale-name applied: the drop area clears the shown file name whenever the Livewire property is empty (`x-effect` on `$wire.<nombre>`; a `$wire.$watch` did not fire for an upload reset). Browser check: choose a file shows its name, setting `recibo` to null shows "Elegir archivo" again. Advisories R2-esperas-positional-tuple and R2-plazos-duplicated-markup are left as follow-ups. composer check rc=0 (1955 tests).
