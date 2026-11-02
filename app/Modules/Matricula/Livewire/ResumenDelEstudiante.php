@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\Matricula\Livewire;
 
 use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
+use App\Modules\Academico\Contracts\VentanasDeMatricula;
+use App\Modules\Academico\Data\VentanaDeMatricula;
+use App\Modules\Docencia\Contracts\ClasesPorConfirmarDelDelegado;
 use App\Modules\Matricula\Actions\ResumirAvanceDelEstudiante;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
@@ -33,6 +36,8 @@ final class ResumenDelEstudiante extends Component
             'esDocente' => $this->esDocente,
             'clasificaciones' => $this->clasificacionesPendientes($ficha->personaId),
             'enProceso' => app(TramitesEnProceso::class)($ficha->personaId),
+            'clasesPorConfirmar' => app(ClasesPorConfirmarDelDelegado::class)($ficha->personaId) ?? 0,
+            'cierreDeMatricula' => collect(app(VentanasDeMatricula::class)())->first(fn (VentanaDeMatricula $ventana): bool => $ventana->abierta),
         ]);
     }
 

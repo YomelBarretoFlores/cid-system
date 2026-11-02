@@ -11,6 +11,8 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
 - S4 (plan V5): "Tema propio `resources/css/filament/docente/theme.css`: importa el del admin y agrega lo del docente. Se suma a Vite y se aplica con `->viteTheme()` en `DocentePanelProvider`."
 - S5 (plan V4): "Mis pagos, Mis matrículas, Clasificación y Trámites: el diseño de la propuesta, sin cambiar la lógica."
 - S6 (review advisory R3-dash-assertion-weak): the test of an acta without validation date must prove the Validada cell shows the dash, not any dash on the page.
+- S8 (plan V4, Inicio): "Te toca a ti: pagar la matrícula, elegir grupo (con fecha de cierre), subsanar un trámite observado, confirmar clases si es delegado, rendir la clasificación pendiente."
+- S9 (plan V5): "una tarjeta `x-filament::section` por grupo, con la franja "Hoy · 18:00–19:30 · Aula", "Próxima clase" o "Empieza"".
 - S7 (user, standing): no "tardanza"; administrable language flags stay; schedule and enrollment-sheet formats stay.
 
 ## Tasks
@@ -21,6 +23,9 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
 | T2 | S3 | inline | done | see L3 |
 | T3 | S4 | inline | done | see L4 |
 | T4 | S5, S7 | inline | done | see L5 |
+| T5 | S8 | inline | done | see L9 |
+| T6 | S8 | inline | done | see L9 |
+| T7 | S9 | inline | done | see L10 |
 
 ## Log
 
@@ -38,3 +43,6 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
   - Checks: composer check rc=0 (1955 tests); desktop and 390 px captures with no JS errors or overflow.
 - L6 (2026-11-01): every task of the feature is done; the sidebar blink still waits for the user's recording.
 - L7 (2026-11-01): native review review-2f983390729630c1 (readability + reliability, consent granted by the user) approved and acknowledged over ca64909..1e962de. Advisory R3-archivo-stale-name applied: the drop area clears the shown file name whenever the Livewire property is empty (`x-effect` on `$wire.<nombre>`; a `$wire.$watch` did not fire for an upload reset). Browser check: choose a file shows its name, setting `recibo` to null shows "Elegir archivo" again. Advisories R2-esperas-positional-tuple and R2-plazos-duplicated-markup are left as follow-ups. composer check rc=0 (1955 tests).
+- L8 (2026-11-01): user asked "Revisa todo nuvemante, ya todo está implementado del plan salvo lo del parpadeo?". A second check against the plan found three gaps: the choose-group task has no closing date (T5), the delegate's classes to confirm sit in a separate card outside "Te toca a ti" and its count (T6), and the teacher card's class line has no classroom (T7). User: "Sí, implementa los puntos 1 a 3".
+- L9 (2026-11-01): T5 and T6 done. `ResumenDelEstudiante` passes the first open enrollment window (`VentanasDeMatricula`) and the delegate's pending classes (`ClasesPorConfirmarDelDelegado`). Te toca a ti now says "Elige tu grupo de <periodo> hasta el <día de mes>." (old text when no window is open) and lists "Tienes N clase(s) por confirmar." with the Confirmar clases button, so it counts in "Tienes N cosas por hacer". The separate `ClasesPorConfirmarResumen` card (component, view and registration) is removed; Rector then dropped the empty `boot()` of DocenciaServiceProvider.
+- L10 (2026-11-01): T7 done. `Academico\Data\HorarioDeGrupo` gets the optional `aulaCodigo` (eager-loads `aula`; also used by `BloquearGrupo` and `DescribirHorariosDeGrupos`). The teacher card line reads "Hoy · 18:00–20:00 · A-101"; each part is kept unbroken so the classroom code never splits at its hyphen. Checks: composer check rc=0 (1957 tests); captures of /estudiante and /docente with no JS errors or overflow.

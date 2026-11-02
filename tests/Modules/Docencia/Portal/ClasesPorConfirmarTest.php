@@ -155,7 +155,7 @@ it('shows the delegate how many classes wait for them on the portal home', funct
     $pagina = $this->actingAs(usuarioDeLaMatricula($quien->call($this)))->get(route('estudiante.inicio'))->assertOk()->assertSee('Hola,');
 
     $visible
-        ? $pagina->assertSee('Tienes 1 clase por confirmar')->assertSee(route('estudiante.clases'))
+        ? $pagina->assertSeeInOrder(['Tienes 1 cosa por hacer.', 'Te toca a ti', 'Tienes 1 clase por confirmar.', 'Como delegado, confirma que el docente dictó la clase antes de que venza el plazo.', 'Confirmar clases'])->assertSee(route('estudiante.clases'))
         : $pagina->assertDontSee('por confirmar');
 })->with([
     'the delegate within the window' => ['20:10', fn (): Matricula => $this->ana, true],

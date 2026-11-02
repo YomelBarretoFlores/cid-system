@@ -2,6 +2,7 @@
 @use('App\Modules\Matricula\Enums\EstadoMatricula')
 @use('App\Modules\Matricula\Enums\PasoDelEstudiante')
 @use('App\Modules\Tramites\Contracts\TramitesObservados')
+@use('App\Shared\Ui\Formato')
 @php
     $grupo = $avance->grupoActual;
     $soloDocente = $esDocente && $avance->idiomas === [] && $avance->paso === PasoDelEstudiante::SinPago;
@@ -13,7 +14,8 @@
             ? ['Tu último pago fue rechazado.', $avance->pagos->ultimoRechazo->motivo, 'Registrar pago', 'estudiante.pagos'] : null,
         ! $soloDocente && $avance->paso === PasoDelEstudiante::SinPago && $avance->pagos->ultimoRechazo === null && ! $avance->pagos->matriculaPorValidar
             ? ['Registra tu pago de matrícula.', 'Sube el recibo en Mis pagos; cuando el CILN lo valide podrás elegir tu grupo.', 'Registrar pago', 'estudiante.pagos'] : null,
-        $avance->paso === PasoDelEstudiante::PagoValidado ? ['Tu pago de matrícula ya fue validado.', 'Elige tu grupo mientras la matrícula esté abierta.', 'Elegir mi grupo', 'estudiante.matricula'] : null,
+        $avance->paso === PasoDelEstudiante::PagoValidado ? ['Tu pago de matrícula ya fue validado.', $cierreDeMatricula ? "Elige tu grupo de {$cierreDeMatricula->periodo} hasta el ".Formato::diaDeMes($cierreDeMatricula->fin).'.' : 'Elige tu grupo mientras la matrícula esté abierta.', 'Elegir mi grupo', 'estudiante.matricula'] : null,
+        $clasesPorConfirmar > 0 ? [$clasesPorConfirmar === 1 ? 'Tienes 1 clase por confirmar.' : "Tienes {$clasesPorConfirmar} clases por confirmar.", 'Como delegado, confirma que el docente dictó la clase antes de que venza el plazo.', 'Confirmar clases', 'estudiante.clases'] : null,
         $observados > 0 ? [$observados === 1 ? 'Subsana tu trámite observado.' : "Subsana tus {$observados} trámites observados.", 'El CILN te pidió corregir o completar algo.', 'Ver mis trámites', 'estudiante.tramites'] : null,
         ...array_map(fn (array $clasificacion): array => ["Rinde tu examen de clasificación de {$clasificacion[0]}.", "Acércate al CILN antes del {$clasificacion[1]}.", 'Ver clasificación', 'estudiante.clasificacion'], $soloDocente ? [] : $clasificaciones),
     ]));
