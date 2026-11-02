@@ -67,7 +67,7 @@ it('keeps another period, language, level or group out of the report', function 
     $frances = Idioma::factory()->create(['nombre' => 'Francés']);
     $mismoPeriodo = DatosDelTablero::grupo(Periodo::query()->findOrFail($this->grupo->periodo_id), $frances, 5, NivelCurricular::Intermedio, ['codigo' => 'FRA-5-T']);
     DatosDelTablero::matricula($mismoPeriodo);
-    DatosDelTablero::matricula(DatosDelTablero::grupo(DatosDelTablero::periodo('Abril 2027', '2027-04-01', '2027-04-30', numero: 9), $frances, 1, atributos: ['codigo' => 'FRA-1-A']));
+    DatosDelTablero::matricula(DatosDelTablero::grupo(DatosDelTablero::periodo('Abril 2028', '2028-04-01', '2028-04-30', anio: 2028, numero: 9), $frances, 1, atributos: ['codigo' => 'FRA-1-A']));
     $grupos = fn (FiltrosDeReporte $filtros): array => array_column(filasDe(app(GenerarReporteDeMatriculados::class)($filtros), 'Resumen por grupo'), 0);
     $periodoId = $this->grupo->periodo_id;
 
