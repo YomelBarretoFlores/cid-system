@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Filament\Docente\Pages;
 
-use App\Modules\Academico\Data\HorarioDeGrupo;
-use App\Modules\Docencia\Actions\ListarGruposDelDocente;
+use App\Modules\Docencia\Actions\ResumirMisGrupos;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
-use App\Modules\Docencia\Contracts\EstadosDeSilabos;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Panel;
@@ -47,11 +45,6 @@ final class MisGrupos extends Page
     {
         $docenteId = app(DocenteDelUsuario::class)((int) auth()->id()) ?? abort(403);
 
-        $grupos = app(ListarGruposDelDocente::class)($docenteId);
-
-        return [
-            'grupos' => $grupos,
-            'silabos' => app(EstadosDeSilabos::class)(array_map(fn (HorarioDeGrupo $grupo): int => $grupo->grupoId, $grupos)),
-        ];
+        return ['grupos' => app(ResumirMisGrupos::class)($docenteId)];
     }
 }
