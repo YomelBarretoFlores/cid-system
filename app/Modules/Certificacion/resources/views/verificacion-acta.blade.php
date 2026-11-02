@@ -1,3 +1,4 @@
+@use('App\Modules\Certificacion\Enums\EstadoActa')
 @use('App\Shared\Ui\Formato')
 <x-layouts.base title="Verificar acta" :indexable="false" class="flex items-start justify-center sm:items-center">
     <main id="contenido" class="flex w-full max-w-[640px] flex-col gap-3.5 py-4 sm:py-10">
@@ -10,7 +11,13 @@
         </header>
 
         <section class="flex flex-col gap-5 rounded-tarjeta bg-tarjeta p-5 sm:px-7 sm:py-[26px]" aria-labelledby="resultado">
-            <div><x-portal.insignia color="success">Acta final auténtica</x-portal.insignia></div>
+            <div>
+                @if ($acta->estado === EstadoActa::Cerrada)
+                    <x-portal.insignia color="success">Acta final auténtica y cerrada</x-portal.insignia>
+                @else
+                    <x-portal.insignia color="warning">Acta en rectificación</x-portal.insignia>
+                @endif
+            </div>
             <h1 id="resultado" class="text-titulo font-semibold tracking-[-0.02em]">Acta final de evaluación</h1>
             <dl class="grid gap-3 text-sm sm:grid-cols-2">
                 <x-portal.dato etiqueta="Grupo">{{ $acta->grupo_codigo }}</x-portal.dato>
@@ -21,6 +28,9 @@
                 <x-portal.dato etiqueta="Validada y cerrada el">{{ $acta->validada_en ? Formato::fechaCorta($acta->validada_en->setTimezone('America/Lima')) : '—' }}</x-portal.dato>
                 <x-portal.dato etiqueta="Estudiantes en el acta">{{ $acta->notas_count }} {{ $acta->notas_count === 1 ? 'estudiante' : 'estudiantes' }}</x-portal.dato>
             </dl>
+            @unless ($acta->estado === EstadoActa::Cerrada)
+                <x-portal.alerta tipo="info">El acta se está rectificando: la versión impresa puede no ser la vigente hasta que se vuelva a cerrar.</x-portal.alerta>
+            @endunless
             <p class="text-[13px] text-apagado">Por protección de datos personales, esta página no muestra a los estudiantes ni sus notas.</p>
         </section>
     </main>

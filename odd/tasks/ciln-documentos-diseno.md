@@ -25,7 +25,7 @@ Branch: `feat/documentos-diseno` (stacked on `fix/sidebar-y-reportes`). Delivery
 | T1 | S1 | inline | done | see L2 |
 | T2 | S2 (grade in words, certificate, constancias) | inline | done | see L3 |
 | T3 | S2, S3 (acta, pre-acta, acta verification) | inline | done | see L4 |
-| T4 | S2 (student reports: boleta, récord, avance, asistencia) | inline | pending | |
+| T4 | S2 (student reports: boleta, récord, avance, asistencia) | inline | done | see L5 |
 
 ## Log
 
@@ -68,4 +68,15 @@ Branch: `feat/documentos-diseno` (stacked on `fix/sidebar-y-reportes`). Delivery
   - RED: 3 new tests failed or errored first. Certificacion, Docencia, Feature and Architecture: 836 pass.
   - Real PDFs read back: the acta and the pre-acta fit one page.
   - Risk item 2 (a new public route): an independent verifier comes next.
+- L5 (2026-11-01): independent verifier on 3b9b9f0 (risk item 2). Verdict: no blockers, every point PASS.
+  - Advisories applied, with tests:
+    - A1: only the path is signed (`signed:relative`, `absolute: false`) and `APP_URL` is put in front, so a printed QR survives domain or proxy changes;
+    - A2: an acta in rectification shows "Acta en rectificación" and a note that the printed copy may not be current;
+    - A4: the throttle runs before the signature check;
+    - A5: tests cover a tampered signature, an extra parameter, another host and the rectification view;
+    - A3: `despliegue.md` explains `APP_PREVIOUS_KEYS` and the final `APP_URL` for printed actas.
+  - T4 done: the student reports (avance, boleta, récord, asistencia) get the new letterhead from `x-pdf.documento` and the current year's denomination through the contract.
+  - `composer check` rc=0, 1935 tests.
+
+  V2 is complete: T1 to T4.
 

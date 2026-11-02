@@ -32,8 +32,9 @@ final readonly class GenerarActaFinalPdf
         $validada = ($datos->validadaEn ?? now())->setTimezone('America/Lima');
         $firmas = [['nombre' => $datos->docente, 'cargo' => 'Docente del curso'], ...FirmasDelDocumento::de(GrupoDeFirma::Actas, $validada)];
 
-        // A signed link: acta numbers are sequential, so an unsigned URL would let anyone walk through every acta.
-        $verificacion = URL::signedRoute('verificacion.acta', ['acta' => $acta->id]);
+        // A signed link: acta numbers are sequential, so an unsigned URL would let anyone walk through every acta. Only the path is signed and the
+        // public address is put in front, so a printed QR keeps working if the domain or the proxy setup changes.
+        $verificacion = rtrim((string) config('app.url'), '/').URL::signedRoute('verificacion.acta', ['acta' => $acta->id], absolute: false);
 
         return Pdf::view('certificacion::pdf.acta-final', [
             'acta' => $datos,

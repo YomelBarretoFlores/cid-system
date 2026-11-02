@@ -1,4 +1,4 @@
-<x-pdf.documento titulo="AVANCE DE NOTAS">
+<x-pdf.documento titulo="AVANCE DE NOTAS" :denominacion="$denominacion ?? null">
     <x-matricula::reportes.estudiante :estudiante="$estudiante" :generado-el="$generadoEl">
         <tr><th>Grupo</th><td>{{ $grupo->codigo }} · {{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }} ({{ $grupo->nivel }})</td></tr>
         <tr><th>Periodo</th><td>{{ $grupo->periodo }}</td></tr>

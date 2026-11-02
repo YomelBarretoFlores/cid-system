@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Certificacion\Models\DenominacionDelAnio;
 use App\Modules\Matricula\Livewire\MisReportes;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
@@ -86,6 +87,14 @@ describe('PDF reports', function (): void {
 
         Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'boleta-de-notas-marzo-2027.pdf'
             && $pdf->contains(['BOLETA DE NOTAS', 'Quispe Mamani, Rosa', 'Marzo 2027', 'ING-1-M', 'Inglés', 'Básico I', '60', '10.80', 'Desaprobado']));
+    });
+
+    it('prints the denomination of the year on the student reports', function (): void {
+        DenominacionDelAnio::query()->create(['anio' => 2027, 'texto' => 'Año de la Prueba Sintética']);
+
+        $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.avance', $this->matricula))->assertOk();
+
+        Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains(['«Año de la Prueba Sintética»', 'AVANCE DE NOTAS']));
     });
 
     it('gives the attendance of the enrollment with each class and the totals', function (): void {

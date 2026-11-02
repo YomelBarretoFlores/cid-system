@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Matricula\Support;
 
+use App\Modules\Certificacion\Contracts\DenominacionDelAnio;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\PdfBuilder;
 
-// Every student report carries who it belongs to and when it was generated, in Lima.
+// Every student report carries who it belongs to, when it was generated (in Lima) and the denomination of the current year.
 final class ReporteDelEstudiante
 {
     /**
@@ -21,6 +22,7 @@ final class ReporteDelEstudiante
         return [
             'estudiante' => app(FichaDelUsuario::class)((int) auth()->id()) ?? abort(403),
             'generadoEl' => CarbonImmutable::now('America/Lima')->format('d/m/Y H:i'),
+            'denominacion' => app(DenominacionDelAnio::class)((int) CarbonImmutable::now('America/Lima')->format('Y')),
             ...$datos,
         ];
     }

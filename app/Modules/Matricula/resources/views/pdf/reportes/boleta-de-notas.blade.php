@@ -1,4 +1,4 @@
-<x-pdf.documento titulo="BOLETA DE NOTAS">
+<x-pdf.documento titulo="BOLETA DE NOTAS" :denominacion="$denominacion ?? null">
     <x-matricula::reportes.estudiante :estudiante="$estudiante" :generado-el="$generadoEl">
         <tr><th>Periodo</th><td>{{ $periodo }}</td></tr>
     </x-matricula::reportes.estudiante>

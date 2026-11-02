@@ -1,4 +1,4 @@
-<x-pdf.documento titulo="RÉCORD DE NOTAS">
+<x-pdf.documento titulo="RÉCORD DE NOTAS" :denominacion="$denominacion ?? null">
     <x-matricula::reportes.estudiante :estudiante="$estudiante" :generado-el="$generadoEl" />
 
     @foreach ($records as $record)

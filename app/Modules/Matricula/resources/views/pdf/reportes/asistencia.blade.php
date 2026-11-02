@@ -1,4 +1,4 @@
-<x-pdf.documento titulo="REPORTE DE ASISTENCIA">
+<x-pdf.documento titulo="REPORTE DE ASISTENCIA" :denominacion="$denominacion ?? null">
     <x-matricula::reportes.estudiante :estudiante="$estudiante" :generado-el="$generadoEl">
         <tr><th>Grupo</th><td>{{ $grupo->codigo }} · {{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }}</td></tr>
         <tr><th>Periodo</th><td>{{ $grupo->periodo }}</td></tr>

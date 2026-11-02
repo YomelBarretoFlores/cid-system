@@ -37,7 +37,7 @@ Route::get('/panel/documentos/{documento}/pdf', DescargarDocumentoParaPersonal::
 
 Route::get('/verificar/acta/{acta}', VerificarActa::class)
     ->whereNumber('acta')
-    ->middleware(['signed', 'throttle:30,1'])
+    ->middleware(['throttle:30,1', 'signed:relative'])
     ->name('verificacion.acta');
 
 Route::get('/verificar/{codigo?}', VerificarDocumento::class)
