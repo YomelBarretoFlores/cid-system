@@ -2,7 +2,7 @@
 @use('App\Modules\Tablero\Support\DiasDeClase')
 @php($pagos = $tablero->pagosPorValidar)
 @php($matriculas = $tablero->matriculas)
-<x-pdf.reporte titulo="Tablero de control gerencial" :periodo="$tablero->alcance()" :emitido="now('America/Lima')->format('Y-m-d H:i:s')" horizontal>
+<x-pdf.reporte titulo="Tablero de control gerencial" :periodo="$tablero->alcance()" horizontal>
     <h2>Indicadores principales</h2>
     <table class="tabla-formal">
         <tr><th>Recaudación</th><th>Pagos por validar (todos los periodos)</th><th>Pendientes de validación del periodo (todos los idiomas y niveles)</th><th>Matrículas</th><th>Frente al periodo anterior</th><th>Frente al año anterior</th><th>Deserción</th></tr>

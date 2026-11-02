@@ -1,4 +1,4 @@
-@props(['titulo', 'periodo' => null, 'persona' => null, 'codigo' => null, 'datos' => [], 'emitido', 'oficina' => 'Coordinación Académica', 'imprimible' => false, 'horizontal' => false])
+@props(['titulo', 'periodo' => null, 'persona' => null, 'codigo' => null, 'datos' => [], 'emitido' => null, 'oficina' => 'Coordinación Académica', 'imprimible' => false, 'horizontal' => false])
 {{-- Formal report layout taken from the UNASAM SGA reports: letterhead, plain title with the period, issue time and code on the right, thin grey tables. DOMPDF reads tables and simple CSS only (ADR 0005). --}}
 <!DOCTYPE html>
 <html lang="es">
@@ -71,7 +71,7 @@
                         </table>
                     @endif
                 </td>
-                <td class="emision">{{ $emitido }}@if ($codigo)<br>{{ $codigo }}@endif</td>
+                <td class="emision">{{ $emitido ?? now('America/Lima')->format('Y-m-d H:i:s') }}@if ($codigo)<br>{{ $codigo }}@endif</td>
             </tr>
         </table>
 

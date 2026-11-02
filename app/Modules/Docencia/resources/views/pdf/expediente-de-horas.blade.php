@@ -1,6 +1,6 @@
 @use('App\Modules\Docencia\Data\LineaDeHoras')
 <x-pdf.reporte titulo="Expediente de horas dictadas" :periodo="$expediente->periodo()" :persona="$expediente->nombre" :codigo="$expediente->codigo"
-    :datos="['Categoría' => $expediente->categoria]" :emitido="now('America/Lima')->format('Y-m-d H:i:s')">
+    :datos="['Categoría' => $expediente->categoria]">
     <table class="tabla-formal">
         <thead><tr><th>Idioma</th><th>Nivel dictado</th><th class="monto">Total de horas</th><th class="monto">Costo por hora</th><th class="monto">Monto bruto referencial</th><th class="monto">Clases confirmadas</th><th class="monto">Clases no confirmadas</th></tr></thead>
         <tbody>
