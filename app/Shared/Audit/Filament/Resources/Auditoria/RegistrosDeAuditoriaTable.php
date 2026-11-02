@@ -37,7 +37,7 @@ final class RegistrosDeAuditoriaTable
             ->defaultSort(fn (Builder $query): Builder => $query->orderByDesc('ocurrido_en')->orderByDesc('id'))
             ->paginated([25, 50, 100])
             ->filters([
-                SelectFilter::make('tabla')->label('Tabla')->options(fn (): array => self::tablas())->searchable(),
+                SelectFilter::make('tabla')->label('Tabla')->options(NombresDeTablas::todas())->searchable(),
                 SelectFilter::make('operacion')->label('Operación')->options(OperacionAuditada::opciones()),
                 SelectFilter::make('usuario_id')->label('Usuario')->options(fn (): array => self::usuarios())->searchable(),
                 self::porFecha(),
@@ -46,17 +46,6 @@ final class RegistrosDeAuditoriaTable
             ->recordActions([
                 ViewAction::make(),
             ]);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private static function tablas(): array
-    {
-        return RegistroDeAuditoria::query()->distinct()->orderBy('tabla')->pluck('tabla')
-            ->mapWithKeys(fn (string $tabla): array => [$tabla => NombresDeTablas::de($tabla)])
-            ->sort()
-            ->all();
     }
 
     /**

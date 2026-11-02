@@ -54,6 +54,14 @@ final class NombresDeTablas
         'role_has_permissions' => 'Permisos de los roles',
     ];
 
+    /**
+     * @return array<string, string> every audited table by its label, for the filter (no scan of the growing log)
+     */
+    public static function todas(): array
+    {
+        return collect(self::NOMBRES)->sort()->all();
+    }
+
     public static function de(string $tabla): string
     {
         return self::NOMBRES[$tabla] ?? $tabla;

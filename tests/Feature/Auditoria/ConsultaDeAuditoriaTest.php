@@ -7,6 +7,7 @@ use App\Shared\Audit\Filament\Resources\Auditoria\Pages\ListRegistrosDeAuditoria
 use App\Shared\Audit\Filament\Resources\Auditoria\Pages\ViewRegistroDeAuditoria;
 use App\Shared\Audit\Filament\Resources\Auditoria\RegistroDeAuditoriaResource;
 use App\Shared\Audit\Models\RegistroDeAuditoria;
+use App\Shared\Audit\Support\NombresDeTablas;
 use App\Shared\Auth\Enums\PermisoUsuario;
 use App\Shared\Auth\Models\User;
 use Filament\Facades\Filament;
@@ -129,4 +130,10 @@ it('offers no way to create, edit or delete audit records', function (): void {
         ->and(RegistroDeAuditoriaResource::canCreate())->toBeFalse()
         ->and(RegistroDeAuditoriaResource::canEdit(registroDeAuditoria([])))->toBeFalse()
         ->and(RegistroDeAuditoriaResource::canDelete(registroDeAuditoria([])))->toBeFalse();
+});
+
+it('offers every audited table in the filter, each with its Spanish name', function (): void {
+    $auditadas = collect(DB::select("SELECT DISTINCT c.relname AS tabla FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_proc p ON p.oid = t.tgfoid WHERE p.proname = 'aud_registrar' AND NOT t.tgisinternal"))->pluck('tabla')->sort()->values()->all();
+
+    expect(array_keys(NombresDeTablas::todas()))->toEqualCanonicalizing($auditadas);
 });
