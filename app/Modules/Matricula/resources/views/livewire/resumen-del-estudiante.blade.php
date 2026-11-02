@@ -95,7 +95,7 @@
                     <ul class="flex flex-col gap-4">
                         @foreach ($avance->idiomas as $idioma)
                             <li class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                                <x-ciln.codigo-idioma :idioma="$idioma->idioma" />
+                                <x-ciln.hoja-bandera :idioma="$idioma->idioma" size="34" rot="-8" />
                                 <span class="flex min-w-0 flex-1 flex-col gap-1">
                                     <span class="grid grid-cols-12 gap-[3px]" role="img" aria-label="{{ $idioma->idioma }}: ciclo {{ $idioma->ciclo }} de 12">
                                         @for ($ciclo = 1; $ciclo <= 12; $ciclo++)

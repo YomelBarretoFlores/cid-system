@@ -90,7 +90,7 @@
 
             @forelse ($ofertaPorIdioma as $idioma => $grupos)
                 <fieldset wire:key="idioma-{{ $idioma }}" class="flex flex-col gap-3" @error('grupo') aria-describedby="campo-grupo-error" @enderror>
-                    <legend class="mb-1 flex items-center gap-2.5 font-semibold"><x-ciln.codigo-idioma :idioma="$idioma" />{{ $idioma }}</legend>
+                    <legend class="mb-1 flex items-center gap-2.5 font-semibold"><x-ciln.hoja-bandera :idioma="$idioma" size="28" />{{ $idioma }}</legend>
 
                     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         @foreach ($grupos as $grupo)

@@ -8,13 +8,13 @@ Branch: `feat/portal-estudiante-diseno` (stacked on `feat/login-sga`). Delivery:
 - S1 (user): "Tengo un nuevo export de diseño para estudiante, docente y documentos … lo que importa es el diseño, no es definitivo, puedes mejorarlo incluso si algo no te cuadra."
 - S2 (plan): the home has a greeting with "Tienes N cosas por hacer", "Te toca a ti" and "Le toca al CILN", the week's agenda, compact language rows, payments and documents.
 - S3 (plan): Matrícula has the 3 steps, the payment in use, a morning/afternoon/night filter, a grid of group cards with live vacancies and a bottom confirmation bar.
-- S4 (plan): languages show as codes (ING, QUE, POR) instead of flags; delegates get a "Confirmar clases" menu entry; the prototype button "Simular acciones del CILN" is left out.
+- S4 (plan, corrected in L4): languages keep their administrable flags (`BanderaDeIdioma` already offers Wiphala and Neutra for native languages); delegates get a "Confirmar clases" menu entry; the prototype button "Simular acciones del CILN" is left out.
 
 ## Tasks
 
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
-| T1 | S2, S4 (codes) | inline | done | see L2 |
+| T1 | S2 | inline | done | see L2, L4 |
 | T2 | S3 | inline | done | see L3 |
 | T3 | S4 (delegate entry) and remaining screens | inline | pending | |
 
@@ -39,4 +39,5 @@ Branch: `feat/portal-estudiante-diseno` (stacked on `feat/login-sga`). Delivery:
     - a card grid with the live vacancies (`wire:poll.15s.visible`);
     - a sticky dark bar with "Tu elección" and "Matricularme".
   - Every rule and message is unchanged. Matricula portal and Feature portal: 223 pass.
+- L4 (2026-11-01): correction. The plan replaced flags with codes, arguing that native languages have no flag. That was wrong: languages already have an administrable flag (`aca_idiomas.bandera`, `BanderaDeIdioma`), including Wiphala and Neutra. The home and Matrícula use `x-ciln.hoja-bandera` again, and the code chip was removed.
 
