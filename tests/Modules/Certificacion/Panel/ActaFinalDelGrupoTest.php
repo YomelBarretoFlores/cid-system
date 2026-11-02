@@ -17,6 +17,7 @@ use App\Modules\Docencia\Models\Docente;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -266,6 +267,14 @@ it('lists an acta under rectification with its state', function (): void {
     app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value));
 
     Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertSeeInOrder(['ING-1-M', 'En rectificación']);
+});
+
+it('lists an open acta without validation date with a dash', function (): void {
+    $acta = cerrarActaDelCurso();
+    app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value));
+    DB::table('cer_actas')->where('id', $acta->id)->update(['validada_en' => null, 'validada_por' => null]);
+
+    Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertOk()->assertSeeInOrder(['ING-1-M', 'En rectificación', '—']);
 });
 
 it('shows the validation day in Lima time, also late at night', function (): void {
