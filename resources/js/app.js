@@ -1,5 +1,5 @@
 import fecha from './ciln/fecha';
-import { cabecera, contador, indicador, revelar, rotador } from './ciln/movimiento';
+import { cabecera, cinta, contador, indicador, revelar, rotador } from './ciln/movimiento';
 import selector from './ciln/selector';
 
 const registrar = () => {
@@ -10,6 +10,7 @@ const registrar = () => {
     window.Alpine.data('rotadorCiln', rotador);
     window.Alpine.data('indicadorCiln', indicador);
     window.Alpine.data('cabeceraCiln', cabecera);
+    window.Alpine.data('cintaCiln', cinta);
 };
 
 if (window.Alpine) {

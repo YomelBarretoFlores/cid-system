@@ -3,6 +3,7 @@ const DURACION_DEL_CONTADOR = 1400;
 const TRANSICION_DEL_ROTADOR = 700;
 const CABECERA_CON_SOMBRA = 8;
 const CABECERA_SE_OCULTA = 160;
+const VELOCIDAD_DE_LA_CINTA = 0.045;
 
 const quieto = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window);
 
@@ -145,5 +146,30 @@ export const cabecera = () => ({
         this.desplazada = y > CABECERA_CON_SOMBRA;
         this.oculta = !quieto() && y > CABECERA_SE_OCULTA && y > this.ultimo && !this.$el.contains(document.activeElement);
         this.ultimo = y;
+    },
+});
+
+// Slides the words of the curved ribbon along its path, looping by the length of one copy so the seam never shows.
+export const cinta = () => ({
+    init() {
+        if (quieto()) {
+            return;
+        }
+
+        const ruta = this.$el.querySelector('textPath');
+        const copia = this.$el.querySelector('tspan');
+        const inicio = performance.now();
+        let largo = copia.getComputedTextLength();
+        document.fonts?.ready.then(() => (largo = copia.getComputedTextLength()));
+
+        const paso = (ahora) => {
+            ruta.setAttribute('startOffset', String(-(((ahora - inicio) * VELOCIDAD_DE_LA_CINTA) % largo)));
+            this.cuadro = requestAnimationFrame(paso);
+        };
+        this.cuadro = requestAnimationFrame(paso);
+    },
+
+    destroy() {
+        cancelAnimationFrame(this.cuadro);
     },
 });

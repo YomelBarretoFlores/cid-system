@@ -1,16 +1,12 @@
 @use('App\Modules\Certificacion\Enums\EstadoActa')
 @use('App\Shared\Ui\Formato')
-<x-layouts.base title="Verificar acta" :indexable="false" class="flex items-start justify-center sm:items-center">
-    <main id="contenido" class="flex w-full max-w-[640px] flex-col gap-3.5 py-4 sm:py-10">
-        <header class="flex items-center gap-3 rounded-tarjeta bg-tarjeta p-5 sm:px-7">
-            <x-ciln.emblema class="w-[52px]" />
-            <span class="flex flex-col leading-[1.15]">
-                <span class="text-[17px] font-semibold">Centro de Idiomas y Lenguas Nativas</span>
-                <span class="text-[13px] text-apagado">Universidad Nacional Santiago Antúnez de Mayolo · Verificación de actas</span>
-            </span>
-        </header>
+<x-layouts.base title="Verificar acta" :indexable="false" :marco="false">
+<div class="flex min-h-screen flex-col bg-papel text-marino-900">
+    <x-publico.cabecera />
+    <main id="contenido" class="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-4 px-4 pt-12 pb-24 sm:px-6 sm:pt-16">
+        <x-publico.titulo resaltado="acta" etiqueta="Verificación de actas" nivel="p">Verifica un</x-publico.titulo>
 
-        <section class="flex flex-col gap-5 rounded-tarjeta bg-tarjeta p-5 sm:px-7 sm:py-[26px]" aria-labelledby="resultado">
+        <section class="flex flex-col gap-5 rounded-[24px] bg-white shadow-[0_2px_0_var(--color-plata-100)] p-5 sm:px-7 sm:py-[26px]" aria-labelledby="resultado">
             <div>
                 @if ($acta->estado === EstadoActa::Cerrada)
                     <x-portal.insignia color="success">Acta final auténtica y cerrada</x-portal.insignia>
@@ -34,4 +30,6 @@
             <p class="text-[13px] text-apagado">Por protección de datos personales, esta página no muestra a los estudiantes ni sus notas.</p>
         </section>
     </main>
+    <x-publico.pie :verificar="false" />
+</div>
 </x-layouts.base>

@@ -53,6 +53,30 @@
     --color-institucional: #33465e;
     --color-institucional-oscuro: #26364a;
 
+    /* Public website, taken from the CILN logo: navy figures, royal-blue ring, sky-blue leaves, silver lettering. */
+    --color-marino-950: #061a30;
+    --color-marino-900: #0a2e52;
+    --color-marino-800: #0e3d6b;
+    --color-marino-700: #14508a;
+    --color-real-600: #1d62a8;
+    --color-real-500: #2873c0;
+    --color-celeste-500: #3d8fdb;
+    --color-celeste-400: #62a8e8;
+    --color-celeste-300: #93c3ef;
+    --color-celeste-200: #bfdcf6;
+    --color-celeste-100: #ddedfb;
+    --color-celeste-50: #eff6fd;
+    --color-plata-300: #c5cad3;
+    --color-plata-100: #eceef2;
+    --color-papel: #f7f6f2;
+    --color-papel-oscuro: #eeece5;
+    /* Soft tints of the flag leaves, for the language cards. */
+    --color-hoja-celeste: #dcebfa;
+    --color-hoja-rojo: #fbe2de;
+    --color-hoja-verde: #dceedb;
+    --color-hoja-ambar: #fbecc8;
+    --color-hoja-lila: #e8e2f6;
+
     --color-ambar-fondo: #fbefd5;
     --color-ambar-texto: #7a5300;
     --color-verde-fondo: #e6f3ea;
