@@ -10,10 +10,13 @@ use App\Modules\Academico\Data\VentanaDeMatricula;
 use App\Modules\Docencia\Contracts\ClasesPorConfirmarDelDelegado;
 use App\Modules\Matricula\Actions\ResumirAvanceDelEstudiante;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
+use App\Modules\Matricula\Enums\PasoDelEstudiante;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Matricula\Support\PlazosDeLaSemana;
+use App\Modules\Matricula\Support\TareasDelInicio;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Tramites\Contracts\TramitesEnProceso;
+use App\Modules\Tramites\Contracts\TramitesObservados;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -29,15 +32,24 @@ final class ResumenDelEstudiante extends Component
 
         $avance = app(ResumirAvanceDelEstudiante::class)($ficha->personaId);
 
+        $soloDocente = $this->esDocente && $avance->idiomas === [] && $avance->paso === PasoDelEstudiante::SinPago;
+        $tareas = new TareasDelInicio(
+            avance: $avance,
+            soloDocente: $soloDocente,
+            observados: app(TramitesObservados::class)($ficha->personaId),
+            clasificaciones: $this->clasificacionesPendientes($ficha->personaId),
+            clasesPorConfirmar: app(ClasesPorConfirmarDelDelegado::class)($ficha->personaId) ?? 0,
+            enProceso: app(TramitesEnProceso::class)($ficha->personaId),
+            cierreDeMatricula: collect(app(VentanasDeMatricula::class)())->first(fn (VentanaDeMatricula $ventana): bool => $ventana->abierta),
+        );
+
         return view('matricula::livewire.resumen-del-estudiante', [
             'ficha' => $ficha,
             'avance' => $avance,
+            'soloDocente' => $soloDocente,
+            'tareas' => $tareas->delEstudiante(),
+            'esperas' => $tareas->delCiln(),
             'plazos' => PlazosDeLaSemana::de(CarbonImmutable::now('America/Lima'), $avance->grupoActual),
-            'esDocente' => $this->esDocente,
-            'clasificaciones' => $this->clasificacionesPendientes($ficha->personaId),
-            'enProceso' => app(TramitesEnProceso::class)($ficha->personaId),
-            'clasesPorConfirmar' => app(ClasesPorConfirmarDelDelegado::class)($ficha->personaId) ?? 0,
-            'cierreDeMatricula' => collect(app(VentanasDeMatricula::class)())->first(fn (VentanaDeMatricula $ventana): bool => $ventana->abierta),
         ]);
     }
 
