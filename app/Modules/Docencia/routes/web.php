@@ -14,5 +14,5 @@ Route::middleware(['auth', 'auth.session', 'verified', 'estudiante'])->group(fun
 
 Route::get('/panel/silabos/{grupo}/pdf', DescargarSilaboParaPersonal::class)
     ->whereNumber('grupo')
-    ->middleware(['auth', 'auth.session', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:'.PermisoDocencia::Ver->value])
+    ->middleware(['auth', 'auth.session', 'panel.sesion', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:'.PermisoDocencia::Ver->value])
     ->name('panel.silabos.pdf');

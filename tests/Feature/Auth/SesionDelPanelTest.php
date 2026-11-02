@@ -152,3 +152,10 @@ it('takes the inactivity limit from the configuration', function (): void {
 
     assertSalidaDelPanel($this->get('/admin/profile'), ProtegerSesionDelPanel::AVISO_INACTIVIDAD);
 });
+
+it('guards every staff download under /panel with the panel session', function (): void {
+    $descargas = collect(app('router')->getRoutes()->getRoutes())->filter(fn ($ruta): bool => str_starts_with((string) $ruta->getName(), 'panel.'));
+
+    expect($descargas)->not->toBeEmpty()
+        ->and($descargas->reject(fn ($ruta): bool => in_array('panel.sesion', $ruta->gatherMiddleware(), true))->map->getName()->values()->all())->toBe([]);
+});

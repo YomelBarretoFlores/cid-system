@@ -140,3 +140,10 @@ it('keeps the syllabus PDF away from staff without the teaching view permission 
     auth()->logout();
     $this->get(route('panel.silabos.pdf', $this->publicado->id))->assertRedirect();
 });
+
+it('sends staff signed in outside the panel to the panel sign-in instead of serving the syllabus PDF', function (): void {
+    $this->be($this->coordinador)->get(route('panel.silabos.pdf', $this->publicado->id))->assertRedirect('/admin/login');
+    $this->assertGuest();
+
+    $this->get(route('panel.silabos.pdf', $this->publicado->id))->assertRedirect(route('filament.admin.auth.login'));
+});

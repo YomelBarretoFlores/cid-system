@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Modules\Docencia\Http\Middleware\RequierePerfilDocente;
 use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
+use App\Shared\Auth\Http\Middleware\ProtegerDescargaDelPanel;
 use App\Shared\Auth\Http\Middleware\RequiereCorreoVerificado;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\DestinoTrasIngreso;
@@ -30,10 +31,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', EstablecerContextoAuditoria::class);
         $middleware->appendToGroup('api', EstablecerContextoAuditoria::class);
         $middleware->throttleApi();
-        $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'docente' => RequierePerfilDocente::class, 'correo.verificado' => RequiereCorreoVerificado::class]);
+        $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'docente' => RequierePerfilDocente::class, 'correo.verificado' => RequiereCorreoVerificado::class, 'panel.sesion' => ProtegerDescargaDelPanel::class]);
 
-        // The admin panel redirects its own guests to its login; every portal page goes to the single entry.
-        $middleware->redirectGuestsTo(fn (Request $request): ?string => $request->is('api/*') ? null : route('ingresar'));
+        // The admin panel redirects its own guests to its login; staff downloads under /panel go there too, every portal page to the single entry.
+        $middleware->redirectGuestsTo(fn (Request $request): ?string => match (true) {
+            $request->is('api/*') => null,
+            $request->is('panel/*') => route('filament.admin.auth.login'),
+            default => route('ingresar'),
+        });
         // Already signed in, staff opening the entry go to the panel; only a fresh portal sign-in puts the teacher and student modules first (DestinoTrasIngreso).
         $middleware->redirectUsersTo(fn (Request $request): string => match (true) {
             ! $request->user() instanceof User => route('estudiante.inicio'),

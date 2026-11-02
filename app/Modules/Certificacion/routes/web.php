@@ -23,16 +23,16 @@ Route::get('/estudiante/documentos/{documento}/pdf', DescargarDocumentoDelEstudi
     ->name('estudiante.documentos.pdf');
 
 Route::get('/panel/actas-finales/{acta}/pdf', DescargarActaFinalParaPersonal::class)
-    ->middleware(['auth', 'auth.session', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:view,acta'])
+    ->middleware(['auth', 'auth.session', 'panel.sesion', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:view,acta'])
     ->name('panel.actas.pdf');
 
 Route::get('/panel/grupos/{grupo}/pre-acta/pdf', DescargarPreActa::class)
     ->whereNumber('grupo')
-    ->middleware(['auth', 'auth.session', 'can:'.User::ADMIN_PANEL_PERMISSION])
+    ->middleware(['auth', 'auth.session', 'panel.sesion', 'can:'.User::ADMIN_PANEL_PERMISSION])
     ->name('panel.grupos.preacta.pdf');
 
 Route::get('/panel/documentos/{documento}/pdf', DescargarDocumentoParaPersonal::class)
-    ->middleware(['auth', 'auth.session', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:view,documento'])
+    ->middleware(['auth', 'auth.session', 'panel.sesion', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:view,documento'])
     ->name('panel.documentos.pdf');
 
 Route::get('/verificar/acta/{acta}', VerificarActa::class)

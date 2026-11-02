@@ -25,7 +25,7 @@ User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". T
 
 ## Tasks
 
-- [ ] T1 · S13 · inline · dashboard payment link by ULID.
+- [x] T1 · S13 · inline · dashboard payment link by ULID (c622f00).
 - [ ] T2 · S2 · inline · `/panel/...` staff downloads behind the panel session. Risk: item 2 (security).
 - [ ] T3 · S4 · inline · Spanish validation, auth and password messages.
 - [ ] T4 · S1 · inline · staff users, roles and permissions screens; deactivated accounts cannot sign in. Risk: item 2 (security).
