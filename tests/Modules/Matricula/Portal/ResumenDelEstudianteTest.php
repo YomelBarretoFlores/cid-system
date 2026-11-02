@@ -22,7 +22,7 @@ beforeEach(function (): void {
 it('asks a student without a usable payment to register the enrollment payment', function (): void {
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSeeInOrder(['Hola, Lucía.', 'Registra tu pago de matrícula.', 'Registrar pago', 'Aún no tienes clases.', 'Aún no estudias ningún idioma en el CILN.']);
+        ->assertSeeInOrder(['Hola, Lucía.', 'Tienes 1 cosa por hacer.', 'Te toca a ti', 'Registra tu pago de matrícula.', 'Registrar pago', 'Aún no estudias ningún idioma en el CILN.', 'Esta semana', 'Aún no tienes clases.']);
 });
 
 it('shows an enrolled student the group, the weekly classes and the cycle in progress', function (): void {
@@ -34,7 +34,7 @@ it('shows an enrolled student the group, the weekly classes and the cycle in pro
 
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSeeInOrder(['Ya estás matriculado en Inglés · Ciclo 2.', 'Ver mis matrículas', 'Mar', '07:00', 'A-204', 'Cursando el ciclo 2']);
+        ->assertSeeInOrder(['Estás al día.', 'Ya estás matriculado en Inglés · Ciclo 2.', 'Ver mis matrículas', 'Cursando el ciclo 2', 'Esta semana', 'Mar', 'Inglés · 07:00 · A-204']);
 });
 
 it('points a teacher without any enrollment to the groups instead of asking for an enrollment payment', function (): void {
