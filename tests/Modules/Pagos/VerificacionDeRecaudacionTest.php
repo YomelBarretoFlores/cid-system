@@ -210,7 +210,8 @@ it('renders the PDF with real DOMPDF and the HTML carries period and totals', fu
     $bin = $pdf->generatePdfContent();
     $html = view('pagos::pdf.recaudacion', ['reporte' => $r])->render();
     expect($bin)->toStartWith('%PDF')->and(strlen($bin))->toBeGreaterThan(1000)
-        ->and($html)->toContain('Del 01/10/2026 al 31/10/2026')->and($html)->toContain('S/ 1,235.00')->and($html)->toContain('DNI 41234567');
+        ->and($html)->toContain('Del 01/10/2026 al 31/10/2026')->and($html)->toContain('S/ 1,235.00')->and($html)->toContain('DNI 41234567')
+        ->and($html)->toContain('class="tabla-formal"')->and($html)->not->toContain('#1e3a6e');
 });
 
 it('tampered filters do not crash', function (string $campo, mixed $valor): void {

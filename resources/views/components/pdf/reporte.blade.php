@@ -30,6 +30,11 @@
             table.tabla-formal td.centro, table.tabla-formal th.centro { text-align: center; }
             table.tabla-formal td.separador { background: #8e8d93; color: #ffffff; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 0.4pt; }
             .texto { white-space: pre-line; margin: 0 0 4pt; }
+            table.tabla-formal td.monto { text-align: right; white-space: nowrap; }
+            table.tabla-formal th.monto { text-align: right; }
+            table.tabla-formal tr.total td { font-weight: bold; background: #f8f9fa; }
+            .nota { margin: 8pt 0 0; font-size: 7pt; color: #6c757d; }
+            .aviso { margin: 8pt 0 0; font-weight: bold; }
             @if ($imprimible)
                 body { max-width: {{ $horizontal ? '27cm' : '19cm' }}; margin: 1.2cm auto; }
                 .imprimir { margin-bottom: 12pt; padding: 4pt 12pt; font: inherit; cursor: pointer; }

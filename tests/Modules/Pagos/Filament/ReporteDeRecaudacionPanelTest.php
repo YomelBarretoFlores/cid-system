@@ -76,7 +76,7 @@ it('downloads the consolidated report as PDF for the treasury file', function ()
     Livewire::test(ReporteDeRecaudacion::class)->callAction('descargarPdf')->assertFileDownloaded('recaudacion-2026-10-01-al-2026-10-24.pdf');
 
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'recaudacion-2026-10-01-al-2026-10-24.pdf'
-        && $pdf->contains(['REPORTE DE RECAUDACIÓN', 'Del 01/10/2026 al 24/10/2026', 'MAT-01', 'Derecho de matrícula', 'S/ 80.00', 'DNI 41234567', 'OP-1']));
+        && collect(['Reporte de recaudación', 'Coordinación Académica', 'tabla-formal', 'Del 01/10/2026 al 24/10/2026', 'MAT-01', 'Derecho de matrícula', 'S/ 80.00', 'DNI 41234567', 'OP-1'])->every(fn (string $texto): bool => $pdf->contains($texto)));
 });
 
 it('renders the collection report as a real PDF file', function (): void {

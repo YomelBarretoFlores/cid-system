@@ -123,7 +123,7 @@ it('exports the dashboard with the same filters as a PDF', function (): void {
     Livewire::test(TableroGerencial::class)->callAction('descargarPdf')->assertFileDownloaded('tablero-marzo-2027-2027-03-20.pdf');
 
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'tablero-marzo-2027-2027-03-20.pdf'
-        && $pdf->contains(['TABLERO DE CONTROL GERENCIAL', 'Marzo 2027 · Todos los idiomas · Todos los niveles', 'S/ 160.00 (2 pagos)', 'ING-1-M', '07:00 – 09:00', 'Lun–Vie', '50.0 %']));
+        && collect(['Tablero de control gerencial', 'Coordinación Académica', 'tabla-formal', 'Marzo 2027 · Todos los idiomas · Todos los niveles', 'S/ 160.00 (2 pagos)', 'ING-1-M', '07:00 – 09:00', 'Lun–Vie', '50.0 %'])->every(fn (string $texto): bool => $pdf->contains($texto)));
 });
 
 it('renders the dashboard as a real PDF file', function (): void {

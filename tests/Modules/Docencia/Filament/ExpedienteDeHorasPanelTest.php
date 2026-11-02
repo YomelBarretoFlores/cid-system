@@ -74,7 +74,7 @@ it('puts every required field of the expediente in the PDF', function (): void {
     $expediente = app(ConsolidarHorasDictadas::class)(2027, 3, $this->rosa->id)[0];
     $html = view('docencia::pdf.expediente-de-horas', ['expediente' => $expediente])->render();
 
-    foreach (['EXPEDIENTE DE HORAS DICTADAS', 'Periodo: Marzo 2027', $this->rosa->codigo, 'Rímac Huaylas, Rosa', 'Contratado', '<td>Inglés</td><td>Básico</td><td class="monto">3.50</td><td class="monto">S/ 1,250.00</td><td class="monto">S/ 4,375.00</td>', 'Monto bruto referencial', 'No incluye retenciones de ley'] as $texto) {
+    foreach (['Expediente de horas dictadas', 'Marzo 2027', 'class="tabla-formal"', $this->rosa->codigo, 'Rímac Huaylas, Rosa', 'Contratado', '<td>Inglés</td><td>Básico</td><td class="monto">3.50</td><td class="monto">S/ 1,250.00</td><td class="monto">S/ 4,375.00</td>', 'Monto bruto referencial', 'No incluye retenciones de ley'] as $texto) {
         expect($html)->toContain($texto);
     }
 
