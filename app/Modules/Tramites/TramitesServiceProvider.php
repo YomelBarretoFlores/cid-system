@@ -7,7 +7,9 @@ namespace App\Modules\Tramites;
 use App\Modules\Pagos\Events\PagoAnulado;
 use App\Modules\Pagos\Events\PagoRechazado;
 use App\Modules\Pagos\Events\PagoValidado;
+use App\Modules\Tramites\Actions\ContarTramitesEnProceso;
 use App\Modules\Tramites\Actions\ContarTramitesObservados;
+use App\Modules\Tramites\Contracts\TramitesEnProceso;
 use App\Modules\Tramites\Contracts\TramitesObservados;
 use App\Modules\Tramites\Events\TramiteActualizado;
 use App\Modules\Tramites\Listeners\AlAnularPago;
@@ -24,6 +26,7 @@ final class TramitesServiceProvider extends ModuleServiceProvider
      */
     public array $bindings = [
         TramitesObservados::class => ContarTramitesObservados::class,
+        TramitesEnProceso::class => ContarTramitesEnProceso::class,
     ];
 
     protected string $module = 'Tramites';

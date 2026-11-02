@@ -15,14 +15,16 @@
             ? ['Registra tu pago de matrícula.', 'Sube el recibo en Mis pagos; cuando el CILN lo valide podrás elegir tu grupo.', 'Registrar pago', 'estudiante.pagos'] : null,
         $avance->paso === PasoDelEstudiante::PagoValidado ? ['Tu pago de matrícula ya fue validado.', 'Elige tu grupo mientras la matrícula esté abierta.', 'Elegir mi grupo', 'estudiante.matricula'] : null,
         $observados > 0 ? [$observados === 1 ? 'Subsana tu trámite observado.' : "Subsana tus {$observados} trámites observados.", 'El CILN te pidió corregir o completar algo.', 'Ver mis trámites', 'estudiante.tramites'] : null,
+        ...array_map(fn (array $clasificacion): array => ["Rinde tu examen de clasificación de {$clasificacion[0]}.", "Acércate al CILN antes del {$clasificacion[1]}.", 'Ver clasificación', 'estudiante.clasificacion'], $soloDocente ? [] : $clasificaciones),
     ]));
     $esperas = array_values(array_filter([
         ! $soloDocente && $avance->paso === PasoDelEstudiante::SinPago && $avance->pagos->ultimoRechazo === null && $avance->pagos->matriculaPorValidar
-            ? ['Tu pago de matrícula está por validar.', 'Cuando el CILN lo valide podrás elegir tu grupo.', 'Ver mis pagos', 'estudiante.pagos'] : null,
+            ? ['Tu pago de matrícula está por validar.', 'Cuando el CILN lo valide podrás elegir tu grupo. Lleva tu boleta original al CILN.', 'Por validar', 'Ver mis pagos', 'estudiante.pagos'] : null,
+        $enProceso > 0 ? [$enProceso === 1 ? 'Tu trámite está en revisión.' : "Tus {$enProceso} trámites están en revisión.", 'Te avisaremos por correo cuando avancen.', 'En revisión', 'Ver mis trámites', 'estudiante.tramites'] : null,
     ]));
     $hoy = \Carbon\CarbonImmutable::now('America/Lima');
     $lunes = $hoy->startOfWeek();
-    $dias = array_filter($avance->horario, fn (array $clases, int $dia): bool => $dia < 7 || $clases !== [], ARRAY_FILTER_USE_BOTH);
+    $dias = array_filter($avance->horario, fn (array $clases, int $dia): bool => $dia < 7 || $clases !== [] || isset($plazos[$dia]), ARRAY_FILTER_USE_BOTH);
 @endphp
 <div class="grid gap-2 sm:gap-3.5 xl:grid-cols-[minmax(0,1fr)_340px]">
     <div class="flex min-w-0 flex-col gap-2 sm:gap-3.5">
@@ -56,15 +58,15 @@
             <x-portal.tarjeta>
                 <h2 class="text-[13px] font-semibold tracking-[0.12em] text-apagado uppercase">Le toca al CILN</h2>
                 <ul class="flex flex-col divide-y divide-separador">
-                    @foreach ($esperas as [$titulo, $detalle, $accion, $ruta])
+                    @foreach ($esperas as [$titulo, $detalle, $estado, $accion, $ruta])
                         <li class="flex flex-col gap-3 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-center">
                             <span class="flex size-11 shrink-0 items-center justify-center rounded-control bg-lienzo"><x-heroicon-o-clock aria-hidden="true" class="size-5 text-apagado" /></span>
                             <span class="flex flex-1 flex-col">
                                 <span class="text-[16.5px] font-semibold">{{ $titulo }}</span>
-                                <span class="text-[14px] text-terciario">{{ $detalle }} Lleva tu boleta original al CILN.</span>
+                                <span class="text-[14px] text-terciario">{{ $detalle }}</span>
                             </span>
                             <span class="flex items-center gap-3 self-start sm:self-center">
-                                <x-portal.insignia color="warning">Por validar</x-portal.insignia>
+                                <x-portal.insignia color="warning">{{ $estado }}</x-portal.insignia>
                                 <a href="{{ route($ruta) }}" class="enlace">{{ $accion }}</a>
                             </span>
                         </li>
@@ -118,6 +120,23 @@
                 <x-slot:acciones><a href="{{ route('estudiante.reportes', ['ver' => 'horario']) }}" wire:navigate class="enlace text-[14px]">Ver horario completo</a></x-slot:acciones>
                 @if ($grupo === null)
                     <x-portal.vacio titulo="Aún no tienes clases." icono="heroicon-o-calendar-days">Cuando te matricules, aquí verás tus clases de cada día.</x-portal.vacio>
+                    @if ($plazos !== [])
+                        <ul class="flex flex-col gap-1">
+                            @foreach ($plazos as $dia => $avisos)
+                                <li class="flex items-center gap-4 rounded-interna bg-lienzo px-3 py-2.5">
+                                    <span class="flex w-9 flex-col items-center leading-tight">
+                                        <span class="text-[11px] tracking-[0.08em] text-apagado uppercase">{{ SesionDeClase::DIAS_CORTOS[$dia] }}</span>
+                                        <span class="text-[18px] font-semibold">{{ $lunes->addDays($dia - 1)->day }}</span>
+                                    </span>
+                                    <span class="flex flex-col text-[14.5px]">
+                                        @foreach ($avisos as $aviso)
+                                            <span class="font-medium text-ambar-texto">{{ $aviso }}</span>
+                                        @endforeach
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 @else
                     <ul class="flex flex-col gap-1">
                         @foreach ($dias as $dia => $clases)
@@ -127,11 +146,15 @@
                                     <span class="text-[18px] font-semibold">{{ $lunes->addDays($dia - 1)->day }}</span>
                                 </span>
                                 <span class="flex flex-col text-[14.5px]">
-                                    @forelse ($clases as $clase)
+                                    @foreach ($clases as $clase)
                                         <span>{{ $clase->idioma }} · {{ $clase->hora }} · {{ $clase->aula ?? 'Virtual' }}</span>
-                                    @empty
+                                    @endforeach
+                                    @foreach ($plazos[$dia] ?? [] as $aviso)
+                                        <span class="font-medium text-ambar-texto">{{ $aviso }}</span>
+                                    @endforeach
+                                    @if ($clases === [] && ! isset($plazos[$dia]))
                                         <span class="text-apagado">Sin clases</span>
-                                    @endforelse
+                                    @endif
                                 </span>
                             </li>
                         @endforeach

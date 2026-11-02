@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
@@ -9,7 +10,10 @@ use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Matricula\Models\Matricula;
+use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Tramites\Enums\EstadoTramite;
+use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Tests\Support\PortalDocente;
@@ -76,4 +80,38 @@ it('keeps an enrollment current on the last day of its period, in Lima', functio
         ->assertOk()
         ->assertSee('Ya estás matriculado en Portugués · Ciclo 2.')
         ->assertSee('Cursando el ciclo 2');
+});
+
+it('asks the student to sit a pending placement exam before it expires, and drops it once it expired', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-03-10 10:00', 'America/Lima'));
+    SolicitudClasificacion::factory()->create(['persona_id' => $this->persona->id, 'idioma_id' => Idioma::factory()->create(['nombre' => 'Quechua'])->id, 'vence_en' => '2027-03-20']);
+    SolicitudClasificacion::factory()->create(['persona_id' => $this->persona->id, 'idioma_id' => Idioma::factory()->create(['nombre' => 'Francés'])->id, 'vence_en' => '2027-03-09']);
+
+    $this->actingAs($this->user)->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertSeeInOrder(['Tienes 2 cosas por hacer.', 'Te toca a ti', 'Rinde tu examen de clasificación de Quechua.', 'Acércate al CILN antes del 20/03/2027.', 'Ver clasificación'])
+        ->assertSee(route('estudiante.clasificacion'))
+        ->assertDontSee('clasificación de Francés');
+});
+
+it('tells the student which procedures the CILN is reviewing', function (): void {
+    Tramite::factory()->count(2)->create(['persona_id' => $this->persona->id]);
+    Tramite::factory()->create(['persona_id' => $this->persona->id, 'estado' => EstadoTramite::PendientePago]);
+
+    $this->actingAs($this->user)->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertSeeInOrder(['Le toca al CILN', 'Tus 2 trámites están en revisión.', 'Te avisaremos por correo cuando avancen.', 'En revisión', 'Ver mis trámites']);
+});
+
+it('puts the enrollment deadline and the acta window of this week on their days', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-03-10 10:00', 'America/Lima'));
+    $actual = Periodo::factory()->create(['nombre' => 'Marzo 2027', 'fecha_inicio' => '2027-02-01', 'fecha_fin' => '2027-03-31', 'actas_inicio' => '2027-03-11', 'actas_fin' => '2027-03-14']);
+    Periodo::factory()->create(['nombre' => 'Abril 2027', 'estado' => EstadoPeriodo::MatriculaAbierta, 'matricula_inicio' => '2027-03-01', 'matricula_fin' => '2027-03-12', 'fecha_inicio' => '2027-04-01', 'fecha_fin' => '2027-04-30']);
+    $grupo = Grupo::factory()->for(Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Inglés'])))->create(['periodo_id' => $actual->id]);
+    Horario::factory()->for($grupo)->create(['dia_semana' => 1, 'hora_inicio' => '07:00', 'hora_fin' => '08:30']);
+    Matricula::factory()->create(['persona_id' => $this->persona->id, 'grupo_id' => $grupo->id]);
+
+    $this->actingAs($this->user)->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertSeeInOrder(['Esta semana', 'Lun', 'Inglés · 07:00', 'Jue', 'Empieza el cierre de actas de Marzo 2027', 'Vie', 'Cierra la matrícula de Abril 2027', 'Dom', 'Último día del cierre de actas de Marzo 2027']);
 });

@@ -18,7 +18,7 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S2, S6 | inline | done | see L2 |
-| T2 | S3 | inline | pending | |
+| T2 | S3 | inline | done | see L3 |
 | T3 | S4 | inline | pending | |
 | T4 | S5, S7 | inline | pending | |
 
@@ -26,3 +26,6 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
 
 - L1 (2026-11-01): "Sube y une y continúa con lo faltante". feat/reportes-y-notas-diseno pushed and main fast-forwarded ab9c820 → ca64909. The missing items were found by checking the plan against the code. Routes are inline: each unit is one understood change with no writer reason.
 - L2 (2026-11-01): T1 done. The Estudiantes section of `AsistenciaDelGrupo` (key `estudiantes`) gets the header action "Todos presentes", visible only on the opening call; it fills every student of the call as present without saving, so the call rules still apply on save. The null-validada test now also asserts the old date is gone. Checks: composer check rc=0 (1950 tests).
+- L3 (2026-11-01): T2 done. New Tramites contract `TramitesEnProceso` (`ContarTramitesEnProceso`). `ResumenDelEstudiante` passes the placement exams still to sit (pending and not expired, with the language from `CatalogoDeIdiomas`), the procedures in process and `Matricula\Support\PlazosDeLaSemana` (enrollment closings from `VentanasDeMatricula`, start and end of the acta window of the current group from `CursoDelGrupo`, only when they fall in the current week). Te toca a ti adds "Rinde tu examen de clasificación de X." with its last day; Le toca al CILN adds "Tu(s) trámite(s) … en revisión" with an "En revisión" badge; Esta semana prints the deadlines on their day, also for a student without classes.
+  - The Tablero flake (explicit period number 9 against a random factory number in the same year) hit twice, so ReportesGeneralesTest now puts that extra period in 2028 (separate commit).
+  - Checks: composer check rc=0 (1953 tests); home capture with no JS errors and no mobile overflow.
