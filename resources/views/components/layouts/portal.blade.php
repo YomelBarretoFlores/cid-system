@@ -1,4 +1,5 @@
 @props(['title' => null])
+@use('App\Modules\Docencia\Contracts\ClasesPorConfirmarDelDelegado')
 @use('App\Modules\Docencia\Contracts\DocenteDelUsuario')
 @use('App\Modules\Personas\Contracts\FichaDelUsuario')
 @use('App\Modules\Tramites\Contracts\TramitesObservados')
@@ -9,6 +10,7 @@
     $esDocente = $verificado && app(DocenteDelUsuario::class)((int) $usuario->id) !== null;
     $personaId = $verificado ? app(FichaDelUsuario::class)((int) $usuario->id)?->personaId : null;
     $observados = $personaId === null ? 0 : app(TramitesObservados::class)($personaId);
+    $porConfirmar = $personaId === null ? null : app(ClasesPorConfirmarDelDelegado::class)($personaId);
     $iniciales = collect(preg_split('/\s+/', trim((string) $usuario?->name)) ?: [])->filter()->take(2)->map(fn (string $parte): string => mb_strtoupper(mb_substr($parte, 0, 1)))->implode('');
 @endphp
 <x-layouts.base :title="$title" x-data="{ colapsado: $persist(false).as('ciln-menu-colapsado') }" x-bind:data-colapsado="colapsado || null"
@@ -43,6 +45,9 @@
                         <x-portal.enlace-menu ruta="estudiante.reportes" icono="heroicon-o-document-chart-bar">Reportes</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.clasificacion" icono="heroicon-o-clipboard-document-check">Clasificación</x-portal.enlace-menu>
                         <x-portal.enlace-menu ruta="estudiante.tramites" icono="heroicon-o-document-text" :insignia="$observados ?: null">Trámites</x-portal.enlace-menu>
+                        @if ($porConfirmar !== null)
+                            <x-portal.enlace-menu ruta="estudiante.clases" icono="heroicon-o-check-badge" :insignia="$porConfirmar ?: null">Confirmar clases</x-portal.enlace-menu>
+                        @endif
                     </nav>
                 @endif
 

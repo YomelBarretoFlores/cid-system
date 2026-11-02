@@ -7,6 +7,7 @@ namespace App\Modules\Docencia;
 use App\Modules\Docencia\Actions\BuscarDocenteDelGrupo;
 use App\Modules\Docencia\Actions\BuscarDocenteDelUsuario;
 use App\Modules\Docencia\Actions\ConsultarEstadosDeSilabos;
+use App\Modules\Docencia\Actions\ContarClasesPorConfirmarDelDelegado;
 use App\Modules\Docencia\Actions\GenerarSilaboPdf;
 use App\Modules\Docencia\Actions\LeerNotasParcialesDelGrupo;
 use App\Modules\Docencia\Actions\LeerSilaboDelGrupo;
@@ -15,6 +16,7 @@ use App\Modules\Docencia\Actions\PrepararLecturaDelSilabo;
 use App\Modules\Docencia\Actions\ResumirAsistenciaDeMatricula;
 use App\Modules\Docencia\Actions\VerificarCargaDelGrupo;
 use App\Modules\Docencia\Contracts\AsistenciaDeMatricula;
+use App\Modules\Docencia\Contracts\ClasesPorConfirmarDelDelegado;
 use App\Modules\Docencia\Contracts\DocenteDelGrupo;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
@@ -44,6 +46,7 @@ final class DocenciaServiceProvider extends ModuleServiceProvider
         EstadosDeSilabos::class => ConsultarEstadosDeSilabos::class,
         LecturaDelSilabo::class => PrepararLecturaDelSilabo::class,
         SilaboEnPdf::class => GenerarSilaboPdf::class,
+        ClasesPorConfirmarDelDelegado::class => ContarClasesPorConfirmarDelDelegado::class,
     ];
 
     protected string $module = 'Docencia';

@@ -156,7 +156,7 @@ it('shows the delegate how many classes wait for them on the portal home', funct
 
     $visible
         ? $pagina->assertSee('Tienes 1 clase por confirmar')->assertSee(route('estudiante.clases'))
-        : $pagina->assertDontSee('por confirmar')->assertDontSee(route('estudiante.clases'));
+        : $pagina->assertDontSee('por confirmar');
 })->with([
     'the delegate within the window' => ['20:10', fn (): Matricula => $this->ana, true],
     'the delegate after the window' => ['22:01', fn (): Matricula => $this->ana, false],
@@ -169,4 +169,17 @@ it('shows the delegate the topic the teacher wrote so the class can be checked',
     $this->actingAs(usuarioDeLaMatricula($this->ana))
         ->get(route('estudiante.clases'))
         ->assertSeeInOrder(['Clase del 10/03/2027', 'Tema dictado', 'Saludos y presentaciones', 'Sí, se dictó']);
+});
+
+it('gives only the delegate a menu entry to confirm classes, with the number pending', function (): void {
+    enElPortalALas('20:10');
+
+    $this->actingAs(usuarioDeLaMatricula($this->ana))->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertSee('href="'.route('estudiante.clases').'" wire:navigate.hover', false)
+        ->assertSeeText('Confirmar clases');
+
+    $this->actingAs(usuarioDeLaMatricula($this->luis))->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertDontSee('href="'.route('estudiante.clases').'" wire:navigate.hover', false);
 });

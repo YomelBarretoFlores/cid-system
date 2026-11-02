@@ -16,7 +16,7 @@ Branch: `feat/portal-estudiante-diseno` (stacked on `feat/login-sga`). Delivery:
 |----|-------|-------|--------|--------|
 | T1 | S2 | inline | done | see L2, L4 |
 | T2 | S3 | inline | done | see L3 |
-| T3 | S4 (delegate entry) and remaining screens | inline | pending | |
+| T3 | S4 (delegate entry) | inline | done | see L5 |
 
 ## Log
 
@@ -40,4 +40,12 @@ Branch: `feat/portal-estudiante-diseno` (stacked on `feat/login-sga`). Delivery:
     - a sticky dark bar with "Tu elección" and "Matricularme".
   - Every rule and message is unchanged. Matricula portal and Feature portal: 223 pass.
 - L4 (2026-11-01): correction. The plan replaced flags with codes, arguing that native languages have no flag. That was wrong: languages already have an administrable flag (`aca_idiomas.bandera`, `BanderaDeIdioma`), including Wiphala and Neutra. The home and Matrícula use `x-ciln.hoja-bandera` again, and the code chip was removed.
+- L5 (2026-11-01): T3 done.
+  - New Docencia contract `ClasesPorConfirmarDelDelegado` (`ContarClasesPorConfirmarDelDelegado`, built on `BandejaDelDelegado`) returns null when the person is not a delegate.
+  - The portal menu shows "Confirmar clases" with the pending count, only to delegates.
+  - The home summary test for a delegate outside the window no longer expects the link to be absent, because a delegate keeps the menu entry. The new test pins that a non-delegate has none.
+  - Mis pagos, Mis matrículas, Reportes, Clasificación and Trámites already use the portal components and palette of the proposal, so they keep their layout.
+  - Docencia portal, Feature portal, Architecture and Matricula portal: 251 pass.
+
+  V4 is complete.
 
