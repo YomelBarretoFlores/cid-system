@@ -1,0 +1,61 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Shared\Audit\Support;
+
+final class NombresDeTablas
+{
+    private const array NOMBRES = [
+        'per_personas' => 'Personas',
+        'aca_idiomas' => 'Idiomas',
+        'aca_ciclos' => 'Ciclos',
+        'aca_periodos' => 'Periodos',
+        'aca_aulas' => 'Aulas',
+        'aca_grupos' => 'Grupos',
+        'aca_horarios' => 'Horarios',
+        'aca_esquemas_evaluacion' => 'Sistemas de evaluación',
+        'aca_componentes_evaluacion' => 'Componentes de evaluación',
+        'mat_matriculas' => 'Matrículas',
+        'mat_movimientos' => 'Traslados y retiros',
+        'mat_solicitudes_clasificacion' => 'Solicitudes de clasificación',
+        'mat_habilitaciones' => 'Ciclos habilitados',
+        'pag_pagos' => 'Pagos',
+        'pag_conceptos' => 'Conceptos de pago',
+        'pag_tarifas' => 'Tarifas',
+        'pag_medios_pago' => 'Medios de pago',
+        'pag_fuentes_concepto' => 'Fuentes TUPA/TUSNE',
+        'doc_docentes' => 'Docentes',
+        'doc_docente_idiomas' => 'Idiomas del docente',
+        'doc_disponibilidades' => 'Disponibilidad docente',
+        'doc_cargas_academicas' => 'Carga académica',
+        'doc_clases_dictadas' => 'Clases dictadas',
+        'doc_asistencias' => 'Asistencias',
+        'doc_delegados' => 'Delegados',
+        'doc_notas_parciales' => 'Notas parciales',
+        'doc_costos_hora' => 'Costos por hora',
+        'doc_condiciones_laborales' => 'Condiciones laborales',
+        'doc_grados_academicos' => 'Grados académicos',
+        'doc_silabos' => 'Sílabos',
+        'doc_silabo_semanas' => 'Semanas del sílabo',
+        'doc_silabo_evaluaciones' => 'Evaluaciones del sílabo',
+        'cer_actas' => 'Actas finales',
+        'cer_notas_finales' => 'Notas finales',
+        'cer_rectificaciones' => 'Rectificaciones de actas',
+        'cer_documentos' => 'Constancias y certificados',
+        'cer_firmantes' => 'Firmantes',
+        'cer_denominaciones' => 'Denominación del año',
+        'tra_tipos_tramite' => 'Tipos de trámite',
+        'tra_etapas' => 'Etapas de trámite',
+        'tra_tramites' => 'Trámites',
+        'roles' => 'Roles',
+        'model_has_roles' => 'Roles de las cuentas',
+        'model_has_permissions' => 'Permisos de las cuentas',
+        'role_has_permissions' => 'Permisos de los roles',
+    ];
+
+    public static function de(string $tabla): string
+    {
+        return self::NOMBRES[$tabla] ?? $tabla;
+    }
+}

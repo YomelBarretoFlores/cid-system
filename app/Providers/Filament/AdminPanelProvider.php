@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Shared\Audit\Filament\Resources\Auditoria\RegistroDeAuditoriaResource;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use App\Shared\Auth\Filament\AutenticacionPorApp;
 use App\Shared\Auth\Filament\EditarPerfil;
@@ -51,10 +52,11 @@ final class AdminPanelProvider extends PanelProvider
             ->pages([
                 Inicio::class,
             ])
-            // Discovery only scans the modules; the staff accounts screens live in app/Shared/Auth.
+            // Discovery only scans the modules; the staff accounts and audit screens live in app/Shared.
             ->resources([
                 UsuarioResource::class,
                 RolResource::class,
+                RegistroDeAuditoriaResource::class,
             ])
             ->navigationGroups(['Atención', 'Oferta académica', 'Docencia', 'Certificación', 'Reportes', 'Configuración'])
             ->authMiddleware([

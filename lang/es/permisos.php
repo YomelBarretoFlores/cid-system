@@ -9,6 +9,9 @@ return [
     'usuarios' => ['nombre' => 'Usuarios', 'permisos' => [
         'usuarios.gestionar' => 'Gestionar usuarios, roles y permisos',
     ]],
+    'auditoria' => ['nombre' => 'Auditoría', 'permisos' => [
+        'auditoria.ver' => 'Consultar la auditoría',
+    ]],
     'academico' => ['nombre' => 'Académico', 'permisos' => [
         'academico.ver' => 'Ver la oferta académica',
         'academico.gestionar' => 'Gestionar la oferta académica',

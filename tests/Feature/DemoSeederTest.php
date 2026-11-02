@@ -34,6 +34,7 @@ use App\Modules\Tramites\Enums\PermisoTramite;
 use App\Modules\Tramites\Models\Movimiento;
 use App\Modules\Tramites\Models\Notificacion;
 use App\Modules\Tramites\Models\Tramite;
+use App\Shared\Audit\Enums\PermisoAuditoria;
 use App\Shared\Auth\Enums\PermisoUsuario;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -72,7 +73,7 @@ it('seeds a demo administrator with every payment permission and a cashier who c
     $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
     $caja = User::query()->where('email', 'caja@ciln.test')->firstOrFail();
 
-    expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(collect(['admin-panel.access', ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores(), ...PermisoTablero::valores(), ...PermisoUsuario::valores()])->sort()->values()->all())
+    expect($administrador->getPermissionNames()->sort()->values()->all())->toBe(collect(['admin-panel.access', ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores(), ...PermisoTablero::valores(), ...PermisoUsuario::valores(), ...PermisoAuditoria::valores()])->sort()->values()->all())
         ->and($caja->getPermissionNames()->sort()->values()->all())
         ->toBe(collect(['admin-panel.access', PermisoPago::Registrar->value, PermisoPago::Validar->value, PermisoPago::Ver->value, ...PermisoPersona::valores(), PermisoMatricula::Ver->value])->sort()->values()->all());
 });
