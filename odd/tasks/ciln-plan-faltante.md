@@ -20,7 +20,7 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
 | T1 | S2, S6 | inline | done | see L2 |
 | T2 | S3 | inline | done | see L3 |
 | T3 | S4 | inline | done | see L4 |
-| T4 | S5, S7 | inline | pending | |
+| T4 | S5, S7 | inline | done | see L5 |
 
 ## Log
 
@@ -30,3 +30,10 @@ Branch: `feat/plan-faltante` (from main ca64909). Delivery: one commit per unit;
   - The Tablero flake (explicit period number 9 against a random factory number in the same year) hit twice, so ReportesGeneralesTest now puts that extra period in 2028 (separate commit).
   - Checks: composer check rc=0 (1953 tests); home capture with no JS errors and no mobile overflow.
 - L4 (2026-11-01): T3 done. New `resources/css/filament/docente/theme.css` imports the staff theme and adds the teacher-only styles (present/absent as rounded pills with touch-sized buttons, bolder student names). `AparienciaDelPanel::aplicar` takes the theme name (default admin); `DocentePanelProvider` passes docente; Vite builds both. Docs: arquitectura.md and ADR 0008. Checks: composer check rc=0 (1954 tests); /docente loads docente/theme.css with no JS errors.
+- L5 (2026-11-01): T4 done, with no logic change. The screens already followed the proposal's two-column layout; the remaining differences were closed:
+  - `x-portal.archivo` (only Mis pagos uses it) is now a dashed drop area labelled "Elegir archivo" with the accepted formats ("JPG, PNG o PDF · hasta 5 MB"); the real file input stays focusable (sr-only, `peer-focus-visible`) and the area shows the chosen file name. Browser check: a file set through CDP reached `livewire/upload-file` and its name appeared.
+  - Clasificación: an evaluated request shows "Puntaje N de 100" and a highlighted "Empiezas en <ciclo>", with "Examen del <fecha>" below.
+  - Mis matrículas: the state badge sits next to the title, as in the proposal.
+  - Trámites: the proposal has no screen for it; it stays as it is.
+  - Checks: composer check rc=0 (1955 tests); desktop and 390 px captures with no JS errors or overflow.
+- L6 (2026-11-01): every task of the feature is done; the sidebar blink still waits for the user's recording.

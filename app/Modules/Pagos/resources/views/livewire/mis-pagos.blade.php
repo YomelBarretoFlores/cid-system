@@ -52,7 +52,7 @@
                 <x-portal.campo nombre="monto" etiqueta="Monto pagado (S/)" inputmode="decimal" autocomplete="off"
                     ayuda="Al elegir el concepto te proponemos la tarifa vigente para ti. Corrígelo si pagaste otro monto." required />
                 <x-portal.archivo nombre="recibo" etiqueta="Recibo escaneado" acepta="image/jpeg,image/png,application/pdf"
-                    ayuda="Una foto JPG o PNG, o un PDF, de hasta 5 MB." />
+                    formatos="JPG, PNG o PDF · hasta 5 MB" />
 
                 <x-portal.boton class="mt-1 w-full" wire:loading.attr="disabled" wire:target="registrar,recibo">Registrar pago</x-portal.boton>
             </form>

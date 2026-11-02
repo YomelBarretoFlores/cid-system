@@ -28,13 +28,17 @@
                                 @endif
                             </p>
                             @if ($solicitud->estado === EstadoSolicitudClasificacion::Evaluado)
-                                <dl class="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3 pt-1 text-[14.5px]">
-                                    <x-portal.dato etiqueta="Fecha del examen">
-                                        <time datetime="{{ $solicitud->fecha_examen?->toDateString() }}">{{ $solicitud->fecha_examen?->format('d/m/Y') }}</time>
-                                    </x-portal.dato>
-                                    <x-portal.dato etiqueta="Puntaje">{{ $solicitud->puntaje }} de 100</x-portal.dato>
-                                    <x-portal.dato etiqueta="Nivel asignado">{{ $idiomaDeSolicitud?->ciclos[$solicitud->ciclo_asignado_id] ?? 'Por confirmar' }}</x-portal.dato>
+                                <dl class="grid gap-2 pt-1 sm:grid-cols-2">
+                                    <div class="tarjeta-interna flex flex-col gap-1 p-3.5">
+                                        <dt class="text-[13px] text-terciario">Puntaje</dt>
+                                        <dd><span class="text-[28px] leading-none font-semibold tabular-nums">{{ $solicitud->puntaje }}</span> <span class="text-secundario">de 100</span></dd>
+                                    </div>
+                                    <div class="flex flex-col gap-1 rounded-interna border border-oro-300 bg-acento-claro p-3.5">
+                                        <dt class="text-[13px] text-terciario">Empiezas en</dt>
+                                        <dd class="text-[22px] leading-tight font-semibold">{{ $idiomaDeSolicitud?->ciclos[$solicitud->ciclo_asignado_id] ?? 'Por confirmar' }}</dd>
+                                    </div>
                                 </dl>
+                                <p class="text-[13px] text-terciario">Examen del <time datetime="{{ $solicitud->fecha_examen?->toDateString() }}">{{ $solicitud->fecha_examen?->format('d/m/Y') }}</time></p>
                             @endif
                         </x-portal.fila>
                     @endforeach

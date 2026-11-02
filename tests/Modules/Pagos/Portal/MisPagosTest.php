@@ -145,3 +145,11 @@ it('refuses the page to an account without a student record', function (): void 
         ->get(route('estudiante.pagos'))
         ->assertForbidden();
 });
+
+it('asks for the voucher with a labelled drop area that names the accepted files and keeps the real file input', function (): void {
+    $this->actingAs($this->estudiante)->get(route('estudiante.pagos'))
+        ->assertOk()
+        ->assertSeeInOrder(['Recibo escaneado', 'Elegir archivo', 'JPG, PNG o PDF · hasta 5 MB'])
+        ->assertSee('id="campo-recibo" type="file" wire:model="recibo"', false)
+        ->assertSee('for="campo-recibo"', false);
+});

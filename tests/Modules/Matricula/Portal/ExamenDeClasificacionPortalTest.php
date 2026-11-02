@@ -73,7 +73,7 @@ it('shows the exam date, score and assigned level of an evaluated request', func
 
     Livewire::actingAs($this->user)
         ->test(ExamenDeClasificacion::class)
-        ->assertSeeInOrder(['Evaluado', '20/10/2026', '78.50', 'Ciclo 6 (Intermedio)']);
+        ->assertSeeInOrder(['Evaluado', 'Puntaje', '78.50', 'de 100', 'Empiezas en', 'Ciclo 6 (Intermedio)', 'Examen del', '20/10/2026']);
 });
 
 it('requests the exam with an unused validated placement payment and reloads the page', function (): void {

@@ -28,8 +28,11 @@
                                 <x-ciln.hoja-bandera :idioma="$grupo->idioma" size="64" rot="-10" class="max-md:hidden" />
 
                                 <div class="flex flex-col gap-3">
-                                    <header class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-                                        <h3 id="matricula-{{ $matricula->id }}-titulo" class="text-[22px] font-semibold">{{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }}</h3>
+                                    <header class="flex flex-col gap-1">
+                                        <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                                            <h3 id="matricula-{{ $matricula->id }}-titulo" class="text-[22px] font-semibold">{{ $grupo->idioma }} · Ciclo {{ $grupo->cicloNumero }}</h3>
+                                            <x-portal.insignia :color="$matricula->estado === EstadoMatricula::Activa ? 'success' : 'gray'">{{ $matricula->estado->etiqueta() }}</x-portal.insignia>
+                                        </div>
                                         <span class="text-[13.5px] text-apagado">Grupo {{ $grupo->codigo }} · {{ $grupo->nivel }} · {{ $grupo->modalidad }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }}</span>
                                     </header>
 
@@ -49,9 +52,6 @@
                                             @else
                                                 Por asignar
                                             @endif
-                                        </x-portal.dato>
-                                        <x-portal.dato etiqueta="Estado">
-                                            <x-portal.insignia :color="$matricula->estado === EstadoMatricula::Activa ? 'success' : 'gray'">{{ $matricula->estado->etiqueta() }}</x-portal.insignia>
                                         </x-portal.dato>
                                         <x-portal.dato etiqueta="Docente">{{ $docentes[$matricula->grupo_id] ?? 'Por asignar' }}</x-portal.dato>
                                         <x-portal.dato etiqueta="Condición">{{ $matricula->condicion->etiqueta() }}</x-portal.dato>
