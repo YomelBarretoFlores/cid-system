@@ -13,6 +13,7 @@ use App\Modules\Academico\Filament\Resources\Periodos\Schemas\PeriodoForm;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
 use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
@@ -256,6 +257,7 @@ it('reports a year and number taken by someone else while editing as a form erro
 });
 
 it('warns before starting classes ahead of the period start date', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-02-20 10:00', 'America/Lima'));
     $this->periodo->update(['estado' => EstadoPeriodo::MatriculaAbierta]);
     $this->actingAs($this->gestor);
 
