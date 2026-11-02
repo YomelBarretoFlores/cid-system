@@ -115,7 +115,7 @@
     @unless ($soloDocente)
         <div class="flex min-w-0 flex-col gap-2 sm:gap-3.5">
             <x-portal.tarjeta titulo="Esta semana">
-                <x-slot:acciones><a href="{{ route('estudiante.reportes') }}" wire:navigate class="enlace text-[14px]">Ver horario completo</a></x-slot:acciones>
+                <x-slot:acciones><a href="{{ route('estudiante.reportes', ['ver' => 'horario']) }}" wire:navigate class="enlace text-[14px]">Ver horario completo</a></x-slot:acciones>
                 @if ($grupo === null)
                     <x-portal.vacio titulo="Aún no tienes clases." icono="heroicon-o-calendar-days">Cuando te matricules, aquí verás tus clases de cada día.</x-portal.vacio>
                 @else

@@ -97,7 +97,7 @@ it('names a course without classroom or link the same way in the course list and
 it('keeps the course list and says there are no classes when the groups have no schedule yet', function (): void {
     Horario::query()->delete();
 
-    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes'))
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes', ['ver' => 'horario']))
         ->assertOk()
         ->assertSeeInOrder(['Horario personalizado', 'Cursos y docentes', '[01]', 'Mi horario', 'No tiene clases programadas en este periodo.'])
         ->assertDontSee('SIN CLASES');
@@ -124,7 +124,7 @@ it('prints the course list and the grid in the PDF and the print view, with the 
 });
 
 it('shows the same course list and grid on the reports page, with the PDF and print links', function (): void {
-    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes'))
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes', ['ver' => 'horario']))
         ->assertOk()
         ->assertSeeInOrder([
             'Horario personalizado', 'Marzo 2027', route('estudiante.reportes.horario', $this->periodo->id), route('estudiante.reportes.horario.imprimir', $this->periodo->id),
@@ -137,5 +137,5 @@ it('links the full schedule from the home schedule', function (): void {
     $this->actingAs($this->escenario['usuario'])->get(route('estudiante.inicio'))
         ->assertOk()
         ->assertSee('Ver horario completo')
-        ->assertSee(route('estudiante.reportes'));
+        ->assertSee(route('estudiante.reportes', ['ver' => 'horario']), false);
 });

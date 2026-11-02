@@ -22,7 +22,7 @@ beforeEach(function (): void {
     $this->periodo = Periodo::query()->findOrFail($this->escenario['curso']['grupo']->periodo_id);
 });
 
-it('offers only the periods of the student, newest first, and shows the summaries of the newest one', function (): void {
+it('offers only the periods of the student, newest first, and opens on how the newest one is going with every PDF at hand', function (): void {
     $anterior = Periodo::factory()->create(['nombre' => 'Octubre 2026', 'anio' => 2026, 'fecha_inicio' => '2026-10-01', 'fecha_fin' => '2026-10-31', 'matricula_inicio' => '2026-09-15', 'matricula_fin' => '2026-09-30']);
     Matricula::factory()->create(['persona_id' => $this->escenario['persona']->id, 'grupo_id' => Grupo::factory()->create(['codigo' => 'FRA-2-T', 'periodo_id' => $anterior->id])->id]);
     Periodo::factory()->create(['nombre' => 'Mayo 2027', 'fecha_inicio' => '2027-05-01', 'fecha_fin' => '2027-05-31']);
@@ -34,18 +34,48 @@ it('offers only the periods of the student, newest first, and shows the summarie
         ->assertSeeInOrder(['Marzo 2027', 'Octubre 2026'])
         ->assertDontSee('Mayo 2027')
         ->assertSeeInOrder([
-            'Avance de notas', 'Examen parcial', '15.00', 'Participación', 'Promedio parcial', '10.80',
-            'Asistencia', '3 de 10', '67 %', '20 %',
-            'Boleta de notas', 'ING-1-M', 'Acta abierta',
-            'Horario personalizado', 'Vega Ríos, Carlos', 'A-101 · Laboratorio 1', 'LUNES', '18:00 - 18:30',
-            'Récord por idioma', 'Quechua', '13.00', 'Faltan los ciclos 2, 3 y 4 del nivel Básico',
+            '¿Cómo voy?', 'Horario', 'Lo que aprobé',
+            'Inglés · Ciclo 1', 'ING-1-M · Prof. Vega Ríos, Carlos', 'Acta abierta',
+            'Notas', 'Examen parcial', '15.00', 'Participación', 'Promedio parcial', '10.80',
+            'Asistencia', '67 %', '3 de 10 clases dictadas · 1 falta', '20 % sobre las clases programadas',
+            'Descargar en PDF', 'Boleta de notas', 'Todos tus cursos del periodo', 'Avance de notas', 'Inglés 1 · por componente',
+            'Asistencia', 'Inglés 1 · clase por clase', 'Horario', 'Récord de Quechua', 'Todos los ciclos', 'Récord completo',
         ])
         ->assertSee(route('estudiante.reportes.avance', $this->matricula))
         ->assertSee(route('estudiante.reportes.asistencia', $this->matricula))
         ->assertSee(route('estudiante.reportes.boleta', $this->periodo->id))
         ->assertSee(route('estudiante.reportes.horario', $this->periodo->id))
+        ->assertSee(route('estudiante.reportes.horario.imprimir', $this->periodo->id))
         ->assertSee(route('estudiante.reportes.record', 'quechua'))
-        ->assertDontSee('FRA-2-T');
+        ->assertSee(route('estudiante.reportes.record'))
+        ->assertDontSee(['Horario personalizado', 'FRA-2-T']);
+});
+
+it('shows the schedule and the approved cycles in their own tabs, reachable by link', function (): void {
+    ActasFinales::historial($this->escenario['persona'], 'Quechua', [[1, '13.00', 'aprobado']]);
+
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes', ['ver' => 'horario']))
+        ->assertOk()
+        ->assertSeeInOrder(['Horario personalizado', 'Vega Ríos, Carlos', 'A-101 · Laboratorio 1', 'LUNES', '18:00 - 18:30'])
+        ->assertDontSee('Promedio parcial');
+
+    $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes', ['ver' => 'aprobado']))
+        ->assertOk()
+        ->assertSeeInOrder(['Quechua', 'Promedio de ciclos aprobados', '13.00', 'Ciclo 1', 'Básico', '13.00', 'Aprobado', 'Faltan los ciclos 2, 3 y 4 del nivel Básico', 'Informativo, sin valor oficial'])
+        ->assertDontSee('Horario personalizado');
+
+    Livewire::actingAs($this->escenario['usuario'])
+        ->test(MisReportes::class)
+        ->set('pestana', 'otra')
+        ->assertSet('pestana', 'avance')
+        ->assertSee('Promedio parcial');
+});
+
+it('tells a student who has not approved a cycle yet that the approved tab is empty', function (): void {
+    Livewire::actingAs($this->escenario['usuario'])
+        ->test(MisReportes::class)
+        ->set('pestana', 'aprobado')
+        ->assertSee('Aún no apruebas ningún ciclo.');
 });
 
 it('switches the summaries to the chosen period', function (): void {
