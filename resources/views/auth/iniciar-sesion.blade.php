@@ -1,4 +1,4 @@
-<x-portal.acceso titulo="Ingresar al portal del CILN" descripcion="Estudiantes y docentes, usen el correo y la contraseña de su cuenta del CILN.">
+<x-portal.acceso titulo="Ingresar al portal del CILN">
     <form wire:submit="ingresar" class="flex flex-col gap-4" novalidate>
         <x-portal.campo nombre="email" etiqueta="Correo" tipo="email" autocomplete="email" placeholder="tucorreo@gmail.com" required autofocus />
         <x-portal.campo nombre="password" etiqueta="Contraseña" tipo="password" autocomplete="current-password" required />
