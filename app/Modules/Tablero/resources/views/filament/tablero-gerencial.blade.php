@@ -74,7 +74,7 @@
                         </span>
                         <span class="shrink-0 text-[13px] text-apagado">{{ $pago->dias === 0 ? 'hoy' : "hace {$pago->dias} ".($pago->dias === 1 ? 'día' : 'días') }}</span>
                         @if ($puedeVerPagos)
-                            <a href="{{ route('filament.admin.resources.pagos.view', ['record' => $pago->pagoId]) }}" class="shrink-0 font-medium text-enlace hover:text-enlace-hover" aria-label="Ver el pago">›</a>
+                            <a href="{{ route('filament.admin.resources.pagos.view', ['record' => $pago->pagoUlid]) }}" class="shrink-0 font-medium text-enlace hover:text-enlace-hover" aria-label="Ver el pago">›</a>
                         @endif
                     </div>
                 @empty

@@ -1,0 +1,48 @@
+# CILN · Admin panel corrections
+
+Objective: fix every finding of the admin-panel audit of 2026-11-02 (main 25ccdb0), starting with findings 1–4 and 13.
+Branch: `fix/panel-admin` from main 25ccdb0. Delivery: ask-on-risk, work-unit commits; push and merge are the user's call. Runner: Pest (`/private/tmp/claude-501/ciln-v-OYLV/pest.sh`), `composer check`.
+
+## Specs
+
+User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". The numbers refer to the audit findings reported to the user:
+
+- S1 (finding 1): "No se pueden administrar usuarios, roles ni permisos desde el panel." Staff accounts, roles and permissions managed from the panel; an account can be deactivated; an admin cannot lock everyone out.
+- S2 (finding 2): "Los PDF del personal no tienen la protección de sesión del panel." The staff `/panel/...` downloads require the panel session (second factor, 30-minute timeout).
+- S3 (finding 3): "El log de auditoría no se puede consultar desde el panel" and the unaudited tables (personas, periodos, grupos, horarios, aulas, idiomas, ciclos).
+- S4 (finding 4): "Los mensajes de validación salen en inglés." Built-in validation messages in Spanish.
+- S5 (finding 5): editing a ciclo and deleting a horario go through Actions with their business rules.
+- S6 (finding 6): opening a group needs a schedule and a teacher; the minimum quota is used; closing a period finalizes its groups.
+- S7 (finding 7): rectifying an acta flags the documents already issued from it.
+- S8 (finding 8): a closed acta's PDF keeps the signers and denomination of its closing.
+- S9 (finding 9): the certificate rule reads the cycles of each level from the configured data, not a fixed 4.
+- S10 (finding 10): a procedure can be closed without running its final action.
+- S11 (finding 11): staff can adjust a student's enabled cycle and correct a placement result.
+- S12 (finding 12): a concept's enabled service is locked once it has payments; voiding a placement payment affects its request; the enrollment shows its payment status.
+- S13 (finding 13): "«Ver el pago» desde el tablero gerencial da 404." The dashboard links each payment by its ULID.
+- S14 (finding 14): one undecryptable field does not break a whole page.
+- S15: minor findings (tú/usted, amounts with more than two decimals, small items of the three audit reports).
+
+## Tasks
+
+- [ ] T1 · S13 · inline · dashboard payment link by ULID.
+- [ ] T2 · S2 · inline · `/panel/...` staff downloads behind the panel session. Risk: item 2 (security).
+- [ ] T3 · S4 · inline · Spanish validation, auth and password messages.
+- [ ] T4 · S1 · inline · staff users, roles and permissions screens; deactivated accounts cannot sign in. Risk: item 2 (security).
+- [ ] T5 · S3 · inline · audit log screen and audit triggers on the remaining tables. Risk: item 1 (migration).
+- [ ] T6 · S5 · inline
+- [ ] T7 · S6 · inline
+- [ ] T8 · S7 · inline
+- [ ] T9 · S8 · inline
+- [ ] T10 · S9 · inline
+- [ ] T11 · S10 · inline
+- [ ] T12 · S11 · inline
+- [ ] T13 · S12 · inline
+- [ ] T14 · S14 · inline
+- [ ] T15 · S15 · inline
+
+## Log
+
+- L1 (2026-11-02, verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13 Y sobre el cambio, sí, lo hice yo."
+- L2: the user's own edit of `resources/views/auth/iniciar-sesion.blade.php` committed apart as 62b3a5c.
+- L3: audit evidence: three read-only explorers plus a browser walkthrough of 51 admin lists and 21 records as admin and an access probe as cashier. Verified by the parent: no `lang/` directory; `/panel/*` routes lack `ProtegerSesionDelPanel`; permissions granted only in `DatabaseSeeder`; dashboard link 404 from `CalcularPagosPorValidar.php:62`.

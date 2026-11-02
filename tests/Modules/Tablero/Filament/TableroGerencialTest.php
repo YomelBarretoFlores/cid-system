@@ -87,7 +87,8 @@ it('links the pending payments and the revenue report only for staff who can see
 
     Livewire::test(TableroGerencial::class)
         ->assertSee(['Reporte de recaudación →', 'Todos los pagos →'])
-        ->assertSeeHtml(route('filament.admin.resources.pagos.view', ['record' => $this->pendiente->id]));
+        ->assertSeeHtml(route('filament.admin.resources.pagos.view', ['record' => $this->pendiente->ulid]))
+        ->assertDontSeeHtml(route('filament.admin.resources.pagos.view', ['record' => $this->pendiente->id]).'"');
 });
 
 it('falls back to the latest started period, or the latest one, when no period is in progress', function (): void {

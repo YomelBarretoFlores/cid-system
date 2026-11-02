@@ -56,10 +56,11 @@ final readonly class CalcularPagosPorValidar
             ->orderBy('p.created_at')
             ->orderBy('p.id')
             ->limit(self::MAS_ANTIGUOS)
-            ->selectRaw('p.id, c.nombre as concepto, (p.monto * 100)::bigint as centimos, p.fecha_pago, p.created_at')
+            ->selectRaw('p.id, p.ulid, c.nombre as concepto, (p.monto * 100)::bigint as centimos, p.fecha_pago, p.created_at')
             ->get()
             ->map(fn (stdClass $pago): PagoPorValidar => new PagoPorValidar(
                 pagoId: (int) $pago->id,
+                pagoUlid: (string) $pago->ulid,
                 concepto: (string) $pago->concepto,
                 centimos: (int) $pago->centimos,
                 fechaPago: CarbonImmutable::parse((string) $pago->fecha_pago),

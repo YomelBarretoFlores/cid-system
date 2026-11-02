@@ -93,7 +93,7 @@ it('measures the payments still waiting for validation in the period and the cur
             ['Concepto matricula', 8000, 0],
             ['Concepto matricula', 8000, 0],
         ])
-        ->and(array_keys(get_object_vars($pagos->masAntiguos[0])))->toBe(['pagoId', 'concepto', 'centimos', 'fechaPago', 'dias']);
+        ->and(array_keys(get_object_vars($pagos->masAntiguos[0])))->toBe(['pagoId', 'pagoUlid', 'concepto', 'centimos', 'fechaPago', 'dias']);
 });
 
 it('reports no rate and no backlog age when nothing was registered', function (): void {
