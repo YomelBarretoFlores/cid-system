@@ -24,12 +24,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $nota_minima_aprobatoria
  * @property list<array{id: int, codigo: string, nombre: string, peso: string}> $componentes
  * @property ?CarbonImmutable $validada_en
+ * @property ?list<array{nombre: string, cargo: string}> $firmas
+ * @property ?string $denominacion
  */
 #[Table('cer_actas')]
 #[Fillable([
     'grupo_id', 'periodo_id', 'estado', 'grupo_codigo', 'idioma', 'nivel', 'ciclo_numero', 'ciclo_nombre', 'horas_lectivas', 'periodo',
     'docente_id', 'docente_nombre', 'esquema_id', 'esquema_nombre', 'nota_maxima', 'nota_minima_aprobatoria', 'componentes',
-    'validada_por', 'validada_en',
+    'validada_por', 'validada_en', 'firmas', 'denominacion',
 ])]
 #[UsePolicy(ActaPolicy::class)]
 final class Acta extends Model
@@ -79,6 +81,7 @@ final class Acta extends Model
             'nota_maxima' => 'decimal:2',
             'nota_minima_aprobatoria' => 'decimal:2',
             'componentes' => 'array',
+            'firmas' => 'array',
             'validada_en' => 'immutable_datetime',
         ];
     }

@@ -32,9 +32,9 @@ User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". T
 - [x] T5 · S3 · delegated (context backstop) · audit log screen and audit triggers on the remaining tables. Risk: item 1 (migration).
 - [x] T6 · S5 · delegated (context backstop) · ciclo edit and horario add/edit/delete through Actions with locks once used.
 - [x] T7 · S6 · delegated (context backstop) · group open/close/finalize preconditions, minimum quota confirmation, period closing finalizes/cancels groups, start-date confirmation. Risk: items 3 and 4.
-- [ ] T8 · S7 · inline
-- [ ] T9 · S8 · inline
-- [ ] T10 · S9 · inline
+- [x] T8 · S7 · delegated (context backstop) · documents of a rectified student flagged "Por revisar" (cer_documentos.revisar_desde, motivo_revision; trigger allows only these on a valid document); panel column, filter and view section. Risk: item 1.
+- [x] T9 · S8 · delegated · cer_actas.firmas and denominacion frozen at every closing; PDF falls back to the live lookup only for older actas. Risk: item 1.
+- [x] T10 · S9 · delegated · Academico contract CiclosDelNivel; level completion from the configured active cycles.
 - [ ] T11 · S10 · inline
 - [ ] T12 · S11 · inline
 - [ ] T13 · S12 · inline
@@ -56,3 +56,5 @@ User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". T
 - L11: T5 (writer) RED→GREEN: 23 tests under tests/Feature/Auditoria. Triggers on per_personas, aca_periodos, aca_grupos, aca_horarios, aca_aulas, aca_idiomas, aca_ciclos; permission auditoria.ver granted to active user managers; read-only Configuración › Auditoría with filters and a field diff hiding secrets; index on aud_registros.usuario_id; Lima date filter binds an explicit -05:00 offset. composer check rc=0, 2030 tests.
 - L12: review review-9c778811a106a8d9 (T5 + link fix, granted by the user) approved and acknowledged; advisory: the audit table filter ran DISTINCT over the growing log (fixed: fixed list from NombresDeTablas, test that it covers every table with an aud_registrar trigger).
 - L13: composer check rc=0, 2067 tests. T6+T7 (writer) RED→GREEN on a baseline copy: 32 of 283 Academico tests failed before, 283 pass after; Feature+Modules+Architecture 1982 passed; CargaDocenteConcurrenteTest 4 passed. New Docencia contract ClasesDictadasDelGrupo. Decisions 124–128 recorded as assumptions. Open questions: removing the teacher or last horario of an Abierto group is still allowed; reopening a Cerrado group in an En curso period is now refused.
+- L14: review of 59291ec..5d43bf8 first refused (lens_context_budget_exceeded: provider range started at fa6cb19 with already-reviewed commits); reduced to --base-ref 59291ec, user granted again; review-27ab390500ea518d approved and acknowledged. Advisory: a period test depended on the real clock (pinned with travelTo).
+- L15: composer check rc=0, 2080 tests. T8–T10 (writer) RED→GREEN: S7 6 tests failed on the missing columns; S8 frozen signers null before; S9 3/4/4 split listed [5,6,7,8] before and [5,6,7] after. Certificacion 160 passed; Feature+Modules+Architecture 1995; Concurrency+Unit 85. Extra column cer_rectificaciones.notas_previas to know whose result changed. Parent ran migrate, rollback --step=2 and migrate again on the preview DB: clean. Open: the default trámite type text still says "Los cuatro ciclos" (T15); a renamed language orphans closed actas' levels (existing).

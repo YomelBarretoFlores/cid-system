@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Actions;
 
+use App\Modules\Academico\Contracts\CiclosDelNivel;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Contracts\RecordDeNotas;
 use App\Modules\Certificacion\Data\CicloDelRecord;
@@ -16,6 +17,8 @@ use App\Modules\Certificacion\Support\HistorialDeNotas;
 // One row per cycle: its last passed result, or its last result when it was never passed.
 final readonly class ArmarRecordDeNotas implements RecordDeNotas
 {
+    public function __construct(private CiclosDelNivel $ciclosDelNivel) {}
+
     public function __invoke(int $personaId): array
     {
         return array_values(array_map(
@@ -41,7 +44,7 @@ final readonly class ArmarRecordDeNotas implements RecordDeNotas
             fn (NotaDelHistorial $nota): bool => $nota->estadoFinal === EstadoFinal::Aprobado,
         ));
 
-        return new RecordDelIdioma($idioma, $ciclos, $aprobados === [] ? null : HistorialDeNotas::notaFinal($aprobados), $this->faltantes($historial, $aprobados));
+        return new RecordDelIdioma($idioma, $ciclos, $aprobados === [] ? null : HistorialDeNotas::notaFinal($aprobados), $this->faltantes($idioma, $historial, $aprobados));
     }
 
     /**
@@ -59,7 +62,7 @@ final readonly class ArmarRecordDeNotas implements RecordDeNotas
      * @param  list<NotaDelHistorial>  $aprobados
      * @return list<FaltantesDelNivel>
      */
-    private function faltantes(array $historial, array $aprobados): array
+    private function faltantes(string $idioma, array $historial, array $aprobados): array
     {
         $niveles = collect($historial)
             ->map(fn (NotaDelHistorial $nota): NivelCurricular => $nota->nivel)
@@ -69,7 +72,7 @@ final readonly class ArmarRecordDeNotas implements RecordDeNotas
 
         return array_values($niveles->map(fn (NivelCurricular $nivel): FaltantesDelNivel => new FaltantesDelNivel(
             $nivel->etiqueta(),
-            array_values(array_diff(HistorialDeNotas::ciclosDelNivel($nivel), $cursados)),
+            array_values(array_diff(($this->ciclosDelNivel)($idioma, $nivel), $cursados)),
         ))->all());
     }
 }

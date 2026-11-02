@@ -30,7 +30,9 @@ final readonly class GenerarActaFinalPdf
 
         $datos = ActaDelGrupo::desde($acta);
         $validada = ($datos->validadaEn ?? now())->setTimezone('America/Lima');
-        $firmas = [['nombre' => $datos->docente, 'cargo' => 'Docente del curso'], ...FirmasDelDocumento::de(GrupoDeFirma::Actas, $validada)];
+        // Actas closed before signers were frozen have none stored and read the ones in force on their closing date.
+        $congeladas = $acta->firmas !== null;
+        $firmas = [['nombre' => $datos->docente, 'cargo' => 'Docente del curso'], ...($acta->firmas ?? FirmasDelDocumento::de(GrupoDeFirma::Actas, $validada))];
 
         // A signed link: acta numbers are sequential, so an unsigned URL would let anyone walk through every acta. Only the path is signed and the
         // public address is put in front, so a printed QR keeps working if the domain or the proxy setup changes.
@@ -42,7 +44,7 @@ final readonly class GenerarActaFinalPdf
             'qr' => CodigoQr::comoDataUri($verificacion),
             'codigo' => sprintf('ACTA-%06d', $acta->id),
             'firmas' => $firmas,
-            'denominacion' => ($this->denominacionDelAnio)((int) $validada->format('Y')),
+            'denominacion' => $congeladas ? $acta->denominacion : ($this->denominacionDelAnio)((int) $validada->format('Y')),
         ])
             ->format('a4')
             ->landscape()

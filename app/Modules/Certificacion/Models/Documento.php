@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array<string, mixed> $detalle
  * @property CarbonImmutable $emitido_en
  * @property ?CarbonImmutable $anulado_en
+ * @property ?CarbonImmutable $revisar_desde
+ * @property ?string $motivo_revision
  */
 #[Table('cer_documentos')]
 #[Fillable([
@@ -43,6 +45,12 @@ final class Documento extends Model
     public function estaVigente(): bool
     {
         return $this->anulado_en === null;
+    }
+
+    // A voided document no longer needs review, whatever its flag says.
+    public function estaPorRevisar(): bool
+    {
+        return $this->estaVigente() && $this->revisar_desde !== null;
     }
 
     /**
@@ -71,6 +79,7 @@ final class Documento extends Model
             'detalle' => 'array',
             'emitido_en' => 'immutable_datetime',
             'anulado_en' => 'immutable_datetime',
+            'revisar_desde' => 'immutable_datetime',
         ];
     }
 }

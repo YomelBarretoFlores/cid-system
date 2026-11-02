@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Actions;
 
+use App\Modules\Academico\Contracts\CiclosDelNivel;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
@@ -19,7 +20,7 @@ use App\Shared\Support\Logging\RegistroDeRechazos;
 // Bulk issue: every student who passed a cycle in a closed acta of the period and has now completed its level gets the certificate once.
 final readonly class EmitirCertificadosDelPeriodo
 {
-    public function __construct(private EmitirCertificadoDeNivel $emitir) {}
+    public function __construct(private EmitirCertificadoDeNivel $emitir, private CiclosDelNivel $ciclosDelNivel) {}
 
     /**
      * @return list<Documento> the certificates issued now; students already certified are skipped
@@ -30,7 +31,7 @@ final readonly class EmitirCertificadosDelPeriodo
         $emitidos = [];
 
         foreach ($this->candidatos($periodoId) as [$personaId, $idioma, $nivel]) {
-            if ($this->yaCertificado($personaId, $idioma, $nivel) || HistorialDeNotas::nivelAprobado(HistorialDeNotas::de($personaId, $idioma), $nivel) === null) {
+            if ($this->yaCertificado($personaId, $idioma, $nivel) || HistorialDeNotas::nivelAprobado(HistorialDeNotas::de($personaId, $idioma), ($this->ciclosDelNivel)($idioma, $nivel)) === null) {
                 continue;
             }
 

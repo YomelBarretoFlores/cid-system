@@ -8,6 +8,7 @@ use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\Rectificacion;
+use App\Modules\Certificacion\Support\ResultadosDelActa;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -39,7 +40,10 @@ final readonly class AutorizarRectificacion
             }
 
             // The rectification goes first: the database reopens a closed acta only when one is open.
-            Rectificacion::query()->create(['acta_id' => $acta->id, 'motivo' => $motivo, 'autorizada_por' => $administrador->id, 'autorizada_en' => now()]);
+            Rectificacion::query()->create([
+                'acta_id' => $acta->id, 'motivo' => $motivo, 'autorizada_por' => $administrador->id, 'autorizada_en' => now(),
+                'notas_previas' => ResultadosDelActa::de($acta),
+            ]);
             $acta->update(['estado' => EstadoActa::Abierta]);
         });
     }

@@ -58,7 +58,7 @@ it('shows the rule when a document cannot be issued and issues nothing', functio
 
     Livewire::test(ListDocumentos::class)
         ->callAction('emitir', ['tipo' => 'certificado_nivel', 'persona_id' => $this->ana->id, 'idioma' => 'Inglés', 'nivel' => 'intermedio'])
-        ->assertNotified('La persona aún no aprueba los cuatro ciclos del nivel Intermedio de Inglés en actas cerradas.');
+        ->assertNotified('La persona aún no aprueba todos los ciclos del nivel Intermedio de Inglés en actas cerradas.');
 
     expect(Documento::query()->count())->toBe(0);
 });

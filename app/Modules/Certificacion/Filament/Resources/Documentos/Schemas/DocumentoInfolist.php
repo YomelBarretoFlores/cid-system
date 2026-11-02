@@ -37,6 +37,14 @@ final class DocumentoInfolist
                         TextEntry::make('horas_lectivas')->label('Total de horas lectivas')->placeholder('—'),
                         TextEntry::make('nota_final')->label('Nota final')->placeholder('—'),
                     ]),
+                Section::make('Por revisar')
+                    ->description('Un acta de la que se copiaron estas notas se rectificó después de emitirlo.')
+                    ->columns(3)
+                    ->visible(fn (Documento $record): bool => $record->estaPorRevisar())
+                    ->schema([
+                        TextEntry::make('motivo_revision')->label('Motivo')->columnSpan(2),
+                        TextEntry::make('revisar_desde')->label('Desde')->dateTime('d/m/Y H:i'),
+                    ]),
                 Section::make('Anulación')
                     ->columns(3)
                     ->visible(fn (Documento $record): bool => ! $record->estaVigente())

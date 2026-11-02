@@ -62,15 +62,15 @@ it('refuses a certificate when a cycle of the level is not passed in a closed ac
     expect(fn () => app(EmitirCertificadoDeNivel::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor))
         ->toThrow(ReglaDeNegocioIncumplida::class, $mensaje);
 })->with([
-    'a failed cycle' => [fn () => ActasFinales::historial($this->ana, 'Inglés', [[1, '14.00', 'aprobado'], [2, '10.00', 'desaprobado'], [3, '16.00', 'aprobado'], [4, '13.00', 'aprobado']]), 'La persona aún no aprueba los cuatro ciclos del nivel Básico de Inglés en actas cerradas.'],
+    'a failed cycle' => [fn () => ActasFinales::historial($this->ana, 'Inglés', [[1, '14.00', 'aprobado'], [2, '10.00', 'desaprobado'], [3, '16.00', 'aprobado'], [4, '13.00', 'aprobado']]), 'La persona aún no aprueba todos los ciclos del nivel Básico de Inglés en actas cerradas.'],
     'a cycle passed in another language' => [function (): void {
         ActasFinales::historial($this->ana, 'Inglés', [[1, '14.00', 'aprobado'], [2, '14.00', 'aprobado'], [3, '16.00', 'aprobado']]);
         ActasFinales::historial($this->ana, 'Francés', [[4, '13.00', 'aprobado']]);
-    }, 'La persona aún no aprueba los cuatro ciclos del nivel Básico de Inglés en actas cerradas.'],
+    }, 'La persona aún no aprueba todos los ciclos del nivel Básico de Inglés en actas cerradas.'],
     'an acta under rectification' => [function (): void {
         ActasFinales::historial($this->ana, 'Inglés', [[1, '14.00', 'aprobado'], [2, '14.00', 'aprobado'], [3, '16.00', 'aprobado']]);
         ActasFinales::historial($this->ana, 'Inglés', [[4, '13.00', 'aprobado']], 'abierta');
-    }, 'La persona aún no aprueba los cuatro ciclos del nivel Básico de Inglés en actas cerradas.'],
+    }, 'La persona aún no aprueba todos los ciclos del nivel Básico de Inglés en actas cerradas.'],
     'a valid certificate already issued' => [function (): void {
         basicoCompleto($this->ana);
         $this->previo = app(EmitirCertificadoDeNivel::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);

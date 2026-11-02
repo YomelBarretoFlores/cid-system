@@ -8,15 +8,20 @@ use App\Modules\Academico\Contracts\BloqueoDeGrupo;
 use App\Modules\Academico\Data\ComponenteDeEvaluacion;
 use App\Modules\Academico\Data\DatosDelCurso;
 use App\Modules\Academico\Enums\EstadoGrupo;
+use App\Modules\Certificacion\Contracts\DenominacionDelAnio;
 use App\Modules\Certificacion\Data\ActaDelGrupo;
 use App\Modules\Certificacion\Data\FilaDelActa;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
+use App\Modules\Certificacion\Enums\GrupoDeFirma;
 use App\Modules\Certificacion\Events\ActaCerrada;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\Rectificacion;
 use App\Modules\Certificacion\Support\ActaPrevia;
 use App\Modules\Certificacion\Support\DocenteDelActa;
+use App\Modules\Certificacion\Support\FirmasDelDocumento;
+use App\Modules\Certificacion\Support\ResultadosDelActa;
+use App\Modules\Certificacion\Support\RevisionDeDocumentos;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -32,6 +37,7 @@ final readonly class CerrarActa
         private BloqueoDeGrupo $bloqueoDeGrupo,
         private ActaPrevia $actaPrevia,
         private DocenteDelActa $docenteDelActa,
+        private DenominacionDelAnio $denominacionDelAnio,
     ) {}
 
     public function __invoke(int $grupoId, int $docenteId, User $usuario): void
@@ -53,8 +59,15 @@ final readonly class CerrarActa
             }
 
             $this->validar($acta, $usuario);
-            Rectificacion::query()->where('acta_id', $acta->id)->whereNull('cerrada_en')->update(['cerrada_en' => now()]);
+            $this->cerrarRectificacion($acta);
         });
+    }
+
+    private function cerrarRectificacion(Acta $acta): void
+    {
+        $rectificacion = Rectificacion::query()->where('acta_id', $acta->id)->whereNull('cerrada_en')->lockForUpdate()->first();
+        RevisionDeDocumentos::marcar($acta, ResultadosDelActa::personasConCambios($acta, $rectificacion?->notas_previas));
+        $rectificacion?->update(['cerrada_en' => now()]);
     }
 
     private function cerrarPorPrimeraVez(int $grupoId, User $usuario): void
@@ -111,7 +124,14 @@ final readonly class CerrarActa
 
     private function validar(Acta $acta, User $usuario): void
     {
-        $acta->update(['estado' => EstadoActa::Cerrada, 'validada_por' => $usuario->id, 'validada_en' => now()]);
+        $validada = now();
+        $enLima = $validada->setTimezone('America/Lima');
+
+        // The signers and the year's denomination in force are frozen like a document's, so editing them never rewrites a closed acta.
+        $acta->update([
+            'estado' => EstadoActa::Cerrada, 'validada_por' => $usuario->id, 'validada_en' => $validada,
+            'firmas' => FirmasDelDocumento::de(GrupoDeFirma::Actas, $enLima), 'denominacion' => ($this->denominacionDelAnio)((int) $enLima->format('Y')),
+        ]);
 
         $aprobadas = $acta->notas()->where('estado_final', EstadoFinal::Aprobado)->orderBy('matricula_id')->pluck('matricula_id')->all();
         ActaCerrada::dispatch($acta->grupo_id, array_values(array_map(intval(...), $aprobadas)));

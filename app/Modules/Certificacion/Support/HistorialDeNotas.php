@@ -15,8 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 // A student's final grades come only from closed actas; an acta under rectification counts again once it is closed.
 final class HistorialDeNotas
 {
-    public const int CICLOS_POR_NIVEL = 4;
-
     private const array COLUMNAS = [
         'cer_notas_finales.acta_id', 'cer_notas_finales.matricula_id', 'cer_notas_finales.promedio', 'cer_notas_finales.estado_final', 'cer_actas.grupo_codigo',
         'cer_actas.idioma', 'cer_actas.nivel', 'cer_actas.ciclo_numero', 'cer_actas.ciclo_nombre', 'cer_actas.horas_lectivas', 'cer_actas.periodo',
@@ -51,14 +49,6 @@ final class HistorialDeNotas
     }
 
     /**
-     * @return list<int>
-     */
-    public static function ciclosDelNivel(NivelCurricular $nivel): array
-    {
-        return range(($nivel->orden() - 1) * self::CICLOS_POR_NIVEL + 1, $nivel->orden() * self::CICLOS_POR_NIVEL);
-    }
-
-    /**
      * @return array<string, string> languages with closed actas for the student, by name
      */
     public static function idiomasDe(int $personaId): array
@@ -74,12 +64,13 @@ final class HistorialDeNotas
     }
 
     /**
-     * The last passed result of each cycle of the level, or null when one of its cycles is not passed yet.
+     * The last passed result of each cycle of the level, or null when one of its cycles is not passed yet or the level has none configured.
      *
      * @param  list<NotaDelHistorial>  $historial
+     * @param  list<int>  $ciclosDelNivel  the cycles the language configures for the level
      * @return list<NotaDelHistorial>|null
      */
-    public static function nivelAprobado(array $historial, NivelCurricular $nivel): ?array
+    public static function nivelAprobado(array $historial, array $ciclosDelNivel): ?array
     {
         $aprobadas = [];
 
@@ -89,9 +80,9 @@ final class HistorialDeNotas
             }
         }
 
-        $delNivel = array_values(array_filter(array_map(fn (int $ciclo): ?NotaDelHistorial => $aprobadas[$ciclo] ?? null, self::ciclosDelNivel($nivel))));
+        $delNivel = array_values(array_filter(array_map(fn (int $ciclo): ?NotaDelHistorial => $aprobadas[$ciclo] ?? null, $ciclosDelNivel)));
 
-        return count($delNivel) === self::CICLOS_POR_NIVEL ? $delNivel : null;
+        return $ciclosDelNivel !== [] && count($delNivel) === count($ciclosDelNivel) ? $delNivel : null;
     }
 
     /**

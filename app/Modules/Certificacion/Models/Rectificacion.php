@@ -14,9 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property CarbonImmutable $autorizada_en
  * @property ?CarbonImmutable $cerrada_en
+ * @property ?array<int, array{promedio: ?string, estado_final: string}> $notas_previas
  */
 #[Table('cer_rectificaciones')]
-#[Fillable(['acta_id', 'motivo', 'autorizada_por', 'autorizada_en', 'cerrada_en'])]
+#[Fillable(['acta_id', 'motivo', 'autorizada_por', 'autorizada_en', 'cerrada_en', 'notas_previas'])]
 final class Rectificacion extends Model
 {
     /**
@@ -32,6 +33,7 @@ final class Rectificacion extends Model
         return [
             'autorizada_en' => 'immutable_datetime',
             'cerrada_en' => 'immutable_datetime',
+            'notas_previas' => 'array',
         ];
     }
 }
