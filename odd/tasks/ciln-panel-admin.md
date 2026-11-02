@@ -26,8 +26,8 @@ User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". T
 ## Tasks
 
 - [x] T1 · S13 · inline · dashboard payment link by ULID (c622f00).
-- [ ] T2 · S2 · inline · `/panel/...` staff downloads behind the panel session. Risk: item 2 (security).
-- [ ] T3 · S4 · inline · Spanish validation, auth and password messages.
+- [x] T2 · S2 · inline · `/panel/...` staff downloads behind the panel session (20553c1). Risk: item 2 (security).
+- [x] T3 · S4 · delegated (context backstop) · Spanish validation, auth and password messages.
 - [ ] T4 · S1 · inline · staff users, roles and permissions screens; deactivated accounts cannot sign in. Risk: item 2 (security).
 - [ ] T5 · S3 · inline · audit log screen and audit triggers on the remaining tables. Risk: item 1 (migration).
 - [ ] T6 · S5 · inline
@@ -46,3 +46,5 @@ User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". T
 - L1 (2026-11-02, verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13 Y sobre el cambio, sí, lo hice yo."
 - L2: the user's own edit of `resources/views/auth/iniciar-sesion.blade.php` committed apart as 62b3a5c.
 - L3: audit evidence: three read-only explorers plus a browser walkthrough of 51 admin lists and 21 records as admin and an access probe as cashier. Verified by the parent: no `lang/` directory; `/panel/*` routes lack `ProtegerSesionDelPanel`; permissions granted only in `DatabaseSeeder`; dashboard link 404 from `CalcularPagosPorValidar.php:62`.
+- L4: T2 RED→GREEN: route test listed the 5 `panel.*` routes without `panel.sesion`; behavior test got 200 instead of the panel sign-in redirect. Guests of `/panel/*` now go to the panel sign-in.
+- L5: T3 RED→GREEN (writer): MensajesEnEspanolTest got "The nombre field is required." before, Spanish after; Feature+Modules 1881 passed. `.env.example` could not be read (permission rule); if it sets APP_LOCALE=en the user must change it.
