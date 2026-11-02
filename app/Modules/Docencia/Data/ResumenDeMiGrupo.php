@@ -30,17 +30,29 @@ final readonly class ResumenDeMiGrupo
 
     public function proximaClase(): string
     {
+        return implode(' · ', $this->partesDeLaProximaClase());
+    }
+
+    /**
+     * The next class as separate parts (when, time, classroom), so the view can keep each one on a single line.
+     *
+     * @return list<string>
+     */
+    public function partesDeLaProximaClase(): array
+    {
         if (! $this->proxima instanceof ClaseProgramada) {
-            return 'Sin clases pendientes en el periodo';
+            return ['Sin clases pendientes en el periodo'];
         }
 
-        $hora = substr($this->proxima->sesion->horaInicio, 0, 5).'–'.substr($this->proxima->sesion->horaFin, 0, 5).($this->grupo->aulaCodigo === null ? '' : " · {$this->grupo->aulaCodigo}");
-
-        return match (true) {
-            $this->esHoy => "Hoy · {$hora}",
-            $this->dictadas === 0 && $this->proxima->fecha->isSameDay($this->grupo->periodoInicio) => 'Empieza: '.Formato::diaYMes($this->proxima->fecha)." · {$hora}",
-            default => 'Próxima clase: '.Formato::diaYMes($this->proxima->fecha)." · {$hora}",
+        $cuando = match (true) {
+            $this->esHoy => 'Hoy',
+            $this->dictadas === 0 && $this->proxima->fecha->isSameDay($this->grupo->periodoInicio) => 'Empieza: '.Formato::diaYMes($this->proxima->fecha),
+            default => 'Próxima clase: '.Formato::diaYMes($this->proxima->fecha),
         };
+
+        $partes = [$cuando, substr($this->proxima->sesion->horaInicio, 0, 5).'–'.substr($this->proxima->sesion->horaFin, 0, 5)];
+
+        return $this->grupo->aulaCodigo === null ? $partes : [...$partes, $this->grupo->aulaCodigo];
     }
 
     public function silaboListo(): bool
