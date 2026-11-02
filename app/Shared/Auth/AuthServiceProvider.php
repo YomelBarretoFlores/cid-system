@@ -6,6 +6,7 @@ namespace App\Shared\Auth;
 
 use App\Shared\Auth\Filament\SalidaDelPanel;
 use App\Shared\Auth\Models\User;
+use App\Shared\Auth\Policies\RolPolicy;
 use Filament\Auth\Http\Responses\Contracts\LogoutResponse;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
 
 final class AuthServiceProvider extends ServiceProvider
 {
@@ -29,6 +31,9 @@ final class AuthServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadMigrationsFrom(__DIR__.'/Database/Migrations');
+        Gate::policy(Role::class, RolPolicy::class);
+
         RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(60)->by((string) ($request->user('sanctum')?->getAuthIdentifier() ?? $request->ip())));
         Gate::define('viewApiDocs', fn (?User $usuario): bool => $usuario?->can(User::ADMIN_PANEL_PERMISSION) ?? false);
 

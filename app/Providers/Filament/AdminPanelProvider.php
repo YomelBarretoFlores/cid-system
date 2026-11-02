@@ -8,6 +8,8 @@ use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use App\Shared\Auth\Filament\AutenticacionPorApp;
 use App\Shared\Auth\Filament\EditarPerfil;
 use App\Shared\Auth\Filament\IngresarAlPanel;
+use App\Shared\Auth\Filament\Resources\Roles\RolResource;
+use App\Shared\Auth\Filament\Resources\Usuarios\UsuarioResource;
 use App\Shared\Auth\Http\Middleware\ExigirDobleFactorSiEsObligatorio;
 use App\Shared\Auth\Http\Middleware\ProtegerSesionDelPanel;
 use App\Shared\Support\Filament\Inicio;
@@ -48,6 +50,11 @@ final class AdminPanelProvider extends PanelProvider
             ->strictAuthorization()
             ->pages([
                 Inicio::class,
+            ])
+            // Discovery only scans the modules; the staff accounts screens live in app/Shared/Auth.
+            ->resources([
+                UsuarioResource::class,
+                RolResource::class,
             ])
             ->navigationGroups(['Atención', 'Oferta académica', 'Docencia', 'Certificación', 'Reportes', 'Configuración'])
             ->authMiddleware([

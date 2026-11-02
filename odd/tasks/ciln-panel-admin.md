@@ -28,7 +28,7 @@ User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". T
 - [x] T1 · S13 · inline · dashboard payment link by ULID (c622f00).
 - [x] T2 · S2 · inline · `/panel/...` staff downloads behind the panel session (20553c1). Risk: item 2 (security).
 - [x] T3 · S4 · delegated (context backstop) · Spanish validation, auth and password messages.
-- [ ] T4 · S1 · inline · staff users, roles and permissions screens; deactivated accounts cannot sign in. Risk: item 2 (security).
+- [x] T4 · S1 · delegated (context backstop) · staff users, roles and permissions screens; deactivated accounts cannot sign in. Risk: items 1 and 2.
 - [ ] T5 · S3 · inline · audit log screen and audit triggers on the remaining tables. Risk: item 1 (migration).
 - [ ] T6 · S5 · inline
 - [ ] T7 · S6 · inline
@@ -48,3 +48,5 @@ User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". T
 - L3: audit evidence: three read-only explorers plus a browser walkthrough of 51 admin lists and 21 records as admin and an access probe as cashier. Verified by the parent: no `lang/` directory; `/panel/*` routes lack `ProtegerSesionDelPanel`; permissions granted only in `DatabaseSeeder`; dashboard link 404 from `CalcularPagosPorValidar.php:62`.
 - L4: T2 RED→GREEN: route test listed the 5 `panel.*` routes without `panel.sesion`; behavior test got 200 instead of the panel sign-in redirect. Guests of `/panel/*` now go to the panel sign-in.
 - L5: T3 RED→GREEN (writer): MensajesEnEspanolTest got "The nombre field is required." before, Spanish after; Feature+Modules 1881 passed. `.env.example` could not be read (permission rule); if it sets APP_LOCALE=en the user must change it.
+- L6: T4 (writer) RED→GREEN: 21 new Auth tests failed before the code, 57 Auth tests pass after; mutation check (removing the deactivation checks) made the deactivation test fail. Audit triggers needed an identity `id` on the spatie pivot tables (aud_registrar reads NEW.id). Parent updated DemoSeederTest and NavegacionDelPanelTest lists, phpstan migration path, decision #2 note. Screens checked in the browser (users list, create, edit, role create): no errors.
+- L7: composer check: 2001/2002, the one failure was TrasladoConcurrenteTest exceeding its 60 s process timeout; it passed twice alone. TarifaConcurrenteTest failed once and errored once across runs, then passed twice. Both are timing-sensitive concurrency tests outside T4's code; recorded as intermittent, to watch in CI.

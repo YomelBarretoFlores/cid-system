@@ -24,6 +24,13 @@
 7. Worker: `php artisan queue:work --tries=3 --timeout=90`, supervisado.
    Sin el worker se detienen: los correos de verificación de cuenta, de recuperación de contraseña y de cambio de trámite, y la reacción de los trámites cuando Pagos valida, rechaza o anula un pago.
 8. Cron: `* * * * * php /ruta/artisan schedule:run >> /dev/null 2>&1`
+9. Primera instalación: crear la primera cuenta de administración con `php artisan personal:crear-administrador <correo> "<nombre>"` (necesita el worker de colas para enviar el correo).
+
+### Primera cuenta de administración
+
+`php artisan personal:crear-administrador <correo> "<nombre>"` crea la cuenta (o, si el correo ya tiene una, la reactiva y le agrega permisos sin cambiar su nombre) con acceso al panel y **todos** los permisos, incluido `usuarios.gestionar`, y le envía el enlace para crear su contraseña: nadie escribe ni ve la contraseña. Desde ahí, esa persona crea las demás cuentas en el panel (Configuración → Usuarios del personal). Sirve también para recuperar el acceso si ninguna cuenta activa puede gestionar usuarios. Sale con `1` si el correo no es válido; el log registra el ID de la cuenta.
+
+Al migrar una base que ya tenía cuentas, `usuarios.gestionar` se otorga automáticamente a las cuentas activas que ya tenían todos los demás permisos, así que no hace falta ejecutar el comando.
 
 ## Variables clave de producción
 

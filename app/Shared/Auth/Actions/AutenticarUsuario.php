@@ -38,7 +38,8 @@ final readonly class AutenticarUsuario
         event(new Attempting('web', $credenciales, false));
         $usuario = $proveedor->retrieveByCredentials($credenciales);
 
-        if (! $usuario instanceof User || ! $proveedor->validateCredentials($usuario, $credenciales)) {
+        // A deactivated account gets the same answer as a wrong password, so the message never reveals that it exists.
+        if (! $usuario instanceof User || ! $proveedor->validateCredentials($usuario, $credenciales) || $usuario->desactivado_en !== null) {
             event(new Failed('web', $usuario, $credenciales));
             RateLimiter::hit($clave);
             RateLimiter::hit($claveDeDireccion);

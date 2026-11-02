@@ -27,6 +27,7 @@ use App\Modules\Personas\Models\Persona;
 use App\Modules\Tablero\Enums\PermisoTablero;
 use App\Modules\Tramites\Database\Seeders\TramitesDemoSeeder;
 use App\Modules\Tramites\Enums\PermisoTramite;
+use App\Shared\Auth\Enums\PermisoUsuario;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
@@ -48,7 +49,7 @@ final class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Administrador Demo',
             'email' => 'admin@ciln.test',
-        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores(), ...PermisoTablero::valores()]);
+        ])->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoPago::valores(), ...PermisoAcademico::valores(), ...PermisoPersona::valores(), ...PermisoMatricula::valores(), ...PermisoClasificacion::valores(), ...PermisoDocencia::valores(), ...PermisoCertificacion::valores(), ...PermisoTramite::valores(), ...PermisoTablero::valores(), ...PermisoUsuario::valores()]);
 
         User::factory()->create([
             'name' => 'Caja Demo',
