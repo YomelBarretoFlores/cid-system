@@ -50,6 +50,8 @@
     --color-positivo: oklch(0.62 0.17 150);
     --color-peligro: oklch(0.5 0.19 27);
     --color-interruptor: var(--color-piedra-300);
+    --color-institucional: #33465e;
+    --color-institucional-oscuro: #26364a;
 
     --color-ambar-fondo: #fbefd5;
     --color-ambar-texto: #7a5300;

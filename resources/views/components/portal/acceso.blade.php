@@ -1,7 +1,7 @@
 @props(['titulo', 'descripcion' => null])
 <div class="flex flex-col gap-[22px]">
     <header class="flex flex-col gap-2">
-        <h1 class="text-[clamp(28px,3vw,38px)] leading-[1.1] font-semibold tracking-[-0.03em]">{{ $titulo }}</h1>
+        <h1 class="text-[22px] leading-[1.2] font-semibold tracking-[-0.02em]">{{ $titulo }}</h1>
         @if ($descripcion)
             <p class="text-pretty text-secundario">{{ $descripcion }}</p>
         @endif

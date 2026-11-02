@@ -1,4 +1,4 @@
-@props(['title' => null, 'indexable' => true])
+@props(['title' => null, 'indexable' => true, 'marco' => true])
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -18,10 +18,14 @@
             Saltar al contenido
         </a>
 
-        <div class="min-h-screen p-2 sm:p-4">
-            <div {{ $attributes->class('min-h-[calc(100vh-1rem)] rounded-tarjeta bg-lienzo p-2 sm:min-h-[calc(100vh-2rem)] sm:rounded-marco sm:p-3.5') }}>
-                {{ $slot }}
+        @if ($marco)
+            <div class="min-h-screen p-2 sm:p-4">
+                <div {{ $attributes->class('min-h-[calc(100vh-1rem)] rounded-tarjeta bg-lienzo p-2 sm:min-h-[calc(100vh-2rem)] sm:rounded-marco sm:p-3.5') }}>
+                    {{ $slot }}
+                </div>
             </div>
-        </div>
+        @else
+            <div {{ $attributes->class('min-h-screen') }}>{{ $slot }}</div>
+        @endif
     </body>
 </html>

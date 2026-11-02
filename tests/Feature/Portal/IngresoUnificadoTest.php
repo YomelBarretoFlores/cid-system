@@ -118,3 +118,12 @@ it('falls back to the profile module when the pending page in the session is not
         ->set('email', $usuario->email)->set('password', 'password')->call('ingresar')
         ->assertRedirect(route('filament.docente.pages.mis-grupos'));
 });
+
+it('shows the sign-in as a centered institutional card with the UNASAM and CILN marks and no profile selector', function (): void {
+    $this->get(route('ingresar'))
+        ->assertOk()
+        ->assertSee('data-acceso-institucional', false)
+        ->assertSee(asset('images/unasam/logo.png'), false)
+        ->assertSeeInOrder(['Bienvenido al', 'Sistema de Gestión Académica', 'Centro de Idiomas y Lenguas Nativas', 'Ingresar al portal del CILN'])
+        ->assertDontSee('Perfil');
+});
