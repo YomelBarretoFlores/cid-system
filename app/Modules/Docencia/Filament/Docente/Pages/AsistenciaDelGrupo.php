@@ -35,6 +35,7 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Pages\Page;
 use Filament\Panel;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Livewire\Attributes\Locked;
@@ -118,6 +119,9 @@ final class AsistenciaDelGrupo extends Page
                 ->rows(2)
                 ->maxLength(1000)
                 ->disabled(fn (): bool => $this->llamado === Llamado::Cerrado)
+                ->visible(fn (): bool => $this->estudiantesDelLlamado() !== []),
+            View::make('docencia::filament.docente.pasos-del-llamado')
+                ->viewData(fn (): array => ['pasos' => $this->pasosDelLlamado()])
                 ->visible(fn (): bool => $this->estudiantesDelLlamado() !== []),
             Section::make('Estudiantes')
                 ->description(fn (): string => $this->descripcionDelLlamado())
@@ -230,6 +234,22 @@ final class AsistenciaDelGrupo extends Page
             ->disabled($this->llamado === Llamado::Cerrado)
             ->inline()
             ->grouped();
+    }
+
+    /**
+     * The calls of the chosen class as numbered steps with their state.
+     *
+     * @return list<array{int, string, string}>
+     */
+    private function pasosDelLlamado(): array
+    {
+        return match ($this->llamado) {
+            Llamado::Inicio => [[1, 'Llamado de inicio', 'En curso'], [2, 'Llamado de cierre', 'Pendiente']],
+            Llamado::Cierre => [[1, 'Llamado de inicio', 'Tomado'], [2, 'Llamado de cierre', 'En curso']],
+            Llamado::Cerrado => [[1, 'Llamado de inicio', 'Cerrado'], [2, 'Llamado de cierre', 'Cerrado']],
+            Llamado::Posterior => [[1, 'Registro posterior', 'En curso']],
+            Llamado::Anterior => [[1, 'Registro anterior a los llamados', 'Registrado']],
+        };
     }
 
     private function descripcionDelLlamado(): string

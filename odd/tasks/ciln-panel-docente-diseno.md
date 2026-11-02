@@ -14,7 +14,7 @@ Branch: `feat/panel-docente-diseno` (stacked on `feat/portal-estudiante-diseno`)
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S2 | inline | done | see L2 |
-| T2 | S3 | inline | pending | |
+| T2 | S3 | inline | done | see L3 |
 
 ## Log
 
@@ -30,3 +30,15 @@ Branch: `feat/panel-docente-diseno` (stacked on `feat/portal-estudiante-diseno`)
   - Next step, in order: Completar sílabo, Tomar asistencia (class today), Ver acta final (closed), Cerrar acta (window open and grades complete), Completar notas, then Tomar asistencia.
   - RED: 2 new tests failed first. Docencia panel and Architecture: 70 pass. Browser on the demo: no JS errors, no overflow at 390 px.
   - Deviation from the plan: no separate teacher theme. The cards use Filament components and the shared theme's tokens, which is enough.
+- L3 (2026-11-01): T2 done.
+  - The attendance page shows the class calls as numbered steps (`pasos-del-llamado` view):
+    - opening call "En curso" with the closing call "Pendiente";
+    - after the opening call, "Tomado" then "En curso";
+    - both "Cerrado" at the end;
+    - a single step for a later or earlier record.
+  - The present/absent `ToggleButtons` and the topic field above them are unchanged; there is no late option.
+  - The planned "all present" shortcut was dropped: every opening call already starts with everyone present (pinned by an existing test).
+  - RED: the steps test failed first. Docencia panel: 57 pass.
+
+  V5 is complete.
+

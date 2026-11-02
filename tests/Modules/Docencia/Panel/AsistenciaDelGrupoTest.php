@@ -73,6 +73,13 @@ it('starts a new roll call with everyone present and saves the marked states', f
         ->and(Asistencia::query()->where('clase_id', $clase->id)->pluck('estado', 'matricula_id')->map->value->all())->toEqualCanonicalizing([$this->ana->id => 'falta', $this->luis->id => 'presente']);
 });
 
+it('shows the two calls of a class as steps, the opening one first', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertSeeHtml('data-pasos-del-llamado')
+        ->assertSeeInOrder(['1', 'Llamado de inicio', 'En curso', '2', 'Llamado de cierre', 'Pendiente']);
+});
+
 it('loads the saved states when an earlier class is chosen and marks it as recorded', function (): void {
     $clase = ClaseDictada::query()->create(['grupo_id' => $this->grupo->id, 'fecha' => '2027-03-08', 'hora_inicio' => '18:00', 'hora_fin' => '20:00', 'docente_id' => $this->docente->id, 'registrado_por' => $this->usuario->id]);
     Asistencia::query()->create(['clase_id' => $clase->id, 'matricula_id' => $this->ana->id, 'estado' => 'falta']);
