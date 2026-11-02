@@ -237,18 +237,18 @@ final class AsistenciaDelGrupo extends Page
     }
 
     /**
-     * The calls of the chosen class as numbered steps with their state.
+     * The calls of the chosen class as numbered steps: [number, call, state shown, kind] where kind is actual, hecho or pendiente.
      *
-     * @return list<array{int, string, string}>
+     * @return list<array{int, string, string, string}>
      */
     private function pasosDelLlamado(): array
     {
         return match ($this->llamado) {
-            Llamado::Inicio => [[1, 'Llamado de inicio', 'En curso'], [2, 'Llamado de cierre', 'Pendiente']],
-            Llamado::Cierre => [[1, 'Llamado de inicio', 'Tomado'], [2, 'Llamado de cierre', 'En curso']],
-            Llamado::Cerrado => [[1, 'Llamado de inicio', 'Cerrado'], [2, 'Llamado de cierre', 'Cerrado']],
-            Llamado::Posterior => [[1, 'Registro posterior', 'En curso']],
-            Llamado::Anterior => [[1, 'Registro anterior a los llamados', 'Registrado']],
+            Llamado::Inicio => [[1, 'Llamado de inicio', 'En curso', 'actual'], [2, 'Llamado de cierre', 'Pendiente', 'pendiente']],
+            Llamado::Cierre => [[1, 'Llamado de inicio', 'Tomado', 'hecho'], [2, 'Llamado de cierre', 'En curso', 'actual']],
+            Llamado::Cerrado => [[1, 'Llamado de inicio', 'Cerrado', 'hecho'], [2, 'Llamado de cierre', 'Cerrado', 'hecho']],
+            Llamado::Posterior => [[1, 'Registro posterior', 'En curso', 'actual']],
+            Llamado::Anterior => [[1, 'Registro anterior a los llamados', 'Registrado', 'hecho']],
         };
     }
 

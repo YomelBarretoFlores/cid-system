@@ -1,12 +1,13 @@
 @php
     $conPago = $opcionesDePago !== [];
-    // The shift of a group is the one of its first session: before noon, before six in the evening, or night.
+    // The shift of a group is the one of its first session: before noon, before six in the evening, or night; a group without sessions has none yet.
     $turno = function ($grupo): string {
         $hora = collect($grupo->sesiones)->min(fn ($sesion): string => $sesion->horaInicio);
 
-        return match (true) { $hora === null => 'manana', $hora < '12:00' => 'manana', $hora < '18:00' => 'tarde', default => 'noche' };
+        return match (true) { $hora === null => 'sin-horario', $hora < '12:00' => 'manana', $hora < '18:00' => 'tarde', default => 'noche' };
     };
     $turnos = ['manana' => 'Mañana', 'tarde' => 'Tarde', 'noche' => 'Noche'];
+    $etiquetasDeTurno = [...$turnos, 'sin-horario' => 'Horario por confirmar'];
 @endphp
 <div class="flex flex-col gap-2 pb-28 sm:gap-3.5" x-data="{ turno: 'todos', eleccion: '' }">
     <x-portal.encabezado titulo="Matrícula">Elige un grupo del ciclo que te corresponde y el pago de matrícula validado que usarás.</x-portal.encabezado>
@@ -30,7 +31,7 @@
         <x-portal.alerta tipo="error">{{ $message }}</x-portal.alerta>
     @enderror
 
-    <details class="group rounded-tarjeta bg-tarjeta p-5 sm:px-7" @if (collect($requisitos)->contains(fn ($requisito): bool => ! $requisito->cumplido)) open @endif>
+    <details wire:ignore.self class="group rounded-tarjeta bg-tarjeta p-5 sm:px-7" @if (collect($requisitos)->contains(fn ($requisito): bool => ! $requisito->cumplido)) open @endif>
         <summary class="flex cursor-pointer items-center justify-between gap-3 font-semibold">
             Requisitos para matricularte
             <x-heroicon-o-chevron-down aria-hidden="true" class="size-4 text-apagado transition-transform group-open:rotate-180" />
@@ -105,7 +106,7 @@
                                     <span class="flex items-center gap-2 text-[13.5px] text-terciario">
                                         <input type="radio" name="grupo" value="{{ $grupo->id }}" wire:model="grupo" @disabled($sinVacantes) x-on:change="eleccion = @js($grupo->codigo)"
                                             aria-describedby="grupo-{{ $grupo->id }}-detalle grupo-{{ $grupo->id }}-vacantes" class="casilla size-4 focus:outline-none">
-                                        {{ $grupo->codigo }} · {{ $turnos[$deTurno] }}
+                                        {{ $grupo->codigo }} · {{ $etiquetasDeTurno[$deTurno] }}
                                     </span>
                                     <span id="grupo-{{ $grupo->id }}-vacantes" aria-live="polite" aria-atomic="true">
                                         <x-portal.insignia :color="$sinVacantes ? 'danger' : ($grupo->vacantesDisponibles <= 3 ? 'warning' : 'success')">

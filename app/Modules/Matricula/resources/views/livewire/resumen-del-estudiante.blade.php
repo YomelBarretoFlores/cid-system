@@ -2,7 +2,6 @@
 @use('App\Modules\Matricula\Enums\EstadoMatricula')
 @use('App\Modules\Matricula\Enums\PasoDelEstudiante')
 @use('App\Modules\Tramites\Contracts\TramitesObservados')
-@use('App\Shared\Ui\Formato')
 @php
     $grupo = $avance->grupoActual;
     $soloDocente = $esDocente && $avance->idiomas === [] && $avance->paso === PasoDelEstudiante::SinPago;
@@ -18,10 +17,10 @@
         $observados > 0 ? [$observados === 1 ? 'Subsana tu trámite observado.' : "Subsana tus {$observados} trámites observados.", 'El CILN te pidió corregir o completar algo.', 'Ver mis trámites', 'estudiante.tramites'] : null,
     ]));
     $esperas = array_values(array_filter([
-        $avance->paso === PasoDelEstudiante::SinPago && $avance->pagos->ultimoRechazo === null && $avance->pagos->matriculaPorValidar
+        ! $soloDocente && $avance->paso === PasoDelEstudiante::SinPago && $avance->pagos->ultimoRechazo === null && $avance->pagos->matriculaPorValidar
             ? ['Tu pago de matrícula está por validar.', 'Cuando el CILN lo valide podrás elegir tu grupo.', 'Ver mis pagos', 'estudiante.pagos'] : null,
     ]));
-    $hoy = now('America/Lima');
+    $hoy = \Carbon\CarbonImmutable::now('America/Lima');
     $lunes = $hoy->startOfWeek();
     $dias = array_filter($avance->horario, fn (array $clases, int $dia): bool => $dia < 7 || $clases !== [], ARRAY_FILTER_USE_BOTH);
 @endphp

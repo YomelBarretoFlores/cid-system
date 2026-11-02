@@ -7,6 +7,7 @@ namespace App\Modules\Docencia\Data;
 use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Docencia\Enums\EstadoSilabo;
+use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Shared\Ui\Formato;
 use Carbon\CarbonImmutable;
 
@@ -63,7 +64,7 @@ final readonly class ResumenDeMiGrupo
 
     public function actaAbiertaHoy(): bool
     {
-        $hoy = CarbonImmutable::today('America/Lima');
+        $hoy = ClasesDelHorario::hoy();
 
         return $this->acta !== EstadoActa::Cerrada && $this->actasInicio instanceof CarbonImmutable && $this->actasFin instanceof CarbonImmutable
             && $hoy->betweenIncluded($this->actasInicio, $this->actasFin);

@@ -41,4 +41,13 @@ Branch: `feat/panel-docente-diseno` (stacked on `feat/portal-estudiante-diseno`)
   - RED: the steps test failed first. Docencia panel: 57 pass.
 
   V5 is complete.
+- L4 (2026-11-01): native review of the V3–V5 slice cec1a74..c596835 (lenses reliability and readability, lineage review-3b06eb4ff8935e1d) was granted by the user, approved and acknowledged. The whole visual branch exceeded the context budget because of the design HTML.
+  - Applied:
+    - a group without sessions shows "Horario por confirmar" and only under "Todos", with a test;
+    - the home agenda uses `CarbonImmutable`;
+    - a teacher-only user no longer sees the payment-validation wait;
+    - the requirements block keeps its open or closed state across the 15-second poll (`wire:ignore.self`);
+    - `ResumenDeMiGrupo` takes "today" from `ClasesDelHorario::hoy()`;
+    - call steps are styled by a kind (actual, hecho, pendiente) instead of their label;
+    - an unused import was removed.
 
