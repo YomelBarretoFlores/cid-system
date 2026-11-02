@@ -274,7 +274,7 @@ it('lists an open acta without validation date with a dash', function (): void {
     app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value));
     DB::table('cer_actas')->where('id', $acta->id)->update(['validada_en' => null, 'validada_por' => null]);
 
-    Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertOk()->assertSeeInOrder(['ING-1-M', 'En rectificación', '—']);
+    Livewire::actingAs($this->usuario)->test(MisActasFinales::class)->assertOk()->assertSeeInOrder(['ING-1-M', 'En rectificación', '—'])->assertDontSee('30 mar 2027');
 });
 
 it('shows the validation day in Lima time, also late at night', function (): void {

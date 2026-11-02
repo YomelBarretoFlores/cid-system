@@ -14,6 +14,7 @@ use App\Modules\Docencia\Models\Docente;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
 use Carbon\CarbonImmutable;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Log;
@@ -78,6 +79,18 @@ it('shows the two calls of a class as steps, the opening one first', function ()
         ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
         ->assertSeeHtml('data-pasos-del-llamado')
         ->assertSeeInOrder(['1', 'Llamado de inicio', 'En curso', '2', 'Llamado de cierre', 'Pendiente']);
+});
+
+it('marks every student present with one click on the opening call, without saving', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertActionVisible(TestAction::make('todosPresentes')->schemaComponent('estudiantes'))
+        ->set("estados.{$this->ana->id}", 'falta')
+        ->set("estados.{$this->luis->id}", 'falta')
+        ->callAction(TestAction::make('todosPresentes')->schemaComponent('estudiantes'))
+        ->assertSet('estados', [$this->luis->id => 'presente', $this->ana->id => 'presente']);
+
+    expect(ClaseDictada::query()->count())->toBe(0);
 });
 
 it('loads the saved states when an earlier class is chosen and marks it as recorded', function (): void {

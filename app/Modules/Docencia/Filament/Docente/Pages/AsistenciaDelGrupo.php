@@ -37,6 +37,7 @@ use Filament\Panel;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
 use Livewire\Attributes\Locked;
 
@@ -124,7 +125,17 @@ final class AsistenciaDelGrupo extends Page
                 ->viewData(fn (): array => ['pasos' => $this->pasosDelLlamado()])
                 ->visible(fn (): bool => $this->estudiantesDelLlamado() !== []),
             Section::make('Estudiantes')
+                ->key('estudiantes')
                 ->description(fn (): string => $this->descripcionDelLlamado())
+                ->afterHeader([
+                    Action::make('todosPresentes')
+                        ->label('Todos presentes')
+                        ->icon(Heroicon::OutlinedCheckCircle)
+                        ->color('gray')
+                        ->size(Size::Small)
+                        ->action(fn () => $this->marcarTodosPresentes())
+                        ->visible(fn (): bool => $this->llamado === Llamado::Inicio),
+                ])
                 ->schema(fn (): array => array_map($this->marcaDe(...), $this->estudiantesDelLlamado()))
                 ->visible(fn (): bool => $this->estudiantesDelLlamado() !== []),
         ]);
@@ -222,6 +233,14 @@ final class AsistenciaDelGrupo extends Page
             $this->addError('asistencia', $error->getMessage());
 
             return null;
+        }
+    }
+
+    // Only fills the form; the teacher still saves the call, so the opening-call rules apply as usual.
+    private function marcarTodosPresentes(): void
+    {
+        foreach ($this->estudiantesDelLlamado() as $estudiante) {
+            $this->estados[$estudiante->matriculaId] = EstadoAsistencia::Presente->value;
         }
     }
 
