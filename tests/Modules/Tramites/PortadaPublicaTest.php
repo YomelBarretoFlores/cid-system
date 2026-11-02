@@ -127,3 +127,13 @@ it('gives staff a header button to the panel sign-in and keeps the headline read
         ->assertSee('href="'.route('filament.admin.auth.login').'"', false)
         ->assertSee('<h1 class="sr-only">Aprende un idioma en la UNASAM.</h1>', false);
 });
+
+it('paints each rotating word of the headline with the colors of its language flag', function (): void {
+    Idioma::factory()->create(['nombre' => 'Inglés']);
+    Idioma::factory()->create(['nombre' => 'Quechua']);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertSee('style="background-image: linear-gradient(90deg, #3C3B6E, #B22234)">inglés</span>', false)
+        ->assertSee('style="background-image: linear-gradient(90deg, #E30613, #F39200, #C9A800, #009640, #0069B4, #6F2C91)">quechua</span>', false);
+});
