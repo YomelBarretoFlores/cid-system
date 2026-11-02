@@ -9,6 +9,7 @@ use App\Shared\Auth\Actions\CerrarSesionesDeCuenta;
 use App\Shared\Auth\Actions\CrearAdministradorDelPersonal;
 use App\Shared\Auth\Actions\ReiniciarDobleFactor;
 use App\Shared\Auth\Enums\CierreDeSesiones;
+use App\Shared\Auth\Support\EnlaceDeContrasena;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -53,14 +54,22 @@ Artisan::command('auth:reiniciar-doble-factor {correo} {--solo-sesiones : Only c
 
 Artisan::command('personal:crear-administrador {correo} {nombre}', function (CrearAdministradorDelPersonal $crear, string $correo, string $nombre): int {
     try {
-        $crear($correo, $nombre);
+        $usuario = $crear($correo, $nombre);
     } catch (ReglaDeNegocioIncumplida $error) {
         $this->error($error->getMessage());
 
         return 1;
     }
 
-    $this->info('La cuenta tiene acceso al panel y todos los permisos. Se envió a su correo el enlace para crear su contraseña.');
+    $this->info('La cuenta tiene acceso al panel y todos los permisos.');
+
+    // The account is already granted, so a link that cannot go out now is a warning, not a failed command.
+    try {
+        EnlaceDeContrasena::enviar($usuario->email);
+        $this->info('Se envió a su correo el enlace para crear su contraseña.');
+    } catch (ReglaDeNegocioIncumplida $error) {
+        $this->warn("Pero no se pudo enviar el enlace para crear su contraseña: {$error->getMessage()} Vuelve a enviarlo desde Usuarios del personal.");
+    }
 
     return 0;
 })->purpose('Create or upgrade a staff account with every permission, including managing users, and email it the link to set its password');

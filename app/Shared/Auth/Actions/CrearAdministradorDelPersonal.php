@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Shared\Auth\Actions;
 
 use App\Shared\Auth\Models\User;
-use App\Shared\Auth\Support\EnlaceDeContrasena;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +33,6 @@ final readonly class CrearAdministradorDelPersonal
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
         Log::info('Se otorgó la administración completa a una cuenta desde la consola.', ['usuario_id' => $usuario->id]);
-        EnlaceDeContrasena::enviar($usuario->email);
 
         return $usuario;
     }

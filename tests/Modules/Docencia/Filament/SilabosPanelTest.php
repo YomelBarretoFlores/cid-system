@@ -13,6 +13,7 @@ use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Testing\TestAction;
+use Filament\Facades\Filament;
 use Illuminate\Testing\Constraints\SeeInOrder;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
@@ -146,4 +147,24 @@ it('sends staff signed in outside the panel to the panel sign-in instead of serv
     $this->assertGuest();
 
     $this->get(route('panel.silabos.pdf', $this->publicado->id))->assertRedirect(route('filament.admin.auth.login'));
+});
+
+it('refuses a staff download to a portal account without signing it out', function (): void {
+    [$usuario] = PortalDocente::docente();
+
+    $this->be($usuario)->get(route('panel.silabos.pdf', $this->publicado->id))->assertForbidden();
+    $this->assertAuthenticatedAs($usuario);
+});
+
+it('refuses a staff download to a deactivated account even with an open panel session', function (): void {
+    $this->coordinador->forceFill(['desactivado_en' => now()])->save();
+
+    $this->actingAs($this->coordinador)->get(route('panel.silabos.pdf', $this->publicado->id))->assertForbidden();
+});
+
+it('sends staff to set up the second factor before a download when the panel requires it', function (): void {
+    config(['auth.panel_doble_factor_obligatorio' => true]);
+
+    $this->actingAs($this->coordinador)->get(route('panel.silabos.pdf', $this->publicado->id))
+        ->assertRedirect(Filament::getPanel('admin')->getSetUpRequiredMultiFactorAuthenticationUrl());
 });

@@ -265,3 +265,14 @@ it('creates or upgrades a full administrator from the console and emails the lin
     expect(User::query()->where('email', 'nueva@ciln.test')->value('name'))->toBe('Administración CILN')
         ->and(User::query()->findOrFail($existente->id)->name)->toBe($existente->name);
 });
+
+it('reports success from the console when the account is ready but the password link was sent moments ago', function (): void {
+    $this->artisan('personal:crear-administrador', ['correo' => 'dsti@ciln.test', 'nombre' => 'DSTI'])->assertExitCode(0);
+    User::query()->where('email', 'dsti@ciln.test')->sole()->revokePermissionTo(PermisoUsuario::Gestionar->value);
+
+    $this->artisan('personal:crear-administrador', ['correo' => 'dsti@ciln.test', 'nombre' => 'DSTI'])
+        ->expectsOutputToContain('no se pudo enviar el enlace')
+        ->assertExitCode(0);
+
+    expect(User::query()->where('email', 'dsti@ciln.test')->sole()->hasPermissionTo(PermisoUsuario::Gestionar->value))->toBeTrue();
+});
