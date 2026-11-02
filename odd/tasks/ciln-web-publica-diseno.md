@@ -26,3 +26,4 @@ Branch: `feat/web-publica-diseno` from main 3d53332. Delivery: ask-on-risk (fore
 - L3: built inline (no writer trigger: one coherent view change). Floating leaves and underline strokes look missing in full-page CDP captures only (compositor animations); viewport captures show them, so checks use viewport shots for those.
 - L4: affected tests green (Tramites, verification, health: 117 passed) before the full check.
 - L5: composer check rc=0, 1961 tests passed.
+- L6: gentle-ai review assess (base 3d53332, committed-only): risk medium, review_due false (under_budget); no native review started.
