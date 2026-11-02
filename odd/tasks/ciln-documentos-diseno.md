@@ -79,4 +79,6 @@ Branch: `feat/documentos-diseno` (stacked on `fix/sidebar-y-reportes`). Delivery
   - `composer check` rc=0, 1935 tests.
 
   V2 is complete: T1 to T4.
+- L6 (2026-11-01): native review of 4ff5dd6..ce2cf50 (escalated with item 2; lenses risk and reliability; lineage review-f82d0b8ae38db94f) was granted by the user, approved and acknowledged.
+  - Applied after a test: the legacy fallback tolerates a document without detail, and a document issued without a frozen denomination takes the one of its issue year.
 

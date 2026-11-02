@@ -36,7 +36,7 @@ final readonly class GenerarDocumentoPdf
             'lugarYFecha' => 'Huaraz, '.Formato::fechaLarga($emitido),
             'firmas' => $documento->detalle['firmas'] ?? FirmasDelDocumento::de($documento->tipo->grupoDeFirma(), $emitido),
             // Documents issued before the denomination existed take the one of their issue year.
-            'denominacion' => array_key_exists('denominacion', $documento->detalle) ? $documento->detalle['denominacion'] : ($this->denominacionDelAnio)((int) $emitido->format('Y')),
+            'denominacion' => array_key_exists('denominacion', $documento->detalle ?? []) ? $documento->detalle['denominacion'] : ($this->denominacionDelAnio)((int) $emitido->format('Y')),
         ])->format('a4');
 
         // A certificate is a landscape page like a diploma; constancias are letters.

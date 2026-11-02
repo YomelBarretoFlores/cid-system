@@ -8,10 +8,12 @@ use App\Modules\Certificacion\Actions\GenerarActaFinalPdf;
 use App\Modules\Certificacion\Actions\GenerarDocumentoPdf;
 use App\Modules\Certificacion\Contracts\DenominacionDelAnio as DenominacionDelAnioContrato;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
+use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Filament\Resources\DenominacionesDelAnio\DenominacionDelAnioResource;
 use App\Modules\Certificacion\Filament\Resources\DenominacionesDelAnio\Pages\CreateDenominacionDelAnio;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\DenominacionDelAnio;
+use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -74,4 +76,14 @@ it('prints on the acta final the denomination of the year it was validated', fun
     app(CerrarActa::class)($curso['grupo']->id, $curso['docente']->id, $curso['usuario']);
 
     expect(htmlDe(app(GenerarActaFinalPdf::class)((int) Acta::query()->value('id'))))->toContain('«Año de la Prueba Sintética»');
+});
+
+it('gives a document issued before the denomination existed the one of its issue year', function (): void {
+    DenominacionDelAnio::query()->create(['anio' => 2026, 'texto' => 'Año anterior de prueba']);
+    $antiguo = Documento::query()->create([
+        'codigo' => 'CILN-ANTIGUO001', 'tipo' => TipoDocumento::ConstanciaNotas, 'persona_id' => $this->ana->id, 'estudiante_nombre' => 'Alva Prueba, Ana',
+        'estudiante_documento' => 'DNI 70000001', 'idioma' => 'Inglés', 'detalle' => ['notas' => []], 'emitido_por' => $this->emisor->id, 'emitido_en' => '2026-11-20 10:00:00-05',
+    ]);
+
+    expect(htmlDe(app(GenerarDocumentoPdf::class)($antiguo->id)))->toContain('«Año anterior de prueba»');
 });
