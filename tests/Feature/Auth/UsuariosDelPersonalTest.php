@@ -23,10 +23,12 @@ use Database\Seeders\DatabaseSeeder;
 use Filament\Actions\Testing\TestAction;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Facades\Filament;
+use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification as Correos;
+use Illuminate\Support\Facades\Password;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 
@@ -275,4 +277,19 @@ it('reports success from the console when the account is ready but the password 
         ->assertExitCode(0);
 
     expect(User::query()->where('email', 'dsti@ciln.test')->sole()->hasPermissionTo(PermisoUsuario::Gestionar->value))->toBeTrue();
+});
+
+it('keeps the new account and warns how to resend when the password link cannot be sent', function (): void {
+    $this->actingAs($this->gestor);
+    Password::shouldReceive('broker')->andReturn(Mockery::mock(PasswordBroker::class, function ($broker): void {
+        $broker->shouldReceive('sendResetLink')->andThrow(new RuntimeException('Servidor de correo caído'));
+    }));
+
+    Livewire::test(CreateUsuario::class)
+        ->fillForm(['name' => 'Luis Caja', 'email' => 'luis@ciln.test'])
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertNotified('Usuario creado, pero no se pudo enviar el enlace para crear su contraseña.');
+
+    expect(User::query()->where('email', 'luis@ciln.test')->exists())->toBeTrue();
 });

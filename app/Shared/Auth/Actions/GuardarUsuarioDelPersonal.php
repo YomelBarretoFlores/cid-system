@@ -6,7 +6,6 @@ namespace App\Shared\Auth\Actions;
 
 use App\Shared\Auth\Data\DatosDeUsuarioDelPersonal;
 use App\Shared\Auth\Models\User;
-use App\Shared\Auth\Support\EnlaceDeContrasena;
 use App\Shared\Auth\Support\GestoresDeUsuarios;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -27,10 +26,6 @@ final readonly class GuardarUsuarioDelPersonal
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
-
-        if ($usuarioId === null) {
-            EnlaceDeContrasena::enviar($usuario->email);
-        }
 
         return $usuario;
     }
