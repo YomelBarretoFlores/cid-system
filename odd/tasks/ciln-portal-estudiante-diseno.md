@@ -15,7 +15,7 @@ Branch: `feat/portal-estudiante-diseno` (stacked on `feat/login-sga`). Delivery:
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S2, S4 (codes) | inline | done | see L2 |
-| T2 | S3 | inline | pending | |
+| T2 | S3 | inline | done | see L3 |
 | T3 | S4 (delegate entry) and remaining screens | inline | pending | |
 
 ## Log
@@ -30,3 +30,13 @@ Branch: `feat/portal-estudiante-diseno` (stacked on `feat/login-sga`). Delivery:
     - on the right: "Esta semana" (day and date, each class or "Sin clases"), "Mis pagos" counters and "Mis documentos".
   - The pinned order in `ResumenDelEstudianteTest` follows the new layout.
   - Portal, Personas, Docencia portal and Feature portal: 309 pass. Browser on the demo: no JS errors, no overflow at 390 px.
+- L3 (2026-11-01): T2 done.
+  - Matrícula has:
+    - the 3 steps ("Pago validado" is done when a validated payment exists);
+    - requirements in a collapsible block, open while one is pending;
+    - the payment-in-use strip;
+    - an Alpine filter Todos/Mañana/Tarde/Noche (by the first session's start: before 12:00, before 18:00, then night);
+    - a card grid with the live vacancies (`wire:poll.15s.visible`);
+    - a sticky dark bar with "Tu elección" and "Matricularme".
+  - Every rule and message is unchanged. Matricula portal and Feature portal: 223 pass.
+

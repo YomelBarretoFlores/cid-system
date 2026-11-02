@@ -42,6 +42,20 @@ it('shows the open groups of the enabled cycle with schedule and live vacancies'
         ->assertDontSee('ING-II-A');
 });
 
+it('shows the three steps, the payment in use and a shift filter with each group marked by its shift', function (): void {
+    Horario::factory()->for($this->grupo)->create(['dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']);
+    Horario::factory()->for(Grupo::factory()->for($this->periodo)->for($this->grupo->ciclo)->create(['codigo' => 'ING-I-N']))->create(['dia_semana' => 2, 'hora_inicio' => '19:00', 'hora_fin' => '21:00']);
+
+    $this->actingAs($this->user)
+        ->get(route('estudiante.matricula'))
+        ->assertOk()
+        ->assertSeeInOrder(['Paso 1', 'Pago validado', 'Paso 2', 'Elige tu grupo', 'Paso 3', 'Confirma'])
+        ->assertSeeInOrder(['Todos', 'Mañana', 'Tarde', 'Noche'])
+        ->assertSee('data-turno="manana"', false)
+        ->assertSee('data-turno="noche"', false)
+        ->assertSee('Tu elección');
+});
+
 it('enrolls the student with an unused validated payment and opens my enrollments', function (): void {
     Livewire::actingAs($this->user)
         ->test(Matricularse::class)
