@@ -128,14 +128,19 @@ it('gives staff a header button to the panel sign-in and keeps the headline read
         ->assertSee('<h1 class="sr-only">Aprende un idioma en la UNASAM.</h1>', false);
 });
 
-it('paints each rotating word of the headline with the colors of its language flag', function (): void {
+it('fills each rotating word of the headline with the drawing of its language flag', function (): void {
     Idioma::factory()->create(['nombre' => 'Inglés']);
     Idioma::factory()->create(['nombre' => 'Quechua']);
 
-    $this->get('/')
-        ->assertOk()
-        ->assertSee('style="background-image: linear-gradient(90deg, #3C3B6E, #B22234)">inglés</span>', false)
-        ->assertSee('style="background-image: linear-gradient(90deg, #E30613, #F39200, #C9A800, #009640, #0069B4, #6F2C91)">quechua</span>', false);
+    $html = $this->get('/')->assertOk()->getContent();
+    $flagDe = function (string $palabra) use ($html): string {
+        expect(preg_match('/style="background-image: url\(data:image\/svg\+xml;base64,([A-Za-z0-9+\/=]+)\)">'.$palabra.'<\/span>/u', $html, $coincidencia))->toBe(1);
+
+        return (string) base64_decode($coincidencia[1], true);
+    };
+
+    expect($flagDe('inglés'))->toContain('#3C3B6E')->toContain('#B22234')->toContain('#FFFFFF')
+        ->and($flagDe('quechua'))->toContain('#E30613')->toContain('#6F2C91');
 });
 
 it('links to the dates section from the header and footer only when the home shows it', function (): void {

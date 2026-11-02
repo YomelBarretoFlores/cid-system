@@ -13,7 +13,7 @@ Branch: `feat/web-publica-diseno` from main 3d53332. Delivery: ask-on-risk (fore
 - S4: the document and acta verification pages share the new public header, footer and colors.
 - S5 (user, verbatim): "No me gusta que las banderas de los idiomas estén como hojas." → flags as rounded rectangles on the public pages.
 - S6 (user, verbatim): "Hay secciones que en las cards se sibreponen." and "creo que algunas secciones lo mejor es el logo sin fondo o no?" → no overlapping cards; the logo without a background card where it is decorative; no repeated decorative logo.
-- S7 (user, verbatim): "en el hero la palabra de los idiomas que cambian podrían cambiar dependiendo del color del idiomas?, o quizás que la palabra sea con fondo de la bandera" → each rotating word filled with its flag colors.
+- S7 (user, verbatim): "sobre la palabra de los idiomas que cambia, me refería que el fondo de la palabra esté el fondo de la bandera. [Image #4] [Image #5] te mando imágenes de ejemplo, eso es lo que quiero." → each rotating word filled with its whole flag drawing (stripes, stars, white included) clipped to the letters, with a navy outline, like the "ENGLISH" and "USA" examples.
 - S8 (user, verbatim): "sigue las buenas prácticas de diseño. Es espaciado, alineamiento, bordes, gerarquías, etc." and "Al finalizar verifícalo visualmente y además verifica que sea totalmente responsivo."
 - S9 (user, verbatim): "el login quisiera que siga el diseño que hay en la web pública, porque se ve mal que pase de un diseño a otro de repente cuando vaya al login o crear cuenta. Lo del login del personal déjalo así como está." → `acceso` layout (ingresar, registro, recuperar/restablecer clave, verificar correo) on the public header, colors and footer; Filament staff login untouched.
 - S10 (user, verbatim): "creo que la fuente de la web es diferente al sistema? Si es así mejor llevemos la fuente de la web pública al sistema de docente y estudiante, lo de admin déjalo como está" → verified: same Figtree everywhere, so no font change; drop the synthesized italic of highlighted words.
@@ -28,6 +28,7 @@ Branch: `feat/web-publica-diseno` from main 3d53332. Delivery: ask-on-risk (fore
 - [x] T5 · S8 · inline · spacing, alignment, borders and hierarchy pass on every public section.
 - [x] T6 · S9 · inline · sign-in, sign-up and password pages on the public design.
 - [x] T7 · S8 · inline · visual check at 390, 768, 1024 and 1440 px on every public and access page.
+- [x] T8 · S7 · inline · rotating headline word filled with the drawn flag (SVG background clipped to text) and a navy outline; branch feat/palabra-con-bandera.
 
 ## Log
 
@@ -46,3 +47,5 @@ Branch: `feat/web-publica-diseno` from main 3d53332. Delivery: ask-on-risk (fore
 - L13: native review review-8cf03ce18b46104a (readability, reliability) granted by the user, approved and acknowledged. Advisory, non-blocking: R2 neutral gradient hard-coded in the home (reuse BanderaDeIdioma::Neutra->colores()); R2 unused stroke markup in publico.css; R3-001 footer links to #fechas even when the home has no dates section; R3-002 ribbon loop divides by a text length that can be 0 before fonts load. Left as follow-ups.
 - L14 (2026-11-01, verbatim): "Corrige las cuatro observaciones y luego sube y une". Fixed: BanderaDeIdioma::degradado() (neutral headline reuses Neutra), x-publico.subrayado shared by the title and the hero, dead motion CSS removed (ticker, palabra, trazo, aura), header/footer link to #fechas only when the home shows it (RED→GREEN test), ribbon waits while the text measures 0. composer check rc=0, 1977 tests.
 - L15: review review-fb68125bb55d5919 of the four fixes (granted by the user) approved and acknowledged; one informational suggestion R2-001 on pie.blade.php:1 (props line).
+- L16 (2026-11-01, verbatim): "[Image #3] sobre la palabra de los idiomas que cambia, me refería que el fondo de la palabra esté el fondo de la bandera.[Image #4] [Image #5] te mando imágenes de ejemplo, eso es lo que quiero." The earlier gradient of flag colors misread S7; replaced by the drawn flag.
+- L17: T8 RED→GREEN: FondoDeBanderaTest (tests/Feature, needs Blade) and the headline test failed before, pass after. x-ciln.dibujo-bandera now draws every flag for both the chips and BanderaDeIdioma::fondo() (base64 SVG data URI, neutral flag in #3D8FDB); colores()/degradado() removed. .palabra-bandera: background-size 100% 100%, background-clip text, 0.03em navy text stroke. Checked at 1440 and 390 px, 0 JS errors. composer check rc=0, 1977 tests.

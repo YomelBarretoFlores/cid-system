@@ -10,8 +10,8 @@
     $banderas = app(BanderasDeIdiomas::class);
     $saludos = ['Inglés' => 'Hello', 'Quechua' => 'Allillanchu', 'Francés' => 'Bonjour', 'Italiano' => 'Ciao', 'Portugués' => 'Olá', 'Alemán' => 'Hallo', 'Chino' => 'Nǐ hǎo', 'Japonés' => 'Konnichiwa', 'Ruso' => 'Privet', 'Coreano' => 'Annyeong'];
     $palabrasDelTitular = $nombresDeIdiomas === []
-        ? [['un idioma', BanderaDeIdioma::Neutra->degradado()]]
-        : array_map(fn (string $nombre): array => [mb_strtolower($nombre), $banderas->para($nombre)->degradado()], $nombresDeIdiomas);
+        ? [['un idioma', BanderaDeIdioma::Neutra->fondo()]]
+        : array_map(fn (string $nombre): array => [mb_strtolower($nombre), $banderas->para($nombre)->fondo()], $nombresDeIdiomas);
     $modalidades = Modalidad::cases();
     $etiquetasDeModalidad = array_map(fn (Modalidad $modalidad): string => $modalidad->etiqueta(), $modalidades);
     $detallesDeModalidad = [
@@ -70,8 +70,8 @@
                         <span>
                             <span class="relative inline-block">
                                 <span x-data="rotadorCiln" class="rotador">
-                                    @foreach ($palabrasDelTitular as [$palabra, $colores])
-                                        <span x-bind:class="clase({{ $loop->index }})" @class(['palabra-bandera', 'actual' => $loop->first]) style="background-image: {{ $colores }}">{{ $palabra }}</span>
+                                    @foreach ($palabrasDelTitular as [$palabra, $bandera])
+                                        <span x-bind:class="clase({{ $loop->index }})" @class(['palabra-bandera', 'actual' => $loop->first]) style="background-image: {{ $bandera }}">{{ $palabra }}</span>
                                     @endforeach
                                 </span>
                                 <x-publico.subrayado class="-bottom-[0.1em] h-[0.15em]" />

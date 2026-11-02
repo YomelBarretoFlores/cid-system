@@ -17,11 +17,15 @@
 }
 
 @layer components {
+    /* The flag fills the letters and a navy outline keeps its white parts readable on the light page. */
     .palabra-bandera {
+        background-size: 100% 100%;
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;
-        padding-right: 0.04em;
+        -webkit-text-stroke: 0.03em var(--color-marino-900);
+        paint-order: stroke fill;
+        padding-inline: 0.03em;
     }
 
     .nubes {
