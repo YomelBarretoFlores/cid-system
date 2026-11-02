@@ -27,3 +27,4 @@ Branch: `feat/web-publica-diseno` from main 3d53332. Delivery: ask-on-risk (fore
 - L4: affected tests green (Tramites, verification, health: 117 passed) before the full check.
 - L5: composer check rc=0, 1961 tests passed.
 - L6: gentle-ai review assess (base 3d53332, committed-only): risk medium, review_due false (under_budget); no native review started.
+- L7: native review consent offered for the branch range (medium, 850 lines); the user chose "Omitir esta vez"; decline recorded (declined_this_candidate).
