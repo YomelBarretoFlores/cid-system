@@ -12,14 +12,32 @@
     @elseif ($estudiantes === [])
         <x-filament::empty-state heading="El grupo no tiene estudiantes matriculados." icon="heroicon-o-user-group" />
     @else
+        <x-filament::section heading="Camino al acta final" description="Las notas guardadas aquí forman el acta; la validas en la pestaña Acta final dentro de las fechas del periodo.">
+            @include('docencia::filament.docente.pasos-del-llamado', ['pasos' => $etapas, 'etiqueta' => 'Etapas del acta final'])
+            @if ($etapas[1][3] === 'actual')
+                <div class="mt-4">
+                    <x-filament::button tag="a" :href="route('filament.docente.pages.grupos.acta', $this->grupoId)" color="gray">Revisar el acta final</x-filament::button>
+                </div>
+            @endif
+        </x-filament::section>
+
         <form wire:submit="guardar" novalidate>
             <x-filament::section heading="Notas parciales" :description="$esquema->nombre.' · notas de 0 a '.PreActaDelGrupo::numero($esquema->notaMaxima).', con hasta dos decimales. Deja en blanco lo que aún no evalúas.'">
                 <div class="flex flex-col gap-4">
-                    <p class="flex flex-wrap gap-1.5">
+                    <ul role="list" class="grid gap-2 sm:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
                         @foreach ($esquema->componentes as $componente)
-                            <x-filament::badge color="gray">{{ $componente->nombre }} · {{ PreActaDelGrupo::numero($componente->peso) }} %</x-filament::badge>
+                            @php($llenas = $registradas[$componente->id] ?? 0)
+                            <li class="flex flex-col gap-2 rounded-interna bg-lienzo px-3.5 py-3">
+                                <span class="flex items-baseline justify-between gap-2 text-sm">
+                                    <span class="text-tinta">{{ $componente->nombre }} · {{ PreActaDelGrupo::numero($componente->peso) }} %</span>
+                                    <span class="text-terciario tabular-nums">{{ $llenas }} de {{ count($estudiantes) }}</span>
+                                </span>
+                                <span aria-hidden="true" class="h-1.5 overflow-hidden rounded-full bg-piedra-200">
+                                    <span @class(['block h-full rounded-full', 'bg-positivo' => $llenas >= count($estudiantes), 'bg-oro-400' => $llenas < count($estudiantes)]) style="width: {{ intdiv($llenas * 100, max(1, count($estudiantes))) }}%"></span>
+                                </span>
+                            </li>
                         @endforeach
-                    </p>
+                    </ul>
 
                     <div class="-mx-2 overflow-x-auto">
                         <table class="tabla-reporte min-w-[560px]">

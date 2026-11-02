@@ -7,11 +7,14 @@ use App\Modules\Academico\Models\ComponenteEvaluacion;
 use App\Modules\Academico\Models\EsquemaEvaluacion;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Certificacion\Enums\EstadoActa;
+use App\Modules\Docencia\Data\EtapasDelActa;
 use App\Modules\Docencia\Filament\Docente\Pages\PreActaDelGrupo;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Models\NotaParcial;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
+use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
@@ -95,4 +98,41 @@ it('hides the pre-acta of a group the teacher does not have now', function (): v
     Livewire::actingAs($this->usuario)->test(PreActaDelGrupo::class, ['grupo' => $this->grupo->id])->assertNotFound();
 
     expect(NotaParcial::query()->count())->toBe(0);
+});
+
+it('shows how many grades each component has and that the acta waits for the missing ones', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-03-20 10:00', 'America/Lima'));
+    Periodo::query()->whereKey($this->grupo->periodo_id)->update(['actas_inicio' => '2027-03-28', 'actas_fin' => '2027-03-31']);
+    NotaParcial::query()->create(['grupo_id' => $this->grupo->id, 'matricula_id' => $this->ana->id, 'componente_id' => $this->parcial->id, 'nota' => '14.50', 'registrado_por' => $this->usuario->id]);
+
+    $this->actingAs($this->usuario)
+        ->get(route('filament.docente.pages.grupos.notas', $this->grupo->id))
+        ->assertOk()
+        ->assertSeeInOrder([
+            'Registra las notas', '1 de 4 notas', 'Revisa el acta', 'Cuando completes las notas', 'Valida y cierra', 'Del 28 mar al 31 mar',
+            'Examen parcial · 40 %', '1 de 2', 'Examen final · 60 %', '0 de 2',
+        ]);
+});
+
+it('points the teacher to review and close the acta once every grade is in and the window is open', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-03-29 10:00', 'America/Lima'));
+    Periodo::query()->whereKey($this->grupo->periodo_id)->update(['actas_inicio' => '2027-03-28', 'actas_fin' => '2027-03-31']);
+    foreach ([$this->ana, $this->luis] as $matricula) {
+        foreach ([$this->parcial, $this->final] as $componente) {
+            NotaParcial::query()->create(['grupo_id' => $this->grupo->id, 'matricula_id' => $matricula->id, 'componente_id' => $componente->id, 'nota' => '15.00', 'registrado_por' => $this->usuario->id]);
+        }
+    }
+
+    $this->actingAs($this->usuario)
+        ->get(route('filament.docente.pages.grupos.notas', $this->grupo->id))
+        ->assertOk()
+        ->assertSeeInOrder(['Registra las notas', '4 de 4 notas', 'Revisa el acta', 'Ábrela en Acta final', 'Valida y cierra', 'Hasta el 31 mar'])
+        ->assertSee(route('filament.docente.pages.grupos.acta', $this->grupo->id));
+});
+
+it('marks every stage done once the acta is closed', function (): void {
+    $etapas = EtapasDelActa::de(4, 4, EstadoActa::Cerrada, CarbonImmutable::parse('2027-03-28'), CarbonImmutable::parse('2027-03-31'), CarbonImmutable::parse('2027-04-02'));
+
+    expect(array_map(fn (array $etapa): array => [$etapa[2], $etapa[3]], $etapas))->toBe([['4 de 4 notas', 'hecho'], ['Revisada', 'hecho'], ['Cerrada', 'hecho']])
+        ->and(EtapasDelActa::de(0, 4, null, null, null, CarbonImmutable::parse('2027-04-02'))[2][2])->toBe('Sin fechas de actas');
 });

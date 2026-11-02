@@ -1,4 +1,4 @@
-<ol data-pasos-del-llamado class="grid gap-2 sm:grid-flow-col sm:auto-cols-fr" aria-label="Llamados de la clase">
+<ol data-pasos-del-llamado class="grid gap-2 sm:grid-flow-col sm:auto-cols-fr" aria-label="{{ $etiqueta ?? 'Llamados de la clase' }}">
     @foreach ($pasos as [$numero, $etiqueta, $estado, $tipo])
         <li @class(['flex items-center gap-3 rounded-interna px-3 py-2.5', 'bg-acento-claro' => $tipo === 'actual', 'bg-lienzo' => $tipo !== 'actual'])>
             <span @class(['flex size-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold',

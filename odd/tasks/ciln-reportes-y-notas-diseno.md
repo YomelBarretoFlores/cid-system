@@ -16,7 +16,7 @@ Branch: `feat/reportes-y-notas-diseno` (from main ab9c820). Delivery: one commit
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S2, S5 | inline | done | see L2 |
-| T2 | S3 | inline | pending | |
+| T2 | S3 | inline | done | see L3 |
 | T3 | S4 | inline | pending | |
 
 ## Log
@@ -27,3 +27,4 @@ Branch: `feat/reportes-y-notas-diseno` (from main ab9c820). Delivery: one commit
   - Horario: the existing formal sheet, unchanged. Lo que aprobé: per language, each cycle with level, period, grade and state, the missing cycles and the informative notice.
   - "Descargar en PDF" side panel: boleta, avance and asistencia per group, horario (and the print version), récord per language and complete.
   - The home "Ver horario completo" opens `?ver=horario`. Checks: Matricula suite 297 passed; desktop and 390 px captures with no overflow and no JS errors.
+- L3 (2026-11-01): T2 done. New `Docencia\Data\EtapasDelActa::de()` builds the stages Registra las notas ("R de E notas"), Revisa el acta and Valida y cierra (window "Del … al …", "Hasta el …" while open, "Cerrada", "Sin fechas de actas") as done/current/pending. `PreActaDelGrupo` counts saved grades of active students per component (`NotasParcialesDelGrupo`), reads the acta state (`EstadosDeActas`) and the window (`CursoDelGrupo`), shows the stages with the steps view and a "Revisar el acta final" button when review is current, and replaces the weight badges with per-component progress cards. Checks: Docencia suite 395 passed; capture of /docente/grupos/1/notas with no JS errors.

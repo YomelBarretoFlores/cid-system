@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Filament\Docente\Pages;
 
+use App\Modules\Academico\Contracts\CursoDelGrupo;
 use App\Modules\Academico\Contracts\EsquemaDelGrupo;
 use App\Modules\Academico\Contracts\HorariosDeGrupos;
 use App\Modules\Academico\Data\ComponenteDeEvaluacion;
 use App\Modules\Academico\Data\EsquemaDeEvaluacion;
 use App\Modules\Academico\Data\HorarioDeGrupo;
+use App\Modules\Certificacion\Contracts\EstadosDeActas;
 use App\Modules\Docencia\Actions\RegistrarNotasParciales;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
+use App\Modules\Docencia\Contracts\NotasParcialesDelGrupo;
+use App\Modules\Docencia\Data\EtapasDelActa;
 use App\Modules\Docencia\Models\NotaParcial;
+use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Modules\Docencia\Support\GrupoACargo;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
@@ -118,7 +123,38 @@ final class PreActaDelGrupo extends Page
      */
     protected function getViewData(): array
     {
-        return ['esquema' => $this->esquema(), 'estudiantes' => $this->estudiantes()];
+        $esquema = $this->esquema();
+        $estudiantes = $this->estudiantes();
+        $registradas = $this->registradasPorComponente($estudiantes);
+        $curso = app(CursoDelGrupo::class)($this->grupoId);
+
+        return [
+            'esquema' => $esquema,
+            'estudiantes' => $estudiantes,
+            'registradas' => $registradas,
+            'etapas' => EtapasDelActa::de(
+                array_sum($registradas),
+                count($estudiantes) * count($esquema->componentes ?? []),
+                app(EstadosDeActas::class)([$this->grupoId])[$this->grupoId] ?? null,
+                $curso?->actasInicio,
+                $curso?->actasFin,
+                ClasesDelHorario::hoy(),
+            ),
+        ];
+    }
+
+    /**
+     * @param  list<EstudianteDelGrupo>  $estudiantes
+     * @return array<int, int> saved grades of the active students by component id
+     */
+    private function registradasPorComponente(array $estudiantes): array
+    {
+        $notas = app(NotasParcialesDelGrupo::class)($this->grupoId);
+
+        return collect($estudiantes)
+            ->flatMap(fn (EstudianteDelGrupo $estudiante): array => array_keys($notas[$estudiante->matriculaId] ?? []))
+            ->countBy()
+            ->all();
     }
 
     protected function pestana(): string
