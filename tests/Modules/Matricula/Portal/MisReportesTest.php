@@ -107,7 +107,7 @@ describe('PDF reports', function (): void {
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.avance', $this->matricula))->assertOk();
 
         Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->isInline() && $pdf->downloadName === 'avance-de-notas-ING-1-M.pdf'
-            && $pdf->contains(['AVANCE DE NOTAS', 'Quispe Mamani, Rosa', 'DNI 41234567', 'ING-1-M', 'Marzo 2027', 'Examen parcial', '40.00', '15.00', 'Promedio parcial', '10.80']));
+            && collect(['AVANCE DE NOTAS', 'Quispe Mamani, Rosa', 'DNI 41234567', 'ING-1-M', 'Marzo 2027', 'Examen parcial', '40.00', '15.00', 'Promedio parcial', '10.80'])->every(fn (string $texto): bool => $pdf->contains($texto)));
     });
 
     it('gives the report card of the period', function (): void {
@@ -116,7 +116,7 @@ describe('PDF reports', function (): void {
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.boleta', $this->periodo->id))->assertOk();
 
         Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'boleta-de-notas-marzo-2027.pdf'
-            && $pdf->contains(['BOLETA DE NOTAS', 'Quispe Mamani, Rosa', 'Marzo 2027', 'ING-1-M', 'Inglés', 'Básico I', '60', '10.80', 'Desaprobado']));
+            && collect(['BOLETA DE NOTAS', 'Quispe Mamani, Rosa', 'Marzo 2027', 'ING-1-M', 'Inglés', 'Básico I', '60', '10.80', 'Desaprobado'])->every(fn (string $texto): bool => $pdf->contains($texto)));
     });
 
     it('prints the denomination of the year on the student reports', function (): void {
@@ -124,7 +124,7 @@ describe('PDF reports', function (): void {
 
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.avance', $this->matricula))->assertOk();
 
-        Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains(['«Año de la Prueba Sintética»', 'AVANCE DE NOTAS']));
+        Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => collect(['«Año de la Prueba Sintética»', 'AVANCE DE NOTAS'])->every(fn (string $texto): bool => $pdf->contains($texto)));
     });
 
     it('gives the attendance of the enrollment with each class and the totals', function (): void {
@@ -151,12 +151,12 @@ describe('PDF reports', function (): void {
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.record', 'quechua'))->assertOk();
 
         Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'record-de-notas-quechua.pdf'
-            && $pdf->contains(['RÉCORD DE NOTAS', 'Quechua', '13.00', 'Faltan los ciclos 2, 3 y 4 del nivel Básico', 'Documento informativo, sin valor oficial; para trámites solicite la constancia de notas'])
+            && collect(['RÉCORD DE NOTAS', 'Quechua', '13.00', 'Faltan los ciclos 2, 3 y 4 del nivel Básico', 'Documento informativo, sin valor oficial; para trámites solicite la constancia de notas'])->every(fn (string $texto): bool => $pdf->contains($texto))
             && ! $pdf->contains('17.00'));
 
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.record'))->assertOk();
 
-        Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'record-de-notas.pdf' && $pdf->contains(['Inglés', '17.00', 'Quechua', '13.00']));
+        Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'record-de-notas.pdf' && collect(['Inglés', '17.00', 'Quechua', '13.00'])->every(fn (string $texto): bool => $pdf->contains($texto)));
     });
 
     it('answers not found for a language without record', function (): void {

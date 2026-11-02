@@ -76,10 +76,10 @@ it('gives the student a certificate of an active enrollment', function (): void 
     $this->actingAs($user)->get(route('estudiante.matriculas.constancia', $matricula))->assertOk();
 
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'constancia-de-inscripcion-ING-II-A.pdf'
-        && $pdf->contains([
+        && collect([
             'CONSTANCIA DE INSCRIPCIÓN', 'Quispe Mamani, Rosa Elena', 'DNI 41234567',
             'ING-II-A', 'Inglés', 'Ciclo 2', 'Enero 2027', 'Huaraz, 24 de octubre de 2026', $matricula->ulid,
-        ]));
+        ])->every(fn (string $texto): bool => $pdf->contains($texto)));
 });
 
 it('refuses a certificate for a withdrawn enrollment', function (): void {
