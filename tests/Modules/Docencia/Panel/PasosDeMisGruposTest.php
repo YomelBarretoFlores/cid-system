@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Carbon\CarbonImmutable;
 use Tests\Support\ReportesDelEstudiante;
 
 it('shows each group as a checklist of syllabus, attendance, grades and acta with the next step to take', function (): void {
@@ -21,4 +22,14 @@ it('marks the acta as closed and stops asking for it once the teacher closes it'
         ->get(route('filament.docente.pages.mis-grupos'))
         ->assertOk()
         ->assertSeeInOrder(['Acta final', 'Cerrada']);
+});
+
+it('names the classroom of the next class on the group card', function (): void {
+    $escenario = ReportesDelEstudiante::escenario();
+    $this->travelTo(CarbonImmutable::parse('2027-03-15 12:00', 'America/Lima'));
+
+    $this->actingAs($escenario['curso']['usuario'])
+        ->get(route('filament.docente.pages.mis-grupos'))
+        ->assertOk()
+        ->assertSeeTextInOrder(['Grupo ING-1-M', 'Hoy · 18:00–20:00 · A-101']);
 });

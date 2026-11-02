@@ -43,7 +43,7 @@
                             </div>
 
                             <p @class(['flex items-center gap-2 rounded-interna px-3 py-2 text-sm', 'bg-acento-claro font-medium text-tinta' => $resumen->esHoy, 'bg-lienzo text-secundario' => ! $resumen->esHoy])>
-                                <x-heroicon-o-calendar aria-hidden="true" class="size-4 shrink-0" />{{ $resumen->proximaClase() }}
+                                <x-heroicon-o-calendar aria-hidden="true" class="size-4 shrink-0" /><span>@foreach (explode(' · ', $resumen->proximaClase()) as $parte)<span class="whitespace-nowrap">{{ $parte }}</span>{{ $loop->last ? '' : ' · ' }}@endforeach</span>
                             </p>
 
                             <ol class="flex flex-col gap-1" aria-label="Avance del grupo {{ $grupo->codigo }}">

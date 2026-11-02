@@ -34,7 +34,7 @@ final readonly class ResumenDeMiGrupo
             return 'Sin clases pendientes en el periodo';
         }
 
-        $hora = substr($this->proxima->sesion->horaInicio, 0, 5).'–'.substr($this->proxima->sesion->horaFin, 0, 5);
+        $hora = substr($this->proxima->sesion->horaInicio, 0, 5).'–'.substr($this->proxima->sesion->horaFin, 0, 5).($this->grupo->aulaCodigo === null ? '' : " · {$this->grupo->aulaCodigo}");
 
         return match (true) {
             $this->esHoy => "Hoy · {$hora}",

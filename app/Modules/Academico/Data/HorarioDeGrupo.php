@@ -12,7 +12,7 @@ use Carbon\CarbonImmutable;
 
 final readonly class HorarioDeGrupo
 {
-    public const array RELACIONES = ['ciclo.idioma', 'periodo', 'horarios'];
+    public const array RELACIONES = ['ciclo.idioma', 'periodo', 'aula', 'horarios'];
 
     /**
      * @param  list<SesionDeClase>  $sesiones
@@ -30,6 +30,7 @@ final readonly class HorarioDeGrupo
         public CarbonImmutable $periodoInicio,
         public CarbonImmutable $periodoFin,
         public array $sesiones,
+        public ?string $aulaCodigo = null,
     ) {}
 
     public static function desde(Grupo $grupo): self
@@ -47,6 +48,7 @@ final readonly class HorarioDeGrupo
             periodoInicio: CarbonImmutable::parse($grupo->periodo->fecha_inicio)->startOfDay(),
             periodoFin: CarbonImmutable::parse($grupo->periodo->fecha_fin)->startOfDay(),
             sesiones: array_values($grupo->horarios->map(fn (Horario $horario): SesionDeClase => SesionDeClase::desde($horario))->all()),
+            aulaCodigo: $grupo->aula?->codigo,
         );
     }
 
