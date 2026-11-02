@@ -26,10 +26,23 @@ final class DatosDelTablero
 {
     public static function periodo(string $nombre, string $inicio, string $fin, int $anio = 2027, int $numero = 1, EstadoPeriodo $estado = EstadoPeriodo::Cerrado): Periodo
     {
+        self::liberarNumero($anio, $numero);
+
         return Periodo::factory()->create([
             'nombre' => $nombre, 'anio' => $anio, 'numero' => $numero, 'estado' => $estado,
             'fecha_inicio' => $inicio, 'fecha_fin' => $fin, 'matricula_inicio' => $inicio, 'matricula_fin' => $inicio,
         ]);
+    }
+
+    // A period the factory numbered at random may already hold the number a test asks for; it moves to a free one.
+    private static function liberarNumero(int $anio, int $numero): void
+    {
+        $usados = Periodo::query()->where('anio', $anio)->pluck('numero')->map(fn (mixed $usado): int => (int) $usado)->all();
+        $libre = array_values(array_diff(range(1, 12), $usados, [$numero]))[0] ?? null;
+
+        if (in_array($numero, $usados, true) && $libre !== null) {
+            Periodo::query()->where(['anio' => $anio, 'numero' => $numero])->update(['numero' => $libre]);
+        }
     }
 
     /**

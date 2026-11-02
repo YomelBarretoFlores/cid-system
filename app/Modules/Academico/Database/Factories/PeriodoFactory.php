@@ -20,7 +20,7 @@ final class PeriodoFactory extends Factory
     {
         return [
             'anio' => 2027,
-            'numero' => fake()->unique()->numberBetween(1, 12),
+            'numero' => fn (array $atributos): int => $this->numeroLibre((int) $atributos['anio']),
             'nombre' => 'Periodo de prueba',
             'fecha_inicio' => '2027-03-01',
             'fecha_fin' => '2027-03-31',
@@ -28,6 +28,14 @@ final class PeriodoFactory extends Factory
             'matricula_fin' => '2027-03-05',
             'estado' => EstadoPeriodo::Planificado,
         ];
+    }
+
+    // A number not taken in that year nor by another period of the same test (count() builds them all before saving), so explicit numbers never collide.
+    private function numeroLibre(int $anio): int
+    {
+        $libres = array_values(array_diff(range(1, 12), Periodo::query()->where('anio', $anio)->pluck('numero')->all()));
+
+        return $libres === [] ? fake()->numberBetween(1, 12) : fake()->unique()->randomElement($libres);
     }
 
     public function conMatriculaAbierta(): static
