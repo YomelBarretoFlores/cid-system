@@ -3,9 +3,12 @@
 declare(strict_types=1);
 
 use App\Modules\Academico\Actions\CambiarEstadoPeriodo;
+use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
+use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Carbon\CarbonImmutable;
 
 it('moves a period forward one state at a time', function (EstadoPeriodo $origen, EstadoPeriodo $destino, bool $permitida): void {
     expect($origen->puedeTransitarA($destino))->toBe($permitida);
@@ -34,6 +37,7 @@ it('names the next state of each period state', function (EstadoPeriodo $estado,
 ]);
 
 it('changes the state of a period to the next one', function (EstadoPeriodo $origen, EstadoPeriodo $destino): void {
+    $this->travelTo(CarbonImmutable::parse('2027-03-01 08:00', 'America/Lima'));
     $periodo = Periodo::factory()->create(['estado' => $origen]);
 
     $resultado = app(CambiarEstadoPeriodo::class)($periodo->id, $destino);
@@ -72,3 +76,44 @@ it('refuses to skip or go back a state, explaining why', function (EstadoPeriodo
     'reopen enrollment' => [EstadoPeriodo::EnCurso, EstadoPeriodo::MatriculaAbierta, 'Un periodo En curso no puede pasar a Matrícula abierta.'],
     'reopen a closed period' => [EstadoPeriodo::Cerrado, EstadoPeriodo::Planificado, 'Un periodo Cerrado no puede pasar a Planificado.'],
 ]);
+
+it('refuses to close a period while any of its groups is still open, naming them', function (): void {
+    $periodo = Periodo::factory()->create(['nombre' => 'Marzo 2027', 'estado' => EstadoPeriodo::EnCurso]);
+    Grupo::factory()->for($periodo)->create(['codigo' => 'ING-01-B', 'estado' => EstadoGrupo::Abierto]);
+    Grupo::factory()->for($periodo)->create(['codigo' => 'ING-01-A', 'estado' => EstadoGrupo::Abierto]);
+    $cerrado = Grupo::factory()->for($periodo)->create(['estado' => EstadoGrupo::Cerrado]);
+
+    expect(fn () => app(CambiarEstadoPeriodo::class)($periodo->id, EstadoPeriodo::Cerrado))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'No se puede cerrar el periodo Marzo 2027 mientras tenga grupos abiertos: ING-01-A, ING-01-B. Ciérralos o cancélalos antes.')
+        ->and($periodo->refresh()->estado)->toBe(EstadoPeriodo::EnCurso)
+        ->and($cerrado->refresh()->estado)->toBe(EstadoGrupo::Cerrado);
+});
+
+it('closing a period finishes its closed groups and cancels its scheduled groups', function (): void {
+    $periodo = Periodo::factory()->create(['estado' => EstadoPeriodo::EnCurso]);
+    $cerrado = Grupo::factory()->for($periodo)->create(['estado' => EstadoGrupo::Cerrado]);
+    $programado = Grupo::factory()->for($periodo)->create(['estado' => EstadoGrupo::Programado]);
+    $cancelado = Grupo::factory()->for($periodo)->create(['estado' => EstadoGrupo::Cancelado]);
+    $ajeno = Grupo::factory()->create(['estado' => EstadoGrupo::Cerrado]);
+
+    app(CambiarEstadoPeriodo::class)($periodo->id, EstadoPeriodo::Cerrado);
+
+    expect($periodo->refresh()->estado)->toBe(EstadoPeriodo::Cerrado)
+        ->and($cerrado->refresh()->estado)->toBe(EstadoGrupo::Finalizado)
+        ->and($programado->refresh()->estado)->toBe(EstadoGrupo::Cancelado)
+        ->and($cancelado->refresh()->estado)->toBe(EstadoGrupo::Cancelado)
+        ->and($ajeno->refresh()->estado)->toBe(EstadoGrupo::Cerrado);
+});
+
+it('refuses to start classes before the period start date unless that is confirmed', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-02-28 23:30', 'America/Lima'));
+    $periodo = Periodo::factory()->create(['nombre' => 'Marzo 2027', 'estado' => EstadoPeriodo::MatriculaAbierta]);
+
+    expect(fn () => app(CambiarEstadoPeriodo::class)($periodo->id, EstadoPeriodo::EnCurso))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Las clases del periodo Marzo 2027 empiezan el 01/03/2027. Para iniciarlas antes hay que confirmarlo.')
+        ->and($periodo->refresh()->estado)->toBe(EstadoPeriodo::MatriculaAbierta);
+
+    app(CambiarEstadoPeriodo::class)($periodo->id, EstadoPeriodo::EnCurso, antesDelInicio: true);
+
+    expect($periodo->refresh()->estado)->toBe(EstadoPeriodo::EnCurso);
+});

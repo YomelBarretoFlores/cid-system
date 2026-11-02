@@ -10,6 +10,7 @@ use App\Modules\Academico\Filament\Resources\Idiomas\Pages\EditIdioma;
 use App\Modules\Academico\Filament\Resources\Idiomas\Pages\ListIdiomas;
 use App\Modules\Academico\Filament\Resources\Idiomas\RelationManagers\CiclosRelationManager;
 use App\Modules\Academico\Models\Ciclo;
+use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Shared\Auth\Models\User;
 use Filament\Actions\Testing\TestAction;
@@ -228,4 +229,25 @@ it('lets a reader see the study plan but not change it', function (): void {
         ->assertCanSeeTableRecords([$this->basicoUno])
         ->assertActionHidden(TestAction::make('create')->table())
         ->assertActionHidden(TestAction::make('edit')->table($this->basicoUno));
+});
+
+it('locks the number, level and teaching hours of a cycle with groups and still renames it', function (): void {
+    Grupo::factory()->create(['ciclo_id' => $this->basicoUno->id]);
+    $this->actingAs($this->coordinador);
+
+    ciclosDe($this->ingles)
+        ->mountAction(TestAction::make('edit')->table($this->basicoUno))
+        ->assertFormFieldDisabled('numero')
+        ->assertFormFieldDisabled('nivel')
+        ->assertFormFieldDisabled('horas_lectivas')
+        ->assertFormFieldEnabled('nombre');
+
+    ciclosDe($this->ingles)
+        ->callAction(TestAction::make('edit')->table($this->basicoUno), data: ['nombre' => 'Básico I (2027)', 'numero' => 5, 'horas_lectivas' => 90])
+        ->assertHasNoFormErrors();
+
+    expect($this->basicoUno->refresh())
+        ->nombre->toBe('Básico I (2027)')
+        ->numero->toBe(1)
+        ->horas_lectivas->toBe(60);
 });

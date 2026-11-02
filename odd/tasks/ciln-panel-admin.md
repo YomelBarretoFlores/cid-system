@@ -30,8 +30,8 @@ User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". T
 - [x] T3 · S4 · delegated (context backstop) · Spanish validation, auth and password messages.
 - [x] T4 · S1 · delegated (context backstop) · staff users, roles and permissions screens; deactivated accounts cannot sign in. Risk: items 1 and 2.
 - [x] T5 · S3 · delegated (context backstop) · audit log screen and audit triggers on the remaining tables. Risk: item 1 (migration).
-- [ ] T6 · S5 · inline
-- [ ] T7 · S6 · inline
+- [x] T6 · S5 · delegated (context backstop) · ciclo edit and horario add/edit/delete through Actions with locks once used.
+- [x] T7 · S6 · delegated (context backstop) · group open/close/finalize preconditions, minimum quota confirmation, period closing finalizes/cancels groups, start-date confirmation. Risk: items 3 and 4.
 - [ ] T8 · S7 · inline
 - [ ] T9 · S8 · inline
 - [ ] T10 · S9 · inline
@@ -54,3 +54,5 @@ User request (verbatim): "Sí, corrige todo, empezando por el 1 al 4 y el 13". T
 - L9: correction batch (composer check rc=0, 2006 tests) (RED→GREEN for each): `ProtegerDescargaDelPanel` checks `canAccessPanel` before the panel session (portal account 403 and stays signed in; deactivated account 403) and chains `ExigirDobleFactorSiEsObligatorio`; the command grants first, then sends the link and only warns if it cannot (exit 0).
 - L10: review review-0420a4fd0f45d672 (T4 + corrections, granted by the user) approved and acknowledged. Advisories: creating a user threw after the account was saved when the link failed (fixed: the create page sends the link and only warns; link failures, including mail transport errors, become a Spanish warning; RED against the old code: the exception reached the user); lock serialization on the permissions row (suggestion, kept).
 - L11: T5 (writer) RED→GREEN: 23 tests under tests/Feature/Auditoria. Triggers on per_personas, aca_periodos, aca_grupos, aca_horarios, aca_aulas, aca_idiomas, aca_ciclos; permission auditoria.ver granted to active user managers; read-only Configuración › Auditoría with filters and a field diff hiding secrets; index on aud_registros.usuario_id; Lima date filter binds an explicit -05:00 offset. composer check rc=0, 2030 tests.
+- L12: review review-9c778811a106a8d9 (T5 + link fix, granted by the user) approved and acknowledged; advisory: the audit table filter ran DISTINCT over the growing log (fixed: fixed list from NombresDeTablas, test that it covers every table with an aud_registrar trigger).
+- L13: composer check rc=0, 2067 tests. T6+T7 (writer) RED→GREEN on a baseline copy: 32 of 283 Academico tests failed before, 283 pass after; Feature+Modules+Architecture 1982 passed; CargaDocenteConcurrenteTest 4 passed. New Docencia contract ClasesDictadasDelGrupo. Decisions 124–128 recorded as assumptions. Open questions: removing the teacher or last horario of an Abierto group is still allowed; reopening a Cerrado group in an En curso period is now refused.

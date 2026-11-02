@@ -7,13 +7,17 @@ namespace App\Modules\Academico\Actions;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
+use App\Modules\Academico\Support\HorarioModificable;
 use App\Modules\Docencia\Contracts\VerificacionDeCargaDocente;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 
 final readonly class GuardarHorario
 {
-    public function __construct(private VerificacionDeCargaDocente $verificacionDeCargaDocente) {}
+    public function __construct(
+        private VerificacionDeCargaDocente $verificacionDeCargaDocente,
+        private HorarioModificable $horarioModificable,
+    ) {}
 
     public function __invoke(int $grupoId, int $diaSemana, string $horaInicio, string $horaFin, ?int $horarioId = null): Horario
     {
@@ -24,9 +28,7 @@ final readonly class GuardarHorario
         return Transaccion::ejecutar(function () use ($grupoId, $diaSemana, $inicio, $fin, $horarioId): Horario {
             $grupo = Grupo::query()->whereKey($grupoId)->lockForUpdate()->firstOrFail();
 
-            if ($grupo->estado->esTerminal()) {
-                throw new ReglaDeNegocioIncumplida("El grupo {$grupo->codigo} está {$grupo->estado->etiqueta()} y ya no admite cambios.");
-            }
+            $this->horarioModificable->asegurar($grupo);
 
             $horario = $horarioId === null
                 ? new Horario(['grupo_id' => $grupo->id])

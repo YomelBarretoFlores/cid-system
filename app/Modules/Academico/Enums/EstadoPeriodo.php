@@ -33,6 +33,12 @@ enum EstadoPeriodo: string
         };
     }
 
+    /** A group opens only while its period is being prepared or taking enrollments. */
+    public function admiteGruposAbiertos(): bool
+    {
+        return $this === self::Planificado || $this === self::MatriculaAbierta;
+    }
+
     public function siguiente(): ?self
     {
         return $this->destinosPermitidos()[0] ?? null;

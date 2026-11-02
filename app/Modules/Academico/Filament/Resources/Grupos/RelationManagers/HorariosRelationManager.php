@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Filament\Resources\Grupos\RelationManagers;
 
 use App\Modules\Academico\Actions\GuardarHorario;
+use App\Modules\Academico\Actions\QuitarHorario;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Shared\Support\Filament\AccionDeNegocio;
@@ -37,7 +38,13 @@ final class HorariosRelationManager extends RelationManager
             ])
             ->recordActions([
                 $this->editar(),
-                DeleteAction::make()->hidden(fn (): bool => $this->grupoCongelado()),
+                DeleteAction::make()
+                    ->hidden(fn (): bool => $this->grupoCongelado())
+                    ->action(fn (Action $action, Horario $record) => AccionDeNegocio::ejecutar(
+                        $action,
+                        fn () => app(QuitarHorario::class)((int) $this->getOwnerRecord()->getKey(), $record->id),
+                        'Horario eliminado',
+                    )),
             ]);
     }
 

@@ -26,11 +26,13 @@ final class AccionesDePeriodo
             self::transicion('iniciarClases', EstadoPeriodo::EnCurso, 'Iniciar clases', 'Periodo en curso')
                 ->icon(Heroicon::OutlinedPlay)
                 ->color('info')
-                ->modalDescription('La matrícula del periodo se cerrará.'),
+                ->modalDescription(fn (Periodo $record): string => CambiarEstadoPeriodo::empiezaDespuesDeHoy($record)
+                    ? "La matrícula del periodo se cerrará. Las clases de este periodo empiezan el {$record->fecha_inicio->format('d/m/Y')}: se iniciarán antes de esa fecha."
+                    : 'La matrícula del periodo se cerrará.'),
             self::transicion('cerrar', EstadoPeriodo::Cerrado, 'Cerrar periodo', 'Periodo cerrado')
                 ->icon(Heroicon::OutlinedLockClosed)
                 ->color('warning')
-                ->modalDescription('Un periodo cerrado no puede volver a abrirse.'),
+                ->modalDescription('Un periodo cerrado no puede volver a abrirse. Sus grupos cerrados pasan a Finalizado y los programados se cancelan.'),
         ];
     }
 
@@ -43,7 +45,7 @@ final class AccionesDePeriodo
             ->requiresConfirmation()
             ->action(fn (Action $action, Periodo $record) => AccionDeNegocio::ejecutar(
                 $action,
-                fn (): Periodo => app(CambiarEstadoPeriodo::class)($record->id, $destino),
+                fn (): Periodo => app(CambiarEstadoPeriodo::class)($record->id, $destino, antesDelInicio: CambiarEstadoPeriodo::empiezaDespuesDeHoy($record)),
                 $exito,
             ))
             ->after(fn (Periodo $record): Periodo => $record->refresh());

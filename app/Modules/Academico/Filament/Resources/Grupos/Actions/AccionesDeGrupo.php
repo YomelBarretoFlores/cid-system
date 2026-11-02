@@ -26,7 +26,10 @@ final class AccionesDeGrupo
             self::transicion('cerrar', EstadoGrupo::Cerrado, 'Grupo cerrado')
                 ->label('Cerrar')
                 ->icon(Heroicon::OutlinedLockClosed)
-                ->color('warning'),
+                ->color('warning')
+                ->modalDescription(fn (Grupo $record): ?string => self::bajoElMinimo($record)
+                    ? "El grupo tiene {$record->matriculados} matriculados y el mínimo de apertura es {$record->cupo_minimo}. ¿Iniciar de todas formas?"
+                    : null),
             self::transicion('finalizar', EstadoGrupo::Finalizado, 'Grupo finalizado')
                 ->label('Finalizar')
                 ->icon(Heroicon::OutlinedFlag)
@@ -47,9 +50,15 @@ final class AccionesDeGrupo
             ->requiresConfirmation()
             ->action(fn (Action $action, Grupo $record) => AccionDeNegocio::ejecutar(
                 $action,
-                fn (): Grupo => app(CambiarEstadoGrupo::class)($record->id, $destino),
+                // The confirmation only covers the numbers the modal showed; fresher numbers are checked again by the Action.
+                fn (): Grupo => app(CambiarEstadoGrupo::class)($record->id, $destino, bajoElMinimo: self::bajoElMinimo($record)),
                 $exito,
             ))
             ->after(fn (Grupo $record): Grupo => $record->refresh());
+    }
+
+    private static function bajoElMinimo(Grupo $grupo): bool
+    {
+        return $grupo->estado === EstadoGrupo::Abierto && $grupo->matriculados < $grupo->cupo_minimo;
     }
 }

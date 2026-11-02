@@ -22,6 +22,7 @@ use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\DB;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
+use Tests\Support\OfertaAcademica;
 
 beforeEach(function (): void {
     $this->gestor = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoAcademico::valores()]);
@@ -160,6 +161,7 @@ it('edits a group through the action and refuses a quota below the enrolled stud
 });
 
 it('adds, edits and removes schedule lines with weekday names', function (): void {
+    OfertaAcademica::matricular($this->grupo, 0);
     $this->actingAs($this->gestor);
 
     horariosDe($this->grupo)
@@ -183,6 +185,7 @@ it('adds, edits and removes schedule lines with weekday names', function (): voi
 it('explains a classroom clash when adding a schedule line', function (): void {
     $ocupante = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'aula_id' => $this->aula->id, 'codigo' => 'FRA-01']);
     Horario::factory()->for($ocupante)->create(['dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']);
+    OfertaAcademica::matricular($this->grupo, 0);
     $this->actingAs($this->gestor);
 
     horariosDe($this->grupo)
@@ -277,4 +280,38 @@ it('hides schedule changes on a finished group', function (): void {
         ->assertActionHidden(TestAction::make('agregarHorario')->table())
         ->assertActionHidden(TestAction::make('editarHorario')->table($horario))
         ->assertActionHidden(TestAction::make('delete')->table($horario));
+});
+
+it('explains why the schedule of a group with enrolled students cannot change', function (): void {
+    $horario = Horario::factory()->for($this->grupo)->create(['dia_semana' => 2, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']);
+    $this->actingAs($this->gestor);
+    $mensaje = 'El horario del grupo ING-03-A no puede cambiar porque ya tiene estudiantes matriculados o clases dictadas.';
+
+    horariosDe($this->grupo)
+        ->callAction(TestAction::make('agregarHorario')->table(), data: ['dia_semana' => 4, 'hora_inicio' => '18:00', 'hora_fin' => '20:00'])
+        ->assertNotified($mensaje);
+    horariosDe($this->grupo)
+        ->callAction(TestAction::make('delete')->table($horario))
+        ->assertNotified($mensaje);
+
+    expect($this->grupo->horarios()->get()->modelKeys())->toBe([$horario->id]);
+});
+
+it('lists what a group is missing when it cannot be opened', function (): void {
+    $programado = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'codigo' => 'ING-03-P', 'estado' => EstadoGrupo::Programado]);
+    $this->actingAs($this->gestor);
+
+    Livewire::test(EditGrupo::class, ['record' => $programado->getRouteKey()])
+        ->callAction('abrir')
+        ->assertNotified('No se puede abrir el grupo ING-03-P: no tiene horario; no tiene docente asignado.');
+
+    expect($programado->refresh()->estado)->toBe(EstadoGrupo::Programado);
+});
+
+it('shows the enrolled students and the minimum quota before closing a group below it', function (): void {
+    $this->actingAs($this->gestor);
+
+    Livewire::test(EditGrupo::class, ['record' => $this->grupo->getRouteKey()])
+        ->mountAction('cerrar')
+        ->assertMountedActionModalSee('El grupo tiene 5 matriculados y el mínimo de apertura es 10. ¿Iniciar de todas formas?');
 });

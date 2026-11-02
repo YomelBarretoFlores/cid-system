@@ -15,6 +15,7 @@ use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Periodo;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Support\Facades\DB;
+use Tests\Support\OfertaAcademica;
 
 function datosDeGrupo(array $cambios = []): DatosDeGrupo
 {
@@ -44,7 +45,7 @@ beforeEach(function (): void {
 });
 
 it('allows only the planned group state transitions', function (EstadoGrupo $origen, EstadoGrupo $destino, bool $permitida): void {
-    $grupo = Grupo::factory()->create(['estado' => $origen]);
+    $grupo = OfertaAcademica::prepararParaAbrir(Grupo::factory()->create(['estado' => $origen, 'cupo_minimo' => 0]));
 
     $cambiar = fn (): Grupo => app(CambiarEstadoGrupo::class)($grupo->id, $destino);
 

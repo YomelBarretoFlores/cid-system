@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Academico\Filament\Resources\Periodos\Pages\CreatePeriodo;
@@ -9,6 +10,7 @@ use App\Modules\Academico\Filament\Resources\Periodos\Pages\EditPeriodo;
 use App\Modules\Academico\Filament\Resources\Periodos\Pages\ListPeriodos;
 use App\Modules\Academico\Filament\Resources\Periodos\PeriodoResource;
 use App\Modules\Academico\Filament\Resources\Periodos\Schemas\PeriodoForm;
+use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
 use App\Shared\Auth\Models\User;
 use Filament\Actions\Testing\TestAction;
@@ -251,4 +253,25 @@ it('reports a year and number taken by someone else while editing as a form erro
         ->fillForm(['numero' => 9])
         ->call('save')
         ->assertHasFormErrors(['numero' => PeriodoForm::PERIODO_REPETIDO]);
+});
+
+it('warns before starting classes ahead of the period start date', function (): void {
+    $this->periodo->update(['estado' => EstadoPeriodo::MatriculaAbierta]);
+    $this->actingAs($this->gestor);
+
+    Livewire::test(EditPeriodo::class, ['record' => $this->periodo->getRouteKey()])
+        ->mountAction('iniciarClases')
+        ->assertMountedActionModalSee('Las clases de este periodo empiezan el 01/03/2027: se iniciarán antes de esa fecha.');
+});
+
+it('explains why a period with open groups cannot be closed', function (): void {
+    $this->periodo->update(['estado' => EstadoPeriodo::EnCurso]);
+    Grupo::factory()->for($this->periodo)->create(['codigo' => 'ING-01-A', 'estado' => EstadoGrupo::Abierto]);
+    $this->actingAs($this->gestor);
+
+    Livewire::test(EditPeriodo::class, ['record' => $this->periodo->getRouteKey()])
+        ->callAction('cerrar')
+        ->assertNotified('No se puede cerrar el periodo Marzo 2027 mientras tenga grupos abiertos: ING-01-A. Ciérralos o cancélalos antes.');
+
+    expect($this->periodo->refresh()->estado)->toBe(EstadoPeriodo::EnCurso);
 });

@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Modules\Academico\Filament\Resources\Idiomas\RelationManagers;
 
+use App\Modules\Academico\Actions\GuardarCiclo;
+use App\Modules\Academico\Data\DatosDeCiclo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
+use App\Modules\Academico\Models\Grupo;
 use App\Shared\Support\Database\RestriccionUnica;
-use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
-use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
@@ -49,14 +50,18 @@ final class CiclosRelationManager extends RelationManager
                     ->minValue(1)
                     ->maxValue(12)
                     ->required()
+                    ->disabled(fn (?Ciclo $record): bool => $this->tieneGrupos($record))
                     ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule): Unique => $rule->where('idioma_id', $this->getOwnerRecord()->getKey()))
                     ->validationMessages(['unique' => self::NUMERO_REPETIDO]),
                 Select::make('nivel')
                     ->label('Nivel')
                     ->options(collect(NivelCurricular::cases())->mapWithKeys(fn (NivelCurricular $nivel): array => [$nivel->value => $nivel->etiqueta()])->all())
-                    ->required(),
+                    ->required()
+                    ->disabled(fn (?Ciclo $record): bool => $this->tieneGrupos($record)),
                 TextInput::make('nombre')->label('Nombre')->required()->maxLength(60),
-                TextInput::make('horas_lectivas')->label('Horas lectivas')->integer()->minValue(1)->maxValue(32767)->required(),
+                TextInput::make('horas_lectivas')->label('Horas lectivas')->integer()->minValue(1)->maxValue(32767)->required()
+                    ->disabled(fn (?Ciclo $record): bool => $this->tieneGrupos($record))
+                    ->helperText(fn (?Ciclo $record): ?string => $this->tieneGrupos($record) ? 'El ciclo ya tiene grupos: su número, nivel y horas lectivas no cambian.' : null),
                 Toggle::make('activo')->label('Disponible para nuevos grupos')->default(true),
             ]);
     }
@@ -76,32 +81,29 @@ final class CiclosRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->label('Nuevo ciclo')
-                    ->using(fn (Action $action, array $data): Ciclo => $this->guardarSinRepetir(
-                        $action,
-                        fn (): Ciclo => Ciclo::query()->create([...$data, 'idioma_id' => $this->getOwnerRecord()->getKey()]),
-                    )),
+                    ->using(fn (Action $action, array $data): Ciclo => $this->guardar($action, $data)),
             ])
             ->recordActions([
                 EditAction::make()
-                    ->using(fn (Action $action, Ciclo $record, array $data): Ciclo => $this->guardarSinRepetir(
-                        $action,
-                        function () use ($record, $data): Ciclo {
-                            $record->update($data);
-
-                            return $record;
-                        },
-                    )),
+                    ->using(fn (Action $action, Ciclo $record, array $data): Ciclo => $this->guardar($action, $data, $record)),
             ]);
     }
 
-    /**
-     * @param  Closure(): Ciclo  $guardar
-     */
-    private function guardarSinRepetir(Action $action, Closure $guardar): Ciclo
+    private function tieneGrupos(?Ciclo $ciclo): bool
     {
+        return $ciclo instanceof Ciclo && Grupo::query()->where('ciclo_id', $ciclo->id)->exists();
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function guardar(Action $action, array $data, ?Ciclo $ciclo = null): Ciclo
+    {
+        // Locked fields are not sent, so they keep the cycle's current values.
+        $valores = [...($ciclo?->only(['numero', 'nivel', 'horas_lectivas']) ?? []), ...$data];
+
         try {
-            // The savepoint keeps the connection usable after a unique violation inside an outer transaction.
-            return Transaccion::ejecutar($guardar, reintentar: false);
+            return app(GuardarCiclo::class)((int) $this->getOwnerRecord()->getKey(), $this->datosDeCiclo($valores), $ciclo?->id);
         } catch (ReglaDeNegocioIncumplida $error) {
             AccionDeNegocio::detener($error);
         } catch (UniqueConstraintViolationException $error) {
@@ -110,5 +112,21 @@ final class CiclosRelationManager extends RelationManager
                 ? ValidationException::withMessages(["mountedActions.{$action->getNestingIndex()}.data.numero" => self::NUMERO_REPETIDO])
                 : $error;
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $valores
+     */
+    private function datosDeCiclo(array $valores): DatosDeCiclo
+    {
+        $nivel = $valores['nivel'] ?? null;
+
+        return new DatosDeCiclo(
+            numero: is_numeric($valores['numero'] ?? null) ? (int) $valores['numero'] : 0,
+            nivel: $nivel instanceof NivelCurricular ? $nivel : NivelCurricular::from(is_string($nivel) ? $nivel : ''),
+            nombre: is_string($valores['nombre'] ?? null) ? $valores['nombre'] : '',
+            horasLectivas: is_numeric($valores['horas_lectivas'] ?? null) ? (int) $valores['horas_lectivas'] : 0,
+            activo: (bool) ($valores['activo'] ?? true),
+        );
     }
 }
