@@ -7,6 +7,7 @@ namespace App\Modules\Tramites\Filament\Resources\Tramites\Actions;
 use App\Modules\Academico\Contracts\GruposParaTraslado;
 use App\Modules\Matricula\Contracts\DocumentoDeMatriculaPorId;
 use App\Modules\Tramites\Actions\AvanzarTramite;
+use App\Modules\Tramites\Actions\CerrarTramiteSinAtender;
 use App\Modules\Tramites\Actions\FinalizarTramite;
 use App\Modules\Tramites\Actions\ObservarTramite;
 use App\Modules\Tramites\Actions\ReanudarTramite;
@@ -69,16 +70,7 @@ final class AccionesDeTramite
             ->authorize('gestionar')
             ->visible(fn (Tramite $record): bool => in_array($record->estado, [EstadoTramite::EnProceso, EstadoTramite::PendientePago], true))
             ->modalDescription('El estudiante verá la observación en su portal y la recibirá por correo.')
-            ->schema([
-                Textarea::make('motivo')
-                    ->label('Observación')
-                    ->required()
-                    ->minLength(5)
-                    ->maxLength(500)
-                    ->rows(3)
-                    ->live(debounce: 400)
-                    ->hint(fn (?string $state): string => mb_strlen((string) $state).' / 500'),
-            ])
+            ->schema([self::motivo('Observación')])
             ->action(fn (Action $action, Tramite $record, array $data) => AccionDeNegocio::ejecutar(
                 $action,
                 fn (User $usuario) => app(ObservarTramite::class)($record->id, $usuario, (string) $data['motivo']),
@@ -102,6 +94,37 @@ final class AccionesDeTramite
                 'Observación levantada',
             ))
             ->after(fn (Tramite $record): Tramite => $record->refresh());
+    }
+
+    public static function cerrar(): Action
+    {
+        return Action::make('cerrar')
+            ->label('Cerrar sin atender')
+            ->icon(Heroicon::OutlinedXCircle)
+            ->color('danger')
+            ->authorize('gestionar')
+            ->visible(fn (Tramite $record): bool => ! $record->estado->terminado())
+            ->modalHeading('Cerrar el trámite sin atenderlo')
+            ->modalDescription(fn (Tramite $record): string => "No se ejecuta «{$record->accion_final->etiqueta()}». El trámite no se elimina: queda cerrado en el historial y el estudiante recibe un correo con el motivo. Si tenía un pago aplicado, ese pago no se devuelve ni se usa en otro trámite.")
+            ->schema([self::motivo('Motivo del cierre')])
+            ->action(fn (Action $action, Tramite $record, array $data) => AccionDeNegocio::ejecutar(
+                $action,
+                fn (User $usuario) => app(CerrarTramiteSinAtender::class)($record->id, $usuario, (string) $data['motivo']),
+                'Trámite cerrado sin atender',
+            ))
+            ->after(fn (Tramite $record): Tramite => $record->refresh());
+    }
+
+    private static function motivo(string $etiqueta): Textarea
+    {
+        return Textarea::make('motivo')
+            ->label($etiqueta)
+            ->required()
+            ->minLength(5)
+            ->maxLength(500)
+            ->rows(3)
+            ->live(debounce: 400)
+            ->hint(fn (?string $state): string => mb_strlen((string) $state).' / 500');
     }
 
     private static function puedeAvanzar(Tramite $record): bool

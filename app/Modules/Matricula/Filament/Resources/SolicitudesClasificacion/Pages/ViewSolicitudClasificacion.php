@@ -17,6 +17,6 @@ final class ViewSolicitudClasificacion extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [AccionesDeSolicitudClasificacion::registrarResultado()];
+        return [AccionesDeSolicitudClasificacion::registrarResultado(), AccionesDeSolicitudClasificacion::corregirResultado()];
     }
 }

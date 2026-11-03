@@ -31,6 +31,8 @@
 
                     @if ($tramite->estado === EstadoTramite::Observado)
                         <x-portal.alerta tipo="aviso">{{ $tramite->observacion }}</x-portal.alerta>
+                    @elseif ($tramite->estado === EstadoTramite::Cerrado)
+                        <x-portal.alerta tipo="aviso">El CILN cerró este trámite sin atenderlo: {{ $tramite->motivo_cierre }}</x-portal.alerta>
                     @elseif ($tramite->estado === EstadoTramite::PendientePago)
                         <p class="text-[14.5px] text-secundario">
                             Falta validar el pago de la tasa ({{ $tramite->tipo_concepto?->etiqueta() }}).

@@ -9,7 +9,7 @@ use App\Modules\Tramites\Models\Tramite;
 use App\Modules\Tramites\Support\RegistroDeMovimiento;
 use App\Shared\Support\Database\Transaccion;
 
-// A voided fee no longer pays for an unfinished trámite: it goes back to waiting for a payment. A finished one stays as it is.
+// A voided fee no longer pays for an unfinished trámite: it goes back to waiting for a payment. A finished or closed one stays as it is.
 final readonly class RevertirPagoAnulado
 {
     public const string COMENTARIO = 'El CILN anuló el pago aplicado a este trámite. Registra un nuevo pago de la tasa para continuar.';
@@ -27,7 +27,7 @@ final readonly class RevertirPagoAnulado
 
             $tramite = Tramite::query()->where('pago_id', $pagoId)->lockForUpdate()->first();
 
-            if ($tramite === null || $tramite->estado === EstadoTramite::Finalizado) {
+            if ($tramite === null || $tramite->estado->terminado()) {
                 return null;
             }
 

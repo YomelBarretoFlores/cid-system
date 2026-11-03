@@ -136,7 +136,7 @@ final readonly class SolicitarTramite
 
         $enCurso = Tramite::query()
             ->where(['persona_id' => $personaId, 'tipo_tramite_id' => $tipo->id])
-            ->where('estado', '!=', EstadoTramite::Finalizado->value)
+            ->whereNotIn('estado', array_column(EstadoTramite::terminados(), 'value'))
             ->whereRaw('datos @> ?::jsonb', [json_encode((object) $asunto, JSON_THROW_ON_ERROR)])
             ->exists();
 

@@ -20,5 +20,6 @@ final readonly class DetalleDePago
         public int $personaId,
         public TipoConcepto $tipo,
         public ?CarbonImmutable $validadoEn = null,
+        public ?string $ulid = null,
     ) {}
 }

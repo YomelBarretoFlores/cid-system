@@ -24,12 +24,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable $vence_en
  * @property CarbonImmutable|null $fecha_examen
  * @property CarbonImmutable $created_at
+ * @property int $persona_id
+ * @property int $idioma_id
+ * @property ?int $pago_id
+ * @property ?int $ciclo_asignado_id
+ * @property ?CarbonImmutable $evaluado_en
+ * @property ?CarbonImmutable $corregido_en
  */
 #[Table('mat_solicitudes_clasificacion')]
 #[RouteKey('ulid')]
 #[Fillable([
     'persona_id', 'idioma_id', 'pago_id', 'estado', 'vence_en', 'fecha_examen', 'puntaje',
-    'ciclo_asignado_id', 'evaluado_por', 'evaluado_en', 'observaciones',
+    'ciclo_asignado_id', 'evaluado_por', 'evaluado_en', 'observaciones', 'corregido_por', 'corregido_en', 'motivo_correccion',
 ])]
 #[UseFactory(SolicitudClasificacionFactory::class)]
 #[UsePolicy(SolicitudClasificacionPolicy::class)]
@@ -58,6 +64,14 @@ final class SolicitudClasificacion extends Model
         return $this->belongsTo(User::class, 'evaluado_por');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function corrector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'corregido_por');
+    }
+
     protected function casts(): array
     {
         return [
@@ -66,6 +80,7 @@ final class SolicitudClasificacion extends Model
             'fecha_examen' => 'date',
             'puntaje' => 'decimal:2',
             'evaluado_en' => 'datetime',
+            'corregido_en' => 'datetime',
         ];
     }
 }

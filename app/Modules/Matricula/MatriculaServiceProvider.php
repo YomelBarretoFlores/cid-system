@@ -15,8 +15,10 @@ use App\Modules\Matricula\Contracts\DocumentoDeMatriculaPorId;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
 use App\Modules\Matricula\Contracts\MovimientoPorTramite;
+use App\Modules\Matricula\Listeners\AlAnularPago;
 use App\Modules\Matricula\Listeners\AlCerrarActa;
 use App\Modules\Matricula\Livewire\ResumenDelEstudiante;
+use App\Modules\Pagos\Events\PagoAnulado;
 use App\Shared\Support\ModuleServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
@@ -42,5 +44,6 @@ final class MatriculaServiceProvider extends ModuleServiceProvider
 
         Livewire::component('matricula.resumen-del-estudiante', ResumenDelEstudiante::class);
         Event::listen(ActaCerrada::class, AlCerrarActa::class);
+        Event::listen(PagoAnulado::class, AlAnularPago::class);
     }
 }

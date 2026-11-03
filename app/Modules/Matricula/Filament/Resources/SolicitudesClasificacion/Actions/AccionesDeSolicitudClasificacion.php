@@ -6,6 +6,7 @@ namespace App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Acti
 
 use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
+use App\Modules\Matricula\Actions\CorregirResultadoDeClasificacion;
 use App\Modules\Matricula\Actions\RegistrarResultadoDeClasificacion;
 use App\Modules\Matricula\Data\ResultadoDeClasificacion;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
@@ -15,6 +16,7 @@ use App\Shared\Support\Filament\AccionDeNegocio;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -31,25 +33,60 @@ final class AccionesDeSolicitudClasificacion
             ->authorize('evaluar')
             ->visible(fn (SolicitudClasificacion $record): bool => $record->estado === EstadoSolicitudClasificacion::PendienteEvaluacion)
             ->modalDescription('El ciclo asignado queda habilitado para la matrícula del estudiante en este idioma.')
-            ->schema([
-                DatePicker::make('fecha_examen')
-                    ->label('Fecha del examen')
-                    ->default(fn (): string => self::hoy())
-                    ->maxDate(fn (): string => self::hoy())
-                    ->required(),
-                TextInput::make('puntaje')->label('Puntaje')->numeric()->minValue(0)->maxValue(100)->step(0.01)->required(),
-                Select::make('ciclo_id')
-                    ->label('Ciclo asignado')
-                    ->options(fn (SolicitudClasificacion $record): array => self::ciclosDelIdioma($record->idioma_id))
-                    ->required(),
-                Textarea::make('observaciones')->label('Observaciones')->maxLength(1000)->rows(3),
-            ])
+            ->schema(self::camposDelResultado())
             ->action(fn (Action $action, SolicitudClasificacion $record, array $data) => AccionDeNegocio::ejecutar(
                 $action,
                 fn (User $usuario): SolicitudClasificacion => app(RegistrarResultadoDeClasificacion::class)($record->id, self::resultado($data), $usuario),
                 'Resultado registrado',
             ))
             ->after(fn (SolicitudClasificacion $record): SolicitudClasificacion => $record->refresh());
+    }
+
+    public static function corregirResultado(): Action
+    {
+        return Action::make('corregirResultado')
+            ->label('Corregir resultado')
+            ->icon(Heroicon::OutlinedPencilSquare)
+            ->color('warning')
+            ->authorize('evaluar')
+            ->visible(fn (SolicitudClasificacion $record): bool => $record->estado === EstadoSolicitudClasificacion::Evaluado)
+            ->modalDescription('El ciclo habilitado cambia con el resultado solo si aún proviene de esta clasificación y el estudiante no se matriculó en él; si no, use «Ajustar ciclo habilitado» en Ciclos habilitados.')
+            ->fillForm(fn (SolicitudClasificacion $record): array => [
+                'fecha_examen' => $record->fecha_examen?->toDateString(),
+                'puntaje' => $record->puntaje,
+                'ciclo_id' => $record->ciclo_asignado_id,
+                'observaciones' => $record->observaciones,
+            ])
+            ->schema([
+                ...self::camposDelResultado(),
+                Textarea::make('motivo')->label('Motivo de la corrección')->required()->minLength(5)->maxLength(500)->rows(2),
+            ])
+            ->action(fn (Action $action, SolicitudClasificacion $record, array $data) => AccionDeNegocio::ejecutar(
+                $action,
+                fn (User $usuario): SolicitudClasificacion => app(CorregirResultadoDeClasificacion::class)($record->id, self::resultado($data), (string) $data['motivo'], $usuario),
+                'Resultado corregido',
+            ))
+            ->after(fn (SolicitudClasificacion $record): SolicitudClasificacion => $record->refresh());
+    }
+
+    /**
+     * @return list<Field>
+     */
+    private static function camposDelResultado(): array
+    {
+        return [
+            DatePicker::make('fecha_examen')
+                ->label('Fecha del examen')
+                ->default(fn (): string => self::hoy())
+                ->maxDate(fn (): string => self::hoy())
+                ->required(),
+            TextInput::make('puntaje')->label('Puntaje')->numeric()->minValue(0)->maxValue(100)->step(0.01)->required(),
+            Select::make('ciclo_id')
+                ->label('Ciclo asignado')
+                ->options(fn (SolicitudClasificacion $record): array => self::ciclosDelIdioma($record->idioma_id))
+                ->required(),
+            Textarea::make('observaciones')->label('Observaciones')->maxLength(1000)->rows(3),
+        ];
     }
 
     /**

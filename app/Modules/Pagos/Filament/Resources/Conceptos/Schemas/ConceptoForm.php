@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Pagos\Filament\Resources\Conceptos\Schemas;
 
 use App\Modules\Pagos\Enums\TipoConcepto;
+use App\Modules\Pagos\Filament\Resources\Conceptos\Pages\EditConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\FuenteDeConcepto;
 use Closure;
@@ -53,7 +54,9 @@ final class ConceptoForm
                 Select::make('tipo')
                     ->label('Servicio que habilita')
                     ->options(collect(TipoConcepto::cases())->mapWithKeys(fn (TipoConcepto $tipo): array => [$tipo->value => $tipo->etiqueta()])->all())
-                    ->required(),
+                    ->required()
+                    ->disabled(fn (mixed $livewire): bool => $livewire instanceof EditConcepto && $livewire->tipoBloqueado)
+                    ->helperText(fn (mixed $livewire): ?string => $livewire instanceof EditConcepto && $livewire->tipoBloqueado ? 'El concepto ya tiene pagos: el servicio que habilita no cambia.' : null),
                 Select::make('fuente_id')
                     ->label('Fuente')
                     ->options(fn (?Concepto $record): array => self::fuentes($record))

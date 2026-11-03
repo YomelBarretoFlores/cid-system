@@ -33,13 +33,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property EstadoTramite $estado
  * @property array<string, mixed> $datos
  * @property ?CarbonImmutable $finalizado_en
+ * @property ?CarbonImmutable $cerrado_en
+ * @property ?string $motivo_cierre
  * @property CarbonImmutable $created_at
  * @property-read TipoTramite $tipoTramite
  */
 #[Table('tra_tramites')]
 #[Fillable([
     'persona_id', 'tipo_tramite_id', 'tipo_nombre', 'accion_final', 'tipo_concepto', 'etapas', 'etapa_actual', 'estado', 'datos',
-    'pago_id', 'observacion', 'documento_id', 'finalizado_en',
+    'pago_id', 'observacion', 'documento_id', 'finalizado_en', 'cerrado_en', 'motivo_cierre',
 ])]
 #[UseFactory(TramiteFactory::class)]
 #[UsePolicy(TramitePolicy::class)]
@@ -104,6 +106,7 @@ final class Tramite extends Model
             'estado' => EstadoTramite::class,
             'datos' => 'array',
             'finalizado_en' => 'immutable_datetime',
+            'cerrado_en' => 'immutable_datetime',
         ];
     }
 }

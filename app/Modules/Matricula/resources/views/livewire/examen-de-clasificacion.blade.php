@@ -15,11 +15,7 @@
                         <x-portal.fila wire:key="solicitud-{{ $solicitud->id }}" :titulo="$idiomaDeSolicitud?->nombre">
                             <x-slot:inicio><x-ciln.hoja-bandera :idioma="$idiomaDeSolicitud?->nombre" size="30" /></x-slot:inicio>
                             <x-slot:fin>
-                                <x-portal.insignia :color="match ($solicitud->estado) {
-                                    EstadoSolicitudClasificacion::PendienteEvaluacion => 'warning',
-                                    EstadoSolicitudClasificacion::Evaluado => 'success',
-                                    EstadoSolicitudClasificacion::Expirado => 'gray',
-                                }">{{ $solicitud->estado->etiqueta() }}</x-portal.insignia>
+                                <x-portal.insignia :color="$solicitud->estado->color()">{{ $solicitud->estado->etiqueta() }}</x-portal.insignia>
                             </x-slot:fin>
                             <p class="text-terciario">
                                 Solicitada el <time datetime="{{ $solicitud->created_at->toIso8601String() }}">{{ $solicitud->created_at->timezone('America/Lima')->format('d/m/Y') }}</time>

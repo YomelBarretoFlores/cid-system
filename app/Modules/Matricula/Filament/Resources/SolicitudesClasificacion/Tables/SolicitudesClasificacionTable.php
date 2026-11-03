@@ -36,7 +36,7 @@ final class SolicitudesClasificacionTable
                     ->label('Estado')
                     ->badge()
                     ->formatStateUsing(fn (EstadoSolicitudClasificacion $state): string => $state->etiqueta())
-                    ->color(fn (EstadoSolicitudClasificacion $state): string => self::colorDeEstado($state)),
+                    ->color(fn (EstadoSolicitudClasificacion $state): string => $state->color()),
                 TextColumn::make('created_at')->label('Solicitado el')->dateTime('d/m/Y H:i')->sortable(),
                 TextColumn::make('vence_en')->label('Vence el')->date('d/m/Y'),
                 TextColumn::make('puntaje')->label('Puntaje')->placeholder('—'),
@@ -50,14 +50,5 @@ final class SolicitudesClasificacionTable
                 ViewAction::make(),
                 AccionesDeSolicitudClasificacion::registrarResultado(),
             ]);
-    }
-
-    public static function colorDeEstado(EstadoSolicitudClasificacion $estado): string
-    {
-        return match ($estado) {
-            EstadoSolicitudClasificacion::PendienteEvaluacion => 'warning',
-            EstadoSolicitudClasificacion::Evaluado => 'success',
-            EstadoSolicitudClasificacion::Expirado => 'gray',
-        };
     }
 }

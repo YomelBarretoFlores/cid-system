@@ -43,6 +43,7 @@ final class MatriculaInfolist
                         TextEntry::make('matriculado_en')->label('Matriculado el')->dateTime('d/m/Y H:i'),
                         TextEntry::make('retirado_en')->label('Retirado el')->dateTime('d/m/Y H:i')->visible(fn (Matricula $record): bool => $record->retirado_en !== null),
                     ]),
+                SeccionDelPago::make(),
                 Section::make('Traslados y retiros')
                     ->schema([
                         RepeatableEntry::make('movimientos')

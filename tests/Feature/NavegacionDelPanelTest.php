@@ -31,7 +31,7 @@ it('orders the sidebar by daily work, with every section in its group', function
 
     expect($menu)->toBe([
         '' => ['Tablero gerencial'],
-        'Atención' => ['Matrículas', 'Solicitudes de clasificación', 'Pagos', 'Trámites', 'Personas'],
+        'Atención' => ['Matrículas', 'Solicitudes de clasificación', 'Ciclos habilitados', 'Pagos', 'Trámites', 'Personas'],
         'Oferta académica' => ['Periodos', 'Idiomas y ciclos', 'Grupos', 'Aulas'],
         'Docencia' => ['Docentes', 'Expediente de horas', 'Costos por hora', 'Control de clases', 'Sílabos'],
         'Certificación' => ['Actas finales', 'Constancias y certificados'],

@@ -62,7 +62,7 @@ final readonly class HabilitarCiclosSiguientes
 
             Habilitacion::query()->updateOrCreate(
                 ['persona_id' => $personaId, 'idioma_id' => $grupo->idiomaId],
-                ['ciclo_id' => $orden[$siguiente], 'origen' => OrigenHabilitacion::Aprobacion, 'actualizado_por' => null],
+                ['ciclo_id' => $orden[$siguiente], 'origen' => OrigenHabilitacion::Aprobacion, 'motivo' => null, 'actualizado_por' => null],
             );
 
             return true;

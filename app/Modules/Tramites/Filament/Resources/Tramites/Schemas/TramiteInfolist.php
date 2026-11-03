@@ -38,6 +38,13 @@ final class TramiteInfolist
                 Section::make('Observación')
                     ->visible(fn (Tramite $record): bool => $record->estado === EstadoTramite::Observado)
                     ->schema([TextEntry::make('observacion')->hiddenLabel()]),
+                Section::make('Cierre sin atender')
+                    ->columns(4)
+                    ->visible(fn (Tramite $record): bool => $record->estado === EstadoTramite::Cerrado)
+                    ->schema([
+                        TextEntry::make('cerrado_en')->label('Cerrado el')->dateTime('d/m/Y H:i', 'America/Lima'),
+                        TextEntry::make('motivo_cierre')->label('Motivo')->columnSpan(3),
+                    ]),
                 Section::make('Solicitud')
                     ->columns(3)
                     ->schema([

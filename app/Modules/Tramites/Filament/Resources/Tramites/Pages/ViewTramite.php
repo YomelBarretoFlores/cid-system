@@ -19,6 +19,7 @@ final class ViewTramite extends ViewRecord
             AccionesDeTramite::finalizar(),
             AccionesDeTramite::observar(),
             AccionesDeTramite::reanudar(),
+            AccionesDeTramite::cerrar(),
         ];
     }
 }
