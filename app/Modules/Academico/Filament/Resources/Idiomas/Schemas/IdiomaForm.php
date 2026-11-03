@@ -58,7 +58,8 @@ final class IdiomaForm
                     ->label('Lengua originaria')
                     ->default(false),
                 Toggle::make('activo')
-                    ->label('Disponible para nuevos grupos')
+                    ->label('Disponible para matrícula')
+                    ->helperText('Si lo desactivas, sus grupos dejan de ofrecerse en la matrícula y no se pueden crear grupos nuevos.')
                     ->default(true),
             ]);
     }

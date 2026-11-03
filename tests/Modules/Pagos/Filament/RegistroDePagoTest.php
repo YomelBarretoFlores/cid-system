@@ -109,3 +109,19 @@ it('defaults the payment date to today in Lima, also late in the evening', funct
 
     Livewire::test(CreatePago::class)->assertSchemaStateSet(['fecha_pago' => '2026-10-24']);
 });
+
+it('refuses an amount with more than two decimals and accepts one with two', function (): void {
+    $this->actingAs($this->cajero);
+
+    Livewire::test(CreatePago::class)
+        ->fillForm(datosDelRegistro(['monto' => '150.555']))
+        ->call('create')
+        ->assertHasFormErrors(['monto' => 'El monto admite como máximo dos decimales.']);
+    expect(Pago::query()->count())->toBe(0);
+
+    Livewire::test(CreatePago::class)
+        ->fillForm(datosDelRegistro(['monto' => '150.55']))
+        ->call('create')
+        ->assertHasNoFormErrors();
+    expect(Pago::query()->sole()->monto)->toBe('150.55');
+});

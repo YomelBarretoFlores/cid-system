@@ -55,7 +55,8 @@ final class PersonaForm
                             ->label('Fecha de nacimiento')
                             ->after('1900-01-01')
                             ->before(fn (): string => today('America/Lima')->toDateString()),
-                        TextInput::make('correo')->label('Correo personal')->email()->maxLength(150),
+                        TextInput::make('correo')->label('Correo personal')->email()->maxLength(150)
+                            ->helperText(fn (?Persona $record): ?string => $record?->user_id === null ? null : 'Este correo no cambia el correo con el que ingresa al portal.'),
                         TextInput::make('celular')
                             ->label('Celular')
                             ->maxLength(20)

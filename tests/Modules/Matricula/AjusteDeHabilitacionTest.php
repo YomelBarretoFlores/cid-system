@@ -61,9 +61,9 @@ it('refuses an adjustment without the permission, without a reason or with a cyc
     $lector = User::factory()->create()->givePermissionTo(PermisoMatricula::Ver->value);
 
     expect(fn () => app(AjustarHabilitacion::class)($this->persona->id, $this->ingles->id, $this->ciclos[2], 'Reubicado tras entrevista', $lector))
-        ->toThrow(ReglaDeNegocioIncumplida::class, 'No tiene permiso para ajustar el ciclo habilitado.')
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'No tienes permiso para ajustar el ciclo habilitado.')
         ->and(fn () => app(AjustarHabilitacion::class)($this->persona->id, $this->ingles->id, $this->ciclos[2], 'Ok', $this->gestor))
-        ->toThrow(ReglaDeNegocioIncumplida::class, 'Indique el motivo del ajuste, entre 5 y 500 caracteres.')
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Indica el motivo del ajuste, entre 5 y 500 caracteres.')
         ->and(fn () => app(AjustarHabilitacion::class)($this->persona->id, $this->ingles->id, $otroIdioma->id, 'Reubicado tras entrevista', $this->gestor))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El ciclo elegido no pertenece a Inglés.')
         ->and(Habilitacion::query()->count())->toBe(0);

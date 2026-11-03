@@ -26,7 +26,7 @@ final readonly class EmitirDocumentoParaTramite implements DocumentoParaTramite
         try {
             EmisionDeDocumento::asegurarPermiso($emisor);
         } catch (AuthorizationException) {
-            throw new ReglaDeNegocioIncumplida('No tiene permiso para emitir constancias y certificados.');
+            throw new ReglaDeNegocioIncumplida('No tienes permiso para emitir constancias y certificados.');
         }
 
         $documento = match ($tipo) {

@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string $codigo
+ * @property string $tipo_nombre
  * @property int $persona_id
  * @property ?int $pago_id
  * @property ?int $documento_id

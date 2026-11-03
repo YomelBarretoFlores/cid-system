@@ -145,8 +145,27 @@ it('deletes only fees that no payment applied', function (): void {
 
     tarifasDe($this->concepto)
         ->assertActionHidden(TestAction::make('delete')->table($this->vigente))
-        ->callAction(TestAction::make('delete')->table($sinUso));
+        ->callAction(TestAction::make('delete')->table($sinUso))
+        ->assertNotified('Tarifa eliminada');
 
     expect(Tarifa::query()->whereKey($sinUso->id)->exists())->toBeFalse()
         ->and(Tarifa::query()->whereKey($this->vigente->id)->exists())->toBeTrue();
+});
+
+it('refuses a fee amount with more than two decimals and accepts one with two', function (): void {
+    $this->actingAs($this->administrador);
+
+    tarifasDe($this->concepto)
+        ->callAction(TestAction::make('registrarTarifa')->table(), data: [
+            'tipo_vinculo' => TipoVinculo::EstudianteUnasam->value, 'monto' => '150.555', 'vigente_desde' => '2027-07-01',
+        ])
+        ->assertHasFormErrors(['monto' => 'El monto admite como máximo dos decimales.']);
+    expect(Tarifa::query()->where('tipo_vinculo', TipoVinculo::EstudianteUnasam)->exists())->toBeFalse();
+
+    tarifasDe($this->concepto)
+        ->callAction(TestAction::make('registrarTarifa')->table(), data: [
+            'tipo_vinculo' => TipoVinculo::EstudianteUnasam->value, 'monto' => '150.55', 'vigente_desde' => '2027-07-01',
+        ])
+        ->assertHasNoFormErrors();
+    expect(Tarifa::query()->where('tipo_vinculo', TipoVinculo::EstudianteUnasam)->sole()->monto)->toBe('150.55');
 });

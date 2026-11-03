@@ -9,6 +9,8 @@ use App\Modules\Pagos\Events\PagoRechazado;
 use App\Modules\Pagos\Events\PagoValidado;
 use App\Modules\Tramites\Actions\ContarTramitesEnProceso;
 use App\Modules\Tramites\Actions\ContarTramitesObservados;
+use App\Modules\Tramites\Actions\DescribirTramiteDelPago;
+use App\Modules\Tramites\Contracts\TramiteDelPago;
 use App\Modules\Tramites\Contracts\TramitesEnProceso;
 use App\Modules\Tramites\Contracts\TramitesObservados;
 use App\Modules\Tramites\Events\TramiteActualizado;
@@ -27,6 +29,7 @@ final class TramitesServiceProvider extends ModuleServiceProvider
     public array $bindings = [
         TramitesObservados::class => ContarTramitesObservados::class,
         TramitesEnProceso::class => ContarTramitesEnProceso::class,
+        TramiteDelPago::class => DescribirTramiteDelPago::class,
     ];
 
     protected string $module = 'Tramites';

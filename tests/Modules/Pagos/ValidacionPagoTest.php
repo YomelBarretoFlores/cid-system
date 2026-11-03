@@ -91,8 +91,8 @@ it('requires a reason to reject or void a payment', function (string $action, st
         ->toThrow(ReglaDeNegocioIncumplida::class, $mensaje);
     expect($pago->refresh()->estado->value)->toBe($estado);
 })->with([
-    'reject' => [RechazarPago::class, 'pendiente', 'Indique el motivo del rechazo.'],
-    'void' => [AnularPago::class, 'validado', 'Indique el motivo de la anulación.'],
+    'reject' => [RechazarPago::class, 'pendiente', 'Indica el motivo del rechazo.'],
+    'void' => [AnularPago::class, 'validado', 'Indica el motivo de la anulación.'],
 ]);
 
 it('refuses to reject a validated payment', function (): void {

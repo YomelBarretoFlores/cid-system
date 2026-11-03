@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Support;
 
+use App\Modules\Matricula\Contracts\ContextoAcademicoDePagos;
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Models\Pago;
+use App\Modules\Tramites\Contracts\TramiteDelPago;
 
-// What the cashier must look at before validating: neither blocks a payment by itself.
+// What the cashier must look at before validating or voiding: none blocks a payment by itself.
 final class AlertasDePago
 {
     /**
@@ -39,5 +41,21 @@ final class AlertasDePago
             ->first();
 
         return $otro === null ? null : "El número de operación {$pago->numero_operacion} también figura en otro pago registrado con {$otro->medioDePago->nombre}.";
+    }
+
+    // What a void leaves without its payment: an enrollment, a placement request or a procedure.
+    public static function respaldo(Pago $pago): ?string
+    {
+        $contexto = app(ContextoAcademicoDePagos::class)([$pago->id])[$pago->id] ?? null;
+
+        if ($contexto !== null) {
+            return $contexto->periodo === null
+                ? "Este pago respalda la solicitud de examen de clasificación de {$contexto->idioma}."
+                : "Este pago respalda la matrícula en {$contexto->idioma} {$contexto->nivel} ({$contexto->periodo}).";
+        }
+
+        $tramite = app(TramiteDelPago::class)($pago->id);
+
+        return $tramite === null ? null : "Este pago respalda el trámite {$tramite}.";
     }
 }

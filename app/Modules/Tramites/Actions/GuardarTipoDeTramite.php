@@ -21,7 +21,7 @@ final readonly class GuardarTipoDeTramite
 
     public function __invoke(DatosDeTipoTramite $datos, User $usuario, ?int $tipoId = null): TipoTramite
     {
-        throw_unless($usuario->can(PermisoTramite::Configurar->value), ReglaDeNegocioIncumplida::class, 'No tiene permiso para configurar los trámites.');
+        throw_unless($usuario->can(PermisoTramite::Configurar->value), ReglaDeNegocioIncumplida::class, 'No tienes permiso para configurar los trámites.');
         throw_if($datos->tipoConcepto instanceof TipoConcepto && ! in_array($datos->tipoConcepto, self::CONCEPTOS, true), ReglaDeNegocioIncumplida::class, 'La tasa de un trámite es de constancia, certificado, trámite u otro concepto.');
         ReglasDeEtapas::validar($datos->etapas, $datos->tipoConcepto !== null);
 

@@ -32,10 +32,10 @@ final readonly class AjustarHabilitacion
 
     public function __invoke(int $personaId, int $idiomaId, int $cicloId, string $motivo, User $usuario, bool $confirmarDescenso = false): Habilitacion
     {
-        throw_unless($usuario->can(PermisoMatricula::Gestionar->value), ReglaDeNegocioIncumplida::class, 'No tiene permiso para ajustar el ciclo habilitado.');
+        throw_unless($usuario->can(PermisoMatricula::Gestionar->value), ReglaDeNegocioIncumplida::class, 'No tienes permiso para ajustar el ciclo habilitado.');
 
         $motivo = trim($motivo);
-        throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indique el motivo del ajuste, entre 5 y 500 caracteres.');
+        throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indica el motivo del ajuste, entre 5 y 500 caracteres.');
 
         $idioma = collect(($this->catalogoDeIdiomas)())->first(fn (IdiomaDelCatalogo $idioma): bool => $idioma->id === $idiomaId)
             ?? throw new ReglaDeNegocioIncumplida('El idioma no existe.');

@@ -79,9 +79,9 @@ it('refuses to close a trámite without a reason, without the permission, or onc
     $tramite = solicitudDeTramite($this->persona, $this->matricula, 'RETIRO');
     $sinPermiso = User::factory()->create();
 
-    expect(fn () => app(CerrarTramiteSinAtender::class)($tramite->id, $this->personal, 'No'))->toThrow(ReglaDeNegocioIncumplida::class, 'Indique el motivo del cierre, entre 5 y 500 caracteres.')
-        ->and(fn () => app(CerrarTramiteSinAtender::class)($tramite->id, $this->personal, str_repeat('a', 501)))->toThrow(ReglaDeNegocioIncumplida::class, 'Indique el motivo del cierre, entre 5 y 500 caracteres.')
-        ->and(fn () => app(CerrarTramiteSinAtender::class)($tramite->id, $sinPermiso, 'Solicitado por error'))->toThrow(ReglaDeNegocioIncumplida::class, 'No tiene permiso para atender trámites.')
+    expect(fn () => app(CerrarTramiteSinAtender::class)($tramite->id, $this->personal, 'No'))->toThrow(ReglaDeNegocioIncumplida::class, 'Indica el motivo del cierre, entre 5 y 500 caracteres.')
+        ->and(fn () => app(CerrarTramiteSinAtender::class)($tramite->id, $this->personal, str_repeat('a', 501)))->toThrow(ReglaDeNegocioIncumplida::class, 'Indica el motivo del cierre, entre 5 y 500 caracteres.')
+        ->and(fn () => app(CerrarTramiteSinAtender::class)($tramite->id, $sinPermiso, 'Solicitado por error'))->toThrow(ReglaDeNegocioIncumplida::class, 'No tienes permiso para atender trámites.')
         ->and($tramite->refresh()->estado)->toBe(EstadoTramite::EnProceso);
 
     app(CerrarTramiteSinAtender::class)($tramite->id, $this->personal, 'Solicitado por error');

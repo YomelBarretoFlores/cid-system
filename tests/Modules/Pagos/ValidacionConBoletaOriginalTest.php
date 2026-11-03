@@ -175,7 +175,7 @@ it('leaves out a rejected payment from the other-channel warning and hides the s
 
     Livewire::test(ViewPago::class, ['record' => $pago->getRouteKey()])
         ->assertDontSee('también figura en otro pago')
-        ->assertDontSee('Revise antes de validar');
+        ->assertDontSee('Revisa antes de validar');
 });
 
 it('builds a validated payment whose voucher was checked by its validator, creating no extra user when both are given', function (): void {

@@ -8,7 +8,7 @@ use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Policies\DeniegaLoNoConcedido;
 
-// Shared by languages, cycles, classrooms, periods and groups: none is deleted, all are read or managed alike.
+// Shared by languages, cycles, classrooms and periods: none is deleted, all are read or managed alike.
 final class OfertaAcademicaPolicy
 {
     use DeniegaLoNoConcedido;

@@ -70,7 +70,7 @@ final readonly class FinalizarTramite
 
         // A null destination means a withdrawal, so only a transfer passes the chosen group on.
         $destino = $tramite->accion_final === AccionFinal::Traslado
-            ? ($grupoDestinoId ?? throw new ReglaDeNegocioIncumplida('Elija el grupo de destino del traslado.'))
+            ? ($grupoDestinoId ?? throw new ReglaDeNegocioIncumplida('Elige el grupo de destino del traslado.'))
             : null;
         $motivo = mb_substr("Trámite {$tramite->codigo}: ".($tramite->datos['motivo'] ?? ''), 0, 500);
         ($this->movimientoPorTramite)((int) ($tramite->datos['matricula_id'] ?? 0), $destino, $motivo, $usuario);

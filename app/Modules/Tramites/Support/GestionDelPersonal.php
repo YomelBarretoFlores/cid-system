@@ -18,7 +18,7 @@ final class GestionDelPersonal
      */
     public static function bloquear(int $tramiteId, User $usuario, array $estados): Tramite
     {
-        throw_unless($usuario->can(PermisoTramite::Gestionar->value), ReglaDeNegocioIncumplida::class, 'No tiene permiso para atender trámites.');
+        throw_unless($usuario->can(PermisoTramite::Gestionar->value), ReglaDeNegocioIncumplida::class, 'No tienes permiso para atender trámites.');
 
         $personaId = Tramite::query()->whereKey($tramiteId)->value('persona_id') ?? throw new ReglaDeNegocioIncumplida('El trámite no existe.');
         RegistroDeMovimiento::bloquearPersona((int) $personaId);

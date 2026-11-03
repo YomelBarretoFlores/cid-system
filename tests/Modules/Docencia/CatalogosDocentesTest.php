@@ -10,8 +10,11 @@ use App\Modules\Docencia\Actions\ConsolidarHorasDictadas;
 use App\Modules\Docencia\Actions\RegistrarCostoPorHora;
 use App\Modules\Docencia\Data\LineaDeHoras;
 use App\Modules\Docencia\Enums\PermisoDocencia;
+use App\Modules\Docencia\Filament\Resources\CondicionesLaborales\Pages\CreateCondicionLaboral;
+use App\Modules\Docencia\Filament\Resources\CondicionesLaborales\Pages\EditCondicionLaboral;
 use App\Modules\Docencia\Filament\Resources\GradosAcademicos\GradoAcademicoResource;
 use App\Modules\Docencia\Filament\Resources\GradosAcademicos\Pages\CreateGradoAcademico;
+use App\Modules\Docencia\Filament\Resources\GradosAcademicos\Pages\EditGradoAcademico;
 use App\Modules\Docencia\Models\ClaseDictada;
 use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\CostoPorHora;
@@ -115,3 +118,42 @@ it('refuses a degree rate that would reprice classes already priced by the emplo
         ->and(CostoPorHora::query()->whereNotNull('grado_academico_id')->count())->toBe(0)
         ->and(app(RegistrarCostoPorHora::class)($magister, '60.00', CarbonImmutable::parse('2027-02-11'), null, $this->usuario)->exists)->toBeTrue();
 });
+
+function gestorDeCatalogosDocentes(): User
+{
+    return User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoDocencia::Ver->value, PermisoDocencia::Gestionar->value]);
+}
+
+it('reports a catalog name created by someone else at the same time as a form error', function (string $modelo, string $pagina, string $tabla, string $mensaje): void {
+    $modelo::creating(function () use ($tabla): void {
+        DB::table($tabla)->insert(['codigo' => 'simultaneo', 'nombre' => 'Simultáneo']);
+    });
+    $antes = $modelo::query()->count();
+
+    Livewire::actingAs(gestorDeCatalogosDocentes())->test($pagina)
+        ->fillForm(['nombre' => 'Simultáneo', 'orden' => 9])
+        ->call('create')
+        ->assertHasFormErrors(['nombre' => $mensaje]);
+
+    expect($modelo::query()->count())->toBe($antes);
+})->with([
+    'employment condition' => [CondicionLaboral::class, CreateCondicionLaboral::class, 'doc_condiciones_laborales', 'Ya existe una condición laboral con ese nombre.'],
+    'academic degree' => [GradoAcademico::class, CreateGradoAcademico::class, 'doc_grados_academicos', 'Ya existe un grado académico con ese nombre.'],
+]);
+
+it('reports a catalog name taken by someone else while editing as a form error', function (string $modelo, string $pagina, string $tabla, string $codigo, string $mensaje): void {
+    $modelo::updating(function () use ($tabla): void {
+        DB::table($tabla)->insert(['codigo' => 'simultaneo', 'nombre' => 'Simultáneo']);
+    });
+    $registro = $modelo::query()->where('codigo', $codigo)->firstOrFail();
+
+    Livewire::actingAs(gestorDeCatalogosDocentes())->test($pagina, ['record' => $registro->getRouteKey()])
+        ->fillForm(['nombre' => 'Simultáneo'])
+        ->call('save')
+        ->assertHasFormErrors(['nombre' => $mensaje]);
+
+    expect($registro->refresh()->nombre)->not->toBe('Simultáneo');
+})->with([
+    'employment condition' => [CondicionLaboral::class, EditCondicionLaboral::class, 'doc_condiciones_laborales', 'tercero', 'Ya existe una condición laboral con ese nombre.'],
+    'academic degree' => [GradoAcademico::class, EditGradoAcademico::class, 'doc_grados_academicos', 'doctor', 'Ya existe un grado académico con ese nombre.'],
+]);

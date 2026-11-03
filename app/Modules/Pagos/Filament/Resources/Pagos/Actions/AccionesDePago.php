@@ -48,13 +48,13 @@ final class AccionesDePago
             ->icon(Heroicon::OutlinedCheckCircle)
             ->color('success')
             ->modalHeading('Validar pago')
-            ->modalDescription(fn (Pago $record): string => implode(' ', ['Valide solo con la boleta original en la mano.', ...AlertasDePago::de($record)]))
+            ->modalDescription(fn (Pago $record): string => implode(' ', ['Valida solo con la boleta original en la mano.', ...AlertasDePago::de($record)]))
             ->modalSubmitActionLabel('Validar')
             ->schema([
                 Checkbox::make('boleta_original')
                     ->label('Tengo la boleta original y coincide con el número, la fecha y el monto registrados')
                     ->accepted()
-                    ->validationMessages(['accepted' => 'Valide el pago solo con la boleta original en la mano.']),
+                    ->validationMessages(['accepted' => 'Valida el pago solo con la boleta original en la mano.']),
                 Textarea::make('justificacion_monto')
                     ->label('Justificación del monto distinto de la tarifa')
                     ->visible(fn (Pago $record): bool => AlertasDePago::diferenciaDeMonto($record) !== null)
@@ -94,6 +94,7 @@ final class AccionesDePago
             ->label('Anular')
             ->icon(Heroicon::OutlinedNoSymbol)
             ->color('gray')
+            ->modalDescription(fn (Pago $record): ?string => AlertasDePago::respaldo($record))
             ->schema([self::motivo('Motivo de la anulación')])
             ->action(fn (Action $action, Pago $record, array $data) => AccionDeNegocio::ejecutar(
                 $action,

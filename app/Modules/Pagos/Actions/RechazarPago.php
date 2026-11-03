@@ -18,7 +18,7 @@ final readonly class RechazarPago
         $motivo = trim($motivo);
 
         if ($motivo === '') {
-            throw new ReglaDeNegocioIncumplida('Indique el motivo del rechazo.');
+            throw new ReglaDeNegocioIncumplida('Indica el motivo del rechazo.');
         }
 
         return Transaccion::ejecutar(function () use ($pagoId, $revisor, $motivo): Pago {

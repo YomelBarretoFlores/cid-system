@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Support\Filament;
 
+use App\Shared\Support\Database\RestriccionUnica;
+use App\Shared\Support\Database\Transaccion;
+use Closure;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -13,6 +16,9 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Validation\ValidationException;
 
 // Form and table shared by the small catalogs: name, order and availability; the code is shown, never edited.
 final class CatalogoEnElPanel
@@ -46,5 +52,22 @@ final class CatalogoEnElPanel
             ->defaultSort('orden')
             ->filters([TernaryFilter::make('activo')->label('Disponible')])
             ->recordActions([EditAction::make()]);
+    }
+
+    /**
+     * Another user may save the same name after validation ran: the unique index answers with the form error.
+     *
+     * @param  Closure(): Model  $guardar
+     */
+    public static function guardar(Closure $guardar, string $tabla, string $repetido): Model
+    {
+        try {
+            // The savepoint keeps the connection usable after a unique violation inside an outer transaction.
+            return Transaccion::ejecutar($guardar, reintentar: false);
+        } catch (UniqueConstraintViolationException $error) {
+            throw RestriccionUnica::es($error, "{$tabla}_nombre_unique")
+                ? ValidationException::withMessages(['data.nombre' => $repetido])
+                : $error;
+        }
     }
 }

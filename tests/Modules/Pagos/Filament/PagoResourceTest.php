@@ -119,3 +119,9 @@ it('offers no screen to edit or delete payments', function (): void {
     expect(array_keys(PagoResource::getPages()))->not->toContain('edit')
         ->and(PagoResource::canDelete($this->pendiente))->toBeFalse();
 });
+
+it('shows the amount in the global search details with thousands and two decimals', function (): void {
+    DB::table('pag_pagos')->where('id', $this->pendiente->id)->update(['monto' => '12345678.95']);
+
+    expect(PagoResource::getGlobalSearchResultDetails($this->pendiente->refresh())['Monto'])->toBe('S/ 12,345,678.95');
+});

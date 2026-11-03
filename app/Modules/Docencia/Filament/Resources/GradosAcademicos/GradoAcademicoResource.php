@@ -21,6 +21,10 @@ final class GradoAcademicoResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    public const string REPETIDO = 'Ya existe un grado académico con ese nombre.';
+
+    public const string TABLA = 'doc_grados_academicos';
+
     protected static ?string $model = GradoAcademico::class;
 
     protected static ?string $slug = 'grados-academicos';
@@ -41,7 +45,7 @@ final class GradoAcademicoResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return CatalogoEnElPanel::formulario($schema, 'Ya existe un grado académico con ese nombre.');
+        return CatalogoEnElPanel::formulario($schema, self::REPETIDO);
     }
 
     public static function table(Table $table): Table

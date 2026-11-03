@@ -16,6 +16,9 @@ use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Filament\Forms\Components\Repeater;
+use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
@@ -139,4 +142,49 @@ it('lets readers see the profile but not edit it or change its status', function
     expect($this->docente->refresh()->estado)->toBe(EstadoDocente::Activo);
 
     $this->actingAs($lector)->get(DocenteResource::getUrl('edit', ['record' => $this->docente]))->assertForbidden();
+});
+
+function cifrarConOtraClave(Docente $docente): void
+{
+    $otraClave = new Encrypter(Encrypter::generateKey(config('app.cipher')), config('app.cipher'));
+
+    DB::table('doc_docentes')->where('id', $docente->id)->update(['cuenta_bancaria' => $otraClave->encryptString('04-999-111222')]);
+}
+
+it('opens the profile when the account was encrypted with another key and asks to register it again', function (): void {
+    cifrarConOtraClave($this->docente);
+    Log::spy();
+
+    $this->actingAs($this->gestor)->get(DocenteResource::getUrl('view', ['record' => $this->docente]))
+        ->assertOk()
+        ->assertSee(['10401234567', 'No se pudo leer (vuelve a registrarla)'])
+        ->assertDontSee(['04-999-111222', '•••• 1222']);
+
+    Log::shouldHaveReceived('warning')->with('No se pudo descifrar un campo.', ['modelo' => Docente::class, 'id' => $this->docente->id, 'campo' => 'cuenta_bancaria']);
+});
+
+it('replaces an unreadable account from the edit form', function (): void {
+    cifrarConOtraClave($this->docente);
+
+    Livewire::actingAs($this->gestor)->test(EditDocente::class, ['record' => $this->docente->getRouteKey()])
+        ->assertSchemaStateSet(['cuenta_bancaria' => null])
+        ->fillForm(['cuenta_bancaria' => '04-555-777888'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $this->docente->refresh();
+
+    expect([$this->docente->cuenta_bancaria, $this->docente->cuenta_enmascarada])->toBe(['04-555-777888', '•••• 7888']);
+});
+
+it('suggests the common banks while keeping the bank a free text', function (): void {
+    Livewire::actingAs($this->gestor)->test(CreateDocente::class)
+        ->assertSeeHtml(['<option value="Banco de la Nación"', '<option value="BCP"', '<option value="Caja Huancayo"']);
+
+    Livewire::actingAs($this->gestor)->test(CreateDocente::class)
+        ->fillForm(formularioDeDocente(['banco' => 'Caja Sullana']))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Docente::query()->where('banco', 'Caja Sullana')->exists())->toBeTrue();
 });

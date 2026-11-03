@@ -8,7 +8,7 @@ use App\Modules\Academico\Database\Factories\GrupoFactory;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\Modalidad;
-use App\Modules\Academico\Policies\OfertaAcademicaPolicy;
+use App\Modules\Academico\Policies\GrupoPolicy;
 use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -38,7 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'enlace_virtual', 'cupo_maximo', 'cupo_minimo', 'estado',
 ])]
 #[UseFactory(GrupoFactory::class)]
-#[UsePolicy(OfertaAcademicaPolicy::class)]
+#[UsePolicy(GrupoPolicy::class)]
 final class Grupo extends Model
 {
     /** @use HasFactory<GrupoFactory> */

@@ -71,7 +71,7 @@ it('does not move a trámite that waits for its fee, and refuses staff without t
     $pendiente = app(SolicitarTramite::class)($this->persona->id, TipoTramite::query()->where('codigo', 'CONSTANCIA-MATRICULA')->value('id'), new DatosDeSolicitud(matriculaId: $this->matricula->id));
 
     expect(fn () => app(AvanzarTramite::class)($pendiente->id, $this->personal))->toThrow(ReglaDeNegocioIncumplida::class, 'El trámite está Pendiente de pago y no admite esta acción.')
-        ->and(fn () => app(ObservarTramite::class)($pendiente->id, User::factory()->create(), 'Falta el documento'))->toThrow(ReglaDeNegocioIncumplida::class, 'No tiene permiso para atender trámites.');
+        ->and(fn () => app(ObservarTramite::class)($pendiente->id, User::factory()->create(), 'Falta el documento'))->toThrow(ReglaDeNegocioIncumplida::class, 'No tienes permiso para atender trámites.');
 });
 
 it('finishes an enrollment record trámite by issuing the document as the staff member', function (): void {
@@ -90,7 +90,7 @@ it('leaves the trámite as it was when the final action is refused', function ()
     app(AvanzarTramite::class)($tramite->id, $this->personal);
     $sinDocumentos = User::factory()->create()->givePermissionTo(PermisoTramite::Gestionar->value);
 
-    expect(fn () => app(FinalizarTramite::class)($tramite->id, $sinDocumentos))->toThrow(ReglaDeNegocioIncumplida::class, 'No tiene permiso para emitir constancias y certificados.')
+    expect(fn () => app(FinalizarTramite::class)($tramite->id, $sinDocumentos))->toThrow(ReglaDeNegocioIncumplida::class, 'No tienes permiso para emitir constancias y certificados.')
         ->and($tramite->refresh())->estado->toBe(EstadoTramite::EnProceso)->etapa_actual->toBe(2)
         ->and(Documento::query()->count())->toBe(0);
 });
@@ -109,7 +109,7 @@ it('finishes a withdrawal by withdrawing the enrollment, and a transfer by movin
     $traslado = tramiteSinTasa($otra, $matricula, 'TRASLADO')->refresh();
     app(AvanzarTramite::class)($traslado->id, $this->personal);
 
-    expect(fn () => app(FinalizarTramite::class)($traslado->id, $this->personal))->toThrow(ReglaDeNegocioIncumplida::class, 'Elija el grupo de destino del traslado.');
+    expect(fn () => app(FinalizarTramite::class)($traslado->id, $this->personal))->toThrow(ReglaDeNegocioIncumplida::class, 'Elige el grupo de destino del traslado.');
 
     app(FinalizarTramite::class)($traslado->id, $this->personal, $this->destino->id);
 
@@ -120,7 +120,7 @@ it('finishes a withdrawal by withdrawing the enrollment, and a transfer by movin
 it('observes a trámite with a reason and resumes it, back to waiting for the fee when it is still unpaid', function (): void {
     $enProceso = tramiteSinTasa($this->persona, $this->matricula, 'RETIRO');
 
-    expect(fn () => app(ObservarTramite::class)($enProceso->id, $this->personal, 'no'))->toThrow(ReglaDeNegocioIncumplida::class, 'Indique la observación, entre 5 y 500 caracteres.');
+    expect(fn () => app(ObservarTramite::class)($enProceso->id, $this->personal, 'no'))->toThrow(ReglaDeNegocioIncumplida::class, 'Indica la observación, entre 5 y 500 caracteres.');
 
     app(ObservarTramite::class)($enProceso->id, $this->personal, 'Indica desde qué fecha dejas de asistir.');
     expect($enProceso->refresh())->estado->toBe(EstadoTramite::Observado)->observacion->toBe('Indica desde qué fecha dejas de asistir.');
@@ -144,7 +144,7 @@ it('asks for the enrollment permission to finish a withdrawal, leaving everythin
     app(AvanzarTramite::class)($retiro->id, $this->personal);
     $soloTramites = User::factory()->create()->givePermissionTo(PermisoTramite::Gestionar->value);
 
-    expect(fn () => app(FinalizarTramite::class)($retiro->id, $soloTramites))->toThrow(ReglaDeNegocioIncumplida::class, 'No tiene permiso para trasladar ni retirar matrículas.')
+    expect(fn () => app(FinalizarTramite::class)($retiro->id, $soloTramites))->toThrow(ReglaDeNegocioIncumplida::class, 'No tienes permiso para trasladar ni retirar matrículas.')
         ->and($retiro->refresh()->estado)->toBe(EstadoTramite::EnProceso)
         ->and($this->matricula->refresh()->estado)->toBe(EstadoMatricula::Activa);
 });

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\Pagos\Filament\Resources\Conceptos\RelationManagers;
 
 use App\Modules\Pagos\Actions\CerrarTarifa;
+use App\Modules\Pagos\Actions\EliminarTarifa;
 use App\Modules\Pagos\Actions\RegistrarTarifa;
+use App\Modules\Pagos\Filament\Schemas\CampoDeMonto;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Shared\Support\Filament\AccionDeNegocio;
@@ -14,7 +16,6 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -42,7 +43,12 @@ final class TarifasRelationManager extends RelationManager
             ])
             ->recordActions([
                 $this->cerrar(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->action(fn (Action $action, Tarifa $record) => AccionDeNegocio::ejecutar(
+                        $action,
+                        fn () => app(EliminarTarifa::class)($record->id),
+                        'Tarifa eliminada',
+                    )),
             ]);
     }
 
@@ -58,7 +64,7 @@ final class TarifasRelationManager extends RelationManager
                     ->label('Vínculo con la UNASAM')
                     ->options(collect(TipoVinculo::cases())->mapWithKeys(fn (TipoVinculo $vinculo): array => [$vinculo->value => $vinculo->etiqueta()])->all())
                     ->required(),
-                TextInput::make('monto')->label('Monto')->prefix('S/')->numeric()->minValue(0.01)->maxValue(99999999.99)->required(),
+                CampoDeMonto::make(),
                 DatePicker::make('vigente_desde')->label('Vigente desde')->required(),
                 DatePicker::make('vigente_hasta')->label('Vigente hasta')->afterOrEqual('vigente_desde'),
             ])

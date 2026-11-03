@@ -18,7 +18,7 @@ final readonly class MoverMatriculaPorTramite implements MovimientoPorTramite
 
     public function __invoke(int $matriculaId, ?int $grupoDestinoId, string $motivo, User $autorizadoPor): void
     {
-        throw_unless($autorizadoPor->can(PermisoMatricula::Gestionar->value), ReglaDeNegocioIncumplida::class, 'No tiene permiso para trasladar ni retirar matrículas.');
+        throw_unless($autorizadoPor->can(PermisoMatricula::Gestionar->value), ReglaDeNegocioIncumplida::class, 'No tienes permiso para trasladar ni retirar matrículas.');
 
         if ($grupoDestinoId === null) {
             ($this->retirarMatricula)($matriculaId, $motivo, $autorizadoPor);

@@ -94,7 +94,7 @@ final readonly class GenerarReporteDeRecaudacion
                 periodo: $contexto->periodo ?? '—',
                 medioPago: $pago->medioDePago->nombre,
                 numeroOperacion: $pago->numero_operacion,
-                centimos: $this->centimos((string) $pago->monto),
+                centimos: ReporteDeRecaudacion::centimosDe((string) $pago->monto),
             );
         })->all());
     }
@@ -114,7 +114,7 @@ final readonly class GenerarReporteDeRecaudacion
                 codigo: $concepto->codigo,
                 nombre: $concepto->nombre,
                 fuente: $concepto->fuenteDeConcepto->nombre,
-                centimos: ($previa->centimos ?? 0) + self::centimos((string) $pago->monto),
+                centimos: ($previa->centimos ?? 0) + ReporteDeRecaudacion::centimosDe((string) $pago->monto),
                 operaciones: ($previa->operaciones ?? 0) + 1,
             );
         }
@@ -142,13 +142,5 @@ final readonly class GenerarReporteDeRecaudacion
             <=> [$b->idioma === self::SIN_IDIOMA, $b->idioma, self::ORDEN_DE_NIVELES[$b->nivel] ?? 9]);
 
         return $filas;
-    }
-
-    // Amounts are positive numeric(12,2) strings; integer cents keep every sum exact.
-    private function centimos(string $monto): int
-    {
-        [$soles, $decimales] = explode('.', $monto.'.');
-
-        return (int) $soles * 100 + (int) str_pad(substr($decimales, 0, 2), 2, '0');
     }
 }

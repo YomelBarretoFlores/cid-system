@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Filament\Resources\Pagos;
 
+use App\Modules\Pagos\Data\ReporteDeRecaudacion;
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\CreatePago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Pages\ListPagos;
@@ -69,7 +70,7 @@ final class PagoResource extends Resource
     {
         return $record instanceof Pago ? [
             'Concepto' => $record->concepto->nombre,
-            'Monto' => 'S/ '.number_format((float) $record->monto, 2),
+            'Monto' => 'S/ '.ReporteDeRecaudacion::soles(ReporteDeRecaudacion::centimosDe($record->monto)),
             'Pagado el' => $record->fecha_pago->format('d/m/Y'),
             'Estado' => $record->estado->etiqueta(),
         ] : [];

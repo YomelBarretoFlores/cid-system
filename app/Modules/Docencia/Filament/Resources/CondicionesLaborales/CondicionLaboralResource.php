@@ -21,6 +21,10 @@ final class CondicionLaboralResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    public const string REPETIDO = 'Ya existe una condición laboral con ese nombre.';
+
+    public const string TABLA = 'doc_condiciones_laborales';
+
     protected static ?string $model = CondicionLaboral::class;
 
     protected static ?string $slug = 'condiciones-laborales';
@@ -41,7 +45,7 @@ final class CondicionLaboralResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return CatalogoEnElPanel::formulario($schema, 'Ya existe una condición laboral con ese nombre.');
+        return CatalogoEnElPanel::formulario($schema, self::REPETIDO);
     }
 
     public static function table(Table $table): Table

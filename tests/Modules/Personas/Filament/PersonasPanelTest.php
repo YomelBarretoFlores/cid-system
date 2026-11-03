@@ -237,3 +237,13 @@ it('reports a document taken by someone else while editing as a form error', fun
 
     expect($this->persona->refresh()->numero_documento)->toBe('40123456');
 });
+
+it('warns that the personal email does not change the portal login email only when the person has an account', function (): void {
+    $this->actingAs(usuarioDePersonas(PermisoPersona::Ver, PermisoPersona::Gestionar));
+    $aviso = 'Este correo no cambia el correo con el que ingresa al portal.';
+
+    Livewire::test(EditPersona::class, ['record' => $this->persona->getRouteKey()])->assertDontSee($aviso);
+
+    $this->persona->update(['user_id' => User::factory()->create()->id]);
+    Livewire::test(EditPersona::class, ['record' => $this->persona->getRouteKey()])->assertSee($aviso);
+});

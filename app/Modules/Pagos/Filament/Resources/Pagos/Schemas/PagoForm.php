@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Filament\Resources\Pagos\Schemas;
 
+use App\Modules\Pagos\Filament\Schemas\CampoDeMonto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
@@ -26,7 +27,7 @@ final class PagoForm
             ->components([
                 Select::make('persona_id')
                     ->label('Persona')
-                    ->helperText('Busque por número de documento o por apellidos y nombres.')
+                    ->helperText('Busca por número de documento o por apellidos y nombres.')
                     ->searchable()
                     ->getSearchResultsUsing(fn (string $search): array => app(BusquedaDePersonas::class)($search))
                     ->getOptionLabelUsing(fn (int|string $value): ?string => app(EtiquetasDePersonas::class)([(int) $value])[(int) $value] ?? null)
@@ -47,7 +48,7 @@ final class PagoForm
                     ->required()
                     ->maxDate(fn (): string => CarbonImmutable::today('America/Lima')->toDateString())
                     ->default(fn (): string => CarbonImmutable::today('America/Lima')->toDateString()),
-                TextInput::make('monto')->label('Monto')->prefix('S/')->numeric()->minValue(0.01)->maxValue(99999999.99)->required(),
+                CampoDeMonto::make(),
                 FileUpload::make('recibo')
                     ->label('Recibo escaneado (JPG, PNG o PDF)')
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])

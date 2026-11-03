@@ -19,7 +19,7 @@ final class PagoInfolist
         return $schema
             ->columns(1)
             ->components([
-                Section::make('Revise antes de validar')
+                Section::make('Revisa antes de validar')
                     ->visible(fn (Pago $record): bool => $record->estado === EstadoPago::Pendiente && AlertasDePago::de($record) !== [])
                     ->schema([
                         TextEntry::make('alertas')

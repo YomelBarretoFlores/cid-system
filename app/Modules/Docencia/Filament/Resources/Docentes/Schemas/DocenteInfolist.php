@@ -6,6 +6,7 @@ namespace App\Modules\Docencia\Filament\Resources\Docentes\Schemas;
 
 use App\Modules\Docencia\Enums\EstadoDocente;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ViewDocente;
+use App\Modules\Docencia\Models\Docente;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -35,7 +36,9 @@ final class DocenteInfolist
                     ->schema([
                         TextEntry::make('ruc')->label('RUC')->copyable(),
                         TextEntry::make('banco')->label('Banco'),
-                        TextEntry::make('cuenta_enmascarada')->label('Número de cuenta'),
+                        TextEntry::make('cuenta_enmascarada')->label('Número de cuenta')
+                            ->state(fn (Docente $record): ?string => $record->cuentaIlegible() ? 'No se pudo leer (vuelve a registrarla)' : $record->cuenta_enmascarada)
+                            ->placeholder('—'),
                         TextEntry::make('condicionLaboral.nombre')->label('Condición laboral'),
                         TextEntry::make('gradoAcademico.nombre')->label('Grado académico')->placeholder('Sin registrar'),
                     ]),

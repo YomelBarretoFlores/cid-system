@@ -7,6 +7,7 @@ namespace App\Modules\Docencia\Models;
 use App\Modules\Docencia\Database\Factories\DocenteFactory;
 use App\Modules\Docencia\Enums\EstadoDocente;
 use App\Modules\Docencia\Policies\DocentePolicy;
+use App\Shared\Support\Eloquent\CifradoTolerante;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string $codigo
- * @property string $cuenta_bancaria
+ * @property ?string $cuenta_bancaria
  * @property int $condicion_laboral_id
  * @property ?int $grado_academico_id
  * @property-read CondicionLaboral $condicionLaboral
@@ -90,18 +91,23 @@ final class Docente extends Model
         return $this->hasMany(Disponibilidad::class);
     }
 
+    public function cuentaIlegible(): bool
+    {
+        return CifradoTolerante::ilegible($this, 'cuenta_bancaria');
+    }
+
     /**
-     * @return Attribute<non-falsy-string, never>
+     * @return Attribute<?non-falsy-string, never>
      */
     protected function cuentaEnmascarada(): Attribute
     {
-        return Attribute::get(fn (): string => '•••• '.substr(str_replace('-', '', $this->cuenta_bancaria), -4));
+        return Attribute::get(fn (): ?string => $this->cuenta_bancaria === null ? null : '•••• '.substr(str_replace('-', '', $this->cuenta_bancaria), -4));
     }
 
     protected function casts(): array
     {
         return [
-            'cuenta_bancaria' => 'encrypted',
+            'cuenta_bancaria' => CifradoTolerante::class,
             'estado' => EstadoDocente::class,
         ];
     }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\Pagos\Actions\CerrarTarifa;
+use App\Modules\Pagos\Actions\EliminarTarifa;
 use App\Modules\Pagos\Actions\RegistrarTarifa;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
@@ -98,3 +99,18 @@ it('refuses to close a fee before it starts or before its last payment', functio
     'before its start' => ['2026-12-31', 'El cierre no puede ser anterior al inicio de la vigencia (01/01/2027).'],
     'before its last payment' => ['2027-05-19', 'La tarifa se aplicó a un pago del 20/05/2027; no puede cerrarse antes de esa fecha.'],
 ]);
+
+it('deletes a fee that no payment applied and repeats harmlessly', function (): void {
+    app(EliminarTarifa::class)($this->vigente->id);
+    app(EliminarTarifa::class)($this->vigente->id);
+
+    expect(Tarifa::query()->whereKey($this->vigente->id)->exists())->toBeFalse();
+});
+
+it('re-checks the payments under lock and keeps a fee a payment applied in the meantime', function (): void {
+    Pago::factory()->create(['concepto_id' => $this->concepto->id, 'tarifa_id' => $this->vigente->id]);
+
+    expect(fn () => app(EliminarTarifa::class)($this->vigente->id))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'La tarifa ya tiene pagos y no puede eliminarse.')
+        ->and(Tarifa::query()->whereKey($this->vigente->id)->exists())->toBeTrue();
+});

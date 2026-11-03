@@ -34,7 +34,7 @@ final class DocenteForm
                     ->schema([
                         Select::make('persona_id')
                             ->label('Persona')
-                            ->helperText('Registre antes a la persona en «Personas»; aquí se busca por documento o por apellidos y nombres.')
+                            ->helperText('Registra antes a la persona en «Personas»; aquí se busca por documento o por apellidos y nombres.')
                             ->searchable()
                             ->getSearchResultsUsing(fn (string $search): array => app(BusquedaDePersonas::class)($search))
                             ->getOptionLabelUsing(fn (int|string $value): ?string => app(EtiquetasDePersonas::class)([(int) $value])[(int) $value] ?? null)
@@ -49,7 +49,7 @@ final class DocenteForm
                     ->columns(3)
                     ->schema([
                         TextInput::make('ruc')->label('RUC')->required()->length(11),
-                        TextInput::make('banco')->label('Banco')->required()->maxLength(80),
+                        TextInput::make('banco')->label('Banco')->required()->maxLength(80)->datalist(fn (): array => self::bancos()),
                         TextInput::make('cuenta_bancaria')->label('Número de cuenta')->required()->maxLength(30)->password()->revealable(),
                     ]),
                 Section::make('Perfil académico')
@@ -130,6 +130,16 @@ final class DocenteForm
     private static function niveles(): array
     {
         return array_column(array_map(fn (NivelCurricular $nivel): array => [$nivel->value, $nivel->etiqueta()], NivelCurricular::cases()), 1, 0);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function bancos(): array
+    {
+        $bancos = config('ciln.docencia.bancos');
+
+        return is_array($bancos) ? array_values(array_filter($bancos, is_string(...))) : [];
     }
 
     private static function entero(mixed $valor): int

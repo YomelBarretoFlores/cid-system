@@ -11,6 +11,14 @@ return [
         'confirmacion_minutos_despues_del_fin' => 120,
     ],
 
+    'docencia' => [
+        // Suggested while typing the teacher's bank, so its spelling converges; any other bank is still accepted.
+        'bancos' => [
+            'Banco de la Nación', 'BCP', 'BBVA', 'Interbank', 'Scotiabank', 'Banco Pichincha', 'BanBif',
+            'Caja Arequipa', 'Caja Huancayo', 'Caja Piura', 'Caja Trujillo', 'Caja Cusco',
+        ],
+    ],
+
     'pagos' => [
         // Segregation of duties: whoever registered a payment (staff on someone's behalf) cannot validate it.
         'validacion_por_otra_persona' => (bool) env('CILN_VALIDACION_POR_OTRA_PERSONA', true),

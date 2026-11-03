@@ -17,7 +17,7 @@ final readonly class ObservarTramite
     public function __invoke(int $tramiteId, User $usuario, string $motivo): Tramite
     {
         $motivo = trim($motivo);
-        throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indique la observación, entre 5 y 500 caracteres.');
+        throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indica la observación, entre 5 y 500 caracteres.');
 
         return Transaccion::ejecutar(function () use ($tramiteId, $usuario, $motivo): Tramite {
             $tramite = GestionDelPersonal::bloquear($tramiteId, $usuario, [EstadoTramite::EnProceso, EstadoTramite::PendientePago]);

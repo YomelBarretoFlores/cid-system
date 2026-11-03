@@ -31,10 +31,10 @@ final readonly class CorregirResultadoDeClasificacion
 
     public function __invoke(int $solicitudId, ResultadoDeClasificacion $resultado, string $motivo, User $usuario): SolicitudClasificacion
     {
-        throw_unless($usuario->can(PermisoClasificacion::Evaluar->value), ReglaDeNegocioIncumplida::class, 'No tiene permiso para corregir resultados de clasificación.');
+        throw_unless($usuario->can(PermisoClasificacion::Evaluar->value), ReglaDeNegocioIncumplida::class, 'No tienes permiso para corregir resultados de clasificación.');
 
         $motivo = trim($motivo);
-        throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indique el motivo de la corrección, entre 5 y 500 caracteres.');
+        throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indica el motivo de la corrección, entre 5 y 500 caracteres.');
         ValidacionDeClasificacion::puntaje($resultado->puntaje);
 
         return Transaccion::ejecutar(function () use ($solicitudId, $resultado, $motivo, $usuario): SolicitudClasificacion {

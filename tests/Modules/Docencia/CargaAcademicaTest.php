@@ -194,7 +194,7 @@ it('refuses profile changes that would leave an assigned group without a qualifi
     'narrow a needed window' => [fn () => app(GuardarDisponibilidad::class)(test()->docente->id, 1, '19:00', '22:00', test()->docente->disponibilidades()->where('dia_semana', 1)->sole()->id),
         'La sesión del Lunes de 18:00 a 20:00 del grupo ING-05-A está fuera de la disponibilidad del docente.'],
     'leave the active status' => [fn () => app(CambiarEstadoDocente::class)(test()->docente->id, EstadoDocente::Inactivo),
-        'tiene grupos a cargo (ING-05-A); reasígnelos antes de cambiar su estado.'],
+        'tiene grupos a cargo (ING-05-A); reasígnalos antes de cambiar su estado.'],
 ]);
 
 it('lets the profile change once the assigned group is finished', function (): void {

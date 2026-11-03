@@ -18,7 +18,7 @@ final readonly class AnularPago
         $motivo = trim($motivo);
 
         if ($motivo === '') {
-            throw new ReglaDeNegocioIncumplida('Indique el motivo de la anulación.');
+            throw new ReglaDeNegocioIncumplida('Indica el motivo de la anulación.');
         }
 
         return Transaccion::ejecutar(function () use ($pagoId, $usuario, $motivo): Pago {

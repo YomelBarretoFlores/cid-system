@@ -47,7 +47,7 @@ it('keeps the trámite configuration away from staff without the configuration p
 
     $this->actingAs($personal)->get(TipoTramiteResource::getUrl('index'))->assertForbidden();
     expect(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo()), $personal))
-        ->toThrow(ReglaDeNegocioIncumplida::class, 'No tiene permiso para configurar los trámites.');
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'No tienes permiso para configurar los trámites.');
 });
 
 it('lists the trámite types with their fee, final action and number of stages', function (): void {

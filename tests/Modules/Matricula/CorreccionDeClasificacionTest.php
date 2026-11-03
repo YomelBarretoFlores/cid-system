@@ -87,8 +87,8 @@ it('refuses a correction of a pending request, without the permission or a reaso
     $corregir = fn (int $id, ResultadoDeClasificacion $resultado, string $motivo, User $usuario): Closure => fn () => app(CorregirResultadoDeClasificacion::class)($id, $resultado, $motivo, $usuario);
 
     expect($corregir($pendiente->id, correccion($this->cicloV->id), 'Error al sumar el puntaje.', $this->corrector))->toThrow(ReglaDeNegocioIncumplida::class, 'Solo se corrige el resultado de una solicitud evaluada.')
-        ->and($corregir($this->solicitud->id, correccion($this->cicloV->id), 'Error al sumar el puntaje.', $lector))->toThrow(ReglaDeNegocioIncumplida::class, 'No tiene permiso para corregir resultados de clasificación.')
-        ->and($corregir($this->solicitud->id, correccion($this->cicloV->id), 'Mal', $this->corrector))->toThrow(ReglaDeNegocioIncumplida::class, 'Indique el motivo de la corrección, entre 5 y 500 caracteres.')
+        ->and($corregir($this->solicitud->id, correccion($this->cicloV->id), 'Error al sumar el puntaje.', $lector))->toThrow(ReglaDeNegocioIncumplida::class, 'No tienes permiso para corregir resultados de clasificación.')
+        ->and($corregir($this->solicitud->id, correccion($this->cicloV->id), 'Mal', $this->corrector))->toThrow(ReglaDeNegocioIncumplida::class, 'Indica el motivo de la corrección, entre 5 y 500 caracteres.')
         ->and($corregir($this->solicitud->id, correccion($this->cicloV->id, '100.50'), 'Error al sumar el puntaje.', $this->corrector))->toThrow(ReglaDeNegocioIncumplida::class, 'El puntaje va de 0 a 100, con hasta dos decimales.')
         ->and($corregir($this->solicitud->id, correccion($otroIdioma->id), 'Error al sumar el puntaje.', $this->corrector))->toThrow(ReglaDeNegocioIncumplida::class, 'El ciclo asignado no pertenece a Inglés.')
         ->and($this->solicitud->refresh())->puntaje->toBe('78.50')->corregido_en->toBeNull()

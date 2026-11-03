@@ -42,7 +42,7 @@ final readonly class ReglasDeCargaDocente
         $codigos = array_map(fn (HorarioDeGrupo $grupo): string => $grupo->codigo, $this->gruposVigentes($docente));
 
         if ($codigos !== []) {
-            throw new ReglaDeNegocioIncumplida(sprintf('El docente %s tiene grupos a cargo (%s); reasígnelos antes de cambiar su estado.', $docente->codigo, implode(', ', $codigos)));
+            throw new ReglaDeNegocioIncumplida(sprintf('El docente %s tiene grupos a cargo (%s); reasígnalos antes de cambiar su estado.', $docente->codigo, implode(', ', $codigos)));
         }
     }
 

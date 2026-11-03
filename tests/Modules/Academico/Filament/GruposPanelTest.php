@@ -10,6 +10,7 @@ use App\Modules\Academico\Filament\Resources\Grupos\GrupoResource;
 use App\Modules\Academico\Filament\Resources\Grupos\Pages\CreateGrupo;
 use App\Modules\Academico\Filament\Resources\Grupos\Pages\EditGrupo;
 use App\Modules\Academico\Filament\Resources\Grupos\Pages\ListGrupos;
+use App\Modules\Academico\Filament\Resources\Grupos\Pages\ViewGrupo;
 use App\Modules\Academico\Filament\Resources\Grupos\RelationManagers\HorariosRelationManager;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
@@ -315,3 +316,17 @@ it('shows the enrolled students and the minimum quota before closing a group bel
         ->mountAction('cerrar')
         ->assertMountedActionModalSee('El grupo tiene 5 matriculados y el mínimo de apertura es 10. ¿Iniciar de todas formas?');
 });
+
+it('offers no edit for a cancelled or finished group and forbids its edit page', function (EstadoGrupo $estado): void {
+    $abierto = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'ciclo_id' => $this->ciclo->id, 'codigo' => 'ING-03-Z', 'estado' => EstadoGrupo::Abierto]);
+    DB::table('aca_grupos')->where('id', $this->grupo->id)->update(['estado' => $estado->value]);
+    $this->actingAs($this->gestor);
+
+    Livewire::test(ListGrupos::class)
+        ->assertActionHidden(TestAction::make('edit')->table($this->grupo))
+        ->assertActionVisible(TestAction::make('edit')->table($abierto));
+    Livewire::test(ViewGrupo::class, ['record' => $this->grupo->getRouteKey()])->assertActionHidden('edit');
+    Livewire::test(ViewGrupo::class, ['record' => $abierto->getRouteKey()])->assertActionVisible('edit');
+    $this->get(GrupoResource::getUrl('edit', ['record' => $this->grupo]))->assertForbidden();
+    $this->get(GrupoResource::getUrl('edit', ['record' => $abierto]))->assertOk();
+})->with([EstadoGrupo::Cancelado, EstadoGrupo::Finalizado]);

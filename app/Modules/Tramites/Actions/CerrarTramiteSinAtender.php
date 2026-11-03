@@ -19,7 +19,7 @@ final readonly class CerrarTramiteSinAtender
     public function __invoke(int $tramiteId, User $usuario, string $motivo): Tramite
     {
         $motivo = trim($motivo);
-        throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indique el motivo del cierre, entre 5 y 500 caracteres.');
+        throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indica el motivo del cierre, entre 5 y 500 caracteres.');
 
         return Transaccion::ejecutar(function () use ($tramiteId, $usuario, $motivo): Tramite {
             $tramite = GestionDelPersonal::bloquear($tramiteId, $usuario, [EstadoTramite::PendientePago, EstadoTramite::EnProceso, EstadoTramite::Observado]);
