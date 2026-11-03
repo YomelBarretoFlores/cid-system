@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Modules\Academico\Database\Seeders\AcademicoDemoSeeder;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
+use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Certificacion\Actions\EmitirCertificadoDeNivel;
 use App\Modules\Certificacion\Actions\EmitirCertificadosDelPeriodo;
@@ -48,6 +49,16 @@ it('certifies a level with the cycles the language configures for it, not a fixe
         ->toThrow(ReglaDeNegocioIncumplida::class, 'La persona aún no aprueba todos los ciclos del nivel Intermedio de Inglés en actas cerradas.');
 });
 
+it('reads the cycles of a renamed language through the group of its closed actas', function (): void {
+    ActasFinales::planDeEstudios('Inglés', [3, 4, 4]);
+    ActasFinales::historial($this->ana, 'Inglés', [[1, '14.00', 'aprobado'], [2, '15.00', 'aprobado'], [3, '16.00', 'aprobado'], [4, '17.00', 'aprobado']]);
+    Idioma::query()->where('nombre', 'Inglés')->update(['nombre' => 'Inglés general']);
+
+    expect(app(NivelesPorCertificar::class)($this->ana->id))->toEqual([new NivelPorCertificar('Inglés', NivelCurricular::Basico)])
+        ->and(faltantesDe($this->ana))->toBe([['Básico', []], ['Intermedio', [5, 6, 7]]])
+        ->and(app(EmitirCertificadoDeNivel::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor)->horas_lectivas)->toBe(180);
+});
+
 it('leaves out of the level a cycle the CILN deactivated', function (): void {
     ActasFinales::planDeEstudios('Inglés');
     Ciclo::query()->where('numero', 3)->update(['activo' => false]);
@@ -68,7 +79,7 @@ it('keeps the four cycles per level of the seeded study plan', function (): void
 
     ActasFinales::historial($this->ana, 'Inglés', [[4, '17.00', 'aprobado']], periodoId: $periodo = Periodo::factory()->create()->id);
 
-    expect(app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor))->toHaveCount(1)
+    expect(app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor)->emitidos)->toHaveCount(1)
         ->and(Documento::query()->sole())
         ->horas_lectivas->toBe(240)
         ->nota_final->toBe('15.50')

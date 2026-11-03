@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Actions;
 
-use App\Modules\Academico\Contracts\CiclosDelNivel;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Certificacion\Models\NotaFinal;
+use App\Modules\Certificacion\Support\CiclosDelNivelDelActa;
 use App\Modules\Certificacion\Support\EmisionDeDocumento;
 use App\Modules\Certificacion\Support\HistorialDeNotas;
+use App\Modules\Certificacion\Support\ResumenDeEmision;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Logging\RegistroDeRechazos;
@@ -20,30 +21,36 @@ use App\Shared\Support\Logging\RegistroDeRechazos;
 // Bulk issue: every student who passed a cycle in a closed acta of the period and has now completed its level gets the certificate once.
 final readonly class EmitirCertificadosDelPeriodo
 {
-    public function __construct(private EmitirCertificadoDeNivel $emitir, private CiclosDelNivel $ciclosDelNivel) {}
+    public function __construct(private EmitirCertificadoDeNivel $emitir, private CiclosDelNivelDelActa $ciclosDelNivel) {}
 
-    /**
-     * @return list<Documento> the certificates issued now; students already certified are skipped
-     */
-    public function __invoke(int $periodoId, User $emisor): array
+    public function __invoke(int $periodoId, User $emisor): ResumenDeEmision
     {
         EmisionDeDocumento::asegurarPermiso($emisor);
         $emitidos = [];
+        $omitidos = 0;
+        $fallidos = [];
 
         foreach ($this->candidatos($periodoId) as [$personaId, $idioma, $nivel]) {
-            if ($this->yaCertificado($personaId, $idioma, $nivel) || HistorialDeNotas::nivelAprobado(HistorialDeNotas::de($personaId, $idioma), ($this->ciclosDelNivel)($idioma, $nivel)) === null) {
+            if ($this->yaCertificado($personaId, $idioma, $nivel)) {
+                $omitidos++;
+
+                continue;
+            }
+
+            if (HistorialDeNotas::nivelAprobado(HistorialDeNotas::de($personaId, $idioma), $this->ciclosDelNivel->de($idioma, $nivel)) === null) {
                 continue;
             }
 
             try {
                 $emitidos[] = ($this->emitir)($personaId, $idioma, $nivel, $emisor);
             } catch (ReglaDeNegocioIncumplida $error) {
-                // A student refused now (usually certified meanwhile by someone else) is logged and the rest of the period goes on.
+                // A student refused now (usually certified meanwhile by someone else) is reported and the rest of the period goes on.
                 RegistroDeRechazos::registrar($error);
+                $fallidos[] = "{$this->nombre($personaId)}: {$error->getMessage()}";
             }
         }
 
-        return $emitidos;
+        return new ResumenDeEmision($emitidos, $omitidos, $fallidos);
     }
 
     /**
@@ -69,5 +76,10 @@ final readonly class EmitirCertificadosDelPeriodo
             ->where(['persona_id' => $personaId, 'tipo' => TipoDocumento::CertificadoNivel, 'idioma' => $idioma, 'nivel' => $nivel])
             ->whereNull('anulado_en')
             ->exists();
+    }
+
+    private function nombre(int $personaId): string
+    {
+        return (string) NotaFinal::query()->where('persona_id', $personaId)->latest('id')->value('estudiante_nombre');
     }
 }

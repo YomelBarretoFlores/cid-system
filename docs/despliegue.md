@@ -57,6 +57,24 @@ QUEUE_CONNECTION=database
 - Dos roles de PostgreSQL: **dueño** (ejecuta `php artisan migrate`) y **aplicación** (lo usa Laravel en ejecución, sin ser dueño de tablas). Detalle en [`seguridad.md`](seguridad.md).
 - Si hay un proxy inverso o balanceador delante, definir `TRUSTED_PROXIES` (`config/trustedproxy.php`) con sus direcciones o rangos separados por comas, o `*` para confiar en el proxy que llama a la aplicación. Sin esa variable, la auditoría registra la IP del proxy en lugar de la del usuario y los enlaces salen con `http`.
 
+## Respaldos programados
+
+Están **apagados por defecto** (`CILN_RESPALDOS_PROGRAMADOS=false`): el disco de destino, la retención y la prueba de restauración siguen pendientes con la DSTI ([decisión #5](decisiones-pendientes.md)).
+
+| Tarea | Hora (Lima) | Qué hace |
+|---|---|---|
+| `backup:clean` | 01:00 | Borra los respaldos antiguos según la retención de `config/backup.php` |
+| `backup:run` | 01:30 | Respalda la base de datos y los archivos de la aplicación (sin `vendor`, `node_modules` ni `storage/framework`), incluidos los archivos subidos de `storage/app` |
+
+Para activarlos:
+
+1. Configurar primero el disco de destino en `config/backup.php` (`backup.destination.disks`) y en `config/filesystems.php`. Con el disco `local` por defecto, el respaldo queda en el mismo servidor y no protege ante su pérdida.
+2. Confirmar que el servidor tiene `pg_dump` de la misma versión mayor que PostgreSQL (18) y que el scheduler corre cada minuto (`php artisan schedule:run`).
+3. Fijar `CILN_RESPALDOS_PROGRAMADOS=true` y regenerar la caché de configuración (`php artisan config:cache`).
+4. Ejecutar una vez `php artisan backup:run` y restaurar ese respaldo en staging antes de darlo por bueno.
+
+`php artisan schedule:list` muestra ambas tareas aunque estén apagadas; con la variable en `false` no se ejecutan.
+
 ## Límites de sesión de PostgreSQL
 
 Cada conexión abre con límites que evitan que una transacción trabada haga esperar al resto. Se envían en la cadena de conexión (`options`), así que también rigen tras una reconexión y en las conexiones de lectura y escritura.
@@ -81,7 +99,7 @@ Cada conexión abre con límites que evitan que una transacción trabada haga es
 - `GET /up` responde 200.
 - `php artisan about` muestra el entorno esperado.
 - Revisar `failed_jobs` y los logs tras el despliegue.
-- Respaldos programados (`spatie/laravel-backup`) y una restauración de prueba en staging.
+- Respaldos programados (`spatie/laravel-backup`, ver [Respaldos programados](#respaldos-programados)) y una restauración de prueba en staging.
 
 ## Configuración del primer día
 

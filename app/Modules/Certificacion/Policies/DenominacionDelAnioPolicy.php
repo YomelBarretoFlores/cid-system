@@ -8,7 +8,7 @@ use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Policies\DeniegaLoNoConcedido;
 
-// The yearly denomination is kept by the staff that issues documents; issued documents keep the text they were printed with.
+// The yearly denomination is read by the staff that issues documents and changed only with the actas permission too, since actas print it; issued documents keep their text.
 final class DenominacionDelAnioPolicy
 {
     use DeniegaLoNoConcedido;
@@ -25,11 +25,11 @@ final class DenominacionDelAnioPolicy
 
     public function create(User $user): bool
     {
-        return $user->can(PermisoCertificacion::Documentos->value);
+        return $user->can(PermisoCertificacion::Documentos->value) && $user->can(PermisoCertificacion::Actas->value);
     }
 
     public function update(User $user): bool
     {
-        return $user->can(PermisoCertificacion::Documentos->value);
+        return $user->can(PermisoCertificacion::Documentos->value) && $user->can(PermisoCertificacion::Actas->value);
     }
 }

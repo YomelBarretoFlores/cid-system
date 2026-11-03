@@ -124,10 +124,10 @@ it('issues in bulk the certificates completed in a period, once per student, and
     $periodo = Acta::query()->where('ciclo_numero', 4)->sole()->periodo_id;
     ActasFinales::historial(Persona::factory()->create(), 'Inglés', [[1, '14.00', 'aprobado']], periodoId: $periodo);
 
-    $emitidos = app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor);
-    $repetidos = app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor);
-    $constancias = app(EmitirConstanciasDeNotasDelActa::class)(Acta::query()->where('ciclo_numero', 4)->sole()->id, $this->emisor);
-    $constanciasRepetidas = app(EmitirConstanciasDeNotasDelActa::class)(Acta::query()->where('ciclo_numero', 4)->sole()->id, $this->emisor);
+    $emitidos = app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor)->emitidos;
+    $repetidos = app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor)->emitidos;
+    $constancias = app(EmitirConstanciasDeNotasDelActa::class)(Acta::query()->where('ciclo_numero', 4)->sole()->id, $this->emisor)->emitidos;
+    $constanciasRepetidas = app(EmitirConstanciasDeNotasDelActa::class)(Acta::query()->where('ciclo_numero', 4)->sole()->id, $this->emisor)->emitidos;
 
     expect(array_map(fn (Documento $documento): int => $documento->persona_id, $emitidos))->toBe([$this->ana->id])
         ->and($repetidos)->toBe([])
@@ -190,8 +190,9 @@ it('goes on with the rest of the period when one certificate was issued meanwhil
 
     Log::spy();
 
-    $emitidos = app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor);
+    $resumen = app(EmitirCertificadosDelPeriodo::class)($periodo, $this->emisor);
 
-    expect(array_map(fn (Documento $documento): int => $documento->persona_id, $emitidos))->toBe([$beto->id]);
+    expect(array_map(fn (Documento $documento): int => $documento->persona_id, $resumen->emitidos))->toBe([$beto->id])
+        ->and($resumen->fallidos)->toBe(['Alva Prueba, Ana: La persona ya tiene un certificado vigente del nivel Básico de Inglés.']);
     Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', ['regla' => 'La persona ya tiene un certificado vigente del nivel Básico de Inglés.'])->once();
 });

@@ -6,6 +6,7 @@ use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
@@ -26,7 +27,7 @@ it('serializes a result registration with an enrollment of the same person', fun
     $persona = Persona::factory()->create();
     $pagoMatricula = Pago::factory()->validado()->for(Concepto::factory()->state(['tipo' => TipoConcepto::Matricula]))->create(['persona_id' => $persona->id]);
     $solicitud = SolicitudClasificacion::factory()->create(['persona_id' => $persona->id, 'idioma_id' => $ingles->id, 'created_at' => now()->subDay()]);
-    $evaluador = User::factory()->create();
+    $evaluador = User::factory()->create()->givePermissionTo(PermisoClasificacion::Evaluar->value);
 
     $salidas = enParalelo('resultado-o-matricula.php', [['r', $solicitud->id, $cicloVI->id, $evaluador->id], ['m', $persona->id, $grupo->id, $pagoMatricula->id]]);
     $matriculado = Matricula::query()->where('persona_id', $persona->id)->exists();

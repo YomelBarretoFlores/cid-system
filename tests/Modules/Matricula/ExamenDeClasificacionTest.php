@@ -12,6 +12,7 @@ use App\Modules\Matricula\Actions\SolicitarExamenDeClasificacion;
 use App\Modules\Matricula\Data\ResultadoDeClasificacion;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Enums\OrigenHabilitacion;
+use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Pagos\Enums\TipoConcepto;
@@ -30,7 +31,7 @@ beforeEach(function (): void {
     $this->persona = Persona::factory()->create();
     $this->conceptoExamen = Concepto::factory()->create(['tipo' => TipoConcepto::ExamenClasificacion]);
     $this->pago = Pago::factory()->validado()->for($this->conceptoExamen)->create(['persona_id' => $this->persona->id]);
-    $this->coordinador = User::factory()->create();
+    $this->coordinador = User::factory()->create()->givePermissionTo(PermisoClasificacion::Evaluar->value);
 });
 
 function solicitarExamen(?int $idiomaId = null, ?int $pagoId = null): SolicitudClasificacion
@@ -131,6 +132,16 @@ it('refuses a result that breaks a rule and changes nothing', function (Closure 
     'future exam date' => [fn ($t): SolicitudClasificacion => solicitarExamen(), ['fechaExamen' => '2026-10-25'], 'La fecha del examen debe estar entre el 24/10/2026 y el 24/10/2026.'],
     'exam before the request' => [fn ($t): SolicitudClasificacion => solicitarExamen(), ['fechaExamen' => '2026-10-23'], 'La fecha del examen debe estar entre el 24/10/2026 y el 24/10/2026.'],
 ]);
+
+it('refuses the result of a user without the permission to evaluate placements, even outside the panel', function (): void {
+    $solicitud = solicitarExamen();
+    $lector = User::factory()->create()->givePermissionTo(PermisoClasificacion::Ver->value);
+
+    expect(fn () => app(RegistrarResultadoDeClasificacion::class)($solicitud->id, resultado(), $lector))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'No tienes permiso para registrar resultados de clasificación.')
+        ->and($solicitud->refresh()->estado)->toBe(EstadoSolicitudClasificacion::PendienteEvaluacion)
+        ->and(Habilitacion::query()->count())->toBe(0);
+});
 
 it('expires pending requests past their date and leaves the rest', function (): void {
     $vencida = SolicitudClasificacion::factory()->create(['vence_en' => '2026-10-23']);

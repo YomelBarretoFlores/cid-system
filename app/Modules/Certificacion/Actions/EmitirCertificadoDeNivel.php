@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Actions;
 
-use App\Modules\Academico\Contracts\CiclosDelNivel;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Data\NotaDelHistorial;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Documento;
+use App\Modules\Certificacion\Support\CiclosDelNivelDelActa;
 use App\Modules\Certificacion\Support\EmisionDeDocumento;
 use App\Modules\Certificacion\Support\HistorialDeNotas;
 use App\Shared\Auth\Models\User;
@@ -16,12 +16,12 @@ use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 
 final readonly class EmitirCertificadoDeNivel
 {
-    public function __construct(private EmisionDeDocumento $emision, private CiclosDelNivel $ciclosDelNivel) {}
+    public function __construct(private EmisionDeDocumento $emision, private CiclosDelNivelDelActa $ciclosDelNivel) {}
 
     public function __invoke(int $personaId, string $idioma, NivelCurricular $nivel, User $emisor): Documento
     {
         EmisionDeDocumento::asegurarPermiso($emisor);
-        $ciclos = HistorialDeNotas::nivelAprobado(HistorialDeNotas::de($personaId, $idioma), ($this->ciclosDelNivel)($idioma, $nivel))
+        $ciclos = HistorialDeNotas::nivelAprobado(HistorialDeNotas::de($personaId, $idioma), $this->ciclosDelNivel->de($idioma, $nivel))
             ?? throw new ReglaDeNegocioIncumplida("La persona aún no aprueba todos los ciclos del nivel {$nivel->etiqueta()} de {$idioma} en actas cerradas.");
         $vigente = Documento::query()
             ->where(['persona_id' => $personaId, 'tipo' => TipoDocumento::CertificadoNivel, 'idioma' => $idioma, 'nivel' => $nivel])

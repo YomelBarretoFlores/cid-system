@@ -8,6 +8,8 @@ use App\Modules\Certificacion\Filament\Resources\Firmantes\Pages\CreateFirmante;
 use App\Modules\Certificacion\Filament\Resources\Firmantes\Pages\EditFirmante;
 use App\Modules\Certificacion\Filament\Resources\Firmantes\Pages\ListFirmantes;
 use App\Modules\Certificacion\Models\Firmante;
+use App\Modules\Certificacion\Policies\FirmantePolicy;
+use App\Shared\Support\Filament\AccionDeNegocio;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Closure;
@@ -64,7 +66,9 @@ final class FirmanteResource extends Resource
                                 }
                             }),
                         Toggle::make('firma_constancias')->label('Constancias'),
-                        Toggle::make('firma_actas')->label('Actas'),
+                        Toggle::make('firma_actas')->label('Actas')
+                            ->disabled(fn (): bool => ! FirmantePolicy::firmaActas(AccionDeNegocio::usuario()))
+                            ->helperText(fn (): ?string => FirmantePolicy::firmaActas(AccionDeNegocio::usuario()) ? null : 'Solo quien gestiona las actas finales marca a quien las firma.'),
                     ]),
                 TextInput::make('orden')->label('Orden en el documento')->integer()->minValue(1)->maxValue(9)->default(1)->required(),
                 DatePicker::make('vigente_desde')->label('Firma desde')->required(),

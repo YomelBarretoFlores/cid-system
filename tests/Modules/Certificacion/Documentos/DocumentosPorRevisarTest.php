@@ -15,6 +15,7 @@ use App\Modules\Certificacion\Filament\Resources\Documentos\DocumentoResource;
 use App\Modules\Certificacion\Filament\Resources\Documentos\Pages\ListDocumentos;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\Documento;
+use App\Modules\Certificacion\Models\Rectificacion;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -78,6 +79,18 @@ it('flags nothing when the rectification leaves every final grade and state as i
     rectificarYCerrar([$this->ana->id => [$this->curso['final']->id => '0']], [$this->ana->id => [$this->curso['final']->id => '12']]);
 
     expect(Documento::query()->whereNotNull('revisar_desde')->count())->toBe(0);
+});
+
+it('flags the documents of every student of the acta when the rectification was authorized before the earlier results were saved', function (): void {
+    // Rectifications authorized before cer_rectificaciones.notas_previas existed have nothing to compare against.
+    Rectificacion::creating(function (Rectificacion $rectificacion): void {
+        $rectificacion->notas_previas = null;
+    });
+
+    rectificarYCerrar([$this->ana->id => [$this->curso['final']->id => '0']], [$this->ana->id => [$this->curso['final']->id => '12']]);
+
+    expect(Documento::query()->whereNotNull('revisar_desde')->orderBy('id')->pluck('id')->all())
+        ->toBe([$this->constanciaDeAna->id, $this->certificadoDeAna->id, $this->constanciaDeBeto->id]);
 });
 
 it('shows the documents to review in the panel list, its filter and the document page, and stops once voided', function (): void {

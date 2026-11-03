@@ -7,13 +7,13 @@ namespace App\Modules\Certificacion\Filament\Resources\Actas\Actions;
 use App\Modules\Certificacion\Actions\AutorizarRectificacion;
 use App\Modules\Certificacion\Actions\EmitirConstanciasDeNotasDelActa;
 use App\Modules\Certificacion\Enums\EstadoActa;
+use App\Modules\Certificacion\Filament\AvisoDeEmision;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\Documento;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
-use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 
 final class AccionesDeActa
@@ -40,11 +40,9 @@ final class AccionesDeActa
             ->requiresConfirmation()
             ->modalDescription('Emite una constancia de notas del idioma para cada estudiante del acta. Quien ya recibió una después del cierre del acta no recibe otra.')
             ->action(function (Action $action, Acta $record): void {
-                $emitidas = [];
-                AccionDeNegocio::ejecutar($action, function (User $usuario) use ($record, &$emitidas): void {
-                    $emitidas = app(EmitirConstanciasDeNotasDelActa::class)($record->id, $usuario);
+                AccionDeNegocio::ejecutar($action, function (User $usuario) use ($record): void {
+                    AvisoDeEmision::enviar(app(EmitirConstanciasDeNotasDelActa::class)($record->id, $usuario), ['constancia emitida', 'constancias emitidas'], 'Ya tenían una vigente');
                 }, 'Emisión terminada');
-                Notification::make()->info()->title(count($emitidas) === 1 ? '1 constancia emitida' : count($emitidas).' constancias emitidas')->send();
             });
     }
 

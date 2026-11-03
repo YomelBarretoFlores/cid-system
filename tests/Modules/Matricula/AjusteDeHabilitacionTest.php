@@ -21,6 +21,7 @@ use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\Support\ActasFinales;
@@ -116,6 +117,28 @@ it('lists the enabled cycles to enrollment staff and lets only managers adjust t
         ->assertSeeText('Ajuste administrativo')
         ->assertSeeText('Estudiante del sistema anterior')
         ->assertSeeText('Coordinación Demo');
+});
+
+it('adjusts the enabled cycle from its row, starting from the student, language and cycle of the row', function (): void {
+    $habilitacion = Habilitacion::factory()->create(['persona_id' => $this->persona->id, 'idioma_id' => $this->ingles->id, 'ciclo_id' => $this->ciclos[3]]);
+    $lector = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoMatricula::Ver->value]);
+
+    Livewire::actingAs($lector)->test(ListHabilitaciones::class)->assertActionHidden(TestAction::make('ajustarFila')->table($habilitacion));
+
+    Livewire::actingAs($this->gestor)->test(ListHabilitaciones::class)
+        ->mountAction(TestAction::make('ajustarFila')->table($habilitacion))
+        ->assertSchemaStateSet(['persona_id' => $this->persona->id, 'idioma_id' => $this->ingles->id, 'ciclo_id' => $this->ciclos[3]])
+        ->setActionData(['ciclo_id' => $this->ciclos[4], 'motivo' => 'Corrección de la ubicación'])
+        ->callMountedAction()
+        ->assertHasNoActionErrors()
+        ->assertNotified('Ciclo habilitado ajustado');
+
+    expect($habilitacion->refresh())
+        ->ciclo_id->toBe($this->ciclos[4])
+        ->origen->toBe(OrigenHabilitacion::AjusteAdministrativo)
+        ->motivo->toBe('Corrección de la ubicación')
+        ->actualizado_por->toBe($this->gestor->id)
+        ->and(Habilitacion::query()->count())->toBe(1);
 });
 
 it('explains in the panel why lowering below a passed cycle needs the confirmation', function (): void {

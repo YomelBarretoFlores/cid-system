@@ -38,6 +38,7 @@ function htmlDe(PdfBuilder $pdf): string
 it('lets the documents staff register one denomination per year and keeps others away', function (): void {
     $otro = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoCertificacion::Actas->value]);
     $this->actingAs($otro)->get(DenominacionDelAnioResource::getUrl('index'))->assertForbidden();
+    $this->emisor->givePermissionTo(PermisoCertificacion::Actas->value);
 
     Livewire::actingAs($this->emisor)->test(CreateDenominacionDelAnio::class)
         ->fillForm(['anio' => 2027, 'texto' => 'Año de la Prueba Sintética'])

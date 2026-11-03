@@ -7,6 +7,7 @@ namespace App\Modules\Matricula\Actions;
 use App\Modules\Matricula\Data\ResultadoDeClasificacion;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Enums\OrigenHabilitacion;
+use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Matricula\Support\MovimientoDeMatricula;
@@ -26,6 +27,7 @@ final readonly class RegistrarResultadoDeClasificacion
 
     public function __invoke(int $solicitudId, ResultadoDeClasificacion $resultado, User $evaluador): SolicitudClasificacion
     {
+        throw_unless($evaluador->can(PermisoClasificacion::Evaluar->value), ReglaDeNegocioIncumplida::class, 'No tienes permiso para registrar resultados de clasificación.');
         ValidacionDeClasificacion::puntaje($resultado->puntaje);
 
         // Person first, like enrollment, so the enabled cycle never changes under an enrollment in progress.

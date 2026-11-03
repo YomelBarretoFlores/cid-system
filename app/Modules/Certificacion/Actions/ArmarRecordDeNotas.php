@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Actions;
 
-use App\Modules\Academico\Contracts\CiclosDelNivel;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Contracts\RecordDeNotas;
 use App\Modules\Certificacion\Data\CicloDelRecord;
@@ -12,12 +11,13 @@ use App\Modules\Certificacion\Data\FaltantesDelNivel;
 use App\Modules\Certificacion\Data\NotaDelHistorial;
 use App\Modules\Certificacion\Data\RecordDelIdioma;
 use App\Modules\Certificacion\Enums\EstadoFinal;
+use App\Modules\Certificacion\Support\CiclosDelNivelDelActa;
 use App\Modules\Certificacion\Support\HistorialDeNotas;
 
 // One row per cycle: its last passed result, or its last result when it was never passed.
 final readonly class ArmarRecordDeNotas implements RecordDeNotas
 {
-    public function __construct(private CiclosDelNivel $ciclosDelNivel) {}
+    public function __construct(private CiclosDelNivelDelActa $ciclosDelNivel) {}
 
     public function __invoke(int $personaId): array
     {
@@ -72,7 +72,7 @@ final readonly class ArmarRecordDeNotas implements RecordDeNotas
 
         return array_values($niveles->map(fn (NivelCurricular $nivel): FaltantesDelNivel => new FaltantesDelNivel(
             $nivel->etiqueta(),
-            array_values(array_diff(($this->ciclosDelNivel)($idioma, $nivel), $cursados)),
+            array_values(array_diff($this->ciclosDelNivel->de($idioma, $nivel), $cursados)),
         ))->all());
     }
 }

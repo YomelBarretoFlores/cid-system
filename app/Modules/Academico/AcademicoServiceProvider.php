@@ -6,6 +6,7 @@ namespace App\Modules\Academico;
 
 use App\Modules\Academico\Actions\BloquearGrupo;
 use App\Modules\Academico\Actions\BuscarEsquemaDelGrupo;
+use App\Modules\Academico\Actions\BuscarPeriodoEnCurso;
 use App\Modules\Academico\Actions\DescribirCursoDelGrupo;
 use App\Modules\Academico\Actions\DescribirGrupos;
 use App\Modules\Academico\Actions\DescribirHorariosDeGrupos;
@@ -15,6 +16,7 @@ use App\Modules\Academico\Actions\ListarCatalogoDeIdiomas;
 use App\Modules\Academico\Actions\ListarCatalogoDePeriodos;
 use App\Modules\Academico\Actions\ListarCiclosDeGrupos;
 use App\Modules\Academico\Actions\ListarCiclosDelNivel;
+use App\Modules\Academico\Actions\ListarCursosDelPeriodo;
 use App\Modules\Academico\Actions\ListarGruposDelCiclo;
 use App\Modules\Academico\Actions\ListarGruposParaTraslado;
 use App\Modules\Academico\Actions\ListarOfertaDeMatricula;
@@ -30,6 +32,7 @@ use App\Modules\Academico\Contracts\CiclosDeGrupos;
 use App\Modules\Academico\Contracts\CiclosDelNivel;
 use App\Modules\Academico\Contracts\ConsultaGruposDelCiclo;
 use App\Modules\Academico\Contracts\CursoDelGrupo;
+use App\Modules\Academico\Contracts\CursosDelPeriodo;
 use App\Modules\Academico\Contracts\DetalleDeGrupos;
 use App\Modules\Academico\Contracts\EsquemaDelGrupo;
 use App\Modules\Academico\Contracts\GruposParaTraslado;
@@ -37,6 +40,7 @@ use App\Modules\Academico\Contracts\HorariosDeGrupos;
 use App\Modules\Academico\Contracts\LiberacionDeVacante;
 use App\Modules\Academico\Contracts\OfertaDeMatricula;
 use App\Modules\Academico\Contracts\OfertaPublica;
+use App\Modules\Academico\Contracts\PeriodoEnCurso;
 use App\Modules\Academico\Contracts\ReservaDeVacante;
 use App\Modules\Academico\Contracts\TrasladoDeVacante;
 use App\Modules\Academico\Contracts\VentanasDeMatricula;
@@ -68,6 +72,8 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         CiclosDeGrupos::class => ListarCiclosDeGrupos::class,
         VentanasDeMatricula::class => ListarVentanasDeMatricula::class,
         CiclosDelNivel::class => ListarCiclosDelNivel::class,
+        CursosDelPeriodo::class => ListarCursosDelPeriodo::class,
+        PeriodoEnCurso::class => BuscarPeriodoEnCurso::class,
     ];
 
     protected string $module = 'Academico';

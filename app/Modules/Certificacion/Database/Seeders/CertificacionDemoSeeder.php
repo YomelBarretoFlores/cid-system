@@ -50,7 +50,7 @@ final class CertificacionDemoSeeder extends Seeder
 
         if ($cohorte !== null) {
             app(EmitirCertificadosDelPeriodo::class)($cohorte->periodo_id, $administrador);
-            $constancias = app(EmitirConstanciasDeNotasDelActa::class)($cohorte->id, $administrador);
+            $constancias = app(EmitirConstanciasDeNotasDelActa::class)($cohorte->id, $administrador)->emitidos;
 
             if ($constancias !== []) {
                 app(AnularDocumento::class)($constancias[0]->id, 'Se emitió antes de que el estudiante actualizara su nombre en Personas.', $administrador);

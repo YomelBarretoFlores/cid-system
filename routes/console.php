@@ -78,3 +78,7 @@ Schedule::command('clasificacion:expirar')->dailyAt('00:10')->timezone('America/
 
 // Expired API tokens stop working at once; this only keeps the table small.
 Schedule::command('sanctum:prune-expired --hours=24')->dailyAt('00:20')->timezone('America/Lima');
+
+// Cleanup first, so the night's backup never fills the disk; both stay off until a backup disk is configured.
+Schedule::command('backup:clean')->dailyAt('01:00')->timezone('America/Lima')->when(fn (): bool => (bool) config('ciln.respaldos.programados'));
+Schedule::command('backup:run')->dailyAt('01:30')->timezone('America/Lima')->when(fn (): bool => (bool) config('ciln.respaldos.programados'));

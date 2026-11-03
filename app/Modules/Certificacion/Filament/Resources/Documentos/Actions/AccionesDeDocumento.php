@@ -12,6 +12,7 @@ use App\Modules\Certificacion\Actions\EmitirCertificadosDelPeriodo;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeMatricula;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeNotas;
 use App\Modules\Certificacion\Enums\TipoDocumento;
+use App\Modules\Certificacion\Filament\AvisoDeEmision;
 use App\Modules\Certificacion\Filament\Resources\Documentos\DocumentoResource;
 use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Certificacion\Support\HistorialDeNotas;
@@ -23,7 +24,6 @@ use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 
@@ -84,11 +84,9 @@ final class AccionesDeDocumento
             ->modalDescription('Emite el certificado de culminación de nivel a cada estudiante que completó su nivel con un acta cerrada del periodo. Quien ya tiene su certificado vigente no recibe otro.')
             ->schema([Select::make('periodo_id')->label('Periodo')->options(fn (): array => app(CatalogoDePeriodos::class)())->required()])
             ->action(function (Action $action, array $data): void {
-                $emitidos = [];
-                AccionDeNegocio::ejecutar($action, function (User $usuario) use ($data, &$emitidos): void {
-                    $emitidos = app(EmitirCertificadosDelPeriodo::class)((int) $data['periodo_id'], $usuario);
+                AccionDeNegocio::ejecutar($action, function (User $usuario) use ($data): void {
+                    AvisoDeEmision::enviar(app(EmitirCertificadosDelPeriodo::class)((int) $data['periodo_id'], $usuario), ['certificado emitido', 'certificados emitidos'], 'Ya tenían uno vigente');
                 }, 'Emisión terminada');
-                Notification::make()->info()->title(count($emitidos) === 1 ? '1 certificado emitido' : count($emitidos).' certificados emitidos')->send();
             });
     }
 
