@@ -13,7 +13,7 @@ it('shows the student profile on top of the sidebar and groups the sections like
         ->assertOk()
         ->assertSeeInOrder([
             'Rosa Elena Quispe', 'Estudiante',
-            'Mi cuenta', 'Perfil', 'Modificar datos', 'Subir fotografía',
+            'Mi cuenta', 'Perfil', 'Modificar datos', 'Subir fotografía', 'Preferencias',
             'Reportes', 'Todos', 'Horario', 'Sílabos',
             'Procesos', 'Matrícula', 'Mis matrículas', 'Mis pagos', 'Clasificación', 'Trámites',
             'Enlaces', 'Verificar un documento', 'Web del CILN',
@@ -23,7 +23,8 @@ it('shows the student profile on top of the sidebar and groups the sections like
         ->assertSee('href="'.route('portada').'"', false)
         ->assertSee('href="'.route('estudiante.reportes', ['ver' => 'silabos']).'"', false)
         ->assertSee('href="'.route('estudiante.perfil.datos').'"', false)
-        ->assertSee('href="'.route('estudiante.perfil.foto').'"', false);
+        ->assertSee('href="'.route('estudiante.perfil.foto').'"', false)
+        ->assertSee('href="'.route('estudiante.preferencias').'"', false);
 });
 
 it('draws the sidebar collapsed from the server when the student left it collapsed, so it does not blink on navigation', function (): void {
@@ -44,7 +45,7 @@ it('keeps the account menu and the collapse control at the foot of the sidebar, 
     $this->actingAs($user)->get(route('estudiante.inicio'))
         ->assertOk()
         ->assertSee('antialiased tema-portal"', false)
-        ->assertSeeInOrder(['Web del CILN', 'id="menu-de-cuenta"', 'Mi perfil', 'Cerrar sesión', 'Contraer el menú', 'Ctrl B'], false);
+        ->assertSeeInOrder(['Web del CILN', 'id="menu-de-cuenta"', 'Mi perfil', 'Preferencias', 'Cerrar sesión', 'Contraer el menú', 'Ctrl B'], false);
 });
 
 it('heads every process page with the SGA trail: Alumno, the student and the page', function (): void {

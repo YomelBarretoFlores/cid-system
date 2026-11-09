@@ -13,7 +13,7 @@
                         @if ($vistaPrevia ?? $actual)
                             <img src="{{ $vistaPrevia ?? $actual }}" alt="" class="size-full object-cover">
                         @else
-                            <x-heroicon-s-user aria-hidden="true" class="size-40 translate-y-6 text-plata-300" />
+                            <x-heroicon-s-user aria-hidden="true" class="size-40 translate-y-6 text-borde" />
                         @endif
                     </div>
                     <figcaption class="text-[13px] text-apagado">{{ $vistaPrevia ? 'Vista previa' : ($actual ? 'Fotografía actual' : 'Sin fotografía') }}</figcaption>

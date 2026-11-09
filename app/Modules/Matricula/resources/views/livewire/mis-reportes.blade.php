@@ -42,7 +42,7 @@
 
     <div class="grid gap-2 sm:gap-3.5 md:grid-cols-2">
         <x-portal.tarjeta class="items-center text-center">
-            <span aria-hidden="true" class="flex size-14 items-center justify-center rounded-full bg-hoja-celeste"><x-heroicon-o-user-circle class="size-7 text-marino-700" /></span>
+            <span aria-hidden="true" class="flex size-14 items-center justify-center rounded-full bg-acento-claro"><x-heroicon-o-user-circle class="size-7 text-acento" /></span>
             <div class="flex flex-col gap-1">
                 <h2 class="text-[19px] font-semibold">Perfil</h2>
                 <p class="text-secundario">Tus datos, tu matrícula del periodo y tus documentos a la mano.</p>
@@ -50,7 +50,7 @@
             <x-portal.boton :href="route('estudiante.inicio')" tamano="compacto" wire:navigate>Ir a mi perfil</x-portal.boton>
         </x-portal.tarjeta>
         <x-portal.tarjeta class="items-center text-center">
-            <span aria-hidden="true" class="flex size-14 items-center justify-center rounded-full bg-hoja-verde"><x-heroicon-o-pencil-square class="size-7 text-marino-700" /></span>
+            <span aria-hidden="true" class="flex size-14 items-center justify-center rounded-full bg-acento-claro"><x-heroicon-o-pencil-square class="size-7 text-acento" /></span>
             <div class="flex flex-col gap-1">
                 <h2 class="text-[19px] font-semibold">Editar datos</h2>
                 <p class="text-secundario">Cambia tu celular, tu dirección, tu fotografía y tu contraseña.</p>
@@ -165,7 +165,7 @@
                                                     <span>{{ $componente->nombre }} <span class="text-terciario">· {{ Formato::nota($componente->peso) }} %</span></span>
                                                     <span class="row-span-2 text-right font-semibold tabular-nums">{{ $componente->nota ?? '—' }}</span>
                                                     <span aria-hidden="true" class="h-1.5 overflow-hidden rounded-full bg-piedra-200">
-                                                        <span class="block h-full rounded-full bg-oro-400" style="width: {{ $componente->nota === null ? 0 : min(100, round((float) $componente->nota * 5)) }}%"></span>
+                                                        <span class="block h-full rounded-full bg-acento" style="width: {{ $componente->nota === null ? 0 : min(100, round((float) $componente->nota * 5)) }}%"></span>
                                                     </span>
                                                 </li>
                                             @endforeach

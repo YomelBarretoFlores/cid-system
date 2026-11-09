@@ -35,7 +35,7 @@
     }
 
     &:focus {
-        border-color: var(--color-oro-400);
+        border-color: var(--color-acento);
         outline: none;
         box-shadow: var(--shadow-foco);
     }

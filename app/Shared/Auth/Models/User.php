@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Auth\Models;
 
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
+use App\Shared\Auth\Enums\TemaDeInterfaz;
 use App\Shared\Auth\Notifications\CorreoDeRestablecimiento;
 use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use App\Shared\Auth\Policies\UsuarioPolicy;
@@ -30,8 +31,9 @@ use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @property Carbon|null $desactivado_en
+ * @property TemaDeInterfaz $tema
  */
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'tema'])]
 #[Hidden(['password', 'remember_token'])]
 #[UseFactory(UserFactory::class)]
 #[UsePolicy(UsuarioPolicy::class)]
@@ -47,6 +49,7 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
         'app_authentication_secret' => null,
         'app_authentication_recovery_codes' => null,
         'desactivado_en' => null,
+        'tema' => 'sistema',
     ];
 
     // The teacher panel checks the email in its own middleware, so an unverified teacher is asked to verify instead of refused.
@@ -92,6 +95,7 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
             'email_verified_at' => 'datetime',
             'desactivado_en' => 'datetime',
             'password' => 'hashed',
+            'tema' => TemaDeInterfaz::class,
         ];
     }
 }

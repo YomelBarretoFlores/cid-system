@@ -10,6 +10,6 @@
     <x-dynamic-component :component="$icono" aria-hidden="true" @class(['size-5 shrink-0', 'text-acento' => $esActivo, 'text-apagado' => ! $esActivo]) />
     <span class="flex-1 lg:in-data-colapsado:sr-only">{{ $slot }}</span>
     @if ($insignia)
-        <span class="min-w-[22px] rounded-pildora lg:in-data-colapsado:absolute lg:in-data-colapsado:-top-0.5 lg:in-data-colapsado:right-0 bg-acento px-[7px] py-px text-center text-xs font-semibold text-white">{{ $insignia }}</span>
+        <span class="min-w-[22px] rounded-pildora lg:in-data-colapsado:absolute lg:in-data-colapsado:-top-0.5 lg:in-data-colapsado:right-0 bg-acento px-[7px] py-px text-center text-xs font-semibold text-invertido">{{ $insignia }}</span>
     @endif
 </a>

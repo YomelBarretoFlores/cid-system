@@ -1,5 +1,11 @@
 /* The student portal reads as a formal institutional system: cool neutral surfaces, the logo blue as the only accent and modest corners. Scoped so the public site, the access pages and the panels keep theirs. */
-.tema-portal {
+@theme {
+    /* Text on a tinta or acento fill: white on the light themes, the dark surface on the portal dark theme. */
+    --color-invertido: #ffffff;
+}
+
+.tema-portal,
+.oscuro .tema-portal .muestra-claro {
     --radius-marco: 12px;
     --radius-tarjeta: 8px;
     --radius-interna: 6px;
@@ -27,6 +33,79 @@
     --color-hover-suave: #f1f4f8;
     --shadow-foco: 0 0 0 3px rgb(29 98 168 / 0.25);
     --shadow-dropdown: 0 10px 30px rgb(10 46 82 / 0.12), 0 0 0 1px #e4e8ee;
+}
+
+/* Dark theme of the student portal (Preferencias): calm navy-gray surfaces like the SGA dark theme, the logo blue as accent, body text above WCAG AA. html.oscuro comes from the account's theme; .muestra-oscuro previews it in Preferencias. */
+html.oscuro:has(> body.tema-portal) {
+    color-scheme: dark;
+}
+
+.oscuro .tema-portal,
+.oscuro.tema-portal,
+.tema-portal .muestra-oscuro {
+    color-scheme: dark;
+
+    --color-fondo: #0f141b;
+    --color-lienzo: #141a22;
+    --color-tarjeta: #1b232d;
+    --color-tarjeta-interna: #212a35;
+    --color-tinta: #e6ebf1;
+    --color-tinta-hover: #ffffff;
+    --color-invertido: #0f141b;
+    --color-secundario: #bac5d1;
+    --color-terciario: #a3b0be;
+    --color-apagado: #8d9bab;
+    --color-grupo: #808e9e;
+    --color-enlace: #82b6ec;
+    --color-enlace-hover: #aed0f4;
+    --color-acento: #4d94de;
+    --color-acento-claro: #1c2e44;
+    --color-borde: #313c49;
+    --color-borde-interno: #2a3440;
+    --color-separador: #26303b;
+    --color-fila-hover: #222c38;
+    --color-fila-suave: #1f2832;
+    --color-hover-suave: #242e3a;
+    --color-interruptor: #3a4654;
+    --color-positivo: #4cc38a;
+    --color-peligro: #f07f70;
+
+    --color-ambar-fondo: #3a2f14;
+    --color-ambar-texto: #f0c66e;
+    --color-verde-fondo: #15301f;
+    --color-verde-texto: #83d6a3;
+    --color-rojo-fondo: #3d1e1b;
+    --color-rojo-texto: #f5a89c;
+    --color-gris-fondo: #28313b;
+    --color-gris-texto: #c3ccd6;
+    --color-azul-fondo: #1a2b3f;
+    --color-azul-texto: #abc9ea;
+
+    /* The warm neutral ramp, inverted, for the shared formal report tables (tabla-formal) and any leftover piedra-* class. */
+    --color-piedra-50: #212a35;
+    --color-piedra-100: #1b232d;
+    --color-piedra-200: #2a3440;
+    --color-piedra-300: #3a4654;
+    --color-piedra-400: #56636f;
+    --color-piedra-500: #6b7886;
+    --color-piedra-600: #a3b0be;
+    --color-piedra-700: #bac5d1;
+    --color-piedra-800: #d5dde6;
+    --color-piedra-900: #e6ebf1;
+    --color-piedra-950: #f3f6f9;
+
+    /* Muted course fills for the SGA schedule, so its light text stays readable. */
+    --color-curso-1: #4a4520;
+    --color-curso-2: #1d3e52;
+    --color-curso-3: #4d2636;
+    --color-curso-4: #24402a;
+    --color-curso-5: #352d4d;
+    --color-curso-6: #4d3720;
+    --color-curso-7: #1d4448;
+    --color-curso-8: #3d4320;
+
+    --shadow-foco: 0 0 0 3px rgb(77 148 222 / 0.45);
+    --shadow-dropdown: 0 10px 30px rgb(0 0 0 / 0.45), 0 0 0 1px #313c49;
 }
 
 /* Plain in-app table for the Procesos pages (enrollments, payments, requests): bold header, thin rules, no stripes. Formal printable reports keep tabla-formal. */

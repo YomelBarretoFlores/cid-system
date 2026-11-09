@@ -16,7 +16,7 @@
     $colapsado = request()->cookie('ciln-menu-colapsado') === '1';
     $atajo = str_contains((string) request()->userAgent(), 'Mac') ? '⌘ B' : 'Ctrl B';
 @endphp
-<x-layouts.base :title="$title" tema="tema-portal"
+<x-layouts.base :title="$title" tema="tema-portal" :modo="$usuario?->tema->value"
     x-data="{ colapsado: {{ $colapsado ? 'true' : 'false' }}, animar: false, alternar() { this.animar = true; this.colapsado = ! this.colapsado; document.cookie = 'ciln-menu-colapsado=' + (this.colapsado ? '1' : '0') + '; path=/; max-age=31536000; samesite=lax'; } }"
     x-on:keydown.window="if ((($event.ctrlKey || $event.metaKey) && ! $event.shiftKey && ! $event.altKey && $event.key.toLowerCase() === 'b') && ! $event.target.isContentEditable) { $event.preventDefault(); alternar() }"
     :data-colapsado="$colapsado ? 'true' : false" x-bind:data-colapsado="colapsado ? 'true' : null" x-bind:class="{ 'transition-[grid-template-columns]': animar }"
@@ -57,6 +57,7 @@
                             <x-portal.enlace-menu ruta="estudiante.inicio" icono="heroicon-o-user-circle">Perfil</x-portal.enlace-menu>
                             <x-portal.enlace-menu ruta="estudiante.perfil.datos" icono="heroicon-o-pencil">Modificar datos</x-portal.enlace-menu>
                             <x-portal.enlace-menu ruta="estudiante.perfil.foto" icono="heroicon-o-camera">Subir fotografía</x-portal.enlace-menu>
+                            <x-portal.enlace-menu ruta="estudiante.preferencias" icono="heroicon-o-cog-6-tooth">Preferencias</x-portal.enlace-menu>
                         </x-portal.grupo-menu>
                         <x-portal.grupo-menu titulo="Reportes">
                             @php($vista = request()->routeIs('estudiante.reportes') ? request()->query('ver') : null)
@@ -92,6 +93,7 @@
                         <div id="menu-de-cuenta" role="menu" x-show="cuenta" x-cloak x-transition.opacity.duration.100ms
                             class="absolute bottom-full left-0 z-40 mb-2 flex w-full min-w-[230px] flex-col gap-0.5 rounded-interna bg-tarjeta p-1.5 text-[14px] shadow-dropdown lg:in-data-colapsado:bottom-0 lg:in-data-colapsado:left-full lg:in-data-colapsado:mb-0 lg:in-data-colapsado:ml-2">
                             <a href="{{ route('estudiante.inicio') }}" wire:navigate role="menuitem" class="flex items-center gap-2.5 rounded-control px-2.5 py-2 hover:bg-hover-suave"><x-heroicon-o-user-circle aria-hidden="true" class="size-[18px] text-apagado" />Mi perfil</a>
+                            <a href="{{ route('estudiante.preferencias') }}" wire:navigate role="menuitem" class="flex items-center gap-2.5 rounded-control px-2.5 py-2 hover:bg-hover-suave"><x-heroicon-o-cog-6-tooth aria-hidden="true" class="size-[18px] text-apagado" />Preferencias</a>
                             @if ($esDocente)
                                 <a href="{{ route('filament.docente.pages.mis-grupos') }}" role="menuitem" class="flex items-center gap-2.5 rounded-control px-2.5 py-2 hover:bg-hover-suave"><x-heroicon-o-user-group aria-hidden="true" class="size-[18px] text-apagado" />Portal docente</a>
                             @endif

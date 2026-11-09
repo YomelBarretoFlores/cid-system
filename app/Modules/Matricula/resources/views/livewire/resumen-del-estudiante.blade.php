@@ -94,7 +94,7 @@
                                 <span class="flex min-w-0 flex-1 flex-col gap-1">
                                     <span class="grid grid-cols-12 gap-[3px]" role="img" aria-label="{{ $idioma->idioma }}: ciclo {{ $idioma->ciclo }} de 12">
                                         @for ($ciclo = 1; $ciclo <= 12; $ciclo++)
-                                            <span @class(['h-3 rounded', 'bg-acento' => $ciclo < $idioma->ciclo || ($ciclo === $idioma->ciclo && $idioma->terminado), 'bg-oro-200' => $ciclo === $idioma->ciclo && $idioma->estado === EstadoMatricula::Activa && ! $idioma->terminado, 'bg-gris-fondo' => $ciclo > $idioma->ciclo || ($ciclo === $idioma->ciclo && $idioma->estado !== EstadoMatricula::Activa)])></span>
+                                            <span @class(['h-3 rounded', 'bg-acento' => $ciclo < $idioma->ciclo || ($ciclo === $idioma->ciclo && $idioma->terminado), 'bg-acento/40' => $ciclo === $idioma->ciclo && $idioma->estado === EstadoMatricula::Activa && ! $idioma->terminado, 'bg-gris-fondo' => $ciclo > $idioma->ciclo || ($ciclo === $idioma->ciclo && $idioma->estado !== EstadoMatricula::Activa)])></span>
                                         @endfor
                                     </span>
                                     <span class="flex justify-between text-[12px] text-apagado"><span>Básico</span><span>Intermedio</span><span>Avanzado</span></span>

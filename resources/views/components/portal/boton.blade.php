@@ -2,7 +2,7 @@
 @php
     $clases = [
         'inline-flex items-center justify-center gap-2 rounded-pildora text-[15px] font-medium whitespace-nowrap transition-colors focus-visible:shadow-foco focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
-        'bg-tinta text-white hover:bg-tinta-hover' => $variante === 'primario',
+        'bg-tinta text-invertido hover:bg-tinta-hover' => $variante === 'primario',
         'border border-borde bg-tarjeta text-tinta hover:bg-hover-suave' => $variante === 'secundario',
         'text-enlace hover:text-enlace-hover' => $variante === 'enlace',
         'px-6 py-[15px]' => $variante !== 'enlace' && $tamano === 'grande',

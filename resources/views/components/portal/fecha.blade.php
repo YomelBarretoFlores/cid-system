@@ -40,7 +40,7 @@
                             x-bind:aria-pressed="dia.valor === valor"
                             class="h-9 rounded-[10px] text-sm focus-visible:shadow-foco focus-visible:outline-none disabled:cursor-not-allowed"
                             x-bind:class="{
-                                'bg-tinta font-semibold text-white': dia.valor === valor,
+                                'bg-tinta font-semibold text-invertido': dia.valor === valor,
                                 'font-semibold shadow-[inset_0_0_0_1.5px_var(--color-acento)]': dia.valor === hoy && dia.valor !== valor,
                                 'text-piedra-300': dia.bloqueado,
                                 'text-piedra-400': dia.fuera && ! dia.bloqueado && dia.valor !== valor,
@@ -54,7 +54,7 @@
                 <template x-for="anio in anios" x-bind:key="anio">
                     <button type="button" x-on:click="elegirAnio(anio)" x-text="anio"
                         class="h-10 rounded-[10px] text-sm hover:bg-acento-claro focus-visible:shadow-foco focus-visible:outline-none"
-                        x-bind:class="anio === Number(String(valor ?? '').slice(0, 4)) && 'bg-tinta font-semibold text-white hover:bg-tinta'"></button>
+                        x-bind:class="anio === Number(String(valor ?? '').slice(0, 4)) && 'bg-tinta font-semibold text-invertido hover:bg-tinta'"></button>
                 </template>
             </div>
 

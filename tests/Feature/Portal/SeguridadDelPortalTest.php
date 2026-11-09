@@ -18,7 +18,7 @@ it('sends a signed-out visitor to the sign-in on every student page', function (
 })->with([
     'estudiante.inicio', 'estudiante.matricula', 'estudiante.matriculas', 'estudiante.reportes',
     'estudiante.pagos', 'estudiante.tramites', 'estudiante.clasificacion', 'estudiante.clases',
-    'estudiante.perfil.datos', 'estudiante.perfil.foto', 'estudiante.perfil.foto.ver',
+    'estudiante.perfil.datos', 'estudiante.perfil.foto', 'estudiante.perfil.foto.ver', 'estudiante.preferencias',
 ]);
 
 it('keeps the portal behind a verified email', function (): void {
