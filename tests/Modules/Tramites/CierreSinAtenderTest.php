@@ -167,7 +167,5 @@ it('shows the student the closed state and its reason in the portal', function (
     $this->actingAs($this->user);
 
     Livewire::test(MisTramites::class)
-        ->assertSeeText($tramite->codigo)
-        ->assertSeeText('Cerrado sin atender')
-        ->assertSeeText('El estudiante desistió del retiro.');
+        ->assertSeeTextInOrder([$tramite->codigo, 'Cerrado sin atender', 'El CILN cerró este trámite sin atenderlo: El estudiante desistió del retiro.', 'Ver etapas']);
 });

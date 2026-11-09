@@ -21,29 +21,33 @@ beforeEach(function (): void {
     $this->constancia = TipoTramite::query()->where('codigo', 'CONSTANCIA-MATRICULA')->sole();
 });
 
-it('lists the student\'s trámites with their code, state, stages and observation, and badges the observed ones in the menu', function (): void {
+it('lists the student\'s trámites in a table with their code, stage, state and observation, and badges the observed ones in the menu', function (): void {
     $observado = Tramite::factory()->for($this->constancia)->create(['persona_id' => $this->persona->id, 'etapa_actual' => 1]);
     DB::table('tra_tramites')->where('id', $observado->id)->update(['estado' => 'observado', 'observacion' => 'El recibo no se lee. Sube una foto más nítida.']);
     $ajeno = Tramite::factory()->for($this->constancia)->create();
 
     $this->actingAs($this->user)->get(route('estudiante.tramites'))
         ->assertOk()
-        ->assertSeeText($observado->refresh()->codigo)
-        ->assertSeeText('Constancia de matrícula')
-        ->assertSeeText('Observado')
-        ->assertSeeText('El recibo no se lee. Sube una foto más nítida.')
+        ->assertSeeTextInOrder(['Mis trámites', 'Código', 'Trámite', 'Iniciado el', 'Etapa actual', 'Estado', 'Documento',
+            $observado->refresh()->codigo, 'Constancia de matrícula', $observado->created_at->timezone('America/Lima')->format('d/m/Y'), 'Pago validado', 'Observado', '—',
+            'El recibo no se lee. Sube una foto más nítida.', 'Ver etapas', 'Nuevo trámite'])
         ->assertSeeText('Etapa 2 de 4: Pago validado')
         ->assertSeeText('33 % de avance')
         ->assertSeeTextInOrder(['Trámites', '1'])
         ->assertDontSeeText($ajeno->refresh()->codigo);
 });
 
-it('starts a trámite from its button with the data its final action asks for', function (): void {
+it('starts a trámite chosen from the list of types with the data its final action asks for', function (): void {
     $this->actingAs($this->user);
 
     Livewire::test(MisTramites::class)
+        ->assertSeeTextInOrder(['Nuevo trámite', 'Trámite', 'Tasa', 'Constancia de matrícula', 'Constancia', 'Elegir'])
+        ->assertSeeHtml('wire:click="elegir('.$this->constancia->id.')"')
+        ->assertDontSeeText('Elige tu matrícula')
         ->call('elegir', $this->constancia->id)
+        ->assertSeeText('Constancia de matrícula')
         ->assertSeeText('Requisitos: Una matrícula activa y el pago de la tasa.')
+        ->assertSeeText('Elige tu matrícula')
         ->assertSeeText('Este trámite tiene una tasa (Constancia).')
         ->set('matricula', (string) $this->matricula->id)
         ->call('solicitar')

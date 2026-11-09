@@ -43,7 +43,7 @@ function portalClasificacionPagoUsado(string $numeroOperacion): Pago
     return $pago;
 }
 
-it('lists only the student own requests, newest first, with language, state and dates', function (): void {
+it('lists only the student own requests in a table, newest first, with language, dates and state', function (): void {
     $frances = Idioma::factory()->create(['nombre' => 'Francés']);
     portalClasificacionSolicitud([
         'idioma_id' => $frances->id,
@@ -57,12 +57,13 @@ it('lists only the student own requests, newest first, with language, state and 
     $this->actingAs($this->user)
         ->get(route('estudiante.clasificacion'))
         ->assertOk()
-        ->assertSeeInOrder(['Inglés', 'Pendiente de evaluación', '24/10/2026', '23/11/2026', 'Francés', 'Expirado', '01/10/2026'])
+        ->assertSeeInOrder(['Mis solicitudes', 'Idioma', 'Solicitado el', 'Rendir hasta', 'Estado', 'Fecha del examen', 'Puntaje', 'Empiezas en',
+            'Inglés', '24/10/2026', '23/11/2026', 'Pendiente de evaluación', 'Francés', '01/10/2026', 'Expirado', 'Nueva solicitud'])
         ->assertDontSee('31/10/2026')
         ->assertDontSee('15/11/2026');
 });
 
-it('shows the exam date, score and assigned level of an evaluated request', function (): void {
+it('shows the exam date, score and assigned level of an evaluated request in its table row', function (): void {
     SolicitudClasificacion::factory()->evaluada()->create([
         'persona_id' => $this->persona->id,
         'idioma_id' => $this->ingles->id,
@@ -73,7 +74,7 @@ it('shows the exam date, score and assigned level of an evaluated request', func
 
     Livewire::actingAs($this->user)
         ->test(ExamenDeClasificacion::class)
-        ->assertSeeInOrder(['Evaluado', 'Puntaje', '78.50', 'de 100', 'Empiezas en', 'Ciclo 6 (Intermedio)', 'Examen del', '20/10/2026']);
+        ->assertSeeHtmlInOrder(['Fecha del examen', 'Puntaje', 'Empiezas en', 'Inglés', '24/10/2026', '—', 'Evaluado', '20/10/2026', '78.50 de 100', 'Ciclo 6 (Intermedio)']);
 });
 
 it('requests the exam with an unused validated placement payment and reloads the page', function (): void {

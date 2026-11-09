@@ -24,12 +24,13 @@ function constanciaDe(Persona $persona, User $emisor): Documento
     return app(EmitirConstanciaDeMatricula::class)(Matricula::factory()->activa()->create(['persona_id' => $persona->id])->id, $emisor);
 }
 
-it('lets the student download the document a finished trámite issued, from the trámite card', function (): void {
+it('lets the student download the document a finished trámite issued, from the document column of its row', function (): void {
     $documento = constanciaDe($this->persona, $this->emisor);
     $tramite = Tramite::factory()->for(TipoTramite::query()->where('codigo', 'CONSTANCIA-MATRICULA')->sole())->create(['persona_id' => $this->persona->id]);
     DB::table('tra_tramites')->where('id', $tramite->id)->update(['estado' => 'finalizado', 'etapa_actual' => 3, 'finalizado_en' => now(), 'documento_id' => $documento->id]);
 
-    $this->actingAs($this->user)->get(route('estudiante.tramites'))->assertOk()->assertSee(route('estudiante.documentos.pdf', $documento->id), false);
+    $this->actingAs($this->user)->get(route('estudiante.tramites'))->assertOk()
+        ->assertSeeInOrder(['Documento</th>', $tramite->codigo, 'href="'.route('estudiante.documentos.pdf', $documento->id).'"', 'Descargar</a>'], false);
     $this->actingAs($this->user)->get(route('estudiante.documentos.pdf', $documento->id))->assertOk()->assertHeader('content-type', 'application/pdf');
 });
 
