@@ -135,3 +135,62 @@ it('lays out the photo page like the SGA, with the upload on one side and the ph
             'Sin gafas ni lentes oscuros', 'Sin gorra ni sombrero', 'El rostro desde los hombros', 'JPG o PNG, de hasta 2 MB',
         ]);
 });
+
+// A real JPEG carrying an EXIF block: orientation always, and a GPS latitude when asked.
+function jpegConExif(int $ancho, int $alto, int $orientacion = 1, bool $gps = false): UploadedFile
+{
+    $imagen = imagecreatetruecolor($ancho, $alto);
+    ob_start();
+    imagejpeg($imagen, null, 90);
+    $jpeg = (string) ob_get_clean();
+
+    $entradas = $gps ? 2 : 1;
+    $tiff = 'II*'."\0".pack('V', 8).pack('v', $entradas).pack('vvVv', 0x0112, 3, 1, $orientacion)."\0\0";
+    if ($gps) {
+        $tiff .= pack('vvVV', 0x8825, 4, 1, 8 + 2 + $entradas * 12 + 4);
+    }
+    $tiff .= pack('V', 0);
+    if ($gps) {
+        $tiff .= pack('v', 1).pack('vvV', 0x0001, 2, 2).'S'."\0\0\0".pack('V', 0);
+    }
+    $app1 = "\xFF\xE1".pack('n', 2 + 6 + strlen($tiff))."Exif\0\0".$tiff;
+
+    return UploadedFile::fake()->createWithContent('foto.jpg', "\xFF\xD8".$app1.substr($jpeg, 2));
+}
+
+function fotoGuardada(): string
+{
+    return Storage::disk('local')->get((string) test()->ficha->fresh()->foto);
+}
+
+it('strips the location and every other metadata from the stored photo', function (): void {
+    $foto = jpegConExif(400, 300, gps: true);
+    expect(file_get_contents($foto->getRealPath()))->toContain("Exif\0\0");
+
+    subirFoto($foto)->assertHasNoErrors();
+
+    expect(fotoGuardada())->not->toContain("Exif\0\0")
+        ->and(getimagesizefromstring(fotoGuardada())[2])->toBe(IMAGETYPE_JPEG);
+});
+
+it('turns a phone photo upright using its orientation tag', function (): void {
+    subirFoto(jpegConExif(400, 200, orientacion: 6))->assertHasNoErrors();
+
+    expect(array_slice(getimagesizefromstring(fotoGuardada()), 0, 2))->toBe([200, 400]);
+});
+
+it('reduces a large photo to at most 800 pixels on its longest side, keeping its proportions and format', function (string $archivo, int $tipo): void {
+    subirFoto(UploadedFile::fake()->image($archivo, 2000, 1500))->assertHasNoErrors();
+
+    $medidas = getimagesizefromstring(fotoGuardada());
+    expect([$medidas[0], $medidas[1], $medidas[2]])->toBe([800, 600, $tipo]);
+})->with([
+    'jpg' => ['grande.jpg', IMAGETYPE_JPEG],
+    'png' => ['grande.png', IMAGETYPE_PNG],
+]);
+
+it('keeps a photo that is already small at its own size', function (): void {
+    subirFoto(UploadedFile::fake()->image('foto.jpg', 300, 400))->assertHasNoErrors();
+
+    expect(array_slice(getimagesizefromstring(fotoGuardada()), 0, 2))->toBe([300, 400]);
+});

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Personas\Actions;
 
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Personas\Support\FotoNormalizada;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use finfo;
@@ -25,9 +26,10 @@ final readonly class CambiarFotoDePerfil
 
     public function __invoke(int $personaId, UploadedFile $foto): void
     {
-        $ruta = $foto->storeAs('fotos', Str::ulid().'.'.$this->extension($foto), self::DISCO);
+        $tipo = $this->tipo($foto);
+        $ruta = 'fotos/'.Str::ulid().'.'.self::EXTENSIONES[$tipo];
 
-        if ($ruta === false) {
+        if (! Storage::disk(self::DISCO)->put($ruta, FotoNormalizada::desde($foto->getRealPath(), $tipo))) {
             throw new ReglaDeNegocioIncumplida('No pudimos guardar tu fotografía. Inténtalo de nuevo.');
         }
 
@@ -53,11 +55,12 @@ final readonly class CambiarFotoDePerfil
         return $anterior;
     }
 
-    private function extension(UploadedFile $foto): string
+    private function tipo(UploadedFile $foto): string
     {
-        $tipo = (new finfo(FILEINFO_MIME_TYPE))->file($foto->getRealPath());
+        $tipo = (string) (new finfo(FILEINFO_MIME_TYPE))->file($foto->getRealPath());
 
-        return self::EXTENSIONES[$tipo]
-            ?? throw new ReglaDeNegocioIncumplida('Tu fotografía debe ser una imagen JPG o PNG.');
+        return array_key_exists($tipo, self::EXTENSIONES)
+            ? $tipo
+            : throw new ReglaDeNegocioIncumplida('Tu fotografía debe ser una imagen JPG o PNG.');
     }
 }
