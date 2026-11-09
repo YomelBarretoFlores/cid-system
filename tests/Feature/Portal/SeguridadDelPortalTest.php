@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Models\Grupo;
 use App\Modules\Matricula\Livewire\MisReportes;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Livewire\ModificarDatos;
@@ -9,6 +10,7 @@ use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Livewire\Exceptions\PublicPropertyNotFoundException;
 use Livewire\Livewire;
+use Tests\Support\ReportesDelEstudiante;
 
 // Authorization sweep of the student portal as one attack surface: the guards must hold even when a resource id,
 // a query parameter or a Livewire property is forged. Each module keeps its own cross-student test; this pins the contract whole.
@@ -43,20 +45,24 @@ it('refuses to set a protected field on the edit-data form and leaves the person
         ->toBe(['nombres' => 'Rosa', 'numero_documento' => '41234567', 'correo' => 'rosa@example.test']);
 })->with(['nombres', 'apellido_paterno', 'correo', 'email', 'numero_documento', 'fecha_nacimiento', 'tipo_vinculo', 'personaId', 'persona_id']);
 
-it('answers a forged period in the address with the newest report, not a server error', function (string $periodo): void {
-    $user = User::factory()->create();
-    Persona::factory()->create(['user_id' => $user->id]);
+it('answers a forged period in the address with the student newest report, not a server error', function (string $periodo): void {
+    $escenario = ReportesDelEstudiante::escenario();
 
-    $this->actingAs($user)->get(route('estudiante.reportes', ['periodo' => $periodo]))->assertOk();
+    $this->actingAs($escenario['usuario'])->get(route('estudiante.reportes', ['ver' => 'avance', 'periodo' => $periodo]))
+        ->assertOk()
+        ->assertSee($escenario['curso']['grupo']->codigo);
 })->with(['abc', '99999999', '-1', '0', '1 OR 1=1']);
 
-it('cannot be driven to a period the student does not own through the selector', function (): void {
-    $user = User::factory()->create();
-    Persona::factory()->create(['user_id' => $user->id]);
+it('cannot be driven to another student period through the selector and falls back to the student own newest period', function (): void {
+    $escenario = ReportesDelEstudiante::escenario();
+    $propio = $escenario['curso']['grupo']->periodo_id;
+    $ajeno = Matricula::factory()->create(['grupo_id' => Grupo::factory()->create(['codigo' => 'AJENO-9'])->id]);
 
-    Livewire::actingAs($user)->test(MisReportes::class)
-        ->set('periodo', 99999999)
-        ->assertSet('periodo', null);
+    Livewire::actingAs($escenario['usuario'])->test(MisReportes::class)
+        ->assertSet('periodo', $propio)
+        ->set('periodo', Grupo::query()->findOrFail($ajeno->grupo_id)->periodo_id)
+        ->assertSet('periodo', $propio)
+        ->assertDontSee('AJENO-9');
 });
 
 it('refuses a portal-only account every staff download and never signs it out', function (string $ruta): void {

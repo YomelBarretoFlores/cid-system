@@ -158,3 +158,16 @@ it('refuses the enrollment pages to an account without a student record', functi
         ->get(route($ruta))
         ->assertForbidden();
 })->with(['estudiante.matricula', 'estudiante.matriculas']);
+
+it('hides the payment and the group choice while the enrollment period is closed', function (): void {
+    $this->periodo->update(['matricula_inicio' => now()->subDays(20)->toDateString(), 'matricula_fin' => now()->subDays(10)->toDateString()]);
+
+    $this->actingAs($this->user)
+        ->get(route('estudiante.matricula'))
+        ->assertOk()
+        ->assertSee('No puedes matricularte este periodo')
+        ->assertDontSee('Pago que se usará')
+        ->assertDontSee('Elige tu grupo')
+        ->assertDontSee('ING-I-A')
+        ->assertDontSee('Matricularme');
+});
