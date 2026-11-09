@@ -12,8 +12,12 @@
     };
 @endphp
 <div class="flex flex-col gap-2 sm:gap-3.5">
-    <x-portal.encabezado titulo="Reportes">
-        Cómo vas en tus cursos, tu horario y lo que ya aprobaste. Los PDF se abren en una pestaña nueva.
+    <x-portal.encabezado :titulo="$pestana === 'todos' ? 'Reportes' : MisReportes::PESTANAS[$pestana]">
+        @if ($pestana === 'todos')
+            Aquí encuentras todos tus reportes académicos. Elige el periodo y abre el reporte que necesites; los PDF se abren en una pestaña nueva.
+        @else
+            <a href="{{ route('estudiante.reportes', ['periodo' => $periodo]) }}" wire:navigate class="enlace inline-flex items-center gap-1"><x-heroicon-o-arrow-left aria-hidden="true" class="size-4" />Todos los reportes</a>
+        @endif
         @if ($periodos !== [])
             <x-slot:acciones>
                 <x-portal.seleccion nombre="periodo" etiqueta="Periodo" :opciones="$periodos" vivo class="min-w-[220px]" />
@@ -21,21 +25,28 @@
         @endif
     </x-portal.encabezado>
 
-    <div class="grid items-start gap-2 sm:gap-3.5 lg:grid-cols-[minmax(0,1fr)_300px]">
+    <div @class(['grid items-start gap-2 sm:gap-3.5', 'lg:grid-cols-[minmax(0,1fr)_300px]' => ! in_array($pestana, ['todos', 'silabos'], true)])>
         <div class="flex min-w-0 flex-col gap-2 sm:gap-3.5">
-            <div role="tablist" aria-label="Reportes" class="grid grid-cols-3 gap-1 rounded-tarjeta bg-tarjeta p-1.5">
-                @foreach (MisReportes::PESTANAS as $clave => $texto)
-                    <button type="button" role="tab" id="pestana-{{ $clave }}" aria-controls="panel-reportes" aria-selected="{{ $pestana === $clave ? 'true' : 'false' }}"
-                        wire:click="$set('pestana', '{{ $clave }}')" @class([
-                            'rounded-interna px-2 py-2.5 text-center focus-visible:shadow-foco focus-visible:outline-none',
-                            'bg-acento-claro font-semibold text-tinta' => $pestana === $clave,
-                            'text-secundario hover:text-tinta' => $pestana !== $clave,
-                        ])>{{ $texto }}</button>
-                @endforeach
-            </div>
-
-            <div id="panel-reportes" role="tabpanel" aria-labelledby="pestana-{{ $pestana }}" class="flex flex-col gap-2 sm:gap-3.5">
-                @if ($pestana === 'aprobado')
+            <div id="panel-reportes" class="flex flex-col gap-2 sm:gap-3.5">
+                @if ($pestana === 'todos')
+                    @if ($periodos === [])
+                        <x-portal.alerta tipo="info">Aún no tienes reportes. Aparecen cuando te matriculas en un periodo.</x-portal.alerta>
+                    @endif
+                    <x-portal.tarjeta>
+                        <div class="grid gap-x-8 gap-y-6 md:grid-cols-2 2xl:grid-cols-3">
+                            @foreach ($columnas as $titulo => $accesos)
+                                <section aria-label="{{ $titulo }}" class="flex flex-col gap-2">
+                                    <h2 class="text-[12.5px] font-semibold tracking-[0.12em] text-apagado uppercase">{{ $titulo }}</h2>
+                                    <ul class="flex flex-col gap-1">
+                                        @foreach ($accesos as $acceso)
+                                            <x-portal.acceso-documento :titulo="$acceso['titulo']" :detalle="$acceso['detalle']" :href="$acceso['href']" :motivo="$acceso['motivo']" :color="$acceso['color']" :icono="$acceso['icono']" :pdf="$acceso['pdf']" />
+                                        @endforeach
+                                    </ul>
+                                </section>
+                            @endforeach
+                        </div>
+                    </x-portal.tarjeta>
+                @elseif ($pestana === 'aprobado')
                     @forelse ($records as $record)
                         <x-portal.tarjeta wire:key="aprobado-{{ Str::slug($record->idioma) }}">
                             <header class="flex flex-wrap items-center justify-between gap-3">
@@ -74,6 +85,17 @@
                     <x-portal.tarjeta>
                         <x-portal.vacio titulo="Aún no tienes reportes." icono="heroicon-o-document-chart-bar">Aparecen cuando te matriculas en un periodo.</x-portal.vacio>
                     </x-portal.tarjeta>
+                @elseif ($pestana === 'silabos')
+                    <x-portal.hoja titulo="Sílabos" :periodo="$reportes->periodo">
+                        <ul role="list" class="flex flex-col">
+                            @foreach ($reportes->datos->matriculas as $matricula)
+                                @php($grupo = $reportes->datos->grupos[$matricula->grupo_id])
+                                <x-portal.fila wire:key="silabo-{{ $matricula->id }}" :titulo="$grupo->idioma.' · Ciclo '.$grupo->cicloNumero" :detalle="$grupo->codigo.' · Prof. '.($reportes->datos->docentes[$matricula->grupo_id] ?? 'por asignar')">
+                                    <x-slot:fin><a href="{{ route('estudiante.matriculas.silabo', $matricula) }}" wire:navigate class="enlace">Ver sílabo<span class="sr-only"> de {{ $grupo->codigo }}</span></a></x-slot:fin>
+                                </x-portal.fila>
+                            @endforeach
+                        </ul>
+                    </x-portal.hoja>
                 @elseif ($pestana === 'horario')
                     <x-portal.hoja titulo="Horario personalizado" :periodo="$reportes->periodo">
                         <x-slot:acciones>
@@ -151,7 +173,7 @@
             </div>
         </div>
 
-        @if ($reportes !== null || $records !== [])
+        @if (! in_array($pestana, ['todos', 'silabos'], true) && ($reportes !== null || $records !== []))
             <x-portal.tarjeta titulo="Descargar en PDF" class="lg:sticky lg:top-4">
                 <ul role="list" class="-mt-1 flex flex-col">
                     @if ($reportes !== null)

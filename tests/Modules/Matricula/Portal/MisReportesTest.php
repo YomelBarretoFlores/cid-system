@@ -22,7 +22,7 @@ beforeEach(function (): void {
     $this->periodo = Periodo::query()->findOrFail($this->escenario['curso']['grupo']->periodo_id);
 });
 
-it('offers only the periods of the student, newest first, and opens on how the newest one is going with every PDF at hand', function (): void {
+it('offers only the periods of the student, newest first, and opens on every report of the period grouped like the SGA', function (): void {
     $anterior = Periodo::factory()->create(['nombre' => 'Octubre 2026', 'anio' => 2026, 'fecha_inicio' => '2026-10-01', 'fecha_fin' => '2026-10-31', 'matricula_inicio' => '2026-09-15', 'matricula_fin' => '2026-09-30']);
     Matricula::factory()->create(['persona_id' => $this->escenario['persona']->id, 'grupo_id' => Grupo::factory()->create(['codigo' => 'FRA-2-T', 'periodo_id' => $anterior->id])->id]);
     Periodo::factory()->create(['nombre' => 'Mayo 2027', 'fecha_inicio' => '2027-05-01', 'fecha_fin' => '2027-05-31']);
@@ -34,7 +34,21 @@ it('offers only the periods of the student, newest first, and opens on how the n
         ->assertSeeInOrder(['Marzo 2027', 'Octubre 2026'])
         ->assertDontSee('Mayo 2027')
         ->assertSeeInOrder([
-            '¿Cómo voy?', 'Horario', 'Lo que aprobé',
+            'Periodo seleccionado', 'Ficha de matrícula', 'Inglés 1 · ING-1-M', 'Constancia de inscripción', 'Horario personalizado', 'Boleta de notas', 'Sílabos',
+            'Generales e históricos', 'Récord de notas', 'Historial de matrículas', 'Documentos emitidos',
+            'Seguimiento académico', 'Avance de notas', 'Asistencia', 'Avance por idioma', 'Mis pagos',
+        ])
+        ->assertSee(route('estudiante.matriculas.ficha', $this->matricula))
+        ->assertSee(route('estudiante.matriculas.constancia', $this->matricula))
+        ->assertSee(route('estudiante.reportes.boleta', $this->periodo->id))
+        ->assertSee(route('estudiante.reportes.record'))
+        ->assertSee(route('estudiante.reportes', ['ver' => 'avance']), false)
+        ->assertDontSee(['Promedio parcial', 'FRA-2-T']);
+
+    $this->get(route('estudiante.reportes', ['ver' => 'avance']))
+        ->assertOk()
+        ->assertSeeInOrder([
+            'Todos los reportes',
             'Inglés · Ciclo 1', 'ING-1-M · Prof. Vega Ríos, Carlos', 'Acta abierta',
             'Notas', 'Examen parcial', '15.00', 'Participación', 'Promedio parcial', '10.80',
             'Asistencia', '67 %', '3 de 10 clases dictadas · 1 falta', '20 % sobre las clases programadas',
@@ -43,12 +57,25 @@ it('offers only the periods of the student, newest first, and opens on how the n
         ])
         ->assertSee(route('estudiante.reportes.avance', $this->matricula))
         ->assertSee(route('estudiante.reportes.asistencia', $this->matricula))
-        ->assertSee(route('estudiante.reportes.boleta', $this->periodo->id))
         ->assertSee(route('estudiante.reportes.horario', $this->periodo->id))
         ->assertSee(route('estudiante.reportes.horario.imprimir', $this->periodo->id))
-        ->assertSee(route('estudiante.reportes.record', 'quechua'))
-        ->assertSee(route('estudiante.reportes.record'))
-        ->assertDontSee(['Horario personalizado', 'FRA-2-T']);
+        ->assertSee(route('estudiante.reportes.record', 'quechua'));
+});
+
+it('disables the reports that do not apply yet and says why, instead of leading to an error', function (): void {
+    $this->actingAs($this->escenario['usuario'])
+        ->get(route('estudiante.reportes'))
+        ->assertOk()
+        ->assertSeeInOrder(['Récord de notas', 'Aún no apruebas ningún ciclo'])
+        ->assertDontSee(route('estudiante.reportes.record'));
+});
+
+it('lists the syllabus of each course of the period', function (): void {
+    $this->actingAs($this->escenario['usuario'])
+        ->get(route('estudiante.reportes', ['ver' => 'silabos']))
+        ->assertOk()
+        ->assertSeeInOrder(['Sílabos', 'Inglés · Ciclo 1', 'ING-1-M · Prof. Vega Ríos, Carlos', 'Ver sílabo'])
+        ->assertSee(route('estudiante.matriculas.silabo', $this->matricula));
 });
 
 it('shows the schedule and the approved cycles in their own tabs, reachable by link', function (): void {
@@ -67,8 +94,8 @@ it('shows the schedule and the approved cycles in their own tabs, reachable by l
     Livewire::actingAs($this->escenario['usuario'])
         ->test(MisReportes::class)
         ->set('pestana', 'otra')
-        ->assertSet('pestana', 'avance')
-        ->assertSee('Promedio parcial');
+        ->assertSet('pestana', 'todos')
+        ->assertSee('Periodo seleccionado');
 });
 
 it('tells a student who has not approved a cycle yet that the approved tab is empty', function (): void {

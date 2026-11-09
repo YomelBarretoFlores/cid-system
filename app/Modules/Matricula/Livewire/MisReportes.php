@@ -8,6 +8,7 @@ use App\Modules\Certificacion\Contracts\RecordDeNotas;
 use App\Modules\Matricula\Actions\BuscarMatriculasDelPeriodo;
 use App\Modules\Matricula\Actions\ListarPeriodosDelEstudiante;
 use App\Modules\Matricula\Actions\ResumirReportesDelPeriodo;
+use App\Modules\Matricula\Support\AccesosDeReportes;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
@@ -19,12 +20,13 @@ use Livewire\Component;
 #[Title('Reportes')]
 final class MisReportes extends Component
 {
-    public const array PESTANAS = ['avance' => '¿Cómo voy?', 'horario' => 'Horario', 'aprobado' => 'Lo que aprobé'];
+    public const array PESTANAS = ['todos' => 'Todos', 'avance' => 'Avance de notas', 'aprobado' => 'Avance por idioma', 'horario' => 'Horario', 'silabos' => 'Sílabos'];
 
+    #[Url]
     public ?int $periodo = null;
 
-    #[Url(as: 'ver', except: 'avance')]
-    public string $pestana = 'avance';
+    #[Url(as: 'ver', except: 'todos')]
+    public string $pestana = 'todos';
 
     public function render(): View
     {
@@ -38,13 +40,17 @@ final class MisReportes extends Component
         }
 
         if (! array_key_exists($this->pestana, self::PESTANAS)) {
-            $this->pestana = 'avance';
+            $this->pestana = 'todos';
         }
+
+        $reportes = $this->periodo === null ? null : app(ResumirReportesDelPeriodo::class)(app(BuscarMatriculasDelPeriodo::class)($this->periodo, $userId));
+        $records = app(RecordDeNotas::class)($ficha->personaId);
 
         return view('matricula::livewire.mis-reportes', [
             'periodos' => $periodos,
-            'reportes' => $this->periodo === null ? null : app(ResumirReportesDelPeriodo::class)(app(BuscarMatriculasDelPeriodo::class)($this->periodo, $userId)),
-            'records' => app(RecordDeNotas::class)($ficha->personaId),
+            'reportes' => $reportes,
+            'records' => $records,
+            'columnas' => new AccesosDeReportes($reportes, $records !== [])->columnas(),
         ]);
     }
 }

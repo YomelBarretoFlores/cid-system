@@ -52,7 +52,10 @@
                             <x-portal.enlace-menu ruta="estudiante.inicio" icono="heroicon-o-user-circle">Perfil</x-portal.enlace-menu>
                         </x-portal.grupo-menu>
                         <x-portal.grupo-menu titulo="Reportes">
-                            <x-portal.enlace-menu ruta="estudiante.reportes" icono="heroicon-o-squares-2x2">Todos</x-portal.enlace-menu>
+                            @php($vista = request()->routeIs('estudiante.reportes') ? request()->query('ver') : null)
+                            <x-portal.enlace-menu ruta="estudiante.reportes" icono="heroicon-o-squares-2x2" :actual="request()->routeIs('estudiante.reportes') && ! in_array($vista, ['horario', 'silabos'], true)">Todos</x-portal.enlace-menu>
+                            <x-portal.enlace-menu ruta="estudiante.reportes" :parametros="['ver' => 'horario']" icono="heroicon-o-calendar-days" :actual="$vista === 'horario'">Horario</x-portal.enlace-menu>
+                            <x-portal.enlace-menu ruta="estudiante.reportes" :parametros="['ver' => 'silabos']" icono="heroicon-o-book-open" :actual="$vista === 'silabos'">Sílabos</x-portal.enlace-menu>
                         </x-portal.grupo-menu>
                         <x-portal.grupo-menu titulo="Procesos">
                             <x-portal.enlace-menu ruta="estudiante.matricula" icono="heroicon-o-pencil-square">Matrícula</x-portal.enlace-menu>

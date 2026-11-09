@@ -1,6 +1,6 @@
-@props(['ruta', 'icono', 'activo' => null, 'insignia' => null, 'navegar' => true])
-@php($esActivo = $navegar && request()->routeIs($activo ?? $ruta))
-<a href="{{ route($ruta) }}" {{ $navegar ? 'wire:navigate.hover' : '' }} x-bind:title="colapsado ? @js(trim(strip_tags((string) $slot))) : null"
+@props(['ruta', 'icono', 'activo' => null, 'insignia' => null, 'navegar' => true, 'parametros' => [], 'actual' => null])
+@php($esActivo = $actual ?? ($navegar && request()->routeIs($activo ?? $ruta)))
+<a href="{{ route($ruta, $parametros) }}" {{ $navegar ? 'wire:navigate.hover' : '' }} x-bind:title="colapsado ? @js(trim(strip_tags((string) $slot))) : null"
     @if ($esActivo) aria-current="page" @endif
     @class([
         'relative flex items-center gap-3.5 rounded-xl px-2.5 py-2 text-[15px] text-tinta focus-visible:shadow-foco focus-visible:outline-none lg:in-data-colapsado:justify-center',
