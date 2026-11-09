@@ -4,24 +4,27 @@ Sistema del Centro de Idiomas y Lenguas Nativas (CILN) de la UNASAM. Reemplaza a
 
 **Stack:** PHP 8.5 · Laravel 13 · PostgreSQL 18 · Filament 5 · Livewire 4 · Pest 5.
 
-## Quick path
+## Componentes
 
-Requisitos: PHP 8.5 (`pdo_pgsql`, `gd`, `intl`, `zip`, `bcmath`), Composer 2, Node 22 y Docker.
+| Componente | Dirección | Usuarios |
+|---|---|---|
+| Portal público | `/` | Público en general |
+| Portal del estudiante | `/estudiante` | Estudiantes |
+| Panel docente | `/docente` | Docentes |
+| Panel administrativo | `/admin` | Personal del CILN (coordinación, caja, reportes) |
+| API REST | `/api/v1` | Integraciones |
+
+## Quick path (desarrollo local)
+
+Requisitos: PHP 8.5 (`pdo_pgsql`, `pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring`), Composer 2, Node 22 y Docker.
 
 1. `composer install && npm install`
-2. `cp .env.example .env && php artisan key:generate`
-3. En `.env`, configurar PostgreSQL:
-   ```dotenv
-   DB_CONNECTION=pgsql
-   DB_HOST=127.0.0.1
-   DB_PORT=5432        # usar otro puerto si 5432 está ocupado
-   DB_DATABASE=ciln
-   DB_USERNAME=ciln
-   DB_PASSWORD=secret
-   ```
-4. `docker compose up -d` (crea las bases `ciln` y `ciln_testing`)
-5. `php artisan migrate`
-6. `composer dev` y abrir `http://localhost:8000` (panel administrativo en `/admin`)
+2. `cp .env.example .env && php artisan key:generate`. La plantilla ya apunta al PostgreSQL de `docker compose`; si el puerto 5432 está ocupado, cambiar `DB_PORT` en `.env`.
+3. `docker compose up -d` (PostgreSQL 18 con las bases `ciln` y `ciln_testing`)
+4. `php artisan migrate --seed`. El seeder carga datos de demostración sintéticos y se niega a correr en producción.
+5. `composer dev` y abrir `http://localhost:8000`.
+
+Cuentas de demostración (contraseña `password`): `admin@ciln.test` (panel administrativo), `caja@ciln.test` (caja), `docente@ciln.test` (panel docente) y `estudiante@ciln.test` (portal del estudiante). Se ingresa por `/ingresar`.
 
 ## Comandos
 
@@ -29,7 +32,11 @@ Requisitos: PHP 8.5 (`pdo_pgsql`, `gd`, `intl`, `zip`, `bcmath`), Composer 2, No
 |---|---|
 | `composer check` | Lint (Pint + Rector), análisis estático (Larastan nivel 8 + complejidad) y tests. Igual que el CI |
 | `composer fix` | Aplica Rector y Pint |
-| `php artisan test` | Corre la suite de Pest sobre PostgreSQL |
+| `php artisan test --compact` | Corre la suite de Pest sobre PostgreSQL |
+
+## Despliegue
+
+Producción corre en los servidores de la DSTI, por la ruta tradicional (PHP, Nginx y PostgreSQL instalados en el servidor) o con Docker. Ambas están en [`docs/despliegue.md`](docs/despliegue.md), con las variables de producción, los dos roles de PostgreSQL, el almacenamiento de archivos y los respaldos.
 
 ## Documentación
 

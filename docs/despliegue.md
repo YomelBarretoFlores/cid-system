@@ -1,13 +1,13 @@
 # Despliegue
 
-> Borrador: el entorno de la DSTI está pendiente de confirmar ([`decisiones-pendientes.md`](decisiones-pendientes.md) #8). Producción corre en servidores de la DSTI, no en Laravel Cloud.
+> El entorno de la DSTI está pendiente de confirmar ([`decisiones-pendientes.md`](decisiones-pendientes.md) #8). Producción corre en servidores de la DSTI, no en Laravel Cloud, por una de dos rutas que elige la DSTI: **tradicional** (esta sección) o **[Docker](#producción-con-docker)**. Ambas usan la misma base de datos, las mismas variables y los mismos dos roles de PostgreSQL. La entrega formal a la DSTI es el Informe Técnico N.° 001-2026-YJBF, que resume esta guía.
 
 ## Requisitos del servidor
 
 | Componente | Requisito |
 |---|---|
 | PHP | 8.5 con `pdo_pgsql`, `pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring` |
-| Base de datos | PostgreSQL 18 compilado con ICU (lo traen los paquetes oficiales). La migración crea la intercalación `sin_tildes`, que permite buscar sin tildes ni mayúsculas en el panel; el usuario de la aplicación necesita permiso `CREATE` en el esquema `public`. |
+| Base de datos | PostgreSQL 18 compilado con ICU (lo traen los paquetes oficiales), en el mismo servidor o en otro. La migración crea la intercalación `sin_tildes`, que permite buscar sin tildes ni mayúsculas en el panel; el rol que ejecuta las migraciones necesita permiso `CREATE` en el esquema `public`. |
 | Servidor web | Nginx o Apache apuntando a `public/` |
 | Procesos | Worker de colas supervisado (Supervisor o systemd) y cron del scheduler |
 | Correo | SMTP institucional |
@@ -17,14 +17,28 @@
 
 1. `composer install --no-dev --optimize-autoloader`
 2. Configurar `.env` (ver abajo) y `php artisan key:generate` la primera vez.
-3. `php artisan migrate --force`
-4. `php artisan storage:link`
-5. `npm ci && npm run build`
-6. `php artisan optimize` (cachea config, rutas, vistas y eventos).
-7. Worker: `php artisan queue:work --tries=3 --timeout=90`, supervisado.
+3. Dar permiso de escritura al usuario del servidor web sobre `storage/` y `bootstrap/cache/`, y dejar `.env` legible solo por ese usuario.
+4. Migrar con el rol **dueño** (ver [Base de datos y proxy](#base-de-datos-y-proxy)): `DB_USERNAME=<rol_dueño> DB_PASSWORD=<clave> php artisan migrate --force`. Las variables del comando tienen prioridad sobre `.env`, que conserva el rol de aplicación. Debe correr antes de `optimize`: con la configuración cacheada, el comando usaría el rol de `.env`.
+5. `php artisan storage:link`
+6. `npm ci && npm run build`
+7. `php artisan optimize && php artisan filament:optimize` (cachea config, rutas, vistas, eventos y componentes del panel).
+8. Worker: `php artisan queue:work --tries=3 --timeout=90`, supervisado, con al menos 100 s de espera al detenerlo (en Supervisor, `stopwaitsecs=100`) para que termine el trabajo en curso.
    Sin el worker se detienen: los correos de verificación de cuenta, de recuperación de contraseña y de cambio de trámite, y la reacción de los trámites cuando Pagos valida, rechaza o anula un pago.
-8. Cron: `* * * * * php /ruta/artisan schedule:run >> /dev/null 2>&1`
-9. Primera instalación: crear la primera cuenta de administración con `php artisan personal:crear-administrador <correo> "<nombre>"` (necesita el worker de colas para enviar el correo).
+9. Cron: `* * * * * cd /ruta && php artisan schedule:run >> /dev/null 2>&1`
+10. Primera instalación: crear la primera cuenta de administración con `php artisan personal:crear-administrador <correo> "<nombre>"` (necesita el worker de colas para enviar el correo).
+
+### Actualizar a una nueva versión
+
+```bash
+git pull
+composer install --no-dev --optimize-autoloader && npm ci && npm run build
+php artisan config:clear
+DB_USERNAME=<rol_dueño> DB_PASSWORD=<clave> php artisan migrate --force
+php artisan optimize && php artisan filament:optimize
+php artisan queue:restart
+```
+
+`config:clear` va antes de migrar para que la migración tome el rol dueño del comando y no el de la configuración cacheada. `queue:restart` hace que el worker cargue el código nuevo al terminar su trabajo actual. `storage/app` no está en el repositorio y no se toca en la actualización.
 
 ### Primera cuenta de administración
 
@@ -101,7 +115,15 @@ Variables que, si faltan, toman un valor por defecto que no sirve en producción
 ## Base de datos y proxy
 
 - Dos roles de PostgreSQL: **dueño** (ejecuta `php artisan migrate`) y **aplicación** (lo usa Laravel en ejecución, sin ser dueño de tablas). Detalle en [`seguridad.md`](seguridad.md).
+- Si PostgreSQL está en otro servidor, abrir el puerto 5432 solo entre ese servidor y el de la aplicación.
 - Si hay un proxy inverso o balanceador delante, definir `TRUSTED_PROXIES` (`config/trustedproxy.php`) con sus direcciones o rangos separados por comas, o `*` para confiar en el proxy que llama a la aplicación. Sin esa variable, la auditoría registra la IP del proxy en lugar de la del usuario y los enlaces salen con `http`.
+
+## Archivos subidos
+
+Se guardan en el disco del propio servidor, en `storage/app/private` (disco `local`), fuera de `public/`: fotografías en `fotos/` y recibos de pago en `recibos/<año>/`. Solo se sirven por controlador, al dueño o al personal con permiso. Los PDF no se guardan: se generan al pedirlos. No se usa ningún proveedor de almacenamiento externo.
+
+- `storage/app` debe sobrevivir a cada actualización: en la ruta tradicional queda en la carpeta del sitio; en Docker, en un volumen.
+- Las copias de seguridad de la DSTI deben incluir `storage/app` junto con la base de datos (`pg_dump`). Si se pierde, se pierden las fotografías y los recibos.
 
 ## Respaldos programados
 
@@ -154,9 +176,38 @@ Antes de abrir la matrícula, la coordinación registra en el panel (Configuraci
 - **Sistemas de evaluación**: al menos uno general (sin idioma ni nivel) con sus componentes, cuyos pesos suman 100, y la nota mínima aprobatoria. Sin un sistema vigente, el docente no puede registrar notas y el acta no se cierra ("pide a coordinación que lo registre").
 - **Medios de pago** y **fuentes TUPA/TUSNE**: vienen precargados; se desactivan o renombran según el CILN.
 
+## Producción con Docker
+
+Alternativa a los [pasos tradicionales](#pasos) si la DSTI prefiere contenedores. Usa la imagen descrita en [Entorno de demostración con Docker](#entorno-de-demostración-con-docker) (PHP-FPM, Nginx, worker y scheduler en un contenedor), con estas diferencias:
+
+| Aspecto | Producción |
+|---|---|
+| Variables | Las de [Variables clave de producción](#variables-clave-de-producción), con `APP_ENV=production`, `LOG_CHANNEL=stderr` y **sin** `DEMO_SEED` |
+| Roles de PostgreSQL | El contenedor usa el rol de **aplicación**. Las migraciones de cada versión corren antes, en un contenedor aparte con el rol **dueño**. Al arrancar, el contenedor vuelve a ejecutar `migrate --force`: sin migraciones pendientes no hace nada, y si quedara alguna, el rol de aplicación no puede aplicarla y el contenedor no arranca |
+| Archivos subidos | Volumen en `/var/www/html/storage/app` |
+| Red | Puerto publicado solo hacia el propio servidor; el proxy de la DSTI termina HTTPS |
+| Respaldos | La imagen no trae `pg_dump`: el respaldo de la base se hace en el servidor de PostgreSQL |
+
+```bash
+docker build -t ciln:<versión> .
+
+# Migraciones con el rol dueño (ciln-migraciones.env: mismas variables con DB_USERNAME/DB_PASSWORD del dueño)
+docker run --rm --env-file ciln-migraciones.env --entrypoint php ciln:<versión> artisan migrate --force
+
+docker run -d --name ciln --restart unless-stopped \
+  --env-file ciln.env --stop-timeout 100 \
+  -v ciln-archivos:/var/www/html/storage/app \
+  -p 127.0.0.1:8080:8080 ciln:<versión>
+
+# Primera instalación
+docker exec ciln php artisan personal:crear-administrador <correo> "<nombre>"
+```
+
+Para actualizar: construir la nueva imagen, migrar con el rol dueño y reemplazar el contenedor conservando el volumen `ciln-archivos`. Tras cambiar una variable hay que recrear el contenedor (`docker rm -f ciln` y el mismo `docker run`), porque Docker lee `--env-file` al crearlo; un `docker restart` conserva las variables anteriores. El arranque vuelve a cachear la configuración.
+
 ## Entorno de demostración con Docker
 
-El `Dockerfile` de la raíz arma una imagen para un entorno de demostración o de pruebas (staging), por ejemplo en un VPS con Dokploy. **No reemplaza la producción en la DSTI**, que sigue los pasos de arriba.
+El `Dockerfile` de la raíz arma una imagen que sirve para [producción](#producción-con-docker) y para un entorno de demostración o de pruebas (staging), por ejemplo en un VPS con Dokploy. Esta sección describe la imagen y su uso en demostración.
 
 | Aspecto | Detalle |
 |---|---|
