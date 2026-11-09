@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Matricula\Livewire;
 
 use App\Modules\Certificacion\Contracts\RecordDeNotas;
+use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Matricula\Actions\BuscarMatriculasDelPeriodo;
 use App\Modules\Matricula\Actions\ListarPeriodosDelEstudiante;
 use App\Modules\Matricula\Actions\ResumirReportesDelPeriodo;
@@ -47,6 +48,8 @@ final class MisReportes extends Component
         $records = app(RecordDeNotas::class)($ficha->personaId);
 
         return view('matricula::livewire.mis-reportes', [
+            'ficha' => $ficha,
+            'esDocente' => app(DocenteDelUsuario::class)($userId) !== null,
             'periodos' => $periodos,
             'reportes' => $reportes,
             'records' => $records,

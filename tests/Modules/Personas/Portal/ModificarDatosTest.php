@@ -27,8 +27,10 @@ beforeEach(function (): void {
 it('shows the names, document, birth date and email as read-only data that the CILN changes', function (): void {
     $this->actingAs($this->alumno)->get(route('estudiante.perfil.datos'))
         ->assertOk()
-        ->assertSeeInOrder(['Modificar datos', 'QUISPE MAMANI ROSA ELENA', 'DNI 41234567', '14/05/2001', 'rosa@example.test', 'Estos datos los actualiza el CILN',
-            'Datos de contacto', 'Celular', 'Dirección', 'Cambiar contraseña', 'Contraseña actual'])
+        ->assertSeeInOrder(['QUISPE MAMANI ROSA ELENA', 'DNI 41234567', 'Ver perfil',
+            'Datos personales', 'Estos datos los actualiza el CILN', '14/05/2001', 'rosa@example.test', 'Dirección', 'Celular', 'Guardar datos',
+            'Cambio de contraseña', 'Ingresa primero tu contraseña actual', 'Contraseña actual', 'Nueva contraseña', 'Confirma la nueva contraseña', 'Cambiar contraseña'])
+        ->assertSee(route('estudiante.inicio'))
         ->assertDontSee('wire:model="nombres"', false)
         ->assertDontSee('wire:model="email"', false);
 });

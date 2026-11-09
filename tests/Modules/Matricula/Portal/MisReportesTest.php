@@ -62,6 +62,27 @@ it('offers only the periods of the student, newest first, and opens on every rep
         ->assertSee(route('estudiante.reportes.record', 'quechua'));
 });
 
+it('shows the profile summary at the side of every report and the profile and edit cards below, like the SGA', function (): void {
+    $this->escenario['persona']->update(['correo' => 'alumno@example.test']);
+
+    $this->actingAs($this->escenario['usuario'])
+        ->get(route('estudiante.reportes'))
+        ->assertOk()
+        ->assertSeeInOrder([
+            mb_strtoupper(str_replace(',', '', $this->escenario['persona']->nombre_completo)), 'Datos personales', 'alumno@example.test', 'Estado',
+            'Reportes', 'Aquí encuentras todos tus reportes académicos', 'Periodo', 'Periodo seleccionado', 'Seguimiento académico',
+            'Perfil', 'Ir a mi perfil', 'Editar datos', 'Modificar datos',
+        ])
+        ->assertSee(route('estudiante.perfil.datos'));
+});
+
+it('falls back to the newest period when the period in the address is not a number', function (): void {
+    $this->actingAs($this->escenario['usuario'])
+        ->get(route('estudiante.reportes', ['periodo' => 'abc']))
+        ->assertOk()
+        ->assertSee('Inglés 1 · ING-1-M');
+});
+
 it('disables the reports that do not apply yet and says why, instead of leading to an error', function (): void {
     $this->actingAs($this->escenario['usuario'])
         ->get(route('estudiante.reportes'))
