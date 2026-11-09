@@ -35,18 +35,64 @@ Al migrar una base que ya tenía cuentas, `usuarios.gestionar` se otorga automá
 ## Variables clave de producción
 
 ```dotenv
+APP_NAME="CILN UNASAM"
 APP_ENV=production
 APP_DEBUG=false
+APP_KEY=base64:...
+APP_PREVIOUS_KEYS=
 APP_URL=https://cid.unasam.edu.pe
 APP_LOCALE=es
+APP_FALLBACK_LOCALE=es
 APP_FAKER_LOCALE=es_PE
+
 DB_CONNECTION=pgsql
+DB_HOST=<servidor de PostgreSQL>
+DB_PORT=5432
+DB_DATABASE=ciln
+DB_USERNAME=<rol de aplicación>
+DB_PASSWORD=...
+
 SESSION_DRIVER=database
 SESSION_SECURE_COOKIE=true
+SESSION_LIFETIME=120
 SESSION_PANEL_LIFETIME=30
 PANEL_DOBLE_FACTOR_OBLIGATORIO=false
+
 QUEUE_CONNECTION=database
+CACHE_STORE=database
+
+MAIL_MAILER=smtp
+MAIL_HOST=<servidor SMTP>
+MAIL_PORT=587
+MAIL_USERNAME=...
+MAIL_PASSWORD=...
+MAIL_FROM_ADDRESS=<correo institucional del CILN>
+MAIL_FROM_NAME="${APP_NAME}"
+
+LOG_CHANNEL=daily
+LOG_LEVEL=warning
+LOG_DAILY_DAYS=14
+
+TRUSTED_PROXIES=<IP o rango del proxy>
+
+CILN_VALIDACION_POR_OTRA_PERSONA=true
+CILN_RESPALDOS_PROGRAMADOS=false
+BACKUP_ARCHIVE_PASSWORD=...
 ```
+
+Variables que, si faltan, toman un valor por defecto que no sirve en producción:
+
+| Variable | Valor por defecto | Consecuencia si falta |
+|---|---|---|
+| `APP_NAME` | `Laravel` | Es el remitente de los correos y el nombre de los respaldos |
+| `DB_USERNAME` | `root` | Debe ser el rol de **aplicación**, no el dueño de las tablas ([Base de datos y proxy](#base-de-datos-y-proxy)) |
+| `MAIL_MAILER` | `log` | No se envía ningún correo: la verificación de cuenta, la recuperación de contraseña, el aviso de cambio de contraseña y la primera cuenta de administración quedan solo en el log |
+| `MAIL_FROM_ADDRESS` | `hello@example.com` | Los correos salen desde una dirección ajena al CILN y pueden ser rechazados o marcados como spam |
+| `LOG_LEVEL` | `debug` | El log crece con detalle de depuración; en producción basta `warning` |
+| `TRUSTED_PROXIES` | vacío | La auditoría registra la IP del proxy y los enlaces salen con `http` |
+| `BACKUP_ARCHIVE_PASSWORD` | vacío | El respaldo se guarda sin cifrar; con valor, se cifra (AES-256) y esa contraseña hace falta para restaurarlo |
+
+`CILN_VALIDACION_POR_OTRA_PERSONA` (por defecto `true`) impide que quien registró un pago lo valide ([decisión #117](decisiones-pendientes.md)). No se usan Redis, S3, Cloudflare ni Gotenberg: sus variables pueden omitirse. Los PDF usan `dompdf`, que no requiere configuración. Después de cambiar cualquier variable, regenerar la caché con `php artisan config:cache`.
 
 `SESSION_PANEL_LIFETIME` son los minutos sin actividad tras los que se cierra la sesión del panel. Al publicar esta versión, las sesiones del panel abiertas se cierran en su siguiente pedido (aún no tienen la marca del ingreso del panel): conviene publicarla fuera del horario de atención. `PANEL_DOBLE_FACTOR_OBLIGATORIO` (por defecto `false`) exige que toda cuenta del panel configure su aplicación autenticadora antes de entrar; si se activa, avisar antes al personal y regenerar la caché de configuración (`php artisan config:cache`), porque el valor no cambia hasta entonces. El secreto del doble factor se cifra con `APP_KEY`: al rotar la clave, dejar la anterior en `APP_PREVIOUS_KEYS`; si se pierde, hay que reiniciar el segundo factor de cada cuenta (`php artisan auth:reiniciar-doble-factor <correo>`). Los QR de las actas finales impresas llevan un enlace firmado con `APP_KEY` que no caduca: al rotar la clave, la anterior debe quedar en `APP_PREVIOUS_KEYS` o esos QR dejarán de verificar. El enlace usa `APP_URL` como dirección pública, así que debe ser el dominio definitivo antes de imprimir actas.
 
