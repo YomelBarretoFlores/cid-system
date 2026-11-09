@@ -6,9 +6,12 @@ namespace App\Modules\Matricula\Livewire;
 
 use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
 use App\Modules\Academico\Contracts\VentanasDeMatricula;
+use App\Modules\Academico\Data\FichaDeGrupo;
 use App\Modules\Academico\Data\VentanaDeMatricula;
+use App\Modules\Certificacion\Contracts\RecordDeNotas;
 use App\Modules\Docencia\Contracts\ClasesPorConfirmarDelDelegado;
 use App\Modules\Matricula\Actions\ResumirAvanceDelEstudiante;
+use App\Modules\Matricula\Data\AvanceDelEstudiante;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Enums\PasoDelEstudiante;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
@@ -50,7 +53,32 @@ final class ResumenDelEstudiante extends Component
             'tareas' => $tareas->delEstudiante(),
             'esperas' => $tareas->delCiln(),
             'plazos' => PlazosDeLaSemana::de(CarbonImmutable::now('America/Lima'), $avance->grupoActual),
+            'documentos' => $this->documentos($avance, app(RecordDeNotas::class)($ficha->personaId) !== []),
         ]);
+    }
+
+    /**
+     * @return list<array{titulo: string, detalle: string, href: string, color: string, icono: string}> quick accesses to the documents the student already has
+     */
+    private function documentos(AvanceDelEstudiante $avance, bool $tieneRecord): array
+    {
+        $grupo = $avance->grupoActual;
+        $matricula = $avance->matriculaActual;
+        $documentos = [];
+
+        if ($matricula !== null && $grupo instanceof FichaDeGrupo) {
+            $documentos[] = ['titulo' => 'Ficha de matrícula', 'detalle' => "Periodo {$grupo->periodo}", 'href' => route('estudiante.matriculas.ficha', $matricula), 'color' => 'celeste', 'icono' => 'heroicon-o-identification'];
+            $documentos[] = ['titulo' => 'Constancia de inscripción', 'detalle' => 'De tu matrícula vigente', 'href' => route('estudiante.matriculas.constancia', $matricula), 'color' => 'verde', 'icono' => 'heroicon-o-document-check'];
+            $documentos[] = ['titulo' => 'Horario personalizado', 'detalle' => 'Tus clases de la semana', 'href' => route('estudiante.reportes.horario', $grupo->periodoId), 'color' => 'lila', 'icono' => 'heroicon-o-calendar-days'];
+            $documentos[] = ['titulo' => 'Boleta de notas', 'detalle' => "Periodo {$grupo->periodo}", 'href' => route('estudiante.reportes.boleta', $grupo->periodoId), 'color' => 'rojo', 'icono' => 'heroicon-o-clipboard-document-list'];
+            $documentos[] = ['titulo' => 'Asistencia', 'detalle' => 'Sesión por sesión', 'href' => route('estudiante.reportes.asistencia', $matricula), 'color' => 'ambar', 'icono' => 'heroicon-o-check-circle'];
+        }
+
+        if ($tieneRecord) {
+            $documentos[] = ['titulo' => 'Récord de notas', 'detalle' => 'Todos tus idiomas', 'href' => route('estudiante.reportes.record'), 'color' => 'celeste', 'icono' => 'heroicon-o-academic-cap'];
+        }
+
+        return $documentos;
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Policies\PersonaPolicy;
 use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property TipoVinculo $tipo_vinculo
  * @property TipoDocumento $tipo_documento
+ * @property ?CarbonImmutable $fecha_nacimiento
  */
 #[Table('per_personas')]
 #[RouteKey('ulid')]

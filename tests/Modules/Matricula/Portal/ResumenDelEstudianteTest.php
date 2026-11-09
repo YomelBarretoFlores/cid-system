@@ -26,7 +26,7 @@ beforeEach(function (): void {
 it('asks a student without a usable payment to register the enrollment payment', function (): void {
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSeeInOrder(['Hola, Lucía.', 'Tienes 1 cosa por hacer.', 'Te toca a ti', 'Registra tu pago de matrícula.', 'Registrar pago', 'Aún no estudias ningún idioma en el CILN.', 'Esta semana', 'Aún no tienes clases.']);
+        ->assertSeeInOrder(['Aún no tienes una matrícula activa.', 'Te toca a ti', 'Registra tu pago de matrícula.', 'Registrar pago', 'Aún no estudias ningún idioma en el CILN.', 'Esta semana', 'Aún no tienes clases.']);
 });
 
 it('shows an enrolled student the group, the weekly classes and the cycle in progress', function (): void {
@@ -38,7 +38,7 @@ it('shows an enrolled student the group, the weekly classes and the cycle in pro
 
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSeeInOrder(['Estás al día.', 'Ya estás matriculado en Inglés · Ciclo 2.', 'Ver mis matrículas', 'Cursando el ciclo 2', 'Esta semana', 'Mar', 'Inglés · 07:00 · A-204']);
+        ->assertSeeInOrder(['Tu matrícula está validada, todo está en orden.', 'Estás matriculado en Inglés · Ciclo 2', 'Ver ficha de matrícula', 'Cursando el ciclo 2', 'Esta semana', 'Mar', 'Inglés · 07:00 · A-204']);
 });
 
 it('points a teacher without any enrollment to the groups instead of asking for an enrollment payment', function (): void {
@@ -78,7 +78,7 @@ it('keeps an enrollment current on the last day of its period, in Lima', functio
 
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSee('Ya estás matriculado en Portugués · Ciclo 2.')
+        ->assertSee('Estás matriculado en Portugués · Ciclo 2')
         ->assertSee('Cursando el ciclo 2');
 });
 
@@ -89,7 +89,7 @@ it('asks the student to sit a pending placement exam before it expires, and drop
 
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSeeInOrder(['Tienes 2 cosas por hacer.', 'Te toca a ti', 'Rinde tu examen de clasificación de Quechua.', 'Acércate al CILN antes del 20/03/2027.', 'Ver clasificación'])
+        ->assertSeeInOrder(['Te toca a ti', 'Registra tu pago de matrícula.', 'Rinde tu examen de clasificación de Quechua.', 'Acércate al CILN antes del 20/03/2027.', 'Ver clasificación'])
         ->assertSee(route('estudiante.clasificacion'))
         ->assertDontSee('clasificación de Francés');
 });

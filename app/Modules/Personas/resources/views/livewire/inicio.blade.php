@@ -1,16 +1,44 @@
 <div class="flex flex-col gap-2 sm:gap-3.5">
-    <livewire:matricula.resumen-del-estudiante :es-docente="$esDocente" />
+    <section aria-labelledby="titulo-perfil" class="flex flex-col gap-5 rounded-tarjeta bg-tarjeta p-5 sm:flex-row sm:items-center sm:px-7 sm:py-7">
+        <x-portal.avatar :nombre="strtok($ficha->nombres, ' ').' '.strtok($ficha->nombreCompleto, ' ')" class="size-24 text-[28px] ring-4 sm:size-28" />
+        <div class="flex min-w-0 flex-1 flex-col gap-1">
+            <h1 id="titulo-perfil" class="text-[clamp(22px,2.4vw,30px)] leading-tight font-semibold tracking-[-0.01em] text-balance">{{ mb_strtoupper(str_replace(',', '', $ficha->nombreCompleto)) }}</h1>
+            <span class="text-secundario">{{ $ficha->documento }}</span>
+            <span class="text-[14px] text-apagado">Centro de Idiomas y Lenguas Nativas · UNASAM</span>
+        </div>
+        <div class="flex flex-wrap gap-2 sm:self-start">
+            <x-portal.boton :href="route('estudiante.reportes')" variante="secundario" tamano="compacto" wire:navigate>Resumen académico</x-portal.boton>
+        </div>
+    </section>
 
-    @if ($esDocente)
-        <a href="{{ route('filament.docente.pages.mis-grupos') }}" class="group flex items-center gap-4 rounded-tarjeta bg-tarjeta p-6 transition-shadow hover:shadow-[inset_0_0_0_2px_var(--color-oro-300)] focus-visible:shadow-foco focus-visible:outline-none">
-            <span class="flex size-11 shrink-0 items-center justify-center rounded-control bg-acento-claro">
-                <x-heroicon-o-user-group aria-hidden="true" class="size-[22px] text-oro-600" />
-            </span>
-            <span class="flex flex-1 flex-col">
-                <span class="text-[17px] font-semibold">Mis grupos</span>
-                <span class="text-[14.5px] text-terciario">Registra la asistencia y las notas parciales de tus grupos.</span>
-            </span>
-            <x-heroicon-o-arrow-right aria-hidden="true" class="size-4 text-apagado transition-transform group-hover:translate-x-0.5" />
-        </a>
-    @endif
+    <div class="grid gap-2 sm:gap-3.5 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <div class="flex min-w-0 flex-col gap-2 sm:gap-3.5">
+            <x-portal.tarjeta titulo="Datos personales">
+                <dl class="flex flex-col gap-3 text-[14.5px]">
+                    @foreach ([['Documento', $ficha->documento], ['Correo', $ficha->correo], ['Celular', $ficha->celular], ['Fecha de nacimiento', $ficha->fechaNacimiento]] as [$etiqueta, $valor])
+                        <div class="flex flex-col">
+                            <dt class="text-[13px] text-apagado">{{ $etiqueta }}</dt>
+                            <dd class="break-words">{{ $valor ?? 'Sin registrar' }}</dd>
+                        </div>
+                    @endforeach
+                </dl>
+            </x-portal.tarjeta>
+            <x-portal.tarjeta titulo="Estado">
+                <div class="flex flex-wrap gap-2">
+                    <x-portal.insignia color="success">Activo</x-portal.insignia>
+                    @if ($ficha->vinculo)
+                        <x-portal.insignia color="info">{{ $ficha->vinculo }}</x-portal.insignia>
+                    @endif
+                    @if ($esDocente)
+                        <x-portal.insignia>Docente</x-portal.insignia>
+                    @endif
+                </div>
+                @if ($esDocente)
+                    <a href="{{ route('filament.docente.pages.mis-grupos') }}" class="enlace text-[14.5px]">Ir a mis grupos</a>
+                @endif
+            </x-portal.tarjeta>
+        </div>
+
+        <livewire:matricula.resumen-del-estudiante :es-docente="$esDocente" />
+    </div>
 </div>

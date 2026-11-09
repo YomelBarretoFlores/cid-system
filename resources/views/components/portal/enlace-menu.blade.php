@@ -1,9 +1,9 @@
-@props(['ruta', 'icono', 'activo' => null, 'insignia' => null])
-@php($esActivo = request()->routeIs($activo ?? $ruta))
-<a href="{{ route($ruta) }}" wire:navigate.hover x-bind:title="colapsado ? @js(trim(strip_tags((string) $slot))) : null"
+@props(['ruta', 'icono', 'activo' => null, 'insignia' => null, 'navegar' => true])
+@php($esActivo = $navegar && request()->routeIs($activo ?? $ruta))
+<a href="{{ route($ruta) }}" {{ $navegar ? 'wire:navigate.hover' : '' }} x-bind:title="colapsado ? @js(trim(strip_tags((string) $slot))) : null"
     @if ($esActivo) aria-current="page" @endif
     @class([
-        'relative flex items-center gap-3.5 rounded-xl p-2.5 text-[15.5px] text-tinta focus-visible:shadow-foco focus-visible:outline-none lg:in-data-colapsado:justify-center',
+        'relative flex items-center gap-3.5 rounded-xl px-2.5 py-2 text-[15px] text-tinta focus-visible:shadow-foco focus-visible:outline-none lg:in-data-colapsado:justify-center',
         'bg-acento-claro font-semibold' => $esActivo,
         'hover:bg-hover-suave' => ! $esActivo,
     ])>

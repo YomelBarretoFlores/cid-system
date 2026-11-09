@@ -152,10 +152,10 @@ it('tells a delegate absent from the closing call that they cannot confirm the c
 it('shows the delegate how many classes wait for them on the portal home', function (string $hora, Closure $quien, bool $visible): void {
     enElPortalALas($hora);
 
-    $pagina = $this->actingAs(usuarioDeLaMatricula($quien->call($this)))->get(route('estudiante.inicio'))->assertOk()->assertSee('Hola,');
+    $pagina = $this->actingAs(usuarioDeLaMatricula($quien->call($this)))->get(route('estudiante.inicio'))->assertOk()->assertSee('Datos personales');
 
     $visible
-        ? $pagina->assertSeeInOrder(['Tienes 1 cosa por hacer.', 'Te toca a ti', 'Tienes 1 clase por confirmar.', 'Como delegado, confirma que el docente dictó la clase antes de que venza el plazo.', 'Confirmar clases'])->assertSee(route('estudiante.clases'))
+        ? $pagina->assertSeeInOrder(['Te toca a ti', 'Tienes 1 clase por confirmar.', 'Como delegado, confirma que el docente dictó la clase antes de que venza el plazo.', 'Confirmar clases'])->assertSee(route('estudiante.clases'))
         : $pagina->assertDontSee('por confirmar');
 })->with([
     'the delegate within the window' => ['20:10', fn (): Matricula => $this->ana, true],

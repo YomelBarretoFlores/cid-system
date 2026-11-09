@@ -1,0 +1,29 @@
+# CILN · Student portal organized like the UNASAM SGA
+
+Objective: rebuild the student portal layout, home and reports after the SGA organization (profile sidebar, profile home, Reportes > Todos), plus profile editing and photo.
+Branches: `feat/portal-estudiante-sga` (E1, E2) and `feat/perfil-del-estudiante` (E3) from main b1e6964. Delivery: ask-on-risk (forecast ~1550 authored lines). Runner: Pest (`vendor/bin/pest` with `DB_PORT=5433 DB_USERNAME=ciln DB_PASSWORD=secret`), `composer check`.
+
+## Specs
+
+- S1 (user, verbatim): "Bien, vamos a mejorar el panel de estudiante, hay mucho por mejorar y direccionarlo a como es el SGA. Mira cómo es el SGA, tiene una sección llamada reportes, allí está horarios, sílabo, plan curricular (en este caso plan curricular pues no hay) pero podría reemplazarce por otra cosas. Está la opción de todos y puedes ver que allí reune todo, hasta las asistencias. Me gusta cómo organiza la información."
+- S2 (user, verbatim): "También puedes ver que siempre al lado está el perfil y la información del perfil del usuario." → sidebar: photo or initials, name and "Estudiante" at the top; titled groups Mi cuenta, Reportes, Procesos, Enlaces.
+- S3 (user, verbatim): "La segunda imagen es lo primero que ve el alumno al ingresar, su perfil, su matrícula validada, opción de editar perfil y al lado derecho los accesos rápidos de algunos documentos. Así debe de ser también para el CILN en estudiante." → home = profile header, personal data and status, enrollment-state panel by `PasoDelEstudiante`, right column with Documentos and Enlaces rápidos.
+- S4 (user, verbatim): "Porque todo lo visual y el cómo se organiza la información de estudiante no me gusta para nada."
+- S5 (user decision, AskUserQuestion): "Foto y contacto" → the student uploads a private profile photo (JPG/PNG) and edits phone and address; names, document and birth date stay CILN-only.
+- S6 (assumption, approved with the plan): light CILN theme kept; email not editable from the portal; "Modificar datos" includes a password change; the sidebar blink is fixed by rendering the collapsed state from a cookie.
+- S7: Reportes > Todos with a period selector and three columns (Periodo seleccionado / Generales e históricos / Seguimiento académico); Reportes > Horario and Reportes > Sílabos pages; unavailable accesses shown disabled with their reason; reports themselves keep the formal SGA style; PDF controllers unchanged.
+- Checks: `composer check` rc=0; desktop 1440 and 390 px captures without horizontal overflow or JS errors; frame capture shows no sidebar blink.
+
+## Tasks
+
+- [x] T1 · S2, S6 · inline · grouped sidebar with profile on top, cookie-rendered collapse (E1). RED→GREEN MenuDelPortalTest.
+- [x] T2 · S3 · inline · profile home with enrollment-state panel and quick documents (E1). RED→GREEN home tests.
+- [ ] T3 · S1, S7 · inline · Reportes > Todos, Horario, Sílabos (E2).
+- [ ] T4 · S5, S6 · inline · migration, contact edit, photo upload/view, password change; Risk items 1, 2 → independent verifier (E3).
+- [ ] T5 · S8 checks · inline · browser verification desktop and mobile.
+
+## Log
+
+- L1 (2026-11-09, verbatim): "Bien, vamos a mejorar el panel de estudiante, hay mucho por mejorar y direccionarlo a como es el SGA. [Image #6] Mira cómo es el SGA, tiene una sección llamada reportes, allí está horarios, sílabo, plan curricular (en este caso plan curricular pues no hay) pero podría reemplazarce por otra cosas. Está la opción de todos y puedes ver que allí reune todo, hasta las asistencias. Me gusta cómo organiza la información. También puedes ver que siempre al lado está el perfil y la información del perfil del usuario. [Image #7] La segunda imagen es lo primero que ve el alumno al ingresar, su perfil, su matrícula validada, opción de editar perfil y al lado derecho los accesos rápidos de algunos documentos. Así debe de ser también para el CILN en estudiante. Porque todo lo visual y el cómo se organiza la información de estudiante no me gusta para nada. Pero antes de todo primero haz commit y sube todo."
+- L2: plan approved (`~/.claude/plans/golden-rolling-hippo.md`), replacing V4 of the earlier plan. Map: flat menu at `layouts/portal.blade.php:41-50`; home `Personas/Livewire/InicioDelPortal` embeds `Matricula/Livewire/ResumenDelEstudiante`; reports in `Matricula/Livewire/MisReportes`; `per_personas` has no address or photo.
+- L3: T1/T2: sidebar groups Mi cuenta/Reportes/Procesos/Enlaces with the avatar on top (`x-portal.grupo-menu`, `x-portal.avatar`); collapse read from the unencrypted cookie `ciln-menu-colapsado` (excluded in `bootstrap/app.php`), grid transition only after a click. Home: profile header + Datos personales/Estado (Personas) and `ResumenDelEstudiante` as the enrollment panel (Matriculado / PagoValidado / sin matrícula, tasks kept, payments) plus Documentos (only what exists; Récord via `RecordDeNotas`) and Enlaces rápidos. "Quién validó y cuándo" is not shown: no contract exposes it yet. Portal, Personas, Matricula and Docencia portal tests: 267 passed. Browser 1440 and 390 px (iframe): no overflow, no JS errors; frame sampling during wire:navigate kept the collapsed aside at 88 px in 91 frames (no blink).

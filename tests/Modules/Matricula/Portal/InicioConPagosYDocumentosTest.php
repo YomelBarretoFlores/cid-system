@@ -72,7 +72,8 @@ it('links the documents of the current enrollment and the trámites page', funct
 
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSeeInOrder(['Mis documentos', 'Ficha de matrícula', 'Constancia de inscripción', 'Constancias y certificados'])
+        ->assertSeeInOrder(['Documentos', 'Ficha de matrícula', 'Constancia de inscripción', 'Horario personalizado', 'Boleta de notas', 'Asistencia', 'Enlaces rápidos', 'Trámites', 'Constancias y certificados'])
+        ->assertSee(route('estudiante.reportes.asistencia', $matricula->ulid))
         ->assertSee(route('estudiante.matriculas.ficha', $matricula->ulid))
         ->assertSee(route('estudiante.matriculas.constancia', $matricula->ulid))
         ->assertSee(route('estudiante.tramites'));
@@ -81,7 +82,8 @@ it('links the documents of the current enrollment and the trámites page', funct
 it('keeps only the trámites link while the student has no active enrollment', function (): void {
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSee('Mis documentos')
+        ->assertSee('Documentos')
+        ->assertSee('Tus documentos aparecerán cuando te matricules.')
         ->assertSee(route('estudiante.tramites'))
         ->assertDontSee('Ficha de matrícula');
 });

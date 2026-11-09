@@ -31,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', EstablecerContextoAuditoria::class);
         $middleware->appendToGroup('api', EstablecerContextoAuditoria::class);
         $middleware->throttleApi();
+        $middleware->encryptCookies(except: ['ciln-menu-colapsado']);
         $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'docente' => RequierePerfilDocente::class, 'correo.verificado' => RequiereCorreoVerificado::class, 'panel.sesion' => ProtegerDescargaDelPanel::class]);
 
         // The admin panel redirects its own guests to its login; staff downloads under /panel go there too, every portal page to the single entry.

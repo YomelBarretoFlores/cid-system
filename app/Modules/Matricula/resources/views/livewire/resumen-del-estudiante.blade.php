@@ -6,67 +6,81 @@
     $lunes = $hoy->startOfWeek();
     $dias = array_filter($avance->horario, fn (array $clases, int $dia): bool => $dia < 7 || $clases !== [] || isset($plazos[$dia]), ARRAY_FILTER_USE_BOTH);
 @endphp
-<div class="grid gap-2 sm:gap-3.5 xl:grid-cols-[minmax(0,1fr)_340px]">
+<div class="grid gap-2 sm:gap-3.5 2xl:grid-cols-[minmax(0,1fr)_300px]">
     <div class="flex min-w-0 flex-col gap-2 sm:gap-3.5">
-        <header class="flex flex-col gap-1 px-1 pt-2 sm:pt-3">
-            <span class="text-apagado">{{ ucfirst($hoy->translatedFormat('l j \d\e F')) }}{{ $grupo ? " · Periodo {$grupo->periodo}" : " · {$ficha->documento}" }}</span>
-            <h1 class="text-[clamp(28px,3vw,38px)] leading-[1.1] font-semibold tracking-[-0.03em]">
-                Hola, {{ $ficha->nombres }}.
-                <span>{{ match (count($tareas)) { 0 => 'Estás al día.', 1 => 'Tienes 1 cosa por hacer.', default => 'Tienes '.count($tareas).' cosas por hacer.' } }}</span>
-            </h1>
-        </header>
-
-        @if ($tareas !== [])
-            <x-portal.tarjeta>
-                <h2 class="text-[13px] font-semibold tracking-[0.12em] text-enlace uppercase">Te toca a ti</h2>
-                <ul class="flex flex-col divide-y divide-separador">
-                    @foreach ($tareas as $tarea)
-                        <li class="flex flex-col gap-3 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-center">
-                            <span class="flex size-11 shrink-0 items-center justify-center rounded-control bg-acento-claro"><x-heroicon-o-pencil-square aria-hidden="true" class="size-5 text-oro-700" /></span>
-                            <span class="flex flex-1 flex-col">
-                                <span class="text-[16.5px] font-semibold">{{ $tarea->titulo }}</span>
-                                <span class="text-[14px] text-terciario">{{ $tarea->detalle }}</span>
-                            </span>
-                            <x-portal.boton :href="route($tarea->ruta)" class="self-start sm:self-center">{{ $tarea->accion }}</x-portal.boton>
-                        </li>
-                    @endforeach
-                </ul>
-            </x-portal.tarjeta>
-        @endif
-
-        @if ($esperas !== [])
-            <x-portal.tarjeta>
-                <h2 class="text-[13px] font-semibold tracking-[0.12em] text-apagado uppercase">Le toca al CILN</h2>
-                <ul class="flex flex-col divide-y divide-separador">
-                    @foreach ($esperas as $espera)
-                        <li class="flex flex-col gap-3 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-center">
-                            <span class="flex size-11 shrink-0 items-center justify-center rounded-control bg-lienzo"><x-heroicon-o-clock aria-hidden="true" class="size-5 text-apagado" /></span>
-                            <span class="flex flex-1 flex-col">
-                                <span class="text-[16.5px] font-semibold">{{ $espera->titulo }}</span>
-                                <span class="text-[14px] text-terciario">{{ $espera->detalle }}</span>
-                            </span>
-                            <span class="flex items-center gap-3 self-start sm:self-center">
-                                <x-portal.insignia color="warning">{{ $espera->estado }}</x-portal.insignia>
-                                <a href="{{ route($espera->ruta) }}" class="enlace">{{ $espera->accion }}</a>
-                            </span>
-                        </li>
-                    @endforeach
-                </ul>
-            </x-portal.tarjeta>
-        @endif
-
-        @if ($avance->paso === PasoDelEstudiante::Matriculado)
-            <x-portal.tarjeta>
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <span class="flex size-11 shrink-0 items-center justify-center rounded-control bg-verde-fondo"><x-heroicon-o-check aria-hidden="true" class="size-5 text-verde-texto" /></span>
-                    <span class="flex flex-1 flex-col">
-                        <span class="text-[16.5px] font-semibold">Ya estás matriculado en {{ $grupo?->idioma }} · Ciclo {{ $grupo?->cicloNumero }}.</span>
-                        <span class="text-[14px] text-terciario">Descarga tu ficha y tu constancia desde Mis matrículas.</span>
-                    </span>
-                    <x-portal.boton :href="route('estudiante.matriculas')" variante="secundario" class="self-start sm:self-center">Ver mis matrículas</x-portal.boton>
+        <x-portal.tarjeta>
+            <header class="flex flex-col gap-1">
+                <span class="text-[13px] font-semibold tracking-[0.12em] text-apagado uppercase">Matrícula{{ $grupo ? " · Periodo {$grupo->periodo}" : '' }}</span>
+                @if ($avance->paso === PasoDelEstudiante::Matriculado)
+                    <h2 class="text-[clamp(20px,2vw,26px)] leading-tight font-semibold text-verde-texto">Tu matrícula está validada, todo está en orden.</h2>
+                    <p class="text-secundario">Estás matriculado en {{ $grupo?->idioma }} · Ciclo {{ $grupo?->cicloNumero }} ({{ $grupo?->nivel }}), grupo {{ $grupo?->codigo }}. Descarga tu ficha de matrícula y conserva una copia.</p>
+                @elseif ($avance->paso === PasoDelEstudiante::PagoValidado)
+                    <h2 class="text-[clamp(20px,2vw,26px)] leading-tight font-semibold">Tu pago está validado: ya puedes elegir tu grupo.</h2>
+                @elseif (! $soloDocente)
+                    <h2 class="text-[clamp(20px,2vw,26px)] leading-tight font-semibold">Aún no tienes una matrícula activa.</h2>
+                @endif
+            </header>
+            @if ($avance->paso === PasoDelEstudiante::Matriculado && $avance->matriculaActual !== null)
+                <div class="flex flex-wrap gap-2">
+                    <x-portal.boton :href="route('estudiante.matriculas.ficha', $avance->matriculaActual)" variante="secundario" tamano="compacto" target="_blank" rel="noopener">Ver ficha de matrícula</x-portal.boton>
+                    <x-portal.boton :href="route('estudiante.pagos')" variante="secundario" tamano="compacto">Ver mis pagos</x-portal.boton>
                 </div>
-            </x-portal.tarjeta>
-        @endif
+            @endif
+
+            @if ($tareas !== [])
+                <div class="flex flex-col gap-2">
+                    <h3 class="text-[13px] font-semibold tracking-[0.12em] text-enlace uppercase">Te toca a ti</h3>
+                    <ul class="flex flex-col gap-2">
+                        @foreach ($tareas as $tarea)
+                            <li class="flex flex-col gap-3 rounded-xl bg-azul-fondo px-4 py-3.5 sm:flex-row sm:items-center">
+                                <span class="flex flex-1 flex-col">
+                                    <span class="font-semibold text-azul-texto">{{ $tarea->titulo }}</span>
+                                    <span class="text-[14px] text-azul-texto/85">{{ $tarea->detalle }}</span>
+                                </span>
+                                <x-portal.boton :href="route($tarea->ruta)" tamano="compacto" class="self-start sm:self-center">{{ $tarea->accion }}</x-portal.boton>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @if ($esperas !== [])
+                <div class="flex flex-col gap-2">
+                    <h3 class="text-[13px] font-semibold tracking-[0.12em] text-apagado uppercase">Le toca al CILN</h3>
+                    <ul class="flex flex-col gap-2">
+                        @foreach ($esperas as $espera)
+                            <li class="flex flex-col gap-3 rounded-xl bg-ambar-fondo px-4 py-3.5 sm:flex-row sm:items-center">
+                                <span class="flex flex-1 flex-col">
+                                    <span class="font-semibold text-ambar-texto">{{ $espera->titulo }}</span>
+                                    <span class="text-[14px] text-ambar-texto/85">{{ $espera->detalle }}</span>
+                                </span>
+                                <span class="flex items-center gap-3 self-start sm:self-center">
+                                    <x-portal.insignia color="warning">{{ $espera->estado }}</x-portal.insignia>
+                                    <a href="{{ route($espera->ruta) }}" class="enlace">{{ $espera->accion }}</a>
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @unless ($soloDocente)
+                <div class="flex flex-col gap-3 border-t border-separador pt-4">
+                    <h3 class="text-[13px] font-semibold tracking-[0.12em] text-apagado uppercase">Mis pagos</h3>
+                    <dl class="grid grid-cols-3 gap-2">
+                        @foreach ([['Por validar', $avance->pagos->porValidar], ['Validados', $avance->pagos->validados], ['Para matrícula', $avance->pagosParaMatricula]] as [$etiqueta, $cantidad])
+                            <div class="tarjeta-interna flex flex-col gap-1 p-3">
+                                <dt class="text-[12.5px] text-terciario">{{ $etiqueta }}</dt>
+                                <dd class="text-[22px] leading-none font-semibold">{{ $cantidad }}</dd>
+                            </div>
+                        @endforeach
+                    </dl>
+                    @if ($avance->pagos->montoDeMatricula !== null)
+                        <p class="text-[13.5px] text-secundario">Matrícula: S/ {{ $avance->pagos->montoDeMatricula }} según tu vínculo.</p>
+                    @endif
+                </div>
+            @endunless
+        </x-portal.tarjeta>
 
         @unless ($soloDocente)
             <x-portal.tarjeta titulo="Mis idiomas">
@@ -92,10 +106,8 @@
                 @endif
             </x-portal.tarjeta>
         @endunless
-    </div>
 
-    @unless ($soloDocente)
-        <div class="flex min-w-0 flex-col gap-2 sm:gap-3.5">
+        @unless ($soloDocente)
             <x-portal.tarjeta titulo="Esta semana">
                 <x-slot:acciones><a href="{{ route('estudiante.reportes', ['ver' => 'horario']) }}" wire:navigate class="enlace text-[14px]">Ver horario completo</a></x-slot:acciones>
                 @if ($grupo === null)
@@ -116,34 +128,28 @@
                 @endif
             </x-portal.tarjeta>
 
-            <x-portal.tarjeta titulo="Mis pagos">
-                <x-slot:acciones><a href="{{ route('estudiante.pagos') }}" class="enlace text-[14px]">Ir a mis pagos</a></x-slot:acciones>
-                <dl class="grid grid-cols-3 gap-2">
-                    @foreach ([['Por validar', $avance->pagos->porValidar], ['Validados', $avance->pagos->validados], ['Para matrícula', $avance->pagosParaMatricula]] as [$etiqueta, $cantidad])
-                        <div class="tarjeta-interna flex flex-col gap-1 p-3">
-                            <dt class="text-[12.5px] text-terciario">{{ $etiqueta }}</dt>
-                            <dd class="text-[22px] leading-none font-semibold">{{ $cantidad }}</dd>
-                        </div>
-                    @endforeach
-                </dl>
-                @if ($avance->pagos->montoDeMatricula !== null)
-                    <p class="text-[13.5px] text-secundario">Matrícula: S/ {{ $avance->pagos->montoDeMatricula }} según tu vínculo.</p>
+        @endunless
+    </div>
+
+    @unless ($soloDocente)
+        <div class="flex min-w-0 flex-col gap-2 sm:gap-3.5">
+            <x-portal.tarjeta titulo="Documentos">
+                @if ($documentos === [])
+                    <p class="text-[14.5px] text-secundario">Tus documentos aparecerán cuando te matricules.</p>
+                @else
+                    <ul class="flex flex-col gap-1">
+                        @foreach ($documentos as $documento)
+                            <x-portal.acceso-documento :titulo="$documento['titulo']" :detalle="$documento['detalle']" :href="$documento['href']" :color="$documento['color']" :icono="$documento['icono']" pdf />
+                        @endforeach
+                    </ul>
                 @endif
             </x-portal.tarjeta>
 
-            <x-portal.tarjeta titulo="Mis documentos">
-                <ul class="flex flex-col divide-y divide-separador">
-                    @if ($avance->matriculaActual !== null)
-                        <x-portal.fila titulo="Ficha de matrícula" :detalle="'Periodo '.$grupo?->periodo" class="px-0">
-                            <x-slot:fin><a href="{{ route('estudiante.matriculas.ficha', $avance->matriculaActual) }}" target="_blank" rel="noopener" class="enlace" title="Abrir PDF"><x-heroicon-o-arrow-down-tray aria-hidden="true" class="size-5" /><span class="sr-only">Abrir PDF</span></a></x-slot:fin>
-                        </x-portal.fila>
-                        <x-portal.fila titulo="Constancia de inscripción" detalle="De tu matrícula vigente" class="px-0">
-                            <x-slot:fin><a href="{{ route('estudiante.matriculas.constancia', $avance->matriculaActual) }}" target="_blank" rel="noopener" class="enlace" title="Abrir PDF"><x-heroicon-o-arrow-down-tray aria-hidden="true" class="size-5" /><span class="sr-only">Abrir PDF</span></a></x-slot:fin>
-                        </x-portal.fila>
-                    @endif
-                    <x-portal.fila titulo="Constancias y certificados" detalle="Solicítalos y descárgalos desde Mis trámites" class="px-0">
-                        <x-slot:fin><a href="{{ route('estudiante.tramites') }}" class="enlace">Ir a trámites</a></x-slot:fin>
-                    </x-portal.fila>
+            <x-portal.tarjeta titulo="Enlaces rápidos">
+                <ul class="flex flex-col gap-1">
+                    <x-portal.acceso-documento titulo="Trámites" detalle="Constancias y certificados" :href="route('estudiante.tramites')" color="verde" icono="heroicon-o-document-text" />
+                    <x-portal.acceso-documento titulo="Verificar un documento" detalle="Con su código o QR" :href="route('verificacion.documento')" color="lila" icono="heroicon-o-qr-code" nueva-pestana />
+                    <x-portal.acceso-documento titulo="Web del CILN" detalle="Oferta, costos y fechas" :href="route('portada')" color="ambar" icono="heroicon-o-globe-alt" nueva-pestana />
                 </ul>
             </x-portal.tarjeta>
         </div>
