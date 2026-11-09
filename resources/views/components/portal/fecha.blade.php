@@ -12,7 +12,7 @@
             @if ($conError) aria-invalid="true" @endif
             @if ($descripciones) aria-describedby="{{ $descripciones }}" @endif
             x-on:click="abierto ? cerrar() : abrir()"
-            {{ $attributes->class('control flex items-center gap-2.5 text-left') }} x-bind:class="abierto && 'border-oro-400 shadow-foco'">
+            {{ $attributes->class('control flex items-center gap-2.5 text-left') }} x-bind:class="abierto && 'border-acento shadow-foco'">
             <x-heroicon-o-calendar aria-hidden="true" class="size-[17px] shrink-0 text-apagado" />
             <span class="flex-1 whitespace-nowrap" x-bind:class="valor ? 'text-tinta' : 'text-apagado'" x-text="etiqueta || @js($vacio)">{{ $vacio }}</span>
         </button>
@@ -41,7 +41,7 @@
                             class="h-9 rounded-[10px] text-sm focus-visible:shadow-foco focus-visible:outline-none disabled:cursor-not-allowed"
                             x-bind:class="{
                                 'bg-tinta font-semibold text-white': dia.valor === valor,
-                                'font-semibold shadow-[inset_0_0_0_1.5px_var(--color-oro-400)]': dia.valor === hoy && dia.valor !== valor,
+                                'font-semibold shadow-[inset_0_0_0_1.5px_var(--color-acento)]': dia.valor === hoy && dia.valor !== valor,
                                 'text-piedra-300': dia.bloqueado,
                                 'text-piedra-400': dia.fuera && ! dia.bloqueado && dia.valor !== valor,
                                 'hover:bg-acento-claro': ! dia.bloqueado && dia.valor !== valor,

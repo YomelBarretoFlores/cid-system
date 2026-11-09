@@ -3,6 +3,7 @@
 @import './ciln/movimiento.css';
 @import './ciln/publico.css';
 @import './ciln/formal.css';
+@import './ciln/portal.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';

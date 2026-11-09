@@ -15,7 +15,7 @@
                     'h-2 rounded-pildora',
                     'bg-acento' => $hecha,
                     'bg-ambar-texto' => $esActual && $observado,
-                    'bg-oro-200' => $esActual && ! $observado,
+                    'bg-acento-claro' => $esActual && ! $observado,
                     'bg-gris-fondo' => ! $hecha && ! $esActual,
                 ])></span>
                 <span @class([

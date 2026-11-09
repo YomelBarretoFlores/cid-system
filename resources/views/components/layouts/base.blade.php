@@ -1,4 +1,4 @@
-@props(['title' => null, 'indexable' => true, 'marco' => true])
+@props(['title' => null, 'indexable' => true, 'marco' => true, 'tema' => null])
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -13,7 +13,7 @@
         @fonts
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen bg-fondo font-sans text-tinta antialiased">
+    <body @class(['min-h-screen bg-fondo font-sans text-tinta antialiased', $tema])>
         <a href="#contenido" class="sr-only rounded-pildora bg-tinta px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50">
             Saltar al contenido
         </a>

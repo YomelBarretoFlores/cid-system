@@ -14,18 +14,20 @@
     $observados = $personaId === null ? 0 : app(TramitesObservados::class)($personaId);
     $porConfirmar = $personaId === null ? null : app(ClasesPorConfirmarDelDelegado::class)($personaId);
     $colapsado = request()->cookie('ciln-menu-colapsado') === '1';
+    $atajo = str_contains((string) request()->userAgent(), 'Mac') ? '⌘ B' : 'Ctrl B';
 @endphp
-<x-layouts.base :title="$title"
+<x-layouts.base :title="$title" tema="tema-portal"
     x-data="{ colapsado: {{ $colapsado ? 'true' : 'false' }}, animar: false, alternar() { this.animar = true; this.colapsado = ! this.colapsado; document.cookie = 'ciln-menu-colapsado=' + (this.colapsado ? '1' : '0') + '; path=/; max-age=31536000; samesite=lax'; } }"
+    x-on:keydown.window="if ((($event.ctrlKey || $event.metaKey) && ! $event.shiftKey && ! $event.altKey && $event.key.toLowerCase() === 'b') && ! $event.target.isContentEditable) { $event.preventDefault(); alternar() }"
     :data-colapsado="$colapsado ? 'true' : false" x-bind:data-colapsado="colapsado ? 'true' : null" x-bind:class="{ 'transition-[grid-template-columns]': animar }"
-    class="grid grid-cols-[minmax(0,1fr)] content-start gap-2 sm:gap-3.5 lg:grid-cols-[264px_minmax(0,1fr)] lg:content-stretch lg:data-colapsado:grid-cols-[88px_minmax(0,1fr)]">
-    <aside x-data="{ abierto: false }" class="flex flex-col gap-5 rounded-tarjeta bg-tarjeta px-4 py-5 lg:sticky lg:top-[30px] lg:max-h-[calc(100vh-60px)] lg:overflow-auto lg:px-[18px] lg:pt-[22px] lg:in-data-colapsado:px-3">
-        <div class="flex items-center justify-between gap-3 lg:in-data-colapsado:flex-col">
-            <a href="{{ route('estudiante.inicio') }}" wire:navigate.hover class="flex items-center gap-3 px-1.5 text-tinta lg:in-data-colapsado:px-0">
-                <x-ciln.emblema class="w-11 lg:in-data-colapsado:w-10" />
-                <span class="flex flex-col leading-[1.1] lg:in-data-colapsado:hidden">
-                    <span class="text-[17px]/[1.1] font-semibold tracking-[-0.01em] whitespace-nowrap">Centro de Idiomas</span>
-                    <span class="text-[12px] tracking-[0.12em] text-apagado">UNASAM</span>
+    class="grid grid-cols-[minmax(0,1fr)] content-start gap-2 sm:gap-3.5 lg:grid-cols-[264px_minmax(0,1fr)] lg:content-stretch lg:data-colapsado:grid-cols-[76px_minmax(0,1fr)]">
+    <aside x-data="{ abierto: false }" class="flex flex-col rounded-tarjeta border border-borde-interno bg-tarjeta lg:sticky lg:top-[30px] lg:h-[calc(100vh-60px)]">
+        <div class="flex items-center justify-between gap-3 px-4 py-4 lg:in-data-colapsado:justify-center lg:in-data-colapsado:px-2">
+            <a href="{{ route('estudiante.inicio') }}" wire:navigate.hover class="flex items-center gap-3 text-tinta">
+                <x-ciln.emblema class="w-10 lg:in-data-colapsado:w-9" />
+                <span class="flex flex-col leading-[1.15] lg:in-data-colapsado:hidden">
+                    <span class="text-[16px] font-semibold whitespace-nowrap">Centro de Idiomas</span>
+                    <span class="text-[12px] tracking-[0.08em] text-apagado">UNASAM</span>
                 </span>
             </a>
             @auth
@@ -39,17 +41,18 @@
         </div>
 
         @auth
-            <div id="menu-del-portal" class="flex flex-1 flex-col gap-5 max-lg:hidden" x-bind:class="{ 'max-lg:hidden': ! abierto }">
-                <div class="flex flex-col items-center gap-2 border-b border-borde-interno pb-5 text-center" title="{{ $usuario->name }}">
-                    <x-portal.avatar :nombre="$usuario->name" :foto="$foto" class="size-[72px] text-xl ring-4 lg:in-data-colapsado:size-11 lg:in-data-colapsado:text-sm lg:in-data-colapsado:ring-2" />
+            <div id="menu-del-portal" class="flex min-h-0 flex-1 flex-col max-lg:hidden" x-bind:class="{ 'max-lg:hidden': ! abierto }">
+                <div class="flex flex-col items-center gap-2 border-y border-borde-interno px-4 py-4 text-center lg:in-data-colapsado:px-2" title="{{ $usuario->name }}">
+                    <x-portal.avatar :nombre="$usuario->name" :foto="$foto" class="size-16 text-lg lg:in-data-colapsado:size-10 lg:in-data-colapsado:text-sm" />
                     <span class="flex min-w-0 flex-col lg:in-data-colapsado:sr-only">
-                        <span class="text-[15px] leading-snug font-semibold text-balance">{{ $usuario->name }}</span>
+                        <span class="text-[14.5px] leading-snug font-semibold text-balance">{{ $usuario->name }}</span>
                         <span class="text-[13px] text-apagado">Estudiante</span>
                     </span>
                 </div>
 
+                <div class="h-4 shrink-0"></div>
                 @if ($verificado)
-                    <nav aria-label="Portal del estudiante" class="flex shrink-0 flex-col gap-4">
+                    <nav aria-label="Portal del estudiante" class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 pb-4 lg:in-data-colapsado:px-2">
                         <x-portal.grupo-menu titulo="Mi cuenta">
                             <x-portal.enlace-menu ruta="estudiante.inicio" icono="heroicon-o-user-circle">Perfil</x-portal.enlace-menu>
                             <x-portal.enlace-menu ruta="estudiante.perfil.datos" icono="heroicon-o-pencil">Modificar datos</x-portal.enlace-menu>
@@ -78,31 +81,39 @@
                     </nav>
                 @endif
 
-                <div class="mt-auto flex flex-col gap-4 border-t border-borde-interno pt-4">
-                    <button type="button" x-on:click="alternar()" x-bind:aria-expanded="! colapsado" aria-controls="menu-del-portal"
-                        x-bind:title="colapsado ? 'Expandir el menú' : null"
-                        class="hidden items-center gap-3 self-start rounded-xl px-1.5 py-1 text-[14.5px] text-apagado hover:text-tinta focus-visible:shadow-foco focus-visible:outline-none lg:flex lg:in-data-colapsado:self-center lg:in-data-colapsado:px-0">
-                        <x-heroicon-o-chevron-double-left aria-hidden="true" class="size-[19px] transition-transform lg:in-data-colapsado:rotate-180" />
-                        <span x-text="colapsado ? 'Expandir el menú' : 'Contraer el menú'" class="lg:in-data-colapsado:sr-only">{{ $colapsado ? 'Expandir el menú' : 'Contraer el menú' }}</span>
-                    </button>
-                    <div class="flex flex-col gap-2.5 px-1.5 text-[14.5px] lg:in-data-colapsado:items-center lg:in-data-colapsado:px-0">
-                        @if ($esDocente)
-                            <a href="{{ route('filament.docente.pages.mis-grupos') }}" title="Portal docente" class="flex items-center gap-3 text-tinta hover:text-enlace-hover">
-                                <x-heroicon-o-user-group aria-hidden="true" class="size-[19px] text-apagado" /><span class="lg:in-data-colapsado:sr-only">Portal docente</span>
-                            </a>
-                        @endif
-                        @can(User::ADMIN_PANEL_PERMISSION)
-                            <a href="{{ route('filament.admin.pages.dashboard') }}" title="Panel administrativo" class="flex items-center gap-3 text-tinta hover:text-enlace-hover">
-                                <x-heroicon-o-squares-2x2 aria-hidden="true" class="size-[19px] text-apagado" /><span class="lg:in-data-colapsado:sr-only">Panel administrativo</span>
-                            </a>
-                        @endcan
-                        <form method="POST" action="{{ route('estudiante.salir') }}">
-                            @csrf
-                            <button type="submit" title="Cerrar sesión" class="flex items-center gap-3 text-peligro hover:underline focus-visible:shadow-foco focus-visible:outline-none">
-                                <x-heroicon-o-arrow-right-start-on-rectangle aria-hidden="true" class="size-[19px]" /><span class="lg:in-data-colapsado:sr-only">Cerrar sesión</span>
-                            </button>
-                        </form>
+                <div class="flex flex-col gap-1 border-t border-borde-interno px-3 py-3 lg:in-data-colapsado:px-2">
+                    <div x-data="{ cuenta: false }" x-on:click.outside="cuenta = false" x-on:keydown.escape="cuenta = false" class="relative">
+                        <button type="button" x-on:click="cuenta = ! cuenta" x-bind:aria-expanded="cuenta" aria-haspopup="menu" aria-controls="menu-de-cuenta"
+                            class="flex w-full items-center gap-3 rounded-control px-2 py-2 text-left hover:bg-hover-suave focus-visible:shadow-foco focus-visible:outline-none lg:in-data-colapsado:justify-center lg:in-data-colapsado:px-0">
+                            <x-portal.avatar :nombre="$usuario->name" :foto="$foto" class="size-8 text-[12px]" />
+                            <span class="min-w-0 flex-1 truncate text-[14px] font-medium lg:in-data-colapsado:sr-only">{{ $usuario->name }}</span>
+                            <x-heroicon-o-chevron-up-down aria-hidden="true" class="size-4 shrink-0 text-apagado lg:in-data-colapsado:hidden" />
+                        </button>
+                        <div id="menu-de-cuenta" role="menu" x-show="cuenta" x-cloak x-transition.opacity.duration.100ms
+                            class="absolute bottom-full left-0 z-40 mb-2 flex w-full min-w-[230px] flex-col gap-0.5 rounded-interna bg-tarjeta p-1.5 text-[14px] shadow-dropdown lg:in-data-colapsado:bottom-0 lg:in-data-colapsado:left-full lg:in-data-colapsado:mb-0 lg:in-data-colapsado:ml-2">
+                            <a href="{{ route('estudiante.inicio') }}" wire:navigate role="menuitem" class="flex items-center gap-2.5 rounded-control px-2.5 py-2 hover:bg-hover-suave"><x-heroicon-o-user-circle aria-hidden="true" class="size-[18px] text-apagado" />Mi perfil</a>
+                            @if ($esDocente)
+                                <a href="{{ route('filament.docente.pages.mis-grupos') }}" role="menuitem" class="flex items-center gap-2.5 rounded-control px-2.5 py-2 hover:bg-hover-suave"><x-heroicon-o-user-group aria-hidden="true" class="size-[18px] text-apagado" />Portal docente</a>
+                            @endif
+                            @can(User::ADMIN_PANEL_PERMISSION)
+                                <a href="{{ route('filament.admin.pages.dashboard') }}" role="menuitem" class="flex items-center gap-2.5 rounded-control px-2.5 py-2 hover:bg-hover-suave"><x-heroicon-o-squares-2x2 aria-hidden="true" class="size-[18px] text-apagado" />Panel administrativo</a>
+                            @endcan
+                            <div class="my-1 border-t border-separador"></div>
+                            <form method="POST" action="{{ route('estudiante.salir') }}">
+                                @csrf
+                                <button type="submit" role="menuitem" class="flex w-full items-center gap-2.5 rounded-control px-2.5 py-2 text-peligro hover:bg-hover-suave"><x-heroicon-o-arrow-right-start-on-rectangle aria-hidden="true" class="size-[18px]" />Cerrar sesión</button>
+                            </form>
+                        </div>
                     </div>
+                    <button type="button" x-on:click="alternar()" x-bind:aria-expanded="! colapsado" aria-controls="menu-del-portal"
+                        x-bind:title="colapsado ? 'Expandir el menú (Ctrl o ⌘ + B)' : 'Contraer el menú (Ctrl o ⌘ + B)'"
+                        class="hidden items-center gap-3 rounded-control px-2.5 py-1.5 text-[14px] text-apagado hover:text-tinta focus-visible:shadow-foco focus-visible:outline-none lg:flex lg:in-data-colapsado:justify-center lg:in-data-colapsado:px-0">
+                        <x-heroicon-o-chevron-double-left aria-hidden="true" class="size-[18px] shrink-0 transition-transform lg:in-data-colapsado:rotate-180" />
+                        <span class="flex flex-1 items-center justify-between gap-2 lg:in-data-colapsado:sr-only">
+                            <span x-text="colapsado ? 'Expandir el menú' : 'Contraer el menú'">{{ $colapsado ? 'Expandir el menú' : 'Contraer el menú' }}</span>
+                            <kbd class="font-sans text-[12px] text-apagado">{{ $atajo }}</kbd>
+                        </span>
+                    </button>
                 </div>
             </div>
         @endauth

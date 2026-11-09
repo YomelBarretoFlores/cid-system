@@ -12,7 +12,7 @@
             @if ($descripciones) aria-describedby="{{ $descripciones }}" @endif
             x-on:click="abierto ? cerrar() : abrir()" x-on:keydown.down.prevent="mover(1)" x-on:keydown.up.prevent="mover(-1)"
             x-on:keydown.enter.prevent="abierto ? elegir(visibles[activo]) : abrir()"
-            {{ $attributes->class('control flex items-center gap-2.5 text-left') }} x-bind:class="abierto && 'border-oro-400 shadow-foco'">
+            {{ $attributes->class('control flex items-center gap-2.5 text-left') }} x-bind:class="abierto && 'border-acento shadow-foco'">
             <span x-show="elegida?.querySelector('[data-bandera]')" x-html="elegida?.querySelector('[data-bandera]')?.innerHTML" class="flex shrink-0"></span>
             <span class="min-w-0 flex-1 truncate" x-bind:class="elegida ? 'text-tinta' : 'text-apagado'" x-text="elegida?.dataset.texto ?? @js($vacio ?? 'Elige una opción')">{{ $vacio ?? 'Elige una opción' }}</span>
             <x-heroicon-o-chevron-down aria-hidden="true" class="size-4 shrink-0 text-apagado transition-transform" x-bind:class="abierto && 'rotate-180'" />
@@ -41,7 +41,7 @@
                             <span data-bandera class="flex shrink-0"><x-ciln.hoja-bandera :idioma="$texto" size="20" /></span>
                         @endif
                         <span class="flex-1">{{ $texto }}</span>
-                        <x-heroicon-o-check aria-hidden="true" class="size-4 text-oro-600" x-show="elegida === $el" x-cloak />
+                        <x-heroicon-o-check aria-hidden="true" class="size-4 text-acento" x-show="elegida === $el" x-cloak />
                     </li>
                 @endforeach
                 <li x-show="visibles.length === 0" x-cloak class="px-2.5 py-3 text-sm text-apagado">Sin resultados</li>

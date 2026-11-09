@@ -15,11 +15,11 @@
             {{ $attributes->class('peer sr-only') }}>
         <label for="{{ $id }}" @class([
             'flex cursor-pointer flex-col items-center gap-1 rounded-interna border border-dashed px-4 py-4 text-center transition-colors',
-            'border-oro-400 bg-acento-claro hover:bg-oro-100' => ! $conError,
+            'border-borde bg-tarjeta-interna hover:bg-acento-claro' => ! $conError,
             'border-peligro bg-rojo-fondo' => $conError,
             'peer-focus-visible:shadow-foco',
         ])>
-            <x-heroicon-o-arrow-up-tray aria-hidden="true" class="size-5 text-oro-700" />
+            <x-heroicon-o-arrow-up-tray aria-hidden="true" class="size-5 text-acento" />
             <span class="font-medium text-tinta" x-text="elegido || 'Elegir archivo'">Elegir archivo</span>
             @if ($formatos)
                 <span id="{{ $id }}-formatos" class="text-[13px] text-terciario">{{ $formatos }}</span>

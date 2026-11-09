@@ -36,3 +36,23 @@ it('draws the sidebar collapsed from the server when the student left it collaps
         ->get(route('estudiante.inicio'))
         ->assertSee('data-colapsado="true"', false);
 });
+
+it('keeps the account menu and the collapse control at the foot of the sidebar, like the staff panels', function (): void {
+    $user = User::factory()->create(['name' => 'Rosa Elena Quispe']);
+    Persona::factory()->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertSee('antialiased tema-portal"', false)
+        ->assertSeeInOrder(['Web del CILN', 'id="menu-de-cuenta"', 'Mi perfil', 'Cerrar sesión', 'Contraer el menú', 'Ctrl B'], false);
+});
+
+it('heads every process page with the SGA trail: Alumno, the student and the page', function (): void {
+    $user = User::factory()->create(['name' => 'Rosa Elena Quispe']);
+    Persona::factory()->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)->get(route('estudiante.pagos'))
+        ->assertOk()
+        ->assertSeeInOrder(['Ruta de navegación', 'Alumno', 'ROSA ELENA QUISPE', 'Mis pagos'])
+        ->assertSee('href="'.route('estudiante.inicio').'"', false);
+});

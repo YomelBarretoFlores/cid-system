@@ -1,0 +1,56 @@
+/* The student portal reads as a formal institutional system: cool neutral surfaces, the logo blue as the only accent and modest corners. Scoped so the public site, the access pages and the panels keep theirs. */
+.tema-portal {
+    --radius-marco: 12px;
+    --radius-tarjeta: 8px;
+    --radius-interna: 6px;
+    --radius-control: 6px;
+    --radius-pildora: 6px;
+
+    --color-fondo: #e9edf2;
+    --color-lienzo: #f2f4f7;
+    --color-tarjeta: #ffffff;
+    --color-tarjeta-interna: #f7f9fb;
+    --color-tinta: var(--color-marino-900);
+    --color-tinta-hover: var(--color-marino-800);
+    --color-secundario: #3d4d5f;
+    --color-terciario: #586a7d;
+    --color-apagado: #6e7e90;
+    --color-grupo: #7d8c9c;
+    --color-enlace: var(--color-real-600);
+    --color-enlace-hover: var(--color-marino-800);
+    --color-acento: var(--color-real-600);
+    --color-acento-claro: var(--color-celeste-50);
+    --color-borde: #d8dee6;
+    --color-borde-interno: #e4e8ee;
+    --color-separador: #e8ecf1;
+    --color-fila-hover: #f1f5fa;
+    --color-hover-suave: #f1f4f8;
+    --shadow-foco: 0 0 0 3px rgb(29 98 168 / 0.25);
+    --shadow-dropdown: 0 10px 30px rgb(10 46 82 / 0.12), 0 0 0 1px #e4e8ee;
+}
+
+/* Plain in-app table for the Procesos pages (enrollments, payments, requests): bold header, thin rules, no stripes. Formal printable reports keep tabla-formal. */
+@utility tabla-portal {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+
+    & th {
+        padding: 0.625rem 0.75rem;
+        border-bottom: 1px solid var(--color-borde);
+        color: var(--color-secundario);
+        font-weight: 600;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    & td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--color-separador);
+        vertical-align: middle;
+    }
+
+    & tbody tr:hover {
+        background-color: var(--color-fila-hover);
+    }
+}
