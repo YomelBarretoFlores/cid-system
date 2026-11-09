@@ -124,3 +124,14 @@ it('shows the photo instead of the initials in the sidebar and the profile heade
         ->assertOk()
         ->assertSee('src="'.route('estudiante.perfil.foto.ver').'?v=', false);
 });
+
+it('lays out the photo page like the SGA, with the upload on one side and the photo requirements on the other', function (): void {
+    $this->actingAs($this->alumno)->get(route('estudiante.perfil.foto'))
+        ->assertOk()
+        ->assertSeeInOrder([
+            'Fotografía personal', 'Sube y administra tu fotografía',
+            'Subir foto', 'Sin fotografía', 'Sube tu fotografía aquí', 'Guardar fotografía',
+            'Especificaciones', 'Requisitos', 'Imagen a color con fondo blanco', 'Tomada de frente',
+            'Sin gafas ni lentes oscuros', 'Sin gorra ni sombrero', 'El rostro desde los hombros', 'JPG o PNG, de hasta 2 MB',
+        ]);
+});

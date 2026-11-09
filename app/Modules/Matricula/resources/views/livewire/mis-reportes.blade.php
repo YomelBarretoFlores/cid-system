@@ -22,7 +22,9 @@
         @if ($periodos === [])
             <p class="text-secundario">Aún no tienes reportes. Aparecen cuando te matriculas en un periodo.</p>
         @else
-            <x-portal.seleccion nombre="periodo" etiqueta="Periodo" :opciones="$periodos" vivo class="sm:max-w-[320px]" />
+            <div class="sm:max-w-[280px]">
+                <x-portal.seleccion nombre="periodo" etiqueta="Periodo" :opciones="$periodos" vivo />
+            </div>
         @endif
         <div class="grid gap-x-8 gap-y-6 pt-2 md:grid-cols-2 2xl:grid-cols-3">
             @foreach ($columnas as $titulo => $accesos)
