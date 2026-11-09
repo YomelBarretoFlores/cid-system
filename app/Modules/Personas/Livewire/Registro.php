@@ -97,7 +97,7 @@ final class Registro extends Component
             'nombres' => ['required', 'string', 'max:80'],
             'fecha_nacimiento' => ['required', 'date_format:Y-m-d', 'after:1900-01-01', 'before:today'],
             'email' => ['required', 'string', 'email', 'max:150'],
-            'celular' => ['nullable', 'string', 'regex:/^\+?[0-9]{7,15}$/'],
+            'celular' => ['nullable', 'string', 'regex:'.Persona::FORMATO_CELULAR],
             'password' => ['required', 'string', 'max:255', 'confirmed', Password::defaults()],
             'acepta_tratamiento' => ['accepted'],
         ];

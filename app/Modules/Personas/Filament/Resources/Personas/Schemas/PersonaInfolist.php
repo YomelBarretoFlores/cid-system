@@ -6,6 +6,8 @@ namespace App\Modules\Personas\Filament\Resources\Personas\Schemas;
 
 use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Enums\TipoVinculo;
+use App\Modules\Personas\Models\Persona;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -29,6 +31,11 @@ final class PersonaInfolist
                         TextEntry::make('fecha_nacimiento')->label('Fecha de nacimiento')->date('d/m/Y')->placeholder('—'),
                         TextEntry::make('correo')->label('Correo personal')->placeholder('—'),
                         TextEntry::make('celular')->label('Celular')->placeholder('—'),
+                        TextEntry::make('direccion')->label('Dirección')->placeholder('—'),
+                        // A URL state makes Filament skip the disk, so the private file goes through the panel route.
+                        ImageEntry::make('foto')->label('Fotografía')
+                            ->state(fn (Persona $record): ?string => $record->foto === null ? null : route('panel.personas.foto', [$record, 'v' => hash('crc32b', $record->foto)]))
+                            ->circular()->imageHeight(120)->placeholder('Sin fotografía'),
                     ]),
             ]);
     }

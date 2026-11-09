@@ -14,6 +14,7 @@ use App\Modules\Personas\Filament\Resources\Personas\Schemas\PersonaForm;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 function usuarioDePersonas(PermisoPersona ...$permisos): User
@@ -246,4 +247,22 @@ it('warns that the personal email does not change the portal login email only wh
 
     $this->persona->update(['user_id' => User::factory()->create()->id]);
     Livewire::test(EditPersona::class, ['record' => $this->persona->getRouteKey()])->assertSee($aviso);
+});
+
+it('shows the student photo and address to staff who can see people, through a private panel route', function (): void {
+    Storage::fake('local');
+    Storage::disk('local')->put('fotos/01JBBBBBBBBBBBBBBBBBBBBBBB.png', 'foto');
+    $this->persona->update(['foto' => 'fotos/01JBBBBBBBBBBBBBBBBBBBBBBB.png', 'direccion' => 'Jr. Los Pinos 123, Huaraz']);
+    $ruta = route('panel.personas.foto', $this->persona);
+    $this->actingAs(usuarioDePersonas(PermisoPersona::Ver));
+
+    Livewire::test(ViewPersona::class, ['record' => $this->persona->getRouteKey()])
+        ->assertSee('Jr. Los Pinos 123, Huaraz')
+        ->assertSee($ruta.'?v=', false);
+
+    $respuesta = $this->get($ruta)->assertOk()->assertHeader('X-Content-Type-Options', 'nosniff');
+    expect($respuesta->headers->get('Cache-Control'))->toContain('no-store');
+
+    $this->actingAs(usuarioDePersonas())->get($ruta)->assertForbidden();
+    $this->actingAs(usuarioDePersonas(PermisoPersona::Ver))->get(route('panel.personas.foto', $this->extranjera))->assertNotFound();
 });

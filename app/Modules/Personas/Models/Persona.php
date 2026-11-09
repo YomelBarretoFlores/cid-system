@@ -27,12 +27,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property TipoVinculo $tipo_vinculo
  * @property TipoDocumento $tipo_documento
  * @property ?CarbonImmutable $fecha_nacimiento
+ * @property ?string $direccion
+ * @property ?string $foto
  */
 #[Table('per_personas')]
 #[RouteKey('ulid')]
 #[Fillable([
     'user_id', 'tipo_documento', 'numero_documento', 'apellido_paterno', 'apellido_materno',
-    'nombres', 'fecha_nacimiento', 'correo', 'celular', 'tipo_vinculo',
+    'nombres', 'fecha_nacimiento', 'correo', 'celular', 'direccion', 'foto', 'tipo_vinculo',
 ])]
 #[UseFactory(PersonaFactory::class)]
 #[UsePolicy(PersonaPolicy::class)]
@@ -40,6 +42,8 @@ final class Persona extends Model
 {
     /** @use HasFactory<PersonaFactory> */
     use HasFactory, HasUlids;
+
+    public const string FORMATO_CELULAR = '/^\+?[0-9]{7,15}$/';
 
     protected $attributes = [
         'tipo_vinculo' => 'publico_general',

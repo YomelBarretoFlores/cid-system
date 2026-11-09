@@ -13,7 +13,7 @@ it('shows the student profile on top of the sidebar and groups the sections like
         ->assertOk()
         ->assertSeeInOrder([
             'Rosa Elena Quispe', 'Estudiante',
-            'Mi cuenta', 'Perfil',
+            'Mi cuenta', 'Perfil', 'Modificar datos', 'Subir fotografía',
             'Reportes', 'Todos', 'Horario', 'Sílabos',
             'Procesos', 'Matrícula', 'Mis matrículas', 'Mis pagos', 'Clasificación', 'Trámites',
             'Enlaces', 'Verificar un documento', 'Web del CILN',
@@ -21,7 +21,9 @@ it('shows the student profile on top of the sidebar and groups the sections like
         ])
         ->assertSee('href="'.route('verificacion.documento').'"', false)
         ->assertSee('href="'.route('portada').'"', false)
-        ->assertSee('href="'.route('estudiante.reportes', ['ver' => 'silabos']).'"', false);
+        ->assertSee('href="'.route('estudiante.reportes', ['ver' => 'silabos']).'"', false)
+        ->assertSee('href="'.route('estudiante.perfil.datos').'"', false)
+        ->assertSee('href="'.route('estudiante.perfil.foto').'"', false);
 });
 
 it('draws the sidebar collapsed from the server when the student left it collapsed, so it does not blink on navigation', function (): void {

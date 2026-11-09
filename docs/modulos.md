@@ -21,10 +21,11 @@ Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y c
 
 ## Personas
 
-- Tipo y número de documento (DNI/CE/Pasaporte), apellidos, nombres, fecha de nacimiento, correo personal, celular.
+- Tipo y número de documento (DNI/CE/Pasaporte), apellidos, nombres, fecha de nacimiento, correo personal, celular, dirección y fotografía.
 - Tipo de vínculo: Estudiante UNASAM, Docente/Administrativo UNASAM, Público General (define la tarifa).
 - Pantalla "Personas" (`personas.ver`, `personas.gestionar`): búsqueda por documento o nombre, también desde el buscador general del panel (`Ctrl/⌘ + K`) para quien tiene `personas.ver`. Las búsquedas del panel ignoran tildes y mayúsculas ("nunez" encuentra "Núñez"); DNI de 8 dígitos, CE o pasaporte de 6 a 12 caracteres; documento único; celular normalizado. Sin borrado, acciones masivas ni exportación (Ley 29733).
 - Autorregistro en el portal (`RegistrarCuentaDeEstudiante`): crea la ficha como Público General, o vincula la ficha que ya tiene el CILN si su correo coincide. Solo el personal del CILN cambia el tipo de vínculo, porque define la tarifa. El contrato `FichaDelUsuario` entrega a los demás módulos la ficha de quien inició sesión.
+- Perfil del estudiante en el portal: "Modificar datos" (`/estudiante/perfil/datos`) muestra apellidos, nombres, documento, fecha de nacimiento y correo solo para lectura (los cambia el CILN), edita el celular y la dirección (`ActualizarDatosDeContacto`, celular normalizado, dirección de hasta 200 caracteres) y cambia la contraseña (`CambiarContrasena`). "Subir fotografía" (`/estudiante/perfil/foto`) acepta una imagen JPG o PNG de hasta 2 MB y entre 200 y 3000 píxeles por lado (`CambiarFotoDePerfil`, que borra la anterior; `QuitarFotoDePerfil`). La foto reemplaza las iniciales en el menú lateral y en el perfil, y el personal con `personas.ver` la ve en la ficha de la persona del panel junto con la dirección.
 
 ## M1 · Matricula
 

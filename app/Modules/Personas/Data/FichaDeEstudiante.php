@@ -17,6 +17,9 @@ final readonly class FichaDeEstudiante
         public ?string $celular = null,
         public ?string $fechaNacimiento = null,
         public ?string $vinculo = null,
+        public ?string $direccion = null,
+        // Changes with every new photo so the browser does not show a cached one; never the file path itself.
+        public ?string $versionDeFoto = null,
     ) {}
 
     public static function desde(Persona $persona): self
@@ -30,6 +33,8 @@ final readonly class FichaDeEstudiante
             celular: $persona->celular,
             fechaNacimiento: $persona->fecha_nacimiento?->format('d/m/Y'),
             vinculo: $persona->tipo_vinculo->etiqueta(),
+            direccion: $persona->direccion,
+            versionDeFoto: $persona->foto === null ? null : hash('crc32b', $persona->foto),
         );
     }
 }

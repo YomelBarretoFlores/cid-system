@@ -8,7 +8,9 @@
     $usuario = auth()->user();
     $verificado = $usuario?->hasVerifiedEmail() ?? false;
     $esDocente = $verificado && app(DocenteDelUsuario::class)((int) $usuario->id) !== null;
-    $personaId = $verificado ? app(FichaDelUsuario::class)((int) $usuario->id)?->personaId : null;
+    $ficha = $verificado ? app(FichaDelUsuario::class)((int) $usuario->id) : null;
+    $personaId = $ficha?->personaId;
+    $foto = $ficha?->versionDeFoto === null ? null : route('estudiante.perfil.foto.ver', ['v' => $ficha->versionDeFoto]);
     $observados = $personaId === null ? 0 : app(TramitesObservados::class)($personaId);
     $porConfirmar = $personaId === null ? null : app(ClasesPorConfirmarDelDelegado::class)($personaId);
     $colapsado = request()->cookie('ciln-menu-colapsado') === '1';
@@ -39,7 +41,7 @@
         @auth
             <div id="menu-del-portal" class="flex flex-1 flex-col gap-5 max-lg:hidden" x-bind:class="{ 'max-lg:hidden': ! abierto }">
                 <div class="flex flex-col items-center gap-2 border-b border-borde-interno pb-5 text-center" title="{{ $usuario->name }}">
-                    <x-portal.avatar :nombre="$usuario->name" class="size-[72px] text-xl ring-4 lg:in-data-colapsado:size-11 lg:in-data-colapsado:text-sm lg:in-data-colapsado:ring-2" />
+                    <x-portal.avatar :nombre="$usuario->name" :foto="$foto" class="size-[72px] text-xl ring-4 lg:in-data-colapsado:size-11 lg:in-data-colapsado:text-sm lg:in-data-colapsado:ring-2" />
                     <span class="flex min-w-0 flex-col lg:in-data-colapsado:sr-only">
                         <span class="text-[15px] leading-snug font-semibold text-balance">{{ $usuario->name }}</span>
                         <span class="text-[13px] text-apagado">Estudiante</span>
@@ -50,6 +52,8 @@
                     <nav aria-label="Portal del estudiante" class="flex shrink-0 flex-col gap-4">
                         <x-portal.grupo-menu titulo="Mi cuenta">
                             <x-portal.enlace-menu ruta="estudiante.inicio" icono="heroicon-o-user-circle">Perfil</x-portal.enlace-menu>
+                            <x-portal.enlace-menu ruta="estudiante.perfil.datos" icono="heroicon-o-pencil">Modificar datos</x-portal.enlace-menu>
+                            <x-portal.enlace-menu ruta="estudiante.perfil.foto" icono="heroicon-o-camera">Subir fotografía</x-portal.enlace-menu>
                         </x-portal.grupo-menu>
                         <x-portal.grupo-menu titulo="Reportes">
                             @php($vista = request()->routeIs('estudiante.reportes') ? request()->query('ver') : null)
