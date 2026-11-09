@@ -57,3 +57,14 @@ it('heads every process page with the SGA trail: Alumno, the student and the pag
         ->assertSeeInOrder(['Ruta de navegación', 'Alumno', 'ROSA ELENA QUISPE', 'Registro de pagos'])
         ->assertSee('href="'.route('estudiante.inicio').'"', false);
 });
+
+it('keeps the back control of a page that names where to go back', function (): void {
+    $user = User::factory()->create(['name' => 'Rosa Elena Quispe']);
+    Persona::factory()->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)->get(route('estudiante.perfil.foto'))
+        ->assertOk()
+        ->assertSeeInOrder(['Ruta de navegación', 'href="'.route('estudiante.inicio').'" wire:navigate data-volver', 'Volver', 'Fotografía personal'], false);
+
+    $this->get(route('estudiante.pagos'))->assertOk()->assertDontSee('data-volver', false);
+});

@@ -1,4 +1,4 @@
-@props(['titulo', 'antetitulo' => null, 'saludo' => false, 'volver' => null, 'migas' => null])
+@props(['titulo', 'antetitulo' => null, 'volver' => null, 'migas' => null])
 @php
     // SGA-style trail: Alumno › student name › page, unless the page names its own steps.
     $nombre = mb_strtoupper((string) auth()->user()?->name);
@@ -22,6 +22,16 @@
                 @endforeach
             </ol>
         </nav>
+        @if ($volver || isset($inicio))
+            <div class="flex items-center gap-3">
+                @if ($volver)
+                    <a href="{{ $volver }}" wire:navigate data-volver class="flex size-9 shrink-0 items-center justify-center rounded-control border border-borde text-secundario hover:bg-hover-suave focus-visible:shadow-foco focus-visible:outline-none">
+                        <x-heroicon-o-arrow-left aria-hidden="true" class="size-4" /><span class="sr-only">Volver</span>
+                    </a>
+                @endif
+                {{ $inicio ?? '' }}
+            </div>
+        @endif
         @if ($antetitulo)
             <span class="text-apagado">{{ $antetitulo }}</span>
         @endif
