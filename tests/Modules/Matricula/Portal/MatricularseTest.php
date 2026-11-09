@@ -27,36 +27,53 @@ beforeEach(function (): void {
     $this->pago = Pago::factory()->validado()->for($this->concepto)->create(['persona_id' => $this->persona->id, 'numero_operacion' => 'OP-111']);
 });
 
-it('shows the open groups of the enabled cycle with schedule and live vacancies', function (): void {
+it('shows the open groups of the enabled cycle in one formal table per language with schedule and live vacancies', function (): void {
     Horario::factory()->for($this->grupo)->create(['dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']);
     Grupo::factory()->for($this->periodo)->for(Ciclo::factory()->for($this->idioma)->state(['numero' => 2]))->create(['codigo' => 'ING-II-A']);
 
     $this->actingAs($this->user)
         ->get(route('estudiante.matricula'))
         ->assertOk()
-        ->assertSee('Inglés')
-        ->assertSee('ING-I-A')
-        ->assertSee('Lun, 08:00–10:00')
-        ->assertSee('20 vacantes')
-        ->assertSee('wire:poll.15s', false)
+        ->assertSeeInOrder(['Elige tu grupo', 'Inglés', 'Elegir', 'Grupo', 'Ciclo', 'Horario', 'Modalidad', 'Aula', 'Vacantes'])
+        ->assertSeeInOrder(['aria-label="Elegir el grupo ING-I-A"', 'ING-I-A', 'Ciclo 1 · Básico', 'Lun, 08:00–10:00', 'Presencial', 'Por asignar', '>20</td>'], false)
+        ->assertSee('<table class="tabla-portal">', false)
+        ->assertSee('wire:poll.15s.visible', false)
         ->assertDontSee('ING-II-A');
 });
 
-it('shows the three steps, the payment in use and a shift filter with each group marked by its shift', function (): void {
-    Horario::factory()->for($this->grupo)->create(['dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']);
-    Horario::factory()->for(Grupo::factory()->for($this->periodo)->for($this->grupo->ciclo)->create(['codigo' => 'ING-I-N']))->create(['dia_semana' => 2, 'hora_inicio' => '19:00', 'hora_fin' => '21:00']);
-    Grupo::factory()->for($this->periodo)->for($this->grupo->ciclo)->create(['codigo' => 'ING-I-S']);
+it('marks a group without vacancies and disables its choice', function (): void {
+    Grupo::factory()->for($this->periodo)->for($this->ciclo1)->create(['codigo' => 'ING-I-B', 'cupo_minimo' => 1, 'cupo_maximo' => 5, 'matriculados' => 5]);
+
+    $html = (string) $this->actingAs($this->user)
+        ->get(route('estudiante.matricula'))
+        ->assertOk()
+        ->assertSeeInOrder(['ING-I-B', 'Sin vacantes'])
+        ->getContent();
+
+    expect($html)->toMatch('/<input(?=[^>]*aria-label="Elegir el grupo ING-I-B")(?=[^>]*\sdisabled)[^>]*>/')
+        ->not->toMatch('/<input(?=[^>]*aria-label="Elegir el grupo ING-I-A")(?=[^>]*\sdisabled)[^>]*>/');
+});
+
+it('tells a student who meets every requirement that they can enroll, with the checklist and the period summary', function (): void {
+    $this->actingAs($this->user)
+        ->get(route('estudiante.matricula'))
+        ->assertOk()
+        ->assertSeeInOrder(['Puedes matricularte este periodo', 'Periodo de matrícula abierto', 'Pago de matrícula validado y sin usar', 'Grupos de tu ciclo con vacantes'])
+        ->assertSeeInOrder(['Periodo', $this->periodo->nombre, 'Pagos disponibles', '1', 'Vacantes en tu ciclo', '20'])
+        ->assertSeeInOrder(['Pago que se usará', 'Elige tu grupo', 'Matricularme'])
+        ->assertDontSee('No puedes matricularte este periodo');
+});
+
+it('tells an already enrolled student so and sends them to my enrollments instead of offering groups', function (): void {
+    Matricula::factory()->activa()->create(['persona_id' => $this->persona->id, 'grupo_id' => $this->grupo->id, 'pago_id' => $this->pago->id]);
 
     $this->actingAs($this->user)
         ->get(route('estudiante.matricula'))
         ->assertOk()
-        ->assertSeeInOrder(['Paso 1', 'Pago validado', 'Paso 2', 'Elige tu grupo', 'Paso 3', 'Confirma'])
-        ->assertSeeInOrder(['Todos', 'Mañana', 'Tarde', 'Noche'])
-        ->assertSee('data-turno="manana"', false)
-        ->assertSee('data-turno="noche"', false)
-        ->assertSee('data-turno="sin-horario"', false)
-        ->assertSee('ING-I-S · Horario por confirmar')
-        ->assertSee('Tu elección');
+        ->assertSee('Ya estás matriculado este periodo')
+        ->assertSee(route('estudiante.matriculas'))
+        ->assertDontSee('Elige tu grupo')
+        ->assertDontSee('Matricularme');
 });
 
 it('enrolls the student with an unused validated payment and opens my enrollments', function (): void {
@@ -126,6 +143,7 @@ it('asks a student without a validated enrollment payment to register one', func
 
     Livewire::actingAs($sinPago)
         ->test(Matricularse::class)
+        ->assertSee('No puedes matricularte este periodo')
         ->assertSee('Aún no tienes un pago de matrícula validado.')
         ->assertSee(route('estudiante.pagos'))
         ->assertDontSee('Matricularme');

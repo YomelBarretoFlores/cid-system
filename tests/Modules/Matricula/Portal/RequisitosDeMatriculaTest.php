@@ -122,14 +122,14 @@ it('flags an active enrollment in the same cycle and period, which the enrollmen
         ->and(fn (): Matricula => intentarMatricula($otro, $segundoPago))->toThrow(ReglaDeNegocioIncumplida::class, 'Ya tiene una matrícula activa en este ciclo y periodo.');
 });
 
-it('shows the checklist above the offer on the enrollment page', function (): void {
+it('shows the status heading and the checklist above the offer on the enrollment page', function (): void {
     $sinPago = User::factory()->create();
     Persona::factory()->create(['user_id' => $sinPago->id]);
 
     $this->actingAs($sinPago)
         ->get(route('estudiante.matricula'))
         ->assertOk()
-        ->assertSeeInOrder(['Requisitos para matricularte', 'Periodo de matrícula abierto', 'Pago de matrícula validado y sin usar', 'Registra tu pago de matrícula y espera a que el CILN lo valide.', 'Grupos disponibles'])
+        ->assertSeeInOrder(['No puedes matricularte este periodo', 'Periodo de matrícula abierto', 'Pago de matrícula validado y sin usar', 'Registra tu pago de matrícula y espera a que el CILN lo valide.', 'Elige tu grupo'])
         ->assertSee(route('estudiante.pagos'))
         ->assertSee('Cumplido')
         ->assertSee('Pendiente');

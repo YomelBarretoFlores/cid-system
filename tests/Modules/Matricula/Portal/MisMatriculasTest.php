@@ -9,12 +9,12 @@ use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 
-it('lists only the own enrollments, newest first, with group detail, state, condition and date in Lima', function (): void {
+it('lists only the own enrollments in a table per period, newest first, with group detail, condition, state, date in Lima and documents', function (): void {
     $user = User::factory()->create();
     $persona = Persona::factory()->create(['user_id' => $user->id]);
     $actual = Grupo::factory()->create(['codigo' => 'ING-II-A']);
     Horario::factory()->for($actual)->create(['dia_semana' => 2, 'hora_inicio' => '18:00', 'hora_fin' => '20:00']);
-    Matricula::factory()->create([
+    $activa = Matricula::factory()->create([
         'persona_id' => $persona->id, 'grupo_id' => $actual->id, 'condicion' => CondicionMatricula::Repitente, 'matriculado_en' => '2026-10-20 15:30:00+00',
     ]);
     Matricula::factory()->retirada()->create([
@@ -25,7 +25,9 @@ it('lists only the own enrollments, newest first, with group detail, state, cond
     $this->actingAs($user)
         ->get(route('estudiante.matriculas'))
         ->assertOk()
-        ->assertSeeInOrder(['Activa', 'ING-II-A', 'Mar, 18:00–20:00', 'Repitente', '20/10/2026 10:30', 'Retirada', 'ING-I-A', 'Regular', '02/03/2026 08:00'])
+        ->assertSee('<table class="tabla-portal">', false)
+        ->assertSeeInOrder(['Idioma', 'Ciclo', 'Grupo', 'Horario', 'Aula', 'Docente', 'Condición', 'Estado', 'Matriculado el', 'Documentos'])
+        ->assertSeeInOrder(['ING-II-A', 'Mar, 18:00–20:00', 'Repitente', 'Activa', '20/10/2026 10:30', route('estudiante.matriculas.constancia', $activa), 'ING-I-A', 'Regular', 'Retirada', '02/03/2026 08:00'])
         ->assertDontSee('AJENO-1');
 });
 
