@@ -64,7 +64,7 @@ it('lists only the payments of the signed-in student, with their state and rejec
     $this->actingAs($this->estudiante)
         ->get(route('estudiante.pagos'))
         ->assertOk()
-        ->assertSee('Mis pagos')
+        ->assertSee('Registro de pagos')
         ->assertSeeInOrder(['OP-PROPIO-2', 'OP-PROPIO-1'])
         ->assertSee('Derecho de matrícula')
         ->assertSee('Banco de la Nación')
@@ -147,9 +147,75 @@ it('refuses the page to an account without a student record', function (): void 
 });
 
 it('asks for the voucher with a labelled drop area that names the accepted files and keeps the real file input', function (): void {
+    Livewire::actingAs($this->estudiante)->test(MisPagos::class)
+        ->set('registrando', true)
+        ->assertSeeHtmlInOrder(['Recibo escaneado', 'Elegir archivo', 'JPG, PNG o PDF · hasta 5 MB'])
+        ->assertSeeHtml('id="campo-recibo" type="file" wire:model="recibo"')
+        ->assertSeeHtml('for="campo-recibo"');
+});
+
+it('heads the page like the SGA payment record with the register receipt action', function (): void {
     $this->actingAs($this->estudiante)->get(route('estudiante.pagos'))
         ->assertOk()
-        ->assertSeeInOrder(['Recibo escaneado', 'Elegir archivo', 'JPG, PNG o PDF · hasta 5 MB'])
-        ->assertSee('id="campo-recibo" type="file" wire:model="recibo"', false)
-        ->assertSee('for="campo-recibo"', false);
+        ->assertSeeInOrder(['Registro de pagos', 'Ve todos los pagos que has registrado y registra tus recibos.', 'Registrar recibo', 'Recibos registrados', 'lleva la boleta original al CILN para validarla']);
+});
+
+it('shows the payments in a formal table with one row per payment', function (): void {
+    $pago = Pago::factory()->validado()->create(['persona_id' => $this->persona->id, 'concepto_id' => $this->concepto->id, 'medio_pago_id' => MedioDePago::idDe('banco_nacion'), 'numero_operacion' => 'OP-TABLA-1', 'monto' => '150.00', 'fecha_pago' => '2027-02-20']);
+
+    $this->actingAs($this->estudiante)->get(route('estudiante.pagos'))
+        ->assertOk()
+        ->assertSeeInOrder(['<table class="tabla-portal">', 'N°', 'Concepto', 'N.° de operación', 'Medio', 'Fecha', 'Monto', 'Recibo', 'Estado', '</thead>'], false)
+        ->assertSeeInOrder(['<td', '1', 'Derecho de matrícula', 'OP-TABLA-1', 'Banco de la Nación', '20/02/2027', 'S/ 150.00', 'href="'.route('estudiante.pagos.recibo', $pago).'" target="_blank"', 'Ver', 'Validado', '</tbody>'], false);
+});
+
+it('sums the registered payments by state in the summary', function (): void {
+    $comun = ['persona_id' => $this->persona->id, 'concepto_id' => $this->concepto->id];
+    Pago::factory()->validado()->create([...$comun, 'monto' => '150.00']);
+    Pago::factory()->validado()->create([...$comun, 'monto' => '20.50']);
+    Pago::factory()->create([...$comun, 'monto' => '80.25']);
+    Pago::factory()->rechazado()->create([...$comun, 'monto' => '40.00']);
+    Pago::factory()->rechazado()->create([...$comun, 'monto' => '10.00']);
+
+    $this->actingAs($this->estudiante)->get(route('estudiante.pagos'))
+        ->assertOk()
+        ->assertSee('Has registrado pagos por S/ 300.75. Validados: S/ 170.50 · Por validar: S/ 80.25 · Rechazados: 2');
+});
+
+it('shows the rejection reason in the row of the rejected payment', function (): void {
+    Pago::factory()->rechazado()->create(['persona_id' => $this->persona->id, 'concepto_id' => $this->concepto->id, 'numero_operacion' => 'OP-RECHAZO-1', 'motivo_rechazo' => 'El recibo está borroso.']);
+
+    $this->actingAs($this->estudiante)->get(route('estudiante.pagos'))
+        ->assertOk()
+        ->assertSeeInOrder(['<tbody>', 'Derecho de matrícula', 'Motivo del rechazo: El recibo está borroso.', 'OP-RECHAZO-1', 'Rechazado', '</tbody>'], false);
+});
+
+it('keeps the register form hidden until the student asks to register a receipt', function (): void {
+    $this->actingAs($this->estudiante)->get(route('estudiante.pagos'))
+        ->assertOk()
+        ->assertDontSee('Registrar un recibo')
+        ->assertDontSee('id="campo-recibo"', false);
+
+    Livewire::actingAs($this->estudiante)->test(MisPagos::class)
+        ->assertSet('registrando', false)
+        ->toggle('registrando')
+        ->assertSee('Registrar un recibo')
+        ->assertSeeHtml('id="campo-recibo"')
+        ->call('cancelarRegistro')
+        ->assertSet('registrando', false)
+        ->assertDontSee('Registrar un recibo');
+});
+
+it('hides the register form again after a successful registration', function (): void {
+    registrarPagoEnElPortal(['registrando' => true])
+        ->assertHasNoErrors()
+        ->assertSet('registrando', false);
+});
+
+it('keeps the register form open when the receipt data is invalid', function (): void {
+    registrarPagoEnElPortal(['registrando' => true, 'numero_operacion' => ''])
+        ->assertHasErrors('numero_operacion')
+        ->assertSet('registrando', true)
+        ->assertSee('Registrar un recibo')
+        ->assertSee('Completa el campo número de operación.');
 });

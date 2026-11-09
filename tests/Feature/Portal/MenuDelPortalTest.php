@@ -53,6 +53,6 @@ it('heads every process page with the SGA trail: Alumno, the student and the pag
 
     $this->actingAs($user)->get(route('estudiante.pagos'))
         ->assertOk()
-        ->assertSeeInOrder(['Ruta de navegación', 'Alumno', 'ROSA ELENA QUISPE', 'Mis pagos'])
+        ->assertSeeInOrder(['Ruta de navegación', 'Alumno', 'ROSA ELENA QUISPE', 'Registro de pagos'])
         ->assertSee('href="'.route('estudiante.inicio').'"', false);
 });

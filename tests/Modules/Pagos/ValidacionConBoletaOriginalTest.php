@@ -156,8 +156,7 @@ it('tells the student to bring the original voucher while the payment is pending
 
     $this->actingAs($estudiante)->get(route('estudiante.pagos'))
         ->assertOk()
-        ->assertSee('lleva la boleta original al CILN para validarla')
-        ->assertSee('Acércate al CILN con tu boleta original para validarla.');
+        ->assertSeeInOrder(['lleva la boleta original al CILN para validarla', EstadoPago::Pendiente->etiqueta()]);
 });
 
 it('refuses a justification longer than 500 characters', function (): void {

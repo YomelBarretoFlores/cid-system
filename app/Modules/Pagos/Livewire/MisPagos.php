@@ -7,9 +7,12 @@ namespace App\Modules\Pagos\Livewire;
 use App\Modules\Pagos\Actions\ListarPagosDeEstudiante;
 use App\Modules\Pagos\Actions\RegistrarPago;
 use App\Modules\Pagos\Data\RegistroDePago;
+use App\Modules\Pagos\Data\ReporteDeRecaudacion;
+use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoForm;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
+use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
@@ -19,6 +22,7 @@ use App\Shared\Support\Livewire\MensajesDeValidacion;
 use App\Shared\Support\Logging\RegistroDeRechazos;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -27,7 +31,7 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.portal')]
-#[Title('Mis pagos')]
+#[Title('Registro de pagos')]
 final class MisPagos extends Component
 {
     use MensajesDeValidacion {
@@ -50,6 +54,8 @@ final class MisPagos extends Component
 
     public ?TemporaryUploadedFile $recibo = null;
 
+    public bool $registrando = false;
+
     private ?FichaDeEstudiante $ficha = null;
 
     public function mount(): void
@@ -64,6 +70,7 @@ final class MisPagos extends Component
 
     public function registrar(RegistrarPago $registrar): void
     {
+        $this->registrando = true;
         $this->monto = str_replace(',', '.', trim($this->monto));
         $this->validate();
         $recibo = $this->recibo ?? abort(422);
@@ -77,14 +84,30 @@ final class MisPagos extends Component
             return;
         }
 
+        $this->registrando = false;
         session()->flash('estado', 'Registramos tu pago. El CILN revisará el recibo y te mostrará aquí el resultado.');
         $this->redirectRoute('estudiante.pagos');
     }
 
+    public function cancelarRegistro(): void
+    {
+        $this->reset('concepto_id', 'medio_pago_id', 'numero_operacion', 'monto', 'recibo', 'registrando');
+        $this->fecha_pago = $this->hoy();
+        $this->resetValidation();
+    }
+
     public function render(): View
     {
+        $pagos = app(ListarPagosDeEstudiante::class)($this->ficha()->personaId);
+
         return view('pagos::livewire.mis-pagos', [
-            'pagos' => app(ListarPagosDeEstudiante::class)($this->ficha()->personaId),
+            'pagos' => $pagos,
+            'resumen' => [
+                'total' => $this->suma($pagos),
+                'validados' => $this->suma($pagos->where('estado', EstadoPago::Validado)),
+                'porValidar' => $this->suma($pagos->where('estado', EstadoPago::Pendiente)),
+                'rechazados' => $pagos->where('estado', EstadoPago::Rechazado)->count(),
+            ],
             'conceptos' => Concepto::query()->where('activo', true)->orderBy('nombre')->pluck('nombre', 'id')->all(),
             'mediosDePago' => MedioDePago::query()->activos()->pluck('nombre', 'id')->all(),
             'hoy' => $this->hoy(),
@@ -144,6 +167,14 @@ final class MisPagos extends Component
             'monto' => 'monto',
             'recibo' => 'recibo',
         ];
+    }
+
+    /**
+     * @param  Collection<int, Pago>  $pagos
+     */
+    private function suma(Collection $pagos): string
+    {
+        return ReporteDeRecaudacion::soles($pagos->sum(fn (Pago $pago): int => ReporteDeRecaudacion::centimosDe($pago->monto)));
     }
 
     private function tarifaVigente(int $conceptoId): string
