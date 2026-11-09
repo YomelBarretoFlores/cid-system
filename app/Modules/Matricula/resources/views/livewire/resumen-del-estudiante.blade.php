@@ -23,7 +23,7 @@
             @if ($avance->paso === PasoDelEstudiante::Matriculado && $avance->matriculaActual !== null)
                 <div class="flex flex-wrap gap-2">
                     <x-portal.boton :href="route('estudiante.matriculas.ficha', $avance->matriculaActual)" variante="secundario" tamano="compacto" target="_blank" rel="noopener">Ver ficha de matrícula</x-portal.boton>
-                    <x-portal.boton :href="route('estudiante.pagos')" variante="secundario" tamano="compacto">Ver mis pagos</x-portal.boton>
+                    <x-portal.boton :href="route('estudiante.pagos')" variante="secundario" tamano="compacto">Ver registro de pagos</x-portal.boton>
                 </div>
             @endif
 
@@ -66,7 +66,7 @@
 
             @unless ($soloDocente)
                 <div class="flex flex-col gap-3 border-t border-separador pt-4">
-                    <h3 class="text-[13px] font-semibold tracking-[0.12em] text-apagado uppercase">Mis pagos</h3>
+                    <h3 class="text-[13px] font-semibold tracking-[0.12em] text-apagado uppercase">Tus pagos</h3>
                     <dl class="grid grid-cols-3 gap-2">
                         @foreach ([['Por validar', $avance->pagos->porValidar], ['Validados', $avance->pagos->validados], ['Para matrícula', $avance->pagosParaMatricula]] as [$etiqueta, $cantidad])
                             <div class="tarjeta-interna flex flex-col gap-1 p-3">

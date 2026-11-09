@@ -43,7 +43,7 @@
             </x-portal.vacio>
         @else
             <x-portal.alerta>
-                Has registrado pagos por S/ {{ $resumen['total'] }}. Validados: S/ {{ $resumen['validados'] }} · Por validar: S/ {{ $resumen['porValidar'] }} · Rechazados: {{ $resumen['rechazados'] }}
+                Has registrado pagos por S/ {{ $resumen['total'] }}. Validados: S/ {{ $resumen['validados'] }} · Por validar: S/ {{ $resumen['porValidar'] }} · Recibos rechazados: {{ $resumen['rechazados'] }}
             </x-portal.alerta>
 
             <div class="overflow-x-auto">

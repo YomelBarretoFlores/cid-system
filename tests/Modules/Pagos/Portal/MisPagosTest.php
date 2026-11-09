@@ -179,7 +179,8 @@ it('sums the registered payments by state in the summary', function (): void {
 
     $this->actingAs($this->estudiante)->get(route('estudiante.pagos'))
         ->assertOk()
-        ->assertSee('Has registrado pagos por S/ 300.75. Validados: S/ 170.50 · Por validar: S/ 80.25 · Rechazados: 2');
+        ->assertSee('Has registrado pagos por S/ 250.75. Validados: S/ 170.50 · Por validar: S/ 80.25 · Recibos rechazados: 2')
+        ->assertDontSee('S/ 300.75');
 });
 
 it('shows the rejection reason in the row of the rejected payment', function (): void {

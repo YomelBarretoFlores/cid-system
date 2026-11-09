@@ -81,7 +81,7 @@ final class MisTramites extends Component
         }
 
         session()->flash('estado', $tramite->estado === EstadoTramite::PendientePago
-            ? "Registramos tu trámite {$tramite->codigo}. Paga la tasa y registra tu recibo en Mis pagos: el trámite continúa cuando el CILN valide el pago."
+            ? "Registramos tu trámite {$tramite->codigo}. Paga la tasa y registra tu recibo en Registro de pagos: el trámite continúa cuando el CILN valide el pago."
             : "Registramos tu trámite {$tramite->codigo}. Te avisaremos por correo cada vez que cambie de estado.");
 
         $this->redirectRoute('estudiante.tramites');

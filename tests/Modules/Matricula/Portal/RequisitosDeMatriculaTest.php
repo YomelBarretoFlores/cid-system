@@ -13,6 +13,7 @@ use App\Modules\Matricula\Actions\MatricularEstudiante;
 use App\Modules\Matricula\Data\RequisitoDeMatricula;
 use App\Modules\Matricula\Enums\CondicionMatricula;
 use App\Modules\Matricula\Enums\OrigenHabilitacion;
+use App\Modules\Matricula\Enums\TipoDeRequisito;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Enums\TipoConcepto;
@@ -133,4 +134,11 @@ it('shows the status heading and the checklist above the offer on the enrollment
         ->assertSee(route('estudiante.pagos'))
         ->assertSee('Cumplido')
         ->assertSee('Pendiente');
+});
+
+it('names each requirement by its type so the portal never reads them by position', function (): void {
+    $tipos = collect(app(EvaluarRequisitosDeMatricula::class)($this->persona->id))->map(fn (RequisitoDeMatricula $requisito): TipoDeRequisito => $requisito->tipo)->all();
+
+    expect($tipos)->toEqualCanonicalizing(TipoDeRequisito::cases())
+        ->and(array_unique(array_map(fn (TipoDeRequisito $tipo): string => $tipo->value, $tipos)))->toHaveCount(count(TipoDeRequisito::cases()));
 });

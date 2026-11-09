@@ -36,7 +36,7 @@ it('offers only the periods of the student, newest first, and opens on every rep
         ->assertSeeInOrder([
             'Periodo seleccionado', 'Ficha de matrícula', 'Inglés 1 · ING-1-M', 'Constancia de inscripción', 'Horario personalizado', 'Boleta de notas', 'Sílabos',
             'Generales e históricos', 'Récord de notas', 'Historial de matrículas', 'Documentos emitidos',
-            'Seguimiento académico', 'Avance de notas', 'Asistencia', 'Avance por idioma', 'Mis pagos',
+            'Seguimiento académico', 'Avance de notas', 'Asistencia', 'Avance por idioma', 'Registro de pagos',
         ])
         ->assertSee(route('estudiante.matriculas.ficha', $this->matricula))
         ->assertSee(route('estudiante.matriculas.constancia', $this->matricula))

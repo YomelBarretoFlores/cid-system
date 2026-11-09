@@ -15,6 +15,7 @@ use App\Modules\Academico\Data\VentanaDeMatricula;
 use App\Modules\Certificacion\Contracts\MatriculasCalificadas;
 use App\Modules\Matricula\Data\RequisitoDeMatricula;
 use App\Modules\Matricula\Enums\EstadoMatricula;
+use App\Modules\Matricula\Enums\TipoDeRequisito;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Matricula\Support\OpcionesDeMatricula;
@@ -79,7 +80,7 @@ final readonly class EvaluarRequisitosDeMatricula
         $abiertas = $ventanas->where('abierta', true);
 
         if ($abiertas->isNotEmpty()) {
-            return new RequisitoDeMatricula('Periodo de matrícula abierto', true, array_values($abiertas->map(
+            return new RequisitoDeMatricula(TipoDeRequisito::Periodo, 'Periodo de matrícula abierto', true, array_values($abiertas->map(
                 fn (VentanaDeMatricula $ventana): string => "{$ventana->periodo}: del ".Formato::fechaCorta($ventana->inicio).' al '.Formato::fechaCorta($ventana->fin).'.',
             )->all()));
         }
@@ -91,7 +92,7 @@ final readonly class EvaluarRequisitosDeMatricula
             default => "La matrícula del periodo {$proxima->periodo} aún no está abierta.",
         };
 
-        return new RequisitoDeMatricula('Periodo de matrícula abierto', false, [$detalle]);
+        return new RequisitoDeMatricula(TipoDeRequisito::Periodo, 'Periodo de matrícula abierto', false, [$detalle]);
     }
 
     /**
@@ -125,7 +126,7 @@ final readonly class EvaluarRequisitosDeMatricula
 
         $lineas->push(($lineas->isEmpty() ? 'En todos los idiomas ' : 'En los demás idiomas ').self::OTROS_IDIOMAS);
 
-        return new RequisitoDeMatricula('Ciclo que te corresponde', true, array_values($lineas->all()), route('estudiante.clasificacion'), 'Solicitar examen de clasificación');
+        return new RequisitoDeMatricula(TipoDeRequisito::Ciclo, 'Ciclo que te corresponde', true, array_values($lineas->all()), route('estudiante.clasificacion'), 'Solicitar examen de clasificación');
     }
 
     /**
@@ -158,9 +159,9 @@ final readonly class EvaluarRequisitosDeMatricula
         $disponibles = count($this->opciones->pagosDisponibles($personaId));
 
         return match ($disponibles) {
-            0 => new RequisitoDeMatricula('Pago de matrícula validado y sin usar', false, ['Registra tu pago de matrícula y espera a que el CILN lo valide.'], route('estudiante.pagos'), 'Registrar mi pago'),
-            1 => new RequisitoDeMatricula('Pago de matrícula validado y sin usar', true, ['Tienes 1 pago de matrícula disponible.']),
-            default => new RequisitoDeMatricula('Pago de matrícula validado y sin usar', true, ["Tienes {$disponibles} pagos de matrícula disponibles."]),
+            0 => new RequisitoDeMatricula(TipoDeRequisito::Pago, 'Pago de matrícula validado y sin usar', false, ['Registra tu pago de matrícula y espera a que el CILN lo valide.'], route('estudiante.pagos'), 'Registrar mi pago'),
+            1 => new RequisitoDeMatricula(TipoDeRequisito::Pago, 'Pago de matrícula validado y sin usar', true, ['Tienes 1 pago de matrícula disponible.']),
+            default => new RequisitoDeMatricula(TipoDeRequisito::Pago, 'Pago de matrícula validado y sin usar', true, ["Tienes {$disponibles} pagos de matrícula disponibles."]),
         };
     }
 
@@ -175,7 +176,7 @@ final readonly class EvaluarRequisitosDeMatricula
         $conVacantes = $libres->filter(fn (FichaDeGrupo $grupo): bool => $grupo->vacantesDisponibles > 0);
 
         if ($conVacantes->isNotEmpty()) {
-            return new RequisitoDeMatricula('Grupos de tu ciclo con vacantes', true, array_values($conVacantes->groupBy('idioma')->map(
+            return new RequisitoDeMatricula(TipoDeRequisito::Grupos, 'Grupos de tu ciclo con vacantes', true, array_values($conVacantes->groupBy('idioma')->map(
                 fn (Collection $grupos, string $idioma): string => $idioma.': '.($grupos->count() === 1 ? '1 grupo con vacantes.' : "{$grupos->count()} grupos con vacantes."),
             )->all()));
         }
@@ -186,7 +187,7 @@ final readonly class EvaluarRequisitosDeMatricula
             default => 'Los grupos abiertos de tu ciclo ya no tienen vacantes.',
         };
 
-        return new RequisitoDeMatricula('Grupos de tu ciclo con vacantes', false, [$detalle]);
+        return new RequisitoDeMatricula(TipoDeRequisito::Grupos, 'Grupos de tu ciclo con vacantes', false, [$detalle]);
     }
 
     /**
@@ -195,10 +196,10 @@ final readonly class EvaluarRequisitosDeMatricula
     private function unicidad(array $enConflicto): RequisitoDeMatricula
     {
         if ($enConflicto === []) {
-            return new RequisitoDeMatricula('Sin otra matrícula en el mismo ciclo y periodo', true, ['No tienes otra matrícula activa en el ciclo que te corresponde de este periodo.']);
+            return new RequisitoDeMatricula(TipoDeRequisito::Unicidad, 'Sin otra matrícula en el mismo ciclo y periodo', true, ['No tienes otra matrícula activa en el ciclo que te corresponde de este periodo.']);
         }
 
-        return new RequisitoDeMatricula('Sin otra matrícula en el mismo ciclo y periodo', false, array_values(array_map(
+        return new RequisitoDeMatricula(TipoDeRequisito::Unicidad, 'Sin otra matrícula en el mismo ciclo y periodo', false, array_values(array_map(
             fn (FichaDeGrupo $grupo): string => "Ya estás matriculado en {$grupo->idioma}, ciclo {$grupo->cicloNumero}, de este periodo (grupo {$grupo->codigo}).",
             ($this->detalleDeGrupos)($enConflicto),
         )));

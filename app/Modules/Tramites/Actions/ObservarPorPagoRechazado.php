@@ -13,7 +13,7 @@ use App\Shared\Support\Database\Transaccion;
 // A rejected receipt tells the student why the trámite that waits for it is stuck; the next validated payment clears it.
 final readonly class ObservarPorPagoRechazado
 {
-    public const string OBSERVACION = 'El CILN rechazó el pago de la tasa que registraste. Registra de nuevo el recibo correcto en Mis pagos para continuar.';
+    public const string OBSERVACION = 'El CILN rechazó el pago de la tasa que registraste. Registra de nuevo el recibo correcto en Registro de pagos para continuar.';
 
     public function __construct(private ConsultaDePago $consultaDePago) {}
 

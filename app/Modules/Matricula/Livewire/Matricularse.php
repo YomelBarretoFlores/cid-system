@@ -7,6 +7,7 @@ namespace App\Modules\Matricula\Livewire;
 use App\Modules\Academico\Data\FichaDeGrupo;
 use App\Modules\Matricula\Actions\EvaluarRequisitosDeMatricula;
 use App\Modules\Matricula\Actions\MatricularEstudiante;
+use App\Modules\Matricula\Data\RequisitoDeMatricula;
 use App\Modules\Matricula\Support\OpcionesDeMatricula;
 use App\Modules\Pagos\Data\PagoValidado;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
@@ -57,8 +58,11 @@ final class Matricularse extends Component
 
     public function render(): View
     {
+        $requisitos = app(EvaluarRequisitosDeMatricula::class)($this->personaId());
+
         return view('matricula::livewire.matricularse', [
-            'requisitos' => app(EvaluarRequisitosDeMatricula::class)($this->personaId()),
+            'requisitos' => $requisitos,
+            'cumple' => collect($requisitos)->mapWithKeys(fn (RequisitoDeMatricula $requisito): array => [$requisito->tipo->value => $requisito->cumplido])->all(),
             'ofertaPorIdioma' => $this->oferta()->groupBy('idioma'),
             'opcionesDePago' => $this->pagosDisponibles()->mapWithKeys(fn (PagoValidado $pago): array => [
                 $pago->id => "{$pago->concepto} · Operación {$pago->numeroOperacion} · S/ {$pago->monto} · {$pago->fechaPago->format('d/m/Y')}",

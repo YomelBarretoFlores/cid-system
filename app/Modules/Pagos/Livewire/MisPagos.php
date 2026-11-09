@@ -103,7 +103,7 @@ final class MisPagos extends Component
         return view('pagos::livewire.mis-pagos', [
             'pagos' => $pagos,
             'resumen' => [
-                'total' => $this->suma($pagos),
+                'total' => $this->suma($pagos->whereIn('estado', [EstadoPago::Validado, EstadoPago::Pendiente])),
                 'validados' => $this->suma($pagos->where('estado', EstadoPago::Validado)),
                 'porValidar' => $this->suma($pagos->where('estado', EstadoPago::Pendiente)),
                 'rechazados' => $pagos->where('estado', EstadoPago::Rechazado)->count(),

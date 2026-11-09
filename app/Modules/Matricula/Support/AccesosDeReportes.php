@@ -67,7 +67,7 @@ final readonly class AccesosDeReportes
             $this->acceso('Avance de notas', 'Notas registradas por el docente', $avance, $motivo, 'lila', 'heroicon-o-chart-bar'),
             $this->acceso('Asistencia', 'Clases y faltas', $avance, $motivo, 'ambar', 'heroicon-o-check-circle'),
             $this->acceso('Avance por idioma', 'Ciclos aprobados de 12', route('estudiante.reportes', ['ver' => 'aprobado']), null, 'celeste', 'heroicon-o-language'),
-            $this->acceso('Mis pagos', 'Recibos registrados', route('estudiante.pagos'), null, 'verde', 'heroicon-o-banknotes'),
+            $this->acceso('Registro de pagos', 'Recibos registrados', route('estudiante.pagos'), null, 'verde', 'heroicon-o-banknotes'),
         ];
     }
 

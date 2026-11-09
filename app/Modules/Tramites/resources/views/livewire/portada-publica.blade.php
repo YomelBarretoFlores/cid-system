@@ -32,7 +32,7 @@
         ARRAY_FILTER_USE_KEY,
     );
     $preguntas = [
-        ['¿Cómo me matriculo?', 'Crea tu cuenta, paga el derecho de matrícula de tu vínculo, registra el recibo en Mis pagos y, cuando el CILN lo valide, elige un grupo con vacantes. Tu ficha de matrícula se descarga al instante.'],
+        ['¿Cómo me matriculo?', 'Crea tu cuenta, paga el derecho de matrícula de tu vínculo, registra el recibo en Registro de pagos y, cuando el CILN lo valide, elige un grupo con vacantes. Tu ficha de matrícula se descarga al instante.'],
         ['¿Dónde pago?', 'En el Banco de la Nación, en Págalo.pe o en la caja de la UNASAM. Luego registra el número de operación y el recibo en el portal.'],
         ['Ya sé el idioma, ¿debo empezar en el ciclo I?', 'No. Rinde el examen de clasificación desde el portal del estudiante y, según tu resultado, te matriculas en un ciclo superior.'],
         ['¿Cómo obtengo mi certificado?', 'Al aprobar los ciclos de un nivel, solicita el certificado como trámite desde el portal del estudiante. Cada certificado lleva un código y un QR verificables.'],
@@ -176,7 +176,7 @@
                         @foreach ([
                             ['Crea tu cuenta', 'Regístrate con tu documento de identidad y tu correo personal, y confirma el enlace que te enviamos.', 'bg-hoja-celeste'],
                             ['Paga la matrícula', 'Paga el derecho de matrícula de tu vínculo en el Banco de la Nación, Págalo.pe o la caja de la UNASAM.', 'bg-hoja-verde'],
-                            ['Registra tu recibo', 'Súbelo en Mis pagos con el número de operación. El CILN lo revisa y lo valida.', 'bg-hoja-rojo'],
+                            ['Registra tu recibo', 'Súbelo en Registro de pagos con el número de operación. El CILN lo revisa y lo valida.', 'bg-hoja-rojo'],
                             ['Elige tu grupo', 'Ve los horarios con vacantes de tu ciclo y confirma. Descarga tu ficha de matrícula al instante.', 'bg-hoja-ambar'],
                         ] as [$paso, $detalle, $tinte])
                             <li data-revelar class="{{ $tarjeta }} flex items-start gap-4 p-5 sm:gap-5 sm:p-6" style="--orden: {{ $loop->index }}">

@@ -34,7 +34,7 @@ it('tells a student whose payment is waiting for validation to wait instead of p
 
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSeeInOrder(['Tu pago de matrícula está por validar.', 'Cuando el CILN lo valide podrás elegir tu grupo.', 'Ver mis pagos', 'Mis pagos', 'Por validar', '1'])
+        ->assertSeeInOrder(['Tu pago de matrícula está por validar.', 'Cuando el CILN lo valide podrás elegir tu grupo.', 'Ver registro de pagos', 'Tus pagos', 'Por validar', '1'])
         ->assertDontSee('Registra tu pago de matrícula.');
 });
 
@@ -63,7 +63,7 @@ it('summarizes the payments and the enrollment fee for the student link', functi
 
     $this->actingAs($this->user)->get(route('estudiante.inicio'))
         ->assertOk()
-        ->assertSeeInOrder(['Mis pagos', 'Por validar', '1', 'Validados', '2', 'Para matrícula', '1', 'Matrícula: S/ 120.00 según tu vínculo'])
+        ->assertSeeInOrder(['Tus pagos', 'Por validar', '1', 'Validados', '2', 'Para matrícula', '1', 'Matrícula: S/ 120.00 según tu vínculo'])
         ->assertSee(route('estudiante.pagos'));
 });
 

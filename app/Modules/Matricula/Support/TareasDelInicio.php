@@ -50,7 +50,7 @@ final readonly class TareasDelInicio
     {
         return array_values(array_filter([
             $this->sinPago() && ! $this->avance->pagos->ultimoRechazo instanceof PagoRechazado && $this->avance->pagos->matriculaPorValidar
-                ? new TareaDelInicio('Tu pago de matrícula está por validar.', 'Cuando el CILN lo valide podrás elegir tu grupo. Lleva tu boleta original al CILN.', 'Ver mis pagos', 'estudiante.pagos', 'Por validar') : null,
+                ? new TareaDelInicio('Tu pago de matrícula está por validar.', 'Cuando el CILN lo valide podrás elegir tu grupo. Lleva tu boleta original al CILN.', 'Ver registro de pagos', 'estudiante.pagos', 'Por validar') : null,
             $this->enProceso > 0 ? new TareaDelInicio($this->enProceso === 1 ? 'Tu trámite está en revisión.' : "Tus {$this->enProceso} trámites están en revisión.", 'Te avisaremos por correo cuando avancen.', 'Ver mis trámites', 'estudiante.tramites', 'En revisión') : null,
         ]));
     }
@@ -70,7 +70,7 @@ final readonly class TareasDelInicio
     private function pagoPorRegistrar(): ?TareaDelInicio
     {
         return $this->sinPago() && ! $this->avance->pagos->ultimoRechazo instanceof PagoRechazado && ! $this->avance->pagos->matriculaPorValidar
-            ? new TareaDelInicio('Registra tu pago de matrícula.', 'Sube el recibo en Mis pagos; cuando el CILN lo valide podrás elegir tu grupo.', 'Registrar pago', 'estudiante.pagos') : null;
+            ? new TareaDelInicio('Registra tu pago de matrícula.', 'Sube el recibo en Registro de pagos; cuando el CILN lo valide podrás elegir tu grupo.', 'Registrar pago', 'estudiante.pagos') : null;
     }
 
     private function grupoPorElegir(): ?TareaDelInicio

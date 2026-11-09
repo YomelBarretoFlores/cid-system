@@ -50,7 +50,7 @@
                                     @elseif ($tramite->estado === EstadoTramite::PendientePago)
                                         <p class="mb-1.5">
                                             Falta validar el pago de la tasa ({{ $tramite->tipo_concepto?->etiqueta() }}).
-                                            <a href="{{ route('estudiante.pagos') }}" class="enlace">Registra tu recibo en Mis pagos</a>; el trámite continúa cuando el CILN lo valide.
+                                            <a href="{{ route('estudiante.pagos') }}" class="enlace">Registra tu recibo en Registro de pagos</a>; el trámite continúa cuando el CILN lo valide.
                                         </p>
                                     @endif
                                     <details>
@@ -108,7 +108,7 @@
                 @enderror
 
                 @if ($tipo->cobraTasa())
-                    <x-portal.alerta>Este trámite tiene una tasa ({{ $tipo->tipo_concepto?->etiqueta() }}). Si ya tienes un pago validado sin usar, se aplica solo; si no, regístralo en <a href="{{ route('estudiante.pagos') }}" class="font-semibold underline underline-offset-2">Mis pagos</a>.</x-portal.alerta>
+                    <x-portal.alerta>Este trámite tiene una tasa ({{ $tipo->tipo_concepto?->etiqueta() }}). Si ya tienes un pago validado sin usar, se aplica solo; si no, regístralo en <a href="{{ route('estudiante.pagos') }}" class="font-semibold underline underline-offset-2">Registro de pagos</a>.</x-portal.alerta>
                 @endif
 
                 <form wire:submit="solicitar" class="flex flex-col gap-3.5" novalidate>

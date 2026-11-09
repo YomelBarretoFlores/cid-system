@@ -15,7 +15,7 @@ it('shows the student profile on top of the sidebar and groups the sections like
             'Rosa Elena Quispe', 'Estudiante',
             'Mi cuenta', 'Perfil', 'Modificar datos', 'Subir fotografía', 'Preferencias',
             'Reportes', 'Todos', 'Horario', 'Sílabos',
-            'Procesos', 'Matrícula', 'Mis matrículas', 'Mis pagos', 'Clasificación', 'Trámites',
+            'Procesos', 'Matrícula', 'Mis matrículas', 'Registro de pagos', 'Clasificación', 'Trámites',
             'Enlaces', 'Verificar un documento', 'Web del CILN',
             'Cerrar sesión',
         ])

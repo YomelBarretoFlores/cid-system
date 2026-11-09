@@ -68,7 +68,7 @@
                         <x-portal.grupo-menu titulo="Procesos">
                             <x-portal.enlace-menu ruta="estudiante.matricula" icono="heroicon-o-pencil-square">Matrícula</x-portal.enlace-menu>
                             <x-portal.enlace-menu ruta="estudiante.matriculas" activo="estudiante.matriculas*" icono="heroicon-o-academic-cap">Mis matrículas</x-portal.enlace-menu>
-                            <x-portal.enlace-menu ruta="estudiante.pagos" icono="heroicon-o-banknotes">Mis pagos</x-portal.enlace-menu>
+                            <x-portal.enlace-menu ruta="estudiante.pagos" icono="heroicon-o-banknotes">Registro de pagos</x-portal.enlace-menu>
                             <x-portal.enlace-menu ruta="estudiante.clasificacion" icono="heroicon-o-clipboard-document-check">Clasificación</x-portal.enlace-menu>
                             <x-portal.enlace-menu ruta="estudiante.tramites" icono="heroicon-o-document-text" :insignia="$observados ?: null">Trámites</x-portal.enlace-menu>
                             @if ($porConfirmar !== null)

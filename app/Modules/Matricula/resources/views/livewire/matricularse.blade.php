@@ -1,9 +1,7 @@
 @php
-    // EvaluarRequisitosDeMatricula returns the requirements in a fixed order: period, cycle, payment, groups, uniqueness.
-    [$periodoAbierto, , $pagoValidado, $gruposConVacantes, $sinOtraMatricula] = $requisitos;
     $conPago = $opcionesDePago !== [];
-    $puedeMatricularse = $periodoAbierto->cumplido && $pagoValidado->cumplido && $gruposConVacantes->cumplido;
-    $yaMatriculado = ! $puedeMatricularse && ! $sinOtraMatricula->cumplido;
+    $puedeMatricularse = $cumple['periodo'] && $cumple['pago'] && $cumple['grupos'];
+    $yaMatriculado = ! $puedeMatricularse && ! $cumple['unicidad'];
     $oferta = $ofertaPorIdioma->flatten(1);
     $resumen = [
         'Periodo' => $oferta->pluck('periodo')->unique()->implode(', ') ?: '—',
@@ -74,7 +72,7 @@
         </dl>
     </section>
 
-    @if ($periodoAbierto->cumplido && ! $yaMatriculado)
+    @if ($cumple['periodo'] && ! $yaMatriculado)
         <form wire:submit="matricularme" class="flex flex-col gap-3 sm:gap-4" novalidate>
             <x-portal.tarjeta titulo="Pago que se usará" class="border border-borde">
                 @if ($conPago)
