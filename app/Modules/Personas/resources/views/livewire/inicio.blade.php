@@ -34,6 +34,7 @@
                     @endif
                 </div>
                 @if ($esDocente)
+                    <p class="text-[14.5px] text-secundario">Registra la asistencia y las notas parciales de tus grupos.</p>
                     <a href="{{ route('filament.docente.pages.mis-grupos') }}" class="enlace text-[14.5px]">Ir a mis grupos</a>
                 @endif
             </x-portal.tarjeta>
