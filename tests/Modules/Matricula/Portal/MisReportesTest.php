@@ -264,3 +264,9 @@ it('hides a period where every enrollment of the student was withdrawn', functio
     $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes'))->assertOk()->assertDontSee('Abril 2027');
     $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.boleta', $otroPeriodo->id))->assertNotFound();
 });
+
+it('renders one root element in every view so changing the period keeps the selector working', function (string $ver): void {
+    $html = Livewire::actingAs($this->escenario['usuario'])->withQueryParams(['ver' => $ver])->test(MisReportes::class)->html();
+
+    expect(ltrim($html))->toStartWith('<div')->not->toStartWith('<!--');
+})->with(['todos', 'horario', 'avance', 'aprobado', 'silabos']);

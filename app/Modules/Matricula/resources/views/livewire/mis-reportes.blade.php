@@ -11,6 +11,7 @@
         null => 'warning',
     };
 @endphp
+<div>
 @if ($pestana === 'todos')
 <x-portal.perfil-del-estudiante :ficha="$ficha" :es-docente="$esDocente">
     <x-slot:acciones>
@@ -227,3 +228,4 @@
     </div>
 </div>
 @endif
+</div>
