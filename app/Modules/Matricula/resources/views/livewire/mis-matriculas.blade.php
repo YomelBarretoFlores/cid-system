@@ -12,7 +12,7 @@
         @foreach ($matriculas->groupBy(fn ($matricula) => $grupos[$matricula->grupo_id]->periodoId) as $delPeriodo)
             @php($periodo = $grupos[$delPeriodo->first()->grupo_id]->periodo)
             <section wire:key="periodo-{{ $grupos[$delPeriodo->first()->grupo_id]->periodoId }}" aria-labelledby="periodo-{{ $loop->index }}-titulo"
-                class="flex flex-col gap-4 rounded-tarjeta border border-borde bg-tarjeta p-5 sm:px-7">
+                class="flex min-w-0 flex-col gap-4 rounded-tarjeta border border-borde bg-tarjeta p-5 sm:px-7">
                 <header class="flex flex-wrap items-center justify-between gap-3">
                     <h2 id="periodo-{{ $loop->index }}-titulo" class="text-lg font-semibold">Periodo {{ $periodo }}</h2>
                     <x-portal.boton variante="secundario" :href="route('estudiante.matriculas.ficha', $delPeriodo->first())" target="_blank" rel="noopener" tamano="compacto">
@@ -25,8 +25,7 @@
                     <table class="tabla-portal">
                         <thead>
                             <tr>
-                                <th scope="col">Idioma</th>
-                                <th scope="col">Ciclo</th>
+                                <th scope="col">Idioma y ciclo</th>
                                 <th scope="col">Grupo</th>
                                 <th scope="col">Horario</th>
                                 <th scope="col">Aula</th>
@@ -41,8 +40,10 @@
                             @foreach ($delPeriodo as $matricula)
                                 @php($grupo = $grupos[$matricula->grupo_id])
                                 <tr wire:key="matricula-{{ $matricula->id }}">
-                                    <td class="font-semibold">{{ $grupo->idioma }}</td>
-                                    <td class="whitespace-nowrap">Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }}</td>
+                                    <td>
+                                        <span class="block font-semibold">{{ $grupo->idioma }}</span>
+                                        <span class="block whitespace-nowrap text-[13px] text-terciario">Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }}</span>
+                                    </td>
                                     <td class="whitespace-nowrap">{{ $grupo->codigo }}</td>
                                     <td class="whitespace-nowrap">
                                         @forelse ($grupo->horarioCompacto() as $horario)
@@ -72,7 +73,7 @@
                                                 @if (in_array($matricula->grupo_id, $conSilabo, true))
                                                     <a href="{{ route('estudiante.matriculas.silabo', $matricula) }}" class="enlace whitespace-nowrap">Sílabo<span class="sr-only"> del grupo {{ $grupo->codigo }}</span></a>
                                                 @endif
-                                                <a href="{{ route('estudiante.matriculas.constancia', $matricula) }}" target="_blank" rel="noopener" class="enlace whitespace-nowrap">Constancia de inscripción (PDF)<span class="sr-only"> del grupo {{ $grupo->codigo }}</span></a>
+                                                <a href="{{ route('estudiante.matriculas.constancia', $matricula) }}" target="_blank" rel="noopener" class="enlace whitespace-nowrap">Constancia (PDF)<span class="sr-only"> de inscripción del grupo {{ $grupo->codigo }}</span></a>
                                             </span>
                                         @else
                                             <span class="text-apagado">—</span>

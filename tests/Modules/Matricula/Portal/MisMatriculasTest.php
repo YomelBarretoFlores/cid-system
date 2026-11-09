@@ -26,7 +26,7 @@ it('lists only the own enrollments in a table per period, newest first, with gro
         ->get(route('estudiante.matriculas'))
         ->assertOk()
         ->assertSee('<table class="tabla-portal">', false)
-        ->assertSeeInOrder(['Idioma', 'Ciclo', 'Grupo', 'Horario', 'Aula', 'Docente', 'Condición', 'Estado', 'Matriculado el', 'Documentos'])
+        ->assertSeeInOrder(['Idioma y ciclo', 'Grupo', 'Horario', 'Aula', 'Docente', 'Condición', 'Estado', 'Matriculado el', 'Documentos', 'Constancia (PDF)'])
         ->assertSeeInOrder(['ING-II-A', 'Mar, 18:00–20:00', 'Repitente', 'Activa', '20/10/2026 10:30', route('estudiante.matriculas.constancia', $activa), 'ING-I-A', 'Regular', 'Retirada', '02/03/2026 08:00'])
         ->assertDontSee('AJENO-1');
 });
