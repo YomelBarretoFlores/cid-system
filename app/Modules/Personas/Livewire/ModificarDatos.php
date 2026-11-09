@@ -127,7 +127,7 @@ final class ModificarDatos extends Component
         ];
     }
 
-    // Livewire updates skip auth.session, so this request must store the new hash or the next page would sign the student out.
+    // auth.session checked this request against the old hash before the change, so store the new one or the next request would sign the student out.
     private function conservarEstaSesion(User $usuario): void
     {
         /** @var SessionGuard $guardia */
