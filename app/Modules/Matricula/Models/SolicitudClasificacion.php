@@ -44,6 +44,7 @@ final class SolicitudClasificacion extends Model
     /** @use HasFactory<SolicitudClasificacionFactory> */
     use HasFactory, HasUlids;
 
+    #[\Override]
     protected $attributes = [
         'estado' => 'pendiente_evaluacion',
     ];

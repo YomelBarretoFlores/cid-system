@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class ConceptoFactory extends Factory
 {
+    #[\Override]
     protected $model = Concepto::class;
 
     public function definition(): array

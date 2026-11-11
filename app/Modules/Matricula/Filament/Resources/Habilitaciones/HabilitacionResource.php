@@ -18,20 +18,28 @@ final class HabilitacionResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Habilitacion::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowTrendingUp;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Matrícula';
 
+    #[\Override]
     protected static ?int $navigationSort = 4;
 
+    #[\Override]
     protected static ?string $modelLabel = 'ciclo habilitado';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'ciclos habilitados';
 
+    #[\Override]
     protected static ?string $slug = 'ciclos-habilitados';
 
+    #[\Override]
     protected static bool $isGloballySearchable = false;
 
     public static function table(Table $table): Table

@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ViewRecord;
 
 final class ViewDocumento extends ViewRecord
 {
+    #[\Override]
     protected static string $resource = DocumentoResource::class;
 
     protected function getHeaderActions(): array

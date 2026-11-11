@@ -24,20 +24,28 @@ final class TramiteResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Tramite::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxStack;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Trámites';
 
+    #[\Override]
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Trámites';
 
+    #[\Override]
     protected static ?string $modelLabel = 'trámite';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'trámites';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'codigo';
 
     public static function infolist(Schema $schema): Schema

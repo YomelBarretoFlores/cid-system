@@ -32,10 +32,13 @@ final class ActaFinalDelGrupo extends Page
 {
     use PestanasDelGrupo;
 
+    #[\Override]
     protected static bool $shouldRegisterNavigation = false;
 
+    #[\Override]
     protected static ?string $slug = 'grupos/{grupo}/acta';
 
+    #[\Override]
     protected string $view = 'certificacion::filament.docente.acta-final-del-grupo';
 
     #[Locked]

@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class MatriculaFactory extends Factory
 {
+    #[\Override]
     protected $model = Matricula::class;
 
     public function definition(): array

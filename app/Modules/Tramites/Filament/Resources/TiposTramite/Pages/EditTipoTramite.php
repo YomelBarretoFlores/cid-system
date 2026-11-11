@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class EditTipoTramite extends EditRecord
 {
+    #[\Override]
     protected static string $resource = TipoTramiteResource::class;
 
     protected function mutateFormDataBeforeFill(array $data): array

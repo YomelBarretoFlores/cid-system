@@ -35,6 +35,7 @@ final class Matricula extends Model
     /** @use HasFactory<MatriculaFactory> */
     use HasFactory, HasUlids;
 
+    #[\Override]
     protected $attributes = [
         'estado' => 'activa',
     ];

@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ViewRecord;
 
 final class ViewActa extends ViewRecord
 {
+    #[\Override]
     protected static string $resource = ActaResource::class;
 
     protected function getHeaderActions(): array

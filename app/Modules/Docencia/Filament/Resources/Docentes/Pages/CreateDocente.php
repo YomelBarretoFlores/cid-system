@@ -15,8 +15,10 @@ use Illuminate\Database\Eloquent\Model;
 
 final class CreateDocente extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = DocenteResource::class;
 
+    #[\Override]
     protected static bool $canCreateAnother = false;
 
     protected function handleRecordCreation(array $data): Model

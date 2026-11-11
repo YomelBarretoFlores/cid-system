@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class EditAula extends EditRecord
 {
+    #[\Override]
     protected static string $resource = AulaResource::class;
 
     /**

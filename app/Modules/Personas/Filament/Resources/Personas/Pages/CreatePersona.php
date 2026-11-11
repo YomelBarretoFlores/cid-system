@@ -13,6 +13,7 @@ final class CreatePersona extends CreateRecord
 {
     use InformaDocumentoRepetido;
 
+    #[\Override]
     protected static string $resource = PersonaResource::class;
 
     protected function handleRecordCreation(array $data): Model

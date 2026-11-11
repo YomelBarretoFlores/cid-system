@@ -49,6 +49,7 @@ final class Pago extends Model
     /** @use HasFactory<PagoFactory> */
     use HasFactory, HasUlids;
 
+    #[\Override]
     protected $attributes = [
         'estado' => 'pendiente',
     ];

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class EsquemaEvaluacionFactory extends Factory
 {
+    #[\Override]
     protected $model = EsquemaEvaluacion::class;
 
     public function definition(): array

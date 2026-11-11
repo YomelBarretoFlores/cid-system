@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class EditGradoAcademico extends EditRecord
 {
+    #[\Override]
     protected static string $resource = GradoAcademicoResource::class;
 
     protected function handleRecordUpdate(Model $record, array $data): Model

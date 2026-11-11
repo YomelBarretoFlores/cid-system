@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class PersonaFactory extends Factory
 {
+    #[\Override]
     protected $model = Persona::class;
 
     public function definition(): array

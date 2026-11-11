@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class CreateCondicionLaboral extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = CondicionLaboralResource::class;
 
     protected function handleRecordCreation(array $data): Model

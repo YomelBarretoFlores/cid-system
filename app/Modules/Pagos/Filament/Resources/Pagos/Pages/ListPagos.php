@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 
 final class ListPagos extends ListRecords
 {
+    #[\Override]
     protected static string $resource = PagoResource::class;
 
     /**

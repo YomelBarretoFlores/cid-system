@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
 #[Fillable(['grupo_id', 'estado', 'sumilla', 'competencias', 'capacidades', 'metodologia', 'bibliografia', 'publicado_en', 'publicado_por'])]
 final class Silabo extends Model
 {
+    #[\Override]
     protected $attributes = ['estado' => 'borrador'];
 
     /**

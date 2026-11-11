@@ -49,10 +49,13 @@ final class SilaboDelGrupo extends Page
 
     private const array CELDAS_OBLIGATORIAS = ['saber', 'actividades'];
 
+    #[\Override]
     protected static bool $shouldRegisterNavigation = false;
 
+    #[\Override]
     protected static ?string $slug = 'grupos/{grupo}/silabo';
 
+    #[\Override]
     protected string $view = 'docencia::filament.docente.silabo-del-grupo';
 
     #[Locked]

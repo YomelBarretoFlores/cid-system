@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class CreateEsquemaDeEvaluacion extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = EsquemaDeEvaluacionResource::class;
 
     protected function handleRecordCreation(array $data): Model

@@ -9,5 +9,6 @@ use Filament\Resources\Pages\CreateRecord;
 
 final class CreateFirmante extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = FirmanteResource::class;
 }

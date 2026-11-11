@@ -37,6 +37,7 @@ final class PersonasServiceProvider extends ModuleServiceProvider
         FichasDePersonas::class => ObtenerFichasDePersonas::class,
     ];
 
+    #[\Override]
     protected string $module = 'Personas';
 
     public function boot(): void

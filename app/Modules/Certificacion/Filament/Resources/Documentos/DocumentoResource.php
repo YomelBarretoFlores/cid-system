@@ -21,22 +21,31 @@ final class DocumentoResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Documento::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQrCode;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Certificación';
 
+    #[\Override]
     protected static ?int $navigationSort = 3;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Constancias y certificados';
 
+    #[\Override]
     protected static ?string $modelLabel = 'documento emitido';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'constancias y certificados';
 
+    #[\Override]
     protected static ?string $slug = 'documentos';
 
+    #[\Override]
     protected static bool $isGloballySearchable = false;
 
     public static function infolist(Schema $schema): Schema

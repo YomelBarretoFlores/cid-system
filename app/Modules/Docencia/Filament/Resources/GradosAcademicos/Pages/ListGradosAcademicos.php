@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListGradosAcademicos extends ListRecords
 {
+    #[\Override]
     protected static string $resource = GradoAcademicoResource::class;
 
     protected function getHeaderActions(): array

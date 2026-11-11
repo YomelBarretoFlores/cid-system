@@ -33,20 +33,28 @@ final class Silabos extends Page implements HasTable
 {
     use InteractsWithTable;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
+    #[\Override]
     protected static ?int $navigationSort = 3;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Sílabos';
 
+    #[\Override]
     protected static ?string $title = 'Sílabos';
 
+    #[\Override]
     protected static ?string $slug = 'silabos';
 
+    #[\Override]
     protected ?string $subheading = 'Sílabo de cada grupo del periodo: los que faltan, los borradores y los publicados para los estudiantes.';
 
+    #[\Override]
     protected string $view = 'docencia::filament.silabos';
 
     public static function canAccess(): bool

@@ -16,8 +16,10 @@ use Illuminate\Database\Eloquent\Model;
 
 final class CreateUsuario extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = UsuarioResource::class;
 
+    #[\Override]
     protected static bool $canCreateAnother = false;
 
     protected function handleRecordCreation(array $data): Model

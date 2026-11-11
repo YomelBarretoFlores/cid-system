@@ -57,7 +57,7 @@ final readonly class CambiarFotoDePerfil
 
     private function tipo(UploadedFile $foto): string
     {
-        $tipo = (string) (new finfo(FILEINFO_MIME_TYPE))->file($foto->getRealPath());
+        $tipo = (string) new finfo(FILEINFO_MIME_TYPE)->file($foto->getRealPath());
 
         return array_key_exists($tipo, self::EXTENSIONES)
             ? $tipo

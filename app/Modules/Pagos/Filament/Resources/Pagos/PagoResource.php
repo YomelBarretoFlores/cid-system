@@ -28,18 +28,25 @@ final class PagoResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Pago::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Pagos';
 
+    #[\Override]
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     protected static ?string $modelLabel = 'pago';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'pagos';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'numero_operacion';
 
     public static function form(Schema $schema): Schema

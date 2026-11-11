@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ViewRecord;
 
 final class ViewTramite extends ViewRecord
 {
+    #[\Override]
     protected static string $resource = TramiteResource::class;
 
     protected function getHeaderActions(): array

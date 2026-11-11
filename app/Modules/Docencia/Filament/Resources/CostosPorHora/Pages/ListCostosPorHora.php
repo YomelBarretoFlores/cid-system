@@ -20,6 +20,7 @@ use Filament\Support\Icons\Heroicon;
 
 final class ListCostosPorHora extends ListRecords
 {
+    #[\Override]
     protected static string $resource = CostoPorHoraResource::class;
 
     protected function getHeaderActions(): array

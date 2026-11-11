@@ -14,6 +14,7 @@ use Filament\Resources\Pages\ViewRecord;
 
 final class ViewMatricula extends ViewRecord
 {
+    #[\Override]
     protected static string $resource = MatriculaResource::class;
 
     /**

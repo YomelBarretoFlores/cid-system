@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ViewRecord;
 
 final class ViewPago extends ViewRecord
 {
+    #[\Override]
     protected static string $resource = PagoResource::class;
 
     protected function getHeaderActions(): array

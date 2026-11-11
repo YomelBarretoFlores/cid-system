@@ -53,7 +53,7 @@ it('writes the e-mail in Spanish with the trámite, its state, stage, comment an
     app(ObservarTramite::class)($tramite->id, $this->personal, 'Indica desde qué fecha dejas de asistir.');
     $movimiento = Movimiento::query()->where('tramite_id', $tramite->id)->latest('id')->firstOrFail();
 
-    expect((new CorreoDeCambioDeTramite($tramite->refresh(), $movimiento, 'Lucía'))->render())
+    expect(new CorreoDeCambioDeTramite($tramite->refresh(), $movimiento, 'Lucía')->render())
         ->toContain('Hola, Lucía')
         ->toContain('Retiro del ciclo')
         ->toContain($tramite->codigo)

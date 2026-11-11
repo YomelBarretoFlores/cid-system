@@ -26,20 +26,28 @@ final class ActasPendientes extends Page implements HasTable
 {
     use InteractsWithTable;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Certificación';
 
+    #[\Override]
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Actas pendientes';
 
+    #[\Override]
     protected static ?string $title = 'Actas pendientes';
 
+    #[\Override]
     protected static ?string $slug = 'actas-pendientes';
 
+    #[\Override]
     protected ?string $subheading = 'Grupos del periodo que terminaron sus clases, o están abiertos dentro del plazo de actas, y aún no tienen su acta final cerrada.';
 
+    #[\Override]
     protected string $view = 'certificacion::filament.actas-pendientes';
 
     public static function canAccess(): bool

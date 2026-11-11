@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListFirmantes extends ListRecords
 {
+    #[\Override]
     protected static string $resource = FirmanteResource::class;
 
     protected function getHeaderActions(): array

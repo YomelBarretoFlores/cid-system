@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class GrupoFactory extends Factory
 {
+    #[\Override]
     protected $model = Grupo::class;
 
     public function definition(): array

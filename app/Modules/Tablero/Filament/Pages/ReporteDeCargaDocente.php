@@ -19,18 +19,25 @@ final class ReporteDeCargaDocente extends Page implements HasTable
 {
     use ReporteGeneralDelPanel;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
+    #[\Override]
     protected static ?int $navigationSort = 5;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Carga docente';
 
+    #[\Override]
     protected static ?string $title = 'Carga docente';
 
+    #[\Override]
     protected static ?string $slug = 'reporte-de-carga-docente';
 
+    #[\Override]
     protected ?string $subheading = 'Horas asignadas y dictadas de cada docente en el periodo.';
 
     public static function canAccess(): bool

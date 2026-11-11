@@ -39,6 +39,7 @@ final class Docente extends Model
     /** @use HasFactory<DocenteFactory> */
     use HasFactory, HasUlids;
 
+    #[\Override]
     protected $attributes = [
         'estado' => 'activo',
     ];

@@ -26,20 +26,28 @@ final class ControlDeClases extends Page implements HasTable
 {
     use InteractsWithTable;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
+    #[\Override]
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Control de clases';
 
+    #[\Override]
     protected static ?string $title = 'Control de clases';
 
+    #[\Override]
     protected static ?string $slug = 'control-de-clases';
 
+    #[\Override]
     protected ?string $subheading = 'Clases registradas por los docentes, con los dos llamados y la confirmación del delegado del curso.';
 
+    #[\Override]
     protected string $view = 'docencia::filament.control-de-clases';
 
     /**

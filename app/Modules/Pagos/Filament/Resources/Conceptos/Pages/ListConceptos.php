@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListConceptos extends ListRecords
 {
+    #[\Override]
     protected static string $resource = ConceptoResource::class;
 
     protected function getHeaderActions(): array

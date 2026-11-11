@@ -26,20 +26,28 @@ final class DocenteResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Docente::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
+    #[\Override]
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Docentes';
 
+    #[\Override]
     protected static ?string $modelLabel = 'docente';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'docentes';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'codigo';
 
     public static function form(Schema $schema): Schema

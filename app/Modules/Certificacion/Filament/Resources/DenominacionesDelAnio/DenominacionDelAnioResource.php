@@ -23,22 +23,31 @@ final class DenominacionDelAnioResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = DenominacionDelAnio::class;
 
+    #[\Override]
     protected static ?string $slug = 'denominacion-del-anio';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
+    #[\Override]
     protected static ?int $navigationSort = 9;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Denominación del año';
 
+    #[\Override]
     protected static ?string $modelLabel = 'denominación del año';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'denominaciones del año';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'texto';
 
     public static function form(Schema $schema): Schema

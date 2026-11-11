@@ -25,22 +25,31 @@ final class GradoAcademicoResource extends Resource
 
     public const string TABLA = 'doc_grados_academicos';
 
+    #[\Override]
     protected static ?string $model = GradoAcademico::class;
 
+    #[\Override]
     protected static ?string $slug = 'grados-academicos';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
+    #[\Override]
     protected static ?int $navigationSort = 7;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Grados académicos';
 
+    #[\Override]
     protected static ?string $modelLabel = 'grado académico';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'grados académicos';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

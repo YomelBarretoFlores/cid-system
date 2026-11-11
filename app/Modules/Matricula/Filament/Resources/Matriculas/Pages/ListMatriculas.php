@@ -17,6 +17,7 @@ use Illuminate\Support\HtmlString;
 
 final class ListMatriculas extends ListRecords
 {
+    #[\Override]
     protected static string $resource = MatriculaResource::class;
 
     /**

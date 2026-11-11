@@ -9,5 +9,6 @@ use Filament\Resources\Pages\EditRecord;
 
 final class EditMedioDePago extends EditRecord
 {
+    #[\Override]
     protected static string $resource = MedioDePagoResource::class;
 }

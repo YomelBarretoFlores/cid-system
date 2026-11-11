@@ -28,8 +28,8 @@ it('keeps the Spanish subject and link of both e-mails', function (): void {
     $usuario = User::factory()->unverified()->create();
 
     expect((new CorreoDeVerificacion)->toMail($usuario)->subject)->toBe('Verifica tu correo del CILN')
-        ->and((new CorreoDeRestablecimiento('token-de-prueba'))->toMail($usuario)->subject)->toBe('Restablece tu contraseña del CILN')
-        ->and((new CorreoDeRestablecimiento('token-de-prueba'))->toMail($usuario)->actionUrl)->toContain('/restablecer-clave/token-de-prueba');
+        ->and(new CorreoDeRestablecimiento('token-de-prueba')->toMail($usuario)->subject)->toBe('Restablece tu contraseña del CILN')
+        ->and(new CorreoDeRestablecimiento('token-de-prueba')->toMail($usuario)->actionUrl)->toContain('/restablecer-clave/token-de-prueba');
 });
 
 it('encrypts the queued password reset, since it carries the plain token', function (): void {

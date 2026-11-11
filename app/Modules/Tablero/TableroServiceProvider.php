@@ -8,5 +8,6 @@ use App\Shared\Support\ModuleServiceProvider;
 
 final class TableroServiceProvider extends ModuleServiceProvider
 {
+    #[\Override]
     protected string $module = 'Tablero';
 }

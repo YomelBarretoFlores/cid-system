@@ -31,22 +31,31 @@ final class FirmanteResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Firmante::class;
 
+    #[\Override]
     protected static ?string $slug = 'firmantes';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
+    #[\Override]
     protected static ?int $navigationSort = 8;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Firmantes';
 
+    #[\Override]
     protected static ?string $modelLabel = 'firmante';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'firmantes';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

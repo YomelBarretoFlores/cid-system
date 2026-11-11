@@ -17,6 +17,7 @@ use Filament\Resources\Pages\ViewRecord;
 
 final class ViewDocente extends ViewRecord
 {
+    #[\Override]
     protected static string $resource = DocenteResource::class;
 
     private ?FichaDeEstudiante $persona = null;

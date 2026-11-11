@@ -38,6 +38,7 @@ final class Periodo extends Model
     /** @use HasFactory<PeriodoFactory> */
     use HasFactory, RenuevaContenidoPublico;
 
+    #[\Override]
     protected $attributes = [
         'estado' => 'planificado',
     ];

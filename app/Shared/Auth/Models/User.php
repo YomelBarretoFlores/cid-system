@@ -45,6 +45,7 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
     use HasApiTokens, HasFactory, HasRoles, InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery, Notifiable;
 
     // A freshly created account has no second factor yet; strict mode would refuse the unloaded columns.
+    #[\Override]
     protected $attributes = [
         'app_authentication_secret' => null,
         'app_authentication_recovery_codes' => null,

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class EditCondicionLaboral extends EditRecord
 {
+    #[\Override]
     protected static string $resource = CondicionLaboralResource::class;
 
     protected function handleRecordUpdate(Model $record, array $data): Model

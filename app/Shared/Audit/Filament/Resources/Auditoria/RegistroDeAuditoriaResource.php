@@ -20,22 +20,31 @@ final class RegistroDeAuditoriaResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = RegistroDeAuditoria::class;
 
+    #[\Override]
     protected static ?string $slug = 'auditoria';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Seguridad';
 
+    #[\Override]
     protected static ?int $navigationSort = 3;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Auditoría';
 
+    #[\Override]
     protected static ?string $modelLabel = 'registro de auditoría';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'auditoría';
 
+    #[\Override]
     protected static bool $isGloballySearchable = false;
 
     /**

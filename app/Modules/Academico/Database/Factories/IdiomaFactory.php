@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class IdiomaFactory extends Factory
 {
+    #[\Override]
     protected $model = Idioma::class;
 
     public function definition(): array

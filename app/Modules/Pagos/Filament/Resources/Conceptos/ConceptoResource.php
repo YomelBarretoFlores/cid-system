@@ -23,20 +23,28 @@ final class ConceptoResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Concepto::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
+    #[\Override]
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Conceptos y tarifas';
 
+    #[\Override]
     protected static ?string $modelLabel = 'concepto';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'conceptos TUPA/TUSNE';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

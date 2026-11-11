@@ -34,10 +34,13 @@ final class PreActaDelGrupo extends Page
 {
     use PestanasDelGrupo;
 
+    #[\Override]
     protected static bool $shouldRegisterNavigation = false;
 
+    #[\Override]
     protected static ?string $slug = 'grupos/{grupo}/notas';
 
+    #[\Override]
     protected string $view = 'docencia::filament.docente.pre-acta-del-grupo';
 
     #[Locked]

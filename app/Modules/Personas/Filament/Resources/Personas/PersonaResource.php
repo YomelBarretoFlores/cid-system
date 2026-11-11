@@ -26,20 +26,28 @@ final class PersonaResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Persona::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Matrícula';
 
+    #[\Override]
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Personas';
 
+    #[\Override]
     protected static ?string $modelLabel = 'persona';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'personas';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'etiqueta';
 
     public static function form(Schema $schema): Schema

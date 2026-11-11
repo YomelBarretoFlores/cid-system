@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListIdiomas extends ListRecords
 {
+    #[\Override]
     protected static string $resource = IdiomaResource::class;
 
     protected function getHeaderActions(): array

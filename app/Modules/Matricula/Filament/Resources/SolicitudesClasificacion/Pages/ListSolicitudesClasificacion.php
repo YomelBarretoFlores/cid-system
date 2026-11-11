@@ -15,6 +15,7 @@ final class ListSolicitudesClasificacion extends ListRecords
 {
     use ConsultaElCatalogoDeIdiomas;
 
+    #[\Override]
     protected static string $resource = SolicitudClasificacionResource::class;
 
     /**

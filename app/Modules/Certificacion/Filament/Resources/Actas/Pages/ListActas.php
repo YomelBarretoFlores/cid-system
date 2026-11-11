@@ -12,8 +12,10 @@ use Filament\Support\Icons\Heroicon;
 
 final class ListActas extends ListRecords
 {
+    #[\Override]
     protected static string $resource = ActaResource::class;
 
+    #[\Override]
     protected ?string $subheading = 'Actas validadas por los docentes; se corrigen solo con una rectificación autorizada.';
 
     protected function getHeaderActions(): array

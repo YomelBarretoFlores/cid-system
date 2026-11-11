@@ -61,7 +61,7 @@ final class CodigoDeBarras
 
     private static function valor(string $caracter): int
     {
-        $codigo = ord($caracter);
+        $codigo = ord($caracter[0]);
 
         return $codigo >= 32 && $codigo <= 126
             ? $codigo - 32

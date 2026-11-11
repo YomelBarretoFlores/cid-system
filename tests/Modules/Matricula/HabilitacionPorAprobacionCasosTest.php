@@ -99,8 +99,8 @@ it('gives nothing to failing or NSP students, keeps a higher placement, and move
         ->and($filas[$this->ana->persona_id])->toBe([$cicloDos->id, 'aprobacion'])
         ->and($filas[$dany->persona_id])->toBe([$cicloDos->id, 'aprobacion'])
         ->and($filas[$eva->persona_id])->toBe([$cicloCuatro->id, 'clasificacion'])
-        ->and(array_key_exists($this->beto->persona_id, $filas))->toBeFalse()
-        ->and(array_key_exists($this->ciro->persona_id, $filas))->toBeFalse();
+        ->and(array_key_exists((string) $this->beto->persona_id, $filas))->toBeFalse()
+        ->and(array_key_exists((string) $this->ciro->persona_id, $filas))->toBeFalse();
 });
 
 it('writes nothing when the command runs again after the close', function (): void {

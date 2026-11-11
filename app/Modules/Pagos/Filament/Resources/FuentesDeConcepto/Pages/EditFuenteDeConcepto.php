@@ -9,5 +9,6 @@ use Filament\Resources\Pages\EditRecord;
 
 final class EditFuenteDeConcepto extends EditRecord
 {
+    #[\Override]
     protected static string $resource = FuenteDeConceptoResource::class;
 }

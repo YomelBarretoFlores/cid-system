@@ -22,20 +22,28 @@ final class CostoPorHoraResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = CostoPorHora::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
+    #[\Override]
     protected static ?int $navigationSort = 6;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Costos por hora';
 
+    #[\Override]
     protected static ?string $modelLabel = 'costo por hora';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'costos por hora';
 
+    #[\Override]
     protected static ?string $slug = 'costos-por-hora';
 
     public static function table(Table $table): Table

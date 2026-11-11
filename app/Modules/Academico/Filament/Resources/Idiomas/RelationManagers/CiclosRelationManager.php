@@ -31,12 +31,16 @@ final class CiclosRelationManager extends RelationManager
 {
     public const string NUMERO_REPETIDO = 'El plan de estudios de este idioma ya tiene ese ciclo.';
 
+    #[\Override]
     protected static string $relationship = 'ciclos';
 
+    #[\Override]
     protected static ?string $title = 'Plan de estudios';
 
+    #[\Override]
     protected static ?string $modelLabel = 'ciclo';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'ciclos';
 
     public function form(Schema $schema): Schema

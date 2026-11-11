@@ -22,22 +22,31 @@ final class TipoTramiteResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = TipoTramite::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAdjustmentsHorizontal;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
+    #[\Override]
     protected static ?int $navigationSort = 4;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Tipos de trámite';
 
+    #[\Override]
     protected static ?string $modelLabel = 'tipo de trámite';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'tipos de trámite';
 
+    #[\Override]
     protected static ?string $slug = 'tipos-de-tramite';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

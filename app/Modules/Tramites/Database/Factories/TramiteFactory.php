@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class TramiteFactory extends Factory
 {
+    #[\Override]
     protected $model = Tramite::class;
 
     public function definition(): array

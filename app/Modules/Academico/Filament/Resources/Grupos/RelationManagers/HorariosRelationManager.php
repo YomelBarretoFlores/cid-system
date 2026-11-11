@@ -20,8 +20,10 @@ use Filament\Tables\Table;
 
 final class HorariosRelationManager extends RelationManager
 {
+    #[\Override]
     protected static string $relationship = 'horarios';
 
+    #[\Override]
     protected static ?string $title = 'Horarios';
 
     public function table(Table $table): Table

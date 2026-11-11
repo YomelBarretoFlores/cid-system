@@ -32,6 +32,7 @@ final class TramitesServiceProvider extends ModuleServiceProvider
         TramiteDelPago::class => DescribirTramiteDelPago::class,
     ];
 
+    #[\Override]
     protected string $module = 'Tramites';
 
     public function boot(): void

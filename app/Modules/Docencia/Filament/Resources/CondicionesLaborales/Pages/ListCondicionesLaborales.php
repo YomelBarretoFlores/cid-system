@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListCondicionesLaborales extends ListRecords
 {
+    #[\Override]
     protected static string $resource = CondicionLaboralResource::class;
 
     protected function getHeaderActions(): array

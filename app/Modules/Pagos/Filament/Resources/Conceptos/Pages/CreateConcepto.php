@@ -15,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 
 final class CreateConcepto extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = ConceptoResource::class;
 
     protected function handleRecordCreation(array $data): Model

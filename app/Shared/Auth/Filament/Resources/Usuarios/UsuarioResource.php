@@ -28,24 +28,34 @@ final class UsuarioResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = User::class;
 
+    #[\Override]
     protected static ?string $slug = 'usuarios';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Seguridad';
 
+    #[\Override]
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Usuarios del personal';
 
+    #[\Override]
     protected static ?string $modelLabel = 'usuario del personal';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'usuarios del personal';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'name';
 
+    #[\Override]
     protected static bool $isGloballySearchable = false;
 
     /**

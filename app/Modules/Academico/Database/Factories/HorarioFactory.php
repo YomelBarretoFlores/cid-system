@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class HorarioFactory extends Factory
 {
+    #[\Override]
     protected $model = Horario::class;
 
     public function definition(): array

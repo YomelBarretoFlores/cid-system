@@ -34,20 +34,28 @@ final class ReporteDeRecaudacion extends Page implements HasTable
 {
     use InteractsWithTable;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartBar;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Pagos';
 
+    #[\Override]
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Reporte de recaudación';
 
+    #[\Override]
     protected static ?string $title = 'Reporte de recaudación';
 
+    #[\Override]
     protected static ?string $slug = 'reporte-de-recaudacion';
 
+    #[\Override]
     protected ?string $subheading = 'Pagos validados por fecha de pago, para la DGF y Tesorería.';
 
+    #[\Override]
     protected string $view = 'pagos::filament.reporte-de-recaudacion';
 
     /**

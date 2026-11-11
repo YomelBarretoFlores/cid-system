@@ -22,22 +22,31 @@ final class EsquemaDeEvaluacionResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = EsquemaEvaluacion::class;
 
+    #[\Override]
     protected static ?string $slug = 'sistemas-de-evaluacion';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedScale;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
+    #[\Override]
     protected static ?int $navigationSort = 5;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Sistemas de evaluación';
 
+    #[\Override]
     protected static ?string $modelLabel = 'sistema de evaluación';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'sistemas de evaluación';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

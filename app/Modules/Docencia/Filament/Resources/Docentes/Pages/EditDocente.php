@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class EditDocente extends EditRecord
 {
+    #[\Override]
     protected static string $resource = DocenteResource::class;
 
     protected function getHeaderActions(): array

@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListUsuarios extends ListRecords
 {
+    #[\Override]
     protected static string $resource = UsuarioResource::class;
 
     protected function getHeaderActions(): array

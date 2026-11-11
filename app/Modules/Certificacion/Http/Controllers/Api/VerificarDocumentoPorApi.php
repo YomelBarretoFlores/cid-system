@@ -22,7 +22,7 @@ final readonly class VerificarDocumentoPorApi
     {
         $verificacion = ($this->verificar)($codigo);
         $respuesta = $verificacion instanceof VerificacionDeDocumento
-            ? (new VerificacionDeDocumentoResource($verificacion))->response()
+            ? new VerificacionDeDocumentoResource($verificacion)->response()
             : response()->json(['message' => 'No existe un documento con ese código.'], 404);
 
         return $respuesta->header('X-Robots-Tag', 'noindex, nofollow');

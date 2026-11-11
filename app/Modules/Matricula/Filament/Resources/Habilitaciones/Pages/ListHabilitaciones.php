@@ -16,6 +16,7 @@ final class ListHabilitaciones extends ListRecords
 {
     use ConsultaElCatalogoDeIdiomas;
 
+    #[\Override]
     protected static string $resource = HabilitacionResource::class;
 
     /**

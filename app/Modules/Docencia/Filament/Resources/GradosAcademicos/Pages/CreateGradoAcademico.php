@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class CreateGradoAcademico extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = GradoAcademicoResource::class;
 
     protected function handleRecordCreation(array $data): Model

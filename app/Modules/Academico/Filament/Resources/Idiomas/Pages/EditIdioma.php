@@ -15,6 +15,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 
 final class EditIdioma extends EditRecord
 {
+    #[\Override]
     protected static string $resource = IdiomaResource::class;
 
     protected function handleRecordUpdate(Model $record, array $data): Model

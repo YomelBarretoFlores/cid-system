@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class EditUsuario extends EditRecord
 {
+    #[\Override]
     protected static string $resource = UsuarioResource::class;
 
     protected function mutateFormDataBeforeFill(array $data): array

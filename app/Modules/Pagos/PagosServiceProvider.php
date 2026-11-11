@@ -29,5 +29,6 @@ final class PagosServiceProvider extends ModuleServiceProvider
         ResumenDePagosDePersona::class => ResumirPagosDePersona::class,
     ];
 
+    #[\Override]
     protected string $module = 'Pagos';
 }

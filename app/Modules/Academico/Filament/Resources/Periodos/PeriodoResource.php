@@ -22,20 +22,28 @@ final class PeriodoResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Periodo::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDateRange;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Oferta académica';
 
+    #[\Override]
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Periodos';
 
+    #[\Override]
     protected static ?string $modelLabel = 'periodo';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'periodos';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

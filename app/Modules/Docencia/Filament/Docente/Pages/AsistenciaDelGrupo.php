@@ -45,10 +45,13 @@ final class AsistenciaDelGrupo extends Page
 {
     use PestanasDelGrupo;
 
+    #[\Override]
     protected static bool $shouldRegisterNavigation = false;
 
+    #[\Override]
     protected static ?string $slug = 'grupos/{grupo}/asistencia';
 
+    #[\Override]
     protected string $view = 'docencia::filament.docente.asistencia-del-grupo';
 
     #[Locked]

@@ -17,10 +17,13 @@ use Illuminate\Http\UploadedFile;
 
 final class CreatePago extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = PagoResource::class;
 
+    #[\Override]
     protected static ?string $title = 'Registrar pago';
 
+    #[\Override]
     protected static bool $canCreateAnother = false;
 
     /**

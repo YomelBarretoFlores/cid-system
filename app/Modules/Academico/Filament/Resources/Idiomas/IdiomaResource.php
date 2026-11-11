@@ -23,20 +23,28 @@ final class IdiomaResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Idioma::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLanguage;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Oferta académica';
 
+    #[\Override]
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Idiomas y ciclos';
 
+    #[\Override]
     protected static ?string $modelLabel = 'idioma';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'idiomas';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

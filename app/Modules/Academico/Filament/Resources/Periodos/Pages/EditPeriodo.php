@@ -20,6 +20,7 @@ use Illuminate\Validation\ValidationException;
 
 final class EditPeriodo extends EditRecord
 {
+    #[\Override]
     protected static string $resource = PeriodoResource::class;
 
     protected function handleRecordUpdate(Model $record, array $data): Model

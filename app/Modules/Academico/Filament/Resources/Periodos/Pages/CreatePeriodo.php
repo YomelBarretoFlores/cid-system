@@ -14,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 
 final class CreatePeriodo extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = PeriodoResource::class;
 
     protected function handleRecordCreation(array $data): Model

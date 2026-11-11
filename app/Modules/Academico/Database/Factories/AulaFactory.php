@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class AulaFactory extends Factory
 {
+    #[\Override]
     protected $model = Aula::class;
 
     public function definition(): array

@@ -9,6 +9,7 @@ use Filament\Resources\Pages\CreateRecord;
 
 final class CreateFuenteDeConcepto extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = FuenteDeConceptoResource::class;
 
     protected function getRedirectUrl(): string

@@ -21,22 +21,31 @@ final class ActaResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Acta::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCheck;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Certificación';
 
+    #[\Override]
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     protected static ?string $modelLabel = 'acta final';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'actas finales';
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Actas finales';
 
+    #[\Override]
     protected static ?string $slug = 'actas-finales';
 
+    #[\Override]
     protected static bool $isGloballySearchable = false;
 
     public static function infolist(Schema $schema): Schema

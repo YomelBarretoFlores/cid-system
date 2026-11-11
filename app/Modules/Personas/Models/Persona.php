@@ -46,6 +46,7 @@ final class Persona extends Model
 
     public const string FORMATO_CELULAR = '/^\+?[0-9]{7,15}$/';
 
+    #[\Override]
     protected $attributes = [
         'tipo_vinculo' => 'publico_general',
     ];

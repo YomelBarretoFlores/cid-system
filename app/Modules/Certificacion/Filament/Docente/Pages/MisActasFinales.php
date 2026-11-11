@@ -25,18 +25,25 @@ final class MisActasFinales extends Page implements HasTable
 {
     use InteractsWithTable;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCheck;
 
+    #[\Override]
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Actas finales';
 
+    #[\Override]
     protected static ?string $title = 'Actas finales';
 
+    #[\Override]
     protected static ?string $slug = 'actas';
 
+    #[\Override]
     protected ?string $subheading = 'Actas que validaste, con su estado y su PDF.';
 
+    #[\Override]
     protected string $view = 'certificacion::filament.docente.mis-actas-finales';
 
     public function table(Table $table): Table

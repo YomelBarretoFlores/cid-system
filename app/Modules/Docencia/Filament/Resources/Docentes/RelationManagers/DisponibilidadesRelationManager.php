@@ -18,8 +18,10 @@ use Filament\Tables\Table;
 
 final class DisponibilidadesRelationManager extends RelationManager
 {
+    #[\Override]
     protected static string $relationship = 'disponibilidades';
 
+    #[\Override]
     protected static ?string $title = 'Disponibilidad horaria';
 
     public function isReadOnly(): bool

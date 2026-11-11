@@ -13,6 +13,7 @@ final class ViewSolicitudClasificacion extends ViewRecord
 {
     use ConsultaElCatalogoDeIdiomas;
 
+    #[\Override]
     protected static string $resource = SolicitudClasificacionResource::class;
 
     protected function getHeaderActions(): array

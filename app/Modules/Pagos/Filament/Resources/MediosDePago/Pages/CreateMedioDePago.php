@@ -9,6 +9,7 @@ use Filament\Resources\Pages\CreateRecord;
 
 final class CreateMedioDePago extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = MedioDePagoResource::class;
 
     protected function getRedirectUrl(): string

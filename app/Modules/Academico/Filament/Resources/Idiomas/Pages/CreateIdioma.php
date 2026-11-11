@@ -15,6 +15,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 
 final class CreateIdioma extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = IdiomaResource::class;
 
     protected function handleRecordCreation(array $data): Model

@@ -23,8 +23,10 @@ use Filament\Tables\Table;
 
 final class TarifasRelationManager extends RelationManager
 {
+    #[\Override]
     protected static string $relationship = 'tarifas';
 
+    #[\Override]
     protected static ?string $title = 'Tarifas';
 
     public function table(Table $table): Table

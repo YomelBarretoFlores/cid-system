@@ -19,18 +19,25 @@ final class ReporteDeAsistencia extends Page implements HasTable
 {
     use ReporteGeneralDelPanel;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Reportes';
 
+    #[\Override]
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Asistencia por grupo';
 
+    #[\Override]
     protected static ?string $title = 'Asistencia por grupo';
 
+    #[\Override]
     protected static ?string $slug = 'reporte-de-asistencia';
 
+    #[\Override]
     protected ?string $subheading = 'Clases programadas, dictadas y confirmadas de cada grupo, y la asistencia de cada estudiante.';
 
     public static function canAccess(): bool

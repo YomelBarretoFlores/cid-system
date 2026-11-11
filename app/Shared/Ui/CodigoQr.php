@@ -13,12 +13,12 @@ final class CodigoQr
 {
     public static function comoDataUri(string $contenido): string
     {
-        return (new Builder(
+        return new Builder(
             writer: new PngWriter,
             data: $contenido,
             errorCorrectionLevel: ErrorCorrectionLevel::Medium,
             size: 240,
             margin: 0,
-        ))->build()->getDataUri();
+        )->build()->getDataUri();
     }
 }

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class TarifaFactory extends Factory
 {
+    #[\Override]
     protected $model = Tarifa::class;
 
     public function definition(): array

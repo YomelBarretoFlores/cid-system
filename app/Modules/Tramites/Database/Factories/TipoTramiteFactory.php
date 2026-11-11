@@ -28,6 +28,7 @@ final class TipoTramiteFactory extends Factory
         ['Atendido', 100, CondicionDeEtapa::AccionDelPersonal],
     ];
 
+    #[\Override]
     protected $model = TipoTramite::class;
 
     public function definition(): array

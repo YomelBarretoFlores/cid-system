@@ -36,6 +36,7 @@ final class MatriculaServiceProvider extends ModuleServiceProvider
         MovimientoPorTramite::class => MoverMatriculaPorTramite::class,
     ];
 
+    #[\Override]
     protected string $module = 'Matricula';
 
     public function boot(): void

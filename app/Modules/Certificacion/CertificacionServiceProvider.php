@@ -44,5 +44,6 @@ final class CertificacionServiceProvider extends ModuleServiceProvider
         EstadosDeActas::class => ConsultarEstadosDeActas::class,
     ];
 
+    #[\Override]
     protected string $module = 'Certificacion';
 }

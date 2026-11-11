@@ -9,5 +9,6 @@ use Filament\Resources\Pages\EditRecord;
 
 final class EditFirmante extends EditRecord
 {
+    #[\Override]
     protected static string $resource = FirmanteResource::class;
 }

@@ -25,22 +25,31 @@ final class CondicionLaboralResource extends Resource
 
     public const string TABLA = 'doc_condiciones_laborales';
 
+    #[\Override]
     protected static ?string $model = CondicionLaboral::class;
 
+    #[\Override]
     protected static ?string $slug = 'condiciones-laborales';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
+    #[\Override]
     protected static ?int $navigationSort = 6;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Condiciones laborales';
 
+    #[\Override]
     protected static ?string $modelLabel = 'condición laboral';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'condiciones laborales';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

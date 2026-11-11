@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class SolicitudClasificacionFactory extends Factory
 {
+    #[\Override]
     protected $model = SolicitudClasificacion::class;
 
     public function definition(): array

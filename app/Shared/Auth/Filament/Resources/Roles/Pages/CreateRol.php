@@ -15,8 +15,10 @@ use Illuminate\Database\Eloquent\Model;
 
 final class CreateRol extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = RolResource::class;
 
+    #[\Override]
     protected static bool $canCreateAnother = false;
 
     protected function handleRecordCreation(array $data): Model

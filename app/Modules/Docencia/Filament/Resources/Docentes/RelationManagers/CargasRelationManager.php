@@ -22,8 +22,10 @@ use Filament\Tables\Table;
 
 final class CargasRelationManager extends RelationManager
 {
+    #[\Override]
     protected static string $relationship = 'cargas';
 
+    #[\Override]
     protected static ?string $title = 'Carga académica';
 
     private ?ResumenDeCarga $resumen = null;

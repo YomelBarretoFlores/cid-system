@@ -19,18 +19,25 @@ final class ReporteDeNotas extends Page implements HasTable
 {
     use ReporteGeneralDelPanel;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Reportes';
 
+    #[\Override]
     protected static ?int $navigationSort = 3;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Notas por periodo';
 
+    #[\Override]
     protected static ?string $title = 'Notas por periodo';
 
+    #[\Override]
     protected static ?string $slug = 'reporte-de-notas';
 
+    #[\Override]
     protected ?string $subheading = 'Estado del acta, aprobados, desaprobados, NSP y promedio de cada grupo.';
 
     public static function canAccess(): bool

@@ -9,5 +9,6 @@ use Filament\Resources\Pages\EditRecord;
 
 final class EditDenominacionDelAnio extends EditRecord
 {
+    #[\Override]
     protected static string $resource = DenominacionDelAnioResource::class;
 }

@@ -81,7 +81,7 @@ final readonly class RegistrarPago
 
     private function extensionDelRecibo(UploadedFile $recibo): string
     {
-        $tipo = (new finfo(FILEINFO_MIME_TYPE))->file($recibo->getRealPath());
+        $tipo = new finfo(FILEINFO_MIME_TYPE)->file($recibo->getRealPath());
 
         return self::EXTENSIONES[$tipo]
             ?? throw new ReglaDeNegocioIncumplida('El recibo debe ser una imagen JPG o PNG, o un PDF.');

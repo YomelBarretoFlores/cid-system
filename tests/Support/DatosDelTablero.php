@@ -43,7 +43,7 @@ final class DatosDelTablero
             return;
         }
 
-        $libre = array_values(array_diff(range(1, Periodo::NUMERO_MAXIMO), $usados))[0] ?? throw new LogicException("No quedan números de periodo libres en {$anio} para liberar el {$numero}.");
+        $libre = array_first(array_diff(range(1, Periodo::NUMERO_MAXIMO), $usados)) ?? throw new LogicException("No quedan números de periodo libres en {$anio} para liberar el {$numero}.");
         Periodo::query()->where(['anio' => $anio, 'numero' => $numero])->update(['numero' => $libre]);
     }
 

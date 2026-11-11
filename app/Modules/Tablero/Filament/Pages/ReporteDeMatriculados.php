@@ -19,18 +19,25 @@ final class ReporteDeMatriculados extends Page implements HasTable
 {
     use ReporteGeneralDelPanel;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Reportes';
 
+    #[\Override]
     protected static ?int $navigationSort = 1;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Matriculados';
 
+    #[\Override]
     protected static ?string $title = 'Matriculados';
 
+    #[\Override]
     protected static ?string $slug = 'reporte-de-matriculados';
 
+    #[\Override]
     protected ?string $subheading = 'Estudiantes matriculados del periodo por grupo, con su condición, estado y vínculo.';
 
     public static function canAccess(): bool

@@ -26,20 +26,28 @@ final class GrupoResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Grupo::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Oferta académica';
 
+    #[\Override]
     protected static ?int $navigationSort = 3;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Grupos';
 
+    #[\Override]
     protected static ?string $modelLabel = 'grupo';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'grupos';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'codigo';
 
     public static function form(Schema $schema): Schema

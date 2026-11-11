@@ -54,7 +54,7 @@ final readonly class ArmarRecordDeNotas implements RecordDeNotas
     {
         $aprobados = array_values(array_filter($intentos, fn (NotaDelHistorial $nota): bool => $nota->estadoFinal === EstadoFinal::Aprobado));
 
-        return $aprobados === [] ? $intentos[array_key_last($intentos)] : $aprobados[array_key_last($aprobados)];
+        return $aprobados === [] ? array_last($intentos) : array_last($aprobados);
     }
 
     /**

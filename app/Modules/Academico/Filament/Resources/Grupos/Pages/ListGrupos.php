@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 
 final class ListGrupos extends ListRecords
 {
+    #[\Override]
     protected static string $resource = GrupoResource::class;
 
     /**

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class ComponenteEvaluacionFactory extends Factory
 {
+    #[\Override]
     protected $model = ComponenteEvaluacion::class;
 
     public function definition(): array

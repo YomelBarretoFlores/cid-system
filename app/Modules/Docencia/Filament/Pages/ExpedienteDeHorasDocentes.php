@@ -25,18 +25,25 @@ use UnitEnum;
 
 final class ExpedienteDeHorasDocentes extends Page
 {
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
+    #[\Override]
     protected static ?int $navigationSort = 4;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Expediente de horas';
 
+    #[\Override]
     protected static ?string $title = 'Expediente de horas por docente';
 
+    #[\Override]
     protected static ?string $slug = 'expediente-de-horas';
 
+    #[\Override]
     protected string $view = 'docencia::filament.expediente-de-horas';
 
     /**

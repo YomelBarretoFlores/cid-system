@@ -29,24 +29,34 @@ final class RolResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Role::class;
 
+    #[\Override]
     protected static ?string $slug = 'roles';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedKey;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Seguridad';
 
+    #[\Override]
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Roles';
 
+    #[\Override]
     protected static ?string $modelLabel = 'rol';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'roles';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'name';
 
+    #[\Override]
     protected static bool $isGloballySearchable = false;
 
     /**

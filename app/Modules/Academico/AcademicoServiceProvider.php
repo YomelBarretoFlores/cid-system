@@ -76,6 +76,7 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         PeriodoEnCurso::class => BuscarPeriodoEnCurso::class,
     ];
 
+    #[\Override]
     protected string $module = 'Academico';
 
     public function register(): void

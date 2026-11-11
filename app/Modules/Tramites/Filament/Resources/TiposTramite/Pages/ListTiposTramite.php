@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListTiposTramite extends ListRecords
 {
+    #[\Override]
     protected static string $resource = TipoTramiteResource::class;
 
     protected function getHeaderActions(): array

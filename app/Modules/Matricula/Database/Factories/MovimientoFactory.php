@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class MovimientoFactory extends Factory
 {
+    #[\Override]
     protected $model = Movimiento::class;
 
     public function definition(): array

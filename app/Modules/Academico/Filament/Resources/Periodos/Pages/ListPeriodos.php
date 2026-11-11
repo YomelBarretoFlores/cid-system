@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListPeriodos extends ListRecords
 {
+    #[\Override]
     protected static string $resource = PeriodoResource::class;
 
     protected function getHeaderActions(): array

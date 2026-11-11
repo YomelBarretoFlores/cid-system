@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListAulas extends ListRecords
 {
+    #[\Override]
     protected static string $resource = AulaResource::class;
 
     protected function getHeaderActions(): array

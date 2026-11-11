@@ -17,6 +17,7 @@ use Illuminate\Validation\ValidationException;
 
 final class CreateAula extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = AulaResource::class;
 
     protected function handleRecordCreation(array $data): Model

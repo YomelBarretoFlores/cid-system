@@ -44,6 +44,7 @@ final class Grupo extends Model
     /** @use HasFactory<GrupoFactory> */
     use HasFactory, HasUlids, RenuevaContenidoPublico;
 
+    #[\Override]
     protected $attributes = [
         'matriculados' => 0,
         'estado' => 'programado',

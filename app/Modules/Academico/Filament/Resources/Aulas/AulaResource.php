@@ -22,20 +22,28 @@ final class AulaResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Aula::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Oferta académica';
 
+    #[\Override]
     protected static ?int $navigationSort = 4;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Aulas';
 
+    #[\Override]
     protected static ?string $modelLabel = 'aula';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'aulas';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

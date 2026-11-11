@@ -15,6 +15,7 @@ use LogicException;
  */
 final class PeriodoFactory extends Factory
 {
+    #[\Override]
     protected $model = Periodo::class;
 
     public function definition(): array

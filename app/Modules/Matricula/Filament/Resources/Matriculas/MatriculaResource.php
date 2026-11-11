@@ -21,18 +21,25 @@ final class MatriculaResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = Matricula::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Matrícula';
 
+    #[\Override]
     protected static ?int $navigationSort = 3;
 
+    #[\Override]
     protected static ?string $modelLabel = 'matrícula';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'matrículas';
 
+    #[\Override]
     protected static bool $isGloballySearchable = false;
 
     public static function infolist(Schema $schema): Schema

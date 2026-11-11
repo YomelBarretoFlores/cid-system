@@ -21,22 +21,31 @@ final class FuenteDeConceptoResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = FuenteDeConcepto::class;
 
+    #[\Override]
     protected static ?string $slug = 'fuentes-de-conceptos';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
+    #[\Override]
     protected static ?int $navigationSort = 3;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Fuentes TUPA/TUSNE';
 
+    #[\Override]
     protected static ?string $modelLabel = 'fuente';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'fuentes de conceptos';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

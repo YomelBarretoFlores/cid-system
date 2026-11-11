@@ -47,12 +47,6 @@ final class ReglasDeEtapas
      */
     private static function crecen(array $avances): bool
     {
-        foreach (array_slice($avances, 1) as $indice => $avance) {
-            if ($avance <= $avances[$indice]) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all(array_slice($avances, 1), fn (int $avance, $indice): bool => $avance > $avances[$indice]);
     }
 }

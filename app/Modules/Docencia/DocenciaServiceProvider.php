@@ -50,5 +50,6 @@ final class DocenciaServiceProvider extends ModuleServiceProvider
         ClasesDictadasDelGrupo::class => ComprobarClasesDictadas::class,
     ];
 
+    #[\Override]
     protected string $module = 'Docencia';
 }

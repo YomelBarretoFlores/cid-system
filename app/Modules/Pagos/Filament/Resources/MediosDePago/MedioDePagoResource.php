@@ -21,22 +21,31 @@ final class MedioDePagoResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = MedioDePago::class;
 
+    #[\Override]
     protected static ?string $slug = 'medios-de-pago';
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingLibrary;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
+    #[\Override]
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Medios de pago';
 
+    #[\Override]
     protected static ?string $modelLabel = 'medio de pago';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'medios de pago';
 
+    #[\Override]
     protected static ?string $recordTitleAttribute = 'nombre';
 
     public static function form(Schema $schema): Schema

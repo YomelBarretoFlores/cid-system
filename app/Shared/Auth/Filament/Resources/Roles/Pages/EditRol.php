@@ -15,6 +15,7 @@ use Spatie\Permission\Models\Role;
 
 final class EditRol extends EditRecord
 {
+    #[\Override]
     protected static string $resource = RolResource::class;
 
     protected function mutateFormDataBeforeFill(array $data): array

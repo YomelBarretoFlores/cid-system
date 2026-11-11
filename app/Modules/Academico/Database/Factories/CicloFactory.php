@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class CicloFactory extends Factory
 {
+    #[\Override]
     protected $model = Ciclo::class;
 
     public function definition(): array

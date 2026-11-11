@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListDenominacionesDelAnio extends ListRecords
 {
+    #[\Override]
     protected static string $resource = DenominacionDelAnioResource::class;
 
     protected function getHeaderActions(): array

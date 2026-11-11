@@ -13,6 +13,7 @@ use Filament\Support\Icons\Heroicon;
 
 final class ViewGrupo extends ViewRecord
 {
+    #[\Override]
     protected static string $resource = GrupoResource::class;
 
     protected function getHeaderActions(): array

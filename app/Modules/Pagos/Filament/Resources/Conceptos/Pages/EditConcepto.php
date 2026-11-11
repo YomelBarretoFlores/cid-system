@@ -17,6 +17,7 @@ use Livewire\Attributes\Locked;
 
 final class EditConcepto extends EditRecord
 {
+    #[\Override]
     protected static string $resource = ConceptoResource::class;
 
     // Decided when the form opens: a payment registered meanwhile is reported on save instead of silently dropping the change.

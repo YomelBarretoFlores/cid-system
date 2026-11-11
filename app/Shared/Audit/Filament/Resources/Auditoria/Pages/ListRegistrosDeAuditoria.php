@@ -9,5 +9,6 @@ use Filament\Resources\Pages\ListRecords;
 
 final class ListRegistrosDeAuditoria extends ListRecords
 {
+    #[\Override]
     protected static string $resource = RegistroDeAuditoriaResource::class;
 }

@@ -11,13 +11,17 @@ use Filament\Pages\Dashboard;
 // The panel opens on the first section each account can see (the dashboard for management), never on an empty page.
 final class Inicio extends Dashboard
 {
+    #[\Override]
     protected static ?string $title = 'Inicio';
 
+    #[\Override]
     protected static bool $shouldRegisterNavigation = false;
 
     // Keeps the route name the portal sign-in already links to (filament.admin.pages.dashboard).
+    #[\Override]
     protected static ?string $slug = 'dashboard';
 
+    #[\Override]
     protected string $view = 'filament.admin.inicio';
 
     public function mount(): void

@@ -9,5 +9,6 @@ use Filament\Resources\Pages\CreateRecord;
 
 final class CreateDenominacionDelAnio extends CreateRecord
 {
+    #[\Override]
     protected static string $resource = DenominacionDelAnioResource::class;
 }

@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 
 final class ListTramites extends ListRecords
 {
+    #[\Override]
     protected static string $resource = TramiteResource::class;
 
     /**

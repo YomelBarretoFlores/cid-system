@@ -29,18 +29,25 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class TableroGerencial extends Page
 {
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartPie;
 
+    #[\Override]
     protected static ?int $navigationSort = -10;
 
+    #[\Override]
     protected static ?string $navigationLabel = 'Tablero gerencial';
 
+    #[\Override]
     protected static ?string $title = 'Tablero gerencial';
 
+    #[\Override]
     protected static ?string $slug = 'tablero-gerencial';
 
+    #[\Override]
     protected ?string $subheading = 'Indicadores financieros y académicos con los datos registrados hasta este momento.';
 
+    #[\Override]
     protected string $view = 'tablero::filament.tablero-gerencial';
 
     /**

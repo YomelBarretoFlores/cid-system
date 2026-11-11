@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class DocenteFactory extends Factory
 {
+    #[\Override]
     protected $model = Docente::class;
 
     public function definition(): array

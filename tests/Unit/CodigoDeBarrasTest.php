@@ -10,7 +10,7 @@ it('encodes text as Code 128 B with its check symbol and the stop pattern', func
 });
 
 it('gives every symbol of the table its own pattern of eleven modules', function (): void {
-    $patrones = (new ReflectionClassConstant(CodigoDeBarras::class, 'PATRONES'))->getValue();
+    $patrones = new ReflectionClassConstant(CodigoDeBarras::class, 'PATRONES')->getValue();
 
     expect($patrones)->toHaveCount(106)
         ->and(array_unique($patrones))->toHaveCount(106)

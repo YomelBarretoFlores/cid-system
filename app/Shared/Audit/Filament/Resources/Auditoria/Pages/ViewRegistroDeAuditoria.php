@@ -9,5 +9,6 @@ use Filament\Resources\Pages\ViewRecord;
 
 final class ViewRegistroDeAuditoria extends ViewRecord
 {
+    #[\Override]
     protected static string $resource = RegistroDeAuditoriaResource::class;
 }

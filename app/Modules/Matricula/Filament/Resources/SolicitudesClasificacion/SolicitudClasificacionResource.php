@@ -23,20 +23,28 @@ final class SolicitudClasificacionResource extends Resource
 {
     use TitulosEnMayusculaInicial;
 
+    #[\Override]
     protected static ?string $model = SolicitudClasificacion::class;
 
+    #[\Override]
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Matrícula';
 
+    #[\Override]
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     protected static ?string $modelLabel = 'solicitud de clasificación';
 
+    #[\Override]
     protected static ?string $pluralModelLabel = 'solicitudes de clasificación';
 
+    #[\Override]
     protected static ?string $slug = 'solicitudes-clasificacion';
 
+    #[\Override]
     protected static bool $isGloballySearchable = false;
 
     public static function infolist(Schema $schema): Schema

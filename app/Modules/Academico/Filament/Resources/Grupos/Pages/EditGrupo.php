@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 
 final class EditGrupo extends EditRecord
 {
+    #[\Override]
     protected static string $resource = GrupoResource::class;
 
     protected function getHeaderActions(): array

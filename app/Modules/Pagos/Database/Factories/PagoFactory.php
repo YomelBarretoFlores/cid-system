@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class PagoFactory extends Factory
 {
+    #[\Override]
     protected $model = Pago::class;
 
     public function definition(): array
