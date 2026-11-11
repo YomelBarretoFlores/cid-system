@@ -67,7 +67,7 @@
                         <div><dt class="text-apagado">Idioma</dt><dd class="text-tinta">{{ $acta->idioma }}</dd></div>
                         <div><dt class="text-apagado">Nivel y ciclo</dt><dd class="text-tinta">{{ $acta->nivel->etiqueta() }} · {{ $acta->cicloNombre }}</dd></div>
                         <div><dt class="text-apagado">Periodo académico</dt><dd class="text-tinta">{{ $acta->periodo }}</dd></div>
-                        <div><dt class="text-apagado">Docente</dt><dd class="text-tinta">{{ $acta->docente }} <span class="text-apagado">(ID {{ $acta->docenteId }})</span></dd></div>
+                        <div><dt class="text-apagado">Docente</dt><dd class="text-tinta">{{ $acta->docente }} <span class="text-apagado">({{ $acta->docenteCodigo() }})</span></dd></div>
                     </dl>
 
                     <div class="-mx-2 overflow-x-auto">

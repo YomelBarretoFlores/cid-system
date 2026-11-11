@@ -20,7 +20,7 @@
             <th style="width: 9%;">Periodo</th><td>{{ $acta->periodo }}</td>
         </tr>
         <tr>
-            <th>Docente</th><td colspan="5">{{ $acta->docente }} (ID {{ $acta->docenteId }})</td>
+            <th>Docente</th><td colspan="5">{{ $acta->docente }} ({{ $acta->docenteCodigo() }})</td>
             <th>Evaluación</th><td>{{ $acta->esquema }}</td>
         </tr>
     </table>

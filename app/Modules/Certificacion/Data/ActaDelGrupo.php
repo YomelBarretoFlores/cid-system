@@ -9,6 +9,7 @@ use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\NotaFinal;
+use App\Modules\Docencia\Data\CodigoDeDocente;
 use Carbon\CarbonImmutable;
 
 // The final grade sheet of a group: stored when it was closed, otherwise a preview computed from the pre-acta (estado null).
@@ -64,6 +65,11 @@ final readonly class ActaDelGrupo
             ))->all()),
             validadaEn: $acta->validada_en?->setTimezone('America/Lima'),
         );
+    }
+
+    public function docenteCodigo(): string
+    {
+        return CodigoDeDocente::de($this->docenteId);
     }
 
     public function estaCerrada(): bool

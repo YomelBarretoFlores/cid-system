@@ -57,12 +57,13 @@ it('previews the acta from the pre-acta with the course, teacher, averages and f
         ->assertOk()
         ->assertSeeInOrder([
             'Acta final del grupo ING-1-M', 'Vista previa', 'Fechas para validar: del 29 mar 2027 al 5 abr 2027.',
-            'Inglés', 'Básico · Básico I', 'Marzo 2027', 'Vega Ríos, Carlos', 'ID '.$this->curso['docente']->id,
+            'Inglés', 'Básico · Básico I', 'Marzo 2027', 'Vega Ríos, Carlos', $this->curso['docente']->refresh()->codigo,
             'Alva Prueba, Ana', 'DNI 70000001', '15', '12', '18', '14.40', 'Aprobado',
             'Bravo Prueba, Ana', 'DNI 70000002', '8', '10', '—', '7.20', 'Desaprobado',
         ])
         ->assertSee('Validar y cerrar acta')
-        ->assertDontSee('Descargar acta (PDF)');
+        ->assertDontSee('Descargar acta (PDF)')
+        ->assertDontSee('(ID ');
 
     expect(Acta::query()->count())->toBe(0);
 });

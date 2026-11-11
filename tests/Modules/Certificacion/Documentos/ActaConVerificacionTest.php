@@ -30,6 +30,13 @@ it('prints the acta with the grades in words, the totals, the closing box and a 
         ->and($pdf->viewData['verificacion'])->toContain('/verificar/acta/'.$this->acta->id)->toContain('signature=');
 });
 
+it('identifies the teacher on the printed acta by their teacher code, not the internal ID', function (): void {
+    $pdf = app(GenerarActaFinalPdf::class)($this->acta->id);
+    $html = view($pdf->viewName, $pdf->viewData)->render();
+
+    expect($html)->toContain('('.$this->curso['docente']->refresh()->codigo.')')->not->toContain('(ID ');
+});
+
 it('verifies an acta from its signed link showing only its group, period, state and closing date', function (): void {
     $pdf = app(GenerarActaFinalPdf::class)($this->acta->id);
 
