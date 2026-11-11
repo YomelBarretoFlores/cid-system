@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 // Drawn here instead of Filament's ui-avatars.com default: no staff name leaves the server and the CSP allows only local images.
 final class AvatarDeIniciales implements AvatarProvider
 {
-    private const string FONDO = '#0a2e52';
+    private const string FONDO = '#032b45';
 
     public function get(Model|Authenticatable $record): string
     {

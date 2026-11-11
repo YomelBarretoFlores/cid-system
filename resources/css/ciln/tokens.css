@@ -54,19 +54,19 @@
     --color-institucional: #33465e;
     --color-institucional-oscuro: #26364a;
 
-    /* Public website, taken from the CILN logo: navy figures, royal-blue ring, sky-blue leaves, silver lettering. */
-    --color-marino-950: #061a30;
-    --color-marino-900: #0a2e52;
-    --color-marino-800: #0e3d6b;
-    --color-marino-700: #14508a;
-    --color-real-600: #1d62a8;
-    --color-real-500: #2873c0;
-    --color-celeste-500: #3d8fdb;
-    --color-celeste-400: #62a8e8;
-    --color-celeste-300: #93c3ef;
-    --color-celeste-200: #bfdcf6;
-    --color-celeste-100: #ddedfb;
-    --color-celeste-50: #eff6fd;
+    /* Public website: marino follows the petrol blue of the CILN emblem (#045484), real the UNASAM blue (#0058a4) and celeste the UNASAM light blue (#1484c0). */
+    --color-marino-950: #021a29;
+    --color-marino-900: #032b45;
+    --color-marino-800: #033d60;
+    --color-marino-700: #045484;
+    --color-real-600: #0058a4;
+    --color-real-500: #1471b8;
+    --color-celeste-500: #1484c0;
+    --color-celeste-400: #45a5d9;
+    --color-celeste-300: #83c4e7;
+    --color-celeste-200: #b5ddf2;
+    --color-celeste-100: #daeef9;
+    --color-celeste-50: #eef7fd;
     --color-plata-300: #c5cad3;
     --color-plata-100: #eceef2;
     --color-papel: #f7f6f2;
@@ -98,6 +98,7 @@
     --shadow-drawer: 0 24px 60px rgb(29 27 22 / 0.18);
     --shadow-dropdown: 0 18px 44px rgb(29 27 22 / 0.16), 0 0 0 1px #efede7;
     --shadow-foco: 0 0 0 3px oklch(0.9 0.08 85 / 0.5);
+    --shadow-cabecera: 0 6px 18px rgb(3 43 69 / 0.08);
 
     --text-titulo: 1.875rem;
     --text-titulo--line-height: 1.15;

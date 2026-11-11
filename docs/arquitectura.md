@@ -117,8 +117,11 @@ Portales y panel comparten una sola fuente de estilos ([ADR 0008](adr/0008-siste
 | Layouts: base, portal con barra lateral, acceso dividido | `resources/views/components/layouts/` |
 | Identidad: emblema y banderas de idioma | `resources/views/components/ciln/` |
 | Controles y bloques del portal | `resources/views/components/portal/` |
-| Selector y calendario propios (Alpine), registrados una sola vez | `resources/js/ciln/` y `resources/js/app.js` |
+| Selector, calendario y movimiento de la portada (Alpine), registrados una sola vez | `resources/js/ciln/` y `resources/js/app.js` |
+| Movimiento de las páginas públicas: visible sin JavaScript y quieto con `prefers-reduced-motion` | `resources/css/ciln/movimiento.css` |
 | Formatos de presentación compartidos (fecha corta) | `app/Shared/Ui/Formato.php` |
+
+La paleta pública sale de los logotipos: `marino` del azul petróleo del emblema del CILN (`#045484`), `real` del azul UNASAM (`#0058a4`) y `celeste` del celeste UNASAM (`#1484c0`); los textos sobre estos fondos cumplen WCAG AA.
 
 Regla: una pantalla nueva usa estos componentes y utilidades; si un patrón aparece en dos pantallas, se vuelve componente.
 

@@ -1,7 +1,7 @@
 @props(['href' => null, 'variante' => 'primario', 'tamano' => 'normal'])
 @php
     $clases = [
-        'inline-flex items-center justify-center gap-2 rounded-[3px] border font-semibold whitespace-nowrap transition-colors duration-200 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-celeste-300',
+        'inline-flex items-center justify-center gap-2 rounded-[3px] border font-semibold whitespace-nowrap transition-colors duration-200',
         'border-real-600 bg-real-600 text-white hover:border-marino-900 hover:bg-marino-900' => $variante === 'primario',
         'border-marino-900 bg-marino-900 text-white hover:border-marino-800 hover:bg-marino-800' => $variante === 'oscuro',
         'border-marino-900/40 bg-white text-marino-900 hover:border-marino-900 hover:bg-celeste-50' => $variante === 'claro',
