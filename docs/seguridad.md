@@ -7,9 +7,9 @@ Responde al Anexo II.2 (OWASP Top 10, Ley N° 29733, auditoría inmutable) y a l
 | Riesgo | Control |
 |---|---|
 | Inyección SQL | Eloquent / query builder con bindings; nunca concatenar entrada del usuario en SQL crudo |
-| XSS | Escapado de Blade (`{{ }}`); `{!! !!}` prohibido con datos del usuario; cabeceras CSP |
+| XSS | Escapado de Blade (`{{ }}`); `{!! !!}` prohibido con datos del usuario; cabecera `Content-Security-Policy` ([Cabeceras de seguridad](#cabeceras-de-seguridad)) |
 | CSRF | Middleware `PreventRequestForgery` de Laravel 13 (token + verificación de origen) |
-| Sesiones | Cookies `HttpOnly`, `secure`, `SameSite=lax`; regeneración al iniciar sesión; `SESSION_DRIVER=database` |
+| Sesiones | Cookies `HttpOnly`, `secure`, `SameSite=lax`; regeneración al iniciar sesión; `SESSION_DRIVER=database`; contenido de la sesión cifrado con `APP_KEY` (`SESSION_ENCRYPT=true`, valor por defecto) |
 | Fuerza bruta | Rate limiting en login (5 intentos por minuto por correo e IP y 20 por IP), registro (20 por minuto por IP), recuperación de contraseña (5 por minuto por IP y un correo por minuto por cuenta), verificación de correo y verificación pública de QR |
 | Contraseñas | `Password::defaults()`: al menos 8 caracteres con letras y números. No se usa `uncompromised()` porque consulta un servicio externo (pendiente de aprobación de la DSTI) |
 | Autorización | Una Policy por acción sensible; acceso al panel solo con el permiso `admin-panel.access` |
@@ -18,6 +18,22 @@ Responde al Anexo II.2 (OWASP Top 10, Ley N° 29733, auditoría inmutable) y a l
 | Exposición de información | `APP_DEBUG=false` en producción, páginas de error propias, sin trazas |
 | Dependencias | `composer audit` y `npm audit` en CI |
 | Personal del panel | Doble factor con aplicación autenticadora (MFA de Filament), que cada persona activa desde su perfil y que puede volverse obligatorio con `PANEL_DOBLE_FACTOR_OBLIGATORIO=true`, y cierre de la sesión del panel tras 30 minutos sin actividad (middleware `ProtegerSesionDelPanel`) |
+
+## Cabeceras de seguridad
+
+El middleware global `AgregarCabecerasDeSeguridad` las agrega a toda respuesta (portales, API, paneles de Filament y páginas de error), salvo que la respuesta ya traiga la misma cabecera.
+
+| Cabecera | Valor | Cuándo |
+|---|---|---|
+| `X-Frame-Options` | `SAMEORIGIN` | Siempre |
+| `X-Content-Type-Options` | `nosniff` | Siempre |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Siempre |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Siempre |
+| `Strict-Transport-Security` | `max-age=31536000` | Solo en peticiones `https` (detrás del proxy, requiere `TRUSTED_PROXIES`) |
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'` | Siempre, salvo en la documentación de la API (`/docs/api`, que carga su visor desde unpkg.com) y mientras corre el servidor de desarrollo de Vite |
+
+- `'unsafe-inline'` y `'unsafe-eval'` los exigen Livewire y Alpine (expresiones en los atributos); `worker-src blob:`, la carga de archivos de Filament. Las fuentes se sirven desde `public/build`, sin servicios externos.
+- Cifrado de la sesión: con `SESSION_ENCRYPT=true` el contenido de cada sesión se guarda cifrado en la tabla `sessions`. Activarlo cierra una vez las sesiones abiertas (ver [`despliegue.md`](despliegue.md#variables-clave-de-producción)).
 
 ## Autenticación
 
@@ -49,7 +65,7 @@ Panel administrativo (`/admin`, personal con `admin-panel.access`):
 Portal del estudiante (inicio de sesión diferenciado del panel administrativo, M6):
 
 - Estudiantes y docentes ingresan en `/ingresar` con correo y contraseña (una sola cuenta). Al entrar, quien tiene perfil docente va al panel docente (`/docente`, con el enlace "Mi portal de estudiante" en su menú de usuario) y el resto al portal del estudiante. Las entradas anteriores `/estudiante/ingresar` y `/docente/ingresar` redirigen allí (redirección temporal, para poder cambiarlo sin depender de la caché del navegador). El mensaje de error no revela si la cuenta existe. El correo se guarda siempre en minúsculas. Un visitante sin sesión que abre una página del portal va a `/ingresar` y, al entrar, vuelve a esa página. El personal ingresa al panel por separado, en `/admin/login`.
-- Autorregistro en `/estudiante/registro` con documento y correo, con consentimiento expreso de la Ley N° 29733. Una ficha que el CILN ya registró solo se vincula si el correo coincide con el que figura en ella; si no coincide, o si el documento ya tiene cuenta, el formulario responde con un único mensaje, para no revelar cuál de los dos casos aplica.
+- Autorregistro en `/estudiante/registro` con documento y correo, con consentimiento expreso de la Ley N° 29733, cuya fecha y hora se guardan en la ficha (`per_personas.tratamiento_aceptado_en`, auditada como el resto de la tabla). Una ficha que el CILN ya registró solo se vincula si el correo coincide con el que figura en ella; si no coincide, o si el documento ya tiene cuenta, el formulario responde con un único mensaje, para no revelar cuál de los dos casos aplica.
 - El portal exige el correo verificado (`verified`), una ficha de estudiante vinculada (middleware `estudiante`) y `auth.session`, que cierra las demás sesiones cuando cambia la contraseña. Livewire vuelve a aplicar ese middleware en sus actualizaciones, así que una pantalla ya abierta en otro dispositivo deja de funcionar en su siguiente acción, sin esperar a que se recargue (`SesionEnActualizacionesTest`).
 - Cambio de contraseña desde "Modificar datos": pide la contraseña actual, aplica la misma política que el registro, cierra las sesiones de los demás dispositivos (nuevo hash y nuevo token de "recordarme", con `auth.session`) sin cerrar la actual y avisa por correo "Tu contraseña del CILN cambió" (en cola). Se limita a 5 intentos por minuto por cuenta. El estudiante no puede cambiar su correo ni sus datos de identidad.
 - Fotografía del estudiante: se valida el tipo real del archivo (JPG o PNG), el peso y las dimensiones; antes de guardarla se vuelve a codificar, lo que elimina todos sus metadatos (ubicación GPS, datos del equipo; Ley 29733), se endereza según su etiqueta de orientación y se reduce a 800 píxeles por lado como máximo; se guarda en el disco privado (`storage/app/private/fotos`, nombre aleatorio) y nunca en `public/`. El estudiante la ve solo por `/estudiante/perfil/foto/imagen`, que no recibe ningún ID y sirve únicamente su propia foto (404 si no tiene); el personal la ve por `/panel/personas/{persona}/foto`, con sesión del panel y `personas.ver`. Ambas respuestas llevan `X-Content-Type-Options: nosniff` y `Cache-Control: private, no-store`. Se permiten 10 subidas por hora por cuenta.
@@ -68,7 +84,7 @@ Portal del estudiante (inicio de sesión diferenciado del panel administrativo, 
 
 ### Cuentas, roles y permisos del personal
 
-Se administran en el panel (Configuración → Usuarios del personal y Roles), solo con `usuarios.gestionar`. La primera cuenta se crea por consola ([`despliegue.md`](despliegue.md#primera-cuenta-de-administración)).
+Se administran en el panel (Seguridad → Usuarios del personal y Roles), solo con `usuarios.gestionar`. La primera cuenta se crea por consola ([`despliegue.md`](despliegue.md#primera-cuenta-de-administración)).
 
 | Regla | Control |
 |---|---|
@@ -131,6 +147,7 @@ Tests: `tests/Feature/Audit/AuditTrailTest.php` (inmutabilidad, contexto web/API
 ## Ley N° 29733 (datos personales)
 
 - Guardar solo los datos necesarios y definir su tiempo de conservación.
+- El consentimiento del autorregistro queda registrado con su fecha y hora en la ficha de la persona y se muestra al personal en el panel; las fichas que registra el personal no lo tienen ("No registrado").
 - Cifrar con el cast `encrypted` los datos sensibles que no se buscan (por ejemplo, la cuenta bancaria del docente). **No cifrar el DNI**, porque se busca por él.
 - La verificación pública de constancias y certificados (`/verificar/{código}`) muestra solo los datos mínimos: tipo, código, fecha de emisión, nombres, documento de identidad con solo sus últimos cuatro caracteres, idioma, nivel, horas, nota final y si está vigente o anulado (nunca el motivo de anulación). Limita las consultas a 30 por minuto por IP y pide a los buscadores no indexarla (`X-Robots-Tag` y meta `robots`). El código único tiene 10 caracteres aleatorios, así que no se puede adivinar ni recorrer.
 - La ficha de matrícula se puede volver a abrir sin sesión desde su QR o su dirección (`/fichas/{código}`, ULID de 26 caracteres guardado en `mat_fichas`): es la misma ficha en PDF, con el documento de identidad enmascarado (solo los últimos 4 caracteres) y sin el detalle del pago (concepto, número de operación, medio y fecha) ni el enlace de la clase virtual, limitada a 30 consultas por minuto y con `X-Robots-Tag: noindex, nofollow`. Muestra nombres y lo matriculado, como la ficha del SGA de la UNASAM (supuesto por confirmar, `decisiones-pendientes.md` #96).

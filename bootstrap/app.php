@@ -10,6 +10,7 @@ use App\Shared\Auth\Http\Middleware\RequiereCorreoVerificado;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\DestinoTrasIngreso;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use App\Shared\Support\Http\Middleware\AgregarCabecerasDeSeguridad;
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -26,6 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api/v1',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Global, so the Filament panels (outside the web group) and error pages get the headers too.
+        $middleware->append(AgregarCabecerasDeSeguridad::class);
         $middleware->prependToGroup('web', AsignarIdDeSolicitud::class);
         $middleware->prependToGroup('api', AsignarIdDeSolicitud::class);
         $middleware->appendToGroup('web', EstablecerContextoAuditoria::class);

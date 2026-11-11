@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers\Filament;
 
 use App\Shared\Support\Http\Middleware\AsignarIdDeSolicitud;
+use App\Shared\Ui\AvatarDeIniciales;
 use App\Shared\Ui\PaletaCiln;
 use Filament\Enums\UserMenuPosition;
 use Filament\FontProviders\LocalFontProvider;
@@ -36,6 +37,7 @@ final class AparienciaDelPanel
             ->favicon(asset('favicon.ico'))
             ->viteTheme("resources/css/filament/{$tema}/theme.css")
             ->font('Figtree', provider: LocalFontProvider::class)
+            ->defaultAvatarProvider(AvatarDeIniciales::class)
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => Vite::fonts()->toHtml())
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin.dropdown-sin-cierre-por-teclado'))
             ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn (): View => view('filament.admin.alternar-menu'))

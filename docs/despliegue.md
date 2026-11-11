@@ -42,7 +42,7 @@ php artisan queue:restart
 
 ### Primera cuenta de administración
 
-`php artisan personal:crear-administrador <correo> "<nombre>"` crea la cuenta (o, si el correo ya tiene una, la reactiva y le agrega permisos sin cambiar su nombre) con acceso al panel y **todos** los permisos, incluido `usuarios.gestionar`, y le envía el enlace para crear su contraseña: nadie escribe ni ve la contraseña. Desde ahí, esa persona crea las demás cuentas en el panel (Configuración → Usuarios del personal). Sirve también para recuperar el acceso si ninguna cuenta activa puede gestionar usuarios. Sale con `1` si el correo no es válido; el log registra el ID de la cuenta.
+`php artisan personal:crear-administrador <correo> "<nombre>"` crea la cuenta (o, si el correo ya tiene una, la reactiva y le agrega permisos sin cambiar su nombre) con acceso al panel y **todos** los permisos, incluido `usuarios.gestionar`, y le envía el enlace para crear su contraseña: nadie escribe ni ve la contraseña. Desde ahí, esa persona crea las demás cuentas en el panel (Seguridad → Usuarios del personal). Sirve también para recuperar el acceso si ninguna cuenta activa puede gestionar usuarios. Sale con `1` si el correo no es válido; el log registra el ID de la cuenta.
 
 Al migrar una base que ya tenía cuentas, `usuarios.gestionar` se otorga automáticamente a las cuentas activas que ya tenían todos los demás permisos, así que no hace falta ejecutar el comando.
 
@@ -68,6 +68,7 @@ DB_PASSWORD=...
 
 SESSION_DRIVER=database
 SESSION_SECURE_COOKIE=true
+SESSION_ENCRYPT=true
 SESSION_LIFETIME=120
 SESSION_PANEL_LIFETIME=30
 PANEL_DOBLE_FACTOR_OBLIGATORIO=false
@@ -107,6 +108,8 @@ Variables que, si faltan, toman un valor por defecto que no sirve en producción
 | `BACKUP_ARCHIVE_PASSWORD` | vacío | El respaldo se guarda sin cifrar; con valor, se cifra (AES-256) y esa contraseña hace falta para restaurarlo |
 
 `CILN_VALIDACION_POR_OTRA_PERSONA` (por defecto `true`) impide que quien registró un pago lo valide ([decisión #117](decisiones-pendientes.md)). No se usan Redis, S3, Cloudflare ni Gotenberg: sus variables pueden omitirse. Los PDF usan `dompdf`, que no requiere configuración. Después de cambiar cualquier variable, regenerar la caché con `php artisan config:cache`.
+
+`SESSION_ENCRYPT=true` cifra con `APP_KEY` el contenido de cada sesión guardada en la base de datos (TdR II.2). Es el valor por defecto de `config/session.php`, pero `.env.example` todavía trae `SESSION_ENCRYPT=false`: un `.env` copiado de él lo desactiva, así que en producción debe quedar en `true`. Al activarlo, las sesiones abiertas se cierran una vez (no se pueden descifrar) y cada persona vuelve a ingresar: conviene hacerlo fuera del horario de atención. Las cabeceras de seguridad (CSP, HSTS y demás) no necesitan variables: ver [`seguridad.md`](seguridad.md#cabeceras-de-seguridad).
 
 `SESSION_PANEL_LIFETIME` son los minutos sin actividad tras los que se cierra la sesión del panel. Al publicar esta versión, las sesiones del panel abiertas se cierran en su siguiente pedido (aún no tienen la marca del ingreso del panel): conviene publicarla fuera del horario de atención. `PANEL_DOBLE_FACTOR_OBLIGATORIO` (por defecto `false`) exige que toda cuenta del panel configure su aplicación autenticadora antes de entrar; si se activa, avisar antes al personal y regenerar la caché de configuración (`php artisan config:cache`), porque el valor no cambia hasta entonces. El secreto del doble factor se cifra con `APP_KEY`: al rotar la clave, dejar la anterior en `APP_PREVIOUS_KEYS`; si se pierde, hay que reiniciar el segundo factor de cada cuenta (`php artisan auth:reiniciar-doble-factor <correo>`). Los QR de las actas finales impresas llevan un enlace firmado con `APP_KEY` que no caduca: al rotar la clave, la anterior debe quedar en `APP_PREVIOUS_KEYS` o esos QR dejarán de verificar. El enlace usa `APP_URL` como dirección pública, así que debe ser el dominio definitivo antes de imprimir actas.
 
