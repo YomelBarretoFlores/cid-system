@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?CarbonImmutable $fecha_nacimiento
  * @property ?string $direccion
  * @property ?string $foto
+ * @property ?CarbonImmutable $tratamiento_aceptado_en
  */
 #[Table('per_personas')]
 #[RouteKey('ulid')]
@@ -134,6 +135,7 @@ final class Persona extends Model
             'tipo_documento' => TipoDocumento::class,
             'tipo_vinculo' => TipoVinculo::class,
             'fecha_nacimiento' => 'date',
+            'tratamiento_aceptado_en' => 'datetime',
         ];
     }
 }

@@ -49,7 +49,9 @@ final readonly class RegistrarCuentaDeEstudiante
             'password' => $solicitud->password,
         ]);
 
-        $persona->user()->associate($user)->save();
+        $persona->user()->associate($user);
+        $persona->tratamiento_aceptado_en = $solicitud->aceptaTratamiento ? now() : null;
+        $persona->save();
 
         return $user;
     }

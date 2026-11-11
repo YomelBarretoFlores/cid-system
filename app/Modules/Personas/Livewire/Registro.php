@@ -97,7 +97,7 @@ final class Registro extends Component
             'nombres' => ['required', 'string', 'max:80'],
             'fecha_nacimiento' => ['required', 'date_format:Y-m-d', 'after:1900-01-01', 'before:today'],
             'email' => ['required', 'string', 'email', 'max:150'],
-            'celular' => ['nullable', 'string', 'regex:'.Persona::FORMATO_CELULAR],
+            'celular' => ['required', 'string', 'regex:'.Persona::FORMATO_CELULAR],
             'password' => ['required', 'string', 'max:255', 'confirmed', Password::defaults()],
             'acepta_tratamiento' => ['accepted'],
         ];
@@ -116,6 +116,7 @@ final class Registro extends Component
             'fecha_nacimiento.date_format' => $fechaInvalida,
             'fecha_nacimiento.after' => $fechaInvalida,
             'fecha_nacimiento.before' => $fechaInvalida,
+            'celular.required' => 'Escribe tu número de celular.',
             'celular.regex' => 'Escribe un celular válido, solo con números.',
             'acepta_tratamiento.accepted' => 'Debes aceptar el tratamiento de tus datos personales para crear la cuenta.',
         ];
@@ -172,6 +173,7 @@ final class Registro extends Component
             fechaNacimiento: CarbonImmutable::createFromFormat('Y-m-d', $this->fecha_nacimiento) ?: CarbonImmutable::now(),
             correo: $this->email,
             celular: $this->celular,
+            aceptaTratamiento: $this->acepta_tratamiento,
             password: $this->password,
         );
     }

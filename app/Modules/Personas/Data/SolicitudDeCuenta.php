@@ -18,6 +18,7 @@ final readonly class SolicitudDeCuenta
         public CarbonImmutable $fechaNacimiento,
         public string $correo,
         public ?string $celular,
+        public bool $aceptaTratamiento,
         #[\SensitiveParameter]
         public string $password,
     ) {}

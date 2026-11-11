@@ -118,6 +118,18 @@ it('shows a person without offering to delete them', function (): void {
         ->assertActionHidden('edit');
 });
 
+it('shows staff when the person accepted the processing of their personal data at self-registration', function (): void {
+    $this->persona->forceFill(['tratamiento_aceptado_en' => '2026-11-03 20:15:00+00'])->save();
+    $this->actingAs(usuarioDePersonas(PermisoPersona::Ver));
+
+    Livewire::test(ViewPersona::class, ['record' => $this->persona->getRouteKey()])
+        ->assertSee('Aceptó el tratamiento de datos')
+        ->assertSee('03/11/2026 15:15');
+    Livewire::test(ViewPersona::class, ['record' => $this->extranjera->getRouteKey()])
+        ->assertSee('Aceptó el tratamiento de datos')
+        ->assertSee('No registrado');
+});
+
 it('registers a person with a normalized document and phone', function (): void {
     $this->actingAs(usuarioDePersonas(PermisoPersona::Ver, PermisoPersona::Gestionar));
 
@@ -134,7 +146,8 @@ it('registers a person with a normalized document and phone', function (): void 
         ->apellido_materno->toBeNull()
         ->celular->toBe('+51987654321')
         ->tipo_vinculo->toBe(TipoVinculo::EstudianteUnasam)
-        ->user_id->toBeNull();
+        ->user_id->toBeNull()
+        ->tratamiento_aceptado_en->toBeNull();
 });
 
 it('rejects data the database would refuse', function (array $cambios, string $campo, string $mensaje): void {

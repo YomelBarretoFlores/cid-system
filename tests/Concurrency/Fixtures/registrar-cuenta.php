@@ -25,6 +25,7 @@ try {
             fechaNacimiento: CarbonImmutable::parse('2001-05-14'),
             correo: $correo,
             celular: null,
+            aceptaTratamiento: true,
             password: 'clave-segura1',
         ));
         // Keeps the new rows uncommitted so the other process must reach its insert meanwhile.

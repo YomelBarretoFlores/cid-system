@@ -55,6 +55,8 @@ it('shows the registration form to guests', function (): void {
 });
 
 it('creates the person and an unverified account, signs it in and asks to verify the email', function (): void {
+    $this->freezeSecond();
+
     registrarse(['email' => '  Rosa@Correo.TEST '])
         ->assertHasNoErrors()
         ->assertRedirect(route('verification.notice'));
@@ -70,6 +72,7 @@ it('creates the person and an unverified account, signs it in and asks to verify
         ->correo->toBe('rosa@correo.test')
         ->celular->toBe('987654321')
         ->tipo_vinculo->toBe(TipoVinculo::PublicoGeneral)
+        ->tratamiento_aceptado_en->toEqual(now())
         ->and($user->hasVerifiedEmail())->toBeFalse()
         ->and(Hash::check('clave-segura1', $user->password))->toBeTrue()
         ->and($user->name)->toBe('Rosa Elena Quispe');
@@ -83,6 +86,8 @@ it('links an existing CILN record when its email matches and keeps its data', fu
         'numero_documento' => '41234567', 'nombres' => 'Rosa', 'correo' => 'rosa@correo.test',
     ]);
 
+    $this->freezeSecond();
+
     registrarse(['email' => 'ROSA@correo.test', 'nombres' => 'Otro Nombre'])
         ->assertHasNoErrors()
         ->assertRedirect(route('verification.notice'));
@@ -92,7 +97,8 @@ it('links an existing CILN record when its email matches and keeps its data', fu
     expect(Persona::query()->count())->toBe(1)
         ->and($persona->user_id)->toBe(User::query()->where('email', 'rosa@correo.test')->sole()->id)
         ->and($persona->nombres)->toBe('Rosa')
-        ->and($persona->tipo_vinculo)->toBe(TipoVinculo::EstudianteUnasam);
+        ->and($persona->tipo_vinculo)->toBe(TipoVinculo::EstudianteUnasam)
+        ->and($persona->tratamiento_aceptado_en)->toEqual(now());
 });
 
 it('refuses to link a CILN record registered with another email or without one', function (?string $correoRegistrado): void {
@@ -138,6 +144,7 @@ it('validates the registration data', function (array $cambios, string $campo, s
     'bad passport' => [['tipo_documento' => 'pasaporte', 'numero_documento' => 'AB-12'], 'numero_documento', 'El documento tiene de 6 a 12 letras o números.'],
     'future birth date' => [['fecha_nacimiento' => now()->addDay()->toDateString()], 'fecha_nacimiento', 'Escribe una fecha de nacimiento válida.'],
     'bad phone' => [['celular' => '12-ab'], 'celular', 'Escribe un celular válido, solo con números.'],
+    'missing phone' => [['celular' => '  '], 'celular', 'Escribe tu número de celular.'],
     'missing names' => [['nombres' => ''], 'nombres', 'Completa el campo nombres.'],
     'weak password' => [['password' => 'solo-letras', 'password_confirmation' => 'solo-letras'], 'password', 'La contraseña debe incluir al menos una letra y un número.'],
     'no consent' => [['acepta_tratamiento' => false], 'acepta_tratamiento', 'Debes aceptar el tratamiento de tus datos personales para crear la cuenta.'],
