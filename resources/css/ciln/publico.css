@@ -3,19 +3,91 @@
     --color-tinta: var(--color-marino-900);
     --color-tinta-hover: var(--color-marino-800);
     --color-secundario: var(--color-marino-800);
-    --color-terciario: #4f6680;
-    --color-apagado: #6b7f95;
-    --color-grupo: #7d90a5;
+    --color-terciario: #3f5f78;
+    --color-apagado: #58718a;
+    --color-grupo: #6a8297;
     --color-enlace: var(--color-real-600);
     --color-enlace-hover: var(--color-marino-900);
     --color-acento: var(--color-celeste-500);
     --color-acento-claro: var(--color-celeste-50);
     --color-borde: #d9e2ec;
     --color-separador: #e8eef5;
-    --shadow-foco: 0 0 0 3px rgb(61 143 219 / 0.35);
+    --shadow-foco: 0 0 0 3px rgb(20 132 192 / 0.4);
     --radius-marco: 4px;
     --radius-tarjeta: 4px;
     --radius-interna: 3px;
     --radius-control: 3px;
     --radius-pildora: 3px;
+}
+
+/* In the base layer so a component's own focus utilities still win. */
+@layer base {
+    .tema-publico :focus-visible {
+        outline: 2px solid var(--color-real-600);
+        outline-offset: 2px;
+    }
+
+    .tema-publico .sobre-oscuro :focus-visible {
+        outline-color: var(--color-celeste-300);
+    }
+}
+
+/* Fine square grid over the dark hero, fading to the right, instead of a photograph. */
+@utility trama-institucional {
+    background-image:
+        linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(100deg, transparent 0%, #000 45%, #000 100%);
+}
+
+@utility tabla-publica {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+
+    & thead th {
+        border-bottom: 2px solid var(--color-marino-900);
+        padding: 0.625rem 1rem;
+        text-align: left;
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-marino-900);
+        white-space: nowrap;
+    }
+
+    & tbody td {
+        border-bottom: 1px solid color-mix(in srgb, var(--color-marino-900) 10%, transparent);
+        padding: 0.75rem 1rem;
+        vertical-align: top;
+    }
+
+    & tbody tr:hover td {
+        background-color: var(--color-celeste-50);
+    }
+}
+
+/* Section links of the header: the rule under the label grows from the left instead of appearing. */
+@utility enlace-seccion {
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        right: 0.625rem;
+        bottom: 0.3rem;
+        left: 0.625rem;
+        height: 2px;
+        background-color: currentColor;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 280ms var(--ease-salida);
+    }
+
+    &:hover::after,
+    &:focus-visible::after {
+        transform: scaleX(1);
+    }
 }

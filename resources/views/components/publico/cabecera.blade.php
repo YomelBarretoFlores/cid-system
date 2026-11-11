@@ -1,7 +1,7 @@
 @props(['secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'preguntas' => 'Preguntas']])
-<header x-data="cabeceraCiln" x-bind:class="{ 'shadow-[0_6px_18px_rgb(10_46_82/0.08)]': desplazada || menu }"
+<header x-data="cabeceraCiln" x-bind:class="{ 'shadow-cabecera': desplazada || menu }"
     {{ $attributes->class('sticky top-0 z-30 border-b border-marino-900/12 bg-white transition-shadow duration-300') }}>
-    <div class="bg-marino-900 text-[13px] text-celeste-100/85">
+    <div class="sobre-oscuro bg-marino-900 text-[13px] text-celeste-100/85">
         <div class="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-4 py-1.5 sm:px-6 lg:px-8">
             <a href="https://www.unasam.edu.pe" class="truncate transition-colors hover:text-white">Universidad Nacional Santiago Antúnez de Mayolo</a>
             <nav aria-label="Accesos" class="flex shrink-0 items-center divide-x divide-white/20">
@@ -22,14 +22,14 @@
         </a>
         <nav aria-label="Secciones" class="ml-auto hidden text-[14.5px] whitespace-nowrap xl:flex">
             @foreach ($secciones as $ancla => $seccion)
-                <a href="{{ route('portada') }}#{{ $ancla }}" class="border-b-2 border-transparent px-2.5 py-2 font-medium text-marino-900 transition-colors hover:border-real-600 hover:text-real-600">{{ $seccion }}</a>
+                <a href="{{ route('portada') }}#{{ $ancla }}" class="enlace-seccion px-2.5 py-2 font-medium text-marino-900 transition-colors hover:text-real-600">{{ $seccion }}</a>
             @endforeach
         </nav>
         <div class="ml-auto flex shrink-0 items-center gap-2 xl:ml-2">
             <x-publico.boton variante="claro" tamano="compacto" :href="route('ingresar')">Ingresar</x-publico.boton>
             <x-publico.boton tamano="compacto" :href="route('estudiante.registro')" class="max-sm:hidden">Crear cuenta</x-publico.boton>
             <button type="button" x-on:click="menu = ! menu" x-bind:aria-expanded="menu" aria-controls="menu-publico"
-                class="flex size-10 items-center justify-center rounded-[3px] text-marino-900 transition-colors hover:bg-celeste-50 focus-visible:ring-3 focus-visible:ring-celeste-300 focus-visible:outline-none xl:hidden">
+                class="flex size-10 items-center justify-center rounded-[3px] text-marino-900 transition-colors hover:bg-celeste-50 xl:hidden">
                 <span class="sr-only">Menú</span>
                 <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="size-5"><path x-show="! menu" d="M3.5 6h13M3.5 10h13M3.5 14h13" /><path x-show="menu" x-cloak d="m5 5 10 10M15 5 5 15" /></svg>
             </button>

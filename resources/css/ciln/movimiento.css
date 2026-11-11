@@ -1,0 +1,70 @@
+/* Motion of the public pages. Content is visible without JavaScript: the hidden states only apply once a component marks its root, and never under prefers-reduced-motion. Only opacity, transform and filter move, so nothing shifts the layout. */
+:root {
+    interpolate-size: allow-keywords;
+}
+
+.js-movimiento [data-revelar]:not(.revelado) {
+    opacity: 0;
+}
+
+.js-movimiento [data-revelar].revelado {
+    animation: revelar 760ms var(--ease-salida) both;
+    animation-delay: calc(var(--orden, 0) * 90ms);
+}
+
+.titular-listo .palabra {
+    display: inline-block;
+    animation: palabra 950ms var(--ease-salida) both;
+    animation-delay: calc(var(--orden, 0) * 75ms + 60ms);
+}
+
+.preguntas-suaves details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+        block-size 320ms var(--ease-salida),
+        content-visibility 320ms allow-discrete;
+}
+
+.preguntas-suaves details[open]::details-content {
+    block-size: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .js-movimiento [data-revelar],
+    .titular-listo .palabra {
+        animation: none !important;
+        opacity: 1 !important;
+    }
+
+    .preguntas-suaves details::details-content,
+    .enlace-seccion::after {
+        transition: none !important;
+    }
+}
+
+@keyframes revelar {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes palabra {
+    from {
+        opacity: 0;
+        filter: blur(10px);
+        transform: translateY(0.3em);
+    }
+
+    to {
+        opacity: 1;
+        filter: none;
+        transform: none;
+    }
+}

@@ -1,5 +1,5 @@
 @props(['verificar' => true, 'secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'preguntas' => 'Preguntas']])
-<footer {{ $attributes->class('border-t-4 border-real-600 bg-marino-900 text-white') }}>
+<footer {{ $attributes->class('sobre-oscuro border-t-4 border-real-600 bg-marino-950 text-white') }}>
     <div @class(['mx-auto grid max-w-[1200px] grid-cols-[minmax(0,1fr)] gap-10 px-4 pt-14 pb-10 sm:px-6 lg:px-8', 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)]' => $verificar, 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]' => ! $verificar])>
         <div class="flex flex-col gap-4">
             <span class="flex items-center gap-3">
@@ -35,7 +35,7 @@
                     <div class="flex">
                         <input id="codigo" name="codigo" type="text" required maxlength="30" autocomplete="off" placeholder="CILN-XXXXXXXXXX"
                             class="min-w-0 flex-1 rounded-l-[3px] border border-white bg-white px-3.5 py-2.5 tracking-[0.03em] text-marino-900 uppercase placeholder:text-plata-300 focus:ring-3 focus:ring-celeste-400/60 focus:outline-none">
-                        <button type="submit" class="rounded-r-[3px] border border-real-600 bg-real-600 px-4 py-2.5 text-[14.5px] font-semibold transition-colors hover:border-real-500 hover:bg-real-500 focus-visible:ring-3 focus-visible:ring-celeste-400/60 focus-visible:outline-none">Verificar</button>
+                        <button type="submit" class="rounded-r-[3px] border border-real-600 bg-real-600 px-4 py-2.5 text-[14.5px] font-semibold transition-colors hover:border-real-500 hover:bg-real-500">Verificar</button>
                     </div>
                 </form>
             </section>
