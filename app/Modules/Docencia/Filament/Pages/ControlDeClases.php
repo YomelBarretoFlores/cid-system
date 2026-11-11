@@ -30,7 +30,7 @@ final class ControlDeClases extends Page implements HasTable
 
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Control de clases';
 

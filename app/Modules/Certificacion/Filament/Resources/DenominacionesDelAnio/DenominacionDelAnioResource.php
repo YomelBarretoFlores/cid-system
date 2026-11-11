@@ -29,9 +29,9 @@ final class DenominacionDelAnioResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
-    protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 9;
 
     protected static ?string $navigationLabel = 'Denominación del año';
 

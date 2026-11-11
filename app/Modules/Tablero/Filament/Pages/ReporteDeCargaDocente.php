@@ -21,7 +21,7 @@ final class ReporteDeCargaDocente extends Page implements HasTable
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Reportes';
+    protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
     protected static ?int $navigationSort = 5;
 

@@ -27,7 +27,7 @@ final class SolicitudClasificacionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Atención';
+    protected static string|UnitEnum|null $navigationGroup = 'Matrícula';
 
     protected static ?int $navigationSort = 2;
 

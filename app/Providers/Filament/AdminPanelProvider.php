@@ -58,7 +58,7 @@ final class AdminPanelProvider extends PanelProvider
                 RolResource::class,
                 RegistroDeAuditoriaResource::class,
             ])
-            ->navigationGroups(['Atención', 'Oferta académica', 'Docencia', 'Certificación', 'Reportes', 'Configuración'])
+            ->navigationGroups(['Matrícula', 'Oferta académica', 'Pagos', 'Docencia', 'Certificación', 'Trámites', 'Reportes', 'Catálogos', 'Seguridad'])
             ->authMiddleware([
                 Authenticate::class,
                 ProtegerSesionDelPanel::class,

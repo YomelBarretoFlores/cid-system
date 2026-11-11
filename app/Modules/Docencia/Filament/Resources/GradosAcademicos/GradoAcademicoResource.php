@@ -31,9 +31,9 @@ final class GradoAcademicoResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 7;
 
     protected static ?string $navigationLabel = 'Grados académicos';
 

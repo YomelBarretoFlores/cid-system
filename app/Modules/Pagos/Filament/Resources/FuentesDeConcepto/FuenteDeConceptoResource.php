@@ -27,7 +27,7 @@ final class FuenteDeConceptoResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
     protected static ?int $navigationSort = 3;
 

@@ -28,7 +28,7 @@ final class CostoPorHoraResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 6;
 
     protected static ?string $navigationLabel = 'Costos por hora';
 

@@ -28,9 +28,9 @@ final class EsquemaDeEvaluacionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedScale;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $navigationLabel = 'Sistemas de evaluación';
 

@@ -25,9 +25,9 @@ final class MatriculaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Atención';
+    protected static string|UnitEnum|null $navigationGroup = 'Matrícula';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $modelLabel = 'matrícula';
 

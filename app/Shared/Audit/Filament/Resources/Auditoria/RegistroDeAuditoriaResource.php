@@ -26,9 +26,9 @@ final class RegistroDeAuditoriaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|UnitEnum|null $navigationGroup = 'Seguridad';
 
-    protected static ?int $navigationSort = 22;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationLabel = 'Auditoría';
 

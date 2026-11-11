@@ -35,9 +35,9 @@ final class RolResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedKey;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|UnitEnum|null $navigationGroup = 'Seguridad';
 
-    protected static ?int $navigationSort = 21;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Roles';
 

@@ -22,9 +22,9 @@ final class HabilitacionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowTrendingUp;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Atención';
+    protected static string|UnitEnum|null $navigationGroup = 'Matrícula';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $modelLabel = 'ciclo habilitado';
 

@@ -34,9 +34,9 @@ final class UsuarioResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|UnitEnum|null $navigationGroup = 'Seguridad';
 
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Usuarios del personal';
 

@@ -23,7 +23,7 @@ final class ReporteDeAsistencia extends Page implements HasTable
 
     protected static string|UnitEnum|null $navigationGroup = 'Reportes';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Asistencia por grupo';
 

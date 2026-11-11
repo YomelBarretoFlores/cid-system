@@ -36,9 +36,9 @@ final class ReporteDeRecaudacion extends Page implements HasTable
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartBar;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Reportes';
+    protected static string|UnitEnum|null $navigationGroup = 'Pagos';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Reporte de recaudación';
 

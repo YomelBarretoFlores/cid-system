@@ -28,9 +28,9 @@ final class TramiteResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxStack;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Atención';
+    protected static string|UnitEnum|null $navigationGroup = 'Trámites';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Trámites';
 

@@ -37,9 +37,9 @@ final class FirmanteResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Configuración';
+    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 8;
 
     protected static ?string $navigationLabel = 'Firmantes';
 

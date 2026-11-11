@@ -21,7 +21,7 @@ use Spatie\Permission\Models\Permission;
 
 beforeEach(fn () => Filament::setCurrentPanel('admin'));
 
-it('orders the sidebar by daily work, with every section in its group', function (): void {
+it('orders the sidebar by TdR module, with every section in its group', function (): void {
     $this->actingAs(User::factory()->create()->givePermissionTo(Permission::all()));
     $this->get('/admin/tablero-gerencial')->assertOk();
 
@@ -31,12 +31,15 @@ it('orders the sidebar by daily work, with every section in its group', function
 
     expect($menu)->toBe([
         '' => ['Tablero gerencial'],
-        'Atención' => ['Matrículas', 'Solicitudes de clasificación', 'Ciclos habilitados', 'Pagos', 'Trámites', 'Personas'],
+        'Matrícula' => ['Personas', 'Solicitudes de clasificación', 'Matrículas', 'Ciclos habilitados'],
         'Oferta académica' => ['Periodos', 'Idiomas y ciclos', 'Grupos', 'Aulas'],
-        'Docencia' => ['Docentes', 'Expediente de horas', 'Costos por hora', 'Control de clases', 'Sílabos'],
-        'Certificación' => ['Actas finales', 'Actas pendientes', 'Constancias y certificados'],
-        'Reportes' => ['Reporte de recaudación', 'Matriculados', 'Asistencia por grupo', 'Notas por periodo', 'Carga docente'],
-        'Configuración' => ['Conceptos y tarifas', 'Medios de pago', 'Tipos de trámite', 'Fuentes TUPA/TUSNE', 'Sistemas de evaluación', 'Condiciones laborales', 'Grados académicos', 'Firmantes', 'Denominación del año', 'Usuarios del personal', 'Roles', 'Auditoría'],
+        'Pagos' => ['Pagos', 'Reporte de recaudación'],
+        'Docencia' => ['Docentes', 'Control de clases', 'Sílabos', 'Expediente de horas', 'Carga docente', 'Costos por hora'],
+        'Certificación' => ['Actas pendientes', 'Actas finales', 'Constancias y certificados'],
+        'Trámites' => ['Trámites'],
+        'Reportes' => ['Matriculados', 'Asistencia por grupo', 'Notas por periodo'],
+        'Catálogos' => ['Conceptos y tarifas', 'Medios de pago', 'Fuentes TUPA/TUSNE', 'Tipos de trámite', 'Sistemas de evaluación', 'Condiciones laborales', 'Grados académicos', 'Firmantes', 'Denominación del año'],
+        'Seguridad' => ['Usuarios del personal', 'Roles', 'Auditoría'],
     ]);
 });
 
