@@ -13,6 +13,7 @@
 | [testing.md](testing.md) | Estrategia de pruebas |
 | [despliegue.md](despliegue.md) | Guía para la DSTI (borrador) |
 | [decisiones-pendientes.md](decisiones-pendientes.md) | Temas abiertos |
+| [sistema-actual.md](sistema-actual.md) | Inventario del sistema que hoy usa el CILN y brechas pendientes de decisión |
 | [ideas-adicionales.md](ideas-adicionales.md) | Mejoras fuera del TdR para proponer al final |
 | [adr/](adr/) | Registro de decisiones de arquitectura |
 
