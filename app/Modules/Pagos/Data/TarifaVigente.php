@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Data;
 
+use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Personas\Enums\TipoVinculo;
 use Carbon\CarbonImmutable;
 
@@ -17,5 +18,6 @@ final readonly class TarifaVigente
         public TipoVinculo $tipoVinculo,
         public string $monto,
         public CarbonImmutable $vigenteDesde,
+        public TipoConcepto $tipo,
     ) {}
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Pagos\Contracts\TarifasVigentes;
 use App\Modules\Pagos\Data\TarifaVigente;
+use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\Tarifa;
@@ -12,7 +13,7 @@ use Carbon\CarbonImmutable;
 
 it('lists the fees in force on a date for the active concepts, by concept and link', function (): void {
     $matricula = Concepto::factory()->create(['codigo' => 'TUSNE-01', 'nombre' => 'Matrícula', 'fuente_id' => FuenteDeConcepto::idDe('tusne')]);
-    $certificado = Concepto::factory()->create(['codigo' => 'TUPA-07', 'nombre' => 'Certificado de nivel', 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
+    $certificado = Concepto::factory()->create(['codigo' => 'TUPA-07', 'nombre' => 'Certificado de nivel', 'tipo' => TipoConcepto::Certificado, 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
     $inactivo = Concepto::factory()->create(['activo' => false]);
     Tarifa::factory()->for($matricula)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '180.00', 'vigente_desde' => '2026-03-01']);
     Tarifa::factory()->for($matricula)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '120.00', 'vigente_desde' => '2026-03-01']);
@@ -32,5 +33,7 @@ it('lists the fees in force on a date for the active concepts, by concept and li
     ])->and($tarifas[0])
         ->concepto->toBe('Certificado de nivel')
         ->fuente->toBe('tupa')->fuenteEtiqueta->toBe('TUPA')
+        ->tipo->toBe(TipoConcepto::Certificado)
+        ->and($tarifas[1]->tipo)->toBe(TipoConcepto::Matricula)
         ->and($tarifas[0]->vigenteDesde->toDateString())->toBe('2026-04-01');
 });

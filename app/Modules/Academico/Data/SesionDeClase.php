@@ -49,6 +49,17 @@ final readonly class SesionDeClase
      */
     public static function compactar(array $sesiones): array
     {
+        return array_map(fn (array $bloque): string => "{$bloque['dias']}, {$bloque['hora']}", self::agrupar($sesiones));
+    }
+
+    /**
+     * The same grouping split into days and hours: ['dias' => 'Lun · Mié · Vie', 'hora' => '07:00–08:30'].
+     *
+     * @param  list<self>  $sesiones
+     * @return list<array{dias: string, hora: string}>
+     */
+    public static function agrupar(array $sesiones): array
+    {
         usort($sesiones, fn (self $una, self $otra): int => [$una->horaInicio, $una->diaSemana] <=> [$otra->horaInicio, $otra->diaSemana]);
         $porHorario = [];
 
@@ -56,7 +67,7 @@ final readonly class SesionDeClase
             $porHorario[$sesion->horas()][] = self::DIAS_CORTOS[$sesion->diaSemana] ?? (string) $sesion->diaSemana;
         }
 
-        return array_map(fn (string $horas, array $dias): string => implode(' · ', $dias).", {$horas}", array_keys($porHorario), $porHorario);
+        return array_map(fn (string $horas, array $dias): array => ['dias' => implode(' · ', $dias), 'hora' => $horas], array_keys($porHorario), $porHorario);
     }
 
     private function horas(): string

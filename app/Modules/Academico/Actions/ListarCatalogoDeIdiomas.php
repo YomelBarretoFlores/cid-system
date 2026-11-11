@@ -22,6 +22,7 @@ final readonly class ListarCatalogoDeIdiomas implements CatalogoDeIdiomas
                 nombre: $idioma->nombre,
                 activo: $idioma->activo,
                 ciclos: $idioma->ciclos->mapWithKeys(fn (Ciclo $ciclo): array => [$ciclo->id => "Ciclo {$ciclo->numero} ({$ciclo->nivel->etiqueta()})"])->all(),
+                horasPorCiclo: $idioma->ciclos->mapWithKeys(fn (Ciclo $ciclo): array => [$ciclo->id => $ciclo->horas_lectivas])->all(),
             ))
             ->all());
     }

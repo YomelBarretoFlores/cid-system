@@ -6,6 +6,7 @@ namespace App\Modules\Matricula\Actions;
 
 use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
+use App\Modules\Matricula\Data\VigenciaDeClasificacion;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Matricula\Support\MovimientoDeMatricula;
@@ -17,8 +18,6 @@ use Carbon\CarbonImmutable;
 
 final readonly class SolicitarExamenDeClasificacion
 {
-    private const int DIAS_DE_VIGENCIA = 30;
-
     public function __construct(
         private VerificacionDePago $verificacionDePago,
         private CatalogoDeIdiomas $catalogoDeIdiomas,
@@ -45,7 +44,7 @@ final readonly class SolicitarExamenDeClasificacion
                 'persona_id' => $personaId,
                 'idioma_id' => $idioma->id,
                 'pago_id' => $pagoId,
-                'vence_en' => CarbonImmutable::today('America/Lima')->addDays(self::DIAS_DE_VIGENCIA)->toDateString(),
+                'vence_en' => CarbonImmutable::today('America/Lima')->addDays(VigenciaDeClasificacion::DIAS)->toDateString(),
             ]);
         });
     }

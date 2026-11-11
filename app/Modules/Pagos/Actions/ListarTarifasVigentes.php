@@ -34,6 +34,7 @@ final readonly class ListarTarifasVigentes implements TarifasVigentes
                 tipoVinculo: $tarifa->tipo_vinculo,
                 monto: (string) $tarifa->monto,
                 vigenteDesde: $tarifa->vigente_desde,
+                tipo: $tarifa->concepto->tipo,
             ));
 
         return array_values($tarifas->all());

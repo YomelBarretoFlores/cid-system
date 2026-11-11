@@ -16,7 +16,7 @@ use Throwable;
 final class ContenidoPublico
 {
     // Bumped when a cached value object changes shape, so a payload stored by the previous release is never read back.
-    private const string CLAVE = 'portada-publica:v2';
+    private const string CLAVE = 'portada-publica:v3';
 
     private const string VERSION = 'portada-publica:version';
 

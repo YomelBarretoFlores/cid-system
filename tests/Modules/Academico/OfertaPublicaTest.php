@@ -57,6 +57,7 @@ it('shows the period whose enrollment is open, with its dates and its open and s
         ->and($oferta?->grupos[0])->toEqual(new GrupoOfertado(
             idioma: 'Inglés', cicloNumero: 1, nivel: $this->inglesI->nivel->etiqueta(), modalidad: 'Virtual',
             esAcelerado: false, horario: ['Lun · Mié, 07:00–08:30'], vacantes: 2, abierto: true,
+            bloques: [['dias' => 'Lun · Mié', 'hora' => '07:00–08:30']],
         ))
         ->and($oferta?->grupos[1])->idioma->toBe('Quechua')->abierto->toBeFalse();
 });
