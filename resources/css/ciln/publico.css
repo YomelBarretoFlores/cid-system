@@ -1,5 +1,4 @@
-/* Shapes of the public website: scalloped section edges, the hand-drawn underline of a highlighted word and the curved ribbon. */
-/* Public pages (home, verification, sign-in) speak in the logo blues: shared portal components read these tokens, so they follow without a copy. */
+/* Public pages (home, verification, sign-in) speak in the logo blues with near-square corners: shared portal components read these tokens, so they follow without a copy. */
 .tema-publico {
     --color-tinta: var(--color-marino-900);
     --color-tinta-hover: var(--color-marino-800);
@@ -14,57 +13,9 @@
     --color-borde: #d9e2ec;
     --color-separador: #e8eef5;
     --shadow-foco: 0 0 0 3px rgb(61 143 219 / 0.35);
-}
-
-@layer components {
-    /* The flag fills the letters and a navy outline keeps its white parts readable on the light page. */
-    .palabra-bandera {
-        background-size: 100% 100%;
-        background-clip: text;
-        -webkit-background-clip: text;
-        color: transparent;
-        -webkit-text-stroke: 0.03em var(--color-marino-900);
-        paint-order: stroke fill;
-        padding-inline: 0.03em;
-    }
-
-    .nubes {
-        background: radial-gradient(circle at 50% 0, var(--nube) 0 29px, transparent 30px) 0 0 / 64px 40px repeat-x;
-    }
-
-    .nubes-arriba {
-        background: radial-gradient(circle at 50% 100%, var(--nube) 0 37px, transparent 38px) 0 100% / 84px 46px repeat-x;
-    }
-
-    .cinta-texto {
-        font-size: 17px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-    }
-
-    @supports (animation-timeline: view()) {
-        .trazo-a-mano {
-            stroke-dasharray: 1;
-            animation: dibujar-trazo linear both;
-            animation-timeline: view();
-            animation-range: entry calc(30% + var(--orden, 0) * 20%) entry 100%;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .trazo-a-mano {
-            animation: none !important;
-            stroke-dasharray: none;
-        }
-    }
-}
-
-@keyframes dibujar-trazo {
-    from {
-        stroke-dashoffset: 1;
-    }
-
-    to {
-        stroke-dashoffset: 0;
-    }
+    --radius-marco: 4px;
+    --radius-tarjeta: 4px;
+    --radius-interna: 3px;
+    --radius-control: 3px;
+    --radius-pildora: 3px;
 }

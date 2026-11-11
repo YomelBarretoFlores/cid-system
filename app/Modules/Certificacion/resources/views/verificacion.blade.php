@@ -5,7 +5,7 @@
         <x-publico.titulo resaltado="documento" etiqueta="Verificación de documentos" :nivel="$verificacion ? 'p' : 'h1'">Verifica un</x-publico.titulo>
 
         @if ($verificacion)
-            <section class="relative flex flex-col gap-5 overflow-hidden rounded-[24px] bg-white shadow-[0_2px_0_var(--color-plata-100)] p-5 sm:px-7 sm:py-[26px]" aria-labelledby="resultado">
+            <section class="relative flex flex-col gap-5 overflow-hidden rounded-tarjeta border border-marino-900/12 bg-white p-5 sm:px-7 sm:py-[26px]" aria-labelledby="resultado">
                 <x-ciln.emblema decorativo class="pointer-events-none absolute -top-[50px] -right-[50px] w-[220px] opacity-[0.07]" />
                 <div class="flex flex-wrap items-center gap-2.5">
                     @if ($verificacion->vigente)
@@ -37,7 +37,7 @@
             <x-portal.alerta tipo="error">No encontramos un documento con el código {{ $codigo }}. Revisa que esté escrito tal como aparece en el documento.</x-portal.alerta>
         @endif
 
-        <form method="GET" action="{{ route('verificacion.documento') }}" class="flex flex-col gap-3 rounded-[24px] bg-white shadow-[0_2px_0_var(--color-plata-100)] p-5 sm:px-7">
+        <form method="GET" action="{{ route('verificacion.documento') }}" class="flex flex-col gap-3 rounded-tarjeta border border-marino-900/12 bg-white p-5 sm:px-7">
             <label for="codigo" class="font-medium">{{ $verificacion || $codigo ? 'Verificar otro documento' : 'Escribe el código único del documento' }}</label>
             <div class="flex flex-col gap-2 sm:flex-row">
                 <input id="codigo" name="codigo" type="text" required maxlength="30" autocomplete="off" placeholder="CILN-XXXXXXXXXX" class="control flex-1 uppercase">

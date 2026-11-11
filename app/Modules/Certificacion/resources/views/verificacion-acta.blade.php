@@ -6,7 +6,7 @@
     <main id="contenido" class="mx-auto flex w-full max-w-[720px] flex-1 flex-col gap-4 px-4 pt-12 pb-24 sm:px-6 sm:pt-16">
         <x-publico.titulo resaltado="acta" etiqueta="Verificación de actas" nivel="p">Verifica un</x-publico.titulo>
 
-        <section class="flex flex-col gap-5 rounded-[24px] bg-white shadow-[0_2px_0_var(--color-plata-100)] p-5 sm:px-7 sm:py-[26px]" aria-labelledby="resultado">
+        <section class="flex flex-col gap-5 rounded-tarjeta border border-marino-900/12 bg-white p-5 sm:px-7 sm:py-[26px]" aria-labelledby="resultado">
             <div>
                 @if ($acta->estado === EstadoActa::Cerrada)
                     <x-portal.insignia color="success">Acta final auténtica y cerrada</x-portal.insignia>

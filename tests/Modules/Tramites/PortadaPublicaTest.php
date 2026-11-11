@@ -82,7 +82,7 @@ it('still shows the fees and requirements when no period is open or planned', fu
         ->assertOk()
         ->assertSeeText('La oferta del próximo periodo se publicará pronto.')
         ->assertSeeText('S/ 120.00')
-        ->assertSeeText('Crea tu cuenta')
+        ->assertSeeText('Cree su cuenta')
         ->assertDontSeeText('Fechas del periodo');
 });
 
@@ -118,29 +118,31 @@ it('escapes catalog names, also inside the data of the client filters', function
         ->not->toContain('<img src=x');
 });
 
-it('gives staff a header button to the panel sign-in and keeps the headline readable as one sentence', function (): void {
+it('gives staff a header link to the panel sign-in and names the centre in the headline', function (): void {
     periodoDePortada();
 
     $this->get('/')
         ->assertOk()
         ->assertSeeInOrder(['<header', 'Personal CILN', '</header>'], false)
         ->assertSee('href="'.route('filament.admin.auth.login').'"', false)
-        ->assertSee('<h1 class="sr-only">Aprende un idioma en la UNASAM.</h1>', false);
+        ->assertSeeInOrder(['<h1', 'Centro de Idiomas y Lenguas Nativas', '</h1>'], false);
 });
 
-it('fills each rotating word of the headline with the drawing of its language flag', function (): void {
+it('shows each catalog language with the drawing of its flag', function (): void {
     Idioma::factory()->create(['nombre' => 'Inglés']);
     Idioma::factory()->create(['nombre' => 'Quechua']);
 
     $html = $this->get('/')->assertOk()->getContent();
-    $flagDe = function (string $palabra) use ($html): string {
-        expect(preg_match('/style="background-image: url\(data:image\/svg\+xml;base64,([A-Za-z0-9+\/=]+)\)">'.$palabra.'<\/span>/u', $html, $coincidencia))->toBe(1);
+    $flagDe = function (string $idioma) use ($html): string {
+        preg_match_all('/<li class="border-r[^"]*">.*?<\/li>/s', $html, $tarjetas);
+        $tarjeta = collect($tarjetas[0])->first(fn (string $html): bool => str_contains($html, '>'.$idioma.'</span>'));
+        expect($tarjeta)->toBeString();
 
-        return (string) base64_decode($coincidencia[1], true);
+        return $tarjeta;
     };
 
-    expect($flagDe('inglés'))->toContain('#3C3B6E')->toContain('#B22234')->toContain('#FFFFFF')
-        ->and($flagDe('quechua'))->toContain('#E30613')->toContain('#6F2C91');
+    expect($flagDe('Inglés'))->toContain('#3C3B6E')->toContain('#B22234')->toContain('#FFFFFF')
+        ->and($flagDe('Quechua'))->toContain('#E30613')->toContain('#6F2C91');
 });
 
 it('links to the dates section from the header and footer only when the home shows it', function (): void {

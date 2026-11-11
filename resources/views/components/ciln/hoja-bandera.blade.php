@@ -12,12 +12,13 @@
     $ancho = $forma === 'circulo' ? (int) round((int) $size * 0.8) : (int) $size;
     $alto = match ($forma) {
         'circulo' => $ancho,
-        'pill' => (int) round($ancho * 0.66),
+        'pill', 'rect' => (int) round($ancho * 0.66),
         default => (int) round($ancho * 0.62),
     };
     $radio = match ($forma) {
         'circulo' => '50%',
         'pill' => round($alto * 0.28).'px',
+        'rect' => '2px',
         default => '100% 0 100% 0 / 100% 0 100% 0',
     };
 @endphp
