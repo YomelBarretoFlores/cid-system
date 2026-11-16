@@ -10,14 +10,14 @@
             </nav>
         </div>
     </div>
-    <div class="mx-auto flex max-w-[1240px] items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <a href="{{ route('portada') }}" class="flex shrink-0 items-center gap-3 text-marino-900">
+    <div class="mx-auto flex max-w-[1240px] items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 lg:px-8">
+        <a href="{{ route('portada') }}" class="flex min-w-0 items-center gap-2.5 text-marino-900 sm:shrink-0 sm:gap-3">
             <img src="{{ asset('images/unasam/logo.png') }}" alt="UNASAM" width="800" height="215" class="hidden h-11 w-auto sm:block">
             <span aria-hidden="true" class="hidden h-10 w-px bg-marino-900/20 sm:block"></span>
-            <x-ciln.emblema decorativo class="w-10" />
-            <span class="flex flex-col leading-[1.15]">
-                <span class="font-display text-[17px] font-semibold">Centro de Idiomas</span>
-                <span class="text-[12px] text-marino-800/75">y Lenguas Nativas · UNASAM</span>
+            <x-ciln.emblema decorativo class="w-9 shrink-0 sm:w-10" />
+            <span class="flex min-w-0 flex-col leading-[1.15]">
+                <span class="font-display text-[15.5px] font-semibold sm:text-[17px]">Centro de Idiomas</span>
+                <span class="truncate text-[11.5px] text-marino-800/75 sm:text-[12px]">y Lenguas Nativas<span class="max-[399px]:hidden"> · UNASAM</span></span>
             </span>
         </a>
         <nav aria-label="Secciones" class="ml-auto hidden text-[14.5px] whitespace-nowrap xl:flex">
@@ -25,7 +25,7 @@
                 <a href="{{ route('portada') }}#{{ $ancla }}" class="enlace-seccion px-2.5 py-2 font-medium text-marino-900 transition-colors hover:text-real-600">{{ $seccion }}</a>
             @endforeach
         </nav>
-        <div class="ml-auto flex shrink-0 items-center gap-2 xl:ml-2">
+        <div class="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2 xl:ml-2">
             <x-publico.boton variante="claro" tamano="compacto" :href="route('ingresar')">Ingresar</x-publico.boton>
             <x-publico.boton tamano="compacto" :href="route('estudiante.registro')" class="max-sm:hidden">Crear cuenta</x-publico.boton>
             <button type="button" x-on:click="menu = ! menu" x-bind:aria-expanded="menu" aria-controls="menu-publico"

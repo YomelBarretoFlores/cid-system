@@ -228,12 +228,12 @@
                 <figure data-cortina class="mt-12 aspect-[16/9] overflow-hidden bg-white/10 sm:aspect-[21/9]">
                     <img src="{{ asset('images/portada/aula.jpg') }}" alt="Docente dictando clase a un grupo de estudiantes" width="2000" height="1125" loading="lazy" class="size-full object-cover">
                 </figure>
-                <ol class="grid grid-cols-[minmax(0,1fr)] pt-4 pb-20 sm:grid-cols-2 sm:pb-28 lg:grid-cols-4">
+                <ol class="grid grid-cols-[minmax(0,1fr)] pt-4 pb-20 sm:-mx-6 sm:grid-cols-2 lg:-mx-8 sm:pb-28 lg:grid-cols-4">
                     @foreach ($pasos as [$paso, $detalle])
                         <li data-revelar style="--orden: {{ $loop->index }}" @class([
-                            'flex flex-col gap-3 border-b border-white/25 py-8 sm:pr-8 lg:border-b-0',
-                            'sm:border-l sm:pl-8' => $loop->index % 2 === 1,
-                            'lg:border-l lg:pl-8' => $loop->index > 0,
+                            'flex flex-col gap-3 border-b border-white/25 py-8 sm:px-6 lg:border-b-0 lg:px-8',
+                            'sm:border-l' => $loop->index % 2 === 1,
+                            'lg:border-l' => $loop->index > 0,
                         ])>
                             <span class="font-display text-[15px] font-semibold text-celeste-100 tabular-nums">{{ $numero($loop->index) }}</span>
                             <span class="font-display text-[20px] font-semibold tracking-[-0.01em]">{{ $paso }}</span>
@@ -381,17 +381,18 @@
                     </div>
                     <p data-revelar style="--orden: 1" class="{{ $nota }}">Cada nivel agrupa varios ciclos. El estudiante avanza de un ciclo al siguiente al aprobarlo; quien ya conoce el idioma puede <a href="#clasificacion" class="font-semibold text-real-600 underline underline-offset-3 hover:text-marino-900">rendir el examen de clasificación</a>.</p>
                 </div>
-                <ol class="grid grid-cols-[minmax(0,1fr)] border-t border-marino-900/15 lg:grid-cols-3">
+                <ol class="relative grid grid-cols-[minmax(0,1fr)] border-t border-marino-900/15 lg:-mx-8 lg:grid-cols-3 lg:border-t-0 lg:before:absolute lg:before:inset-x-8 lg:before:top-0 lg:before:h-px lg:before:bg-marino-900/15">
                     @foreach ($niveles as [$nivel, $detalle, $logro])
+                        {{-- A subgrid per level lines up its rows with the other levels, so the rule above the outcome sits at one height. --}}
                         <li data-revelar style="--orden: {{ $loop->index }}" @class([
-                            'flex flex-col gap-4 border-b border-marino-900/15 py-10 lg:border-b-0 lg:pr-10',
-                            'lg:border-l lg:pl-10' => $loop->index > 0,
+                            'flex flex-col gap-4 border-b border-marino-900/15 py-10 lg:row-span-5 lg:grid lg:grid-rows-subgrid lg:gap-y-4 lg:border-b-0 lg:px-8',
+                            'lg:border-l' => $loop->index > 0,
                         ])>
                             <span class="font-display text-[64px] leading-none font-semibold tracking-[-0.04em] text-real-600/25 tabular-nums">{{ $numero($loop->index) }}</span>
                             <span class="text-[14px] font-medium text-real-600">Nivel {{ $loop->iteration }}</span>
                             <span class="font-display text-[28px] leading-tight font-semibold tracking-[-0.02em]">{{ $nivel }}</span>
                             <span class="text-[15px] leading-relaxed text-pretty text-marino-800/80">{{ $detalle }}</span>
-                            <span class="mt-auto border-t border-marino-900/10 pt-4 text-[14.5px] text-pretty">
+                            <span class="mt-4 border-t border-marino-900/10 pt-4 text-[14.5px] text-pretty lg:mt-2">
                                 <span class="block font-semibold">Al concluir el nivel podrá:</span>
                                 <span class="text-marino-800/80">{{ $logro }}</span>
                             </span>
@@ -400,9 +401,9 @@
                 </ol>
                 <div class="flex flex-col gap-6 border-t border-marino-900/15 pt-10">
                     <h3 data-revelar class="font-display text-[22px] font-semibold tracking-[-0.01em]">Modalidades de dictado</h3>
-                    <dl class="grid grid-cols-[minmax(0,1fr)] md:grid-cols-3">
+                    <dl class="grid grid-cols-[minmax(0,1fr)] md:-mx-6 md:grid-cols-3">
                         @foreach ($modalidades as $modalidad)
-                            <div data-revelar style="--orden: {{ $loop->index }}" class="flex flex-col gap-1 border-b border-marino-900/15 py-4 md:border-b-0 md:pr-6 md:not-first:border-l md:not-first:pl-6">
+                            <div data-revelar style="--orden: {{ $loop->index }}" class="flex flex-col gap-1 border-b border-marino-900/15 py-4 md:border-b-0 md:px-6 md:not-first:border-l">
                                 <dt class="font-semibold">{{ $modalidad->etiqueta() }}</dt>
                                 <dd class="text-[15px] text-pretty text-marino-800/80">{{ $detallesDeModalidad[$modalidad->value] ?? 'Grupos que publica el CILN en cada periodo.' }}</dd>
                             </div>

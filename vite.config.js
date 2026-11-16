@@ -12,7 +12,7 @@ export default defineConfig({
                 bunny('Figtree', {
                     weights: [400, 500, 600, 700],
                 }),
-                bunny('Manrope', {
+                bunny('Schibsted Grotesk', {
                     weights: [500, 600, 700],
                 }),
             ],
