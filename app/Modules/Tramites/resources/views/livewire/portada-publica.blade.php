@@ -5,7 +5,6 @@
 
     $primerIdioma = collect($idiomas)->firstWhere('grupos', '>', 0)['nombre'] ?? ($idiomas[0]['nombre'] ?? '');
     $nombresDeIdiomas = array_column($idiomas, 'nombre');
-    $modalidades = Modalidad::cases();
     $etiquetasDeModalidad = array_map(fn (Modalidad $modalidad): string => $modalidad->etiqueta(), $modalidades);
     $detallesDeModalidad = [
         'presencial' => 'En las aulas del CILN, con su grupo y su docente.',
@@ -221,7 +220,7 @@
                         <x-publico.titulo id="titulo-requisitos" etiqueta="Matrícula" claro>Cómo matricularse</x-publico.titulo>
                     </div>
                     <div data-revelar style="--orden: 1" class="flex flex-col items-start gap-6 lg:border-l lg:border-white/25 lg:pl-12">
-                        <p class="text-[16px] leading-relaxed text-pretty text-white/90">Todo el proceso es en línea: cree su cuenta, registre su pago y elija un grupo con vacantes. Modalidades: {{ Arr::join($etiquetasDeModalidad, ', ', ' y ') }}.</p>
+                        <p class="text-[16px] leading-relaxed text-pretty text-white/90">Todo el proceso es en línea: cree su cuenta, registre su pago y elija un grupo con vacantes. {{ count($modalidades) === 1 ? 'Modalidad' : 'Modalidades' }}: {{ Arr::join($etiquetasDeModalidad, ', ', ' y ') }}.</p>
                         <x-publico.boton variante="blanco" :href="route('estudiante.registro')">Crear cuenta</x-publico.boton>
                     </div>
                 </div>
@@ -248,7 +247,7 @@
             <div class="{{ $contenedor }} flex flex-col gap-8">
                 <div data-revelar class="flex flex-wrap items-end justify-between gap-6">
                     <x-publico.titulo id="titulo-oferta" :etiqueta="$oferta ? 'Oferta '.$oferta->periodo : 'Oferta'">Horarios y vacantes</x-publico.titulo>
-                    @if ($grupos !== [])
+                    @if ($grupos !== [] && count($modalidades) > 1)
                         <div role="group" aria-label="Modalidad" class="flex max-w-full flex-wrap border border-marino-900/25">
                             @foreach (['Todas', ...$etiquetasDeModalidad] as $modalidad)
                                 <button type="button" x-on:click="modalidad = @js($modalidad)" x-bind:aria-pressed="modalidad === @js($modalidad)" @if ($loop->first) aria-pressed="true" @endif
@@ -400,7 +399,7 @@
                     @endforeach
                 </ol>
                 <div class="flex flex-col gap-6 border-t border-marino-900/15 pt-10">
-                    <h3 data-revelar class="font-display text-[22px] font-semibold tracking-[-0.01em]">Modalidades de dictado</h3>
+                    <h3 data-revelar class="font-display text-[22px] font-semibold tracking-[-0.01em]">{{ count($modalidades) === 1 ? 'Modalidad de dictado' : 'Modalidades de dictado' }}</h3>
                     <dl class="grid grid-cols-[minmax(0,1fr)] md:-mx-6 md:grid-cols-3">
                         @foreach ($modalidades as $modalidad)
                             <div data-revelar style="--orden: {{ $loop->index }}" class="flex flex-col gap-1 border-b border-marino-900/15 py-4 md:border-b-0 md:px-6 md:not-first:border-l">

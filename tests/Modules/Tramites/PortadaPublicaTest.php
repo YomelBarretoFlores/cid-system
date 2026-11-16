@@ -208,3 +208,38 @@ it('describes each language with its cycles, teaching hours, modalities with gro
         ->and($ficha('Quechua'))->toContain('Ciclos 1 (I)')->toContain('Horas lectivas por ciclo 48')
         ->toContain('Modalidades Sin grupos en este periodo')->toContain('Matrícula desde S/ 120.00');
 });
+
+it('names only the modalities of the published groups and drops the modality filter when there is one', function (): void {
+    $ciclo = Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Inglés']))->create(['numero' => 1]);
+    Grupo::factory()->for(periodoDePortada())->for($ciclo)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => Modalidad::Presencial]);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertSeeText('Modalidad: Presencial.')
+        ->assertSeeText('Modalidad de dictado')
+        ->assertDontSeeText('Virtual')
+        ->assertDontSeeText('Semipresencial')
+        ->assertDontSee('aria-label="Modalidad"', false);
+});
+
+it('adds a modality and the modality filter as soon as a group of it is published', function (): void {
+    $ciclo = Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Inglés']))->create(['numero' => 1]);
+    $periodo = periodoDePortada();
+    Grupo::factory()->for($periodo)->for($ciclo)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => Modalidad::Presencial]);
+    Grupo::factory()->for($periodo)->for($ciclo)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => Modalidad::Virtual]);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertSeeText('Modalidades: Presencial y Virtual.')
+        ->assertSeeText('Modalidades de dictado')
+        ->assertSee('aria-label="Modalidad"', false)
+        ->assertDontSeeText('Semipresencial');
+});
+
+it('presents in-person classes when no group is published yet', function (): void {
+    $this->get('/')
+        ->assertOk()
+        ->assertSeeText('Modalidad: Presencial.')
+        ->assertDontSeeText('Virtual')
+        ->assertDontSeeText('Semipresencial');
+});

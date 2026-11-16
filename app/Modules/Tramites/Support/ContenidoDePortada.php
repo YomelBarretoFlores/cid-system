@@ -53,6 +53,7 @@ final readonly class ContenidoDePortada
             'ahora' => $ahora,
             'oferta' => $oferta,
             'grupos' => $grupos,
+            'modalidades' => $this->modalidades($grupos),
             'idiomas' => $idiomas,
             'gruposConVacantes' => $gruposConVacantes,
             'cifras' => $this->cifras($idiomas, $gruposConVacantes, $oferta),
@@ -106,6 +107,20 @@ final readonly class ContenidoDePortada
             ['etiqueta' => 'Ciclos por idioma', 'valor' => (string) $ciclos],
             ['etiqueta' => 'Inicio de clases', 'valor' => $oferta instanceof OfertaDelPeriodo ? Formato::diaYMes($oferta->clasesInicio) : 'Por anunciar'],
         ];
+    }
+
+    /**
+     * The CILN teaches in person only for now, so that is what the home states until a group of another modality is published.
+     *
+     * @param  list<GrupoOfertado>  $grupos
+     * @return non-empty-list<Modalidad>
+     */
+    private function modalidades(array $grupos): array
+    {
+        $publicadas = array_map(fn (GrupoOfertado $grupo): string => $grupo->modalidad, $grupos);
+        $modalidades = array_values(array_filter(Modalidad::cases(), fn (Modalidad $modalidad): bool => in_array($modalidad->etiqueta(), $publicadas, true)));
+
+        return $modalidades === [] ? [Modalidad::Presencial] : $modalidades;
     }
 
     /**
