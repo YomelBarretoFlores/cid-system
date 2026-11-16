@@ -23,7 +23,7 @@
 
 ## Pasos
 
-1. Obtener el código. El repositorio es privado: el servidor usa una **llave de despliegue de solo lectura**, y todo lo hace una misma cuenta del sistema dueña de la carpeta del sitio (por ejemplo `ciln`), que luego usa la [actualización automática](#actualización-automática). Crear la cuenta y la carpeta (`sudo adduser --disabled-password --gecos "" ciln`, `sudo install -d -o ciln /var/www/ciln`) y, como `ciln` (`sudo -iu ciln`), generar la llave (`ssh-keygen -t ed25519 -N "" -C "servidor-ciln" -f ~/.ssh/ciln_despliegue`) y remitir al proveedor solo el `.pub`, que la registra en GitHub (*Settings → Deploy keys*, sin permiso de escritura). Cuando el proveedor confirme, clonar (`GIT_SSH_COMMAND="ssh -i ~/.ssh/ciln_despliegue" git clone git@github.com:YomelBarretoFlores/cid-system.git /var/www/ciln`), fijar la llave para las actualizaciones (`git -C /var/www/ciln config core.sshCommand "ssh -i ~/.ssh/ciln_despliegue"`) y pasar a la versión publicada más reciente (`git -C /var/www/ciln checkout v1.0.0`). La llave descarga código pero no puede modificarlo, y no requiere cuentas personales.
+1. Obtener el código. El repositorio es privado: el servidor usa una **llave de despliegue de solo lectura**, y todo lo hace una misma cuenta del sistema dueña de la carpeta del sitio (por ejemplo `ciln`), que luego usa la [actualización automática](#actualización-automática). Crear la cuenta y la carpeta (`sudo useradd -m -s /bin/bash ciln`, `sudo install -d -o ciln /var/www/ciln`) y, como `ciln` (`sudo -iu ciln`), crear `~/.ssh` (`mkdir -p -m 700 ~/.ssh`) y generar la llave (`ssh-keygen -t ed25519 -N "" -C "servidor-ciln" -f ~/.ssh/ciln_despliegue`) y remitir al proveedor solo el `.pub`, que la registra en GitHub (*Settings → Deploy keys*, sin permiso de escritura). Cuando el proveedor confirme, clonar (`GIT_SSH_COMMAND="ssh -i ~/.ssh/ciln_despliegue" git clone git@github.com:YomelBarretoFlores/cid-system.git /var/www/ciln`), fijar la llave para las actualizaciones (`git -C /var/www/ciln config core.sshCommand "ssh -i ~/.ssh/ciln_despliegue"`) y pasar a la versión publicada más reciente (`git -C /var/www/ciln checkout v1.0.0`). La primera conexión con GitHub pide confirmar su huella: responder `yes`. La llave descarga código pero no puede modificarlo, y no requiere cuentas personales.
 2. `composer install --no-dev --optimize-autoloader`
 3. Configurar `.env` (ver abajo) y `php artisan key:generate` la primera vez.
 4. Dar permiso de escritura al usuario del servidor web sobre `storage/` y `bootstrap/cache/`, y dejar `.env` legible solo por ese usuario.
@@ -39,7 +39,7 @@
 ### Actualizar a una nueva versión
 
 ```bash
-git fetch --tags && git checkout v<versión>
+cd /var/www/ciln && git fetch --tags && git checkout v<versión>
 composer install --no-dev --optimize-autoloader && npm ci && npm run build
 php artisan config:clear
 DB_USERNAME=<rol_dueño> DB_PASSWORD=<clave> php artisan migrate --force
@@ -65,8 +65,8 @@ git push origin v1.2.0
 1. Crear la cuenta que hace las actualizaciones, dueña de la carpeta del sitio (por ejemplo `ciln`; en la ruta Docker, además, en el grupo `docker`). Nunca `root`.
 2. Copiar `deploy/actualizacion.conf.ejemplo` a `/etc/ciln/actualizacion.conf` y ajustar `CILN_RUTA` y `CILN_MODO` (`tradicional` o `docker`).
 3. Crear `/etc/ciln/migraciones.env` con `DB_USERNAME` y `DB_PASSWORD` del rol **dueño** (en Docker, el archivo completo de variables de migración), con dueño `ciln` y permisos `600`.
-4. Copiar `deploy/ciln-actualizacion.service` y `deploy/ciln-actualizacion.timer` a `/etc/systemd/system/`, ajustar `User=` y la ruta de `ExecStart` si difieren, y activar: `systemctl daemon-reload && systemctl enable --now ciln-actualizacion.timer`.
-5. Comprobar sin cambiar nada: `sudo -u ciln /var/www/ciln/deploy/actualizar.sh --simular`.
+4. Comprobar sin cambiar nada: `sudo -u ciln /var/www/ciln/deploy/actualizar.sh --simular`.
+5. Copiar `deploy/ciln-actualizacion.service` y `deploy/ciln-actualizacion.timer` a `/etc/systemd/system/`, ajustar `User=` y la ruta de `ExecStart` si difieren, y activar: `systemctl daemon-reload && systemctl enable --now ciln-actualizacion.timer`.
 
 Cada 10 minutos, `deploy/actualizar.sh` hace lo siguiente:
 
