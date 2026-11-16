@@ -2,6 +2,14 @@
 
 > El entorno de la DSTI está pendiente de confirmar ([`decisiones-pendientes.md`](decisiones-pendientes.md) #8). Producción corre en servidores de la DSTI, no en Laravel Cloud, por una de dos rutas que elige la DSTI: **tradicional** (esta sección) o **[Docker](#producción-con-docker)**. Ambas usan la misma base de datos, las mismas variables y los mismos dos roles de PostgreSQL. La entrega formal a la DSTI es el Informe Técnico N.° 001-2026-YJBF, que resume esta guía.
 
+## Responsabilidades
+
+| Quién | Qué |
+|---|---|
+| La DSTI envía al proveedor | Solo la parte pública de la llave de despliegue (`ciln_despliegue.pub`, que no es secreta), la ruta elegida (tradicional o Docker), el dominio definitivo y la confirmación de que el servidor llega a GitHub |
+| La DSTI hace en sus servidores, sin enviar claves | Crea los roles de PostgreSQL y la base ([Roles de PostgreSQL](#roles-de-postgresql)), habilita el SMTP autenticado de `cid@unasam.edu.pe` (la contraseña la escribe en `MAIL_PASSWORD` quien la custodia), instala el sistema y, si la acepta, activa la [actualización automática](#actualización-automática); además, el certificado HTTPS y los respaldos |
+| El proveedor | Registra la llave de despliegue en GitHub, publica cada versión con su etiqueta cuando CI está en verde, acompaña la instalación y la [verificación](#verificación) y, al cierre del servicio, entrega el repositorio a la UNASAM |
+
 ## Requisitos del servidor
 
 | Componente | Requisito |
