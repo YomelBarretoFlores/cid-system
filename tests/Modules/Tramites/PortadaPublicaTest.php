@@ -134,11 +134,10 @@ it('shows each catalog language with the drawing of its flag', function (): void
 
     $html = $this->get('/')->assertOk()->getContent();
     $flagDe = function (string $idioma) use ($html): string {
-        preg_match_all('/<li class="border-r[^"]*">.*?<\/li>/s', $html, $tarjetas);
-        $tarjeta = collect($tarjetas[0])->first(fn (string $html): bool => str_contains($html, '>'.$idioma.'</span>'));
-        expect($tarjeta)->toBeString();
+        preg_match('/<li data-idioma="'.preg_quote($idioma, '/').'".*?<\/li>/s', $html, $fila);
+        expect($fila)->not->toBeEmpty();
 
-        return $tarjeta;
+        return $fila[0];
     };
 
     expect($flagDe('Inglés'))->toContain('#3C3B6E')->toContain('#B22234')->toContain('#FFFFFF')
@@ -202,8 +201,7 @@ it('describes each language with its cycles, teaching hours, modalities with gro
     Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Quechua']))->create(['numero' => 1, 'horas_lectivas' => 48]);
 
     $html = $this->get('/')->assertOk()->getContent();
-    $ficha = fn (string $idioma): string => preg_replace('/\s+/', ' ', strip_tags((string) collect(preg_match_all('/<li class="border-r[^"]*">.*?<\/li>/s', $html, $fichas) ? $fichas[0] : [])
-        ->first(fn (string $li): bool => str_contains($li, '>'.$idioma.'</span>'))));
+    $ficha = fn (string $idioma): string => preg_replace('/\s+/', ' ', strip_tags(preg_match('/<li data-idioma="'.preg_quote($idioma, '/').'".*?<\/li>/s', $html, $fila) ? $fila[0] : ''));
 
     expect($ficha('Inglés'))->toContain('Ciclos 2 (I a II)')->toContain('Horas lectivas por ciclo 60 a 64')
         ->toContain('Modalidades Virtual')->toContain('Matrícula desde S/ 120.00')

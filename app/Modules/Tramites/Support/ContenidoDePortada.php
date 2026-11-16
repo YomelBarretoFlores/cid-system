@@ -94,17 +94,17 @@ final readonly class ContenidoDePortada
 
     /**
      * @param  list<array{nombre: string, ciclos: int, grupos: int, horas: array{int, int}|null, modalidades: list<string>, matriculaDesde: string|null}>  $idiomas
-     * @return list<array{etiqueta: string, valor: string, contar: bool}>
+     * @return list<array{etiqueta: string, valor: string}>
      */
     private function cifras(array $idiomas, int $gruposConVacantes, ?OfertaDelPeriodo $oferta): array
     {
         $ciclos = $idiomas === [] ? 0 : max(array_column($idiomas, 'ciclos'));
 
         return [
-            ['etiqueta' => 'Idiomas', 'valor' => (string) count($idiomas), 'contar' => true],
-            ['etiqueta' => 'Grupos con vacantes', 'valor' => (string) $gruposConVacantes, 'contar' => true],
-            ['etiqueta' => 'Ciclos por idioma', 'valor' => (string) $ciclos, 'contar' => true],
-            ['etiqueta' => 'Inicio de clases', 'valor' => $oferta instanceof OfertaDelPeriodo ? Formato::diaYMes($oferta->clasesInicio) : 'Por anunciar', 'contar' => false],
+            ['etiqueta' => 'Idiomas', 'valor' => (string) count($idiomas)],
+            ['etiqueta' => 'Grupos con vacantes', 'valor' => (string) $gruposConVacantes],
+            ['etiqueta' => 'Ciclos por idioma', 'valor' => (string) $ciclos],
+            ['etiqueta' => 'Inicio de clases', 'valor' => $oferta instanceof OfertaDelPeriodo ? Formato::diaYMes($oferta->clasesInicio) : 'Por anunciar'],
         ];
     }
 

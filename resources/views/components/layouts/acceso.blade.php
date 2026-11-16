@@ -13,7 +13,7 @@
                 </div>
                 <p class="flex flex-col gap-0.5 leading-tight">
                     <span class="text-[15px] text-marino-800/75">Bienvenido al</span>
-                    <span class="font-serif text-[22px] font-semibold">Sistema de Gestión Académica</span>
+                    <span class="font-display text-[22px] font-semibold">Sistema de Gestión Académica</span>
                     <span class="text-[14px] text-marino-800/75">Centro de Idiomas y Lenguas Nativas · UNASAM</span>
                 </p>
             </header>

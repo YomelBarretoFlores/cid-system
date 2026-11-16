@@ -2,7 +2,7 @@
 <header x-data="cabeceraCiln" x-bind:class="{ 'shadow-cabecera': desplazada || menu }"
     {{ $attributes->class('sticky top-0 z-30 border-b border-marino-900/12 bg-white transition-shadow duration-300') }}>
     <div class="sobre-oscuro bg-marino-900 text-[13px] text-celeste-100/85">
-        <div class="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-4 py-1.5 sm:px-6 lg:px-8">
+        <div class="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-4 py-1.5 sm:px-6 lg:px-8">
             <a href="https://www.unasam.edu.pe" class="truncate transition-colors hover:text-white">Universidad Nacional Santiago Antúnez de Mayolo</a>
             <nav aria-label="Accesos" class="flex shrink-0 items-center divide-x divide-white/20">
                 <a href="{{ route('verificacion.documento') }}" class="hidden px-3 transition-colors hover:text-white sm:inline">Verificar documento</a>
@@ -10,13 +10,13 @@
             </nav>
         </div>
     </div>
-    <div class="mx-auto flex max-w-[1200px] items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
+    <div class="mx-auto flex max-w-[1240px] items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <a href="{{ route('portada') }}" class="flex shrink-0 items-center gap-3 text-marino-900">
             <img src="{{ asset('images/unasam/logo.png') }}" alt="UNASAM" width="800" height="215" class="hidden h-11 w-auto sm:block">
             <span aria-hidden="true" class="hidden h-10 w-px bg-marino-900/20 sm:block"></span>
             <x-ciln.emblema decorativo class="w-10" />
             <span class="flex flex-col leading-[1.15]">
-                <span class="font-serif text-[17px] font-semibold">Centro de Idiomas</span>
+                <span class="font-display text-[17px] font-semibold">Centro de Idiomas</span>
                 <span class="text-[12px] text-marino-800/75">y Lenguas Nativas · UNASAM</span>
             </span>
         </a>
@@ -36,7 +36,7 @@
         </div>
     </div>
     <nav id="menu-publico" x-show="menu" x-cloak x-on:click="menu = false" x-on:keydown.escape.window="menu = false" aria-label="Menú de la portada" class="border-t border-marino-900/10 xl:hidden">
-        <div class="mx-auto flex max-w-[1200px] flex-col px-4 py-2 sm:px-6 lg:px-8">
+        <div class="mx-auto flex max-w-[1240px] flex-col px-4 py-2 sm:px-6 lg:px-8">
             @foreach ($secciones as $ancla => $seccion)
                 <a href="{{ route('portada') }}#{{ $ancla }}" class="border-b border-marino-900/8 py-3 font-medium text-marino-900 hover:text-real-600">{{ $seccion }}</a>
             @endforeach

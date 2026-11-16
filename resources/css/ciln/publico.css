@@ -32,13 +32,25 @@
     }
 }
 
-/* Fine square grid over the dark hero, fading to the right, instead of a photograph. */
-@utility trama-institucional {
-    background-image:
-        linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
-    background-size: 44px 44px;
-    mask-image: linear-gradient(100deg, transparent 0%, #000 45%, #000 100%);
+/* Announcement strip: the list runs twice so the loop never shows a gap; it stops on hover and stays still for reduced motion. */
+@utility cinta-avisos {
+    display: flex;
+    width: max-content;
+    animation: cinta 46s linear infinite;
+
+    &:hover {
+        animation-play-state: paused;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+@keyframes cinta {
+    to {
+        transform: translateX(-50%);
+    }
 }
 
 @utility tabla-publica {

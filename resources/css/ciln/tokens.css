@@ -2,7 +2,7 @@
 @theme {
     --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
-    --font-serif: 'Source Serif 4', ui-serif, Georgia, 'Times New Roman', serif;
+    --font-display: 'Manrope', 'Figtree', ui-sans-serif, system-ui, sans-serif;
 
     --color-piedra-50: #fbfaf7;
     --color-piedra-100: #f4f3ef;

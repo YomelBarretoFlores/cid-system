@@ -12,8 +12,8 @@ export default defineConfig({
                 bunny('Figtree', {
                     weights: [400, 500, 600, 700],
                 }),
-                bunny('Source Serif 4', {
-                    weights: [600, 700],
+                bunny('Manrope', {
+                    weights: [500, 600, 700],
                 }),
             ],
         }),

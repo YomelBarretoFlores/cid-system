@@ -6,6 +6,7 @@
         'border-marino-900 bg-marino-900 text-white hover:border-marino-800 hover:bg-marino-800' => $variante === 'oscuro',
         'border-marino-900/40 bg-white text-marino-900 hover:border-marino-900 hover:bg-celeste-50' => $variante === 'claro',
         'border-white/60 bg-transparent text-white hover:border-white hover:bg-white/10' => $variante === 'contorno',
+        'border-white bg-white text-marino-900 hover:border-celeste-100 hover:bg-celeste-100' => $variante === 'blanco',
         'px-6 py-3 text-[15px]' => $tamano === 'grande',
         'px-5 py-2.5 text-[14.5px]' => $tamano === 'normal',
         'px-3.5 py-2 text-[14px]' => $tamano === 'compacto',

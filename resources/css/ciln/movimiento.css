@@ -1,4 +1,4 @@
-/* Motion of the public pages. Content is visible without JavaScript: the hidden states only apply once a component marks its root, and never under prefers-reduced-motion. Only opacity, transform and filter move, so nothing shifts the layout. */
+/* Motion of the public pages. Content is visible without JavaScript: the hidden states only apply once a component marks its root, and never under prefers-reduced-motion. Only opacity, transform and clip-path move, so nothing shifts the layout. */
 :root {
     interpolate-size: allow-keywords;
 }
@@ -8,14 +8,38 @@
 }
 
 .js-movimiento [data-revelar].revelado {
-    animation: revelar 760ms var(--ease-salida) both;
+    animation: revelar 820ms var(--ease-salida) both;
     animation-delay: calc(var(--orden, 0) * 90ms);
+}
+
+/* Photographs open from the bottom edge while the picture settles from a slight zoom. */
+.js-movimiento [data-cortina]:not(.revelado) {
+    clip-path: inset(100% 0 0 0);
+}
+
+.js-movimiento [data-cortina].revelado {
+    animation: cortina 1150ms var(--ease-salida) both;
+}
+
+.js-movimiento [data-cortina].revelado img {
+    animation: asentar 1600ms var(--ease-salida) both;
+}
+
+.foto-portada {
+    animation: asentar 2200ms var(--ease-salida) both;
+}
+
+.titular-listo .palabra-marco {
+    display: inline-block;
+    overflow: clip;
+    padding-bottom: 0.08em;
+    vertical-align: top;
 }
 
 .titular-listo .palabra {
     display: inline-block;
-    animation: palabra 950ms var(--ease-salida) both;
-    animation-delay: calc(var(--orden, 0) * 75ms + 60ms);
+    animation: palabra 1000ms var(--ease-salida) both;
+    animation-delay: calc(var(--orden, 0) * 70ms + 150ms);
 }
 
 .preguntas-suaves details::details-content {
@@ -32,9 +56,13 @@
 
 @media (prefers-reduced-motion: reduce) {
     .js-movimiento [data-revelar],
+    .js-movimiento [data-cortina],
+    .js-movimiento [data-cortina] img,
+    .foto-portada,
     .titular-listo .palabra {
         animation: none !important;
         opacity: 1 !important;
+        clip-path: none !important;
     }
 
     .preguntas-suaves details::details-content,
@@ -46,7 +74,7 @@
 @keyframes revelar {
     from {
         opacity: 0;
-        transform: translateY(22px);
+        transform: translateY(18px);
     }
 
     to {
@@ -55,16 +83,32 @@
     }
 }
 
-@keyframes palabra {
+@keyframes cortina {
     from {
-        opacity: 0;
-        filter: blur(10px);
-        transform: translateY(0.3em);
+        clip-path: inset(100% 0 0 0);
     }
 
     to {
-        opacity: 1;
-        filter: none;
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes asentar {
+    from {
+        transform: scale(1.1);
+    }
+
+    to {
+        transform: none;
+    }
+}
+
+@keyframes palabra {
+    from {
+        transform: translateY(105%);
+    }
+
+    to {
         transform: none;
     }
 }

@@ -1,11 +1,11 @@
 @props(['verificar' => true, 'secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'preguntas' => 'Preguntas']])
 <footer {{ $attributes->class('sobre-oscuro border-t-4 border-real-600 bg-marino-950 text-white') }}>
-    <div @class(['mx-auto grid max-w-[1200px] grid-cols-[minmax(0,1fr)] gap-10 px-4 pt-14 pb-10 sm:px-6 lg:px-8', 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)]' => $verificar, 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]' => ! $verificar])>
+    <div @class(['mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] gap-10 px-4 pt-14 pb-10 sm:px-6 lg:px-8', 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)]' => $verificar, 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]' => ! $verificar])>
         <div class="flex flex-col gap-4">
             <span class="flex items-center gap-3">
                 <x-ciln.emblema blanco decorativo class="w-12" />
                 <span class="flex flex-col leading-[1.2]">
-                    <span class="font-serif text-[18px] font-semibold">Centro de Idiomas y Lenguas Nativas</span>
+                    <span class="font-display text-[18px] font-semibold">Centro de Idiomas y Lenguas Nativas</span>
                     <span class="text-[13px] text-celeste-100/75">Universidad Nacional Santiago Antúnez de Mayolo</span>
                 </span>
             </span>
@@ -28,7 +28,7 @@
         </div>
         @if ($verificar)
             <section id="verificar" aria-labelledby="titulo-verificar" class="flex scroll-mt-32 flex-col gap-3">
-                <h2 id="titulo-verificar" class="font-serif text-[21px] leading-tight font-semibold">Verificación de constancias y certificados</h2>
+                <h2 id="titulo-verificar" class="font-display text-[21px] leading-tight font-semibold">Verificación de constancias y certificados</h2>
                 <p class="text-[14px] text-pretty text-celeste-100/75">Escriba el código impreso junto al QR, al pie del documento.</p>
                 <form method="GET" action="{{ route('verificacion.documento') }}" class="flex flex-col gap-2">
                     <label for="codigo" class="sr-only">Código único del documento</label>
@@ -42,7 +42,7 @@
         @endif
     </div>
     <div class="border-t border-white/12">
-        <div class="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-4 py-4 text-[13px] text-celeste-100/70 sm:px-6 lg:px-8">
+        <div class="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-4 text-[13px] text-celeste-100/70 sm:px-6 lg:px-8">
             <span>© {{ now('America/Lima')->year }} Centro de Idiomas y Lenguas Nativas · UNASAM</span>
             <span>Huaraz, Perú</span>
         </div>
