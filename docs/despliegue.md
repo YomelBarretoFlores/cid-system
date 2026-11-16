@@ -6,11 +6,11 @@
 
 | Componente | Requisito |
 |---|---|
-| PHP | 8.5 con `pdo_pgsql`, `pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring` |
-| Base de datos | PostgreSQL 18 compilado con ICU (lo traen los paquetes oficiales), en el mismo servidor o en otro. La migración crea la intercalación `sin_tildes`, que permite buscar sin tildes ni mayúsculas en el panel; el rol que ejecuta las migraciones necesita permiso `CREATE` en el esquema `public`. |
+| PHP | 8.5 con `pdo_pgsql`, `pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring` y `pcntl` (sin `pcntl` el worker de colas no corta un trabajo que pasa de `--timeout`) |
+| Base de datos | PostgreSQL 18 compilado con ICU (lo traen los paquetes oficiales), en el mismo servidor o en otro. La migración crea la intercalación `sin_tildes`, que permite buscar sin tildes ni mayúsculas en el panel; otra crea la extensión `btree_gist`. Ambas se cubren creando la base con el rol dueño como propietario (ver [Roles de PostgreSQL](#roles-de-postgresql)). |
 | Servidor web | Nginx o Apache apuntando a `public/` |
 | Procesos | Worker de colas supervisado (Supervisor o systemd) y cron del scheduler |
-| Correo | SMTP institucional |
+| Correo | SMTP institucional (ver [Correo](#correo)) |
 | Build de assets | Node solo en el build (`npm ci && npm run build`); no se necesita en ejecución |
 
 ## Pasos
@@ -117,9 +117,47 @@ Variables que, si faltan, toman un valor por defecto que no sirve en producción
 
 ## Base de datos y proxy
 
-- Dos roles de PostgreSQL: **dueño** (ejecuta `php artisan migrate`) y **aplicación** (lo usa Laravel en ejecución, sin ser dueño de tablas). Detalle en [`seguridad.md`](seguridad.md).
+- Dos roles de PostgreSQL: **dueño** (ejecuta `php artisan migrate`) y **aplicación** (lo usa Laravel en ejecución, sin ser dueño de tablas). Detalle en [`seguridad.md`](seguridad.md) y el SQL en [Roles de PostgreSQL](#roles-de-postgresql).
 - Si PostgreSQL está en otro servidor, abrir el puerto 5432 solo entre ese servidor y el de la aplicación.
 - Si hay un proxy inverso o balanceador delante, definir `TRUSTED_PROXIES` (`config/trustedproxy.php`) con sus direcciones o rangos separados por comas, o `*` para confiar en el proxy que llama a la aplicación. Sin esa variable, la auditoría registra la IP del proxy en lugar de la del usuario y los enlaces salen con `http`.
+
+### Roles de PostgreSQL
+
+Lo ejecuta un superusuario de PostgreSQL una sola vez, antes de la primera migración. Probado sobre PostgreSQL 18: migraciones con el dueño, sistema en marcha con el rol de aplicación (portada, inicio de sesión, cola de correos y respaldo con `pg_dump`), y el rol de aplicación sin poder escribir en `aud_registros`, desactivar disparadores, vaciar tablas ni crear objetos.
+
+```sql
+CREATE ROLE ciln_dueno LOGIN PASSWORD '<clave del dueño>';
+CREATE ROLE ciln_app LOGIN PASSWORD '<clave de la aplicación>';
+-- El dueño de la base puede crear la intercalación sin_tildes y la extensión btree_gist de las migraciones.
+CREATE DATABASE ciln OWNER ciln_dueno;
+\c ciln
+GRANT USAGE ON SCHEMA public TO ciln_app;
+-- Toda tabla y secuencia que creen las migraciones, también las de versiones futuras, queda disponible para la aplicación.
+ALTER DEFAULT PRIVILEGES FOR ROLE ciln_dueno IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ciln_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE ciln_dueno IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO ciln_app;
+```
+
+Después de la **primera** migración, una sola vez:
+
+```sql
+\c ciln
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON aud_registros FROM ciln_app;
+```
+
+La auditoría se sigue escribiendo: la función `aud_registrar()` es `SECURITY DEFINER` y escribe con los permisos del dueño. El `.env` usa `ciln_app`; solo el comando de migración usa `ciln_dueno`.
+
+## Correo
+
+Sin SMTP no llegan el enlace de la primera cuenta de administración, la verificación de cuenta de un estudiante nuevo, la recuperación de contraseña, el aviso de cambio de contraseña ni los avisos de trámite. Todos salen por la cola, así que también necesitan el worker.
+
+El dominio `unasam.edu.pe` usa Microsoft 365 (su registro SPF incluye `spf.protection.outlook.com`). Hay dos formas de enviar, y las define la DSTI como administradora del tenant:
+
+| Forma | Configuración | Cuándo |
+|---|---|---|
+| SMTP autenticado (SMTP AUTH) | `MAIL_HOST=smtp.office365.com`, `MAIL_PORT=587`, `MAIL_USERNAME` y `MAIL_PASSWORD` de un buzón del CILN, `MAIL_FROM_ADDRESS` igual a ese buzón. La DSTI debe habilitar «SMTP autenticado» para el buzón | Pruebas de despliegue. Microsoft anunció que la autenticación básica de SMTP AUTH se desactiva por defecto desde fines de diciembre de 2026 (el administrador puede reactivarla) y se retira en una fecha de 2027 por anunciar |
+| Conector de retransmisión de Microsoft 365 por IP | `MAIL_HOST=<dominio>.mail.protection.outlook.com`, `MAIL_PORT=25`, sin usuario ni contraseña; la DSTI crea en Exchange Online un conector que acepta la IP pública del servidor | Producción: no depende de la contraseña de un buzón ni de la autenticación básica |
+
+Conviene que el remitente sea un buzón del CILN y no el de una persona: la contraseña queda en el `.env` del servidor y los estudiantes responden a esa dirección.
 
 ## Archivos subidos
 
