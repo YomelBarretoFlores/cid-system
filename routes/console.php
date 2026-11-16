@@ -10,9 +10,11 @@ use App\Shared\Auth\Actions\CrearAdministradorDelPersonal;
 use App\Shared\Auth\Actions\ReiniciarDobleFactor;
 use App\Shared\Auth\Enums\CierreDeSesiones;
 use App\Shared\Auth\Support\EnlaceDeContrasena;
+use App\Shared\Support\Database\DiccionarioDeDatos;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function (): void {
@@ -73,6 +75,14 @@ Artisan::command('personal:crear-administrador {correo} {nombre}', function (Cre
 
     return 0;
 })->purpose('Create or upgrade a staff account with every permission, including managing users, and email it the link to set its password');
+
+Artisan::command('docs:diccionario-de-datos {--ruta=docs/manuales/diccionario-de-datos.md : Where to write the Markdown, absolute or relative to the project root}', function (DiccionarioDeDatos $diccionario): void {
+    $ruta = $this->option('ruta');
+    $ruta = is_string($ruta) && str_starts_with($ruta, '/') ? $ruta : base_path(is_string($ruta) ? $ruta : 'docs/manuales/diccionario-de-datos.md');
+    File::ensureDirectoryExists(dirname($ruta));
+    File::put($ruta, $diccionario());
+    $this->info("Diccionario de datos generado en {$ruta}");
+})->purpose('Write the data dictionary from the PostgreSQL catalog and its table and column comments');
 
 Schedule::command('clasificacion:expirar')->dailyAt('00:10')->timezone('America/Lima');
 
