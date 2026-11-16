@@ -6,8 +6,8 @@
 
 | Quién | Qué |
 |---|---|
-| La DSTI envía al proveedor | Solo la parte pública de la llave de despliegue (`ciln_despliegue.pub`, que no es secreta), la ruta elegida (tradicional o Docker), el dominio definitivo y la confirmación de que el servidor llega a GitHub |
-| La DSTI hace en sus servidores, sin enviar claves | Crea los roles de PostgreSQL y la base ([Roles de PostgreSQL](#roles-de-postgresql)), habilita el SMTP autenticado de `cid@unasam.edu.pe` (la contraseña la escribe en `MAIL_PASSWORD` quien la custodia), instala el sistema y, si la acepta, activa la [actualización automática](#actualización-automática); además, el certificado HTTPS y los respaldos |
+| La DSTI envía al proveedor | Solo la parte pública de la llave de despliegue (`ciln_despliegue.pub`, que no es secreta; sirve para la descarga inicial y para las actualizaciones automáticas), la ruta elegida (tradicional o Docker), el dominio definitivo y la confirmación de que el servidor llega a GitHub |
+| La DSTI hace en sus servidores, sin enviar claves | Crea los roles de PostgreSQL y la base ([Roles de PostgreSQL](#roles-de-postgresql)), habilita el SMTP autenticado de `cid@unasam.edu.pe` (la contraseña la escribe en `MAIL_PASSWORD` quien la custodia), instala el sistema y decide si activa la [actualización automática](#actualización-automática), que exige aceptar que la clave del rol dueño quede guardada en el servidor; además, el certificado HTTPS y los respaldos |
 | El proveedor | Registra la llave de despliegue en GitHub, publica cada versión con su etiqueta cuando CI está en verde, acompaña la instalación y la [verificación](#verificación) y, al cierre del servicio, entrega el repositorio a la UNASAM |
 
 ## Requisitos del servidor
