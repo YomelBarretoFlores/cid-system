@@ -31,7 +31,7 @@
 ### Actualizar a una nueva versión
 
 ```bash
-git pull
+git fetch --tags && git checkout v<versión>
 composer install --no-dev --optimize-autoloader && npm ci && npm run build
 php artisan config:clear
 DB_USERNAME=<rol_dueño> DB_PASSWORD=<clave> php artisan migrate --force
@@ -40,6 +40,36 @@ php artisan queue:restart
 ```
 
 `config:clear` va antes de migrar para que la migración tome el rol dueño del comando y no el de la configuración cacheada. `queue:restart` hace que el worker cargue el código nuevo al terminar su trabajo actual. `storage/app` no está en el repositorio y no se toca en la actualización.
+
+### Actualización automática
+
+El servidor instala solo las **versiones publicadas**: etiquetas `vX.Y.Z` que estén en `main`. Un `git push` normal no llega a producción, y una etiqueta creada en otra rama se ignora.
+
+**Publicar una versión** (proveedor), cuando CI de `main` está en verde:
+
+```bash
+git tag -a v1.2.0 -m "Versión 1.2.0"
+git push origin v1.2.0
+```
+
+**Instalar el mecanismo** (DSTI, una sola vez, con el repositorio ya clonado con la llave de despliegue):
+
+1. Crear la cuenta que hace las actualizaciones, dueña de la carpeta del sitio (por ejemplo `ciln`; en la ruta Docker, además, en el grupo `docker`). Nunca `root`.
+2. Copiar `deploy/actualizacion.conf.ejemplo` a `/etc/ciln/actualizacion.conf` y ajustar `CILN_RUTA` y `CILN_MODO` (`tradicional` o `docker`).
+3. Crear `/etc/ciln/migraciones.env` con `DB_USERNAME` y `DB_PASSWORD` del rol **dueño** (en Docker, el archivo completo de variables de migración), con dueño `ciln` y permisos `600`.
+4. Copiar `deploy/ciln-actualizacion.service` y `deploy/ciln-actualizacion.timer` a `/etc/systemd/system/`, ajustar `User=` y la ruta de `ExecStart` si difieren, y activar: `systemctl daemon-reload && systemctl enable --now ciln-actualizacion.timer`.
+5. Comprobar sin cambiar nada: `sudo -u ciln /var/www/ciln/deploy/actualizar.sh --simular`.
+
+Cada 10 minutos, `deploy/actualizar.sh` hace lo siguiente:
+
+| Ruta | Pasos | Si algo falla |
+|---|---|---|
+| Tradicional | Modo mantenimiento, cambio a la etiqueta, `composer install`, `npm ci && npm run build`, `config:clear`, migración con el rol dueño, `optimize`, `filament:optimize`, `queue:restart`, fin del mantenimiento | Antes de migrar: vuelve a la versión anterior y sale del mantenimiento. Durante o después de migrar: queda en mantenimiento para revisión manual |
+| Docker | Construye la imagen de la etiqueta, migra con el rol dueño en un contenedor aparte y recién entonces reemplaza el contenedor, conservando el volumen de archivos | El contenedor anterior sigue en servicio y la carpeta vuelve a la versión anterior; la siguiente pasada lo reintenta |
+
+Los mensajes quedan en el registro del sistema: `journalctl -u ciln-actualizacion`. Dos actualizaciones nunca corren a la vez.
+
+**Costo de automatizar:** la clave del rol dueño queda guardada en el servidor (`/etc/ciln/migraciones.env`, legible solo por la cuenta de actualización). Sin automatización solo se usa al migrar. Si la DSTI prefiere no guardarla, se omite el temporizador y se actualiza a mano con los pasos de arriba.
 
 ### Primera cuenta de administración
 
@@ -158,7 +188,7 @@ El dominio `unasam.edu.pe` usa Microsoft 365 (su registro SPF incluye `spf.prote
 | SMTP autenticado (SMTP AUTH) | `MAIL_HOST=smtp.office365.com`, `MAIL_PORT=587`, `MAIL_USERNAME` y `MAIL_PASSWORD` de un buzón del CILN, `MAIL_FROM_ADDRESS` igual a ese buzón. La DSTI debe habilitar «SMTP autenticado» para el buzón | Pruebas de despliegue. Microsoft anunció que la autenticación básica de SMTP AUTH se desactiva por defecto desde fines de diciembre de 2026 (el administrador puede reactivarla) y se retira en una fecha de 2027 por anunciar |
 | Conector de retransmisión de Microsoft 365 por IP | `MAIL_HOST=<dominio>.mail.protection.outlook.com`, `MAIL_PORT=25`, sin usuario ni contraseña; la DSTI crea en Exchange Online un conector que acepta la IP pública del servidor | Producción: no depende de la contraseña de un buzón ni de la autenticación básica |
 
-Para las pruebas de despliegue se usa la cuenta institucional `jjramirezl@unasam.edu.pe`:
+El remitente es la cuenta de correo institucional del CILN, que se solicita a la DSTI con su contraseña y con el «SMTP autenticado» habilitado (Informe Técnico N.° 001-2026-YJBF, numeral 3.4). La contraseña se entrega por un medio seguro, no por correo electrónico. Mientras llega, las pruebas de despliegue usan la cuenta institucional `jjramirezl@unasam.edu.pe`:
 
 ```dotenv
 MAIL_MAILER=smtp

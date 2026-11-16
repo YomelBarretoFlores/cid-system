@@ -1,0 +1,19 @@
+# Copy to /etc/ciln/actualizacion.conf (owner: the update account, mode 600).
+
+# Folder where the repository was cloned with the deploy key.
+CILN_RUTA=/var/www/ciln
+
+# tradicional or docker
+CILN_MODO=tradicional
+
+# File with the owner role credentials, readable only by the update account (mode 600):
+#   DB_USERNAME=ciln_dueno
+#   DB_PASSWORD=<clave del dueño>
+# In the Docker route it is the full migrations env file (same variables as ciln.env with the owner role).
+CILN_MIGRACIONES_ENV=/etc/ciln/migraciones.env
+
+# Docker route only.
+CILN_DOCKER_ENV=/etc/ciln/ciln.env
+CILN_DOCKER_NOMBRE=ciln
+CILN_DOCKER_VOLUMEN=ciln-archivos
+CILN_DOCKER_PUERTO=127.0.0.1:8080

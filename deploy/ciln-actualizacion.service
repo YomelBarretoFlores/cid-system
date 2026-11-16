@@ -1,0 +1,11 @@
+[Unit]
+Description=CILN: instala la versión publicada más reciente
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+# The account that owns the site folder (and belongs to the docker group in the Docker route); never root.
+User=ciln
+ExecStart=/var/www/ciln/deploy/actualizar.sh
+TimeoutStartSec=1800
