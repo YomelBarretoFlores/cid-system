@@ -188,15 +188,15 @@ El dominio `unasam.edu.pe` usa Microsoft 365 (su registro SPF incluye `spf.prote
 | SMTP autenticado (SMTP AUTH) | `MAIL_HOST=smtp.office365.com`, `MAIL_PORT=587`, `MAIL_USERNAME` y `MAIL_PASSWORD` de un buzón del CILN, `MAIL_FROM_ADDRESS` igual a ese buzón. La DSTI debe habilitar «SMTP autenticado» para el buzón | Pruebas de despliegue. Microsoft anunció que la autenticación básica de SMTP AUTH se desactiva por defecto desde fines de diciembre de 2026 (el administrador puede reactivarla) y se retira en una fecha de 2027 por anunciar |
 | Conector de retransmisión de Microsoft 365 por IP | `MAIL_HOST=<dominio>.mail.protection.outlook.com`, `MAIL_PORT=25`, sin usuario ni contraseña; la DSTI crea en Exchange Online un conector que acepta la IP pública del servidor | Producción: no depende de la contraseña de un buzón ni de la autenticación básica |
 
-El remitente es la cuenta de correo institucional del CILN, que se solicita a la DSTI con su contraseña y con el «SMTP autenticado» habilitado (Informe Técnico N.° 001-2026-YJBF, numeral 3.4). La contraseña se entrega por un medio seguro, no por correo electrónico. Mientras llega, las pruebas de despliegue usan la cuenta institucional `jjramirezl@unasam.edu.pe`:
+El remitente es la cuenta institucional del CILN `cid@unasam.edu.pe`, con el «SMTP autenticado» habilitado por la DSTI (Informe Técnico N.° 001-2026-YJBF, numeral 3.4). Su contraseña se escribe solo en el `.env` del servidor; nunca va en documentos ni en el repositorio. Las pruebas de recepción usan la cuenta `jjramirezl@unasam.edu.pe`.
 
 ```dotenv
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.office365.com
 MAIL_PORT=587
-MAIL_USERNAME=jjramirezl@unasam.edu.pe
-MAIL_PASSWORD=<contraseña del buzón>
-MAIL_FROM_ADDRESS=jjramirezl@unasam.edu.pe
+MAIL_USERNAME=cid@unasam.edu.pe
+MAIL_PASSWORD=<contraseña de cid@unasam.edu.pe>
+MAIL_FROM_ADDRESS=cid@unasam.edu.pe
 MAIL_FROM_NAME="CILN UNASAM"
 ```
 
