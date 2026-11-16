@@ -52,3 +52,18 @@ it('signs the verification link with the configured application address, as the 
         ->and(parse_url($enlace, PHP_URL_PATH))->toStartWith('/verificar-correo/')
         ->and(URL::hasValidSignature(Request::create($enlace)))->toBeTrue();
 });
+
+it('writes the framework parts of the e-mails, closing, link help and footer, in Spanish', function (): void {
+    $usuario = User::factory()->unverified()->create();
+
+    foreach ([new CorreoDeRestablecimiento('token-de-prueba')->toMail($usuario), (new CorreoDeVerificacion)->toMail($usuario)] as $correo) {
+        $html = (string) $correo->render();
+
+        expect($html)->toContain('Atentamente,')
+            ->toContain('Si el botón «'.$correo->actionText.'» no funciona, copia y pega en tu navegador la siguiente dirección:')
+            ->toContain('Todos los derechos reservados.')
+            ->not->toContain('Regards')
+            ->not->toContain('having trouble')
+            ->not->toContain('All rights reserved');
+    }
+});

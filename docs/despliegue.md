@@ -15,17 +15,18 @@
 
 ## Pasos
 
-1. `composer install --no-dev --optimize-autoloader`
-2. Configurar `.env` (ver abajo) y `php artisan key:generate` la primera vez.
-3. Dar permiso de escritura al usuario del servidor web sobre `storage/` y `bootstrap/cache/`, y dejar `.env` legible solo por ese usuario.
-4. Migrar con el rol **dueño** (ver [Base de datos y proxy](#base-de-datos-y-proxy)): `DB_USERNAME=<rol_dueño> DB_PASSWORD=<clave> php artisan migrate --force`. Las variables del comando tienen prioridad sobre `.env`, que conserva el rol de aplicación. Debe correr antes de `optimize`: con la configuración cacheada, el comando usaría el rol de `.env`.
-5. `php artisan storage:link`
-6. `npm ci && npm run build`
-7. `php artisan optimize && php artisan filament:optimize` (cachea config, rutas, vistas, eventos y componentes del panel).
-8. Worker: `php artisan queue:work --tries=3 --timeout=90`, supervisado, con al menos 100 s de espera al detenerlo (en Supervisor, `stopwaitsecs=100`) para que termine el trabajo en curso.
+1. Obtener el código. El repositorio es privado: el servidor usa una **llave de despliegue de solo lectura**. Se genera en el servidor (`ssh-keygen -t ed25519 -N "" -C "servidor-ciln" -f ~/.ssh/ciln_despliegue`), se remite al proveedor solo el `.pub`, que la registra en GitHub (*Settings → Deploy keys*, sin permiso de escritura), y se clona con `GIT_SSH_COMMAND="ssh -i ~/.ssh/ciln_despliegue" git clone git@github.com:YomelBarretoFlores/cid-system.git /var/www/ciln`. Luego `git -C /var/www/ciln config core.sshCommand "ssh -i ~/.ssh/ciln_despliegue"` para que las actualizaciones usen la misma llave. La llave descarga código pero no puede modificarlo, y no requiere cuentas personales.
+2. `composer install --no-dev --optimize-autoloader`
+3. Configurar `.env` (ver abajo) y `php artisan key:generate` la primera vez.
+4. Dar permiso de escritura al usuario del servidor web sobre `storage/` y `bootstrap/cache/`, y dejar `.env` legible solo por ese usuario.
+5. Migrar con el rol **dueño** (ver [Base de datos y proxy](#base-de-datos-y-proxy)): `DB_USERNAME=<rol_dueño> DB_PASSWORD=<clave> php artisan migrate --force`. Las variables del comando tienen prioridad sobre `.env`, que conserva el rol de aplicación. Debe correr antes de `optimize`: con la configuración cacheada, el comando usaría el rol de `.env`.
+6. `php artisan storage:link`
+7. `npm ci && npm run build`
+8. `php artisan optimize && php artisan filament:optimize` (cachea config, rutas, vistas, eventos y componentes del panel).
+9. Worker: `php artisan queue:work --tries=3 --timeout=90`, supervisado, con al menos 100 s de espera al detenerlo (en Supervisor, `stopwaitsecs=100`) para que termine el trabajo en curso.
    Sin el worker se detienen: los correos de verificación de cuenta, de recuperación de contraseña y de cambio de trámite, y la reacción de los trámites cuando Pagos valida, rechaza o anula un pago.
-9. Cron: `* * * * * cd /ruta && php artisan schedule:run >> /dev/null 2>&1`
-10. Primera instalación: crear la primera cuenta de administración con `php artisan personal:crear-administrador <correo> "<nombre>"` (necesita el worker de colas para enviar el correo).
+10. Cron: `* * * * * cd /ruta && php artisan schedule:run >> /dev/null 2>&1`
+11. Primera instalación: crear la primera cuenta de administración con `php artisan personal:crear-administrador <correo> "<nombre>"` (necesita el worker de colas para enviar el correo).
 
 ### Actualizar a una nueva versión
 
@@ -156,6 +157,20 @@ El dominio `unasam.edu.pe` usa Microsoft 365 (su registro SPF incluye `spf.prote
 |---|---|---|
 | SMTP autenticado (SMTP AUTH) | `MAIL_HOST=smtp.office365.com`, `MAIL_PORT=587`, `MAIL_USERNAME` y `MAIL_PASSWORD` de un buzón del CILN, `MAIL_FROM_ADDRESS` igual a ese buzón. La DSTI debe habilitar «SMTP autenticado» para el buzón | Pruebas de despliegue. Microsoft anunció que la autenticación básica de SMTP AUTH se desactiva por defecto desde fines de diciembre de 2026 (el administrador puede reactivarla) y se retira en una fecha de 2027 por anunciar |
 | Conector de retransmisión de Microsoft 365 por IP | `MAIL_HOST=<dominio>.mail.protection.outlook.com`, `MAIL_PORT=25`, sin usuario ni contraseña; la DSTI crea en Exchange Online un conector que acepta la IP pública del servidor | Producción: no depende de la contraseña de un buzón ni de la autenticación básica |
+
+Para las pruebas de despliegue se usa la cuenta institucional `jjramirezl@unasam.edu.pe`:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.office365.com
+MAIL_PORT=587
+MAIL_USERNAME=jjramirezl@unasam.edu.pe
+MAIL_PASSWORD=<contraseña del buzón>
+MAIL_FROM_ADDRESS=jjramirezl@unasam.edu.pe
+MAIL_FROM_NAME="CILN UNASAM"
+```
+
+`MAIL_FROM_ADDRESS` debe ser el mismo buzón autenticado: Microsoft 365 rechaza otro remitente. Para probar el envío, pedir en `/recuperar-clave` la recuperación de contraseña de una cuenta de prueba con el worker en marcha.
 
 Conviene que el remitente sea un buzón del CILN y no el de una persona: la contraseña queda en el `.env` del servidor y los estudiantes responden a esa dirección.
 
