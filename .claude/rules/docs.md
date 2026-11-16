@@ -12,4 +12,4 @@ paths:
 - Record each significant decision as an ADR in `docs/adr/NNNN-titulo.md` (context, decision, alternatives, consequences).
 - When a pending item in `docs/decisiones-pendientes.md` is resolved, record the decision and remove the row.
 - Diagrams use Mermaid inside Markdown. The REST API is documented by Scramble, not by hand.
-- User and technical manuals go in `docs/manuales/` as Markdown, converted to Word/PDF with Pandoc.
+- User and technical manuals go in `docs/manuales/` as Markdown, converted to Word/PDF in the institutional format of Informe Técnico N.° 001-2026-YJBF. The data dictionary is generated with `php artisan docs:diccionario-de-datos` from PostgreSQL comments; never edit it by hand.
