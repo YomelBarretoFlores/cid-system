@@ -70,7 +70,7 @@
     <x-publico.cabecera :secciones="Arr::only($secciones, ['idiomas', 'requisitos', 'oferta', 'costos', 'preguntas'])" />
 
     @if ($avisos !== [])
-        <div class="sobre-oscuro overflow-hidden border-b border-white/10 bg-marino-950 text-[14px] text-celeste-100/90">
+        <div class="overflow-hidden border-b border-marino-900/10 bg-celeste-50 text-[14px] text-marino-800">
             <div class="flex items-stretch">
                 <span class="relative z-10 flex shrink-0 items-center bg-real-600 px-4 font-semibold text-white sm:px-6">Avisos</span>
                 <div class="min-w-0 flex-1 overflow-hidden">
@@ -79,11 +79,11 @@
                             @foreach ($avisos as $aviso)
                                 <li @if ($copia) aria-hidden="true" @endif class="flex shrink-0 items-center gap-6 pl-6 whitespace-nowrap">
                                     @if ($loop->first && ! $copia)
-                                        <strong class="font-semibold text-white">{{ $aviso }}.</strong>
+                                        <strong class="font-semibold text-marino-900">{{ $aviso }}.</strong>
                                     @else
                                         <span>{{ $aviso }}.</span>
                                     @endif
-                                    <span aria-hidden="true" class="size-1 rounded-full bg-celeste-300/70"></span>
+                                    <span aria-hidden="true" class="size-1 rounded-full bg-real-600/50"></span>
                                 </li>
                             @endforeach
                         @endforeach
@@ -97,8 +97,8 @@
         <section id="inicio" class="sobre-oscuro relative isolate flex min-h-[min(86vh,780px)] items-end overflow-hidden bg-marino-950 text-white">
             <img src="{{ asset('images/portada/portada.jpg') }}" alt="" width="2200" height="1238" fetchpriority="high"
                 class="foto-portada absolute inset-0 -z-20 size-full object-cover object-[center_35%]">
-            <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-t from-marino-950/95 via-marino-950/55 to-marino-950/15"></div>
-            <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-r from-marino-950/70 to-transparent"></div>
+            <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-t from-marino-950/85 via-marino-950/30 to-transparent"></div>
+            <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-r from-marino-950/55 via-marino-950/10 to-transparent"></div>
             <div class="{{ $contenedor }} w-full pt-28 pb-12 sm:pb-16 lg:pb-20">
                 <div class="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)] lg:items-end lg:gap-16">
                     <div class="flex flex-col gap-6">
@@ -214,30 +214,30 @@
             </div>
         </section>
 
-        <section id="requisitos" aria-labelledby="titulo-requisitos" class="sobre-oscuro scroll-mt-32 bg-marino-900 text-white">
+        <section id="requisitos" aria-labelledby="titulo-requisitos" class="sobre-oscuro scroll-mt-32 bg-real-600 text-white">
             <div class="{{ $contenedor }}">
-                <div class="grid grid-cols-[minmax(0,1fr)] gap-8 border-b border-white/15 pt-20 pb-12 sm:pt-28 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:gap-0">
+                <div class="grid grid-cols-[minmax(0,1fr)] gap-8 border-b border-white/25 pt-20 pb-12 sm:pt-28 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:gap-0">
                     <div data-revelar class="lg:pr-12">
                         <x-publico.titulo id="titulo-requisitos" etiqueta="Matrícula" claro>Cómo matricularse</x-publico.titulo>
                     </div>
-                    <div data-revelar style="--orden: 1" class="flex flex-col items-start gap-6 lg:border-l lg:border-white/15 lg:pl-12">
-                        <p class="text-[16px] leading-relaxed text-pretty text-celeste-100/85">Todo el proceso es en línea: cree su cuenta, registre su pago y elija un grupo con vacantes. Modalidades: {{ Arr::join($etiquetasDeModalidad, ', ', ' y ') }}.</p>
+                    <div data-revelar style="--orden: 1" class="flex flex-col items-start gap-6 lg:border-l lg:border-white/25 lg:pl-12">
+                        <p class="text-[16px] leading-relaxed text-pretty text-white/90">Todo el proceso es en línea: cree su cuenta, registre su pago y elija un grupo con vacantes. Modalidades: {{ Arr::join($etiquetasDeModalidad, ', ', ' y ') }}.</p>
                         <x-publico.boton variante="blanco" :href="route('estudiante.registro')">Crear cuenta</x-publico.boton>
                     </div>
                 </div>
-                <figure data-cortina class="mt-12 aspect-[16/9] overflow-hidden bg-white/5 sm:aspect-[21/9]">
+                <figure data-cortina class="mt-12 aspect-[16/9] overflow-hidden bg-white/10 sm:aspect-[21/9]">
                     <img src="{{ asset('images/portada/aula.jpg') }}" alt="Docente dictando clase a un grupo de estudiantes" width="2000" height="1125" loading="lazy" class="size-full object-cover">
                 </figure>
                 <ol class="grid grid-cols-[minmax(0,1fr)] pt-4 pb-20 sm:grid-cols-2 sm:pb-28 lg:grid-cols-4">
                     @foreach ($pasos as [$paso, $detalle])
                         <li data-revelar style="--orden: {{ $loop->index }}" @class([
-                            'flex flex-col gap-3 border-b border-white/15 py-8 sm:pr-8 lg:border-b-0',
+                            'flex flex-col gap-3 border-b border-white/25 py-8 sm:pr-8 lg:border-b-0',
                             'sm:border-l sm:pl-8' => $loop->index % 2 === 1,
                             'lg:border-l lg:pl-8' => $loop->index > 0,
                         ])>
-                            <span class="font-display text-[15px] font-semibold text-celeste-300 tabular-nums">{{ $numero($loop->index) }}</span>
+                            <span class="font-display text-[15px] font-semibold text-celeste-100 tabular-nums">{{ $numero($loop->index) }}</span>
                             <span class="font-display text-[20px] font-semibold tracking-[-0.01em]">{{ $paso }}</span>
-                            <span class="text-[14.5px] leading-relaxed text-pretty text-celeste-100/75">{{ $detalle }}</span>
+                            <span class="text-[14.5px] leading-relaxed text-pretty text-white/85">{{ $detalle }}</span>
                         </li>
                     @endforeach
                 </ol>
@@ -508,19 +508,19 @@
             </div>
         </section>
 
-        <section aria-labelledby="titulo-empieza" class="sobre-oscuro bg-marino-900 text-white">
+        <section aria-labelledby="titulo-empieza" class="border-t border-marino-900/10 bg-papel">
             <div class="{{ $contenedor }} grid grid-cols-[minmax(0,1fr)] lg:grid-cols-2">
-                <div class="py-12 lg:border-r lg:border-white/15 lg:py-16 lg:pr-12">
-                    <figure data-cortina class="aspect-[4/3] overflow-hidden bg-white/5 lg:aspect-[4/5]">
+                <div class="py-12 lg:border-r lg:border-marino-900/12 lg:py-16 lg:pr-12">
+                    <figure data-cortina class="aspect-[4/3] overflow-hidden bg-marino-900/5 lg:aspect-[4/5]">
                         <img src="{{ asset('images/portada/huaraz.jpg') }}" alt="Vista de la ciudad de Huaraz al atardecer" width="1200" height="1600" loading="lazy" class="size-full object-cover">
                     </figure>
                 </div>
                 <div data-revelar class="flex flex-col justify-center gap-7 pb-16 lg:py-16 lg:pl-12">
-                    <x-publico.titulo id="titulo-empieza" etiqueta="Huaraz, Áncash" claro>Matrícula en línea</x-publico.titulo>
-                    <p class="max-w-[480px] text-[16px] leading-relaxed text-pretty text-celeste-100/85">Cree su cuenta, registre su pago y elija su horario. El CILN valida su recibo y su ficha de matrícula se descarga al instante.</p>
+                    <x-publico.titulo id="titulo-empieza" etiqueta="Huaraz, Áncash">Matrícula en línea</x-publico.titulo>
+                    <p class="max-w-[480px] {{ $nota }}">Cree su cuenta, registre su pago y elija su horario. El CILN valida su recibo y su ficha de matrícula se descarga al instante.</p>
                     <div class="flex flex-wrap gap-3">
-                        <x-publico.boton variante="blanco" tamano="grande" :href="route('estudiante.registro')">Crear cuenta</x-publico.boton>
-                        <x-publico.boton variante="contorno" tamano="grande" href="#oferta">Ver horarios</x-publico.boton>
+                        <x-publico.boton tamano="grande" :href="route('estudiante.registro')">Crear cuenta</x-publico.boton>
+                        <x-publico.boton variante="claro" tamano="grande" href="#oferta">Ver horarios</x-publico.boton>
                     </div>
                 </div>
             </div>
