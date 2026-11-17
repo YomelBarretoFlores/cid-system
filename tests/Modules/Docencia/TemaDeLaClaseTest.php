@@ -8,12 +8,9 @@ use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Docencia\Actions\RegistrarAsistencia;
 use App\Modules\Docencia\Actions\RegistrarLlamadoDeCierre;
-use App\Modules\Docencia\Enums\EstadoSilabo;
 use App\Modules\Docencia\Filament\Docente\Pages\AsistenciaDelGrupo;
 use App\Modules\Docencia\Models\Asistencia;
 use App\Modules\Docencia\Models\ClaseDictada;
-use App\Modules\Docencia\Models\SemanaDeSilabo;
-use App\Modules\Docencia\Models\Silabo;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -48,18 +45,6 @@ function primerLlamado(?string $tema, string $fecha = '2027-03-10'): ClaseDictad
 function segundoLlamado(?string $tema): ClaseDictada
 {
     return app(RegistrarLlamadoDeCierre::class)(test()->grupo->id, test()->docente->id, '2027-03-10', '18:00', test()->todosPresentes, test()->usuario, $tema);
-}
-
-function silaboDelGrupo(EstadoSilabo $estado): Silabo
-{
-    $publicado = $estado === EstadoSilabo::Publicado ? ['publicado_en' => '2027-02-25 10:00:00+00', 'publicado_por' => test()->usuario->id] : [];
-    $silabo = Silabo::query()->create(['grupo_id' => test()->grupo->id, 'estado' => $estado, ...$publicado]);
-
-    foreach (range(1, 8) as $semana) {
-        SemanaDeSilabo::query()->create(['silabo_id' => $silabo->id, 'semana' => $semana, 'unidad' => "Unidad {$semana}", 'saber' => "Vocabulario {$semana}"]);
-    }
-
-    return $silabo;
 }
 
 it('saves the topic of the first call trimmed, and leaves it empty when the teacher has not written it yet', function (?string $tema, ?string $guardado): void {
@@ -112,26 +97,13 @@ it('refuses a topic longer than a thousand characters', function (): void {
     expect(fn (): ClaseDictada => primerLlamado(str_repeat('a', 1001)))->toThrow(ReglaDeNegocioIncumplida::class, 'El tema de la clase no puede pasar de 1000 caracteres.');
 });
 
-it('links the class to the week of the published syllabus that covers its date', function (EstadoSilabo $estado, ?int $semana): void {
-    $silabo = silaboDelGrupo($estado);
-    aLaHora('18:05');
-
-    $clase = primerLlamado('Saludos')->refresh();
-
-    expect($clase->silabo_semana_id)->toBe($semana === null ? null : $silabo->semanas()->where('semana', $semana)->value('id'));
-})->with([
-    'published' => [EstadoSilabo::Publicado, 2],
-    'draft' => [EstadoSilabo::Borrador, null],
-]);
-
-it('suggests the content of the syllabus week as the topic and saves what the teacher writes', function (): void {
+it('starts the topic empty and saves what the teacher writes', function (): void {
     Filament::setCurrentPanel('docente');
-    silaboDelGrupo(EstadoSilabo::Publicado);
     aLaHora('18:05');
 
     Livewire::actingAs($this->usuario)
         ->test(AsistenciaDelGrupo::class, ['grupo' => $this->grupo->id])
-        ->assertSet('tema', 'Unidad 2: Vocabulario 2')
+        ->assertSet('tema', null)
         ->set('tema', 'Unidad 2: Vocabulario de la familia')
         ->call('guardar')
         ->assertHasNoErrors();
@@ -139,9 +111,8 @@ it('suggests the content of the syllabus week as the topic and saves what the te
     expect(ClaseDictada::query()->sole()->tema)->toBe('Unidad 2: Vocabulario de la familia');
 });
 
-it('loads the saved topic instead of the suggestion when the class is chosen again', function (): void {
+it('loads the saved topic when the class is chosen again', function (): void {
     Filament::setCurrentPanel('docente');
-    silaboDelGrupo(EstadoSilabo::Publicado);
     aLaHora('18:05');
     primerLlamado('Repaso general');
 
@@ -150,9 +121,8 @@ it('loads the saved topic instead of the suggestion when the class is chosen aga
         ->assertSet('tema', 'Repaso general');
 });
 
-it('suggests nothing for a class whose calls already closed without a topic', function (): void {
+it('shows no topic for a class whose calls already closed without one', function (): void {
     Filament::setCurrentPanel('docente');
-    silaboDelGrupo(EstadoSilabo::Publicado);
     aLaHora('18:05');
     primerLlamado(null);
     aLaHora('21:00');

@@ -8,7 +8,6 @@ use App\Modules\Academico\Contracts\CursoDelGrupo;
 use App\Modules\Academico\Contracts\EsquemaDelGrupo;
 use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Certificacion\Contracts\EstadosDeActas;
-use App\Modules\Docencia\Contracts\EstadosDeSilabos;
 use App\Modules\Docencia\Contracts\NotasParcialesDelGrupo;
 use App\Modules\Docencia\Data\ClaseProgramada;
 use App\Modules\Docencia\Data\ResumenDeMiGrupo;
@@ -17,12 +16,11 @@ use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
 
-// The cards of "Mis grupos": per group, the syllabus, the classes held over the programmed ones, the grades recorded and the acta.
+// The cards of "Mis grupos": per group, the classes held over the programmed ones, the grades recorded and the acta.
 final readonly class ResumirMisGrupos
 {
     public function __construct(
         private ListarGruposDelDocente $listarGrupos,
-        private EstadosDeSilabos $estadosDeSilabos,
         private EstadosDeActas $estadosDeActas,
         private NotasParcialesDelGrupo $notasParciales,
         private EstudiantesDelGrupo $estudiantesDelGrupo,
@@ -37,11 +35,10 @@ final readonly class ResumirMisGrupos
     {
         $grupos = ($this->listarGrupos)($docenteId);
         $ids = array_map(fn (HorarioDeGrupo $grupo): int => $grupo->grupoId, $grupos);
-        $silabos = ($this->estadosDeSilabos)($ids);
         $actas = ($this->estadosDeActas)($ids);
         $dictadas = ClaseDictada::query()->whereIn('grupo_id', $ids)->groupBy('grupo_id')->selectRaw('grupo_id, count(*) as total')->pluck('total', 'grupo_id');
 
-        return array_map(function (HorarioDeGrupo $grupo) use ($silabos, $actas, $dictadas): ResumenDeMiGrupo {
+        return array_map(function (HorarioDeGrupo $grupo) use ($actas, $dictadas): ResumenDeMiGrupo {
             $programadas = ClasesDelHorario::delPeriodo($grupo);
             $hoy = ClasesDelHorario::hoy();
             $proxima = collect($programadas)->first(fn (ClaseProgramada $clase): bool => $clase->fecha->gte($hoy));
@@ -50,7 +47,6 @@ final readonly class ResumirMisGrupos
 
             return new ResumenDeMiGrupo(
                 grupo: $grupo,
-                silabo: $silabos[$grupo->grupoId] ?? null,
                 dictadas: (int) ($dictadas[$grupo->grupoId] ?? 0),
                 programadas: count($programadas),
                 proxima: $proxima,

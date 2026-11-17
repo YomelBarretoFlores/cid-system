@@ -10,13 +10,11 @@ use App\Modules\Matricula\Http\Controllers\DescargarFichaParaPersonal;
 use App\Modules\Matricula\Http\Controllers\DescargarHorarioSemanal;
 use App\Modules\Matricula\Http\Controllers\DescargarRecordDeNotas;
 use App\Modules\Matricula\Http\Controllers\DescargarReporteDeAsistencia;
-use App\Modules\Matricula\Http\Controllers\DescargarSilabo;
 use App\Modules\Matricula\Http\Controllers\VerFichaPorCodigo;
 use App\Modules\Matricula\Livewire\ExamenDeClasificacion;
 use App\Modules\Matricula\Livewire\Matricularse;
 use App\Modules\Matricula\Livewire\MisMatriculas;
 use App\Modules\Matricula\Livewire\MisReportes;
-use App\Modules\Matricula\Livewire\SilaboDeMatricula;
 use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -25,8 +23,6 @@ Route::middleware(['auth', 'auth.session', 'verified', 'estudiante'])->group(fun
     Route::livewire('/estudiante/matriculas', MisMatriculas::class)->name('estudiante.matriculas');
     Route::get('/estudiante/matriculas/{matricula}/ficha', DescargarFichaDeMatricula::class)->name('estudiante.matriculas.ficha');
     Route::get('/estudiante/matriculas/{matricula}/constancia', DescargarConstanciaDeInscripcion::class)->name('estudiante.matriculas.constancia');
-    Route::livewire('/estudiante/matriculas/{matricula}/silabo', SilaboDeMatricula::class)->name('estudiante.matriculas.silabo');
-    Route::get('/estudiante/matriculas/{matricula}/silabo/pdf', DescargarSilabo::class)->name('estudiante.matriculas.silabo.pdf');
     Route::livewire('/estudiante/clasificacion', ExamenDeClasificacion::class)->name('estudiante.clasificacion');
 
     Route::livewire('/estudiante/reportes', MisReportes::class)->name('estudiante.reportes');

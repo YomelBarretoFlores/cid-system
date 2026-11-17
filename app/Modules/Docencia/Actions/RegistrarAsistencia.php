@@ -51,7 +51,7 @@ final readonly class RegistrarAsistencia
             $clase = $this->clase($grupoId, $dia, $sesion);
             // The teacher who took the class keeps it (its hours are theirs); a later correction only changes who recorded it.
             $clase->fill(['hora_fin' => $sesion->horaFin, 'docente_id' => $clase->docente_id ?? $docenteId, 'registrado_por' => $usuario->id, ...$this->llamado($clase, $ventanas, $ahora)]);
-            $clase->fill(['tema' => $this->tema($clase, $tema), 'silabo_semana_id' => TemaDeLaClase::semanaDelSilabo($grupo, $dia)?->id])->save();
+            $clase->fill(['tema' => $this->tema($clase, $tema)])->save();
 
             foreach ($marcas as $matriculaId => $estado) {
                 Asistencia::query()->updateOrCreate(['clase_id' => $clase->id, 'matricula_id' => $matriculaId], ['estado' => $estado]);

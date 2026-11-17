@@ -39,7 +39,6 @@ final readonly class AccesosDeReportes
             $this->documentoDeMatricula('Constancia de inscripción', 'estudiante.matriculas.constancia', $unica, $varias, 'verde', 'heroicon-o-document-check'),
             $this->acceso('Horario personalizado', 'Ver cruces de horarios', $reportes instanceof ReportesDelPeriodo ? route('estudiante.reportes', ['ver' => 'horario', 'periodo' => $reportes->periodoId]) : null, $reportes instanceof ReportesDelPeriodo ? null : self::SIN_MATRICULA, 'lila', 'heroicon-o-calendar-days'),
             $this->acceso('Boleta de notas', 'Notas del acta final', $reportes instanceof ReportesDelPeriodo ? route('estudiante.reportes.boleta', $reportes->periodoId) : null, $reportes instanceof ReportesDelPeriodo ? null : self::SIN_MATRICULA, 'rojo', 'heroicon-o-clipboard-document-list', pdf: true),
-            $this->acceso('Sílabos', 'Contenido de cada curso', $reportes instanceof ReportesDelPeriodo ? route('estudiante.reportes', ['ver' => 'silabos', 'periodo' => $reportes->periodoId]) : null, $reportes instanceof ReportesDelPeriodo ? null : self::SIN_MATRICULA, 'ambar', 'heroicon-o-book-open'),
         ];
     }
 

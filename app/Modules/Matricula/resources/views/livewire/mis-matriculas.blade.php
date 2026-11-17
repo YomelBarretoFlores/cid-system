@@ -69,12 +69,7 @@
                                     </td>
                                     <td>
                                         @if ($matricula->estado === EstadoMatricula::Activa)
-                                            <span class="flex flex-col gap-1">
-                                                @if (in_array($matricula->grupo_id, $conSilabo, true))
-                                                    <a href="{{ route('estudiante.matriculas.silabo', $matricula) }}" class="enlace whitespace-nowrap">Sílabo<span class="sr-only"> del grupo {{ $grupo->codigo }}</span></a>
-                                                @endif
-                                                <a href="{{ route('estudiante.matriculas.constancia', $matricula) }}" target="_blank" rel="noopener" class="enlace whitespace-nowrap">Constancia (PDF)<span class="sr-only"> de inscripción del grupo {{ $grupo->codigo }}</span></a>
-                                            </span>
+                                            <a href="{{ route('estudiante.matriculas.constancia', $matricula) }}" target="_blank" rel="noopener" class="enlace whitespace-nowrap">Constancia (PDF)<span class="sr-only"> de inscripción del grupo {{ $grupo->codigo }}</span></a>
                                         @else
                                             <span class="text-apagado">—</span>
                                         @endif

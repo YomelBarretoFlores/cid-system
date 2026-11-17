@@ -7,10 +7,10 @@ namespace App\Shared\Support\Filament;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages\Enums\SubNavigationPosition;
 
-// The teacher pages of one group (attendance, pre-acta, final acta, syllabus) share a tab bar; the first three keep the URLs the portal always had.
+// The teacher pages of one group (attendance, pre-acta, final acta) share a tab bar and keep the URLs the portal always had.
 trait PestanasDelGrupo
 {
-    private const array PESTANAS = ['asistencia' => 'Asistencia', 'notas' => 'Pre-acta', 'acta' => 'Acta final', 'silabo' => 'Sílabo'];
+    private const array PESTANAS = ['asistencia' => 'Asistencia', 'notas' => 'Pre-acta', 'acta' => 'Acta final'];
 
     abstract protected function pestana(): string;
 

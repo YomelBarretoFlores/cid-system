@@ -1,6 +1,6 @@
 # Docencia
 
-M3: padrón docente, carga académica sin cruces, asistencia en dos llamados con confirmación del delegado del curso (ADR 0009), pre-actas, control de clases para la coordinación, expediente de horas por tarifa (sin planilla ni retenciones), sílabos por grupo (formulario del docente, página "Sílabos" de la coordinación y PDF), y la asistencia de cada matrícula y el sílabo publicado para el portal del estudiante.
+M3: padrón docente, carga académica sin cruces, asistencia en dos llamados con confirmación del delegado del curso (ADR 0009), pre-actas, control de clases para la coordinación, expediente de horas por tarifa (sin planilla ni retenciones) y la asistencia de cada matrícula para el portal del estudiante.
 
 Teacher screens live in `Filament/Docente/Pages` and belong to the teacher panel at `/docente` (`App\Providers\Filament\DocentePanelProvider`).
 

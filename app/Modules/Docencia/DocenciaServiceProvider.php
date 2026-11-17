@@ -7,13 +7,9 @@ namespace App\Modules\Docencia;
 use App\Modules\Docencia\Actions\BuscarDocenteDelGrupo;
 use App\Modules\Docencia\Actions\BuscarDocenteDelUsuario;
 use App\Modules\Docencia\Actions\ComprobarClasesDictadas;
-use App\Modules\Docencia\Actions\ConsultarEstadosDeSilabos;
 use App\Modules\Docencia\Actions\ContarClasesPorConfirmarDelDelegado;
-use App\Modules\Docencia\Actions\GenerarSilaboPdf;
 use App\Modules\Docencia\Actions\LeerNotasParcialesDelGrupo;
-use App\Modules\Docencia\Actions\LeerSilaboDelGrupo;
 use App\Modules\Docencia\Actions\NombrarDocentesDeGrupos;
-use App\Modules\Docencia\Actions\PrepararLecturaDelSilabo;
 use App\Modules\Docencia\Actions\ResumirAsistenciaDeMatricula;
 use App\Modules\Docencia\Actions\VerificarCargaDelGrupo;
 use App\Modules\Docencia\Contracts\AsistenciaDeMatricula;
@@ -22,11 +18,7 @@ use App\Modules\Docencia\Contracts\ClasesPorConfirmarDelDelegado;
 use App\Modules\Docencia\Contracts\DocenteDelGrupo;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
-use App\Modules\Docencia\Contracts\EstadosDeSilabos;
-use App\Modules\Docencia\Contracts\LecturaDelSilabo;
 use App\Modules\Docencia\Contracts\NotasParcialesDelGrupo;
-use App\Modules\Docencia\Contracts\SilaboDelGrupo;
-use App\Modules\Docencia\Contracts\SilaboEnPdf;
 use App\Modules\Docencia\Contracts\VerificacionDeCargaDocente;
 use App\Shared\Support\ModuleServiceProvider;
 
@@ -42,10 +34,6 @@ final class DocenciaServiceProvider extends ModuleServiceProvider
         DocenteDelGrupo::class => BuscarDocenteDelGrupo::class,
         NotasParcialesDelGrupo::class => LeerNotasParcialesDelGrupo::class,
         AsistenciaDeMatricula::class => ResumirAsistenciaDeMatricula::class,
-        SilaboDelGrupo::class => LeerSilaboDelGrupo::class,
-        EstadosDeSilabos::class => ConsultarEstadosDeSilabos::class,
-        LecturaDelSilabo::class => PrepararLecturaDelSilabo::class,
-        SilaboEnPdf::class => GenerarSilaboPdf::class,
         ClasesPorConfirmarDelDelegado::class => ContarClasesPorConfirmarDelDelegado::class,
         ClasesDictadasDelGrupo::class => ComprobarClasesDictadas::class,
     ];

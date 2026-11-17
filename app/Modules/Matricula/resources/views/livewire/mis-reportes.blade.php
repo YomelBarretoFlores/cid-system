@@ -71,7 +71,7 @@
         @endif
     </x-portal.encabezado>
 
-    <div @class(['grid items-start gap-2 sm:gap-3.5', 'lg:grid-cols-[minmax(0,1fr)_300px]' => $pestana !== 'silabos'])>
+    <div class="grid items-start gap-2 sm:gap-3.5 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div class="flex min-w-0 flex-col gap-2 sm:gap-3.5">
             <div id="panel-reportes" class="flex flex-col gap-2 sm:gap-3.5">
                 @if ($pestana === 'aprobado')
@@ -113,17 +113,6 @@
                     <x-portal.tarjeta>
                         <x-portal.vacio titulo="Aún no tienes reportes." icono="heroicon-o-document-chart-bar">Aparecen cuando te matriculas en un periodo.</x-portal.vacio>
                     </x-portal.tarjeta>
-                @elseif ($pestana === 'silabos')
-                    <x-portal.hoja titulo="Sílabos" :periodo="$reportes->periodo">
-                        <ul role="list" class="flex flex-col">
-                            @foreach ($reportes->datos->matriculas as $matricula)
-                                @php($grupo = $reportes->datos->grupos[$matricula->grupo_id])
-                                <x-portal.fila wire:key="silabo-{{ $matricula->id }}" :titulo="$grupo->idioma.' · Ciclo '.$grupo->cicloNumero" :detalle="$grupo->codigo.' · Prof. '.($reportes->datos->docentes[$matricula->grupo_id] ?? 'por asignar')">
-                                    <x-slot:fin><a href="{{ route('estudiante.matriculas.silabo', $matricula) }}" wire:navigate class="enlace">Ver sílabo<span class="sr-only"> de {{ $grupo->codigo }}</span></a></x-slot:fin>
-                                </x-portal.fila>
-                            @endforeach
-                        </ul>
-                    </x-portal.hoja>
                 @elseif ($pestana === 'horario')
                     <x-portal.hoja titulo="Horario personalizado" :periodo="$reportes->periodo">
                         <x-slot:acciones>
@@ -201,7 +190,7 @@
             </div>
         </div>
 
-        @if ($pestana !== 'silabos' && ($reportes !== null || $records !== []))
+        @if ($reportes !== null || $records !== [])
             <x-portal.tarjeta titulo="Descargar en PDF" class="lg:sticky lg:top-4">
                 <ul role="list" class="-mt-1 flex flex-col">
                     @if ($reportes !== null)

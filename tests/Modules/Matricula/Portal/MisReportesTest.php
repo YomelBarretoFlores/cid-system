@@ -34,7 +34,7 @@ it('offers only the periods of the student, newest first, and opens on every rep
         ->assertSeeInOrder(['Marzo 2027', 'Octubre 2026'])
         ->assertDontSee('Mayo 2027')
         ->assertSeeInOrder([
-            'Periodo seleccionado', 'Ficha de matrícula', 'Inglés 1 · ING-1-M', 'Constancia de inscripción', 'Horario personalizado', 'Boleta de notas', 'Sílabos',
+            'Periodo seleccionado', 'Ficha de matrícula', 'Inglés 1 · ING-1-M', 'Constancia de inscripción', 'Horario personalizado', 'Boleta de notas',
             'Generales e históricos', 'Récord de notas', 'Historial de matrículas', 'Documentos emitidos',
             'Seguimiento académico', 'Avance de notas', 'Asistencia', 'Avance por idioma', 'Registro de pagos',
         ])
@@ -91,12 +91,12 @@ it('disables the reports that do not apply yet and says why, instead of leading 
         ->assertDontSee(route('estudiante.reportes.record'));
 });
 
-it('lists the syllabus of each course of the period', function (): void {
+it('shows every report instead of a tab that does not exist', function (): void {
     $this->actingAs($this->escenario['usuario'])
         ->get(route('estudiante.reportes', ['ver' => 'silabos']))
         ->assertOk()
-        ->assertSeeInOrder(['Sílabos', 'Inglés · Ciclo 1', 'ING-1-M · Prof. Vega Ríos, Carlos', 'Ver sílabo'])
-        ->assertSee(route('estudiante.matriculas.silabo', $this->matricula));
+        ->assertSeeInOrder(['Periodo seleccionado', 'Generales e históricos', 'Seguimiento académico'])
+        ->assertDontSee('Sílabo');
 });
 
 it('shows the schedule and the approved cycles in their own tabs, reachable by link', function (): void {
@@ -269,4 +269,4 @@ it('renders one root element in every view so changing the period keeps the sele
     $html = Livewire::actingAs($this->escenario['usuario'])->withQueryParams(['ver' => $ver])->test(MisReportes::class)->html();
 
     expect(ltrim($html))->toStartWith('<div')->not->toStartWith('<!--');
-})->with(['todos', 'horario', 'avance', 'aprobado', 'silabos']);
+})->with(['todos', 'horario', 'avance', 'aprobado']);

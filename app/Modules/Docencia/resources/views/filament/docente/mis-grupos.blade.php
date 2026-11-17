@@ -1,6 +1,5 @@
 @use('App\Modules\Certificacion\Enums\EstadoActa')
 @use('App\Modules\Academico\Data\SesionDeClase')
-@use('App\Modules\Docencia\Enums\EstadoSilabo')
 <x-filament-panels::page>
     @if ($grupos === [])
         <x-filament::empty-state heading="Aún no tienes grupos asignados." description="Cuando la coordinación te asigne un grupo, aparecerá aquí." icon="heroicon-o-user-group" />
@@ -11,7 +10,6 @@
                     $grupo = $resumen->grupo;
                     [$siguiente, $rutaSiguiente] = $resumen->siguientePaso();
                     $pasos = [
-                        ['Sílabo', EstadoSilabo::etiquetaDe($resumen->silabo), $resumen->silaboListo(), 'filament.docente.pages.grupos.silabo'],
                         ['Asistencia', "{$resumen->dictadas} de {$resumen->programadas} clases".($resumen->esHoy ? ' · hoy' : ''), $resumen->programadas > 0 && $resumen->dictadas >= $resumen->programadas, 'filament.docente.pages.grupos.asistencia'],
                         ['Notas', $resumen->notasEsperadas === 0 ? 'Sin estudiantes o sin esquema' : "{$resumen->notasRegistradas} de {$resumen->notasEsperadas} notas", $resumen->notasCompletas(), 'filament.docente.pages.grupos.notas'],
                         ['Acta final', $resumen->detalleDelActa(), $resumen->acta === EstadoActa::Cerrada, 'filament.docente.pages.grupos.acta'],

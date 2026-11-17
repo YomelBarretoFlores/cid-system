@@ -32,3 +32,4 @@ Hasta ahora el sistema guardaba un solo llamado por clase, que el docente podía
 - Las clases guardadas antes de este cambio conservan su significado y se leen como "registro anterior" (registrada).
 - Confirmadas y no confirmadas son informativas en el expediente de horas: no cambian las horas ni el monto. Los descuentos al docente por clases no dictadas se definirán más adelante y fuera del sistema, porque el Anexo deja la planilla a la DGF.
 - Cambiar una ventana es editar `config/ciln.php`; las reglas, la página del docente, la del delegado y el filtro de coordinación leen los mismos valores.
+- Nota (2026-11-17): el sílabo se retiró porque el CILN no lo usa. La clase ya no se enlaza con una semana del sílabo ni se sugiere su contenido: el docente escribe el tema dictado.

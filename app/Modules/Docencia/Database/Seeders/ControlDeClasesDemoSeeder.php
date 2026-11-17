@@ -92,7 +92,7 @@ final class ControlDeClasesDemoSeeder extends Seeder
 
         $tomada = RelojDeDemo::en($ventanas->abreInicio()->addMinutes(12), fn (): ClaseDictada => app(RegistrarAsistencia::class)($grupoId, $docenteId, $fecha, $hora, $inicio, $usuario));
         $cierre = $this->marcasDeCierre($inicio, $delegado);
-        $tema = SilaboDeDemo::temaDeLaClase(app(HorariosDeGrupos::class)([$grupoId])[$grupoId], $clase->fecha);
+        $tema = TemasDeDemo::temaDeLaClase(app(HorariosDeGrupos::class)([$grupoId])[$grupoId], $clase->fecha);
         RelojDeDemo::en($ventanas->abreCierre()->addMinutes(5), fn (): ClaseDictada => app(RegistrarLlamadoDeCierre::class)($grupoId, $docenteId, $fecha, $hora, $cierre, $usuario, $tema));
 
         if ($respuesta === EstadoDeClase::SinConfirmar) {

@@ -171,7 +171,7 @@ final class DocenciaDemoSeeder extends Seeder
                 },
             ])->all();
 
-            app(RegistrarAsistencia::class)($grupo->id, $docente->id, $clase->fecha->toDateString(), substr($clase->sesion->horaInicio, 0, 5), $estados, $usuario, SilaboDeDemo::temaDeLaClase($horario, $clase->fecha));
+            app(RegistrarAsistencia::class)($grupo->id, $docente->id, $clase->fecha->toDateString(), substr($clase->sesion->horaInicio, 0, 5), $estados, $usuario, TemasDeDemo::temaDeLaClase($horario, $clase->fecha));
         }
     }
 

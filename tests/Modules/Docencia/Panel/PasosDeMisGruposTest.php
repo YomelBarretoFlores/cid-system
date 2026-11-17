@@ -5,13 +5,14 @@ declare(strict_types=1);
 use Carbon\CarbonImmutable;
 use Tests\Support\ReportesDelEstudiante;
 
-it('shows each group as a checklist of syllabus, attendance, grades and acta with the next step to take', function (): void {
+it('shows each group as a checklist of attendance, grades and acta with the next step to take', function (): void {
     $escenario = ReportesDelEstudiante::escenario();
 
     $this->actingAs($escenario['curso']['usuario'])
         ->get(route('filament.docente.pages.mis-grupos'))
         ->assertOk()
-        ->assertSeeInOrder(['Grupo ING-1-M', 'Sílabo', 'Falta', 'Asistencia', '3 de 10 clases', 'Notas', '2 de 3 notas', 'Acta final', 'Del 29 mar al 5 abr', 'Completar sílabo']);
+        ->assertSeeInOrder(['Grupo ING-1-M', 'Asistencia', '3 de 10 clases', 'Notas', '2 de 3 notas', 'Acta final', 'Del 29 mar al 5 abr', 'Completar notas'])
+        ->assertDontSee('Sílabo');
 });
 
 it('marks the acta as closed and stops asking for it once the teacher closes it', function (): void {

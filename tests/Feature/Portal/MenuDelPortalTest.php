@@ -14,14 +14,15 @@ it('shows the student profile on top of the sidebar and groups the sections like
         ->assertSeeInOrder([
             'Rosa Elena Quispe', 'Estudiante',
             'Mi cuenta', 'Perfil', 'Modificar datos', 'Subir fotografía', 'Preferencias',
-            'Reportes', 'Todos', 'Horario', 'Sílabos',
+            'Reportes', 'Todos', 'Horario',
             'Procesos', 'Matrícula', 'Mis matrículas', 'Registro de pagos', 'Clasificación', 'Trámites',
             'Enlaces', 'Verificar un documento', 'Web del CILN',
             'Cerrar sesión',
         ])
         ->assertSee('href="'.route('verificacion.documento').'"', false)
         ->assertSee('href="'.route('portada').'"', false)
-        ->assertSee('href="'.route('estudiante.reportes', ['ver' => 'silabos']).'"', false)
+        ->assertSee('href="'.route('estudiante.reportes', ['ver' => 'horario']).'"', false)
+        ->assertDontSee('Sílabos')
         ->assertSee('href="'.route('estudiante.perfil.datos').'"', false)
         ->assertSee('href="'.route('estudiante.perfil.foto').'"', false)
         ->assertSee('href="'.route('estudiante.preferencias').'"', false);

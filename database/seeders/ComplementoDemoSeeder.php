@@ -8,7 +8,6 @@ use App\Modules\Certificacion\Database\Seeders\HistorialDemoSeeder;
 use App\Modules\Docencia\Database\Seeders\ControlDeClasesDemoSeeder;
 use App\Modules\Docencia\Database\Seeders\DelegadosDemoSeeder;
 use App\Modules\Docencia\Database\Seeders\NotasCompletasDemoSeeder;
-use App\Modules\Docencia\Database\Seeders\SilabosDemoSeeder;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +30,6 @@ final class ComplementoDemoSeeder extends Seeder
         }
 
         DB::transaction(fn () => $this->call([
-            SilabosDemoSeeder::class,
             DelegadosDemoSeeder::class,
             ControlDeClasesDemoSeeder::class,
             NotasCompletasDemoSeeder::class,

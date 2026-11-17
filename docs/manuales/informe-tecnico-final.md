@@ -87,7 +87,7 @@ Es grato dirigirme a usted para saludarlo muy cordialmente y, a la vez, presenta
 |---|---|---|
 | M1. Registro, examen de clasificación y matrícula | Autorregistro, solicitud y resultado del examen de clasificación, oferta de grupos con cupos y vacantes en tiempo real, matrícula autogestionada con bloqueos, ficha de matrícula en PDF con QR, traslados y retiros | Matrícula; Oferta académica |
 | M2. Gestión y validación de pagos | Registro de pagos con comprobante digital, validación por caja, desbloqueo automático de servicios, anulación con motivo, reportes de recaudación en PDF y Excel | Pagos; Catálogos |
-| M3. Gestión docente y carga académica | Legajo docente, disponibilidad, asignación de carga sin cruces de horario, control de clases con llamado de asistencia y confirmación del delegado, pre-actas, sílabos y expediente de horas | Docencia; panel docente |
+| M3. Gestión docente y carga académica | Legajo docente, disponibilidad, asignación de carga sin cruces de horario, control de clases con llamado de asistencia y confirmación del delegado, pre-actas y expediente de horas | Docencia; panel docente |
 | M4. Evaluación y certificación digital | Actas finales con cierre y bloqueo, rectificación autorizada, constancias y certificados con código único y QR, verificación pública | Certificación |
 | M5. Tablero de control gerencial | Indicadores financieros y académicos calculados en cada consulta, con exportación a PDF y Excel | Tablero gerencial; Reportes |
 | M6. Portal público y trámites | Portada institucional con oferta, requisitos, costos y fechas; trámites con etapas configurables, barra de progreso y notificación por correo | Trámites; Catálogos |
@@ -99,7 +99,7 @@ El acceso se controla por **permisos por acción** que se agrupan en roles desde
 | Perfil | Cómo se identifica | Acceso |
 |---|---|---|
 | Personal del CILN | Cuenta con el permiso de acceso al panel y los permisos de su función | Panel administrativo, con doble factor opcional u obligatorio |
-| Docente | Cuenta del portal vinculada a un legajo docente | Panel docente: sus grupos, asistencia, pre-actas, actas y sílabos |
+| Docente | Cuenta del portal vinculada a un legajo docente | Panel docente: sus grupos, asistencia, pre-actas y actas |
 | Estudiante | Cuenta del portal con correo verificado y ficha personal | Portal del estudiante: matrícula, pagos, clasificación, trámites, notas y documentos |
 | Público | Sin cuenta | Portada, verificación de documentos y creación de cuenta |
 

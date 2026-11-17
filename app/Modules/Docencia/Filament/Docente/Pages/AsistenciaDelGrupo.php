@@ -19,7 +19,6 @@ use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Modules\Docencia\Support\DelegadoDelGrupo;
 use App\Modules\Docencia\Support\EstadoDeLaClase;
 use App\Modules\Docencia\Support\GrupoACargo;
-use App\Modules\Docencia\Support\TemaDeLaClase;
 use App\Modules\Docencia\Support\VentanasDeLlamado;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
@@ -307,7 +306,7 @@ final class AsistenciaDelGrupo extends Page
         $clase = $elegida instanceof ClaseProgramada ? ClaseDictada::query()->where('grupo_id', $this->grupoId)->where('fecha', $elegida->fecha->toDateString())->where('hora_inicio', $elegida->sesion->horaInicio)->first() : null;
         $this->llamado = $elegida instanceof ClaseProgramada ? EstadoDeLaClase::llamadoPara($clase, VentanasDeLlamado::de($elegida->fecha, $elegida->sesion)) : Llamado::Inicio;
         $guardadas = $clase === null ? collect() : Asistencia::query()->where('clase_id', $clase->id)->get()->keyBy('matricula_id');
-        $this->tema = $clase->tema ?? $this->temaSugerido($elegida);
+        $this->tema = $clase?->tema;
         $estudiantes = $this->llamado === Llamado::Cierre
             ? array_filter($this->estudiantes(), fn (EstudianteDelGrupo $estudiante): bool => ! in_array($guardadas->get($estudiante->matriculaId)?->estado, [null, EstadoAsistencia::Falta], true))
             : $this->estudiantes();
@@ -315,16 +314,6 @@ final class AsistenciaDelGrupo extends Page
         $this->estados = collect($estudiantes)
             ->mapWithKeys(fn (EstudianteDelGrupo $estudiante): array => [$estudiante->matriculaId => $this->estadoGuardado($guardadas->get($estudiante->matriculaId))])
             ->all();
-    }
-
-    // A closed class keeps what was recorded; suggesting the syllabus there would read as a topic that was never written.
-    private function temaSugerido(?ClaseProgramada $elegida): ?string
-    {
-        if (! $elegida instanceof ClaseProgramada || $this->llamado === Llamado::Cerrado) {
-            return null;
-        }
-
-        return TemaDeLaClase::sugerido(TemaDeLaClase::semanaDelSilabo($this->grupo(), $elegida->fecha));
     }
 
     private function estadoGuardado(?Asistencia $asistencia): string

@@ -8,7 +8,7 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 |---|---|
 | Gestor de base de datos | PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) |
 | Esquema | `public` |
-| Última migración aplicada | `2026_11_14_180000_comment_tables_and_columns_for_the_data_dictionary` |
+| Última migración aplicada | `2026_11_17_090000_drop_doc_silabos_tables` |
 
 **Convenciones:**
 
@@ -27,13 +27,13 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 | Personas | 1 | 17 |
 | Matrícula | 5 | 54 |
 | Pagos | 5 | 55 |
-| Docencia | 14 | 126 |
+| Docencia | 11 | 94 |
 | Certificación | 7 | 88 |
 | Trámites | 5 | 55 |
 | Auditoría | 1 | 10 |
 | Seguridad y control de acceso | 9 | 52 |
 | Infraestructura de la aplicación | 7 | 45 |
-| **Total** | **62** | **580** |
+| **Total** | **59** | **548** |
 
 ## 3. Académico (oferta académica)
 
@@ -821,7 +821,6 @@ erDiagram
     mat_matriculas ||--o{ doc_clases_dictadas : "confirmada_por_matricula_id"
     doc_docentes ||--o{ doc_clases_dictadas : "docente_id"
     aca_grupos ||--o{ doc_clases_dictadas : "grupo_id"
-    doc_silabo_semanas ||--o{ doc_clases_dictadas : "silabo_semana_id"
     doc_costos_hora ||--o{ doc_costos_hora : "cerro_costo_id"
     doc_condiciones_laborales ||--o{ doc_costos_hora : "condicion_laboral_id"
     doc_grados_academicos ||--o{ doc_costos_hora : "grado_academico_id"
@@ -836,9 +835,6 @@ erDiagram
     aca_componentes_evaluacion ||--o{ doc_notas_parciales : "componente_id"
     aca_grupos ||--o{ doc_notas_parciales : "grupo_id"
     mat_matriculas ||--o{ doc_notas_parciales : "matricula_id"
-    doc_silabos ||--o{ doc_silabo_evaluaciones : "silabo_id"
-    aca_grupos ||--o{ doc_silabos : "grupo_id"
-    doc_silabos ||--o{ doc_silabo_semanas : "silabo_id"
 ```
 
 ### 7.1. `doc_asistencias`
@@ -928,7 +924,6 @@ Clases dictadas por grupo: fecha, horas, tema, llamados de asistencia y confirma
 | 15 | `confirmada_en` | timestamptz | Sí |  | Fecha y hora de la confirmación u observación. |
 | 16 | `observacion` | text | Sí |  | Observación del delegado; obligatoria si la clase fue observada. |
 | 17 | `tema` | text | Sí |  | Tema desarrollado en la clase. |
-| 18 | `silabo_semana_id` | bigint | Sí |  | Semana del sílabo que corresponde a la clase. Referencia a `doc_silabo_semanas`. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -941,7 +936,6 @@ Clases dictadas por grupo: fecha, horas, tema, llamados de asistencia y confirma
 - `doc_clases_dictadas_docente_id_foreign`: `FOREIGN KEY (docente_id) REFERENCES doc_docentes(id) ON DELETE RESTRICT`
 - `doc_clases_dictadas_grupo_id_foreign`: `FOREIGN KEY (grupo_id) REFERENCES aca_grupos(id) ON DELETE RESTRICT`
 - `doc_clases_dictadas_registrado_por_foreign`: `FOREIGN KEY (registrado_por) REFERENCES users(id) ON DELETE RESTRICT`
-- `doc_clases_dictadas_silabo_semana_id_foreign`: `FOREIGN KEY (silabo_semana_id) REFERENCES doc_silabo_semanas(id) ON DELETE SET NULL`
 
 **Reglas de validación:**
 
@@ -1226,112 +1220,6 @@ Notas parciales (pre-acta) de cada matrícula en cada componente de evaluación.
 **Triggers:**
 
 - `doc_notas_parciales_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
-
-### 7.12. `doc_silabo_evaluaciones`
-
-Evaluaciones programadas en el sílabo.
-
-| N° | Columna | Tipo | Nulo | Por defecto | Descripción |
-|---|---|---|---|---|---|
-| 1 | `id` | bigint | No | Autoincremental | Identificador interno (llave primaria). |
-| 2 | `silabo_id` | bigint | No |  | Sílabo. Referencia a `doc_silabos`. |
-| 3 | `componente_codigo` | varchar(30) | No |  | Código del componente de evaluación. |
-| 4 | `indicadores` | varchar(500) | Sí |  | Indicadores de logro. |
-| 5 | `instrumento` | varchar(500) | Sí |  | Instrumento de evaluación. |
-| 6 | `semana` | smallint | Sí |  | Semana en que se evalúa. |
-| 7 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
-| 8 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
-
-**Llave primaria y restricciones únicas:**
-
-- `doc_silabo_evaluaciones_pkey`: `PRIMARY KEY (id)`
-- `doc_silabo_evaluaciones_silabo_id_componente_codigo_unique`: `UNIQUE (silabo_id, componente_codigo)`
-
-**Llaves foráneas:**
-
-- `doc_silabo_evaluaciones_silabo_id_foreign`: `FOREIGN KEY (silabo_id) REFERENCES doc_silabos(id) ON DELETE RESTRICT`
-
-**Reglas de validación:**
-
-- `doc_silabo_evaluaciones_semana_check`: `CHECK (((semana IS NULL) OR (semana >= 1)))`
-
-**Triggers:**
-
-- `doc_silabo_evaluaciones_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
-
-### 7.13. `doc_silabo_semanas`
-
-Programación semanal del sílabo.
-
-| N° | Columna | Tipo | Nulo | Por defecto | Descripción |
-|---|---|---|---|---|---|
-| 1 | `id` | bigint | No | Autoincremental | Identificador interno (llave primaria). |
-| 2 | `silabo_id` | bigint | No |  | Sílabo. Referencia a `doc_silabos`. |
-| 3 | `semana` | smallint | No |  | Número de semana. |
-| 4 | `unidad` | varchar(500) | Sí |  | Unidad didáctica. |
-| 5 | `saber` | varchar(500) | Sí |  | Contenidos conceptuales (saber). |
-| 6 | `saber_hacer` | varchar(500) | Sí |  | Contenidos procedimentales (saber hacer). |
-| 7 | `saber_ser` | varchar(500) | Sí |  | Contenidos actitudinales (saber ser). |
-| 8 | `actividades` | varchar(500) | Sí |  | Actividades. |
-| 9 | `recursos` | varchar(500) | Sí |  | Recursos. |
-| 10 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
-| 11 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
-
-**Llave primaria y restricciones únicas:**
-
-- `doc_silabo_semanas_pkey`: `PRIMARY KEY (id)`
-- `doc_silabo_semanas_silabo_id_semana_unique`: `UNIQUE (silabo_id, semana)`
-
-**Llaves foráneas:**
-
-- `doc_silabo_semanas_silabo_id_foreign`: `FOREIGN KEY (silabo_id) REFERENCES doc_silabos(id) ON DELETE RESTRICT`
-
-**Reglas de validación:**
-
-- `doc_silabo_semanas_semana_check`: `CHECK ((semana >= 1))`
-
-**Triggers:**
-
-- `doc_silabo_semanas_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
-
-### 7.14. `doc_silabos`
-
-Sílabo de cada grupo.
-
-| N° | Columna | Tipo | Nulo | Por defecto | Descripción |
-|---|---|---|---|---|---|
-| 1 | `id` | bigint | No | Autoincremental | Identificador interno (llave primaria). |
-| 2 | `grupo_id` | bigint | No |  | Grupo del sílabo. Referencia a `aca_grupos`. |
-| 3 | `estado` | varchar(255) | No | `'borrador'` | Estado del sílabo: borrador o publicado. Valores: `borrador`, `publicado`. |
-| 4 | `sumilla` | text | Sí |  | Sumilla del curso. |
-| 5 | `competencias` | text | Sí |  | Competencias. |
-| 6 | `capacidades` | text | Sí |  | Capacidades. |
-| 7 | `metodologia` | text | Sí |  | Metodología. |
-| 8 | `bibliografia` | text | Sí |  | Bibliografía. |
-| 9 | `publicado_en` | timestamptz | Sí |  | Fecha y hora de publicación. |
-| 10 | `publicado_por` | bigint | Sí |  | Cuenta que publicó el sílabo. Referencia a `users`. |
-| 11 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
-| 12 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
-
-**Llave primaria y restricciones únicas:**
-
-- `doc_silabos_pkey`: `PRIMARY KEY (id)`
-- `doc_silabos_grupo_id_unique`: `UNIQUE (grupo_id)`
-
-**Llaves foráneas:**
-
-- `doc_silabos_grupo_id_foreign`: `FOREIGN KEY (grupo_id) REFERENCES aca_grupos(id) ON DELETE RESTRICT`
-- `doc_silabos_publicado_por_foreign`: `FOREIGN KEY (publicado_por) REFERENCES users(id) ON DELETE RESTRICT`
-
-**Reglas de validación:**
-
-- `doc_silabos_estado_check`: `CHECK (((estado) = ANY ((ARRAY['borrador', 'publicado']))))`
-- `doc_silabos_longitud_check`: `CHECK (((char_length(COALESCE(sumilla, '')) <= 2000) AND (char_length(COALESCE(competencias, '')) <= 2000) AND (char_length(COALESCE(capacidades, '')) <= 2000) AND (char_length(COALESCE(metodologia, '')) <= 2000) AND (char_length(COALESCE(bibliografia, '')) <= 2000)))`
-- `doc_silabos_publicacion_check`: `CHECK ((((estado) = 'publicado') = ((publicado_en IS NOT NULL) AND (publicado_por IS NOT NULL))))`
-
-**Triggers:**
-
-- `doc_silabos_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 
 ## 8. Certificación
 
@@ -2198,7 +2086,7 @@ Funciones de PostgreSQL que ejecutan los triggers descritos en cada tabla. `aud_
 | `aca_horarios_aula_libre()` | `aca_horarios` |
 | `aca_periodos_aula_libre()` | `aca_periodos` |
 | `aud_impedir_cambios()` | `aud_registros` |
-| `aud_registrar()` | `aca_aulas`, `aca_ciclos`, `aca_componentes_evaluacion`, `aca_esquemas_evaluacion`, `aca_grupos`, `aca_horarios`, `aca_idiomas`, `aca_periodos`, `cer_actas`, `cer_denominaciones`, `cer_documentos`, `cer_firmantes`, `cer_notas_finales`, `cer_rectificaciones`, `doc_asistencias`, `doc_cargas_academicas`, `doc_clases_dictadas`, `doc_condiciones_laborales`, `doc_costos_hora`, `doc_delegados`, `doc_disponibilidades`, `doc_docente_idiomas`, `doc_docentes`, `doc_grados_academicos`, `doc_notas_parciales`, `doc_silabo_evaluaciones`, `doc_silabo_semanas`, `doc_silabos`, `mat_habilitaciones`, `mat_matriculas`, `mat_movimientos`, `mat_solicitudes_clasificacion`, `model_has_permissions`, `model_has_roles`, `pag_conceptos`, `pag_fuentes_concepto`, `pag_medios_pago`, `pag_pagos`, `pag_tarifas`, `per_personas`, `role_has_permissions`, `roles`, `tra_etapas`, `tra_tipos_tramite`, `tra_tramites` |
+| `aud_registrar()` | `aca_aulas`, `aca_ciclos`, `aca_componentes_evaluacion`, `aca_esquemas_evaluacion`, `aca_grupos`, `aca_horarios`, `aca_idiomas`, `aca_periodos`, `cer_actas`, `cer_denominaciones`, `cer_documentos`, `cer_firmantes`, `cer_notas_finales`, `cer_rectificaciones`, `doc_asistencias`, `doc_cargas_academicas`, `doc_clases_dictadas`, `doc_condiciones_laborales`, `doc_costos_hora`, `doc_delegados`, `doc_disponibilidades`, `doc_docente_idiomas`, `doc_docentes`, `doc_grados_academicos`, `doc_notas_parciales`, `mat_habilitaciones`, `mat_matriculas`, `mat_movimientos`, `mat_solicitudes_clasificacion`, `model_has_permissions`, `model_has_roles`, `pag_conceptos`, `pag_fuentes_concepto`, `pag_medios_pago`, `pag_pagos`, `pag_tarifas`, `per_personas`, `role_has_permissions`, `roles`, `tra_etapas`, `tra_tipos_tramite`, `tra_tramites` |
 | `cer_controlar_acta()` | `cer_actas` |
 | `cer_controlar_documentos()` | `cer_documentos` |
 | `cer_controlar_notas_finales()` | `cer_notas_finales` |

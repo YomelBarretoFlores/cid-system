@@ -6,7 +6,6 @@ namespace App\Modules\Docencia\Data;
 
 use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Certificacion\Enums\EstadoActa;
-use App\Modules\Docencia\Enums\EstadoSilabo;
 use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Shared\Ui\Formato;
 use Carbon\CarbonImmutable;
@@ -16,7 +15,6 @@ final readonly class ResumenDeMiGrupo
 {
     public function __construct(
         public HorarioDeGrupo $grupo,
-        public ?EstadoSilabo $silabo,
         public int $dictadas,
         public int $programadas,
         public ?ClaseProgramada $proxima,
@@ -55,11 +53,6 @@ final readonly class ResumenDeMiGrupo
         return $this->grupo->aulaCodigo === null ? $partes : [...$partes, $this->grupo->aulaCodigo];
     }
 
-    public function silaboListo(): bool
-    {
-        return $this->silabo === EstadoSilabo::Publicado;
-    }
-
     public function notasCompletas(): bool
     {
         return $this->notasEsperadas > 0 && $this->notasRegistradas >= $this->notasEsperadas;
@@ -90,7 +83,6 @@ final readonly class ResumenDeMiGrupo
     public function siguientePaso(): array
     {
         return match (true) {
-            ! $this->silaboListo() => ['Completar sílabo', 'filament.docente.pages.grupos.silabo'],
             $this->esHoy => ['Tomar asistencia', 'filament.docente.pages.grupos.asistencia'],
             $this->acta === EstadoActa::Cerrada => ['Ver acta final', 'filament.docente.pages.grupos.acta'],
             $this->actaAbiertaHoy() && $this->notasCompletas() => ['Cerrar acta', 'filament.docente.pages.grupos.acta'],

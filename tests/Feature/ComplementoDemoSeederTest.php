@@ -11,16 +11,12 @@ use App\Modules\Docencia\Actions\RegistrarAsistencia;
 use App\Modules\Docencia\Database\Seeders\ControlDeClasesDemoSeeder;
 use App\Modules\Docencia\Database\Seeders\CuentasDeDemo;
 use App\Modules\Docencia\Enums\EstadoAsistencia;
-use App\Modules\Docencia\Enums\EstadoSilabo;
 use App\Modules\Docencia\Models\CargaAcademica;
 use App\Modules\Docencia\Models\ClaseDictada;
 use App\Modules\Docencia\Models\NotaParcial;
-use App\Modules\Docencia\Models\SemanaDeSilabo;
-use App\Modules\Docencia\Models\Silabo;
 use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Modules\Docencia\Support\DelegadoDelGrupo;
 use App\Modules\Docencia\Support\EstadoDeLaClase;
-use App\Modules\Docencia\Support\SilabosParaCopiar;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Modules\Matricula\Models\Habilitacion;
@@ -49,7 +45,7 @@ function filasPorTabla(): array
         ->all();
 }
 
-// The demo as it was seeded before these features: every class without calls ("registro anterior"), no delegates, syllabi or record.
+// The demo as it was seeded before these features: every class without calls ("registro anterior"), no delegates or record.
 // With $registroAnterior false the classes stay "registro posterior", as the seed of the previous release saved them.
 function sembrarDemoAnterior(bool $registroAnterior = true): void
 {
@@ -103,23 +99,16 @@ function cicloHabilitadoEnPortugues(): ?string
     return $habilitacion === null ? null : Ciclo::query()->whereKey($habilitacion->ciclo_id)->value('numero').' '.$habilitacion->origen->value;
 }
 
-it('completes a fresh demo seed with syllabi, delegates, both calls, complete grades and a passed record', function (): void {
+it('completes a fresh demo seed with delegates, both calls, complete grades and a passed record', function (): void {
     $this->seed(DatabaseSeeder::class);
 
     $ingles = grupoDelMes('ING-1-M');
-    $publicado = Silabo::query()->where('grupo_id', $ingles->id)->with(['semanas', 'evaluaciones'])->sole();
     $estudiante = CuentasDeDemo::personaDelEstudiante();
     $actuales = Grupo::query()->whereRelation('periodo', 'estado', 'en_curso')->whereIn('id', CargaAcademica::query()->select('grupo_id'))->get();
     $matriculas = Matricula::query()->where(['persona_id' => $estudiante, 'estado' => 'activa'])->whereIn('grupo_id', $actuales->modelKeys())->get();
     $observada = ClaseDictada::query()->where(['grupo_id' => $ingles->id, 'fecha' => '2026-10-19'])->sole();
 
-    expect($publicado->estado)->toBe(EstadoSilabo::Publicado)
-        ->and(array_filter($publicado->only(['sumilla', 'competencias', 'capacidades', 'metodologia', 'bibliografia'])))->toHaveCount(5)
-        ->and($publicado->semanas->filter(fn (SemanaDeSilabo $semana): bool => $semana->saber !== null && $semana->actividades !== null))->toHaveCount(5)
-        ->and($publicado->evaluaciones->pluck('componente_codigo')->sort()->values()->all())->toBe(['final', 'parcial', 'participacion'])
-        ->and(Silabo::query()->where('grupo_id', grupoDelMes('ITA-1-M')->id)->sole()->estado)->toBe(EstadoSilabo::Borrador)
-        ->and(app(SilabosParaCopiar::class)($ingles->id))->toHaveCount(1)
-        ->and($actuales->filter(fn (Grupo $grupo): bool => app(DelegadoDelGrupo::class)($grupo->id) instanceof EstudianteDelGrupo))->toHaveCount($actuales->count())
+    expect($actuales->filter(fn (Grupo $grupo): bool => app(DelegadoDelGrupo::class)($grupo->id) instanceof EstudianteDelGrupo))->toHaveCount($actuales->count())
         ->and(app(DelegadoDelGrupo::class)($ingles->id)?->personaId)->toBe($estudiante)
         ->and(clasesConLlamados($ingles))->toBe(['2026-10-14 confirmada', '2026-10-16 confirmada', '2026-10-19 observada', '2026-10-21 sin_confirmar'])
         ->and($observada->observacion)->toBe('La clase terminó veinte minutos antes de la hora programada.')
@@ -144,12 +133,10 @@ it('completes a demo seeded before these features without deleting what it had',
     $ingles = grupoDelMes('ING-1-M');
     $clases = ClaseDictada::query()->where('grupo_id', $ingles->id)->pluck('id')->sort()->values()->all();
 
-    expect(Silabo::query()->count())->toBe(0)
-        ->and(clasesConLlamados($ingles))->toBe([])
+    expect(clasesConLlamados($ingles))->toBe([])
         ->and(historialDelEstudiante())->toBe([]);
 
     $this->artisan('db:seed', ['--class' => ComplementoDemoSeeder::class, '--force' => true])
-        ->expectsOutputToContain('Sílabos de demo: 3 creados')
         ->expectsOutputToContain('Delegados de demo: 6 designados')
         ->expectsOutputToContain('Control de clases de demo: 4 clases tomadas')
         ->expectsOutputToContain('Notas de demo: 8 notas registradas')
@@ -158,7 +145,6 @@ it('completes a demo seeded before these features without deleting what it had',
 
     expect(ClaseDictada::query()->where('grupo_id', $ingles->id)->pluck('id')->sort()->values()->all())->toBe($clases)
         ->and(clasesConLlamados($ingles))->toBe(['2026-10-14 confirmada', '2026-10-16 confirmada', '2026-10-19 observada', '2026-10-21 sin_confirmar'])
-        ->and(Silabo::query()->pluck('estado')->map->value->sort()->values()->all())->toBe(['borrador', 'publicado', 'publicado'])
         ->and(historialDelEstudiante())->toBe(['Portugués 1 Julio 2026: cerrada aprobado', 'Portugués 2 Agosto 2026: cerrada aprobado'])
         ->and(cicloHabilitadoEnPortugues())->toBe('3 aprobacion');
 });

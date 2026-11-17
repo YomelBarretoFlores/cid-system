@@ -21,7 +21,7 @@ use Livewire\Component;
 #[Title('Reportes')]
 final class MisReportes extends Component
 {
-    public const array PESTANAS = ['todos' => 'Todos', 'avance' => 'Avance de notas', 'aprobado' => 'Avance por idioma', 'horario' => 'Horario', 'silabos' => 'Sílabos'];
+    public const array PESTANAS = ['todos' => 'Todos', 'avance' => 'Avance de notas', 'aprobado' => 'Avance por idioma', 'horario' => 'Horario'];
 
     #[Url]
     public ?int $periodo = null;
