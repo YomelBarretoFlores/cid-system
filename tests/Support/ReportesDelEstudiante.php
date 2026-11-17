@@ -14,7 +14,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Carbon;
 
 // One student of ING-1-M (Inglés, ciclo 1, Marzo 2027, Monday and Wednesday 18:00 to 20:00, ten classes in the period) with
-// pre-acta grades 15 and 12 (partial average 10.80) and three classes held: present, absent at the second call, and late.
+// pre-acta exam grades 15 and 12 and no skill grade (partial average 7.00) and three classes held: present, absent at the second call, and late.
 final class ReportesDelEstudiante
 {
     /**

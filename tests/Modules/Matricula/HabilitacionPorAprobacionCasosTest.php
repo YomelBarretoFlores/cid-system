@@ -32,11 +32,11 @@ beforeEach(function (): void {
     $this->grupo = $this->curso['grupo'];
     $this->cicloUno = $this->grupo->ciclo;
     $this->idiomaId = $this->cicloUno->idioma_id;
-    [$parcial, $final] = [$this->curso['parcial']->id, $this->curso['final']->id];
+    [$oral, $parcial, $final] = [$this->curso['oral']->id, $this->curso['parcial']->id, $this->curso['final']->id];
     $this->ana = ActasFinales::estudiante($this->grupo, 'Alva');
     $this->beto = ActasFinales::estudiante($this->grupo, 'Bravo');
     $this->ciro = ActasFinales::estudiante($this->grupo, 'Castro');
-    ActasFinales::preActa($this->ana, [$parcial => '15.00', $final => '14.00']);
+    ActasFinales::preActa($this->ana, [$oral => '15.00', $parcial => '15.00', $final => '14.00']);
     ActasFinales::preActa($this->beto, [$parcial => '8.00', $final => '10.00']);
 });
 
@@ -82,9 +82,9 @@ it('gives nothing to failing or NSP students, keeps a higher placement, and move
     $cicloDos = Ciclo::factory()->create(['idioma_id' => $this->idiomaId, 'numero' => 2, 'nivel' => NivelCurricular::Basico]);
     $cicloCuatro = Ciclo::factory()->create(['idioma_id' => $this->idiomaId, 'numero' => 4, 'nivel' => NivelCurricular::Basico]);
     $dany = ActasFinales::estudiante($this->grupo, 'Diaz');
-    ActasFinales::preActa($dany, [$this->curso['parcial']->id => '18.00', $this->curso['final']->id => '18.00']);
+    ActasFinales::preActa($dany, [$this->curso['oral']->id => '18.00', $this->curso['parcial']->id => '18.00', $this->curso['final']->id => '18.00']);
     $eva = ActasFinales::estudiante($this->grupo, 'Espinoza');
-    ActasFinales::preActa($eva, [$this->curso['parcial']->id => '18.00', $this->curso['final']->id => '18.00']);
+    ActasFinales::preActa($eva, [$this->curso['oral']->id => '18.00', $this->curso['parcial']->id => '18.00', $this->curso['final']->id => '18.00']);
     Habilitacion::factory()->create(['persona_id' => $dany->persona_id, 'idioma_id' => $this->idiomaId, 'ciclo_id' => $this->cicloUno->id]);
     Habilitacion::factory()->create(['persona_id' => $eva->persona_id, 'idioma_id' => $this->idiomaId, 'ciclo_id' => $cicloCuatro->id]);
 

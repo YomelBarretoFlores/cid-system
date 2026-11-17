@@ -19,6 +19,8 @@ final readonly class AvanceDeNotasDelEstudiante
         public ?EstadoFinal $estadoFinal,
         public ?string $notaMinimaAprobatoria,
         public ?string $aviso = null,
+        public ?string $promedioHabilidades = null,
+        public ?string $promedioExamenes = null,
     ) {}
 
     public static function noDisponible(): self

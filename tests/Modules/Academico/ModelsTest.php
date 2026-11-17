@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
+use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
@@ -76,10 +77,11 @@ it('lists group schedules by day and start time', function (): void {
 
 it('lists evaluation components in their configured order', function (): void {
     $esquema = EsquemaEvaluacion::factory()->create();
-    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'peso' => '40.00', 'orden' => 2]);
-    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'peso' => '40.00', 'orden' => 1]);
-    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'participacion', 'peso' => '20.00', 'orden' => 3]);
+    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'grupo' => GrupoDeComponente::Examenes, 'orden' => 3]);
+    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'grupo' => GrupoDeComponente::Habilidades, 'orden' => 1]);
+    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'grupo' => GrupoDeComponente::Examenes, 'orden' => 2]);
 
-    expect($esquema->componentes->pluck('codigo')->all())->toBe(['parcial', 'final', 'participacion'])
-        ->and($esquema->componentes->sum('peso'))->toEqual(100);
+    expect($esquema->componentes->pluck('codigo')->all())->toBe(['oral', 'parcial', 'final'])
+        ->and($esquema->componentes->map(fn (ComponenteEvaluacion $componente): GrupoDeComponente => $componente->grupo)->all())
+        ->toBe([GrupoDeComponente::Habilidades, GrupoDeComponente::Examenes, GrupoDeComponente::Examenes]);
 });

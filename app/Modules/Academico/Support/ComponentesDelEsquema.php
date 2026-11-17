@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Modules\Academico\Support;
 
+use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 
-/** Validates and normalizes the components of an evaluation scheme: codes, names and weights that sum exactly 100. */
+/** Validates and normalizes the components of an evaluation scheme: codes, names and a group, with at least one skill and one exam. */
 final class ComponentesDelEsquema
 {
     /**
-     * @param  list<array{codigo: string, nombre: string, peso: string}>  $entrada
-     * @return list<array{codigo: string, nombre: string, peso: numeric-string, orden: int}>
+     * @param  list<array{codigo: string, nombre: string, grupo: string}>  $entrada
+     * @return list<array{codigo: string, nombre: string, grupo: GrupoDeComponente, orden: int}>
      */
     public static function validar(array $entrada): array
     {
@@ -28,10 +29,10 @@ final class ComponentesDelEsquema
                 throw new ReglaDeNegocioIncumplida("El código «{$codigo}» se repite.");
             }
 
-            $componentes[$codigo] = ['codigo' => $codigo, 'nombre' => self::nombre($componente['nombre'], $codigo), 'peso' => self::peso($componente['peso'], $codigo), 'orden' => $posicion + 1];
+            $componentes[$codigo] = ['codigo' => $codigo, 'nombre' => self::nombre($componente['nombre'], $codigo), 'grupo' => self::grupo($componente['grupo'], $codigo), 'orden' => $posicion + 1];
         }
 
-        self::asegurarCien(array_column($componentes, 'peso'));
+        self::asegurarAmbosGrupos(array_column($componentes, 'grupo'));
 
         return array_values($componentes);
     }
@@ -62,29 +63,18 @@ final class ComponentesDelEsquema
         return $limpio !== '' && mb_strlen($limpio) <= 80 ? $limpio : throw new ReglaDeNegocioIncumplida("Escribe el nombre del componente «{$codigo}», hasta 80 caracteres.");
     }
 
-    /**
-     * @return numeric-string
-     */
-    private static function peso(string $peso, string $codigo): string
+    private static function grupo(string $grupo, string $codigo): GrupoDeComponente
     {
-        $valor = trim($peso);
-
-        if (! is_numeric($valor) || bccomp($valor, '0', 2) <= 0 || bccomp($valor, '100', 2) > 0) {
-            throw new ReglaDeNegocioIncumplida("El peso de «{$codigo}» debe ser mayor que 0 y hasta 100.");
-        }
-
-        return bcadd($valor, '0', 2);
+        return GrupoDeComponente::tryFrom(trim($grupo)) ?? throw new ReglaDeNegocioIncumplida("Elige si el componente «{$codigo}» es una habilidad o un examen.");
     }
 
     /**
-     * @param  list<numeric-string>  $pesos
+     * @param  list<GrupoDeComponente>  $grupos
      */
-    private static function asegurarCien(array $pesos): void
+    private static function asegurarAmbosGrupos(array $grupos): void
     {
-        $total = array_reduce($pesos, fn (string $suma, string $peso): string => bcadd($suma, $peso, 2), '0');
-
-        if (bccomp($total, '100', 2) !== 0) {
-            throw new ReglaDeNegocioIncumplida('Los pesos de los componentes deben sumar 100; ahora suman '.rtrim(rtrim($total, '0'), '.').'.');
+        if (! in_array(GrupoDeComponente::Habilidades, $grupos, true) || ! in_array(GrupoDeComponente::Examenes, $grupos, true)) {
+            throw new ReglaDeNegocioIncumplida('El sistema de evaluación necesita al menos una habilidad y al menos un examen.');
         }
     }
 }

@@ -267,7 +267,7 @@ Cada conexión abre con límites que evitan que una transacción trabada haga es
 
 Antes de abrir la matrícula, la coordinación registra en el panel (Configuración):
 
-- **Sistemas de evaluación**: al menos uno general (sin idioma ni nivel) con sus componentes, cuyos pesos suman 100, y la nota mínima aprobatoria. Sin un sistema vigente, el docente no puede registrar notas y el acta no se cierra ("pide a coordinación que lo registre").
+- **Sistemas de evaluación**: al menos uno general (sin idioma ni nivel) con sus componentes (las cuatro habilidades como grupo Habilidades y los exámenes parcial y final como grupo Exámenes) y la nota mínima aprobatoria. Sin un sistema vigente, el docente no puede registrar notas y el acta no se cierra ("pide a coordinación que lo registre").
 - **Medios de pago** y **fuentes TUPA/TUSNE**: vienen precargados; se desactivan o renombran según el CILN.
 
 ## Producción con Docker

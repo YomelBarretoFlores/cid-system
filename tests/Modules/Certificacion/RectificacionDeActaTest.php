@@ -27,7 +27,7 @@ beforeEach(function (): void {
     $this->grupo = $this->curso['grupo'];
     $this->ana = ActasFinales::estudiante($this->grupo, 'Alva', '70000001');
     $this->beto = ActasFinales::estudiante($this->grupo, 'Bravo', '70000002');
-    ActasFinales::preActa($this->ana, [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['participacion']->id => '18.00']);
+    ActasFinales::preActa($this->ana, [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['oral']->id => '18.00']);
     ActasFinales::preActa($this->beto, [$this->curso['parcial']->id => '8.00', $this->curso['final']->id => '10.00']);
     app(CerrarActa::class)($this->grupo->id, $this->curso['docente']->id, $this->curso['usuario']);
     $this->acta = Acta::query()->sole();
@@ -70,7 +70,7 @@ it('refuses a rectification without a reason of 5 to 500 characters or on an act
 it('refuses to rectify grades of a closed acta', function (): void {
     expect(fn () => rectificar([$this->beto->id => [$this->curso['final']->id => '14']]))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El acta final del grupo ING-1-M está cerrada; para corregirla, el administrador debe autorizar una rectificación.')
-        ->and(NotaFinal::query()->where('matricula_id', $this->beto->id)->sole()->promedio)->toBe('7.20');
+        ->and(NotaFinal::query()->where('matricula_id', $this->beto->id)->sole()->promedio)->toBe('5.00');
 });
 
 it('rectifies grades after the authorization, even outside the grade calendar, recomputing only the changed rows', function (): void {
@@ -80,13 +80,13 @@ it('rectifies grades after the authorization, even outside the grade calendar, r
 
     rectificar([
         $this->ana->id => [$this->curso['parcial']->id => '15'],
-        $this->beto->id => [$this->curso['final']->id => '18,5', $this->curso['participacion']->id => '15'],
+        $this->beto->id => [$this->curso['final']->id => '18,5', $this->curso['oral']->id => '15'],
     ]);
 
     $beto = NotaFinal::query()->where('matricula_id', $this->beto->id)->sole();
 
-    expect($beto->notas)->toEqual([$this->curso['parcial']->id => '8.00', $this->curso['final']->id => '18.50', $this->curso['participacion']->id => '15.00'])
-        ->and($beto->promedio)->toBe('13.60')
+    expect($beto->notas)->toEqual([$this->curso['parcial']->id => '8.00', $this->curso['final']->id => '18.50', $this->curso['oral']->id => '15.00'])
+        ->and($beto->promedio)->toBe('14.00')
         ->and($beto->estado_final)->toBe(EstadoFinal::Aprobado)
         ->and(DB::table('aud_registros')->where('tabla', 'cer_notas_finales')->count())->toBe($auditadas + 1);
 });
@@ -106,7 +106,7 @@ it('refuses rectified grades out of the scale, students or components not in the
     autorizar();
 
     expect(fn () => rectificar($notas->call($this)))->toThrow(ReglaDeNegocioIncumplida::class, $mensaje)
-        ->and(NotaFinal::query()->where('matricula_id', $this->beto->id)->sole()->promedio)->toBe('7.20');
+        ->and(NotaFinal::query()->where('matricula_id', $this->beto->id)->sole()->promedio)->toBe('5.00');
 })->with([
     'above the maximum' => [fn (): array => [$this->beto->id => [$this->curso['final']->id => '21']], 'La nota 21 no es válida: usa un número de 0 a 20 con hasta dos decimales.'],
     'a student not in the acta' => [fn (): array => [ActasFinales::estudiante($this->grupo, 'Nuevo', '70000009')->id => [$this->curso['final']->id => '14']], 'La lista del acta cambió; vuelve a cargar la página.'],

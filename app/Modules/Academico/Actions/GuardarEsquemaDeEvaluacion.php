@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Actions;
 
 use App\Modules\Academico\Data\DatosDeEsquema;
+use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\EsquemaEvaluacion;
 use App\Modules\Academico\Support\ComponentesDelEsquema;
@@ -85,18 +86,18 @@ final readonly class GuardarEsquemaDeEvaluacion
     }
 
     /**
-     * @param  list<array{codigo: string, nombre: string, peso: numeric-string, orden: int}>  $componentes
+     * @param  list<array{codigo: string, nombre: string, grupo: GrupoDeComponente, orden: int}>  $componentes
      * @param  array{numeric-string, numeric-string}  $notas
      */
     private function cerrarOrenombrar(EsquemaEvaluacion $esquema, DatosDeEsquema $datos, array $componentes, array $notas): EsquemaEvaluacion
     {
-        $guardados = $esquema->componentes()->get()->map(fn ($componente): array => ['codigo' => $componente->codigo, 'nombre' => $componente->nombre, 'peso' => $componente->peso, 'orden' => $componente->orden])->all();
+        $guardados = $esquema->componentes()->get()->map(fn ($componente): array => ['codigo' => $componente->codigo, 'nombre' => $componente->nombre, 'grupo' => $componente->grupo, 'orden' => $componente->orden])->all();
         $mismoContenido = $guardados === $componentes
             && [$esquema->idioma_id, $esquema->nivel, $esquema->nota_maxima, $esquema->nota_minima_aprobatoria, $esquema->vigente_desde->toDateString()]
             === [$datos->idiomaId, $datos->nivel, $notas[0], $notas[1], $datos->vigenteDesde->toDateString()];
 
         if (! $mismoContenido) {
-            throw new ReglaDeNegocioIncumplida("El sistema «{$esquema->nombre}» ya está vigente; para cambiar componentes, pesos o notas, cierra su vigencia y crea uno nuevo.");
+            throw new ReglaDeNegocioIncumplida("El sistema «{$esquema->nombre}» ya está vigente; para cambiar componentes o notas, cierra su vigencia y crea uno nuevo.");
         }
 
         $hoy = CarbonImmutable::today('America/Lima');

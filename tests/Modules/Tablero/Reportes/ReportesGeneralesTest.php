@@ -114,7 +114,7 @@ it('summarises the grades of each group with its acta state', function (): void 
 
     ReportesDelEstudiante::cerrarActa($this->escenario['curso']);
 
-    expect(filasDe(app(GenerarReporteDeNotas::class)($this->filtros), 'Notas por grupo'))->toBe([['ING-1-M', 'Inglés', 'Básico', 1, 'Vega Ríos, Carlos', 'Cerrada', 1, 0, 1, 0, 10.8]]);
+    expect(filasDe(app(GenerarReporteDeNotas::class)($this->filtros), 'Notas por grupo'))->toBe([['ING-1-M', 'Inglés', 'Básico', 1, 'Vega Ríos, Carlos', 'Cerrada', 1, 0, 1, 0, 7.0]]);
 });
 
 it('gives the teaching load of each teacher with assigned and taught hours', function (): void {

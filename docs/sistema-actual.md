@@ -61,7 +61,7 @@ Estado de todas: **pendiente de decisión del CILN**.
 | S9 | Grupos fusionados: un docente con varios grupos en la misma hora y aula | Prohibido por las reglas de cruce de docente y de aula | Medio: hay que cambiar esas reglas |
 | S10 | Calendario de días de clase por mes (feriados o días sin clase) | Los días de clase salen del horario semanal; sin feriados (#46) | Medio: afecta asistencia y horas del docente |
 | S11 | Franjas horarias fijas | Horario libre por día, hora de inicio y fin | Bajo: se puede cargar como catálogo |
-| S12 | Promedios intermedios en el acta (Promedio de habilidades y Promedio de exámenes) | Suma ponderada plana de componentes; el promedio final se reproduce, los intermedios no | Medio |
+| S12 | Promedios intermedios en el acta (Promedio de habilidades y Promedio de exámenes) | Implementado (2026-11-17): pre-acta, acta final y avance de notas muestran ambos promedios; la nota final es su promedio, redondeado al entero (#56) | — |
 | S13 | Control de asistencia dentro de la pre-acta impresa y firmas (Vº Bº Director(a) Académico, docente) | La pre-acta no trae asistencia ni firmas; el acta final sí trae firmantes | Bajo |
 | S14 | Reporte de horarios por aula (cuadrícula) | No existe | Bajo |
 | S15 | Reporte de grupos con docente, programa y turno, y filtros por ciclo y programa | El reporte de matriculados no trae docente, programa ni turno | Bajo |

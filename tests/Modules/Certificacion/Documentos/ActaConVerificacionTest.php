@@ -15,7 +15,7 @@ use Tests\Support\ActasFinales;
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2027-03-30 10:00', 'America/Lima'));
     $this->curso = ActasFinales::curso();
-    ActasFinales::preActa(ActasFinales::estudiante($this->curso['grupo'], 'Quispe', '70000001'), [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '14.00', $this->curso['participacion']->id => '16.00']);
+    ActasFinales::preActa(ActasFinales::estudiante($this->curso['grupo'], 'Quispe', '70000001'), [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '14.00', $this->curso['oral']->id => '16.00']);
     ActasFinales::preActa(ActasFinales::estudiante($this->curso['grupo'], 'Rojas', '70000002'), [$this->curso['parcial']->id => '8.00', $this->curso['final']->id => '9.00']);
     ActasFinales::estudiante($this->curso['grupo'], 'Soto', '70000003');
     app(CerrarActa::class)($this->curso['grupo']->id, $this->curso['docente']->id, $this->curso['usuario']);
@@ -26,7 +26,7 @@ it('prints the acta with the grades in words, the totals, the closing box and a 
     $pdf = app(GenerarActaFinalPdf::class)($this->acta->id);
     $html = view($pdf->viewName, $pdf->viewData)->render();
 
-    expect($html)->toContain('ACTA FINAL DE EVALUACIÓN', 'CERRADA · 30/03/2027', 'En letras', 'Catorce con ochenta', 'Matriculados', 'Aprobados', 'Desaprobados', 'NSP', 'Sello', 'data:image/png;base64,')
+    expect($html)->toContain('ACTA FINAL DE EVALUACIÓN', 'CERRADA · 30/03/2027', 'En letras', 'Quince', 'Matriculados', 'Aprobados', 'Desaprobados', 'NSP', 'Sello', 'data:image/png;base64,')
         ->and($pdf->viewData['verificacion'])->toContain('/verificar/acta/'.$this->acta->id)->toContain('signature=');
 });
 

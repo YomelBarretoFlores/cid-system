@@ -64,7 +64,7 @@ it('leaves a signature line for the CILN direction when no signer is registered'
 it('prints the acta final with signature lines for the teacher and the acta signers', function (): void {
     $this->travelTo(CarbonImmutable::parse('2027-03-30 10:00', 'America/Lima'));
     $curso = ActasFinales::curso();
-    ActasFinales::preActa(ActasFinales::estudiante($curso['grupo'], 'Quispe'), [$curso['parcial']->id => '15.00', $curso['final']->id => '14.00', $curso['participacion']->id => '16.00']);
+    ActasFinales::preActa(ActasFinales::estudiante($curso['grupo'], 'Quispe'), [$curso['parcial']->id => '15.00', $curso['final']->id => '14.00', $curso['oral']->id => '16.00']);
     app(CerrarActa::class)($curso['grupo']->id, $curso['docente']->id, $curso['usuario']);
     $actaId = (int) Acta::query()->where('grupo_id', $curso['grupo']->id)->value('id');
 

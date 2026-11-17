@@ -10,7 +10,7 @@ use Carbon\CarbonImmutable;
 final readonly class DatosDeEsquema
 {
     /**
-     * @param  list<array{codigo: string, nombre: string, peso: string}>  $componentes  in the order they are shown
+     * @param  list<array{codigo: string, nombre: string, grupo: string}>  $componentes  in the order they are shown; grupo is a GrupoDeComponente value
      */
     public function __construct(
         public string $nombre,

@@ -25,7 +25,7 @@ beforeEach(function (): void {
     $this->curso = ActasFinales::curso();
     $ana = ActasFinales::estudiante($this->curso['grupo'], 'Alva', '70000001');
     $beto = ActasFinales::estudiante($this->curso['grupo'], 'Bravo', '70000002');
-    ActasFinales::preActa($ana, [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['participacion']->id => '18.00']);
+    ActasFinales::preActa($ana, [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['oral']->id => '18.00']);
     ActasFinales::preActa($beto, [$this->curso['parcial']->id => '8.00']);
     app(CerrarActa::class)($this->curso['grupo']->id, $this->curso['docente']->id, $this->curso['usuario']);
     $this->acta = Acta::query()->sole();
@@ -75,8 +75,9 @@ it('shows the acta with its grades, averages and final states', function (): voi
         ->get(ActaResource::getUrl('view', ['record' => $this->acta]))
         ->assertOk()
         ->assertSeeInOrder(['Inglés', 'Básico · Básico I', 'Marzo 2027', 'ING-1-M', 'Vega Ríos, Carlos', 'Cerrada',
-            'Examen parcial (40 %)', 'DNI 70000001', 'Alva Prueba, Ana', '15', '12', '18', '14.40', 'Aprobado',
-            'DNI 70000002', 'Bravo Prueba, Ana', '8', '—', '3.20', 'Desaprobado', 'Sin rectificaciones.']);
+            'Habilidades', 'Exámenes', 'Promedio final', 'Expresión oral', 'Prom. habilidades', 'Examen parcial', 'Examen final', 'Prom. exámenes',
+            'DNI 70000001', 'Alva Prueba, Ana', '18', '18.00', '15', '12', '13.50', '16.00', 'Aprobado',
+            'DNI 70000002', 'Bravo Prueba, Ana', '—', '0.00', '8', '—', '4.00', '2.00', 'Desaprobado', 'Sin rectificaciones.']);
 });
 
 it('authorizes a rectification with its reason and records who did it', function (): void {

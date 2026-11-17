@@ -1,3 +1,4 @@
+@use('App\Modules\Academico\Enums\GrupoDeComponente')
 @use('App\Shared\Ui\Formato')
 <x-pdf.documento titulo="PRE ACTA DE EVALUACIÓN">
     <div style="position: fixed; top: 7cm; left: 0; right: 0; text-align: center; font-family: 'DejaVu Sans', sans-serif; font-size: 54pt; font-weight: bold; letter-spacing: 6px; color: #a3261c; opacity: 0.07;">SIN VALOR OFICIAL</div>
@@ -15,14 +16,22 @@
     <table class="lista">
         <thead>
             <tr>
-                <th>N.°</th>
-                <th>ID estudiante</th>
-                <th>Apellidos y nombres</th>
-                @foreach ($acta->componentes as $componente)
-                    <th class="num">{{ $componente->nombre }} ({{ Formato::nota($componente->peso) }} %)</th>
+                <th rowspan="2">N.°</th>
+                <th rowspan="2">ID estudiante</th>
+                <th rowspan="2">Apellidos y nombres</th>
+                @foreach (GrupoDeComponente::cases() as $grupo)
+                    <th class="centro" colspan="{{ count($acta->componentesDe($grupo)) + 1 }}">{{ $grupo->etiqueta() }}</th>
                 @endforeach
-                <th class="num">Promedio a la fecha</th>
-                <th>Estado a la fecha</th>
+                <th class="num" rowspan="2">Promedio a la fecha</th>
+                <th rowspan="2">Estado a la fecha</th>
+            </tr>
+            <tr>
+                @foreach (GrupoDeComponente::cases() as $grupo)
+                    @foreach ($acta->componentesDe($grupo) as $componente)
+                        <th class="num">{{ $componente->nombre }}</th>
+                    @endforeach
+                    <th class="num">Prom. {{ mb_strtolower($grupo->etiqueta()) }}</th>
+                @endforeach
             </tr>
         </thead>
         <tbody>
@@ -31,8 +40,11 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $fila->documento }}</td>
                     <td>{{ $fila->estudiante }}</td>
-                    @foreach ($acta->componentes as $componente)
-                        <td class="num">{{ Formato::nota($fila->notas[$componente->id] ?? null) }}</td>
+                    @foreach (GrupoDeComponente::cases() as $grupo)
+                        @foreach ($acta->componentesDe($grupo) as $componente)
+                            <td class="num">{{ Formato::nota($fila->notas[$componente->id] ?? null) }}</td>
+                        @endforeach
+                        <td class="num">{{ $fila->promedioDe($grupo) ?? '—' }}</td>
                     @endforeach
                     <td class="num"><strong>{{ $fila->promedio ?? '—' }}</strong></td>
                     <td>{{ $fila->estadoFinal->etiqueta() }}</td>
@@ -43,6 +55,7 @@
 
     <p style="margin-top: 14px; font-size: 8.5pt; color: #5e5a50;">
         Nota máxima {{ Formato::nota($acta->notaMaxima) }} · nota mínima aprobatoria {{ Formato::nota($acta->notaMinimaAprobatoria) }}.
+        El promedio es la media del promedio de habilidades y del promedio de exámenes, redondeada al entero; una nota en blanco cuenta como cero.
         Las notas pueden cambiar hasta que el docente cierre el acta; el documento oficial es el acta final.
     </p>
 </x-pdf.documento>

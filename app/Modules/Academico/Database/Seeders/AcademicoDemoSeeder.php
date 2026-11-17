@@ -106,9 +106,12 @@ final class AcademicoDemoSeeder extends Seeder
             nombre: 'Esquema general (demo)', idiomaId: null, nivel: null, notaMaxima: '20', notaMinimaAprobatoria: '11',
             vigenteDesde: $hoy->subMonths(6)->startOfYear(), vigenteHasta: null,
             componentes: [
-                ['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'peso' => '40'],
-                ['codigo' => 'final', 'nombre' => 'Examen final', 'peso' => '40'],
-                ['codigo' => 'participacion', 'nombre' => 'Participación', 'peso' => '20'],
+                ['codigo' => 'auditiva', 'nombre' => 'Comprensión auditiva', 'grupo' => 'habilidades'],
+                ['codigo' => 'oral', 'nombre' => 'Expresión oral', 'grupo' => 'habilidades'],
+                ['codigo' => 'lectora', 'nombre' => 'Comprensión lectora', 'grupo' => 'habilidades'],
+                ['codigo' => 'escrita', 'nombre' => 'Expresión escrita', 'grupo' => 'habilidades'],
+                ['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'grupo' => 'examenes'],
+                ['codigo' => 'final', 'nombre' => 'Examen final', 'grupo' => 'examenes'],
             ],
         ));
     }

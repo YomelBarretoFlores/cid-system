@@ -8,7 +8,7 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 |---|---|
 | Gestor de base de datos | PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) |
 | Esquema | `public` |
-| Última migración aplicada | `2026_11_17_090000_drop_doc_silabos_tables` |
+| Última migración aplicada | `2026_11_17_100100_describe_the_groups_of_cer_actas_components` |
 
 **Convenciones:**
 
@@ -114,7 +114,7 @@ Plan de estudios de cada idioma: ciclos I a XII con su nivel y horas lectivas.
 
 ### 3.3. `aca_componentes_evaluacion`
 
-Componentes de un sistema de evaluación con su peso; los pesos suman 100.
+Componentes de un sistema de evaluación, cada uno habilidad o examen; cada grupo se promedia con promedio simple.
 
 | N° | Columna | Tipo | Nulo | Por defecto | Descripción |
 |---|---|---|---|---|---|
@@ -122,10 +122,10 @@ Componentes de un sistema de evaluación con su peso; los pesos suman 100.
 | 2 | `esquema_id` | bigint | No |  | Sistema de evaluación al que pertenece. Referencia a `aca_esquemas_evaluacion`. |
 | 3 | `codigo` | varchar(30) | No |  | Código del componente. |
 | 4 | `nombre` | varchar(80) | No |  | Nombre del componente (por ejemplo, examen parcial). |
-| 5 | `peso` | numeric(5,2) | No |  | Peso porcentual del componente. |
-| 6 | `orden` | smallint | No |  | Orden de presentación. |
-| 7 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
-| 8 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
+| 5 | `orden` | smallint | No |  | Orden de presentación. |
+| 6 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
+| 7 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
+| 8 | `grupo` | varchar(20) | No |  | Grupo del componente: habilidades o examenes; la nota final promedia el promedio de cada grupo. Valores: `habilidades`, `examenes`. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -138,13 +138,13 @@ Componentes de un sistema de evaluación con su peso; los pesos suman 100.
 
 **Reglas de validación:**
 
+- `aca_componentes_evaluacion_grupo_conocido_check`: `CHECK (((grupo) = ANY ((ARRAY['habilidades', 'examenes']))))`
 - `aca_componentes_evaluacion_orden_check`: `CHECK ((orden > 0))`
-- `aca_componentes_evaluacion_peso_check`: `CHECK (((peso > (0)) AND (peso <= (100))))`
 
 **Triggers:**
 
 - `aca_componentes_evaluacion_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
-- `aca_componentes_evaluacion_pesos`: AFTER INSERT, DELETE, UPDATE, ejecuta `aca_componentes_pesos()`
+- `aca_componentes_evaluacion_grupos`: AFTER INSERT, DELETE, UPDATE, ejecuta `aca_componentes_grupos()`
 
 ### 3.4. `aca_esquemas_evaluacion`
 
@@ -180,7 +180,7 @@ Sistemas de evaluación configurables por idioma, nivel y vigencia.
 **Triggers:**
 
 - `aca_esquemas_evaluacion_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
-- `aca_esquemas_evaluacion_pesos`: AFTER INSERT, ejecuta `aca_esquemas_pesos()`
+- `aca_esquemas_evaluacion_grupos`: AFTER INSERT, ejecuta `aca_esquemas_grupos()`
 
 ### 3.5. `aca_grupos`
 
@@ -1260,7 +1260,7 @@ Actas finales de notas por grupo. Guardan una copia de los datos del grupo y se 
 | 15 | `esquema_nombre` | varchar(120) | No |  | Nombre del sistema de evaluación. |
 | 16 | `nota_maxima` | numeric(4,2) | No |  | Nota máxima de la escala. |
 | 17 | `nota_minima_aprobatoria` | numeric(4,2) | No |  | Nota mínima para aprobar. |
-| 18 | `componentes` | jsonb | No |  | Componentes y pesos aplicados (JSON). |
+| 18 | `componentes` | jsonb | No |  | Componentes aplicados con su grupo, habilidades o examenes (JSON). |
 | 19 | `validada_por` | bigint | Sí |  | Cuenta que validó y cerró el acta. Referencia a `users`. |
 | 20 | `validada_en` | timestamptz | Sí |  | Fecha y hora del cierre. |
 | 21 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
@@ -2076,12 +2076,12 @@ Control de versiones del esquema: migraciones ya aplicadas.
 
 ## 13. Funciones de los triggers
 
-Funciones de PostgreSQL que ejecutan los triggers descritos en cada tabla. `aud_registrar()` escribe la pista de auditoría; las demás protegen reglas de negocio (bloqueo de actas cerradas, ciclo de vida de los pagos, cruces de horario de aulas y docentes, pesos de evaluación).
+Funciones de PostgreSQL que ejecutan los triggers descritos en cada tabla. `aud_registrar()` escribe la pista de auditoría; las demás protegen reglas de negocio (bloqueo de actas cerradas, ciclo de vida de los pagos, cruces de horario de aulas y docentes, habilidades y exámenes de cada sistema de evaluación).
 
 | Función | Tablas que la usan |
 |---|---|
-| `aca_componentes_pesos()` | `aca_componentes_evaluacion` |
-| `aca_esquemas_pesos()` | `aca_esquemas_evaluacion` |
+| `aca_componentes_grupos()` | `aca_componentes_evaluacion` |
+| `aca_esquemas_grupos()` | `aca_esquemas_evaluacion` |
 | `aca_grupos_aula_libre()` | `aca_grupos` |
 | `aca_horarios_aula_libre()` | `aca_horarios` |
 | `aca_periodos_aula_libre()` | `aca_periodos` |

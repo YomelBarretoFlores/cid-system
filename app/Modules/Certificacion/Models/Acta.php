@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Certificacion\Models;
 
 use App\Modules\Academico\Data\ComponenteDeEvaluacion;
+use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Policies\ActaPolicy;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property NivelCurricular $nivel
  * @property string $nota_maxima
  * @property string $nota_minima_aprobatoria
- * @property list<array{id: int, codigo: string, nombre: string, peso: string}> $componentes
+ * @property list<array{id: int, codigo: string, nombre: string, grupo?: string}> $componentes
  * @property ?CarbonImmutable $validada_en
  * @property ?list<array{nombre: string, cargo: string}> $firmas
  * @property ?string $denominacion
@@ -66,7 +67,13 @@ final class Acta extends Model
     public function componentesDeEvaluacion(): array
     {
         return array_map(
-            fn (array $componente): ComponenteDeEvaluacion => new ComponenteDeEvaluacion($componente['id'], $componente['codigo'], $componente['nombre'], $componente['peso']),
+            fn (array $componente): ComponenteDeEvaluacion => new ComponenteDeEvaluacion(
+                $componente['id'],
+                $componente['codigo'],
+                $componente['nombre'],
+                // Actas closed with weights stored no group; the codes of the exams tell them apart.
+                GrupoDeComponente::tryFrom($componente['grupo'] ?? '') ?? GrupoDeComponente::delCodigo($componente['codigo']),
+            ),
             $this->componentes,
         );
     }

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Modules\Certificacion\Data;
 
 use App\Modules\Academico\Data\ComponenteDeEvaluacion;
+use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\NotaFinal;
+use App\Modules\Certificacion\Support\PromedioFinal;
 use App\Modules\Docencia\Data\CodigoDeDocente;
 use Carbon\CarbonImmutable;
 
@@ -42,6 +44,8 @@ final readonly class ActaDelGrupo
 
     public static function desde(Acta $acta): self
     {
+        $componentes = $acta->componentesDeEvaluacion();
+
         return new self(
             grupoId: $acta->grupo_id,
             actaId: $acta->id,
@@ -58,13 +62,21 @@ final readonly class ActaDelGrupo
             esquema: $acta->esquema_nombre,
             notaMaxima: $acta->nota_maxima,
             notaMinimaAprobatoria: $acta->nota_minima_aprobatoria,
-            componentes: $acta->componentesDeEvaluacion(),
+            componentes: $componentes,
             filas: array_values($acta->notas->sortBy('estudiante_nombre')->map(fn (NotaFinal $nota): FilaDelActa => new FilaDelActa(
                 $nota->matricula_id, $nota->persona_id, $nota->estudiante_nombre, $nota->estudiante_documento,
-                $nota->notas, $nota->promedio, $nota->estado_final,
+                $nota->notas, $nota->promedio, $nota->estado_final, ...PromedioFinal::promediosPorGrupo($nota->notas, $componentes),
             ))->all()),
             validadaEn: $acta->validada_en?->setTimezone('America/Lima'),
         );
+    }
+
+    /**
+     * @return list<ComponenteDeEvaluacion>
+     */
+    public function componentesDe(GrupoDeComponente $grupo): array
+    {
+        return array_values(array_filter($this->componentes, fn (ComponenteDeEvaluacion $componente): bool => $componente->grupo === $grupo));
     }
 
     public function docenteCodigo(): string

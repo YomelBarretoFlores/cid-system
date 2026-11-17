@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Certificacion\Contracts\AvanceDeNotas;
 use App\Modules\Certificacion\Contracts\BoletaDeNotas;
 use App\Modules\Certificacion\Contracts\RecordDeNotas;
@@ -25,11 +26,13 @@ it('shows the grade progress from the pre-acta with the partial average while th
     expect($avance)
         ->disponible->toBeTrue()
         ->actaCerrada->toBeFalse()
-        ->promedio->toBe('10.80')
+        ->promedioHabilidades->toBe('0.00')
+        ->promedioExamenes->toBe('13.50')
+        ->promedio->toBe('7.00')
         ->estadoFinal->toBeNull()
         ->notaMinimaAprobatoria->toBe('11.00')
-        ->and(array_map(fn (NotaDelComponente $nota): array => [$nota->nombre, $nota->peso, $nota->nota], $avance->componentes))
-        ->toBe([['Examen parcial', '40.00', '15.00'], ['Examen final', '40.00', '12.00'], ['Participación', '20.00', null]]);
+        ->and(array_map(fn (NotaDelComponente $nota): array => [$nota->nombre, $nota->grupo, $nota->nota], $avance->componentes))
+        ->toBe([['Expresión oral', GrupoDeComponente::Habilidades, null], ['Examen parcial', GrupoDeComponente::Examenes, '15.00'], ['Examen final', GrupoDeComponente::Examenes, '12.00']]);
 });
 
 it('shows the final grades once the acta is closed', function (): void {
@@ -38,7 +41,7 @@ it('shows the final grades once the acta is closed', function (): void {
 
     $avance = app(AvanceDeNotas::class)($escenario['matricula']->grupo_id, $escenario['matricula']->id);
 
-    expect($avance)->actaCerrada->toBeTrue()->promedio->toBe('10.80')->estadoFinal->toBe(EstadoFinal::Desaprobado);
+    expect($avance)->actaCerrada->toBeTrue()->promedio->toBe('7.00')->estadoFinal->toBe(EstadoFinal::Desaprobado);
 });
 
 it('reports no grade progress for a group without a grading scheme', function (): void {
@@ -62,7 +65,7 @@ it('lists the report card with acta abierta until the acta is closed and then th
 
     ReportesDelEstudiante::cerrarActa($escenario['curso']);
 
-    expect($boleta())->toBe([['ING-1-M', 'Inglés', 1, 60, '10.80', 'Desaprobado']]);
+    expect($boleta())->toBe([['ING-1-M', 'Inglés', 1, 60, '7.00', 'Desaprobado']]);
 });
 
 it('builds the record per language with the times each cycle was taken, the average and the cycles missing for the level', function (): void {

@@ -40,7 +40,7 @@ final readonly class BuscarEsquemaDelGrupo implements EsquemaDelGrupo
                 $componente->id,
                 $componente->codigo,
                 $componente->nombre,
-                (string) $componente->peso,
+                $componente->grupo,
             ))->all()),
         );
     }

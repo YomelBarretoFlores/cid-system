@@ -16,7 +16,7 @@ use Illuminate\Database\Seeder;
 // Every pre-acta component of the demo student's current groups, so their grades page and the pre-acta are complete; grades already typed stay.
 final class NotasCompletasDemoSeeder extends Seeder
 {
-    private const array NOTAS = ['parcial' => '15.00', 'final' => '16.50', 'participacion' => '18.00'];
+    private const array NOTAS = ['auditiva' => '16.00', 'oral' => '17.50', 'lectora' => '15.50', 'escrita' => '16.00', 'parcial' => '15.00', 'final' => '16.50'];
 
     public function run(): void
     {

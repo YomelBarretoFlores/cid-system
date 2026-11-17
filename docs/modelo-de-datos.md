@@ -42,7 +42,7 @@ erDiagram
 | `aca_grupos` | Academico | Oferta: grupo de un ciclo en un periodo, con modalidad, cupos y contador de matriculados | ULID |
 | `aca_horarios` | Academico | Días y horas de cada grupo | — |
 | `aca_esquemas_evaluacion` | Academico | Esquema de notas configurable por idioma/nivel y vigencia | — |
-| `aca_componentes_evaluacion` | Academico | Componentes del esquema (parcial, final, participación) con su peso | — |
+| `aca_componentes_evaluacion` | Academico | Componentes del esquema, cada uno del grupo habilidades (comprensión auditiva, expresión oral, comprensión lectora, expresión escrita) o exámenes (parcial, final) | — |
 | `per_personas` | Personas | Identidad de postulantes, estudiantes y docentes | ULID |
 | `mat_solicitudes_clasificacion` | Matricula | Solicitud y resultado del examen de clasificación | ULID |
 | `mat_habilitaciones` | Matricula | Ciclo en el que cada persona puede matricularse por idioma | — |
@@ -66,7 +66,7 @@ erDiagram
 | Código de grupo único dentro del periodo | `UNIQUE (periodo_id, codigo)` |
 | Ciclo I–XII, único por idioma | `aca_ciclos_numero_check`, `UNIQUE (idioma_id, numero)` |
 | Fechas coherentes del periodo y de matrícula | `aca_periodos_fechas_check`, `aca_periodos_matricula_check` |
-| Pesos de componentes entre 0 y 100; nota mínima ≤ nota máxima | `aca_componentes_evaluacion_peso_check`, `aca_esquemas_evaluacion_notas_check` |
+| Grupo del componente: habilidades o exámenes, al menos uno de cada grupo por sistema; nota mínima ≤ nota máxima | `aca_componentes_evaluacion_grupo_conocido_check`, triggers `aca_*_grupos`, `aca_esquemas_evaluacion_notas_check` |
 | DNI de 8 dígitos; CE o pasaporte de 6 a 12 caracteres alfanuméricos | `per_personas_documento_check` |
 | Un documento por persona | `UNIQUE (tipo_documento, numero_documento)` |
 | Una cuenta de usuario por persona | `UNIQUE (user_id)` |

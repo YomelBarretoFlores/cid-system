@@ -50,7 +50,7 @@ it('offers only the periods of the student, newest first, and opens on every rep
         ->assertSeeInOrder([
             'Todos los reportes',
             'Inglés · Ciclo 1', 'ING-1-M · Prof. Vega Ríos, Carlos', 'Acta abierta',
-            'Notas', 'Examen parcial', '15.00', 'Participación', 'Promedio parcial', '10.80',
+            'Notas', 'Expresión oral', 'Examen parcial', '15.00', 'Prom. habilidades', '0.00', 'Prom. exámenes', '13.50', 'Promedio parcial', '7.00',
             'Asistencia', '67 %', '3 de 10 clases dictadas · 1 falta', '20 % sobre las clases programadas',
             'Descargar en PDF', 'Boleta de notas', 'Todos tus cursos del periodo', 'Avance de notas', 'Inglés 1 · por componente',
             'Asistencia', 'Inglés 1 · clase por clase', 'Horario', 'Récord de Quechua', 'Todos los ciclos', 'Récord completo',
@@ -155,7 +155,7 @@ describe('PDF reports', function (): void {
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.avance', $this->matricula))->assertOk();
 
         Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->isInline() && $pdf->downloadName === 'avance-de-notas-ING-1-M.pdf'
-            && collect(['AVANCE DE NOTAS', 'Quispe Mamani, Rosa', 'DNI 41234567', 'ING-1-M', 'Marzo 2027', 'Examen parcial', '40.00', '15.00', 'Promedio parcial', '10.80'])->every(fn (string $texto): bool => $pdf->contains($texto)));
+            && collect(['AVANCE DE NOTAS', 'Quispe Mamani, Rosa', 'DNI 41234567', 'ING-1-M', 'Marzo 2027', 'Examen parcial', 'Exámenes', '15.00', 'Promedio de habilidades', '0.00', 'Promedio de exámenes', '13.50', 'Promedio parcial', '7.00'])->every(fn (string $texto): bool => $pdf->contains($texto)));
     });
 
     it('gives the report card of the period', function (): void {
@@ -164,7 +164,7 @@ describe('PDF reports', function (): void {
         $this->actingAs($this->escenario['usuario'])->get(route('estudiante.reportes.boleta', $this->periodo->id))->assertOk();
 
         Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->downloadName === 'boleta-de-notas-marzo-2027.pdf'
-            && collect(['BOLETA DE NOTAS', 'Quispe Mamani, Rosa', 'Marzo 2027', 'ING-1-M', 'Inglés', 'Básico I', '60', '10.80', 'Desaprobado'])->every(fn (string $texto): bool => $pdf->contains($texto)));
+            && collect(['BOLETA DE NOTAS', 'Quispe Mamani, Rosa', 'Marzo 2027', 'ING-1-M', 'Inglés', 'Básico I', '60', '7.00', 'Desaprobado'])->every(fn (string $texto): bool => $pdf->contains($texto)));
     });
 
     it('prints the denomination of the year on the student reports', function (): void {

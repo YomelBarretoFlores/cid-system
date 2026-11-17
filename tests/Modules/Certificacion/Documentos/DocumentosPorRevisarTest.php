@@ -31,8 +31,8 @@ beforeEach(function (): void {
     $this->curso = ActasFinales::curso();
     $this->ana = ActasFinales::estudiante($this->curso['grupo'], 'Alva', '70000001');
     $this->beto = ActasFinales::estudiante($this->curso['grupo'], 'Bravo', '70000002');
-    ActasFinales::preActa($this->ana, [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['participacion']->id => '18.00']);
-    ActasFinales::preActa($this->beto, [$this->curso['parcial']->id => '14.00', $this->curso['final']->id => '14.00', $this->curso['participacion']->id => '14.00']);
+    ActasFinales::preActa($this->ana, [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['oral']->id => '18.00']);
+    ActasFinales::preActa($this->beto, [$this->curso['parcial']->id => '14.00', $this->curso['final']->id => '14.00', $this->curso['oral']->id => '14.00']);
     app(CerrarActa::class)($this->curso['grupo']->id, $this->curso['docente']->id, $this->curso['usuario']);
     ActasFinales::historial(Persona::query()->findOrFail($this->ana->persona_id), 'Inglés', [[2, '15.00', 'aprobado'], [3, '16.00', 'aprobado'], [4, '13.00', 'aprobado']]);
     $this->acta = Acta::query()->where('grupo_id', $this->curso['grupo']->id)->sole();

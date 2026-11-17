@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Contracts\EsquemaDelGrupo;
 use App\Modules\Academico\Data\ComponenteDeEvaluacion;
+use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\ComponenteEvaluacion;
@@ -25,15 +26,15 @@ function esquemaDePrueba(string $nombre, array $atributos = []): EsquemaEvaluaci
 
 it('gives the scheme of the language and level with its components in order', function (): void {
     $esquema = esquemaDePrueba('Inglés intermedio', ['idioma_id' => $this->ingles->id, 'nivel' => NivelCurricular::Intermedio, 'nota_maxima' => '20.00', 'nota_minima_aprobatoria' => '13.00']);
-    $final = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'nombre' => 'Examen final', 'peso' => '40.00', 'orden' => 2]);
-    $parcial = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'peso' => '60.00', 'orden' => 1]);
+    $final = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'nombre' => 'Examen final', 'grupo' => GrupoDeComponente::Examenes, 'orden' => 2]);
+    $oral = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'nombre' => 'Expresión oral', 'grupo' => GrupoDeComponente::Habilidades, 'orden' => 1]);
 
     $resultado = app(EsquemaDelGrupo::class)($this->grupo->id);
 
     expect([$resultado->esquemaId, $resultado->nombre, $resultado->notaMaxima, $resultado->notaMinimaAprobatoria])->toBe([$esquema->id, 'Inglés intermedio', '20.00', '13.00'])
         ->and($resultado->componentes)->toEqual([
-            new ComponenteDeEvaluacion($parcial->id, 'parcial', 'Examen parcial', '60.00'),
-            new ComponenteDeEvaluacion($final->id, 'final', 'Examen final', '40.00'),
+            new ComponenteDeEvaluacion($oral->id, 'oral', 'Expresión oral', GrupoDeComponente::Habilidades),
+            new ComponenteDeEvaluacion($final->id, 'final', 'Examen final', GrupoDeComponente::Examenes),
         ]);
 });
 

@@ -51,7 +51,12 @@ it('refuses the roll call of a teacher whose group is being reassigned at the sa
 });
 
 it('refuses the grades of a teacher whose group is being reassigned at the same time', function (): void {
-    $componente = DB::transaction(fn (): ComponenteEvaluacion => ComponenteEvaluacion::factory()->for(EsquemaEvaluacion::factory()->create(['vigente_desde' => $this->clase->subYear()]), 'esquema')->create(['peso' => '100.00']));
+    $componente = DB::transaction(function (): ComponenteEvaluacion {
+        $esquema = EsquemaEvaluacion::factory()->create(['vigente_desde' => $this->clase->subYear()]);
+        ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'orden' => 2]);
+
+        return ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'orden' => 1]);
+    });
     $notas = json_encode([$this->matricula->id => [$componente->id => '15']]);
 
     $salidas = enParalelo('reasignar-o-registrar-asistencia.php', [

@@ -34,8 +34,8 @@ use Illuminate\Support\Collection;
 final class HistorialDemoSeeder extends Seeder
 {
     private const array NOTAS = [
-        1 => ['parcial' => '15.00', 'final' => '16.00', 'participacion' => '17.00'],
-        2 => ['parcial' => '14.50', 'final' => '15.50', 'participacion' => '18.00'],
+        1 => ['auditiva' => '16.00', 'oral' => '17.00', 'lectora' => '15.50', 'escrita' => '16.50', 'parcial' => '15.00', 'final' => '16.00'],
+        2 => ['auditiva' => '17.00', 'oral' => '18.00', 'lectora' => '16.00', 'escrita' => '17.50', 'parcial' => '14.50', 'final' => '15.50'],
     ];
 
     public function run(): void

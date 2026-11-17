@@ -139,7 +139,7 @@ it('completes a demo seeded before these features without deleting what it had',
     $this->artisan('db:seed', ['--class' => ComplementoDemoSeeder::class, '--force' => true])
         ->expectsOutputToContain('Delegados de demo: 6 designados')
         ->expectsOutputToContain('Control de clases de demo: 4 clases tomadas')
-        ->expectsOutputToContain('Notas de demo: 8 notas registradas')
+        ->expectsOutputToContain('Notas de demo: 17 notas registradas')
         ->expectsOutputToContain('Historial de demo: 2 actas cerradas')
         ->assertSuccessful();
 

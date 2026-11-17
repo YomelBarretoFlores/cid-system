@@ -33,7 +33,7 @@ beforeEach(function (): void {
     $this->usuario = $this->curso['usuario'];
     $this->ana = ActasFinales::estudiante($this->grupo, 'Alva', '70000001');
     $this->beto = ActasFinales::estudiante($this->grupo, 'Bravo', '70000002');
-    ActasFinales::preActa($this->ana, [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['participacion']->id => '18.00']);
+    ActasFinales::preActa($this->ana, [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['oral']->id => '18.00']);
     ActasFinales::preActa($this->beto, [$this->curso['parcial']->id => '8.00', $this->curso['final']->id => '10.00']);
 });
 
@@ -58,8 +58,9 @@ it('previews the acta from the pre-acta with the course, teacher, averages and f
         ->assertSeeInOrder([
             'Acta final del grupo ING-1-M', 'Vista previa', 'Fechas para validar: del 29 mar 2027 al 5 abr 2027.',
             'Inglés', 'Básico · Básico I', 'Marzo 2027', 'Vega Ríos, Carlos', $this->curso['docente']->refresh()->codigo,
-            'Alva Prueba, Ana', 'DNI 70000001', '15', '12', '18', '14.40', 'Aprobado',
-            'Bravo Prueba, Ana', 'DNI 70000002', '8', '10', '—', '7.20', 'Desaprobado',
+            'Habilidades', 'Exámenes', 'Promedio', 'Expresión oral', 'Prom. habilidades', 'Examen parcial', 'Examen final', 'Prom. exámenes',
+            'Alva Prueba, Ana', 'DNI 70000001', '18', '18.00', '15', '12', '13.50', '16.00', 'Aprobado',
+            'Bravo Prueba, Ana', 'DNI 70000002', '—', '0.00', '8', '10', '9.00', '5.00', 'Desaprobado',
         ])
         ->assertSee('Validar y cerrar acta')
         ->assertDontSee('Descargar acta (PDF)')
@@ -148,7 +149,7 @@ it('lets the teacher rectify and close again once a rectification is authorized'
         ->assertSee('En rectificación')
         ->assertSee('Motivo autorizado: Error al transcribir el examen final.')
         ->assertSet("notas.{$this->beto->id}.{$this->curso['final']->id}", '10.00')
-        ->assertSet("notas.{$this->beto->id}.{$this->curso['participacion']->id}", '')
+        ->assertSet("notas.{$this->beto->id}.{$this->curso['oral']->id}", '')
         ->set("notas.{$this->beto->id}.{$this->curso['final']->id}", '18')
         ->call('guardar')
         ->assertHasNoErrors()
@@ -158,7 +159,7 @@ it('lets the teacher rectify and close again once a rectification is authorized'
 
     expect($acta->refresh()->estado)->toBe(EstadoActa::Cerrada)
         ->and(NotaFinal::query()->where('matricula_id', $this->beto->id)->sole())
-        ->promedio->toBe('10.40')
+        ->promedio->toBe('7.00')
         ->estado_final->toBe(EstadoFinal::Desaprobado);
 });
 
@@ -200,7 +201,7 @@ it('downloads the PDF of a closed acta only', function (): void {
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->viewName === 'certificacion::pdf.acta-final'
         && $pdf->downloadName === 'acta-final-ING-1-M.pdf'
         && $pdf->viewData['codigo'] === sprintf('ACTA-%06d', $acta->id)
-        && $pdf->viewData['acta']->filas[0]->promedio === '14.40');
+        && $pdf->viewData['acta']->filas[0]->promedio === '16.00');
 
     app(AutorizarRectificacion::class)($acta->id, 'Error al transcribir el examen final.', User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value));
     $this->actingAs($this->usuario)->get(route('docente.acta.pdf', $this->grupo->id))->assertNotFound();
@@ -213,9 +214,10 @@ it('renders the acta PDF with the course, teacher and grades', function (): void
 
     expect($html)->toContain('ACTA FINAL DE EVALUACIÓN')
         ->toContain('Vega Ríos, Carlos')
-        ->toContain('Examen parcial (40 %)')
+        ->toContain('<th class="centro" colspan="2">Habilidades</th>', '<th class="centro" colspan="3">Exámenes</th>', '<th class="centro">Examen parcial</th>', 'Prom. habilidades', 'Prom. exámenes')
+        ->not->toContain('%)')
         ->toContain('Alva Prueba, Ana')
-        ->toContain('<strong>14.40</strong>')
+        ->toContain('<td class="centro">18.00</td>', '<td class="centro">13.50</td>', '<strong>16.00</strong>')
         ->toContain('Desaprobado')
         ->toContain('data:image/png;base64,');
 });
@@ -248,7 +250,7 @@ it('shows and logs a rejected rectified grade and keeps the acta as it was', fun
         ->assertHasErrors('acta')
         ->assertSee('La nota 25 no es válida: usa un número de 0 a 20 con hasta dos decimales.');
 
-    expect(NotaFinal::query()->where('matricula_id', $this->beto->id)->sole()->promedio)->toBe('7.20');
+    expect(NotaFinal::query()->where('matricula_id', $this->beto->id)->sole()->promedio)->toBe('5.00');
     Log::shouldHaveReceived('info')->with('Regla de negocio incumplida.', ['regla' => 'La nota 25 no es válida: usa un número de 0 a 20 con hasta dos decimales.'])->once();
 });
 

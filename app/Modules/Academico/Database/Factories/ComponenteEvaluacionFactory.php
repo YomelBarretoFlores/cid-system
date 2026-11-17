@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Academico\Database\Factories;
 
+use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Academico\Models\ComponenteEvaluacion;
 use App\Modules\Academico\Models\EsquemaEvaluacion;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,7 +23,7 @@ final class ComponenteEvaluacionFactory extends Factory
             'esquema_id' => EsquemaEvaluacion::factory(),
             'codigo' => fake()->unique()->lexify('comp-?????'),
             'nombre' => fake()->words(2, true),
-            'peso' => '50.00',
+            'grupo' => fn (array $atributos): GrupoDeComponente => GrupoDeComponente::delCodigo((string) $atributos['codigo']),
             'orden' => 1,
         ];
     }

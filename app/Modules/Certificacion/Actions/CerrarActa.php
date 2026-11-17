@@ -118,7 +118,7 @@ final readonly class CerrarActa
             'periodo' => $previa->periodo, 'docente_id' => $previa->docenteId, 'docente_nombre' => $previa->docente,
             'esquema_id' => $previa->esquemaId, 'esquema_nombre' => $previa->esquema,
             'nota_maxima' => $previa->notaMaxima, 'nota_minima_aprobatoria' => $previa->notaMinimaAprobatoria,
-            'componentes' => array_map(fn (ComponenteDeEvaluacion $componente): array => ['id' => $componente->id, 'codigo' => $componente->codigo, 'nombre' => $componente->nombre, 'peso' => $componente->peso], $previa->componentes),
+            'componentes' => array_map(fn (ComponenteDeEvaluacion $componente): array => ['id' => $componente->id, 'codigo' => $componente->codigo, 'nombre' => $componente->nombre, 'grupo' => $componente->grupo->value], $previa->componentes),
         ];
     }
 

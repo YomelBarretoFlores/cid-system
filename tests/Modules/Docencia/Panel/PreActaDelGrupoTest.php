@@ -26,8 +26,8 @@ beforeEach(function (): void {
     $this->grupo = Grupo::factory()->create(['codigo' => 'ING-01-A', 'periodo_id' => Periodo::factory()->create(['fecha_inicio' => '2027-03-01'])->id, 'estado' => EstadoGrupo::Abierto]);
     PortalDocente::asignar($this->grupo, $this->docente);
     $esquema = EsquemaEvaluacion::factory()->create(['nombre' => 'Esquema general', 'nota_maxima' => '20.00', 'vigente_desde' => '2027-01-01']);
-    $this->parcial = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'peso' => '40.00', 'orden' => 1]);
-    $this->final = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'nombre' => 'Examen final', 'peso' => '60.00', 'orden' => 2]);
+    $this->oral = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'nombre' => 'Expresión oral', 'orden' => 1]);
+    $this->parcial = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'orden' => 2]);
     $this->ana = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Quispe', 'apellido_materno' => 'Rojas', 'nombres' => 'Ana'])->id]);
     $this->luis = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Álvarez', 'apellido_materno' => 'Mejía', 'nombres' => 'Luis'])->id]);
 });
@@ -38,29 +38,30 @@ it('links the pre-acta from the list of groups', function (): void {
         ->assertSee(route('filament.docente.pages.grupos.notas', $this->grupo->id));
 });
 
-it('shows the scheme components with their weights and the students in alphabetical order', function (): void {
+it('shows the scheme components grouped into skills and exams and the students in alphabetical order', function (): void {
     NotaParcial::query()->create(['grupo_id' => $this->grupo->id, 'matricula_id' => $this->ana->id, 'componente_id' => $this->parcial->id, 'nota' => '14.50', 'registrado_por' => $this->usuario->id]);
 
     $this->actingAs($this->usuario)
         ->get(route('filament.docente.pages.grupos.notas', $this->grupo->id))
         ->assertOk()
-        ->assertSeeInOrder(['Pre-acta del grupo ING-01-A', 'Esquema general · notas de 0 a 20', 'Examen parcial', '40 %', 'Examen final', '60 %', 'Álvarez Mejía, Luis', 'Quispe Rojas, Ana']);
+        ->assertSeeInOrder(['Pre-acta del grupo ING-01-A', 'Esquema general · notas de 0 a 20', 'Expresión oral', 'Habilidades', 'Examen parcial', 'Exámenes', 'Habilidades', 'Exámenes', 'Expresión oral', 'Examen parcial', 'Álvarez Mejía, Luis', 'Quispe Rojas, Ana'])
+        ->assertDontSee('Peso');
 
     Livewire::actingAs($this->usuario)
         ->test(PreActaDelGrupo::class, ['grupo' => $this->grupo->id])
         ->assertSet("notas.{$this->ana->id}.{$this->parcial->id}", '14.50')
-        ->assertSet("notas.{$this->ana->id}.{$this->final->id}", '');
+        ->assertSet("notas.{$this->ana->id}.{$this->oral->id}", '');
 });
 
 it('saves the grades typed by the teacher', function (): void {
     Livewire::actingAs($this->usuario)
         ->test(PreActaDelGrupo::class, ['grupo' => $this->grupo->id])
         ->set("notas.{$this->ana->id}.{$this->parcial->id}", '15')
-        ->set("notas.{$this->luis->id}.{$this->final->id}", '12,5')
+        ->set("notas.{$this->luis->id}.{$this->oral->id}", '12,5')
         ->call('guardar')
         ->assertHasNoErrors()
         ->assertSee('Notas parciales guardadas.')
-        ->assertSet("notas.{$this->luis->id}.{$this->final->id}", '12.50');
+        ->assertSet("notas.{$this->luis->id}.{$this->oral->id}", '12.50');
 
     expect(NotaParcial::query()->orderBy('nota')->pluck('nota')->all())->toBe(['12.50', '15.00']);
 });
@@ -110,7 +111,7 @@ it('shows how many grades each component has and that the acta waits for the mis
         ->assertOk()
         ->assertSeeInOrder([
             'Registra las notas', '1 de 4 notas', 'Revisa el acta', 'Cuando completes las notas', 'Valida y cierra', 'Del 28 mar al 31 mar',
-            'Examen parcial · 40 %', '1 de 2', 'Examen final · 60 %', '0 de 2',
+            'Expresión oral', 'Habilidades', '0 de 2', 'Examen parcial', 'Exámenes', '1 de 2',
         ]);
 });
 
@@ -118,7 +119,7 @@ it('points the teacher to review and close the acta once every grade is in and t
     $this->travelTo(CarbonImmutable::parse('2027-03-29 10:00', 'America/Lima'));
     Periodo::query()->whereKey($this->grupo->periodo_id)->update(['actas_inicio' => '2027-03-28', 'actas_fin' => '2027-03-31']);
     foreach ([$this->ana, $this->luis] as $matricula) {
-        foreach ([$this->parcial, $this->final] as $componente) {
+        foreach ([$this->parcial, $this->oral] as $componente) {
             NotaParcial::query()->create(['grupo_id' => $this->grupo->id, 'matricula_id' => $matricula->id, 'componente_id' => $componente->id, 'nota' => '15.00', 'registrado_por' => $this->usuario->id]);
         }
     }

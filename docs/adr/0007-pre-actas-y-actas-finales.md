@@ -13,7 +13,7 @@ El Anexo pide en M3.2 "registro de calificaciones (pre-actas) durante las clases
 | Qué guarda | Nota parcial por estudiante y componente del esquema vigente del grupo | Copia del esquema usado, notas, promedio y estado final |
 | Cuándo | Mientras el grupo está Abierto o Cerrado | En las fechas del calendario de notas |
 | Quién | El docente a cargo del grupo | El docente a cargo; cambios posteriores con autorización del Administrador |
-| Cálculo | Ninguno | Promedio ponderado y Aprobado/Desaprobado/NSP |
+| Cálculo | Ninguno | Promedio de habilidades, promedio de exámenes, nota final redondeada al entero y Aprobado/Desaprobado/NSP (desde 2026-11-17 reemplaza al promedio ponderado; decisión #56) |
 | Cierre | No se cierra; cada cambio queda en la auditoría | Se cierra y bloquea al validarse |
 
 El acta final toma las notas de la pre-acta como punto de partida.

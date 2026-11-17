@@ -223,7 +223,7 @@ La API `/api/v1` expone 14 servicios de solo lectura (salvo la emisión y revoca
 6.2. **Integridad garantizada por la base de datos.** Las reglas críticas no dependen solo del código de la aplicación:
 
 - Llaves foráneas reales entre todos los módulos y restricciones `CHECK`, `UNIQUE` y `EXCLUDE` (por ejemplo, las vacantes nunca son negativas ni superan el cupo, y dos tarifas del mismo concepto no se superponen en el tiempo).
-- Triggers que impiden cruces de horario de aulas y docentes, que los pesos de evaluación no sumen 100, la modificación de pagos validados, de actas cerradas y de documentos emitidos, y el borrado de registros financieros y académicos, que solo se anulan con motivo.
+- Triggers que impiden cruces de horario de aulas y docentes, que un sistema de evaluación quede sin habilidades o sin exámenes, la modificación de pagos validados, de actas cerradas y de documentos emitidos, y el borrado de registros financieros y académicos, que solo se anulan con motivo.
 - Importes en `numeric` (nunca en coma flotante) y fechas con zona horaria, mostradas en hora de Lima.
 
 ## VII. SEGURIDAD DE LA INFORMACIÓN
@@ -381,7 +381,7 @@ En la columna de ubicación, «Admin» es el panel administrativo del personal (
 | ID | Requisito | Ubicación en el sistema | Estado | Observación |
 |---|---|---|---|---|
 | M4.1.a | Interfaz exclusiva del docente asignado, solo en fechas del calendario | Portal docente → Mis grupos → Acta final | Cumple | Rango "actas desde/hasta" por periodo (#55) |
-| M4.1.b | Cálculo automático de promedios (Parcial, Final, Participación) | Portal docente → Acta final; Admin → Catálogos → Sistemas de evaluación | Cumple | Componentes y pesos configurables; los valores oficiales los define el CILN (#7, #56, #121) |
+| M4.1.b | Cálculo automático de promedios (Parcial, Final, Participación) | Portal docente → Acta final; Admin → Catálogos → Sistemas de evaluación | Cumple | Según el sistema de evaluación del CILN: promedio de las cuatro habilidades, promedio de parcial y final y nota final igual al promedio de ambos, redondeada al entero; el Anexo menciona «Participación», pero remite al sistema del CILN (#56, #121) |
 | M4.1.c | Cierre y bloqueo; modificación con autorización del Administrador y en auditoría | Admin → Certificación → Actas finales (autorizar rectificación) | Cumple | Triggers `cer_actas_bloqueo`, `cer_notas_finales_bloqueo` (#59) |
 | M4.1.campos: curso | Idioma, nivel, ciclo, periodo académico | Admin → Certificación → Actas finales | Cumple | — |
 | M4.1.campos: docente | ID y nombres completos del docente | Admin → Certificación → Actas finales; PDF del acta | Cumple | Se muestra el código `DOC-00001` |
@@ -444,7 +444,7 @@ En la columna de ubicación, «Admin» es el panel administrativo del personal (
 | IV.1.b Repositorios documentados | Documentación técnica y diccionario de datos entregados | Entrega de los manuales de usuario y del repositorio en la versión final |
 | IV.4.a Garantía de 12 meses | Se inicia con la conformidad final | Plan de soporte y garantía |
 
-10.2. **Supuestos por validar con el CILN.** Durante el desarrollo se registraron 136 decisiones en `docs/decisiones-pendientes.md`. La mayoría son supuestos ya implementados de forma configurable (por ejemplo, los pesos de evaluación, la distribución de ciclos por nivel o las etapas de cada trámite) que el CILN debe confirmar durante las pruebas de aceptación. Ninguno impide el uso del sistema; los que requieren datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año) se registran desde el panel sin modificar código.
+10.2. **Supuestos por validar con el CILN.** Durante el desarrollo se registraron 136 decisiones en `docs/decisiones-pendientes.md`. La mayoría son supuestos ya implementados de forma configurable (por ejemplo, la nota mínima aprobatoria, la distribución de ciclos por nivel o las etapas de cada trámite) que el CILN debe confirmar durante las pruebas de aceptación. Ninguno impide el uso del sistema; los que requieren datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año) se registran desde el panel sin modificar código.
 
 ## XI. CONCLUSIONES
 

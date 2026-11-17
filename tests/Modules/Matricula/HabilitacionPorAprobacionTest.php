@@ -23,11 +23,11 @@ beforeEach(function (): void {
     $this->grupo = $this->curso['grupo'];
     $this->cicloUno = $this->grupo->ciclo;
     $this->cicloDos = Ciclo::factory()->create(['idioma_id' => $this->cicloUno->idioma_id, 'numero' => 2, 'nivel' => NivelCurricular::Basico, 'nombre' => 'Básico II']);
-    [$parcial, $final] = [$this->curso['parcial']->id, $this->curso['final']->id];
+    [$oral, $parcial, $final] = [$this->curso['oral']->id, $this->curso['parcial']->id, $this->curso['final']->id];
     $this->ana = ActasFinales::estudiante($this->grupo, 'Alva');
     $this->beto = ActasFinales::estudiante($this->grupo, 'Bravo');
     $this->ciro = ActasFinales::estudiante($this->grupo, 'Castro');
-    ActasFinales::preActa($this->ana, [$parcial => '15.00', $final => '14.00']);
+    ActasFinales::preActa($this->ana, [$oral => '15.00', $parcial => '15.00', $final => '14.00']);
     ActasFinales::preActa($this->beto, [$parcial => '8.00', $final => '10.00']);
 });
 
@@ -72,7 +72,7 @@ it('enables nothing after the last cycle of the language', function (): void {
 it('enables a student who passes after a rectification and keeps the cycle of one who no longer passes', function (): void {
     cerrarElActa();
     app(AutorizarRectificacion::class)(Acta::query()->sole()->id, 'Corrección de notas del examen final', User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value));
-    $notas = fn (string $parcial, string $final): array => [$this->curso['parcial']->id => $parcial, $this->curso['final']->id => $final];
+    $notas = fn (string $parcial, string $final): array => [$this->curso['oral']->id => $parcial, $this->curso['parcial']->id => $parcial, $this->curso['final']->id => $final];
     app(RectificarNotasFinales::class)($this->grupo->id, $this->curso['docente']->id, [
         $this->ana->id => $notas('8.00', '8.00'),
         $this->ciro->id => $notas('16.00', '16.00'),

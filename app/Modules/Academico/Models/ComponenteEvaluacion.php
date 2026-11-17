@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Models;
 
 use App\Modules\Academico\Database\Factories\ComponenteEvaluacionFactory;
+use App\Modules\Academico\Enums\GrupoDeComponente;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -17,11 +18,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $esquema_id
  * @property string $codigo
  * @property string $nombre
- * @property string $peso
+ * @property GrupoDeComponente $grupo
  * @property int $orden
  */
 #[Table('aca_componentes_evaluacion')]
-#[Fillable(['esquema_id', 'codigo', 'nombre', 'peso', 'orden'])]
+#[Fillable(['esquema_id', 'codigo', 'nombre', 'grupo', 'orden'])]
 #[UseFactory(ComponenteEvaluacionFactory::class)]
 final class ComponenteEvaluacion extends Model
 {
@@ -39,7 +40,7 @@ final class ComponenteEvaluacion extends Model
     protected function casts(): array
     {
         return [
-            'peso' => 'decimal:2',
+            'grupo' => GrupoDeComponente::class,
             'orden' => 'integer',
         ];
     }

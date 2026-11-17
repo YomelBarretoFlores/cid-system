@@ -65,8 +65,12 @@ final readonly class ActaPrevia
         return array_map(function (EstudianteDelGrupo $estudiante) use ($fichas, $notas, $vigentes, $esquema): FilaDelActa {
             $propias = array_intersect_key($notas[$estudiante->matriculaId] ?? [], $vigentes);
             [$promedio, $estado] = PromedioFinal::calcular($propias, $esquema->componentes, $esquema->notaMinimaAprobatoria);
+            [$habilidades, $examenes] = PromedioFinal::promediosPorGrupo($propias, $esquema->componentes);
 
-            return new FilaDelActa($estudiante->matriculaId, $estudiante->personaId, $estudiante->nombreCompleto, $fichas[$estudiante->personaId]->documento ?? '', $propias, $promedio, $estado);
+            return new FilaDelActa(
+                $estudiante->matriculaId, $estudiante->personaId, $estudiante->nombreCompleto, $fichas[$estudiante->personaId]->documento ?? '',
+                $propias, $promedio, $estado, $habilidades, $examenes,
+            );
         }, $estudiantes);
     }
 }

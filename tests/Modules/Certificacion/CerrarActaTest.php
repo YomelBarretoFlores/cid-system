@@ -26,11 +26,11 @@ beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2027-03-30 10:00', 'America/Lima'));
     $this->curso = ActasFinales::curso();
     $this->grupo = $this->curso['grupo'];
-    [$parcial, $final, $participacion] = [$this->curso['parcial']->id, $this->curso['final']->id, $this->curso['participacion']->id];
+    [$parcial, $final, $oral] = [$this->curso['parcial']->id, $this->curso['final']->id, $this->curso['oral']->id];
     $this->ana = ActasFinales::estudiante($this->grupo, 'Alva', '70000001');
     $this->beto = ActasFinales::estudiante($this->grupo, 'Bravo', '70000002');
     $this->ciro = ActasFinales::estudiante($this->grupo, 'Castro', '70000003');
-    ActasFinales::preActa($this->ana, [$parcial => '15.00', $final => '12.00', $participacion => '18.00']);
+    ActasFinales::preActa($this->ana, [$parcial => '15.00', $final => '12.00', $oral => '18.00']);
     ActasFinales::preActa($this->beto, [$parcial => '8.00', $final => '10.00']);
     Matricula::factory()->retirada()->create(['grupo_id' => $this->grupo->id]);
 });
@@ -66,13 +66,13 @@ it('closes the acta with a copy of the course, teacher and scheme, the grades, a
         ->nota_minima_aprobatoria->toBe('11.00')
         ->validada_por->toBe($this->curso['usuario']->id)
         ->and($acta->validada_en?->toIso8601String())->toBe(CarbonImmutable::now()->toIso8601String())
-        ->and(array_column($acta->componentes, 'peso', 'codigo'))->toBe(['parcial' => '40.00', 'final' => '40.00', 'participacion' => '20.00'])
+        ->and(array_column($acta->componentes, 'grupo', 'codigo'))->toBe(['oral' => 'habilidades', 'parcial' => 'examenes', 'final' => 'examenes'])
         ->and(filasDelActa())->toBe([
-            [$this->ana->id, 'DNI 70000001', '14.40', EstadoFinal::Aprobado],
-            [$this->beto->id, 'DNI 70000002', '7.20', EstadoFinal::Desaprobado],
+            [$this->ana->id, 'DNI 70000001', '16.00', EstadoFinal::Aprobado],
+            [$this->beto->id, 'DNI 70000002', '5.00', EstadoFinal::Desaprobado],
             [$this->ciro->id, 'DNI 70000003', null, EstadoFinal::Nsp],
         ])
-        ->and(NotaFinal::query()->where('matricula_id', $this->ana->id)->sole()->notas)->toEqual([$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['participacion']->id => '18.00'])
+        ->and(NotaFinal::query()->where('matricula_id', $this->ana->id)->sole()->notas)->toEqual([$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00', $this->curso['oral']->id => '18.00'])
         ->and(DB::table('aud_registros')->where('tabla', 'cer_actas')->count())->toBe(2)
         ->and(DB::table('aud_registros')->where('tabla', 'cer_notas_finales')->count())->toBe(3);
 });
@@ -82,10 +82,10 @@ it('previews the acta from the pre-acta without storing anything, then shows the
 
     expect($previa->estado)->toBeNull()
         ->and($previa->docente)->toBe('Vega Ríos, Carlos')
-        ->and(array_map(fn (FilaDelActa $fila): array => [$fila->estudiante, $fila->promedio, $fila->estadoFinal], $previa->filas))->toBe([
-            ['Alva Prueba, Ana', '14.40', EstadoFinal::Aprobado],
-            ['Bravo Prueba, Ana', '7.20', EstadoFinal::Desaprobado],
-            ['Castro Prueba, Ana', null, EstadoFinal::Nsp],
+        ->and(array_map(fn (FilaDelActa $fila): array => [$fila->estudiante, $fila->promedioHabilidades, $fila->promedioExamenes, $fila->promedio, $fila->estadoFinal], $previa->filas))->toBe([
+            ['Alva Prueba, Ana', '18.00', '13.50', '16.00', EstadoFinal::Aprobado],
+            ['Bravo Prueba, Ana', '0.00', '9.00', '5.00', EstadoFinal::Desaprobado],
+            ['Castro Prueba, Ana', null, null, null, EstadoFinal::Nsp],
         ])
         ->and(Acta::query()->count())->toBe(0);
 

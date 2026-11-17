@@ -16,7 +16,7 @@ Branch: `feat/evaluacion-por-habilidades` (from main 56e3102) · Delivery: one c
 | ID | Specs | Route | Status | Commit |
 |----|-------|-------|--------|--------|
 | T1 | S1 | delegated (context backstop, ~90 files) | done | (this commit) |
-| T2 | S2–S5 | delegated (context backstop) | pending | |
+| T2 | S2–S5 | delegated (context backstop) | done | (commit after b5d4da6) |
 
 ## Log
 
@@ -25,3 +25,4 @@ Branch: `feat/evaluacion-por-habilidades` (from main 56e3102) · Delivery: one c
 - L3 (user): "Sí, por ejemplo de 13.5 se pasa a 14, 10.5 a 11 y así. 13.6 a 14, etc."
 - L4: T1 before T2 (they share seeders and docs).
 - L5: T1 done: 41 files deleted, drop migration 2026_11_17_090000 (up/down verified on dev DB), composer check green except one replay test fixed and re-run (55/55 focused).
+- L6: T2 done. RED 12 errors → GREEN 12/12 (PromedioFinalTest). Independent verifier: composer check exit 0, 2224 tests; S2–S5 PASS. Finding: rectifying an acta closed with weights recomputes all its rows with the new rule (the reader maps participación to skills). Not a blocker now: the system is not yet deployed, so only demo actas exist; open question for the user if real weighted actas ever appear. Browser check of the screens pending.

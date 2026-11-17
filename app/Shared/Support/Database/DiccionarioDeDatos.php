@@ -178,7 +178,7 @@ final readonly class DiccionarioDeDatos
         return implode("\n", [
             "## {$numero}. Funciones de los triggers",
             '',
-            'Funciones de PostgreSQL que ejecutan los triggers descritos en cada tabla. `aud_registrar()` escribe la pista de auditoría; las demás protegen reglas de negocio (bloqueo de actas cerradas, ciclo de vida de los pagos, cruces de horario de aulas y docentes, pesos de evaluación).',
+            'Funciones de PostgreSQL que ejecutan los triggers descritos en cada tabla. `aud_registrar()` escribe la pista de auditoría; las demás protegen reglas de negocio (bloqueo de actas cerradas, ciclo de vida de los pagos, cruces de horario de aulas y docentes, habilidades y exámenes de cada sistema de evaluación).',
             '',
             '| Función | Tablas que la usan |',
             '|---|---|',
