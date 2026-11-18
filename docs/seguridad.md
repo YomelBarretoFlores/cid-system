@@ -29,6 +29,8 @@ El middleware global `AgregarCabecerasDeSeguridad` las agrega a toda respuesta (
 | `X-Content-Type-Options` | `nosniff` | Siempre |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Siempre |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Siempre |
+| `Cross-Origin-Opener-Policy` | `same-origin` | Siempre |
+| `Cross-Origin-Resource-Policy` | `same-origin` | Siempre |
 | `Strict-Transport-Security` | `max-age=31536000` | Solo en peticiones `https` (detrás del proxy, requiere `TRUSTED_PROXIES`) |
 | `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'` | Siempre, salvo en la documentación de la API (`/docs/api`, que carga su visor desde unpkg.com) y mientras corre el servidor de desarrollo de Vite |
 
