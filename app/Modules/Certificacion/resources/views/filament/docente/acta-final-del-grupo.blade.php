@@ -1,8 +1,6 @@
 @use('App\Modules\Academico\Enums\GrupoDeComponente')
-@use('App\Modules\Certificacion\Enums\EstadoFinal')
 @use('App\Modules\Certificacion\Filament\Docente\Pages\ActaFinalDelGrupo')
 @use('App\Shared\Ui\Formato')
-@php($colores = [EstadoFinal::Aprobado->value => 'success', EstadoFinal::Desaprobado->value => 'danger', EstadoFinal::Nsp->value => 'gray'])
 <x-filament-panels::page>
     @if ($aviso)
         <x-filament::callout color="success" icon="heroicon-o-check-circle" :heading="$aviso" />
@@ -107,7 +105,7 @@
                                             <td class="text-right">{{ $fila->promedioDe($grupo) ?? '—' }}</td>
                                         @endforeach
                                         <td class="text-right font-semibold">{{ $fila->promedio ?? '—' }}</td>
-                                        <td><x-filament::badge :color="$colores[$fila->estadoFinal->value]">{{ $fila->estadoFinal->etiqueta() }}</x-filament::badge></td>
+                                        <td class="whitespace-nowrap">{{ $fila->estadoFinal->etiqueta() }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
