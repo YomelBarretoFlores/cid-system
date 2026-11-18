@@ -88,3 +88,13 @@ it('leaves the content policy out while the Vite dev server serves the assets', 
 
     $this->get('/ingresar')->assertOk()->assertHeaderMissing('Content-Security-Policy')->assertHeader('X-Frame-Options', 'SAMEORIGIN');
 });
+
+it('asks Apache to add the same headers to the static files it serves without the application', function () use ($cabecerasFijas): void {
+    $reglas = (string) file_get_contents(public_path('.htaccess'));
+
+    expect($reglas)
+        ->toContain("Header always set X-Content-Type-Options \"{$cabecerasFijas['X-Content-Type-Options']}\"")
+        ->toContain("Header always set Permissions-Policy \"{$cabecerasFijas['Permissions-Policy']}\"")
+        ->toContain('Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS')
+        ->toContain('AddType image/webp .webp');
+});
