@@ -496,6 +496,8 @@ El tablero muestra los ingresos, los pagos pendientes de validación, la rentabi
 
 Las sesiones usan cookies `HttpOnly`, `Secure` y `SameSite`, con el contenido cifrado y regeneración al iniciar sesión; la protección CSRF verifica el token de cada formulario. La API usa tokens personales que vencen a los 30 días.
 
+**Escaneo de seguridad.** Con la autorización de la DSTI, el 18 de noviembre de 2026 se ejecutó el escaneo pasivo OWASP ZAP 2.17.0 (*baseline*), sin ataques ni modificación de datos, sobre la versión **v1.0.1** del sistema en un entorno equivalente al de producción (Apache 2.4 con HTTPS, PHP-FPM 8.5 y la misma configuración `public/.htaccess`). Resultado: **ningún hallazgo de riesgo alto y ninguna regla fallida** (59 reglas aprobadas). Los tres avisos de riesgo medio corresponden a la política de contenido (`unsafe-inline` y `unsafe-eval`), que Livewire, Alpine y Filament requieren para funcionar; es un riesgo aceptado, mitigado por el escape de salida de Blade, la validación de entradas y una política `default-src 'self'` con `object-src 'none'` y `frame-ancestors 'self'`. Los avisos de riesgo bajo restantes son falsos positivos (la cookie XSRF-TOKEN es legible por diseño para la protección CSRF, marcas de tiempo dentro de las librerías y una redirección de la verificación de documentos) o la cabecera opcional COEP, que no se activa porque impediría cargar el visor de la documentación de la API. El escaneo inicial sobre el servidor de producción (v1.0.0) señaló cookies sin la marca `Secure` y cabeceras ausentes en los archivos estáticos; la versión v1.0.1 los corrige y añade las cabeceras `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy`. El reporte se entrega como evidencia (*Reporte OWASP ZAP - prueba local con v1.0.1 - 2026-11-18*); el mismo escaneo se repetirá sobre `https://ciln.unasam.edu.pe` cuando la DSTI instale la versión v1.0.1.
+
 ## 9.2. Pista de auditoría inmutable
 
 Conforme al numeral II.2 y a la sección IV.2 del Anexo Técnico, un trigger de PostgreSQL registra en la tabla `aud_registros` cada alta, cambio o baja de **42 tablas críticas** (notas parciales y finales, actas, rectificaciones, pagos, tarifas, matrículas, movimientos, documentos, roles y permisos, entre otras), con fecha y hora, dirección IP, usuario, operación, valores anteriores y nuevos e identificador de la solicitud.
@@ -573,7 +575,7 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Cláusula | Requisito | Evidencia | Estado |
 |---|---|---|---|
 | 3.2 | Software que automatice el registro, clasificación, matrícula, pagos, gestión docente y certificación, sobre arquitectura moderna y segura | Capítulos 4, 5 y 8; matriz (11.3) | Cumple |
-| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 91 requisitos cumplidos y 5 cumplidos parcialmente por causas externas | Cumple |
+| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 93 requisitos cumplidos y 3 cumplidos parcialmente por causas contractuales | Cumple |
 | 4.2 | Seis actividades mínimas | Tabla de actividades (2.3) | Cumple, con la capacitación según 11.5 |
 | 4.3 | Plan de trabajo con metodología, cronograma y estructura técnica | Secciones 2.1 y 2.2 | Cumple |
 | 4.5 | Sistema desplegado y operativo en el servidor de la DSTI, con código fuente, manuales y documentación técnica | Sección 3.4; relación de componentes (11.5) | Cumple, con los manuales según 11.5 |
@@ -594,23 +596,22 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 | Sección del Anexo Técnico | Requisitos | Cumple | Cumple parcialmente | No cumple |
 |---|---|---|---|---|
-| II. Requisitos técnicos generales | 12 | 11 | 1 | 0 |
+| II. Requisitos técnicos generales | 12 | 12 | 0 | 0 |
 | M1. Registro, clasificación y matrícula | 22 | 22 | 0 | 0 |
 | M2. Pagos | 12 | 12 | 0 | 0 |
 | M3. Docencia | 15 | 15 | 0 | 0 |
 | M4. Evaluación y certificación | 11 | 11 | 0 | 0 |
 | M5. Tablero gerencial | 7 | 7 | 0 | 0 |
 | M6. Portal público y trámites | 11 | 11 | 0 | 0 |
-| IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 2 | 4 | 0 |
-| **Total** | **96** | **91** | **5** | **0** |
+| IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 3 | 3 | 0 |
+| **Total** | **96** | **93** | **3** | **0** |
 
-**Los seis módulos funcionales se cumplen en su totalidad**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba. Los cinco requisitos cumplidos parcialmente no dependen de funciones faltantes, sino de condiciones externas al desarrollo:
+**Los seis módulos funcionales se cumplen en su totalidad**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba. Los tres requisitos cumplidos parcialmente no dependen de funciones faltantes, sino de obligaciones que se completan con la conformidad del servicio:
 
 *Tabla 24. Requisitos cumplidos parcialmente y acción que corresponde*
 
 | Requisito | Situación | Acción y responsable |
 |---|---|---|
-| II.2.a y IV.2.a OWASP Top 10 | Controles implementados y probados | La DSTI autoriza por escrito el escaneo OWASP ZAP sobre un entorno de pruebas; el reporte se adjunta como evidencia |
 | IV.1.a Cesión de derechos a la UNASAM | Obligación contractual declarada en este informe | Se formaliza con el acta de conformidad y cesión |
 | IV.1.b Repositorios documentados | Código fuente y repositorio entregados a la DSTI; documentación técnica y diccionario de datos entregados | Entrega de los manuales de usuario |
 | IV.4.a Garantía de 12 meses | Se inicia con la conformidad final | Plan de soporte y garantía del contratista |
@@ -626,7 +627,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | II.1.c | Servicios expuestos por API REST y diseño desacoplado | API `/api/v1` | Cumple | 14 servicios REST, de solo lectura salvo la emisión/revocación de tokens (#86); módulos se comunican por `Contracts/` |
 | II.1.d | Base de datos relacional normalizada con índices adecuados | Plataforma | Cumple | PostgreSQL 18 con claves foráneas reales, `CHECK` y tablas con prefijo por módulo |
 | II.1.e | Compatible con entorno y estándares de la DSTI | Despliegue | Cumple | Desplegado y operativo en el servidor de la DSTI, con HTTPS, correo institucional y respaldos configurados por la DSTI |
-| II.2.a | Cumplimiento del OWASP Top 10 | Transversal | Cumple parcialmente | Controles implementados y probados; el reporte OWASP ZAP contra staging (evidencia prevista en `docs/seguridad.md`) aún no existe y requiere autorización escrita de la DSTI |
+| II.2.a | Cumplimiento del OWASP Top 10 | Transversal | Cumple | Controles implementados y probados; escaneo OWASP ZAP de la v1.0.1 sin hallazgos de riesgo alto ni reglas fallidas (sección 9.1) |
 | II.2.b | Validación de entradas; protección contra SQLi, XSS y CSRF | Transversal | Cumple | No hay una prueba automatizada dedicada a CSRF; la protección la da el middleware del framework |
 | II.2.c | Gestión segura de sesiones y cifrado de datos sensibles | Admin → (perfil) Doble factor; transversal | Cumple | Doble factor opcional (#92); cierre del panel a los 30 min (#93) |
 | II.2.d | Tratamiento de datos personales conforme a la Ley 29733 | Portal del estudiante → Crear cuenta; Sitio público → `/fichas/{código}`, `/verificar` | Cumple | Consentimiento registrado, documento enmascarado en verificación pública (#67), sin exportación de personas; datos de prueba sintéticos |
@@ -762,7 +763,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 |---|---|---|---|---|
 | IV.1.a | Cesión total de derechos patrimoniales a la UNASAM | Contractual | Cumple parcialmente | Declarada en este informe; se formaliza con el acta de conformidad y cesión |
 | IV.1.b | Entrega de repositorios completos y documentados al finalizar | Repositorio | Cumple parcialmente | Código fuente y repositorio entregados a la DSTI con su documentación técnica; manuales de usuario pendientes de entrega |
-| IV.2.a | Seguridad conforme a Ley 29733 y OWASP | Transversal | Cumple parcialmente | Mismo pendiente que II.2.a (reporte ZAP) |
+| IV.2.a | Seguridad conforme a Ley 29733 y OWASP | Transversal | Cumple | Ley N.° 29733 (sección 9.3) y escaneo OWASP ZAP de la v1.0.1 (sección 9.1) |
 | IV.2.b | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | — |
 | IV.3.a | Confidencialidad de la información académica, financiera y personal | Proceso del proveedor | Cumple | Compromiso contractual; en lo técnico, pruebas y demo solo con datos sintéticos |
 | IV.4.a | Garantía y soporte técnico mínimo de 12 meses | Contractual | Cumple parcialmente | Obligación que se inicia con la conformidad final; no verificable en el código |
@@ -799,6 +800,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | Scripts de implementación (instalación tradicional y con contenedores, actualización automática con reversión, migraciones) | TdR 6.1 | Entregado, en el repositorio |
 | Documentación técnica (presente informe, arquitectura, modelo de datos, seguridad, guía de despliegue, ADR, documentación OpenAPI de la API) | TdR 4.2, 4.5 y 6.3 | Entregado |
 | Diccionario de Datos – Sistema de Gestión del CILN | TdR 4.2 | Entregado |
+| Reporte del escaneo de seguridad OWASP ZAP (versión v1.0.1) | Anexo II.2.a y IV.2 | Entregado |
 | Manuales de usuario (estudiante, docente y personal del CILN) | TdR 4.2 y 6.1 | Pendiente de entrega |
 | Capacitación al personal directivo, administrativo y docente del CILN | TdR 4.2 y 6.1 | Pendiente, por programar con el CILN |
 | Garantía técnica de funcionamiento y soporte por 12 meses | TdR 6.1 y 6.10; Anexo IV.4 | Se inicia con la conformidad final |
@@ -806,7 +808,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 # 12. CONCLUSIONES
 
 1. El Sistema de Gestión Académica y Administrativa del CILN **cumple los seis módulos funcionales** del Anexo Técnico: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y pruebas automatizadas que lo comprueban.
-2. De los 96 requisitos verificados del Anexo Técnico, **91 se cumplen y 5 se cumplen parcialmente** por depender de condiciones externas al desarrollo (autorización del escaneo de seguridad, formalización de la cesión de derechos, entrega de manuales y garantía, que se inicia con la conformidad). **Ningún requisito queda sin atender.**
+2. De los 96 requisitos verificados del Anexo Técnico, **93 se cumplen y 3 se cumplen parcialmente** por tratarse de obligaciones que se completan con la conformidad del servicio (formalización de la cesión de derechos, entrega de manuales de usuario y garantía). **Ningún requisito queda sin atender.**
 3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091 y atendió las actividades del numeral 4.2 de los TdR; el sistema se encuentra desplegado en el servidor de la DSTI y el código fuente está en poder de la DSTI.
 4. El sistema supera las limitaciones señaladas por la DSTI en el Informe Técnico N.° 023-2026-FMAJ: usa tecnologías con soporte vigente, aplica los controles del OWASP Top 10, registra una pista de auditoría inmutable en la base de datos y protege los datos personales conforme a la Ley N.° 29733.
 5. El cálculo de las notas sigue el sistema de evaluación del CILN: promedio de las cuatro habilidades y promedio de los exámenes, con la nota final redondeada a un entero y una nota mínima aprobatoria configurable.
@@ -814,7 +816,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 # 13. RECOMENDACIONES
 
 1. **Correo y respaldos.** Que la DSTI mantenga la configuración del correo institucional y de los respaldos programados del servidor de producción, y que realice una prueba de restauración de los respaldos al menos una vez por semestre.
-2. **Seguridad.** Que la DSTI autorice por escrito el escaneo OWASP ZAP sobre un entorno de pruebas, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
+2. **Seguridad.** Que la DSTI instale la versión v1.0.1, active el módulo `mod_headers` de Apache, repita el escaneo OWASP ZAP sobre `https://ciln.unasam.edu.pe`, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
 3. **Garantía.** Que, con la conformidad final, se formalice el inicio de la garantía técnica de doce meses y el canal de reporte de incidencias entre el CILN, la DSTI y el contratista.
 4. **Actualizaciones.** Que las nuevas versiones se instalen solo desde **etiquetas publicadas** (`vX.Y.Z`) de la rama principal, que pasan la integración continua, mediante la actualización automática o el procedimiento manual de la guía de despliegue, y que la DSTI mantenga las dependencias dentro de sus versiones con soporte.
 6. **Validación institucional.** Que el CILN valide los supuestos registrados durante las pruebas de aceptación y registre en el panel los datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que se programen la capacitación y la entrega de los manuales de usuario.
