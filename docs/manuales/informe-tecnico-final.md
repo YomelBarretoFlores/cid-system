@@ -513,7 +513,7 @@ La tabla rechaza toda modificación, borrado o vaciado. En producción, la aplic
 
 ## 9.4. Respaldos y recuperación
 
-El sistema incluye respaldos programados de la base de datos y de los archivos (`spatie/laravel-backup`), con limpieza diaria a la 01:00 y respaldo a la 01:30, y cifrado AES-256 opcional del archivo de respaldo. Se entregan **desactivados por defecto** (`CILN_RESPALDOS_PROGRAMADOS=false`) porque el disco de destino, la retención y la prueba de restauración corresponden a la DSTI. La guía de despliegue indica el procedimiento: definir el destino, activar los respaldos, ejecutar un respaldo manual y restaurarlo en un entorno de pruebas antes de darlo por válido.
+El sistema incluye respaldos programados de la base de datos y de los archivos (`spatie/laravel-backup`), con limpieza diaria a la 01:00 y respaldo a la 01:30, y cifrado AES-256 opcional del archivo de respaldo. Se entregan **desactivados por defecto** (`CILN_RESPALDOS_PROGRAMADOS=false`) porque el disco de destino, la retención y la prueba de restauración corresponden a la DSTI, que los configuró en el servidor de producción siguiendo el procedimiento de la guía de despliegue: definir el destino, activar los respaldos, ejecutar un respaldo manual y restaurarlo en un entorno de pruebas.
 
 La recuperación ante fallos de actualización está automatizada: si una actualización falla antes de migrar la base, el sistema vuelve a la versión anterior y sale del modo de mantenimiento.
 
@@ -573,7 +573,7 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Cláusula | Requisito | Evidencia | Estado |
 |---|---|---|---|
 | 3.2 | Software que automatice el registro, clasificación, matrícula, pagos, gestión docente y certificación, sobre arquitectura moderna y segura | Capítulos 4, 5 y 8; matriz (11.3) | Cumple |
-| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 89 requisitos cumplidos y 7 cumplidos parcialmente por causas externas | Cumple |
+| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 91 requisitos cumplidos y 5 cumplidos parcialmente por causas externas | Cumple |
 | 4.2 | Seis actividades mínimas | Tabla de actividades (2.3) | Cumple, con la capacitación según 11.5 |
 | 4.3 | Plan de trabajo con metodología, cronograma y estructura técnica | Secciones 2.1 y 2.2 | Cumple |
 | 4.5 | Sistema desplegado y operativo en el servidor de la DSTI, con código fuente, manuales y documentación técnica | Sección 3.4; relación de componentes (11.5) | Cumple, con los manuales según 11.5 |
@@ -594,7 +594,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 | Sección del Anexo Técnico | Requisitos | Cumple | Cumple parcialmente | No cumple |
 |---|---|---|---|---|
-| II. Requisitos técnicos generales | 12 | 9 | 3 | 0 |
+| II. Requisitos técnicos generales | 12 | 11 | 1 | 0 |
 | M1. Registro, clasificación y matrícula | 22 | 22 | 0 | 0 |
 | M2. Pagos | 12 | 12 | 0 | 0 |
 | M3. Docencia | 15 | 15 | 0 | 0 |
@@ -602,17 +602,15 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M5. Tablero gerencial | 7 | 7 | 0 | 0 |
 | M6. Portal público y trámites | 11 | 11 | 0 | 0 |
 | IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 2 | 4 | 0 |
-| **Total** | **96** | **89** | **7** | **0** |
+| **Total** | **96** | **91** | **5** | **0** |
 
-**Los seis módulos funcionales se cumplen en su totalidad**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba. Los siete requisitos cumplidos parcialmente no dependen de funciones faltantes, sino de condiciones externas al desarrollo:
+**Los seis módulos funcionales se cumplen en su totalidad**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba. Los cinco requisitos cumplidos parcialmente no dependen de funciones faltantes, sino de condiciones externas al desarrollo:
 
 *Tabla 24. Requisitos cumplidos parcialmente y acción que corresponde*
 
 | Requisito | Situación | Acción y responsable |
 |---|---|---|
-| II.1.e Compatibilidad con el entorno de la DSTI | Sistema desplegado en el servidor de la DSTI con la guía de instalación | La DSTI completa la configuración a su cargo (certificado HTTPS, correo institucional, respaldos) y da su conformidad al entorno |
 | II.2.a y IV.2.a OWASP Top 10 | Controles implementados y probados | La DSTI autoriza por escrito el escaneo OWASP ZAP sobre un entorno de pruebas; el reporte se adjunta como evidencia |
-| II.4.a Alta disponibilidad y escalabilidad | Arquitectura preparada (módulos desacoplados, API, colas, respaldos programados) | CILN y DSTI acuerdan usuarios concurrentes, disponibilidad y destino de los respaldos; se activan los respaldos y se prueba la restauración |
 | IV.1.a Cesión de derechos a la UNASAM | Obligación contractual declarada en este informe | Se formaliza con el acta de conformidad y cesión |
 | IV.1.b Repositorios documentados | Código fuente y repositorio entregados a la DSTI; documentación técnica y diccionario de datos entregados | Entrega de los manuales de usuario |
 | IV.4.a Garantía de 12 meses | Se inicia con la conformidad final | Plan de soporte y garantía del contratista |
@@ -627,14 +625,14 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | II.1.b | Framework consolidado bajo patrón MVC o multicapa | Plataforma | Cumple | Laravel 13; monolito modular (Controlador/Livewire/Filament → Form Request → Action → Modelo), ADR 0001 |
 | II.1.c | Servicios expuestos por API REST y diseño desacoplado | API `/api/v1` | Cumple | 14 servicios REST, de solo lectura salvo la emisión/revocación de tokens (#86); módulos se comunican por `Contracts/` |
 | II.1.d | Base de datos relacional normalizada con índices adecuados | Plataforma | Cumple | PostgreSQL 18 con claves foráneas reales, `CHECK` y tablas con prefijo por módulo |
-| II.1.e | Compatible con entorno y estándares de la DSTI | Despliegue | Cumple parcialmente | Desplegado en el servidor de la DSTI; queda la configuración a cargo de la DSTI (HTTPS, correo, respaldos) y su conformidad del entorno (#8) |
+| II.1.e | Compatible con entorno y estándares de la DSTI | Despliegue | Cumple | Desplegado y operativo en el servidor de la DSTI, con HTTPS, correo institucional y respaldos configurados por la DSTI |
 | II.2.a | Cumplimiento del OWASP Top 10 | Transversal | Cumple parcialmente | Controles implementados y probados; el reporte OWASP ZAP contra staging (evidencia prevista en `docs/seguridad.md`) aún no existe y requiere autorización escrita de la DSTI |
 | II.2.b | Validación de entradas; protección contra SQLi, XSS y CSRF | Transversal | Cumple | No hay una prueba automatizada dedicada a CSRF; la protección la da el middleware del framework |
 | II.2.c | Gestión segura de sesiones y cifrado de datos sensibles | Admin → (perfil) Doble factor; transversal | Cumple | Doble factor opcional (#92); cierre del panel a los 30 min (#93) |
 | II.2.d | Tratamiento de datos personales conforme a la Ley 29733 | Portal del estudiante → Crear cuenta; Sitio público → `/fichas/{código}`, `/verificar` | Cumple | Consentimiento registrado, documento enmascarado en verificación pública (#67), sin exportación de personas; datos de prueba sintéticos |
 | II.2.e | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | Función `aud_registrar()` en 40+ tablas (notas, pagos, actas); `aud_registros` rechaza UPDATE/DELETE/TRUNCATE |
 | II.3.a | Interfaz responsive, intuitiva, accesible y adaptable a móviles | Todas las pantallas | Cumple | Tailwind con puntos de quiebre y Filament; no hay prueba automatizada de vistas móviles (se verifica en navegador) |
-| II.4.a | Escalabilidad, interoperabilidad, alta disponibilidad e integraciones futuras | Plataforma | Cumple parcialmente | Arquitectura preparada (módulos desacoplados, API, colas); alta disponibilidad, concurrencia y respaldos dependen de la infraestructura aún no acordada (#5, #8); respaldos programados apagados |
+| II.4.a | Escalabilidad, interoperabilidad, alta disponibilidad e integraciones futuras | Plataforma | Cumple | Arquitectura preparada (módulos desacoplados, API REST, colas); infraestructura de producción y respaldos programados configurados por la DSTI |
 
 ### 11.3.2. Módulo 1: Registro, examen de clasificación y matrícula
 
@@ -808,18 +806,17 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 # 12. CONCLUSIONES
 
 1. El Sistema de Gestión Académica y Administrativa del CILN **cumple los seis módulos funcionales** del Anexo Técnico: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y pruebas automatizadas que lo comprueban.
-2. De los 96 requisitos verificados del Anexo Técnico, **89 se cumplen y 7 se cumplen parcialmente** por depender de condiciones externas al desarrollo (configuración y conformidad del entorno por la DSTI, autorización del escaneo de seguridad, formalización de la cesión de derechos, entrega de manuales y garantía, que se inicia con la conformidad). **Ningún requisito queda sin atender.**
+2. De los 96 requisitos verificados del Anexo Técnico, **91 se cumplen y 5 se cumplen parcialmente** por depender de condiciones externas al desarrollo (autorización del escaneo de seguridad, formalización de la cesión de derechos, entrega de manuales y garantía, que se inicia con la conformidad). **Ningún requisito queda sin atender.**
 3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091 y atendió las actividades del numeral 4.2 de los TdR; el sistema se encuentra desplegado en el servidor de la DSTI y el código fuente está en poder de la DSTI.
 4. El sistema supera las limitaciones señaladas por la DSTI en el Informe Técnico N.° 023-2026-FMAJ: usa tecnologías con soporte vigente, aplica los controles del OWASP Top 10, registra una pista de auditoría inmutable en la base de datos y protege los datos personales conforme a la Ley N.° 29733.
 5. El cálculo de las notas sigue el sistema de evaluación del CILN: promedio de las cuatro habilidades y promedio de los exámenes, con la nota final redondeada a un entero y una nota mínima aprobatoria configurable.
 
 # 13. RECOMENDACIONES
 
-1. **Correo institucional.** Microsoft 365, con sus valores de seguridad predeterminados (security defaults), bloquea la autenticación SMTP de los buzones (SMTP AUTH), y Microsoft anunció su desactivación por defecto. Se recomienda que la DSTI configure en Exchange Online un **conector de retransmisión que acepte la IP pública del servidor**, de modo que el envío de correos (verificación de cuentas, recuperación de contraseña, notificaciones de trámites) no dependa de la contraseña de un buzón ni de la autenticación básica.
-2. **Respaldos.** Que el CILN y la DSTI acuerden el destino y la retención de los respaldos, se activen los respaldos programados y se realice una prueba de restauración antes del inicio de operaciones.
-3. **Seguridad.** Que la DSTI autorice por escrito el escaneo OWASP ZAP sobre un entorno de pruebas, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
-4. **Garantía.** Que, con la conformidad final, se formalice el inicio de la garantía técnica de doce meses y el canal de reporte de incidencias entre el CILN, la DSTI y el contratista.
-5. **Actualizaciones.** Que las nuevas versiones se instalen solo desde **etiquetas publicadas** (`vX.Y.Z`) de la rama principal, que pasan la integración continua, mediante la actualización automática o el procedimiento manual de la guía de despliegue, y que la DSTI mantenga las dependencias dentro de sus versiones con soporte.
+1. **Correo y respaldos.** Que la DSTI mantenga la configuración del correo institucional y de los respaldos programados del servidor de producción, y que realice una prueba de restauración de los respaldos al menos una vez por semestre.
+2. **Seguridad.** Que la DSTI autorice por escrito el escaneo OWASP ZAP sobre un entorno de pruebas, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
+3. **Garantía.** Que, con la conformidad final, se formalice el inicio de la garantía técnica de doce meses y el canal de reporte de incidencias entre el CILN, la DSTI y el contratista.
+4. **Actualizaciones.** Que las nuevas versiones se instalen solo desde **etiquetas publicadas** (`vX.Y.Z`) de la rama principal, que pasan la integración continua, mediante la actualización automática o el procedimiento manual de la guía de despliegue, y que la DSTI mantenga las dependencias dentro de sus versiones con soporte.
 6. **Validación institucional.** Que el CILN valide los supuestos registrados durante las pruebas de aceptación y registre en el panel los datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que se programen la capacitación y la entrega de los manuales de usuario.
 
 # ANEXO A. EVIDENCIA TÉCNICA POR REQUISITO
