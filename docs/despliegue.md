@@ -16,7 +16,7 @@
 |---|---|
 | PHP | 8.5 con `pdo_pgsql`, `pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring` y `pcntl` (sin `pcntl` el worker de colas no corta un trabajo que pasa de `--timeout`) |
 | Base de datos | PostgreSQL 18 compilado con ICU (lo traen los paquetes oficiales), en el mismo servidor o en otro. La migración crea la intercalación `sin_tildes`, que permite buscar sin tildes ni mayúsculas en el panel; otra crea la extensión `btree_gist`. Ambas se cubren creando la base con el rol dueño como propietario (ver [Roles de PostgreSQL](#roles-de-postgresql)). |
-| Servidor web | Nginx o Apache apuntando a `public/` |
+| Servidor web | Nginx o Apache apuntando a `public/`. Con Apache: `AllowOverride All`, `mod_rewrite` y `mod_headers`, para que `public/.htaccess` agregue las cabeceras de seguridad también a los archivos estáticos |
 | Procesos | Worker de colas supervisado (Supervisor o systemd) y cron del scheduler |
 | Correo | SMTP institucional (ver [Correo](#correo)) |
 | Build de assets | Node solo en el build (`npm ci && npm run build`); no se necesita en ejecución |
