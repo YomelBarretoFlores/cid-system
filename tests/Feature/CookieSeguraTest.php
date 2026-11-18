@@ -7,8 +7,10 @@ function configuracionDeSesion(array $variables): array
     $anteriores = [];
 
     foreach ($variables as $nombre => $valor) {
-        $anteriores[$nombre] = $_SERVER[$nombre] ?? null;
+        $anteriores[$nombre] = [$_SERVER[$nombre] ?? null, $_ENV[$nombre] ?? null, getenv($nombre)];
+        // The env file reaches $_SERVER, $_ENV and getenv(), so all three are replaced.
         unset($_SERVER[$nombre], $_ENV[$nombre]);
+        putenv($nombre);
 
         if ($valor !== null) {
             $_SERVER[$nombre] = $valor;
@@ -18,14 +20,12 @@ function configuracionDeSesion(array $variables): array
     try {
         return require base_path('config/session.php');
     } finally {
-        foreach ($anteriores as $nombre => $valor) {
-            if ($valor === null) {
-                unset($_SERVER[$nombre]);
-
-                continue;
-            }
-
-            $_SERVER[$nombre] = $valor;
+        foreach ($anteriores as $nombre => [$servidor, $entorno, $proceso]) {
+            unset($_SERVER[$nombre], $_ENV[$nombre]);
+            putenv($nombre);
+            $servidor === null ?: $_SERVER[$nombre] = $servidor;
+            $entorno === null ?: $_ENV[$nombre] = $entorno;
+            $proceso === false ?: putenv("{$nombre}={$proceso}");
         }
     }
 }
