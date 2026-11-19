@@ -120,7 +120,7 @@ Conforme al numeral 4.3 de los TdR, el servicio se ejecutó con un plan de traba
 
 ## 2.2. Cronograma de ejecución
 
-La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta días calendario corre desde el día siguiente de su notificación. El cronograma se reconstruye a partir del historial del repositorio del código fuente, que registra 466 cambios con su fecha.
+La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta días calendario corre desde el día siguiente de su notificación. El cronograma se reconstruye a partir del historial del repositorio del código fuente, que registra 484 cambios con su fecha.
 
 *Tabla 5. Cronograma de ejecución del servicio*
 
@@ -528,18 +528,18 @@ La recuperación ante fallos de actualización está automatizada: si una actual
 
 ## 10.1. Pruebas automatizadas
 
-El sistema cuenta con **238 archivos de prueba y 1 567 casos de prueba**, ejecutados siempre sobre PostgreSQL con datos sintéticos. Cubren las reglas de negocio de cada módulo, los flujos completos de las pantallas, la API, la seguridad (autorización, sesiones, cabeceras, auditoría), la concurrencia con conexiones reales (última vacante, doble validación de pagos) y la arquitectura (desacople entre módulos).
+El sistema cuenta con **241 archivos de prueba y 1 588 casos de prueba**, ejecutados siempre sobre PostgreSQL con datos sintéticos. Cubren las reglas de negocio de cada módulo, los flujos completos de las pantallas, la API, la seguridad (autorización, sesiones, cabeceras, auditoría), la concurrencia con conexiones reales (última vacante, doble validación de pagos) y la arquitectura (desacople entre módulos).
 
 *Tabla 20. Pruebas automatizadas por tipo*
 
 | Tipo de prueba | Archivos | Casos |
 |---|---|---|
-| Reglas de negocio por módulo (`tests/Modules`) | 155 | 1 176 |
-| Flujos transversales, API, seguridad y portales (`tests/Feature`) | 59 | 330 |
+| Reglas de negocio por módulo (`tests/Modules`) | 157 | 1 193 |
+| Flujos transversales, API, seguridad y portales (`tests/Feature`) | 60 | 334 |
 | Concurrencia con conexiones reales (`tests/Concurrency`) | 15 | 33 |
 | Unitarias (`tests/Unit`) | 6 | 20 |
 | Arquitectura y desacople (`tests/Architecture`) | 3 | 8 |
-| **Total** | **238** | **1 567** |
+| **Total** | **241** | **1 588** |
 
 Los casos con conjuntos de datos se ejecutan una vez por cada dato, por lo que la suite completa suma **2 224 ejecuciones de prueba**, todas aprobadas en la ejecución del 17 de noviembre de 2026. El inventario por directorio está en el Anexo B.
 
@@ -784,7 +784,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 |---|---|
 | 1.1 Tecnología obsoleta (PHP 5.6 sin soporte desde 2018) | PHP 8.5, Laravel 13 y PostgreSQL 18, todos con soporte vigente; actualizaciones de seguridad aplicadas durante el servicio (sección 4.1) |
 | 1.2 Vulnerabilidades (inyección SQL, ejecución remota, XSS, sesiones inseguras, exposición de datos) y malas prácticas | Controles OWASP Top 10 (9.1); monolito modular con fronteras verificadas por pruebas; separación entre lógica y presentación; manejo centralizado de errores |
-| 1.3 Problemas de lógica funcional y limitaciones ante nuevos requerimientos | Reglas de negocio en Acciones únicas, validadas también en la base de datos y cubiertas por 1 567 casos de prueba; catálogos y flujos configurables sin programar |
+| 1.3 Problemas de lógica funcional y limitaciones ante nuevos requerimientos | Reglas de negocio en Acciones únicas, validadas también en la base de datos y cubiertas por 1 588 casos de prueba; catálogos y flujos configurables sin programar |
 | 1.4 Diseño no responsive e interfaz poco intuitiva | Interfaz adaptable a móviles, sistema de diseño único y contraste de colores conforme a WCAG AA |
 | 1.5 Impacto institucional (pérdida de integridad, interrupción, exposición de datos) | Auditoría inmutable, integridad garantizada por la base de datos, respaldos programados, documentación técnica y despliegue en la infraestructura de la UNASAM |
 
@@ -1006,15 +1006,15 @@ Conteo de casos de prueba por directorio. Los casos con conjuntos de datos se ej
 
 | Directorio | Archivos | Casos de prueba |
 |---|---|---|
-| `tests/Modules/Academico` | 21 | 171 |
-| `tests/Modules/Personas` | 7 | 68 |
+| `tests/Modules/Academico` | 21 | 172 |
+| `tests/Modules/Personas` | 8 | 73 |
 | `tests/Modules/Matricula` | 31 | 251 |
 | `tests/Modules/Pagos` | 23 | 179 |
-| `tests/Modules/Docencia` | 29 | 226 |
-| `tests/Modules/Certificacion` | 22 | 141 |
+| `tests/Modules/Docencia` | 29 | 232 |
+| `tests/Modules/Certificacion` | 23 | 146 |
 | `tests/Modules/Tablero` | 8 | 54 |
 | `tests/Modules/Tramites` | 14 | 86 |
-| `tests/Feature` (raíz) | 17 | 71 |
+| `tests/Feature` (raíz) | 18 | 75 |
 | `tests/Feature/Api` | 7 | 51 |
 | `tests/Feature/Audit` | 1 | 8 |
 | `tests/Feature/Auditoria` | 4 | 12 |
@@ -1026,7 +1026,7 @@ Conteo de casos de prueba por directorio. Los casos con conjuntos de datos se ej
 | `tests/Concurrency` | 15 | 33 |
 | `tests/Unit` | 6 | 20 |
 | `tests/Architecture` | 3 | 8 (3 `it` + 5 `arch`) |
-| **Total** | **238** | **1 567** |
+| **Total** | **241** | **1 588** |
 
 # ANEXO C. EVIDENCIAS FOTOGRÁFICAS
 
