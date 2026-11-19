@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Filament\Resources\Documentos\Actions;
 
+use App\Modules\Academico\Contracts\CatalogoDeGrupos;
 use App\Modules\Academico\Contracts\CatalogoDePeriodos;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Actions\AnularDocumento;
@@ -11,6 +12,7 @@ use App\Modules\Certificacion\Actions\EmitirCertificadoDeNivel;
 use App\Modules\Certificacion\Actions\EmitirCertificadosDelPeriodo;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeMatricula;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeNotas;
+use App\Modules\Certificacion\Actions\EmitirConstanciasDeMatriculaDelGrupo;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Filament\AvisoDeEmision;
 use App\Modules\Certificacion\Filament\Resources\Documentos\DocumentoResource;
@@ -86,6 +88,22 @@ final class AccionesDeDocumento
             ->action(function (Action $action, array $data): void {
                 AccionDeNegocio::ejecutar($action, function (User $usuario) use ($data): void {
                     AvisoDeEmision::enviar(app(EmitirCertificadosDelPeriodo::class)((int) $data['periodo_id'], $usuario), ['certificado emitido', 'certificados emitidos'], 'Ya tenían uno vigente');
+                }, 'Emisión terminada');
+            });
+    }
+
+    public static function emitirConstanciasDeMatriculaDelGrupo(): Action
+    {
+        return Action::make('emitirConstanciasDeMatriculaDelGrupo')
+            ->label('Constancias de matrícula del grupo')
+            ->icon(Heroicon::OutlinedDocumentDuplicate)
+            ->color('gray')
+            ->authorize('emitir', Documento::class)
+            ->modalDescription('Emite la constancia de matrícula de cada matrícula activa del grupo. Quien ya tiene una vigente de esa matrícula no recibe otra.')
+            ->schema([Select::make('grupo_id')->label('Grupo')->options(fn (): array => app(CatalogoDeGrupos::class)())->searchable()->required()])
+            ->action(function (Action $action, array $data): void {
+                AccionDeNegocio::ejecutar($action, function (User $usuario) use ($data): void {
+                    AvisoDeEmision::enviar(app(EmitirConstanciasDeMatriculaDelGrupo::class)((int) $data['grupo_id'], $usuario), ['constancia emitida', 'constancias emitidas'], 'Ya tenían una vigente');
                 }, 'Emisión terminada');
             });
     }

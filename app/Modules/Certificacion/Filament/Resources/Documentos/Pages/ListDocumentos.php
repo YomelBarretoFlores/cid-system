@@ -19,6 +19,7 @@ final class ListDocumentos extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            AccionesDeDocumento::emitirConstanciasDeMatriculaDelGrupo(),
             AccionesDeDocumento::emitirCertificadosDelPeriodo(),
             AccionesDeDocumento::emitir(),
         ];
