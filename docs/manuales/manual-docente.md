@@ -252,6 +252,8 @@ Reglas para registrar notas:
 
 **Resultado esperado:** el sistema muestra el mensaje "Notas parciales guardadas." y actualiza el avance. Las notas guardadas forman el acta final. Si una nota está fuera del rango permitido, el sistema muestra el error y no guarda los cambios.
 
+**Fechas para registrar notas:** las notas parciales se registran solo dentro del calendario académico del periodo, desde el primer día de clases hasta el último día para validar actas. Fuera de esas fechas, o una vez validada el acta final del grupo, la pre-acta se muestra en modo de consulta con un aviso del rango de fechas y sin el botón **Guardar notas**. Si el periodo no tiene fechas de actas registradas, solicite a coordinación que las registre.
+
 ![Figura 10. Sección Notas parciales de la pre-acta](figuras/09-pre-acta.png)
 
 ![Figura 11. Confirmación de notas parciales guardadas y avance hacia el acta final](figuras/12-notas-guardadas.png)

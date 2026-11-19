@@ -342,7 +342,8 @@ Finalidad: registrar a un estudiante, docente o tercero antes de registrar su pa
 2. Pulse **Registrar persona**.
 3. En **Documento de identidad**, elija el **Tipo de documento** y escriba el **Número de documento**.
 4. En **Datos personales**, complete **Apellido paterno**, **Apellido materno**, **Nombres**, **Fecha de nacimiento**, **Celular**, **Correo personal** y **Tipo de vínculo** con la UNASAM.
-5. Pulse **Crear**.
+5. Si la persona firmó su autorización para el tratamiento de sus datos personales (Ley N.° 29733), marque **La persona aceptó el tratamiento de sus datos personales**. El sistema guarda la fecha y hora del consentimiento; si no lo marca, la ficha muestra "Sin consentimiento registrado". Una vez registrado, el consentimiento no se borra al editar la ficha.
+6. Pulse **Crear**.
 
 Resultado esperado: la persona queda registrada. Si el documento ya existe, el sistema lo informa y no crea un duplicado.
 
@@ -519,6 +520,8 @@ Para emitir un documento individual:
 4. Pulse **Enviar**.
 
 Para emitir los certificados de un periodo completo, pulse **Certificados del periodo**, elija el **Periodo** y confirme: el sistema emite el certificado de culminación de nivel a cada estudiante que completó su nivel con un acta cerrada del periodo; quien ya tiene su certificado vigente no recibe otro.
+
+Para emitir las constancias de matrícula de todo un grupo, pulse **Constancias de matrícula del grupo**, elija el **Grupo** y confirme: el sistema emite una constancia a cada estudiante con matrícula activa en el grupo; quien ya tiene una constancia de matrícula vigente no recibe otra, y el aviso final indica cuántas se emitieron y cuántas ya existían.
 
 Resultado esperado: el documento aparece en el listado con su **Código** único. Desde la vista del documento, **PDF** descarga el documento firmado y **Ver verificación pública** muestra la página que cualquier persona puede consultar en la dirección del sistema seguida de **/verificar**, ingresando el código.
 

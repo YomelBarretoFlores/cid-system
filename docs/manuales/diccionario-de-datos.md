@@ -8,7 +8,7 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 |---|---|
 | Gestor de base de datos | PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) |
 | Esquema | `public` |
-| Última migración aplicada | `2026_11_19_090000_describe_the_final_grade_as_a_simple_average` |
+| Última migración aplicada | `2026_11_19_100000_describe_the_consent_recorded_by_staff` |
 
 **Convenciones:**
 
@@ -353,7 +353,7 @@ Identidad única de cada persona: postulantes, estudiantes y docentes. Contiene 
 | 14 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
 | 15 | `direccion` | varchar(200) | Sí |  | Dirección domiciliaria. |
 | 16 | `foto` | varchar(120) | Sí |  | Ruta de la fotografía en el almacenamiento privado. |
-| 17 | `tratamiento_aceptado_en` | timestamptz | Sí |  | Fecha y hora en que aceptó el tratamiento de sus datos personales (Ley 29733) al registrarse. |
+| 17 | `tratamiento_aceptado_en` | timestamptz | Sí |  | Fecha y hora en que aceptó el tratamiento de sus datos personales (Ley 29733), al crear su cuenta o, si la registró el personal, al firmar su autorización. |
 
 **Llave primaria y restricciones únicas:**
 

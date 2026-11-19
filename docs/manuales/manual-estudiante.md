@@ -71,7 +71,7 @@ Permite registrarse como estudiante para usar el portal. Si usted ya estuvo regi
 2. En **Documento de identidad**, elija el **Tipo de documento** y escriba el **Número de documento**.
 3. En **Datos personales**, complete **Apellido paterno**, **Apellido materno (opcional)**, **Nombres**, **Fecha de nacimiento** (se elige en el calendario) y **Celular**.
 4. En **Acceso**, escriba su **Correo**, una **Contraseña** (al menos 8 caracteres, con letras y números) y vuelva a escribirla en **Repite la contraseña**.
-5. Marque la casilla de aceptación del tratamiento de sus datos personales conforme a la Ley N.° 29733, Ley de Protección de Datos Personales.
+5. Marque la casilla de aceptación del tratamiento de sus datos personales conforme a la Ley N.° 29733, Ley de Protección de Datos Personales. El enlace **política de privacidad** de la casilla abre, en otra pestaña, la política que explica qué datos se tratan, para qué, cuánto tiempo se conservan y cómo ejercer sus derechos de acceso, rectificación, cancelación y oposición. La misma política está enlazada en el pie de las páginas públicas y en la pantalla de inicio de sesión.
 6. Presione **Crear mi cuenta**.
 
 **Resultado:** el sistema crea la cuenta y muestra la pantalla **Verifica tu correo** (ver numeral 2.3). Si algún dato es incorrecto, el campo se marca en rojo con un mensaje que indica cómo corregirlo.
