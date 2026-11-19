@@ -426,7 +426,7 @@ La portada institucional presenta la oferta académica vigente, los requisitos, 
 
 ### 8.3.2. Acceso al sistema
 
-Una sola página de ingreso (`/ingresar`) lleva a cada usuario a su propio portal según su rol (portal del estudiante, panel docente o panel del personal), con recuperación de la contraseña mediante un enlace enviado al correo registrado (M6.1.b y M6.1.c), cuyo envío se verificó en producción el 18 de noviembre de 2026. El personal del CILN ingresa por una página propia, con doble factor.
+Una sola página de ingreso (`/ingresar`) lleva a cada usuario a su propio portal según su rol (portal del estudiante, panel docente o panel del personal), con recuperación de la contraseña mediante un enlace enviado al correo registrado (M6.1.b y M6.1.c), cuyo envío se verificó en producción el 18 de noviembre de 2026. El personal del CILN ingresa por una página propia; el doble factor del panel está disponible y puede hacerse obligatorio por configuración (`PANEL_DOBLE_FACTOR_OBLIGATORIO`).
 
 ![Figura 5. Página de acceso](figuras/acceso.png)
 
@@ -444,7 +444,7 @@ El estudiante revisa sus calificaciones por periodo: las notas de cada habilidad
 
 ### 8.3.5. Panel docente
 
-El docente ve sus grupos a cargo, con el horario, los estudiantes matriculados y el acceso al control de clases, a la asistencia y a las notas (M3.2.d y M4.1.a).
+El docente ve sus grupos a cargo en **Mis grupos**, con el horario y los estudiantes matriculados, y en cada grupo registra la **Asistencia**, las notas en la **Pre-acta** y el **Acta final** (M3.2.d y M4.1.a).
 
 ![Figura 8. Panel docente](figuras/panel-docente.png)
 
@@ -499,7 +499,7 @@ El tablero muestra los ingresos, los pagos pendientes de validación, la rentabi
 
 Las sesiones usan cookies `HttpOnly`, `Secure` y `SameSite`, con el contenido cifrado y regeneración al iniciar sesión; la protección CSRF verifica el token de cada formulario. La API usa tokens personales que vencen a los 30 días.
 
-**Escaneo de seguridad.** Con la autorización de la DSTI, el 18 de noviembre de 2026 se ejecutó el escaneo pasivo OWASP ZAP 2.17.0 (*baseline*), sin ataques ni modificación de datos, sobre la versión **v1.0.1** del sistema en un entorno equivalente al de producción (Apache 2.4 con HTTPS, PHP-FPM 8.5 y la misma configuración `public/.htaccess`). Resultado: **ningún hallazgo de riesgo alto y ninguna regla fallida** (59 reglas aprobadas). Los tres avisos de riesgo medio corresponden a la política de contenido (`unsafe-inline` y `unsafe-eval`), que Livewire, Alpine y Filament requieren para funcionar; es un riesgo aceptado, mitigado por el escape de salida de Blade, la validación de entradas y una política `default-src 'self'` con `object-src 'none'` y `frame-ancestors 'self'`. Los avisos de riesgo bajo restantes son falsos positivos (la cookie XSRF-TOKEN es legible por diseño para la protección CSRF, marcas de tiempo dentro de las librerías y una redirección de la verificación de documentos) o la cabecera opcional COEP, que no se activa porque impediría cargar el visor de la documentación de la API. El escaneo inicial sobre el servidor de producción (v1.0.0) señaló cookies sin la marca `Secure` y cabeceras ausentes en los archivos estáticos; la versión v1.0.1 los corrige y añade las cabeceras `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy`. El reporte se entrega como evidencia (*Reporte OWASP ZAP - prueba local con v1.0.1 - 2026-11-18*); el mismo escaneo se repetirá sobre `https://ciln.unasam.edu.pe` cuando la DSTI instale la versión entregada v1.1.1.
+**Escaneo de seguridad.** El 19 de noviembre de 2026 se ejecutó el escaneo pasivo OWASP ZAP 2.17.0 (*baseline*), sin ataques ni modificación de datos, sobre la versión entregada **v1.1.1** del sistema en un entorno equivalente al de producción (Apache 2.4 con HTTPS, PHP-FPM 8.5 y la misma configuración `public/.htaccess`). Resultado: **ningún hallazgo de riesgo alto y ninguna regla fallida** (58 reglas aprobadas). Los tres avisos de riesgo medio corresponden a la política de contenido (`unsafe-inline` y `unsafe-eval`), que Livewire, Alpine y Filament requieren para funcionar; es un riesgo aceptado, mitigado por el escape de salida de Blade, la validación de entradas y una política `default-src 'self'` con `object-src 'none'` y `frame-ancestors 'self'`. Los avisos de riesgo bajo son falsos positivos (la cookie XSRF-TOKEN es legible por diseño para la protección CSRF, marcas de tiempo dentro de las librerías y la página de redirección estándar de la verificación de documentos), la cabecera opcional COEP, que no se activa porque impediría cargar el visor de la documentación de la API, y la cabecera `X-Powered-By` del entorno de prueba, que en el servidor se suprime con `expose_php = Off` en la configuración de PHP. El escaneo inicial sobre el servidor de producción (v1.0.0), autorizado por la DSTI, señaló cookies sin la marca `Secure` y cabeceras ausentes en los archivos estáticos; desde la versión v1.0.1 están corregidos y se añadieron las cabeceras `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy`. El reporte se entrega como evidencia (*Reporte OWASP ZAP - prueba local con v1.1.1 - 2026-11-19*); se recomienda repetirlo periódicamente sobre `https://ciln.unasam.edu.pe`.
 
 ## 9.2. Pista de auditoría inmutable
 
@@ -635,11 +635,11 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | II.1.c | Servicios expuestos por API REST y diseño desacoplado | API `/api/v1` | Cumple | 14 servicios REST, de solo lectura salvo la emisión/revocación de tokens (#86); módulos se comunican por `Contracts/` |
 | II.1.d | Base de datos relacional normalizada con índices adecuados | Plataforma | Cumple | PostgreSQL 18 con claves foráneas reales, `CHECK` y tablas con prefijo por módulo |
 | II.1.e | Compatible con entorno y estándares de la DSTI | Despliegue | Cumple | Desplegado y operativo en el servidor de la DSTI, con HTTPS, correo institucional y respaldos configurados por la DSTI |
-| II.2.a | Cumplimiento del OWASP Top 10 | Transversal | Cumple | Controles implementados y probados; escaneo OWASP ZAP de la v1.0.1 sin hallazgos de riesgo alto ni reglas fallidas (sección 9.1) |
+| II.2.a | Cumplimiento del OWASP Top 10 | Transversal | Cumple | Controles implementados y probados; escaneo OWASP ZAP de la v1.1.1 sin hallazgos de riesgo alto ni reglas fallidas (sección 9.1) |
 | II.2.b | Validación de entradas; protección contra SQLi, XSS y CSRF | Transversal | Cumple | No hay una prueba automatizada dedicada a CSRF; la protección la da el middleware del framework |
 | II.2.c | Gestión segura de sesiones y cifrado de datos sensibles | Admin → (perfil) Doble factor; transversal | Cumple | Doble factor opcional (#92); cierre del panel a los 30 min (#93) |
 | II.2.d | Tratamiento de datos personales conforme a la Ley 29733 | Portal del estudiante → Crear cuenta; Sitio público → Política de privacidad (`/privacidad`), `/fichas/{código}`, `/verificar`; Admin → Matrícula → Personas | Cumple | Política de privacidad pública (titular, finalidad, datos, base legal, conservación, transferencias, medidas de seguridad y derechos ARCO), enlazada desde el registro, el ingreso y el pie de la portada; consentimiento con fecha y hora en el autorregistro y, para las personas registradas por el personal, al firmar su autorización (casilla del personal), que la edición nunca borra; documento enmascarado en verificación pública (#67), sin exportación de personas; datos de prueba sintéticos |
-| II.2.e | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | Función `aud_registrar()` en 40+ tablas (notas, pagos, actas); `aud_registros` rechaza UPDATE/DELETE/TRUNCATE |
+| II.2.e | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | Función `aud_registrar()` en 42 tablas (notas, pagos, actas); `aud_registros` rechaza UPDATE/DELETE/TRUNCATE |
 | II.3.a | Interfaz responsive, intuitiva, accesible y adaptable a móviles | Todas las pantallas | Cumple | Tailwind con puntos de quiebre y Filament; no hay prueba automatizada de vistas móviles (se verifica en navegador) |
 | II.4.a | Escalabilidad, interoperabilidad, alta disponibilidad e integraciones futuras | Plataforma | Cumple | Arquitectura preparada (módulos desacoplados, API REST, colas); infraestructura de producción y respaldos programados configurados por la DSTI |
 
@@ -761,7 +761,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M6.2.e | Panel para configurar etapas, estados y condiciones sin programar | Admin → Catálogos → Tipos de trámite | Cumple parcialmente | Configurables desde el panel: etapas (nombre, porcentaje y condición), tasa, requisitos y acción final. Los estados del flujo (Pendiente de pago, En proceso, Observado, Finalizado y Cerrado sin atender) y las tres condiciones de etapa (solicitud, pago validado, acción del personal) son fijos por diseño, para mantener coherentes las reglas de pago y de auditoría |
 | M6.2.campos: id | ID de trámite (código único de seguimiento) | Portal → Trámites; Admin → Trámites → Trámites | Cumple | (#78) |
 | M6.2.campos: estados | Pendiente de Pago, En Proceso, Observado, Finalizado | Admin → Trámites → Trámites | Cumple | Se agrega "Cerrado sin atender" (#134) |
-| M6.2.campos: log | Log de notificaciones: fecha, hora, estado de entrega | Admin → Trámites → Trámites (ficha: notificaciones) | Cumple | Registra fecha, hora, destinatario, asunto, estado de entrega (pendiente, enviado, fallido) e intentos; «enviado» significa aceptado por el servidor de correo; inmutable por trigger |
+| M6.2.campos: log | Log de notificaciones: fecha, hora, estado de entrega | Admin → Trámites → Trámites (ficha: notificaciones) | Cumple | Registra fecha, hora, destinatario, asunto, estado de entrega (pendiente, enviado, fallido) e intentos; «enviado» significa aceptado por el servidor de correo; no se puede borrar ni vaciar (trigger) |
 
 ### 11.3.8. Seguridad, propiedad intelectual y confidencialidad (sección IV del Anexo)
 
@@ -771,7 +771,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 |---|---|---|---|---|
 | IV.1.a | Cesión total de derechos patrimoniales a la UNASAM | Contractual | Cumple parcialmente | Declarada en este informe; opera por el numeral 6.1 de los TdR y se hace efectiva con la conformidad del servicio (Informe de Conformidad de Servicio, TdR 6.7) |
 | IV.1.b | Entrega de repositorios completos y documentados al finalizar | Repositorio | Cumple | Código fuente y repositorio entregados a la DSTI con su documentación técnica; manuales de usuario (estudiante, docente y personal del CILN) entregados |
-| IV.2.a | Seguridad conforme a Ley 29733 y OWASP | Transversal | Cumple | Ley N.° 29733 (sección 9.3: política de privacidad en `/privacidad` y consentimiento registrado con fecha y hora) y escaneo OWASP ZAP de la v1.0.1 (sección 9.1) |
+| IV.2.a | Seguridad conforme a Ley 29733 y OWASP | Transversal | Cumple | Ley N.° 29733 (sección 9.3: política de privacidad en `/privacidad` y consentimiento registrado con fecha y hora) y escaneo OWASP ZAP de la v1.1.1 (sección 9.1) |
 | IV.2.b | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | — |
 | IV.3.a | Confidencialidad de la información académica, financiera y personal | Proceso del proveedor | Cumple | Compromiso contractual; en lo técnico, pruebas y demo solo con datos sintéticos |
 | IV.4.a | Garantía y soporte técnico mínimo de 12 meses | Contractual | Cumple parcialmente | Obligación que se inicia con la conformidad final; no verificable en el código |
@@ -808,7 +808,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | Scripts de implementación (instalación tradicional y con contenedores, actualización automática con reversión, migraciones) | TdR 6.1 | Entregado, en el repositorio |
 | Documentación técnica (presente informe, arquitectura, modelo de datos, seguridad, guía de despliegue, ADR, documentación OpenAPI de la API) | TdR 4.2, 4.5 y 6.3 | Entregado |
 | Diccionario de Datos – Sistema de Gestión del CILN | TdR 4.2 | Entregado |
-| Reporte del escaneo de seguridad OWASP ZAP (versión v1.0.1) | Anexo II.2.a y IV.2 | Entregado |
+| Reporte del escaneo de seguridad OWASP ZAP (versión v1.1.1) | Anexo II.2.a y IV.2 | Entregado |
 | Manuales de usuario (estudiante, docente y personal del CILN) | TdR 4.2 y 6.1 | Entregado |
 | Capacitación al personal docente y administrativo del CILN (16/11/2026) y capacitación continua a docentes y estudiantes (17 y 18/11/2026) | TdR 4.2 y 6.1 | Realizada (Anexo C) |
 | Garantía técnica de funcionamiento y soporte por 12 meses | TdR 6.1 y 6.10; Anexo IV.4 | Compromiso declarado (11.6); se inicia con la conformidad final |
@@ -835,7 +835,7 @@ ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Re
 # 13. RECOMENDACIONES
 
 1. **Correo y respaldos.** Que la DSTI mantenga habilitada la cuenta `sistemacln@unasam.edu.pe` y la configuración de los respaldos programados del servidor de producción, que realice una prueba de restauración de los respaldos al menos una vez por semestre y que, ante la desactivación por defecto de la autenticación básica de SMTP anunciada por Microsoft, evalúe el conector de retransmisión por IP descrito en la guía de despliegue.
-2. **Seguridad.** Que la DSTI instale la versión entregada v1.1.1, active el módulo `mod_headers` de Apache, repita el escaneo OWASP ZAP sobre `https://ciln.unasam.edu.pe`, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
+2. **Seguridad.** Que la DSTI repita el escaneo OWASP ZAP sobre el servidor de producción `https://ciln.unasam.edu.pe` de forma periódica y después de instalar cada nueva versión, mantenga activo el módulo `mod_headers` de Apache, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
 3. **Garantía.** Que, con la conformidad final, se formalice el inicio de la garantía técnica de doce meses y el canal de reporte de incidencias entre el CILN, la DSTI y el contratista.
 4. **Actualizaciones.** Que las nuevas versiones se instalen solo desde **etiquetas publicadas** (`vX.Y.Z`) de la rama principal, que pasan la integración continua, mediante la actualización automática o el procedimiento manual de la guía de despliegue, y que la DSTI mantenga las dependencias dentro de sus versiones con soporte.
 5. **Validación institucional.** Que el CILN valide los supuestos registrados durante las pruebas de aceptación y registre en el panel los datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que el personal capacitado replique la capacitación, con los manuales de usuario, al personal y a los docentes que se incorporen.
@@ -862,7 +862,7 @@ Rutas del código fuente que implementan cada requisito y pruebas automatizadas 
 | II.2.c | `config/session.php` (cifrado, HttpOnly, SameSite), `app/Shared/Auth/Http/Middleware/`, `app/Modules/Docencia/Models/Docente.php` (cuenta bancaria cifrada) | `tests/Feature/Auth/SesionDelPanelTest.php`, `tests/Feature/Auth/DobleFactorDelPanelTest.php` |
 | II.2.d | `app/Modules/Personas/Actions/RegistrarCuentaDeEstudiante.php` (`tratamiento_aceptado_en`), `app/Modules/Personas/Models/Persona.php` (`registrarConsentimiento`), `app/Modules/Personas/resources/views/privacidad.blade.php`, `app/Modules/Matricula/Http/Controllers/VerFichaPorCodigo.php` | `tests/Modules/Personas/Portal/RegistroTest.php`, `tests/Modules/Personas/Portal/PoliticaDePrivacidadTest.php`, `tests/Modules/Personas/Filament/PersonasPanelTest.php`, `tests/Modules/Matricula/Portal/FichaPublicaTest.php` |
 | II.2.e | `app/Shared/Audit/Database/Migrations/2026_10_24_125000_create_aud_registros_table.php`, `app/Shared/Audit/Http/Middleware/` | `tests/Feature/Audit/AuditTrailTest.php`, `tests/Feature/Auditoria/TablasAuditadasTest.php` |
-| II.3.a | `resources/views/components/layouts/portal.blade.php`, `app/Providers/Filament/AparienciaDelPanel.php` | `tests/Unit/PaletaCilnTest.php` (contraste WCAG AA), `tests/Feature/Portal/MenuDelPortalTest.php` |
+| II.3.a | `resources/views/components/layouts/portal.blade.php`, `app/Providers/Filament/AparienciaDelPanel.php` | `tests/Unit/PaletaCilnTest.php` (paleta del panel igual a los tokens de diseño), `tests/Feature/Portal/MenuDelPortalTest.php` |
 | II.4.a | `app/Modules/*/Contracts/`, `routes/api.php`, colas (`database/migrations/0001_01_01_000002_create_jobs_table.php`) | `tests/Architecture/ModulesTest.php`, `tests/Feature/Api/SesionesDeApiTest.php` |
 
 **Módulo 1: Registro, examen de clasificación y matrícula**
