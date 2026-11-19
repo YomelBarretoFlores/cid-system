@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Estudiante
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.0
+version: 1.1
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -13,6 +13,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | Versión | Fecha | Descripción | Elaborado por | Revisado por |
 |---|---|---|---|---|
 | 1.0 | 18/11/2026 | Versión inicial | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -31,10 +32,13 @@ Está dirigido a los estudiantes del CILN y a toda persona que desee matriculars
 | Requisito | Detalle |
 |---|---|
 | Navegador | Versión reciente de Google Chrome, Mozilla Firefox, Microsoft Edge o Safari, en computadora, tableta o teléfono celular. |
-| Correo electrónico | Un correo personal activo. El sistema envía a este correo el enlace de verificación de la cuenta, el enlace para recuperar la contraseña y los avisos de pagos, matrículas y trámites. |
+| Correo electrónico | Un correo personal activo. El sistema envía a este correo el enlace de verificación de la cuenta, el enlace para recuperar la contraseña, el aviso de cambio de contraseña y un aviso en cada cambio de estado de sus trámites. |
 | Conexión a Internet | Conexión estable. Para subir recibos o fotografías se recomienda una conexión que permita enviar archivos de hasta 5 MB. |
-| Documento de identidad | DNI, carné de extranjería u otro documento aceptado por el CILN, necesario para crear la cuenta. |
+| Documento de identidad | DNI, carné de extranjería o pasaporte, necesario para crear la cuenta. |
+| Dirección del sistema | **https://ciln.unasam.edu.pe** |
 | Lector de PDF | Para abrir constancias, fichas y reportes descargados (el navegador suele incluir uno). |
+
+Las imágenes de este manual se obtuvieron del sistema con datos de demostración generados para las pruebas: los nombres, documentos de identidad, correos, teléfonos, montos y fechas que aparecen en ellas son ficticios. Las tarifas vigentes son las que el CILN publica en la sección **Costos** de su web pública.
 
 # 2. ACCESO AL SISTEMA
 
@@ -42,7 +46,7 @@ Está dirigido a los estudiantes del CILN y a toda persona que desee matriculars
 
 La web pública es la puerta de entrada al sistema. Cualquier persona puede consultarla sin crear una cuenta. Desde ella se conoce la oferta de idiomas, el proceso de matrícula, los horarios con vacantes, el examen de clasificación, los costos, el calendario y las preguntas frecuentes.
 
-1. Ingrese a la dirección web del CILN en su navegador.
+1. Ingrese a **https://ciln.unasam.edu.pe** en su navegador.
 2. Revise la barra de **Avisos**, que muestra los anuncios vigentes (por ejemplo, fechas de matrícula e inicio de clases).
 3. Use el menú superior (**Idiomas**, **Matrícula**, **Horarios**, **Costos**, **Preguntas**) para ir a cada sección.
 4. Use el botón **Crear cuenta** para registrarse o **Ingresar** si ya tiene una cuenta. El botón **Ver horarios** lleva directamente a los horarios y vacantes.
@@ -68,13 +72,15 @@ La sección del **Examen de clasificación** explica cómo rendir el examen si y
 Permite registrarse como estudiante para usar el portal. Si usted ya estuvo registrado en el CILN, use el mismo correo que dio en la oficina.
 
 1. En la web pública, presione **Crear cuenta**.
-2. En **Documento de identidad**, elija el **Tipo de documento** y escriba el **Número de documento**.
+2. En **Documento de identidad**, elija el **Tipo de documento** (DNI, carné de extranjería o pasaporte) y escriba el **Número de documento**: el DNI tiene 8 dígitos; los otros documentos, de 6 a 12 letras o números.
 3. En **Datos personales**, complete **Apellido paterno**, **Apellido materno (opcional)**, **Nombres**, **Fecha de nacimiento** (se elige en el calendario) y **Celular**.
 4. En **Acceso**, escriba su **Correo**, una **Contraseña** (al menos 8 caracteres, con letras y números) y vuelva a escribirla en **Repite la contraseña**.
 5. Marque la casilla de aceptación del tratamiento de sus datos personales conforme a la Ley N.° 29733, Ley de Protección de Datos Personales. El enlace **política de privacidad** de la casilla abre, en otra pestaña, la política que explica qué datos se tratan, para qué, cuánto tiempo se conservan y cómo ejercer sus derechos de acceso, rectificación, cancelación y oposición. La misma política está enlazada en el pie de las páginas públicas y en la pantalla de inicio de sesión.
 6. Presione **Crear mi cuenta**.
 
-**Resultado:** el sistema crea la cuenta y muestra la pantalla **Verifica tu correo** (ver numeral 2.3). Si algún dato es incorrecto, el campo se marca en rojo con un mensaje que indica cómo corregirlo.
+**Resultado:** el sistema crea la cuenta y muestra la pantalla **Verifica tu correo** (ver numeral 2.3). Si algún dato es incorrecto, el campo se marca en rojo con un mensaje que indica cómo corregirlo. Si el correo ya tiene una cuenta, se muestra «Ya existe una cuenta con ese correo.»; si el documento ya tiene una cuenta o figura en el CILN con otro correo, se muestra «No podemos crear una cuenta con ese documento…»: ingrese con su cuenta, recupere su contraseña o acérquese a la oficina del CILN para actualizar su correo.
+
+Toda cuenta creada desde la web queda registrada con el vínculo **Público general**, que determina la tarifa que se le propone al registrar un pago. Si usted es estudiante, docente o administrativo de la UNASAM, pida al CILN que actualice su vínculo antes de pagar, para que se le aplique la tarifa que le corresponde.
 
 ![Figura 6. Formulario «Crea tu cuenta de estudiante»](figuras/registro.png)
 
@@ -82,11 +88,11 @@ Permite registrarse como estudiante para usar el portal. Si usted ya estuvo regi
 
 Antes de usar el portal, debe confirmar que el correo registrado le pertenece.
 
-1. Abra su bandeja de entrada y busque el mensaje enviado por el CILN.
-2. Abra el enlace de verificación que contiene el mensaje.
-3. Si el mensaje no llegó, revise la carpeta de correo no deseado (spam) o presione **Enviar otro enlace** en la pantalla **Verifica tu correo**.
+1. Abra su bandeja de entrada y busque el mensaje **Verifica tu correo del CILN**.
+2. Presione **Verificar mi correo** en el mensaje.
+3. Si el mensaje no llegó, revise la carpeta de correo no deseado (spam) o presione **Enviar otro enlace** en la pantalla **Verifica tu correo** (puede pedirlo una vez por minuto).
 
-**Resultado:** al abrir el enlace, la cuenta queda verificada y puede ingresar al portal. Si desea salir sin verificar, use **Cerrar sesión**.
+**Resultado:** el sistema muestra «Tu correo quedó verificado.» y abre el portal del estudiante. Mientras el correo no esté verificado, el portal muestra la pantalla **Verifica tu correo**. Si desea salir sin verificar, use **Cerrar sesión**.
 
 ![Figura 7. Pantalla «Verifica tu correo»](figuras/verificar-correo.png)
 
@@ -97,7 +103,7 @@ Antes de usar el portal, debe confirmar que el correo registrado le pertenece.
 3. Si usa su propio equipo, puede marcar **Mantener la sesión iniciada en este equipo**. No lo marque en computadoras compartidas o de cabinas públicas.
 4. Presione **Ingresar**.
 
-**Resultado:** el sistema abre la página de inicio del portal del estudiante (ver numeral 3.1). Si el correo o la contraseña no coinciden, se muestra un mensaje de error. Por seguridad, después de varios intentos fallidos el sistema bloquea temporalmente el ingreso; espere un minuto e inténtelo de nuevo.
+**Resultado:** el sistema abre la página de inicio del portal del estudiante (ver numeral 3.1). Si el correo o la contraseña no coinciden, se muestra «El correo o la contraseña no son correctos.». Por seguridad, después de cinco intentos fallidos en un minuto se muestra «Demasiados intentos. Vuelve a intentarlo en … segundos.»; espere ese tiempo e inténtelo de nuevo. La pantalla de ingreso también enlaza la **Política de privacidad y tratamiento de datos personales**.
 
 ![Figura 8. Pantalla «Ingresar al portal del CILN»](figuras/ingresar.png)
 
@@ -106,17 +112,18 @@ Antes de usar el portal, debe confirmar que el correo registrado le pertenece.
 Si olvidó su contraseña, puede crear una nueva desde su correo.
 
 1. En la pantalla de ingreso, presione **¿Olvidaste tu contraseña?**.
-2. Escriba el **Correo** con el que se registró.
-3. Presione **Enviar enlace**.
-4. Abra el mensaje recibido y siga el enlace para escribir y confirmar su nueva contraseña.
+2. Escriba el **Correo** con el que se registró y presione **Enviar enlace**. Se muestra «Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.». Para regresar sin cambiar nada, use **Volver a ingresar**.
+3. Abra el mensaje **Restablece tu contraseña del CILN** y presione **Restablecer mi contraseña**. El enlace vence a los 60 minutos.
+4. En la pantalla **Crea una nueva contraseña**, verifique su **Correo**, escriba la **Nueva contraseña** (al menos 8 caracteres, con letras y números) y repítala en **Repite la nueva contraseña**.
+5. Presione **Guardar contraseña**.
 
-**Resultado:** la contraseña queda actualizada y puede ingresar con ella. Para regresar sin cambiar nada, use **Volver a ingresar**.
+**Resultado:** el sistema abre la pantalla de ingreso con el mensaje «Tu contraseña fue restablecida. Ya puedes ingresar.». Si el enlace venció, se muestra «El enlace no es válido o ya venció. Solicita uno nuevo.» y debe repetir el procedimiento.
 
 ![Figura 9. Pantalla «Recuperar contraseña»](figuras/recuperar-clave.png)
 
 # 3. MI CUENTA
 
-El portal del estudiante tiene un menú lateral organizado en cuatro grupos. En teléfonos celulares, el menú se abre con el botón de menú de la parte superior.
+El portal del estudiante tiene un menú lateral organizado en cuatro grupos. En teléfonos celulares, el menú se abre con el botón de menú de la parte superior. Las opciones **Trámites** y **Confirmar clases** muestran un número cuando tiene trámites observados o clases por confirmar.
 
 *Tabla 3. Opciones del menú del portal del estudiante*
 
@@ -133,7 +140,7 @@ El portal del estudiante tiene un menú lateral organizado en cuatro grupos. En 
 | Procesos | Registro de pagos | Registrar recibos de pago y ver su estado. |
 | Procesos | Clasificación | Solicitar el examen de clasificación. |
 | Procesos | Trámites | Iniciar trámites y seguir su avance. |
-| Procesos | Confirmar clases | Solo para delegados de grupo: confirmar las clases dictadas. |
+| Procesos | Confirmar clases | Solo para delegados de grupo (la opción no aparece a los demás estudiantes): confirmar las clases dictadas. |
 | Enlaces | Verificar un documento | Comprobar la autenticidad de un documento del CILN. |
 | Enlaces | Web del CILN | Volver a la web pública. |
 
@@ -142,9 +149,12 @@ El portal del estudiante tiene un menú lateral organizado en cuatro grupos. En 
 Es la página de inicio del portal. Reúne sus datos personales, el estado de su matrícula del periodo, el resumen de sus pagos, el avance en cada idioma, sus clases de la semana, sus documentos y enlaces rápidos.
 
 1. En el menú, presione **Perfil**.
-2. Revise el recuadro de **Matrícula**: indica si su matrícula está validada y permite **Ver ficha de matrícula** y **Ver registro de pagos**.
-3. En **Tus pagos** verá cuántos pagos están por validar, cuántos están validados y cuántos están disponibles para matrícula.
-4. En **Mis idiomas** verá el ciclo que cursa o el último ciclo terminado en cada idioma, y en **Esta semana**, sus clases con hora y aula.
+2. Revise el recuadro de **Matrícula**: indica el estado de su matrícula del periodo. Cuando está validada, permite **Ver ficha de matrícula** y **Ver registro de pagos**.
+3. Revise las tareas pendientes: **Te toca a ti** lista lo que usted debe hacer (por ejemplo, registrar un pago o matricularse) y **Le toca al CILN** lo que espera la revisión del CILN (por ejemplo, un pago por validar o un trámite en revisión), con un enlace a cada opción.
+4. En **Tus pagos** verá cuántos pagos están por validar, cuántos están validados y cuántos están disponibles para matrícula.
+5. En **Mis idiomas** verá el ciclo que cursa o el último ciclo terminado en cada idioma, y en **Esta semana**, sus clases con hora y aula; **Ver horario completo** abre su horario.
+6. En **Datos personales** y **Estado** verá su documento, correo, celular, dirección, fecha de nacimiento, el estado de su cuenta y su vínculo con la UNASAM.
+7. En **Documentos** puede abrir en PDF su ficha de matrícula, su constancia de inscripción, su horario personalizado, su boleta de notas, su asistencia y su récord de notas; en **Enlaces rápidos**, ir a **Trámites**, **Verificar un documento** o la **Web del CILN**. Los botones **Resumen académico** y **Editar perfil** de la parte superior llevan a sus reportes y a **Modificar datos**.
 
 ![Figura 10. Página de inicio del portal (Perfil)](figuras/perfil.png)
 
@@ -194,6 +204,16 @@ Permite elegir cómo se ve el portal.
 
 ![Figura 13. Pantalla «Preferencias»](figuras/preferencias.png)
 
+## 3.6. Menú de la cuenta y cerrar sesión
+
+En la parte inferior del menú lateral aparece su nombre. Al presionarlo se abre el menú de la cuenta.
+
+1. Presione su nombre en la parte inferior del menú lateral.
+2. Elija **Mi perfil** para ir a la página de inicio o **Preferencias** para cambiar la apariencia. Si usted también es docente del CILN, aparece **Portal docente**, que abre su panel docente.
+3. Para salir del portal, presione **Cerrar sesión**.
+
+**Resultado:** con **Cerrar sesión**, el sistema cierra la sesión y muestra la pantalla de ingreso. Cierre siempre la sesión al terminar, en especial en computadoras compartidas. En pantallas grandes, la opción **Contraer el menú** (atajo Ctrl o ⌘ + B) reduce el menú lateral a sus iconos; **Expandir el menú** lo devuelve a su tamaño.
+
 # 4. PROCESOS
 
 ## 4.1. Registro de pagos
@@ -211,9 +231,11 @@ Todo pago al CILN (derecho de matrícula, examen de clasificación, constancias,
 
 **Resultado:** se muestra el mensaje «Registramos tu pago. El CILN revisará el recibo y te mostrará aquí el resultado.» y el pago aparece en la lista **Recibos registrados**. Mientras un pago esté pendiente, lleve la boleta original al CILN para validarla.
 
+El sistema no acepta un número de recibo u operación ya registrado con el mismo medio de pago, un recibo ya usado, una fecha de pago posterior a hoy ni un concepto sin tarifa vigente en la fecha de pago; en esos casos muestra el motivo junto al campo. El monto propuesto corresponde a su vínculo con la UNASAM (numeral 2.2).
+
 ![Figura 14. Formulario «Registrar un recibo»](figuras/pagos-formulario.png)
 
-La lista **Recibos registrados** muestra, por cada pago, el concepto, el número de operación, el medio, la fecha, el monto, el enlace **Ver** para abrir el recibo adjunto y el estado.
+La lista **Recibos registrados** muestra, por cada pago, el concepto, el número de operación, el medio, la fecha, el monto, el enlace **Ver** para abrir el recibo adjunto y el estado. Si el CILN rechazó un pago, la lista muestra el **Motivo del rechazo**.
 
 ![Figura 15. Lista «Recibos registrados»](figuras/pagos-lista.png)
 
@@ -235,7 +257,7 @@ Si ya estudió un idioma, puede rendir el examen de clasificación para empezar 
 3. En **Nueva solicitud**, elija el **Idioma** y el **Pago que usarás**.
 4. Presione **Solicitar examen**.
 
-**Resultado:** se muestra el mensaje «Registramos tu solicitud. La coordinación académica te indicará la fecha del examen.». La solicitud aparece en **Mis solicitudes** con la fecha **Rendir hasta**: rinda el examen en el CILN antes de esa fecha; después, la solicitud vence. Cuando la coordinación registra el resultado, verá el **Puntaje** y el ciclo en el que **Empiezas**.
+**Resultado:** se muestra el mensaje «Registramos tu solicitud. La coordinación académica te indicará la fecha del examen.». La solicitud aparece en **Mis solicitudes** con las columnas **Idioma**, **Solicitado el**, **Rendir hasta**, **Estado**, **Fecha del examen**, **Puntaje** y **Empiezas en**. La solicitud tiene una vigencia de 30 días: rinda el examen en el CILN antes de la fecha **Rendir hasta**; después, la solicitud pasa a **Expirado**. Cuando la coordinación registra el resultado, la solicitud pasa a **Evaluado** y verá el **Puntaje** (sobre 100) y el ciclo en el que empieza. Mientras espera, la solicitud figura **Pendiente de evaluación**; si el CILN anula el pago usado, pasa a **Pago anulado**. Solo puede tener una solicitud pendiente por idioma.
 
 Si todavía no tiene un pago del examen validado, el recuadro **Nueva solicitud** se lo indica con el enlace **Registra tu pago**, como se ve en la figura siguiente.
 
@@ -267,6 +289,8 @@ Permite matricularse en un grupo del periodo abierto. El sistema revisa automát
 
 **Resultado:** se muestra el mensaje «Te matriculaste en el grupo …» con el código del grupo, y la matrícula aparece en **Mis matrículas**. Si algún requisito no se cumple, el sistema indica cuál falta y cómo resolverlo.
 
+La lista de grupos actualiza las vacantes cada 15 segundos y los grupos sin vacantes no pueden elegirse. Puede matricularse en más de un idioma en el mismo periodo; cada matrícula usa su propio pago de matrícula validado.
+
 ![Figura 18. Elección del pago y del grupo](figuras/matricula-grupo.png)
 
 ## 4.4. Mis matrículas y constancia
@@ -278,7 +302,7 @@ Muestra sus matrículas por periodo, de la más reciente a la más antigua.
 3. Para descargar la ficha de matrícula del periodo, presione **Ficha de matrícula (PDF)**.
 4. Para descargar la constancia de una matrícula, presione **Constancia (PDF)** en la columna **Documentos**.
 
-**Resultado:** el documento PDF se abre en una pestaña nueva, listo para guardar o imprimir. Si el grupo tiene clases virtuales, la columna **Clase virtual** muestra el enlace de acceso.
+**Resultado:** el documento PDF se abre en una pestaña nueva, listo para guardar o imprimir. Si el grupo es virtual, la columna **Aula** muestra el enlace **Clase virtual**. La **Condición** indica si cursa el ciclo por primera vez (**Regular**) o lo repite (**Repitente**); el **Estado** indica si la matrícula está **Activa** o **Retirada**. La **Constancia (PDF)** solo se ofrece para matrículas activas.
 
 ![Figura 19. Pantalla «Mis matrículas»](figuras/mis-matriculas.png)
 
@@ -287,19 +311,19 @@ Muestra sus matrículas por periodo, de la más reciente a la más antigua.
 Permite solicitar constancias, certificados y otros trámites académicos (por ejemplo, constancia de matrícula, constancia de notas, certificado de culminación de nivel, retiro del ciclo o traslado de grupo) y seguir su avance. Recibirá un correo en cada cambio de estado.
 
 1. En el menú, presione **Trámites**.
-2. En **Nuevo trámite**, revise la lista de trámites disponibles y su **Tasa**, y presione **Elegir** en el que necesita.
+2. En **Nuevo trámite**, revise la lista de trámites disponibles y su **Tasa** (el tipo de pago que requiere, por ejemplo Constancia o Certificado, o **Sin tasa**), y presione **Elegir** en el que necesita.
 3. Lea los **Requisitos** del trámite. Si tiene tasa, el sistema aplica automáticamente un pago validado sin usar; si no lo tiene, regístrelo en **Registro de pagos**.
-4. Complete los datos que pida el trámite: la **Matrícula**, el **Idioma** o el **Idioma y nivel** según corresponda, y el **Motivo** cuando el trámite lo requiera.
-5. Si desea, escriba un **Comentario (opcional)**.
+4. Complete los datos que pida el trámite: la **Matrícula**, el **Idioma** o el **Idioma y nivel** según corresponda, y el **Motivo** cuando el trámite lo requiera (entre 5 y 500 caracteres).
+5. Si desea, escriba un **Comentario (opcional)** de hasta 500 caracteres.
 6. Presione **Iniciar trámite**. Para desistir, presione **Cancelar**.
 
-**Resultado:** se muestra el mensaje «Registramos tu trámite …» con su código (por ejemplo, TR-2026-000001). Si falta el pago de la tasa, el trámite queda **Pendiente de pago** y continúa cuando el CILN valide el pago.
+**Resultado:** se muestra el mensaje «Registramos tu trámite …» con su código (por ejemplo, TR-2026-000001). Si falta el pago de la tasa, el trámite queda **Pendiente de pago** y continúa cuando el CILN valide el pago. Solo puede tener un trámite de cada tipo en curso. El retiro del ciclo no devuelve el pago de la matrícula.
 
 ![Figura 20. Pantalla «Trámites»](figuras/tramites.png)
 
 ![Figura 21. Formulario de un nuevo trámite](figuras/tramite-nuevo.png)
 
-Para seguir el avance de un trámite, presione **Ver etapas** en la lista **Mis trámites**. Se muestran las etapas (por ejemplo, Solicitud recibida, Pago validado, En firma de Dirección, Listo para recojo o descarga) y el porcentaje de avance. Cuando el documento está listo, aparece el enlace **Descargar** en la columna **Documento**.
+Para seguir el avance de un trámite, presione **Ver etapas** en la lista **Mis trámites**. Se muestran las etapas (por ejemplo, Solicitud recibida, Pago validado, En firma de Dirección, Listo para recojo o descarga) y el porcentaje de avance. Cuando el documento está listo, aparece el enlace **Descargar** en la columna **Documento**. Si el trámite fue observado, la lista muestra «Observación: …» con el detalle; si se cerró sin atender, muestra el motivo.
 
 ![Figura 22. Etapas de un trámite](figuras/tramite-etapas.png)
 
@@ -309,20 +333,20 @@ Para seguir el avance de un trámite, presione **Ver etapas** en la lista **Mis 
 |---|---|
 | Pendiente de pago | Falta registrar o validar el pago de la tasa. |
 | En proceso | El CILN está atendiendo el trámite. |
-| Observado | El CILN encontró una observación; revise el correo recibido. |
-| Finalizado | El trámite concluyó; el documento está disponible. |
+| Observado | El CILN encontró una observación, que se muestra en la lista y en el correo. Si la observación es un pago de tasa rechazado, registre un nuevo recibo: el trámite continúa cuando el CILN lo valide. En los demás casos, el CILN reanuda el trámite cuando se subsana. |
+| Finalizado | El trámite concluyó. Si emite un documento, aparece el enlace **Descargar**; el retiro y el traslado terminan sin documento. |
 | Cerrado sin atender | El trámite se cerró sin emitir documento. |
 
 ## 4.6. Confirmar clases (solo delegados)
 
-Esta opción solo la usa el delegado de cada grupo, designado por el docente desde su panel. Al final de cada clase, el delegado confirma que el docente la dictó o la observa con un comentario. Si usted no es delegado, la pantalla muestra «No eres delegado de ningún grupo.».
+Esta opción solo la usa el delegado de cada grupo, designado por el docente desde su panel; si usted no es delegado, la opción no aparece en el menú. Al final de cada clase, el delegado confirma que el docente la dictó o la observa con un comentario.
 
 1. En el menú, presione **Confirmar clases**.
-2. En **Por confirmar**, ubique la clase (aparece cuando el docente toma el llamado de cierre).
+2. En **Por confirmar**, ubique la clase. Aparece cuando el docente guarda el llamado de cierre y muestra el **Tema dictado**, cuántos estudiantes estuvieron presentes al cierre y la hora límite: «Puedes responder hasta las …» (120 minutos después del fin de la clase).
 3. Si la clase se dictó correctamente, presione **Sí, se dictó**.
-4. Si la clase no se dictó o algo no estuvo bien, presione **No se dictó / observar**, describa lo ocurrido en **¿Qué pasó en la clase?** (entre 5 y 500 caracteres) y presione **Enviar observación**.
+4. Si la clase no se dictó o algo no estuvo bien, presione **No se dictó / observar**, describa lo ocurrido en **¿Qué pasó en la clase?** (entre 5 y 500 caracteres) y presione **Enviar observación**; para volver sin enviar, presione **Cancelar**.
 
-**Resultado:** se muestra «Confirmaste la clase del …» u «Observaste la clase del … La coordinación del CILN revisará tu comentario.». La clase pasa a **Revisadas recientemente** como **Confirmada** u **Observada**. Solo puede confirmar una clase si figura presente en el llamado de cierre.
+**Resultado:** se muestra «Confirmaste la clase del …» u «Observaste la clase del … La coordinación del CILN revisará tu comentario.». La clase pasa a **Revisadas recientemente** como **Confirmada** u **Observada**. Solo puede confirmar una clase si figura presente en el llamado de cierre; de lo contrario, se muestra «No figuras presente en el llamado de cierre, así que no puedes confirmar esta clase.». Vencida la hora límite, la clase ya no puede confirmarse.
 
 ![Figura 23. Pantalla «Clases por confirmar»](figuras/confirmar-clases.png)
 
@@ -334,7 +358,7 @@ Reúne en una sola pantalla todos sus reportes académicos.
 
 1. En el menú, presione **Todos** (grupo **Reportes**).
 2. Elija el **Periodo** en la lista desplegable.
-3. Abra el reporte que necesite: en **Periodo seleccionado** (ficha de matrícula, constancia de inscripción, horario personalizado, boleta de notas), en **Seguimiento académico** (avance de notas, asistencia, avance por idioma, registro de pagos) o en **Generales e históricos** (récord de notas, historial de matrículas, documentos emitidos).
+3. Abra el reporte que necesite en una de las tres columnas: **Periodo seleccionado** (ficha de matrícula, constancia de inscripción, horario personalizado, boleta de notas), **Generales e históricos** (récord de notas, historial de matrículas, documentos emitidos) o **Seguimiento académico** (avance de notas, asistencia, avance por idioma, registro de pagos).
 
 **Resultado:** el reporte se muestra en pantalla; los PDF se abren en una pestaña nueva.
 
@@ -357,14 +381,14 @@ En **Avance de notas** puede seguir sus notas mientras el docente las registra, 
 2. Elija el **Periodo**.
 3. Revise, por cada curso, el recuadro **Notas** y el recuadro **Asistencia**.
 
-La evaluación de cada ciclo se calcula así:
+La evaluación de cada ciclo se calcula con los componentes del sistema de evaluación vigente que configura el CILN, actualmente los siguientes:
 
 - **Habilidades:** comprensión auditiva, expresión oral, comprensión lectora y expresión escrita. El **Prom. habilidades** es el promedio de las cuatro.
 - **Exámenes:** examen parcial y examen final. El **Prom. exámenes** es el promedio de ambos.
 - **Nota final:** es el promedio del promedio de habilidades y del promedio de exámenes, redondeado al entero (las fracciones de 0.5 o más suben al entero siguiente).
 - **Aprobación:** se aprueba con la nota mínima aprobatoria que configura el CILN; por defecto, 11 de 20.
 
-Mientras el acta del curso esté abierta, la pantalla muestra el **Promedio parcial** con las notas registradas hasta ese momento. La nota final oficial queda en la boleta de notas cuando el acta final se cierra.
+Los promedios se muestran con dos decimales y la nota final se calcula con los promedios sin redondear. Un componente sin nota cuenta como cero, y quien no tiene ninguna nota registrada figura como **NSP** (no se presentó). Mientras el acta del curso esté abierta, la pantalla muestra el **Promedio parcial** con las notas registradas hasta ese momento y la marca **Acta abierta**. Cuando el acta final se cierra, muestra el **Promedio final** con el estado **Aprobado**, **Desaprobado** o **NSP**, y la nota oficial queda en la boleta de notas.
 
 *Tabla 7. Componentes de la evaluación*
 
@@ -378,7 +402,7 @@ Mientras el acta del curso esté abierta, la pantalla muestra el **Promedio parc
 | Examen final | Exámenes | |
 | Nota final | — | Promedio de Prom. habilidades y Prom. exámenes, redondeado al entero (0.5 hacia arriba). Mínimo aprobatorio: el configurado por el CILN, 11 de 20 por defecto. |
 
-En **Asistencia** verá el porcentaje de asistencia sobre las clases dictadas, el número de clases dictadas y de faltas, y una barra con el detalle clase por clase.
+En **Asistencia** verá cuántas clases se dictaron de las programadas («X de Y clases dictadas»), su porcentaje de asistencia, el número de faltas y una barra con el detalle clase por clase.
 
 ![Figura 26. Avance de notas y asistencia](figuras/avance-notas.png)
 
@@ -403,10 +427,10 @@ El panel **Descargar en PDF**, a la derecha de los reportes, permite descargar l
 
 ## 5.5. Récord y avance por idioma
 
-El récord muestra su historial de ciclos aprobados por idioma.
+El récord muestra su historial por idioma: una fila por ciclo, con el último resultado aprobado o, si aún no lo aprueba, el último resultado obtenido (Aprobado, Desaprobado o NSP) y cuántas veces lo llevó.
 
 1. En **Reportes**, abra **Avance por idioma**.
-2. Revise, por cada idioma, los ciclos aprobados con su nota, el **Promedio de ciclos aprobados** y los ciclos que le faltan para completar el nivel.
+2. Revise, por cada idioma, los ciclos con su nota y su resultado, el **Promedio de ciclos aprobados** y los ciclos que le faltan para completar el nivel.
 3. Para obtener el récord en PDF, use **Récord de …** o **Récord completo** en el panel **Descargar en PDF**.
 
 Este reporte es informativo y no tiene valor oficial; para trámites, solicite la constancia de notas (numeral 4.5).
@@ -415,7 +439,7 @@ Este reporte es informativo y no tiene valor oficial; para trámites, solicite l
 
 # 6. VERIFICAR UN DOCUMENTO
 
-Toda constancia o certificado emitido por el CILN lleva un código único y un código QR al pie. Cualquier persona (por ejemplo, un empleador o una universidad) puede comprobar su autenticidad sin crear una cuenta.
+Los documentos que el CILN emite por trámite (constancia de matrícula, constancia de notas y certificado de culminación de nivel) llevan un código único y un código QR al pie. Cualquier persona (por ejemplo, un empleador o una universidad) puede comprobar su autenticidad sin crear una cuenta. La ficha de matrícula tiene su propio código QR, que abre la verificación pública de la ficha; la constancia de inscripción de **Mis matrículas** no lleva código ni QR.
 
 1. En el menú del portal, presione **Verificar un documento** (o **Verificar documento** en la parte superior de la web pública). También puede escanear el código QR del documento con un teléfono celular.
 2. Escriba el código único del documento con el formato CILN-XXXXXXXXXX.
@@ -440,13 +464,15 @@ Toda constancia o certificado emitido por el CILN lleva un código único y un c
 | ¿En qué ciclo me matriculo? | El sistema lo calcula y lo muestra en **Ciclo que te corresponde**: ciclo 1 si recién empieza, el siguiente si aprobó el anterior, o el asignado por el examen de clasificación. |
 | No aparecen grupos para mi ciclo. | Por ahora no hay grupos abiertos con vacantes para su ciclo. Consulte **Horarios y vacantes** en la web pública o comuníquese con el CILN. |
 | ¿Cómo se calcula mi nota final? | Es el promedio del promedio de las cuatro habilidades y del promedio del examen parcial y final, redondeado al entero (0.5 hacia arriba). Se aprueba con el mínimo configurado por el CILN, 11 de 20 por defecto. |
+| Soy estudiante o trabajador de la UNASAM y el sistema me propone la tarifa de público general. | Toda cuenta creada desde la web queda como **Público general**. Pida al CILN que actualice su vínculo con la UNASAM antes de registrar el pago. |
 | ¿Dónde descargo mi constancia de matrícula? | En **Mis matrículas**, con **Constancia (PDF)**. Para un documento con firma de Dirección, inicie el trámite **Constancia de matrícula**. |
 | ¿Cómo sé en qué etapa está mi trámite? | En **Trámites**, presione **Ver etapas**. Además, recibirá un correo en cada cambio de estado. |
-| No veo la opción para confirmar clases. | Solo los delegados de grupo confirman clases. El docente designa al delegado desde su panel. |
+| No veo la opción para confirmar clases. | La opción solo aparece a los delegados de grupo. El docente designa al delegado desde su panel. |
+| ¿Cómo salgo del portal? | Presione su nombre en la parte inferior del menú lateral y elija **Cerrar sesión** (numeral 3.6). |
 | ¿Cómo compruebo que un certificado es auténtico? | En **Verificar un documento**, escriba el código CILN-XXXXXXXXXX o escanee el código QR del documento. |
 
 # 8. SOPORTE
 
-Si tiene dudas sobre el uso del portal, problemas para ingresar o necesita corregir datos que solo el CILN puede modificar, comuníquese con el Centro de Idiomas y Lenguas Nativas a través de la secretaría del CILN o el correo institucional cid@unasam.edu.pe.
+Si tiene dudas sobre el uso del portal, problemas para ingresar o necesita corregir datos que solo el CILN puede modificar, comuníquese con el Centro de Idiomas y Lenguas Nativas a través de la secretaría del CILN. Para ejercer sus derechos de acceso, rectificación, cancelación u oposición sobre sus datos personales, presente una solicitud dirigida a la Dirección del CILN mediante la Mesa de Partes de la UNASAM, como indica la política de privacidad.
 
 Al escribir, indique su nombre completo, su número de documento de identidad, la opción del portal que estaba usando y una descripción breve del problema. Si es posible, adjunte una captura de pantalla. Nunca comparta su contraseña: el personal del CILN no la solicitará por ningún medio.
