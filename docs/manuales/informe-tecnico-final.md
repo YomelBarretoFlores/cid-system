@@ -62,10 +62,10 @@ El servicio comprende el diseño, desarrollo, pruebas, despliegue y puesta en pr
 | Usuario | Componente | Dirección |
 |---|---|---|
 | Público en general | Portal público y verificación de documentos | `/`, `/verificar` |
-| Estudiantes y postulantes | Portal del estudiante | `/estudiante` |
-| Docentes | Panel docente | `/docente` |
+| Estudiantes y postulantes del CILN | Portal del estudiante | `/estudiante` |
+| Docentes del CILN | Panel docente | `/docente` |
 | Personal del CILN (dirección, coordinación, caja, administración) | Panel de administración y tablero gerencial | `/admin` |
-| Otros sistemas de la UNASAM | Servicios REST | `/api/v1` |
+| Sistemas de la UNASAM que autorice la DSTI (integraciones futuras) | Servicios REST | `/api/v1` |
 
 Quedan fuera del alcance, conforme a los TdR y al Anexo Técnico: el procesamiento de la planilla y de las retenciones de ley de los docentes (competencia de la DGF), la integración automática con sistemas externos de pago, la analítica predictiva y el asistente conversacional. La migración de datos del sistema anterior se realiza solo **«de requerirse»**, en coordinación con la DSTI y limitada a la información que dicha dirección proporcione en un formato utilizable (numeral 6.1 de los TdR).
 
@@ -116,7 +116,7 @@ Conforme al numeral 4.3 de los TdR, el servicio se ejecutó con un plan de traba
 3. **Construcción guiada por pruebas.** Cada regla de negocio se implementó junto con su prueba automatizada sobre PostgreSQL, con datos sintéticos.
 4. **Integración continua.** Cada cambio pasó por el análisis estático, el estilo, la auditoría de dependencias y la suite completa de pruebas antes de integrarse.
 5. **Verificación funcional.** Cada flujo se comprobó en el navegador con datos de demostración, como lo usarían el estudiante, el docente y el personal.
-6. **Despliegue, capacitación y cierre.** Se publicaron las versiones con etiqueta (de `v1.0.0` a `v1.1.1`), se desplegaron en el servidor designado por la DSTI, se capacitó al personal, a los docentes y a los estudiantes y se elaboró la documentación técnica.
+6. **Despliegue, capacitación y cierre.** Se publicaron las versiones con etiqueta (de `v1.0.0` a `v1.1.1`), se desplegaron en el servidor designado por la DSTI, se capacitó al personal directivo, docente y administrativo del CILN, y a docentes y estudiantes en el uso del sistema y se elaboró la documentación técnica.
 
 ## 2.2. Cronograma de ejecución
 
@@ -134,7 +134,7 @@ La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta d�
 | Segunda iteración funcional | 31/10 al 03/11/2026 | Control de clases con asistencia y delegado, reportes, panel docente, tablero, portal público, correcciones del panel de administración |
 | Seguridad y portal del estudiante | 08/11 al 10/11/2026 | Actualizaciones de seguridad de dependencias, cabeceras y política CSP, sesiones cifradas, PHP 8.5, consentimiento de datos personales, portal del estudiante en estilo formal, paleta con contraste WCAG AA |
 | Cierre técnico | 16/11/2026 | Diccionario de datos generado desde PostgreSQL, portada pública institucional, actualización automática por versiones publicadas, correo institucional, guía de despliegue; publicación de la versión `v1.0.0` |
-| Capacitación | 16/11 al 18/11/2026 | Capacitación al personal directivo, docente y administrativo del CILN en el auditorio, con exposición del sistema (16/11); capacitación continua a docentes y estudiantes: ingreso al sistema en producción (`https://ciln.unasam.edu.pe`), portal público, matrícula y uso del sistema por los estudiantes en aula (17 y 18/11) (Anexo C) |
+| Capacitación | 16/11 al 18/11/2026 | Capacitación al personal directivo, docente y administrativo del CILN en el auditorio, con exposición del sistema (16/11); capacitación práctica a docentes y estudiantes: ingreso al sistema en producción (`https://ciln.unasam.edu.pe`), portal público, matrícula y uso del sistema por los estudiantes en aula (17 y 18/11) (Anexo C) |
 | Ajuste del sistema de evaluación y documentación final | 17/11/2026 | Cálculo de la nota final por las cuatro habilidades y los exámenes; informe técnico final |
 | Correcciones finales y versión entregada | 18/11 al 19/11/2026 | Verificación del correo en producción con la cuenta institucional `sistemacln@unasam.edu.pe`, escaneo OWASP ZAP, registro de notas parciales limitado al calendario académico, política de privacidad y consentimiento registrado por el personal, emisión masiva de constancias de matrícula; publicación de la versión `v1.1.1` y actualización del presente informe |
 
@@ -144,12 +144,12 @@ La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta d�
 
 | Actividad (TdR 4.2) | Forma de ejecución | Evidencia |
 |---|---|---|
-| Levantamiento de requerimientos y análisis con el área usuaria del CILN | Reuniones con el área usuaria del 21/10 al 24/10/2026; transcripción y codificación de los 96 requisitos del Anexo Técnico; registro de supuestos y decisiones para validación del CILN | `docs/requisitos/`, `docs/decisiones-pendientes.md`, `docs/modulos.md`; registro fotográfico (Anexo C, figuras 14 a 17) |
+| Levantamiento de requerimientos y análisis con el área usuaria del CILN | Reuniones con el área usuaria del 21/10 al 24/10/2026; transcripción y codificación de los 96 requisitos del Anexo Técnico; registro de decisiones del proyecto | `docs/requisitos/`, `docs/modulos.md`; registro fotográfico (Anexo C, figuras 14 a 17) |
 | Diseño y organización técnica del sistema y de los datos (documento técnico) | Fundamentación de PHP 8.5, Laravel, patrón MVC, modelo de datos y API REST | Capítulos 4 a 7 de este informe; `docs/arquitectura.md`, `docs/tecnologia.md`, ADR 0001 a 0009; Diccionario de Datos; revisión de la arquitectura con el área usuaria (Anexo C, figuras 18 y 19) |
 | Desarrollo, pruebas e implementación de los seis módulos | Desarrollo iterativo por módulo con pruebas automatizadas sobre PostgreSQL | Capítulos 8 y 10; matriz de cumplimiento (11.3); Anexos A y B |
 | Aplicación de estándares de seguridad (OWASP Top 10) y de pistas de auditoría | Controles por cada riesgo OWASP y auditoría inmutable por triggers en 42 tablas | Capítulo 9; `docs/seguridad.md` |
 | Despliegue y puesta en producción en el servidor designado por la DSTI | Instalación en el servidor de la DSTI con la guía y los scripts de implementación | Capítulo 3; `docs/despliegue.md`; versión entregada `v1.1.1` |
-| Capacitación al personal del CILN y entrega de manuales y del código fuente | Capacitación al personal directivo, docente y administrativo del CILN (16/11/2026) y capacitación continua a docentes y estudiantes en el sistema en producción (17 y 18/11/2026); código fuente y repositorio entregados a la DSTI; manuales de usuario entregados | Sección 11.5; registro fotográfico (Anexo C, figuras 20 a 28) |
+| Capacitación al personal del CILN y entrega de manuales y del código fuente | Capacitación al personal directivo, docente y administrativo del CILN (16/11/2026) y capacitación práctica a docentes y estudiantes en el sistema en producción (17 y 18/11/2026); código fuente y repositorio entregados a la DSTI; manuales de usuario entregados | Sección 11.5; registro fotográfico (Anexo C, figuras 20 a 28) |
 
 # 3. INFRAESTRUCTURA TECNOLÓGICA
 
@@ -401,7 +401,7 @@ El acceso se controla por **permisos por acción**, que se agrupan en roles desd
 | Perfil | Identificación | Acceso |
 |---|---|---|
 | Personal del CILN | Cuenta con permiso de acceso al panel y los permisos de su función | Panel de administración, con doble factor opcional u obligatorio por configuración |
-| Docente | Cuenta vinculada a un legajo docente | Panel docente: sus grupos, asistencia, pre-actas y actas |
+| Docente del CILN | Cuenta vinculada a un legajo docente | Panel docente: sus grupos, asistencia, pre-actas y actas |
 | Estudiante | Cuenta con correo verificado y ficha personal | Portal del estudiante: matrícula, pagos, clasificación, trámites, notas y documentos |
 | Público | Sin cuenta | Portada, verificación de documentos y creación de cuenta |
 
@@ -808,7 +808,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | Diccionario de Datos – Sistema de Gestión del CILN | TdR 4.2 | Entregado |
 | Reporte del escaneo de seguridad OWASP ZAP (versión v1.1.1) | Anexo II.2.a y IV.2 | Entregado |
 | Manuales de usuario (estudiante, docente y personal del CILN) | TdR 4.2 y 6.1 | Entregado |
-| Capacitación al personal directivo, docente y administrativo del CILN (16/11/2026) y capacitación continua a docentes y estudiantes (17 y 18/11/2026) | TdR 4.2 y 6.1 | Realizada (Anexo C) |
+| Capacitación al personal directivo, docente y administrativo del CILN (16/11/2026) y capacitación práctica a docentes y estudiantes (17 y 18/11/2026) | TdR 4.2 y 6.1 | Realizada (Anexo C) |
 | Carta de cesión de derechos patrimoniales | TdR 6.1; Anexo IV.1 | Entregada (Anexo D) |
 | Garantía técnica de funcionamiento y soporte por 12 meses | TdR 6.1 y 6.10; Anexo IV.4 | Carta de garantía entregada (Anexo D); rige desde la conformidad final |
 
@@ -817,7 +817,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Referencia y a su Anexo Técnico:
 
 - **Cesión de derechos.** Cede a la UNASAM, en forma total, exclusiva y a perpetuidad, los derechos patrimoniales del software, el diseño de la base de datos, el código fuente, los manuales y los scripts de implementación, mediante la carta de cesión de derechos patrimoniales (TdR 6.1; Anexo IV.1; Anexo D).
-- **Garantía técnica.** Se compromete a brindar la garantía técnica de funcionamiento y el soporte (resolución de errores, atención de incidencias y asistencia en el uso) por doce (12) meses contados desde la conformidad final del sistema (TdR 6.1 y 6.10; Anexo IV.4), según la carta de garantía técnica (Anexo D).
+- **Garantía técnica.** Se compromete a brindar la garantía técnica de funcionamiento y el soporte (resolución de errores, atención de incidencias y asistencia en el uso al personal del CILN y de la DSTI) por doce (12) meses contados desde la conformidad final del sistema (TdR 6.1 y 6.10; Anexo IV.4), según la carta de garantía técnica (Anexo D).
 - **Vicios ocultos.** Asume la responsabilidad por los vicios ocultos del servicio por un (1) año, conforme al numeral 6.9 de los TdR; este compromiso consta en la carta de garantía técnica (Anexo D).
 - **Ejecución directa.** Prestó el servicio directamente, sin subcontratar ninguna de sus prestaciones (TdR 6.1).
 - **Confidencialidad.** Mantiene reserva absoluta sobre la información académica, financiera y personal de la Entidad a la que tuvo acceso (TdR 6.5; Anexo IV.3), según la sección «Uso de la información».
@@ -828,7 +828,7 @@ ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Re
 
 1. El Sistema de Gestión Académica y Administrativa del CILN **atiende los seis módulos funcionales** del Anexo Técnico: los 78 requisitos funcionales tienen una pantalla o un servicio que lo atiende y pruebas automatizadas que lo comprueban; 77 se cumplen y uno (M6.2.e) se cumple parcialmente porque los estados de los trámites y las condiciones de etapa son fijos por diseño.
 2. De los 96 requisitos verificados del Anexo Técnico, **95 se cumplen y 1 se cumple parcialmente**: la cesión de derechos y la garantía técnica quedan formalizadas mediante cartas suscritas por el contratista (Anexo D), y el único requisito parcial (M6.2.e) responde a la decisión de diseño de mantener fijos los estados de los trámites. **Ningún requisito queda sin atender.**
-3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091, del 21 de octubre al 19 de noviembre de 2026, y atendió las seis actividades del numeral 4.2 de los TdR, incluidos el levantamiento de requerimientos con el área usuaria y la capacitación al personal directivo, docente y administrativo, a los docentes y a los estudiantes (Anexo C); el sistema se encuentra desplegado en `https://ciln.unasam.edu.pe`, envía sus correos desde la cuenta institucional `sistemacln@unasam.edu.pe` y el código fuente está en poder de la DSTI; los manuales de usuario del estudiante, del docente y del personal del CILN fueron entregados.
+3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091, del 21 de octubre al 19 de noviembre de 2026, y atendió las seis actividades del numeral 4.2 de los TdR, incluidos el levantamiento de requerimientos con el área usuaria y la capacitación al personal directivo, docente y administrativo del CILN y la capacitación práctica de docentes y estudiantes (Anexo C); el sistema se encuentra desplegado en `https://ciln.unasam.edu.pe`, envía sus correos desde la cuenta institucional `sistemacln@unasam.edu.pe` y el código fuente está en poder de la DSTI; los manuales de usuario del estudiante, del docente y del personal del CILN fueron entregados.
 4. El sistema supera las limitaciones señaladas por la DSTI en el Informe Técnico N.° 023-2026-FMAJ: usa tecnologías con soporte vigente, aplica los controles del OWASP Top 10, registra una pista de auditoría inmutable en la base de datos y protege los datos personales conforme a la Ley N.° 29733.
 5. El cálculo de las notas sigue el sistema de evaluación del CILN, como lo indicó el área usuaria: promedio de las cuatro habilidades y promedio de los exámenes, con la nota final redondeada a un entero y una nota mínima aprobatoria configurable.
 
@@ -838,7 +838,7 @@ ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Re
 2. **Seguridad.** Que la DSTI repita el escaneo OWASP ZAP sobre el servidor de producción `https://ciln.unasam.edu.pe` de forma periódica y después de instalar cada nueva versión, mantenga activo el módulo `mod_headers` de Apache, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
 3. **Garantía.** Que, con la conformidad final, se formalice el inicio de la garantía técnica de doce meses y el canal de reporte de incidencias entre el CILN, la DSTI y el contratista.
 4. **Actualizaciones.** Que las nuevas versiones se instalen solo desde **etiquetas publicadas** (`vX.Y.Z`) de la rama principal, que pasan la integración continua, mediante la actualización automática o el procedimiento manual de la guía de despliegue, y que la DSTI mantenga las dependencias dentro de sus versiones con soporte.
-5. **Validación institucional.** Que el CILN valide los supuestos registrados durante las pruebas de aceptación y registre en el panel los datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que el personal capacitado replique la capacitación, con los manuales de usuario, al personal y a los docentes que se incorporen.
+5. **Validación institucional.** Que el CILN revise los valores configurables con los que se entrega el sistema y registre en el panel los datos institucionales vigentes (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que el personal capacitado replique la capacitación, con los manuales de usuario, al personal y a los docentes que se incorporen.
 6. **Trámites.** Que, si el CILN requiere estados de trámite adicionales a los previstos, los solicite como mejora, para evaluarla con la DSTI sin afectar las reglas de pago y de auditoría.
 
 # ANEXO A. EVIDENCIA TÉCNICA POR REQUISITO
@@ -1048,27 +1048,27 @@ Registro fotográfico de las reuniones con el área usuaria y de las capacitacio
 
 *Figura 19. Diseño y organización técnica del sistema: revisión del modelo del sistema con el área usuaria (21/10–24/10/2026)*
 
-**Capacitación al personal directivo, docente y administrativo (16/11/2026)**
+**Capacitación al personal directivo, docente y administrativo del CILN (16/11/2026)**
 
 *Figura 20. Capacitación al personal directivo, docente y administrativo del CILN en el auditorio (16/11/2026)*
 
 *Figura 21. Capacitación al personal directivo, docente y administrativo del CILN: exposición del sistema (16/11/2026)*
 
-**Capacitación continua a docentes y estudiantes (17 y 18/11/2026)**
+**Capacitación práctica a docentes y estudiantes (17 y 18/11/2026)**
 
-*Figura 22. Capacitación continua a docentes: ingreso al sistema en producción, ciln.unasam.edu.pe (17 y 18/11/2026)*
+*Figura 22. Capacitación práctica a docentes: ingreso al sistema en producción, ciln.unasam.edu.pe (17 y 18/11/2026)*
 
-*Figura 23. Capacitación continua a docentes: acceso al sistema (17 y 18/11/2026)*
+*Figura 23. Capacitación práctica a docentes: acceso al sistema (17 y 18/11/2026)*
 
-*Figura 24. Capacitación continua a docentes: portal público del CILN (17 y 18/11/2026)*
+*Figura 24. Capacitación práctica a docentes: portal público del CILN (17 y 18/11/2026)*
 
-*Figura 25. Capacitación continua a docentes y estudiantes: portal público del CILN (17 y 18/11/2026)*
+*Figura 25. Capacitación práctica a docentes y estudiantes: portal público del CILN (17 y 18/11/2026)*
 
-*Figura 26. Capacitación continua a docentes y estudiantes: matrícula en el portal (17 y 18/11/2026)*
+*Figura 26. Capacitación práctica a docentes y estudiantes: matrícula en el portal (17 y 18/11/2026)*
 
-*Figura 27. Capacitación continua a estudiantes: uso del sistema en aula (17 y 18/11/2026)*
+*Figura 27. Capacitación práctica a estudiantes: uso del sistema en aula (17 y 18/11/2026)*
 
-*Figura 28. Capacitación continua a estudiantes: acompañamiento en el uso del sistema en aula (17 y 18/11/2026)*
+*Figura 28. Capacitación práctica a estudiantes: acompañamiento en el uso del sistema en aula (17 y 18/11/2026)*
 
 # ANEXO D. CARTAS DE CESIÓN DE DERECHOS Y DE GARANTÍA TÉCNICA
 
@@ -1079,4 +1079,4 @@ Cartas suscritas por el representante legal de ELECTRODATA INGENIERIA & SISTEMAS
 | Documento | Base contractual | Contenido |
 |---|---|---|
 | Carta de cesión de derechos patrimoniales | TdR 6.1; Anexo Técnico IV.1 | Cesión total, exclusiva y a perpetuidad a la UNASAM de los derechos patrimoniales del software (versión v1.1.1 y anteriores, con su código fuente), el diseño de la base de datos, los scripts, los manuales, la documentación técnica y los repositorios, sin contraprestación adicional; surte efectos desde su suscripción |
-| Carta de garantía técnica de funcionamiento y soporte | TdR 6.1, 6.9 y 6.10; Anexo Técnico IV.4 | Garantía de funcionamiento y soporte por doce (12) meses desde la conformidad final (resolución de incidencias y errores, asistencia en el uso y correcciones como nuevas versiones), canal de comunicación de incidencias y responsabilidad por vicios ocultos por un (1) año |
+| Carta de garantía técnica de funcionamiento y soporte | TdR 6.1, 6.9 y 6.10; Anexo Técnico IV.4 | Garantía de funcionamiento y soporte por doce (12) meses desde la conformidad final (resolución de incidencias y errores, asistencia en el uso al personal del CILN y de la DSTI, y correcciones como nuevas versiones), canal de comunicación de incidencias y responsabilidad por vicios ocultos por un (1) año |

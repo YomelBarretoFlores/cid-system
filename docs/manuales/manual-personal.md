@@ -49,7 +49,7 @@ El permiso «Ingresar al panel» se concede automáticamente a toda cuenta del p
 | Equipo | Computadora con conexión a la red de la UNASAM o a Internet. |
 | Navegador | Versión actual de Google Chrome, Mozilla Firefox, Microsoft Edge o Safari. |
 | Dirección del panel | **https://ciln.unasam.edu.pe/admin/login** |
-| Cuenta | Cuenta del personal creada por el administrador del sistema; la persona define su contraseña con el enlace que recibe en su correo (sección 11.1). |
+| Cuenta | Cuenta del personal creada por el administrador del sistema, es decir, el personal del CILN con los permisos del menú **Seguridad** (usuarios y roles); la persona define su contraseña con el enlace que recibe en su correo (sección 11.1). |
 | Doble factor | Si el CILN lo exige, una aplicación autenticadora en el teléfono (por ejemplo, Google Authenticator o Microsoft Authenticator). |
 | Documentos | Para validar pagos: la boleta o voucher original entregado por la persona. |
 

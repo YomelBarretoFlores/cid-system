@@ -23,7 +23,7 @@ El presente manual explica, paso a paso, cómo utilizar el portal del estudiante
 
 ## 1.2. A quién está dirigido
 
-Está dirigido a los estudiantes del CILN y a toda persona que desee matricularse en sus cursos: estudiantes de la UNASAM, docentes y personal administrativo de la universidad y público en general. No se requieren conocimientos técnicos; basta con saber navegar en Internet.
+Está dirigido a los estudiantes del CILN y a toda persona que desee matricularse en sus cursos como estudiante (estudiantes de la UNASAM, docentes y personal administrativo de la universidad, y público en general), que usan el portal del estudiante. El personal y los docentes del CILN cuentan con sus propios manuales. No se requieren conocimientos técnicos; basta con saber navegar en Internet.
 
 ## 1.3. Requisitos
 
