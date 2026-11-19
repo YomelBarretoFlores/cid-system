@@ -109,7 +109,7 @@ Permisos: `academico.ver` (consultar) y `academico.gestionar` (crear, editar y c
 
 | Funcionalidad | Reglas |
 |---|---|
-| Portal público | `https://cid.unasam.edu.pe/`: oferta, requisitos, fechas, costos TUPA/TUSNE |
+| Portal público | `https://ciln.unasam.edu.pe/`: oferta, requisitos, fechas, costos TUPA/TUSNE |
 | Acceso | Login de estudiantes y docentes (un guard, roles); recuperación con token al correo |
 | Pipelines | Un flujo configurable por trámite (constancia, certificado, traslado, retiro): etapas, estados y condiciones en tablas propias + JSON validado, sin programar |
 | Reglas | Bloqueo hasta que Pagos valide la tasa; barra de progreso; correo en cada cambio de estado (log de notificaciones) |

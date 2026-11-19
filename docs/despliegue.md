@@ -7,7 +7,7 @@
 | Quién | Qué |
 |---|---|
 | La DSTI envía al proveedor | Solo la parte pública de la llave de despliegue (`ciln_despliegue.pub`, que no es secreta; sirve para la descarga inicial y para las actualizaciones automáticas), la ruta elegida (tradicional o Docker), el dominio definitivo y la confirmación de que el servidor llega a GitHub |
-| La DSTI hace en sus servidores, sin enviar claves | Crea los roles de PostgreSQL y la base ([Roles de PostgreSQL](#roles-de-postgresql)), habilita el SMTP autenticado de `cid@unasam.edu.pe` (la contraseña la escribe en `MAIL_PASSWORD` quien la custodia), instala el sistema y decide si activa la [actualización automática](#actualización-automática), que exige aceptar que la clave del rol dueño quede guardada en el servidor; además, el certificado HTTPS y los respaldos |
+| La DSTI hace en sus servidores, sin enviar claves | Crea los roles de PostgreSQL y la base ([Roles de PostgreSQL](#roles-de-postgresql)), habilita el SMTP autenticado de `sistemacln@unasam.edu.pe` (la contraseña la escribe en `MAIL_PASSWORD` quien la custodia), instala el sistema y decide si activa la [actualización automática](#actualización-automática), que exige aceptar que la clave del rol dueño quede guardada en el servidor; además, el certificado HTTPS y los respaldos |
 | El proveedor | Registra la llave de despliegue en GitHub, publica cada versión con su etiqueta cuando CI está en verde, acompaña la instalación y la [verificación](#verificación) y, al cierre del servicio, entrega el repositorio a la UNASAM |
 
 ## Requisitos del servidor
@@ -93,7 +93,7 @@ APP_ENV=production
 APP_DEBUG=false
 APP_KEY=base64:...
 APP_PREVIOUS_KEYS=
-APP_URL=https://cid.unasam.edu.pe
+APP_URL=https://ciln.unasam.edu.pe
 APP_LOCALE=es
 APP_FALLBACK_LOCALE=es
 APP_FAKER_LOCALE=es_PE
@@ -193,18 +193,18 @@ El dominio `unasam.edu.pe` usa Microsoft 365 (su registro SPF incluye `spf.prote
 
 | Forma | Configuración | Cuándo |
 |---|---|---|
-| SMTP autenticado (SMTP AUTH) | `MAIL_HOST=smtp.office365.com`, `MAIL_PORT=587`, `MAIL_USERNAME` y `MAIL_PASSWORD` de un buzón del CILN, `MAIL_FROM_ADDRESS` igual a ese buzón. La DSTI debe habilitar «SMTP autenticado» para el buzón | Pruebas de despliegue. Microsoft anunció que la autenticación básica de SMTP AUTH se desactiva por defecto desde fines de diciembre de 2026 (el administrador puede reactivarla) y se retira en una fecha de 2027 por anunciar |
-| Conector de retransmisión de Microsoft 365 por IP | `MAIL_HOST=<dominio>.mail.protection.outlook.com`, `MAIL_PORT=25`, sin usuario ni contraseña; la DSTI crea en Exchange Online un conector que acepta la IP pública del servidor | Producción: no depende de la contraseña de un buzón ni de la autenticación básica |
+| SMTP autenticado (SMTP AUTH) | `MAIL_HOST=smtp.office365.com`, `MAIL_PORT=587`, `MAIL_USERNAME` y `MAIL_PASSWORD` de un buzón del CILN, `MAIL_FROM_ADDRESS` igual a ese buzón. La DSTI debe habilitar «SMTP autenticado» para el buzón | En uso en producción con `sistemacln@unasam.edu.pe`. Microsoft anunció que la autenticación básica de SMTP AUTH se desactiva por defecto desde fines de diciembre de 2026 (el administrador puede reactivarla) y se retira en una fecha de 2027 por anunciar |
+| Conector de retransmisión de Microsoft 365 por IP | `MAIL_HOST=<dominio>.mail.protection.outlook.com`, `MAIL_PORT=25`, sin usuario ni contraseña; la DSTI crea en Exchange Online un conector que acepta la IP pública del servidor | Alternativa ante el retiro de la autenticación básica: no depende de la contraseña de un buzón |
 
-El remitente es la cuenta institucional del CILN `cid@unasam.edu.pe`, con el «SMTP autenticado» habilitado por la DSTI (Informe Técnico N.° 001-2026-YJBF, numeral 3.4). Su contraseña se escribe solo en el `.env` del servidor; nunca va en documentos ni en el repositorio.
+El remitente es la cuenta institucional dedicada del sistema `sistemacln@unasam.edu.pe`, habilitada por la DSTI con «SMTP autenticado». Su contraseña se escribe solo en el `.env` del servidor; nunca va en documentos ni en el repositorio. El 18/11/2026 se verificó en producción la recepción de los correos de recuperación de contraseña y de aviso de cambio de contraseña enviados desde esta cuenta.
 
 ```dotenv
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.office365.com
 MAIL_PORT=587
-MAIL_USERNAME=cid@unasam.edu.pe
-MAIL_PASSWORD=<contraseña de cid@unasam.edu.pe>
-MAIL_FROM_ADDRESS=cid@unasam.edu.pe
+MAIL_USERNAME=sistemacln@unasam.edu.pe
+MAIL_PASSWORD=<se escribe solo en el servidor>
+MAIL_FROM_ADDRESS=sistemacln@unasam.edu.pe
 MAIL_FROM_NAME="CILN UNASAM"
 ```
 

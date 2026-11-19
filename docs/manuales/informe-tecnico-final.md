@@ -1,6 +1,6 @@
 <!--
 titulo: Informe Técnico Final – Sistema de Gestión Académica y Administrativa del CILN
-version: 1.0
+version: 1.1
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 contratista: ELECTRODATA INGENIERIA & SISTEMAS S.A.C. (RUC 20571285852)
@@ -14,6 +14,7 @@ entidad: Universidad Nacional Santiago Antúnez de Mayolo – Centro de Idiomas 
 | Versión | Fecha | Descripción | Autor |
 |---|---|---|---|
 | 1.0 | Noviembre de 2026 | Informe técnico final del servicio, con la verificación del cumplimiento de la Orden de Servicio, los Términos de Referencia y su Anexo Técnico | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. |
+| 1.1 | 19/11/2026 | Actualización: brechas corregidas, evidencias de capacitación y requerimientos, declaraciones contractuales | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. |
 
 # USO DE LA INFORMACIÓN
 
@@ -110,12 +111,12 @@ Se aplicaron además, como referencias técnicas, el OWASP Top 10 (2021) para la
 
 Conforme al numeral 4.3 de los TdR, el servicio se ejecutó con un plan de trabajo coordinado con el área usuaria al inicio de la prestación, que definió la metodología, el cronograma y la estructura técnica propuesta. Se adoptó un desarrollo **iterativo e incremental por módulo**:
 
-1. **Análisis.** Cada requisito del Anexo Técnico se transcribió y codificó (por ejemplo, `M2.1.b`), y cada supuesto o duda se registró como decisión para la validación del CILN (137 decisiones registradas).
+1. **Análisis.** En reuniones con el área usuaria del 21 al 24 de octubre de 2026 (registro fotográfico en el Anexo C), cada requisito del Anexo Técnico se transcribió y codificó (por ejemplo, `M2.1.b`), y cada supuesto o duda se registró como decisión para la validación del CILN (137 decisiones registradas).
 2. **Diseño.** Se definieron la arquitectura, el modelo de datos por módulo y las decisiones técnicas en registros de arquitectura (ADR 0001 a 0009).
 3. **Construcción guiada por pruebas.** Cada regla de negocio se implementó junto con su prueba automatizada sobre PostgreSQL, con datos sintéticos.
 4. **Integración continua.** Cada cambio pasó por el análisis estático, el estilo, la auditoría de dependencias y la suite completa de pruebas antes de integrarse.
 5. **Verificación funcional.** Cada flujo se comprobó en el navegador con datos de demostración, como lo usarían el estudiante, el docente y el personal.
-6. **Despliegue y cierre.** Se publicó la versión con etiqueta (`v1.0.0`), se desplegó en el servidor designado por la DSTI y se elaboró la documentación técnica.
+6. **Despliegue, capacitación y cierre.** Se publicaron las versiones con etiqueta (de `v1.0.0` a `v1.1.1`), se desplegaron en el servidor designado por la DSTI, se capacitó al personal, a los docentes y a los estudiantes y se elaboró la documentación técnica.
 
 ## 2.2. Cronograma de ejecución
 
@@ -125,7 +126,7 @@ La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta d�
 
 | Fase | Fechas | Actividades principales |
 |---|---|---|
-| Inicio y análisis | 21/10 al 24/10/2026 | Levantamiento de requerimientos con el área usuaria, transcripción del Anexo Técnico y del Informe N.° 023-2026-FMAJ, plan de trabajo, arquitectura y registros de decisiones |
+| Inicio y análisis | 21/10 al 24/10/2026 | Levantamiento de requerimientos en reuniones con el área usuaria (registro fotográfico en el Anexo C), transcripción del Anexo Técnico y del Informe N.° 023-2026-FMAJ, plan de trabajo, arquitectura y registros de decisiones |
 | Base técnica | 24/10/2026 | Proyecto base en Laravel 13 con arquitectura modular, integración continua sobre PostgreSQL 18, auditoría por triggers, autenticación y control de acceso |
 | Módulos 1, 2 y 3 | 24/10 al 25/10/2026 | Oferta académica, personas, clasificación, matrícula, pagos y docencia, con pruebas de concurrencia |
 | Módulos 4, 5 y 6 y API | 25/10/2026 | Actas y certificación, tablero gerencial, trámites, portal y servicios REST; panel de administración |
@@ -133,7 +134,9 @@ La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta d�
 | Segunda iteración funcional | 31/10 al 03/11/2026 | Control de clases con asistencia y delegado, reportes, panel docente, tablero, portal público, correcciones del panel de administración |
 | Seguridad y portal del estudiante | 08/11 al 10/11/2026 | Actualizaciones de seguridad de dependencias, cabeceras y política CSP, sesiones cifradas, PHP 8.5, consentimiento de datos personales, portal del estudiante en estilo formal, paleta con contraste WCAG AA |
 | Cierre técnico | 16/11/2026 | Diccionario de datos generado desde PostgreSQL, portada pública institucional, actualización automática por versiones publicadas, correo institucional, guía de despliegue; publicación de la versión `v1.0.0` |
+| Capacitación | 16/11 al 18/11/2026 | Capacitación al personal docente y administrativo del CILN en el auditorio, con exposición del sistema (16/11); capacitación continua a docentes y estudiantes: ingreso al sistema en producción (`https://ciln.unasam.edu.pe`), portal público, matrícula y uso del sistema por los estudiantes en aula (17 y 18/11) (Anexo C) |
 | Ajuste del sistema de evaluación y documentación final | 17/11/2026 | Cálculo de la nota final por las cuatro habilidades y los exámenes; informe técnico final |
+| Correcciones finales y versión entregada | 18/11 al 19/11/2026 | Verificación del correo en producción con la cuenta institucional `sistemacln@unasam.edu.pe`, escaneo OWASP ZAP, registro de notas parciales limitado al calendario académico, política de privacidad y consentimiento registrado por el personal, emisión masiva de constancias de matrícula; publicación de la versión `v1.1.1` y actualización del presente informe |
 
 ## 2.3. Actividades del TdR
 
@@ -141,12 +144,12 @@ La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta d�
 
 | Actividad (TdR 4.2) | Forma de ejecución | Evidencia |
 |---|---|---|
-| Levantamiento de requerimientos y análisis con el área usuaria del CILN | Transcripción y codificación de los 96 requisitos del Anexo Técnico; registro de supuestos y decisiones para validación del CILN | `docs/requisitos/`, `docs/decisiones-pendientes.md`, `docs/modulos.md` |
-| Diseño y organización técnica del sistema y de los datos (documento técnico) | Fundamentación de PHP 8.5, Laravel, patrón MVC, modelo de datos y API REST | Capítulos 4 a 7 de este informe; `docs/arquitectura.md`, `docs/tecnologia.md`, ADR 0001 a 0009; Diccionario de Datos |
+| Levantamiento de requerimientos y análisis con el área usuaria del CILN | Reuniones con el área usuaria del 21/10 al 24/10/2026; transcripción y codificación de los 96 requisitos del Anexo Técnico; registro de supuestos y decisiones para validación del CILN | `docs/requisitos/`, `docs/decisiones-pendientes.md`, `docs/modulos.md`; registro fotográfico (Anexo C, figuras 14 a 17) |
+| Diseño y organización técnica del sistema y de los datos (documento técnico) | Fundamentación de PHP 8.5, Laravel, patrón MVC, modelo de datos y API REST | Capítulos 4 a 7 de este informe; `docs/arquitectura.md`, `docs/tecnologia.md`, ADR 0001 a 0009; Diccionario de Datos; revisión de la arquitectura con el área usuaria (Anexo C, figuras 18 y 19) |
 | Desarrollo, pruebas e implementación de los seis módulos | Desarrollo iterativo por módulo con pruebas automatizadas sobre PostgreSQL | Capítulos 8 y 10; matriz de cumplimiento (11.3); Anexos A y B |
 | Aplicación de estándares de seguridad (OWASP Top 10) y de pistas de auditoría | Controles por cada riesgo OWASP y auditoría inmutable por triggers en 42 tablas | Capítulo 9; `docs/seguridad.md` |
-| Despliegue y puesta en producción en el servidor designado por la DSTI | Instalación en el servidor de la DSTI con la guía y los scripts de implementación | Capítulo 3; `docs/despliegue.md`; versión entregada `v1.1.0` |
-| Capacitación al personal del CILN y entrega de manuales y del código fuente | Código fuente y repositorio entregados a la DSTI; manuales de usuario entregados; capacitación según la sección 11.5 | Sección 11.5 |
+| Despliegue y puesta en producción en el servidor designado por la DSTI | Instalación en el servidor de la DSTI con la guía y los scripts de implementación | Capítulo 3; `docs/despliegue.md`; versión entregada `v1.1.1` |
+| Capacitación al personal del CILN y entrega de manuales y del código fuente | Capacitación al personal docente y administrativo del CILN (16/11/2026) y capacitación continua a docentes y estudiantes en el sistema en producción (17 y 18/11/2026); código fuente y repositorio entregados a la DSTI; manuales de usuario entregados | Sección 11.5; registro fotográfico (Anexo C, figuras 20 a 28) |
 
 # 3. INFRAESTRUCTURA TECNOLÓGICA
 
@@ -173,7 +176,7 @@ La base de datos es **PostgreSQL 18**, en el mismo servidor o en uno dedicado. S
 
 ## 3.4. Entorno de producción
 
-Conforme al numeral 4.5 de los TdR, el sistema se encuentra **desplegado y operativo en el servidor designado por la DSTI**, en la infraestructura de la UNASAM y sin servicios de terceros en la nube, y se publica en el dominio oficial `https://ciln.unasam.edu.pe`. La DSTI administra el servidor, crea los roles de PostgreSQL, custodia las credenciales (base de datos, correo institucional) y decide la activación de la actualización automática.
+Conforme al numeral 4.5 de los TdR, el sistema se encuentra **desplegado y operativo en el servidor designado por la DSTI**, en la infraestructura de la UNASAM y sin servicios de terceros en la nube, y se publica en el dominio oficial `https://ciln.unasam.edu.pe`, que la DSTI designó para el sistema nuevo (el Anexo Técnico menciona `https://cid.unasam.edu.pe/`, dominio del sistema anterior). Ninguna dirección está fija en el código: se configura con `APP_URL`. La DSTI administra el servidor, crea los roles de PostgreSQL, custodia las credenciales (base de datos, correo institucional) y decide la activación de la actualización automática.
 
 *Tabla 8. Componentes del entorno de producción*
 
@@ -182,7 +185,7 @@ Conforme al numeral 4.5 de los TdR, el sistema se encuentra **desplegado y opera
 | Aplicación | PHP 8.5 con Nginx o Apache y HTTPS; modo de depuración desactivado |
 | Base de datos | PostgreSQL 18 con rol dueño (migraciones) y rol de aplicación |
 | Procesos de fondo | Trabajador de colas supervisado y programador de tareas |
-| Correo | Buzón institucional del CILN en Microsoft 365 |
+| Correo | Cuenta institucional dedicada `sistemacln@unasam.edu.pe` (Microsoft 365), habilitada por la DSTI; envío verificado en producción el 18/11/2026 |
 | Almacenamiento | Disco del servidor, fuera de la carpeta pública (comprobantes, fotografías, respaldos) |
 | Actualizaciones | Solo versiones publicadas con etiqueta `vX.Y.Z` en la rama principal, con reversión automática si falla antes de migrar |
 
@@ -383,11 +386,11 @@ El detalle de cada tabla (columnas, tipos, nulidad, valores por defecto, restric
 | M1. Registro, examen de clasificación y matrícula | Autorregistro, solicitud y resultado del examen de clasificación, oferta de grupos con vacantes en tiempo real, matrícula autogestionada con bloqueos, ficha de matrícula en PDF con QR, traslados y retiros | Portal del estudiante; panel: Matrícula, Oferta académica |
 | M2. Gestión y validación de pagos | Registro de pagos con comprobante digital, validación por caja, desbloqueo automático de servicios, anulación con motivo, reporte de recaudación en PDF y CSV | Portal del estudiante; panel: Pagos, Catálogos |
 | M3. Gestión docente y carga académica | Legajo docente, disponibilidad, carga sin cruces de horario, asistencia con confirmación del delegado, pre-actas y expediente de horas | Panel docente; panel: Docencia |
-| M4. Evaluación y certificación digital | Actas finales con cálculo automático, cierre y bloqueo, rectificación autorizada, constancias y certificados con código único y QR, verificación pública | Panel docente; panel: Certificación; `/verificar` |
+| M4. Evaluación y certificación digital | Actas finales con cálculo automático, cierre y bloqueo, rectificación autorizada, constancias y certificados, individuales o masivos, con código único y QR, verificación pública | Panel docente; panel: Certificación; `/verificar` |
 | M5. Tablero de control gerencial | Indicadores financieros y académicos calculados en cada consulta, filtros y exportación a PDF y Excel | Panel: Tablero gerencial |
 | M6. Portal público y trámites | Portada institucional con oferta, requisitos, costos y fechas; trámites con etapas configurables, barra de progreso y notificación por correo | Portada; portal del estudiante; panel: Trámites |
 
-**Sistema de evaluación.** Conforme al numeral M4.1 del Anexo Técnico, los promedios se calculan «según el sistema de evaluación del CILN». La nota final es el promedio simple de dos promedios: el de las **cuatro habilidades** (comprensión auditiva, expresión oral, comprensión lectora y expresión escrita) y el de los **exámenes** (examen parcial y examen final). Los promedios intermedios no se redondean; **solo la nota final se redondea a un entero**, con 0,5 hacia arriba. La nota mínima aprobatoria se configura por cada sistema de evaluación (11 sobre 20 por defecto).
+**Sistema de evaluación.** Conforme al numeral M4.1 del Anexo Técnico, los promedios se calculan «según el sistema de evaluación del CILN». La nota final es el promedio simple de dos promedios: el de las **cuatro habilidades** (comprensión auditiva, expresión oral, comprensión lectora y expresión escrita) y el de los **exámenes** (examen parcial y examen final). Los promedios intermedios no se redondean; **solo la nota final se redondea a un entero**, con 0,5 hacia arriba. Así lo indicó el área usuaria. Cada sistema de evaluación configura sus componentes, la nota máxima y la nota mínima aprobatoria (11 sobre 20 por defecto).
 
 ## 8.2. Roles y permisos
 
@@ -423,7 +426,7 @@ La portada institucional presenta la oferta académica vigente, los requisitos, 
 
 ### 8.3.2. Acceso al sistema
 
-Una sola página de ingreso deriva a cada usuario a su portal según su perfil, con recuperación de la contraseña mediante un enlace enviado al correo registrado (M6.1.b y M6.1.c). El personal del CILN ingresa por una página propia, con doble factor.
+Una sola página de ingreso (`/ingresar`) lleva a cada usuario a su propio portal según su rol (portal del estudiante, panel docente o panel del personal), con recuperación de la contraseña mediante un enlace enviado al correo registrado (M6.1.b y M6.1.c), cuyo envío se verificó en producción el 18 de noviembre de 2026. El personal del CILN ingresa por una página propia, con doble factor.
 
 ![Figura 5. Página de acceso](figuras/acceso.png)
 
@@ -447,7 +450,7 @@ El docente ve sus grupos a cargo, con el horario, los estudiantes matriculados y
 
 ### 8.3.6. Registro de notas
 
-El docente registra las notas de las cuatro habilidades y de los exámenes; el sistema calcula los promedios y la nota final de forma automática y la redondea a un entero. El registro solo está habilitado en las fechas del calendario académico (M4.1.a y M4.1.b).
+El docente registra las notas de las cuatro habilidades y de los exámenes; el sistema calcula los promedios y la nota final de forma automática y la redondea a un entero. Las notas parciales se aceptan solo desde la fecha de inicio del periodo hasta su última fecha de actas (hora de Lima) y nunca después de existir el acta del grupo; fuera de ese plazo la pre-acta queda de solo lectura, con un aviso (M4.1.a y M4.1.b).
 
 ![Figura 9. Registro de notas del docente](figuras/registro-de-notas.png)
 
@@ -496,7 +499,7 @@ El tablero muestra los ingresos, los pagos pendientes de validación, la rentabi
 
 Las sesiones usan cookies `HttpOnly`, `Secure` y `SameSite`, con el contenido cifrado y regeneración al iniciar sesión; la protección CSRF verifica el token de cada formulario. La API usa tokens personales que vencen a los 30 días.
 
-**Escaneo de seguridad.** Con la autorización de la DSTI, el 18 de noviembre de 2026 se ejecutó el escaneo pasivo OWASP ZAP 2.17.0 (*baseline*), sin ataques ni modificación de datos, sobre la versión **v1.0.1** del sistema en un entorno equivalente al de producción (Apache 2.4 con HTTPS, PHP-FPM 8.5 y la misma configuración `public/.htaccess`). Resultado: **ningún hallazgo de riesgo alto y ninguna regla fallida** (59 reglas aprobadas). Los tres avisos de riesgo medio corresponden a la política de contenido (`unsafe-inline` y `unsafe-eval`), que Livewire, Alpine y Filament requieren para funcionar; es un riesgo aceptado, mitigado por el escape de salida de Blade, la validación de entradas y una política `default-src 'self'` con `object-src 'none'` y `frame-ancestors 'self'`. Los avisos de riesgo bajo restantes son falsos positivos (la cookie XSRF-TOKEN es legible por diseño para la protección CSRF, marcas de tiempo dentro de las librerías y una redirección de la verificación de documentos) o la cabecera opcional COEP, que no se activa porque impediría cargar el visor de la documentación de la API. El escaneo inicial sobre el servidor de producción (v1.0.0) señaló cookies sin la marca `Secure` y cabeceras ausentes en los archivos estáticos; la versión v1.0.1 los corrige y añade las cabeceras `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy`. El reporte se entrega como evidencia (*Reporte OWASP ZAP - prueba local con v1.0.1 - 2026-11-18*); el mismo escaneo se repetirá sobre `https://ciln.unasam.edu.pe` cuando la DSTI instale la versión entregada v1.1.0.
+**Escaneo de seguridad.** Con la autorización de la DSTI, el 18 de noviembre de 2026 se ejecutó el escaneo pasivo OWASP ZAP 2.17.0 (*baseline*), sin ataques ni modificación de datos, sobre la versión **v1.0.1** del sistema en un entorno equivalente al de producción (Apache 2.4 con HTTPS, PHP-FPM 8.5 y la misma configuración `public/.htaccess`). Resultado: **ningún hallazgo de riesgo alto y ninguna regla fallida** (59 reglas aprobadas). Los tres avisos de riesgo medio corresponden a la política de contenido (`unsafe-inline` y `unsafe-eval`), que Livewire, Alpine y Filament requieren para funcionar; es un riesgo aceptado, mitigado por el escape de salida de Blade, la validación de entradas y una política `default-src 'self'` con `object-src 'none'` y `frame-ancestors 'self'`. Los avisos de riesgo bajo restantes son falsos positivos (la cookie XSRF-TOKEN es legible por diseño para la protección CSRF, marcas de tiempo dentro de las librerías y una redirección de la verificación de documentos) o la cabecera opcional COEP, que no se activa porque impediría cargar el visor de la documentación de la API. El escaneo inicial sobre el servidor de producción (v1.0.0) señaló cookies sin la marca `Secure` y cabeceras ausentes en los archivos estáticos; la versión v1.0.1 los corrige y añade las cabeceras `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy`. El reporte se entrega como evidencia (*Reporte OWASP ZAP - prueba local con v1.0.1 - 2026-11-18*); el mismo escaneo se repetirá sobre `https://ciln.unasam.edu.pe` cuando la DSTI instale la versión entregada v1.1.1.
 
 ## 9.2. Pista de auditoría inmutable
 
@@ -506,7 +509,9 @@ La tabla rechaza toda modificación, borrado o vaciado. En producción, la aplic
 
 ## 9.3. Protección de datos personales (Ley N.° 29733)
 
+- La política de privacidad se publica en `/privacidad` (titular del banco de datos, finalidad, datos tratados, base legal, conservación, transferencias, medidas de seguridad y derechos ARCO) y se enlaza desde el registro, el inicio de sesión y el pie de la portada.
 - El autorregistro exige el consentimiento expreso para el tratamiento de los datos personales y guarda su fecha y hora.
+- Para las personas que registra el personal, el consentimiento se registra con su fecha y hora cuando la persona firmó su autorización (casilla del personal en la ficha); la edición posterior de la ficha nunca lo borra.
 - La verificación pública de documentos y fichas muestra solo los datos mínimos, con el documento de identidad enmascarado, y no se indexa en buscadores.
 - Las fotografías se guardan fuera de la carpeta pública y sin metadatos (ubicación GPS, equipo).
 - La cuenta bancaria del docente se guarda cifrada y se muestra enmascarada.
@@ -551,7 +556,7 @@ La verificación completa resultó satisfactoria el 17 de noviembre de 2026. Dur
 
 ## 10.3. Pruebas con el sistema desplegado
 
-Además de las pruebas automatizadas, cada flujo se verificó en el navegador con datos de demostración, desde el rol de estudiante, docente, cajero y administrador. Sobre la instalación en el servidor se comprobó el funcionamiento de la portada, el inicio de sesión, la cola de correos y el respaldo con el rol de aplicación, y que dicho rol no puede escribir en la pista de auditoría, desactivar triggers, vaciar tablas ni crear objetos en la base.
+Además de las pruebas automatizadas, cada flujo se verificó en el navegador con datos de demostración, desde el rol de estudiante, docente, cajero y administrador. Sobre la instalación en el servidor se comprobó el funcionamiento de la portada, el inicio de sesión, la cola de correos y el respaldo con el rol de aplicación, y que dicho rol no puede escribir en la pista de auditoría, desactivar triggers, vaciar tablas ni crear objetos en la base. El 18 de noviembre de 2026 se verificó en producción la recepción de los correos de recuperación y de cambio de contraseña enviados desde la cuenta institucional `sistemacln@unasam.edu.pe`, habilitada por la DSTI.
 
 # 11. VERIFICACIÓN DEL CUMPLIMIENTO
 
@@ -562,9 +567,9 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Condición | Requisito | Evidencia | Estado |
 |---|---|---|---|
 | Objeto | Diseño, desarrollo, despliegue y puesta en producción del Sistema de Gestión Académica y Administrativa del CILN | Capítulos 4 a 8; sistema desplegado en el servidor de la DSTI | Cumple |
-| Plazo | 30 días calendario desde la notificación (20/10/2026) | Cronograma (2.2): ejecución del 21/10 al 17/11/2026 | Cumple |
-| Actividades | Las seis actividades del TdR 4.2, transcritas en la orden | Tabla de actividades (2.3) y sección 11.5 | Cumple, con la capacitación según 11.5 |
-| Seis módulos | Registro, clasificación y matrícula; pagos; docencia; evaluación y certificación; tablero; portal y trámites | Matriz del Anexo Técnico (11.3): 78 de 78 requisitos funcionales | Cumple |
+| Plazo | 30 días calendario desde la notificación (20/10/2026) | Cronograma (2.2): ejecución del 21/10 al 19/11/2026 | Cumple |
+| Actividades | Las seis actividades del TdR 4.2, transcritas en la orden | Tabla de actividades (2.3), sección 11.5 y Anexo C | Cumple |
+| Seis módulos | Registro, clasificación y matrícula; pagos; docencia; evaluación y certificación; tablero; portal y trámites | Matriz del Anexo Técnico (11.3): de 78 requisitos funcionales, 77 cumplidos y 1 cumplido parcialmente por diseño (M6.2.e) | Cumple |
 | Seguridad | Estándares OWASP Top 10 y pistas de auditoría | Capítulo 9 | Cumple |
 | Pago | Una armada, previa conformidad del área usuaria sobre el único entregable | Presente informe y componentes de la sección 11.5 | Para conformidad (Informe de Conformidad de Servicio, TdR 6.7) |
 
@@ -575,15 +580,18 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Cláusula | Requisito | Evidencia | Estado |
 |---|---|---|---|
 | 3.2 | Software que automatice el registro, clasificación, matrícula, pagos, gestión docente y certificación, sobre arquitectura moderna y segura | Capítulos 4, 5 y 8; matriz (11.3) | Cumple |
-| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 94 requisitos cumplidos y 2 cumplidos parcialmente por causas contractuales | Cumple |
-| 4.2 | Seis actividades mínimas | Tabla de actividades (2.3) | Cumple, con la capacitación según 11.5 |
+| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 93 requisitos cumplidos y 3 cumplidos parcialmente (dos por causas contractuales y uno por diseño) | Cumple |
+| 4.2 | Seis actividades mínimas | Tabla de actividades (2.3); Anexo C | Cumple |
 | 4.3 | Plan de trabajo con metodología, cronograma y estructura técnica | Secciones 2.1 y 2.2 | Cumple |
 | 4.5 | Sistema desplegado y operativo en el servidor de la DSTI, con código fuente, manuales y documentación técnica | Sección 3.4; relación de componentes (11.5) | Cumple |
-| 4.6 | Plazo máximo de 30 días calendario | Cronograma (2.2) | Cumple |
-| 6.1 | Código fuente, documentación, manuales, scripts y repositorios; garantía; capacitación; Ley N.° 29733 y auditoría inmutable; cesión de derechos | Secciones 9.2, 9.3 y 11.5 | Cumple, con la capacitación y la garantía según 11.5 |
+| 4.6 | Plazo máximo de 30 días calendario | Cronograma (2.2): del 21/10 al 19/11/2026 | Cumple |
+| 6.1 | Código fuente, documentación, manuales, scripts y repositorios; garantía; capacitación; Ley N.° 29733 y auditoría inmutable; cesión de derechos | Secciones 9.2, 9.3, 11.5 y 11.6; Anexo C | Cumple |
+| 6.2 | Obligaciones de la Entidad: acceso al servidor de la DSTI y contraparte técnica | La DSTI brindó el acceso al servidor de producción y la contraparte técnica (sección 11.6) | Cumplido por la Entidad |
 | 6.3 | Único entregable: informe final, sistema desplegado y operativo, código fuente, repositorios, scripts, manuales y documentación | Presente informe y sección 11.5 | Cumple |
 | 6.5 | Confidencialidad de la información académica, financiera y personal | Pruebas y demostraciones solo con datos sintéticos; sección «Uso de la información» | Cumple |
-| 6.10 | Garantía técnica de funcionamiento y soporte por 12 meses | Compromiso del contratista desde la conformidad final | Cumple parcialmente (se inicia con la conformidad) |
+| 6.9 | Responsabilidad por vicios ocultos por un (1) año | Compromiso declarado por el contratista (sección 11.6) | Cumple (compromiso declarado) |
+| 6.10 | Garantía técnica de funcionamiento y soporte por 12 meses | Compromiso del contratista desde la conformidad final (sección 11.6) | Cumple parcialmente (se inicia con la conformidad) |
+| 6.11 | Cláusula anticorrupción y antisoborno | Declaración del contratista (sección 11.6) | Cumple |
 | Anexo IV.4 | Garantía de funcionamiento y soporte técnico mínimo de 12 meses | Ídem | Cumple parcialmente (se inicia con la conformidad) |
 
 ## 11.3. Matriz de cumplimiento del Anexo Técnico
@@ -602,11 +610,11 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M3. Docencia | 15 | 15 | 0 | 0 |
 | M4. Evaluación y certificación | 11 | 11 | 0 | 0 |
 | M5. Tablero gerencial | 7 | 7 | 0 | 0 |
-| M6. Portal público y trámites | 11 | 11 | 0 | 0 |
+| M6. Portal público y trámites | 11 | 10 | 1 | 0 |
 | IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 4 | 2 | 0 |
-| **Total** | **96** | **94** | **2** | **0** |
+| **Total** | **96** | **93** | **3** | **0** |
 
-**Los seis módulos funcionales se cumplen en su totalidad**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba. Los dos requisitos cumplidos parcialmente no dependen de funciones faltantes, sino de obligaciones que se completan con la conformidad del servicio:
+**Los seis módulos funcionales están atendidos**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba; 77 se cumplen y uno (M6.2.e) se cumple parcialmente por una decisión de diseño. Los tres requisitos cumplidos parcialmente no dependen de funciones faltantes: dos son obligaciones que se completan con la conformidad del servicio y el tercero mantiene fijos, por diseño, los estados de los trámites:
 
 *Tabla 24. Requisitos cumplidos parcialmente y acción que corresponde*
 
@@ -614,6 +622,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 |---|---|---|
 | IV.1.a Cesión de derechos a la UNASAM | Obligación contractual declarada en este informe | Opera por el propio numeral 6.1 de los TdR, sin acto adicional; se hace efectiva con la conformidad del servicio que otorga la Dirección del CILN mediante Informe de Conformidad de Servicio (TdR 6.7) |
 | IV.4.a Garantía de 12 meses | Se inicia con la conformidad final | Plan de soporte y garantía del contratista |
+| M6.2.e Panel para configurar etapas, estados y condiciones de cada trámite | Etapas (nombre, porcentaje y condición), tasa, requisitos y acción final configurables desde el panel; los estados del flujo y las tres condiciones de etapa son fijos por diseño | Se mantienen fijos para conservar coherentes las reglas de pago y de auditoría; un estado adicional que requiera el CILN se atiende como mejora, previa evaluación del CILN y la DSTI |
 
 ### 11.3.1. Requisitos técnicos generales (sección II del Anexo)
 
@@ -629,7 +638,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | II.2.a | Cumplimiento del OWASP Top 10 | Transversal | Cumple | Controles implementados y probados; escaneo OWASP ZAP de la v1.0.1 sin hallazgos de riesgo alto ni reglas fallidas (sección 9.1) |
 | II.2.b | Validación de entradas; protección contra SQLi, XSS y CSRF | Transversal | Cumple | No hay una prueba automatizada dedicada a CSRF; la protección la da el middleware del framework |
 | II.2.c | Gestión segura de sesiones y cifrado de datos sensibles | Admin → (perfil) Doble factor; transversal | Cumple | Doble factor opcional (#92); cierre del panel a los 30 min (#93) |
-| II.2.d | Tratamiento de datos personales conforme a la Ley 29733 | Portal del estudiante → Crear cuenta; Sitio público → `/fichas/{código}`, `/verificar` | Cumple | Consentimiento registrado, documento enmascarado en verificación pública (#67), sin exportación de personas; datos de prueba sintéticos |
+| II.2.d | Tratamiento de datos personales conforme a la Ley 29733 | Portal del estudiante → Crear cuenta; Sitio público → Política de privacidad (`/privacidad`), `/fichas/{código}`, `/verificar`; Admin → Matrícula → Personas | Cumple | Política de privacidad pública (titular, finalidad, datos, base legal, conservación, transferencias, medidas de seguridad y derechos ARCO), enlazada desde el registro, el ingreso y el pie de la portada; consentimiento con fecha y hora en el autorregistro y, para las personas registradas por el personal, al firmar su autorización (casilla del personal), que la edición nunca borra; documento enmascarado en verificación pública (#67), sin exportación de personas; datos de prueba sintéticos |
 | II.2.e | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | Función `aud_registrar()` en 40+ tablas (notas, pagos, actas); `aud_registros` rechaza UPDATE/DELETE/TRUNCATE |
 | II.3.a | Interfaz responsive, intuitiva, accesible y adaptable a móviles | Todas las pantallas | Cumple | Tailwind con puntos de quiebre y Filament; no hay prueba automatizada de vistas móviles (se verifica en navegador) |
 | II.4.a | Escalabilidad, interoperabilidad, alta disponibilidad e integraciones futuras | Plataforma | Cumple | Arquitectura preparada (módulos desacoplados, API REST, colas); infraestructura de producción y respaldos programados configurados por la DSTI |
@@ -647,7 +656,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M1.1.campos: vínculo | Tipo de usuario (Estudiante, Docente/Administrativo UNASAM, Público) para tarifas | Admin → Matrícula → Personas; Admin → Catálogos → Conceptos y tarifas | Cumple | Autorregistro como Público General; solo el personal cambia el vínculo (#26) |
 | M1.1.campos: examen | Idioma, fecha, puntaje, nivel asignado | Admin → Matrícula → Solicitudes de clasificación | Cumple | El nivel asignado se expresa como ciclo del idioma (con su nivel) |
 | M1.1.campos: estado | Pendiente de Evaluación, Evaluado, Expirado | Admin → Matrícula → Solicitudes de clasificación | Cumple | Se agrega "Pago anulado" (#131); expiración diaria `clasificacion:expirar` |
-| M1.2.a | Crear y ofertar cursos: cupos, horarios, idiomas, modalidades y acelerado | Admin → Oferta académica → Periodos / Idiomas y ciclos / Grupos / Aulas | Cumple | Modalidad Presencial/Virtual/Semipresencial y marca "acelerado" |
+| M1.2.a | Crear y ofertar cursos: cupos, horarios, idiomas, modalidades y acelerado | Admin → Oferta académica → Periodos / Idiomas y ciclos / Grupos / Aulas | Cumple | Modalidad Presencial/Virtual/Semipresencial combinada con el atributo «acelerado» del grupo (`es_acelerado`), registrado aparte para que un grupo sea, por ejemplo, presencial y acelerado |
 | M1.2.campos: ciclo | Año, mes/periodo, fecha de inicio y fin | Admin → Oferta académica → Periodos | Cumple | — |
 | M1.2.campos: grupo | Código, idioma, nivel, ciclo (I a XII) | Admin → Oferta académica → Grupos; Idiomas y ciclos | Cumple | Distribución de ciclos por nivel configurable (#9) |
 | M1.2.campos: capacidad | Cupo máximo, mínimo de apertura, vacantes en tiempo real | Admin → Oferta académica → Grupos; Portal → Matrícula | Cumple | `CHECK matriculados <= cupo_maximo`; cupo mínimo al iniciar clases (#127) |
@@ -656,7 +665,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M1.3.b | Bloqueos: ciclo previo/nivel, pago no validado, grupo sin vacantes | Portal del estudiante → Matrícula (requisitos) | Cumple | Prerrequisito = ciclo habilitado por idioma (#10, #15) |
 | M1.3.c | Generación automática de la Ficha de Matrícula en PDF | Portal → Mis matrículas (Ficha); Admin → Matrícula → Matrículas | Cumple | Una ficha por estudiante y periodo, con QR (#96) |
 | M1.3.campos: inscripción | ID estudiante, grupo, fecha y hora de matrícula | Admin → Matrícula → Matrículas | Cumple | — |
-| M1.3.campos: pago | Estado de pago (Verificado/Pendiente) según Pagos | Portal → Matrícula; Admin → Matrícula → Matrículas (pago) | Cumple | La ficha muestra "Verificado"; el portal lista el pago pendiente como requisito |
+| M1.3.campos: pago | Estado de pago (Verificado/Pendiente) según Pagos | Portal → Matrícula; Admin → Matrícula → Matrículas (pago) | Cumple | El estado se toma del pago validado en Pagos y la ficha lo muestra como «Verificado»; mientras no se valide, el portal lista el pago pendiente como requisito y no permite matricularse |
 | M1.3.campos: condición | Condición Regular o Repitente | Admin → Matrícula → Matrículas; Ficha | Cumple | Criterio de repitente (#16) |
 | M1.3.campos: documentos | Ficha de Matrícula (PDF), Constancia de Inscripción | Portal → Mis matrículas | Cumple | Constancia gratuita e inmediata, sin QR (#29, #30) |
 | M1.4.a | Cambiar alumno de grupo/horario por motivos excepcionales | Admin → Matrícula → Matrículas (Trasladar) | Cumple | Mismo periodo y ciclo (#32) |
@@ -691,7 +700,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M3.1.a | Padrón de docentes con idiomas y disponibilidad horaria | Admin → Docencia → Docentes (Disponibilidad horaria) | Cumple | — |
 | M3.1.b | Estado del docente: Activo, Inactivo, De Licencia | Admin → Docencia → Docentes | Cumple | Acceso de docentes inactivos al panel por decidir (#48) |
 | M3.1.campos: personales | ID docente, nombres, DNI/CE, correo institucional y personal, celular | Admin → Docencia → Docentes | Cumple | Datos personales desde Personas (#39) |
-| M3.1.campos: expediente | RUC, cuenta bancaria, banco, condición laboral | Admin → Docencia → Docentes; Admin → Catálogos → Condiciones laborales | Cumple | Cuenta bancaria cifrada y enmascarada (#122) |
+| M3.1.campos: expediente | RUC, cuenta bancaria, banco, condición laboral | Admin → Docencia → Docentes; Admin → Catálogos → Condiciones laborales | Cumple | Condición laboral como catálogo editable, con Nombrado, Contratado y Tercero cargados de inicio; cuenta bancaria cifrada y enmascarada (#122) |
 | M3.1.campos: académico | Idiomas habilitados, nivel máximo autorizado | Admin → Docencia → Docentes | Cumple | Nivel máximo por idioma (#40) |
 | M3.2.a | Vincular docente con grupos/ciclos aperturados | Admin → Docencia → Docentes → Carga académica | Cumple | — |
 | M3.2.b | Cálculo automático del total de horas asignadas en el periodo | Admin → Docencia → Docentes → Carga académica; Admin → Docencia → Carga docente | Cumple | Horas = sesiones programadas del periodo (#42) |
@@ -710,13 +719,13 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 | ID | Requisito | Ubicación en el sistema | Estado | Observación |
 |---|---|---|---|---|
-| M4.1.a | Interfaz exclusiva del docente asignado, solo en fechas del calendario | Portal docente → Mis grupos → Acta final | Cumple | Rango "actas desde/hasta" por periodo (#55) |
-| M4.1.b | Cálculo automático de promedios (Parcial, Final, Participación) | Portal docente → Acta final; Admin → Catálogos → Sistemas de evaluación | Cumple | Según el sistema de evaluación del CILN: promedio de las cuatro habilidades, promedio de parcial y final y nota final igual al promedio de ambos, solo ella redondeada al entero (0,5 hacia arriba); nota mínima configurable por sistema (11 por defecto); el Anexo menciona «Participación», pero remite al sistema del CILN (#56, #121) |
+| M4.1.a | Interfaz exclusiva del docente asignado, solo en fechas del calendario | Portal docente → Mis grupos → Pre-acta / Acta final | Cumple | Solo el docente asignado al grupo. Las notas parciales se aceptan desde la fecha de inicio del periodo hasta su última fecha de actas (hora de Lima) y nunca después de existir el acta del grupo; fuera de ese plazo la pre-acta queda de solo lectura con un aviso. El acta final, en el rango «actas desde/hasta» del periodo (#55) |
+| M4.1.b | Cálculo automático de promedios (Parcial, Final, Participación) | Portal docente → Acta final; Admin → Catálogos → Sistemas de evaluación | Cumple | Según el sistema de evaluación del CILN, como lo indicó el área usuaria: promedio simple de las cuatro habilidades y promedio simple de los exámenes parcial y final; nota final igual al promedio simple de ambos, redondeada al entero (0,5 hacia arriba) solo al final; cada sistema de evaluación configura sus componentes, la nota máxima y la nota mínima aprobatoria (11 por defecto). El Anexo menciona «Participación», pero remite al sistema del CILN (#56, #121) |
 | M4.1.c | Cierre y bloqueo; modificación con autorización del Administrador y en auditoría | Admin → Certificación → Actas finales (autorizar rectificación) | Cumple | Triggers `cer_actas_bloqueo`, `cer_notas_finales_bloqueo` (#59) |
 | M4.1.campos: curso | Idioma, nivel, ciclo, periodo académico | Admin → Certificación → Actas finales | Cumple | — |
 | M4.1.campos: docente | ID y nombres completos del docente | Admin → Certificación → Actas finales; PDF del acta | Cumple | Se muestra el código `DOC-00001` |
 | M4.1.campos: calificaciones | ID estudiante, notas parciales, promedio, estado Aprobado/Desaprobado/NSP | Admin → Certificación → Actas finales | Cumple | — |
-| M4.2.a | Emisión masiva o individual de constancias y certificados de nivel | Admin → Certificación → Constancias y certificados; Actas finales | Cumple | Alcance de cada documento (#63, #64, #65) |
+| M4.2.a | Emisión masiva o individual de constancias y certificados de nivel | Admin → Certificación → Constancias y certificados; Actas finales | Cumple | Emisión individual de cada documento y emisión masiva: constancias de matrícula por grupo («Constancias de matrícula del grupo»), constancias de notas por acta y certificados por periodo (#63, #64, #65) |
 | M4.2.b | PDF estandarizado con diseño institucional | Admin → Certificación → Constancias y certificados (PDF) | Cumple | Firmantes y numeración anual; firma digital no exigida (#69) |
 | M4.2.c | QR único que lleva al portal oficial de verificación | Sitio público → Verificar un documento (`/verificar/{código}`) | Cumple | Con límite de 30 consultas/min; datos mínimos (#62, #67) |
 | M4.2.campos: documento | Código único, fecha de emisión, código QR | Admin → Certificación → Constancias y certificados | Cumple | — |
@@ -742,17 +751,17 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 | ID | Requisito | Ubicación en el sistema | Estado | Observación |
 |---|---|---|---|---|
-| M6.1.a | Página pública: oferta, requisitos, fechas, costos TUPA/TUSNE | Sitio público → Portada (`/`) | Cumple | Requisitos como texto fijo hasta recibir el oficial (#70, #71, #72); dominio oficial depende del despliegue (#8) |
-| M6.1.b | Inicio de sesión diferenciado para estudiantes y docentes | Sitio público → Ingresar (`/ingresar`) → Portal del estudiante o Portal docente | Cumple | Una sola entrada que deriva por perfil (#73, por confirmar) |
-| M6.1.c | Recuperación de credenciales con token al correo registrado | Sitio público → Recuperar clave (`/recuperar-clave`, `/restablecer-clave/{token}`) | Cumple | — |
+| M6.1.a | Página pública: oferta, requisitos, fechas, costos TUPA/TUSNE | Sitio público → Portada (`/`) | Cumple | Requisitos como texto fijo hasta recibir el oficial (#70, #71, #72). El Anexo menciona `https://cid.unasam.edu.pe/`, dominio del sistema anterior; la DSTI designó `https://ciln.unasam.edu.pe/` para el sistema nuevo, donde está desplegado; ninguna dirección está fija en el código (`APP_URL`) |
+| M6.1.b | Inicio de sesión diferenciado para estudiantes y docentes | Sitio público → Ingresar (`/ingresar`) → Portal del estudiante o Portal docente | Cumple | Un solo punto de acceso que lleva a cada usuario a su propio portal según su rol: portal del estudiante, panel docente o panel del personal (#73) |
+| M6.1.c | Recuperación de credenciales con token al correo registrado | Sitio público → Recuperar clave (`/recuperar-clave`, `/restablecer-clave/{token}`) | Cumple | Correo de recuperación recibido en producción el 18/11/2026, enviado desde la cuenta institucional `sistemacln@unasam.edu.pe` |
 | M6.2.a | Flujo configurable por trámite (constancia, certificado, traslado, retiro) | Admin → Catálogos → Tipos de trámite; Portal → Trámites | Cumple | (#74, #76) |
 | M6.2.b | Flujo bloqueado hasta que Pagos valide la tasa | Portal → Trámites; Admin → Trámites → Trámites | Cumple | Aplicación automática del pago (#75) |
 | M6.2.c | Barra de progreso visible para el usuario | Portal del estudiante → Trámites | Cumple | Etapas con porcentaje configurables; estados fijos (#6) |
-| M6.2.d | Notificación automática por correo en cada cambio de estado | Correo al estudiante; Admin → Trámites → Trámites (notificaciones) | Cumple | Por cola, 3 intentos (#79); requiere SMTP de la DSTI (#8) |
-| M6.2.e | Panel para configurar etapas, estados y condiciones sin programar | Admin → Catálogos → Tipos de trámite | Cumple | Condiciones de etapa de un catálogo cerrado (solicitud, pago validado, acción del personal) y acciones finales predefinidas |
+| M6.2.d | Notificación automática por correo en cada cambio de estado | Correo al estudiante; Admin → Trámites → Trámites (notificaciones) | Cumple | Por cola, 3 intentos (#79); envío desde la cuenta institucional `sistemacln@unasam.edu.pe`, verificado en producción el 18/11/2026 |
+| M6.2.e | Panel para configurar etapas, estados y condiciones sin programar | Admin → Catálogos → Tipos de trámite | Cumple parcialmente | Configurables desde el panel: etapas (nombre, porcentaje y condición), tasa, requisitos y acción final. Los estados del flujo (Pendiente de pago, En proceso, Observado, Finalizado y Cerrado sin atender) y las tres condiciones de etapa (solicitud, pago validado, acción del personal) son fijos por diseño, para mantener coherentes las reglas de pago y de auditoría |
 | M6.2.campos: id | ID de trámite (código único de seguimiento) | Portal → Trámites; Admin → Trámites → Trámites | Cumple | (#78) |
 | M6.2.campos: estados | Pendiente de Pago, En Proceso, Observado, Finalizado | Admin → Trámites → Trámites | Cumple | Se agrega "Cerrado sin atender" (#134) |
-| M6.2.campos: log | Log de notificaciones: fecha, hora, estado de entrega | Admin → Trámites → Trámites (ficha: notificaciones) | Cumple | Estados pendiente, enviado, fallido; inmutable por trigger |
+| M6.2.campos: log | Log de notificaciones: fecha, hora, estado de entrega | Admin → Trámites → Trámites (ficha: notificaciones) | Cumple | Registra fecha, hora, destinatario, asunto, estado de entrega (pendiente, enviado, fallido) e intentos; «enviado» significa aceptado por el servidor de correo; inmutable por trigger |
 
 ### 11.3.8. Seguridad, propiedad intelectual y confidencialidad (sección IV del Anexo)
 
@@ -762,7 +771,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 |---|---|---|---|---|
 | IV.1.a | Cesión total de derechos patrimoniales a la UNASAM | Contractual | Cumple parcialmente | Declarada en este informe; opera por el numeral 6.1 de los TdR y se hace efectiva con la conformidad del servicio (Informe de Conformidad de Servicio, TdR 6.7) |
 | IV.1.b | Entrega de repositorios completos y documentados al finalizar | Repositorio | Cumple | Código fuente y repositorio entregados a la DSTI con su documentación técnica; manuales de usuario (estudiante, docente y personal del CILN) entregados |
-| IV.2.a | Seguridad conforme a Ley 29733 y OWASP | Transversal | Cumple | Ley N.° 29733 (sección 9.3) y escaneo OWASP ZAP de la v1.0.1 (sección 9.1) |
+| IV.2.a | Seguridad conforme a Ley 29733 y OWASP | Transversal | Cumple | Ley N.° 29733 (sección 9.3: política de privacidad en `/privacidad` y consentimiento registrado con fecha y hora) y escaneo OWASP ZAP de la v1.0.1 (sección 9.1) |
 | IV.2.b | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | — |
 | IV.3.a | Confidencialidad de la información académica, financiera y personal | Proceso del proveedor | Cumple | Compromiso contractual; en lo técnico, pruebas y demo solo con datos sintéticos |
 | IV.4.a | Garantía y soporte técnico mínimo de 12 meses | Contractual | Cumple parcialmente | Obligación que se inicia con la conformidad final; no verificable en el código |
@@ -794,31 +803,43 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 | Componente | Base contractual | Estado |
 |---|---|---|
-| Sistema desplegado y operativo en el servidor de la DSTI, en el dominio oficial `https://ciln.unasam.edu.pe` (versión v1.1.0) | TdR 4.2, 4.5 y 6.3 | Entregado |
+| Sistema desplegado y operativo en el servidor de la DSTI, en el dominio oficial `https://ciln.unasam.edu.pe` (versión v1.1.1) | TdR 4.2, 4.5 y 6.3 | Entregado |
 | Código fuente y repositorio completo con su historial | TdR 6.1; Anexo IV.1 | Entregado a la DSTI |
 | Scripts de implementación (instalación tradicional y con contenedores, actualización automática con reversión, migraciones) | TdR 6.1 | Entregado, en el repositorio |
 | Documentación técnica (presente informe, arquitectura, modelo de datos, seguridad, guía de despliegue, ADR, documentación OpenAPI de la API) | TdR 4.2, 4.5 y 6.3 | Entregado |
 | Diccionario de Datos – Sistema de Gestión del CILN | TdR 4.2 | Entregado |
 | Reporte del escaneo de seguridad OWASP ZAP (versión v1.0.1) | Anexo II.2.a y IV.2 | Entregado |
 | Manuales de usuario (estudiante, docente y personal del CILN) | TdR 4.2 y 6.1 | Entregado |
-| Capacitación al personal directivo, administrativo y docente del CILN | TdR 4.2 y 6.1 | Pendiente, por programar con el CILN |
-| Garantía técnica de funcionamiento y soporte por 12 meses | TdR 6.1 y 6.10; Anexo IV.4 | Se inicia con la conformidad final |
+| Capacitación al personal docente y administrativo del CILN (16/11/2026) y capacitación continua a docentes y estudiantes (17 y 18/11/2026) | TdR 4.2 y 6.1 | Realizada (Anexo C) |
+| Garantía técnica de funcionamiento y soporte por 12 meses | TdR 6.1 y 6.10; Anexo IV.4 | Compromiso declarado (11.6); se inicia con la conformidad final |
+
+## 11.6. Declaraciones del contratista
+
+ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Referencia y a su Anexo Técnico:
+
+- **Garantía técnica.** Se compromete a brindar la garantía técnica de funcionamiento y el soporte (resolución de errores, atención de incidencias y asistencia en el uso) por doce (12) meses contados desde la conformidad final del sistema (TdR 6.1 y 6.10; Anexo IV.4).
+- **Vicios ocultos.** Asume la responsabilidad por los vicios ocultos del servicio por un (1) año, conforme al numeral 6.9 de los TdR.
+- **Ejecución directa.** Prestó el servicio directamente, sin subcontratar ninguna de sus prestaciones (TdR 6.1).
+- **Confidencialidad.** Mantiene reserva absoluta sobre la información académica, financiera y personal de la Entidad a la que tuvo acceso (TdR 6.5; Anexo IV.3), según la sección «Uso de la información».
+- **Anticorrupción y antisoborno.** No ofreció, otorgó ni ofrecerá, directa o indirectamente, pagos, dádivas ni otros beneficios indebidos a funcionarios o servidores de la Entidad en relación con el servicio (TdR 6.11).
+- **Obligaciones de la Entidad.** La UNASAM, a través de la DSTI, brindó el acceso al servidor de producción y la contraparte técnica requeridos para el despliegue (TdR 6.2).
 
 # 12. CONCLUSIONES
 
-1. El Sistema de Gestión Académica y Administrativa del CILN **cumple los seis módulos funcionales** del Anexo Técnico: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y pruebas automatizadas que lo comprueban.
-2. De los 96 requisitos verificados del Anexo Técnico, **94 se cumplen y 2 se cumplen parcialmente** por tratarse de obligaciones que se completan con la conformidad del servicio que otorga la Dirección del CILN mediante Informe de Conformidad de Servicio (TdR 6.7): la cesión de derechos, que opera por el numeral 6.1 de los TdR, y el inicio de la garantía. **Ningún requisito queda sin atender.**
-3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091 y atendió las actividades del numeral 4.2 de los TdR; el sistema se encuentra desplegado en el servidor de la DSTI y el código fuente está en poder de la DSTI; los manuales de usuario del estudiante, del docente y del personal del CILN fueron entregados.
+1. El Sistema de Gestión Académica y Administrativa del CILN **atiende los seis módulos funcionales** del Anexo Técnico: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y pruebas automatizadas que lo comprueban; 77 se cumplen y uno (M6.2.e) se cumple parcialmente porque los estados de los trámites y las condiciones de etapa son fijos por diseño.
+2. De los 96 requisitos verificados del Anexo Técnico, **93 se cumplen y 3 se cumplen parcialmente**: dos por tratarse de obligaciones que se completan con la conformidad del servicio que otorga la Dirección del CILN mediante Informe de Conformidad de Servicio (TdR 6.7), la cesión de derechos, que opera por el numeral 6.1 de los TdR, y el inicio de la garantía; y uno (M6.2.e) por la decisión de diseño de mantener fijos los estados de los trámites. **Ningún requisito queda sin atender.**
+3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091, del 21 de octubre al 19 de noviembre de 2026, y atendió las seis actividades del numeral 4.2 de los TdR, incluidos el levantamiento de requerimientos con el área usuaria y la capacitación al personal docente y administrativo, a los docentes y a los estudiantes (Anexo C); el sistema se encuentra desplegado en `https://ciln.unasam.edu.pe`, envía sus correos desde la cuenta institucional `sistemacln@unasam.edu.pe` y el código fuente está en poder de la DSTI; los manuales de usuario del estudiante, del docente y del personal del CILN fueron entregados.
 4. El sistema supera las limitaciones señaladas por la DSTI en el Informe Técnico N.° 023-2026-FMAJ: usa tecnologías con soporte vigente, aplica los controles del OWASP Top 10, registra una pista de auditoría inmutable en la base de datos y protege los datos personales conforme a la Ley N.° 29733.
-5. El cálculo de las notas sigue el sistema de evaluación del CILN: promedio de las cuatro habilidades y promedio de los exámenes, con la nota final redondeada a un entero y una nota mínima aprobatoria configurable.
+5. El cálculo de las notas sigue el sistema de evaluación del CILN, como lo indicó el área usuaria: promedio de las cuatro habilidades y promedio de los exámenes, con la nota final redondeada a un entero y una nota mínima aprobatoria configurable.
 
 # 13. RECOMENDACIONES
 
-1. **Correo y respaldos.** Que la DSTI mantenga la configuración del correo institucional y de los respaldos programados del servidor de producción, y que realice una prueba de restauración de los respaldos al menos una vez por semestre.
-2. **Seguridad.** Que la DSTI instale la versión entregada v1.1.0, active el módulo `mod_headers` de Apache, repita el escaneo OWASP ZAP sobre `https://ciln.unasam.edu.pe`, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
+1. **Correo y respaldos.** Que la DSTI mantenga habilitada la cuenta `sistemacln@unasam.edu.pe` y la configuración de los respaldos programados del servidor de producción, que realice una prueba de restauración de los respaldos al menos una vez por semestre y que, ante la desactivación por defecto de la autenticación básica de SMTP anunciada por Microsoft, evalúe el conector de retransmisión por IP descrito en la guía de despliegue.
+2. **Seguridad.** Que la DSTI instale la versión entregada v1.1.1, active el módulo `mod_headers` de Apache, repita el escaneo OWASP ZAP sobre `https://ciln.unasam.edu.pe`, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
 3. **Garantía.** Que, con la conformidad final, se formalice el inicio de la garantía técnica de doce meses y el canal de reporte de incidencias entre el CILN, la DSTI y el contratista.
 4. **Actualizaciones.** Que las nuevas versiones se instalen solo desde **etiquetas publicadas** (`vX.Y.Z`) de la rama principal, que pasan la integración continua, mediante la actualización automática o el procedimiento manual de la guía de despliegue, y que la DSTI mantenga las dependencias dentro de sus versiones con soporte.
-5. **Validación institucional.** Que el CILN valide los supuestos registrados durante las pruebas de aceptación y registre en el panel los datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que se programe la capacitación del personal del CILN.
+5. **Validación institucional.** Que el CILN valide los supuestos registrados durante las pruebas de aceptación y registre en el panel los datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que el personal capacitado replique la capacitación, con los manuales de usuario, al personal y a los docentes que se incorporen.
+6. **Trámites.** Que, si el CILN requiere estados de trámite adicionales a los previstos, los solicite como mejora, para evaluarla con la DSTI sin afectar las reglas de pago y de auditoría.
 
 # ANEXO A. EVIDENCIA TÉCNICA POR REQUISITO
 
@@ -839,7 +860,7 @@ Rutas del código fuente que implementan cada requisito y pruebas automatizadas 
 | II.2.a | `docs/seguridad.md`, `app/Shared/Support/Http/Middleware/` (cabeceras de seguridad) | `tests/Feature/CabecerasDeSeguridadTest.php`, `tests/Feature/Auth/PanelAuthorizationTest.php` |
 | II.2.b | Form Requests y Actions de cada módulo; Eloquent con bindings; middleware CSRF de Laravel | `tests/Feature/Portal/SeguridadDelPortalTest.php`, `tests/Modules/Tramites/PortadaPublicaTest.php` |
 | II.2.c | `config/session.php` (cifrado, HttpOnly, SameSite), `app/Shared/Auth/Http/Middleware/`, `app/Modules/Docencia/Models/Docente.php` (cuenta bancaria cifrada) | `tests/Feature/Auth/SesionDelPanelTest.php`, `tests/Feature/Auth/DobleFactorDelPanelTest.php` |
-| II.2.d | `app/Modules/Personas/Actions/RegistrarCuentaDeEstudiante.php` (`tratamiento_aceptado_en`), `app/Modules/Matricula/Http/Controllers/VerFichaPorCodigo.php` | `tests/Modules/Personas/Portal/RegistroTest.php`, `tests/Modules/Matricula/Portal/FichaPublicaTest.php` |
+| II.2.d | `app/Modules/Personas/Actions/RegistrarCuentaDeEstudiante.php` (`tratamiento_aceptado_en`), `app/Modules/Personas/Models/Persona.php` (`registrarConsentimiento`), `app/Modules/Personas/resources/views/privacidad.blade.php`, `app/Modules/Matricula/Http/Controllers/VerFichaPorCodigo.php` | `tests/Modules/Personas/Portal/RegistroTest.php`, `tests/Modules/Personas/Portal/PoliticaDePrivacidadTest.php`, `tests/Modules/Personas/Filament/PersonasPanelTest.php`, `tests/Modules/Matricula/Portal/FichaPublicaTest.php` |
 | II.2.e | `app/Shared/Audit/Database/Migrations/2026_10_24_125000_create_aud_registros_table.php`, `app/Shared/Audit/Http/Middleware/` | `tests/Feature/Audit/AuditTrailTest.php`, `tests/Feature/Auditoria/TablasAuditadasTest.php` |
 | II.3.a | `resources/views/components/layouts/portal.blade.php`, `app/Providers/Filament/AparienciaDelPanel.php` | `tests/Unit/PaletaCilnTest.php` (contraste WCAG AA), `tests/Feature/Portal/MenuDelPortalTest.php` |
 | II.4.a | `app/Modules/*/Contracts/`, `routes/api.php`, colas (`database/migrations/0001_01_01_000002_create_jobs_table.php`) | `tests/Architecture/ModulesTest.php`, `tests/Feature/Api/SesionesDeApiTest.php` |
@@ -920,13 +941,13 @@ Rutas del código fuente que implementan cada requisito y pruebas automatizadas 
 
 | ID | Código fuente | Pruebas automatizadas |
 |---|---|---|
-| M4.1.a | `app/Modules/Certificacion/Filament/Docente/Pages/ActaFinalDelGrupo.php`, `app/Modules/Certificacion/Actions/CerrarActa.php` | `tests/Modules/Certificacion/CerrarActaTest.php`, `tests/Modules/Certificacion/Panel/ActaFinalDelGrupoTest.php` |
+| M4.1.a | `app/Modules/Docencia/Support/VentanaDeNotasParciales.php`, `app/Modules/Docencia/Actions/RegistrarNotasParciales.php`, `app/Modules/Certificacion/Filament/Docente/Pages/ActaFinalDelGrupo.php`, `app/Modules/Certificacion/Actions/CerrarActa.php` | `tests/Modules/Docencia/NotasParcialesTest.php`, `tests/Modules/Docencia/Panel/PreActaDelGrupoTest.php`, `tests/Modules/Certificacion/CerrarActaTest.php`, `tests/Modules/Certificacion/Panel/ActaFinalDelGrupoTest.php` |
 | M4.1.b | `app/Modules/Certificacion/Support/PromedioFinal.php`, `app/Modules/Academico/Actions/GuardarEsquemaDeEvaluacion.php` | `tests/Modules/Certificacion/PromedioFinalTest.php`, `tests/Modules/Academico/EsquemasDeEvaluacionTest.php` |
 | M4.1.c | `app/Modules/Certificacion/Actions/AutorizarRectificacion.php`, `app/Modules/Certificacion/Actions/RectificarNotasFinales.php` | `tests/Modules/Certificacion/RectificacionDeActaTest.php`, `tests/Concurrency/ActaConcurrenteTest.php` |
 | M4.1.campos: curso | `app/Modules/Certificacion/Database/Migrations/2026_10_25_100000_create_cer_actas_tables.php` | `tests/Modules/Certificacion/Filament/ActasPanelTest.php` |
 | M4.1.campos: docente | `cer_actas.docente_id/docente_nombre`, `app/Modules/Certificacion/Support/DocenteDelActa.php` | `tests/Modules/Certificacion/CerrarActaTest.php` |
 | M4.1.campos: calificaciones | `cer_notas_finales` (notas, promedio, estado_final) | `tests/Modules/Certificacion/PromedioFinalTest.php`, `tests/Modules/Certificacion/CerrarActaTest.php` |
-| M4.2.a | `app/Modules/Certificacion/Actions/EmitirCertificadosDelPeriodo.php`, `app/Modules/Certificacion/Actions/EmitirConstanciasDeNotasDelActa.php` | `tests/Modules/Certificacion/Documentos/EmisionDeDocumentosTest.php`, `tests/Modules/Certificacion/Documentos/EmisionMasivaTest.php` |
+| M4.2.a | `app/Modules/Certificacion/Actions/EmitirCertificadosDelPeriodo.php`, `app/Modules/Certificacion/Actions/EmitirConstanciasDeNotasDelActa.php`, `app/Modules/Certificacion/Actions/EmitirConstanciasDeMatriculaDelGrupo.php` | `tests/Modules/Certificacion/Documentos/EmisionDeDocumentosTest.php`, `tests/Modules/Certificacion/Documentos/EmisionMasivaTest.php`, `tests/Modules/Certificacion/Documentos/EmisionMasivaDeConstanciasDeMatriculaTest.php` |
 | M4.2.b | `app/Modules/Certificacion/Actions/GenerarDocumentoPdf.php`, `app/Modules/Certificacion/resources/views/pdf/` | `tests/Modules/Certificacion/Documentos/DocumentosFormalesTest.php`, `tests/Modules/Certificacion/Documentos/FirmantesYNumeracionTest.php` |
 | M4.2.c | `app/Shared/Ui/CodigoQr.php`, `app/Modules/Certificacion/Http/Controllers/VerificarDocumento.php` | `tests/Modules/Certificacion/Documentos/DocumentosPdfYVerificacionTest.php`, `tests/Modules/Matricula/Portal/VerificacionDeDocumentosTest.php` |
 | M4.2.campos: documento | `app/Modules/Certificacion/Database/Migrations/2026_10_25_120000_create_cer_documentos_table.php` | `tests/Modules/Certificacion/Documentos/DocumentosPdfYVerificacionTest.php` |
@@ -1006,3 +1027,45 @@ Conteo de casos de prueba por directorio. Los casos con conjuntos de datos se ej
 | `tests/Unit` | 6 | 20 |
 | `tests/Architecture` | 3 | 8 (3 `it` + 5 `arch`) |
 | **Total** | **238** | **1 567** |
+
+# ANEXO C. EVIDENCIAS FOTOGRÁFICAS
+
+Registro fotográfico de las reuniones con el área usuaria y de las capacitaciones realizadas durante el servicio (fotografías incluidas en la versión Word/PDF del informe). Las fotografías no muestran datos personales de los estudiantes.
+
+**Levantamiento de requerimientos con el área usuaria (21/10–24/10/2026)**
+
+*Figura 14. Levantamiento de requerimientos con el área usuaria: revisión de la documentación del CILN (21/10–24/10/2026)*
+
+*Figura 15. Levantamiento de requerimientos con el área usuaria: registro de los requisitos (21/10–24/10/2026)*
+
+*Figura 16. Levantamiento de requerimientos con el área usuaria: revisión de los requisitos en pantalla (21/10–24/10/2026)*
+
+*Figura 17. Levantamiento de requerimientos con el área usuaria: sesión de trabajo (21/10–24/10/2026)*
+
+**Diseño y organización técnica del sistema**
+
+*Figura 18. Diseño y organización técnica del sistema: revisión de la arquitectura con el área usuaria (21/10–24/10/2026)*
+
+*Figura 19. Diseño y organización técnica del sistema: revisión del modelo del sistema con el área usuaria (21/10–24/10/2026)*
+
+**Capacitación al personal docente y administrativo (16/11/2026)**
+
+*Figura 20. Capacitación al personal docente y administrativo del CILN en el auditorio (16/11/2026)*
+
+*Figura 21. Capacitación al personal docente y administrativo del CILN: exposición del sistema (16/11/2026)*
+
+**Capacitación continua a docentes y estudiantes (17 y 18/11/2026)**
+
+*Figura 22. Capacitación continua a docentes: ingreso al sistema en producción, ciln.unasam.edu.pe (17 y 18/11/2026)*
+
+*Figura 23. Capacitación continua a docentes: acceso al sistema (17 y 18/11/2026)*
+
+*Figura 24. Capacitación continua a docentes: portal público del CILN (17 y 18/11/2026)*
+
+*Figura 25. Capacitación continua a docentes y estudiantes: portal público del CILN (17 y 18/11/2026)*
+
+*Figura 26. Capacitación continua a docentes y estudiantes: matrícula en el portal (17 y 18/11/2026)*
+
+*Figura 27. Capacitación continua a estudiantes: uso del sistema en aula (17 y 18/11/2026)*
+
+*Figura 28. Capacitación continua a estudiantes: acompañamiento en el uso del sistema en aula (17 y 18/11/2026)*
