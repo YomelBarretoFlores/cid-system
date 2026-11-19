@@ -27,6 +27,7 @@ final readonly class VerificarCrucesDelPeriodo
     {
         $periodo = Periodo::query()->findOrFail($periodoId);
         $grupos = Grupo::query()
+            ->with('horarios')
             ->where('periodo_id', $periodo->id)
             ->where('estado', '!=', EstadoGrupo::Cancelado->value)
             ->orderBy('id')

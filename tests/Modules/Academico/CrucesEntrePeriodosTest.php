@@ -107,6 +107,21 @@ it('accepts new dates that cause no clash', function (): void {
     expect($this->abril->refresh()->fecha_fin->toDateString())->toBe('2027-05-05');
 });
 
+it('accepts new dates for a period with several scheduled groups in classrooms', function (): void {
+    foreach (['ING-01' => 1, 'ING-02' => 2] as $codigo => $dia) {
+        Horario::factory()->for(grupoEnAula($this->abril, $codigo))->create(['dia_semana' => $dia, 'hora_inicio' => '18:30', 'hora_fin' => '20:00']);
+    }
+    $gestor = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, ...PermisoAcademico::valores()]);
+
+    Livewire::actingAs($gestor)
+        ->test(EditPeriodo::class, ['record' => $this->abril->getRouteKey()])
+        ->fillForm(['fecha_fin' => '2027-05-05'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($this->abril->refresh()->fecha_fin->toDateString())->toBe('2027-05-05');
+});
+
 it('accepts new dates for a period that only keep a classroom share saved before the rule', function (): void {
     $legado = grupoEnAula($this->bimestre, 'ING-L');
     DB::statement('SET CONSTRAINTS ALL IMMEDIATE');
