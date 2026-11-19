@@ -120,7 +120,7 @@ Conforme al numeral 4.3 de los TdR, el servicio se ejecutó con un plan de traba
 
 ## 2.2. Cronograma de ejecución
 
-La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta días calendario corre desde el día siguiente de su notificación. El cronograma se reconstruye a partir del historial del repositorio del código fuente, que registra 484 cambios con su fecha.
+La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta días calendario corre desde el día siguiente de su notificación. El cronograma se reconstruye a partir del historial del repositorio del código fuente, que registra 484 cambios con su fecha hasta la versión entregada `v1.1.1`.
 
 *Tabla 5. Cronograma de ejecución del servicio*
 
@@ -155,7 +155,7 @@ La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta d�
 
 ## 3.1. Servidor web y de aplicaciones
 
-El sistema se ejecuta sobre un servidor Linux de la UNASAM con **PHP 8.5** (PHP-FPM) detrás de un servidor web **Nginx o Apache** con HTTPS. Requiere las extensiones de PHP `pdo_pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring` y `pcntl`. Junto al servidor web funcionan dos procesos de fondo: un **trabajador de colas** supervisado (envío de correos y reacciones a la validación de pagos) y el **programador de tareas** (cron cada minuto), que ejecuta los procesos automáticos.
+El sistema se ejecuta sobre un servidor Linux de la UNASAM con **PHP 8.5** (PHP-FPM) detrás de un servidor web **Nginx o Apache** con HTTPS. Requiere las extensiones de PHP `pdo_pgsql`, `pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring` y `pcntl`. Junto al servidor web funcionan dos procesos de fondo: un **trabajador de colas** supervisado (envío de correos y reacciones a la validación de pagos) y el **programador de tareas** (cron cada minuto), que ejecuta los procesos automáticos.
 
 La DSTI dispone de dos rutas de instalación documentadas: la **instalación tradicional** sobre el sistema operativo y la **instalación con contenedores Docker**, ambas con el mismo código fuente.
 
@@ -541,7 +541,7 @@ El sistema cuenta con **241 archivos de prueba y 1 588 casos de prueba**, ejecut
 | Arquitectura y desacople (`tests/Architecture`) | 3 | 8 |
 | **Total** | **241** | **1 588** |
 
-Los casos con conjuntos de datos se ejecutan una vez por cada dato, por lo que la suite completa suma **2 224 ejecuciones de prueba**, todas aprobadas en la ejecución del 17 de noviembre de 2026. El inventario por directorio está en el Anexo B.
+Los casos con conjuntos de datos se ejecutan una vez por cada dato, por lo que la suite completa suma **2 250 ejecuciones de prueba**, todas aprobadas en la integración continua de la versión entregada `v1.1.1`, el 19 de noviembre de 2026. El inventario por directorio está en el Anexo B.
 
 ## 10.2. Análisis estático e integración continua
 
@@ -552,7 +552,7 @@ Cada cambio se verifica con el comando `composer check`, el mismo que ejecuta la
 - **`composer audit`**: bloquea dependencias con vulnerabilidades conocidas.
 - **Pest**: la suite completa sobre PostgreSQL 18.
 
-La verificación completa resultó satisfactoria el 17 de noviembre de 2026. Durante el servicio se aplicaron de inmediato las actualizaciones de seguridad publicadas para el framework y sus componentes.
+La verificación completa de la versión entregada `v1.1.1` resultó satisfactoria el 19 de noviembre de 2026. Durante el servicio se aplicaron de inmediato las actualizaciones de seguridad publicadas para el framework y sus componentes.
 
 ## 10.3. Pruebas con el sistema desplegado
 
@@ -698,7 +698,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | ID | Requisito | Ubicación en el sistema | Estado | Observación |
 |---|---|---|---|---|
 | M3.1.a | Padrón de docentes con idiomas y disponibilidad horaria | Admin → Docencia → Docentes (Disponibilidad horaria) | Cumple | — |
-| M3.1.b | Estado del docente: Activo, Inactivo, De Licencia | Admin → Docencia → Docentes | Cumple | Acceso de docentes inactivos al panel por decidir (#48) |
+| M3.1.b | Estado del docente: Activo, Inactivo, De Licencia | Admin → Docencia → Docentes | Cumple | Un docente con grupos a cargo no pasa a Inactivo ni a De licencia hasta que se reasignen sus grupos (#48) |
 | M3.1.campos: personales | ID docente, nombres, DNI/CE, correo institucional y personal, celular | Admin → Docencia → Docentes | Cumple | Datos personales desde Personas (#39) |
 | M3.1.campos: expediente | RUC, cuenta bancaria, banco, condición laboral | Admin → Docencia → Docentes; Admin → Catálogos → Condiciones laborales | Cumple | Condición laboral como catálogo editable, con Nombrado, Contratado y Tercero cargados de inicio; cuenta bancaria cifrada y enmascarada (#122) |
 | M3.1.campos: académico | Idiomas habilitados, nivel máximo autorizado | Admin → Docencia → Docentes | Cumple | Nivel máximo por idioma (#40) |
@@ -751,7 +751,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 | ID | Requisito | Ubicación en el sistema | Estado | Observación |
 |---|---|---|---|---|
-| M6.1.a | Página pública: oferta, requisitos, fechas, costos TUPA/TUSNE | Sitio público → Portada (`/`) | Cumple | Requisitos como texto fijo hasta recibir el oficial (#70, #71, #72). El Anexo menciona `https://cid.unasam.edu.pe/`, dominio del sistema anterior; la DSTI designó `https://ciln.unasam.edu.pe/` para el sistema nuevo, donde está desplegado; ninguna dirección está fija en el código (`APP_URL`) |
+| M6.1.a | Página pública: oferta, requisitos, fechas, costos TUPA/TUSNE | Sitio público → Portada (`/`) | Cumple | Oferta del periodo con matrícula abierta o del siguiente planificado, costos con la tarifa vigente por vínculo, requisitos de matrícula en cuatro pasos y fechas de matrícula, inicio y fin de clases (#70, #71, #72). El Anexo menciona `https://cid.unasam.edu.pe/`, dominio del sistema anterior; la DSTI designó `https://ciln.unasam.edu.pe/` para el sistema nuevo, donde está desplegado; ninguna dirección está fija en el código (`APP_URL`) |
 | M6.1.b | Inicio de sesión diferenciado para estudiantes y docentes | Sitio público → Ingresar (`/ingresar`) → Portal del estudiante o Portal docente | Cumple | Un solo punto de acceso que lleva a cada usuario a su propio portal según su rol: portal del estudiante, panel docente o panel del personal (#73) |
 | M6.1.c | Recuperación de credenciales con token al correo registrado | Sitio público → Recuperar clave (`/recuperar-clave`, `/restablecer-clave/{token}`) | Cumple | Correo de recuperación recibido en producción el 18/11/2026, enviado desde la cuenta institucional `sistemacln@unasam.edu.pe` |
 | M6.2.a | Flujo configurable por trámite (constancia, certificado, traslado, retiro) | Admin → Catálogos → Tipos de trámite; Portal → Trámites | Cumple | (#74, #76) |
