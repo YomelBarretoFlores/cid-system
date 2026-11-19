@@ -145,8 +145,8 @@ La Orden de Servicio se emitió el 20 de octubre de 2026; el plazo de treinta d�
 | Diseño y organización técnica del sistema y de los datos (documento técnico) | Fundamentación de PHP 8.5, Laravel, patrón MVC, modelo de datos y API REST | Capítulos 4 a 7 de este informe; `docs/arquitectura.md`, `docs/tecnologia.md`, ADR 0001 a 0009; Diccionario de Datos |
 | Desarrollo, pruebas e implementación de los seis módulos | Desarrollo iterativo por módulo con pruebas automatizadas sobre PostgreSQL | Capítulos 8 y 10; matriz de cumplimiento (11.3); Anexos A y B |
 | Aplicación de estándares de seguridad (OWASP Top 10) y de pistas de auditoría | Controles por cada riesgo OWASP y auditoría inmutable por triggers en 42 tablas | Capítulo 9; `docs/seguridad.md` |
-| Despliegue y puesta en producción en el servidor designado por la DSTI | Instalación en el servidor de la DSTI con la guía y los scripts de implementación | Capítulo 3; `docs/despliegue.md`; versión `v1.0.0` |
-| Capacitación al personal del CILN y entrega de manuales y del código fuente | Código fuente y repositorio entregados a la DSTI; capacitación y manuales de usuario según la sección 11.5 | Sección 11.5 |
+| Despliegue y puesta en producción en el servidor designado por la DSTI | Instalación en el servidor de la DSTI con la guía y los scripts de implementación | Capítulo 3; `docs/despliegue.md`; versión entregada `v1.1.0` |
+| Capacitación al personal del CILN y entrega de manuales y del código fuente | Código fuente y repositorio entregados a la DSTI; manuales de usuario entregados; capacitación según la sección 11.5 | Sección 11.5 |
 
 # 3. INFRAESTRUCTURA TECNOLÓGICA
 
@@ -173,7 +173,7 @@ La base de datos es **PostgreSQL 18**, en el mismo servidor o en uno dedicado. S
 
 ## 3.4. Entorno de producción
 
-Conforme al numeral 4.5 de los TdR, el sistema se encuentra **desplegado y operativo en el servidor designado por la DSTI**, en la infraestructura de la UNASAM y sin servicios de terceros en la nube. La DSTI administra el servidor, crea los roles de PostgreSQL, custodia las credenciales (base de datos, correo institucional) y decide la activación de la actualización automática.
+Conforme al numeral 4.5 de los TdR, el sistema se encuentra **desplegado y operativo en el servidor designado por la DSTI**, en la infraestructura de la UNASAM y sin servicios de terceros en la nube, y se publica en el dominio oficial `https://ciln.unasam.edu.pe`. La DSTI administra el servidor, crea los roles de PostgreSQL, custodia las credenciales (base de datos, correo institucional) y decide la activación de la actualización automática.
 
 *Tabla 8. Componentes del entorno de producción*
 
@@ -284,7 +284,7 @@ La Figura 1 muestra las capas del sistema: los canales de presentación (portale
 
 ## 5.4. Arquitectura física
 
-La Figura 2 muestra la distribución en el servidor de la DSTI: el navegador del usuario se conecta por HTTPS al servidor web, que atiende la aplicación PHP; esta se conecta a PostgreSQL, al almacenamiento local y al servicio de correo institucional, mientras el trabajador de colas y el programador de tareas procesan las tareas de fondo.
+La Figura 2 muestra la distribución en el servidor de la DSTI: el navegador del usuario se conecta por HTTPS, a través del dominio oficial `https://ciln.unasam.edu.pe`, al servidor web, que atiende la aplicación PHP; esta se conecta a PostgreSQL, al almacenamiento local y al servicio de correo institucional, mientras el trabajador de colas y el programador de tareas procesan las tareas de fondo.
 
 ![Figura 2. Arquitectura física del sistema](figuras/arquitectura-fisica.png)
 
@@ -496,7 +496,7 @@ El tablero muestra los ingresos, los pagos pendientes de validación, la rentabi
 
 Las sesiones usan cookies `HttpOnly`, `Secure` y `SameSite`, con el contenido cifrado y regeneración al iniciar sesión; la protección CSRF verifica el token de cada formulario. La API usa tokens personales que vencen a los 30 días.
 
-**Escaneo de seguridad.** Con la autorización de la DSTI, el 18 de noviembre de 2026 se ejecutó el escaneo pasivo OWASP ZAP 2.17.0 (*baseline*), sin ataques ni modificación de datos, sobre la versión **v1.0.1** del sistema en un entorno equivalente al de producción (Apache 2.4 con HTTPS, PHP-FPM 8.5 y la misma configuración `public/.htaccess`). Resultado: **ningún hallazgo de riesgo alto y ninguna regla fallida** (59 reglas aprobadas). Los tres avisos de riesgo medio corresponden a la política de contenido (`unsafe-inline` y `unsafe-eval`), que Livewire, Alpine y Filament requieren para funcionar; es un riesgo aceptado, mitigado por el escape de salida de Blade, la validación de entradas y una política `default-src 'self'` con `object-src 'none'` y `frame-ancestors 'self'`. Los avisos de riesgo bajo restantes son falsos positivos (la cookie XSRF-TOKEN es legible por diseño para la protección CSRF, marcas de tiempo dentro de las librerías y una redirección de la verificación de documentos) o la cabecera opcional COEP, que no se activa porque impediría cargar el visor de la documentación de la API. El escaneo inicial sobre el servidor de producción (v1.0.0) señaló cookies sin la marca `Secure` y cabeceras ausentes en los archivos estáticos; la versión v1.0.1 los corrige y añade las cabeceras `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy`. El reporte se entrega como evidencia (*Reporte OWASP ZAP - prueba local con v1.0.1 - 2026-11-18*); el mismo escaneo se repetirá sobre `https://ciln.unasam.edu.pe` cuando la DSTI instale la versión v1.0.1.
+**Escaneo de seguridad.** Con la autorización de la DSTI, el 18 de noviembre de 2026 se ejecutó el escaneo pasivo OWASP ZAP 2.17.0 (*baseline*), sin ataques ni modificación de datos, sobre la versión **v1.0.1** del sistema en un entorno equivalente al de producción (Apache 2.4 con HTTPS, PHP-FPM 8.5 y la misma configuración `public/.htaccess`). Resultado: **ningún hallazgo de riesgo alto y ninguna regla fallida** (59 reglas aprobadas). Los tres avisos de riesgo medio corresponden a la política de contenido (`unsafe-inline` y `unsafe-eval`), que Livewire, Alpine y Filament requieren para funcionar; es un riesgo aceptado, mitigado por el escape de salida de Blade, la validación de entradas y una política `default-src 'self'` con `object-src 'none'` y `frame-ancestors 'self'`. Los avisos de riesgo bajo restantes son falsos positivos (la cookie XSRF-TOKEN es legible por diseño para la protección CSRF, marcas de tiempo dentro de las librerías y una redirección de la verificación de documentos) o la cabecera opcional COEP, que no se activa porque impediría cargar el visor de la documentación de la API. El escaneo inicial sobre el servidor de producción (v1.0.0) señaló cookies sin la marca `Secure` y cabeceras ausentes en los archivos estáticos; la versión v1.0.1 los corrige y añade las cabeceras `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy`. El reporte se entrega como evidencia (*Reporte OWASP ZAP - prueba local con v1.0.1 - 2026-11-18*); el mismo escaneo se repetirá sobre `https://ciln.unasam.edu.pe` cuando la DSTI instale la versión entregada v1.1.0.
 
 ## 9.2. Pista de auditoría inmutable
 
@@ -566,7 +566,7 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Actividades | Las seis actividades del TdR 4.2, transcritas en la orden | Tabla de actividades (2.3) y sección 11.5 | Cumple, con la capacitación según 11.5 |
 | Seis módulos | Registro, clasificación y matrícula; pagos; docencia; evaluación y certificación; tablero; portal y trámites | Matriz del Anexo Técnico (11.3): 78 de 78 requisitos funcionales | Cumple |
 | Seguridad | Estándares OWASP Top 10 y pistas de auditoría | Capítulo 9 | Cumple |
-| Pago | Una armada, previa conformidad del área usuaria sobre el único entregable | Presente informe y componentes de la sección 11.5 | Para conformidad |
+| Pago | Una armada, previa conformidad del área usuaria sobre el único entregable | Presente informe y componentes de la sección 11.5 | Para conformidad (Informe de Conformidad de Servicio, TdR 6.7) |
 
 ## 11.2. Términos de Referencia
 
@@ -575,13 +575,13 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Cláusula | Requisito | Evidencia | Estado |
 |---|---|---|---|
 | 3.2 | Software que automatice el registro, clasificación, matrícula, pagos, gestión docente y certificación, sobre arquitectura moderna y segura | Capítulos 4, 5 y 8; matriz (11.3) | Cumple |
-| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 93 requisitos cumplidos y 3 cumplidos parcialmente por causas contractuales | Cumple |
+| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 94 requisitos cumplidos y 2 cumplidos parcialmente por causas contractuales | Cumple |
 | 4.2 | Seis actividades mínimas | Tabla de actividades (2.3) | Cumple, con la capacitación según 11.5 |
 | 4.3 | Plan de trabajo con metodología, cronograma y estructura técnica | Secciones 2.1 y 2.2 | Cumple |
-| 4.5 | Sistema desplegado y operativo en el servidor de la DSTI, con código fuente, manuales y documentación técnica | Sección 3.4; relación de componentes (11.5) | Cumple, con los manuales según 11.5 |
+| 4.5 | Sistema desplegado y operativo en el servidor de la DSTI, con código fuente, manuales y documentación técnica | Sección 3.4; relación de componentes (11.5) | Cumple |
 | 4.6 | Plazo máximo de 30 días calendario | Cronograma (2.2) | Cumple |
-| 6.1 | Código fuente, documentación, manuales, scripts y repositorios; garantía; capacitación; Ley N.° 29733 y auditoría inmutable; cesión de derechos | Secciones 9.2, 9.3 y 11.5 | Cumple, con lo pendiente según 11.5 |
-| 6.3 | Único entregable: informe final, sistema desplegado y operativo, código fuente, repositorios, scripts, manuales y documentación | Presente informe y sección 11.5 | Cumple, con lo pendiente según 11.5 |
+| 6.1 | Código fuente, documentación, manuales, scripts y repositorios; garantía; capacitación; Ley N.° 29733 y auditoría inmutable; cesión de derechos | Secciones 9.2, 9.3 y 11.5 | Cumple, con la capacitación y la garantía según 11.5 |
+| 6.3 | Único entregable: informe final, sistema desplegado y operativo, código fuente, repositorios, scripts, manuales y documentación | Presente informe y sección 11.5 | Cumple |
 | 6.5 | Confidencialidad de la información académica, financiera y personal | Pruebas y demostraciones solo con datos sintéticos; sección «Uso de la información» | Cumple |
 | 6.10 | Garantía técnica de funcionamiento y soporte por 12 meses | Compromiso del contratista desde la conformidad final | Cumple parcialmente (se inicia con la conformidad) |
 | Anexo IV.4 | Garantía de funcionamiento y soporte técnico mínimo de 12 meses | Ídem | Cumple parcialmente (se inicia con la conformidad) |
@@ -603,17 +603,16 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M4. Evaluación y certificación | 11 | 11 | 0 | 0 |
 | M5. Tablero gerencial | 7 | 7 | 0 | 0 |
 | M6. Portal público y trámites | 11 | 11 | 0 | 0 |
-| IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 3 | 3 | 0 |
-| **Total** | **96** | **93** | **3** | **0** |
+| IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 4 | 2 | 0 |
+| **Total** | **96** | **94** | **2** | **0** |
 
-**Los seis módulos funcionales se cumplen en su totalidad**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba. Los tres requisitos cumplidos parcialmente no dependen de funciones faltantes, sino de obligaciones que se completan con la conformidad del servicio:
+**Los seis módulos funcionales se cumplen en su totalidad**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba. Los dos requisitos cumplidos parcialmente no dependen de funciones faltantes, sino de obligaciones que se completan con la conformidad del servicio:
 
 *Tabla 24. Requisitos cumplidos parcialmente y acción que corresponde*
 
 | Requisito | Situación | Acción y responsable |
 |---|---|---|
-| IV.1.a Cesión de derechos a la UNASAM | Obligación contractual declarada en este informe | Se formaliza con el acta de conformidad y cesión |
-| IV.1.b Repositorios documentados | Código fuente y repositorio entregados a la DSTI; documentación técnica y diccionario de datos entregados | Entrega de los manuales de usuario |
+| IV.1.a Cesión de derechos a la UNASAM | Obligación contractual declarada en este informe | Opera por el propio numeral 6.1 de los TdR, sin acto adicional; se hace efectiva con la conformidad del servicio que otorga la Dirección del CILN mediante Informe de Conformidad de Servicio (TdR 6.7) |
 | IV.4.a Garantía de 12 meses | Se inicia con la conformidad final | Plan de soporte y garantía del contratista |
 
 ### 11.3.1. Requisitos técnicos generales (sección II del Anexo)
@@ -761,8 +760,8 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 | ID | Requisito | Ubicación en el sistema | Estado | Observación |
 |---|---|---|---|---|
-| IV.1.a | Cesión total de derechos patrimoniales a la UNASAM | Contractual | Cumple parcialmente | Declarada en este informe; se formaliza con el acta de conformidad y cesión |
-| IV.1.b | Entrega de repositorios completos y documentados al finalizar | Repositorio | Cumple parcialmente | Código fuente y repositorio entregados a la DSTI con su documentación técnica; manuales de usuario pendientes de entrega |
+| IV.1.a | Cesión total de derechos patrimoniales a la UNASAM | Contractual | Cumple parcialmente | Declarada en este informe; opera por el numeral 6.1 de los TdR y se hace efectiva con la conformidad del servicio (Informe de Conformidad de Servicio, TdR 6.7) |
+| IV.1.b | Entrega de repositorios completos y documentados al finalizar | Repositorio | Cumple | Código fuente y repositorio entregados a la DSTI con su documentación técnica; manuales de usuario (estudiante, docente y personal del CILN) entregados |
 | IV.2.a | Seguridad conforme a Ley 29733 y OWASP | Transversal | Cumple | Ley N.° 29733 (sección 9.3) y escaneo OWASP ZAP de la v1.0.1 (sección 9.1) |
 | IV.2.b | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | — |
 | IV.3.a | Confidencialidad de la información académica, financiera y personal | Proceso del proveedor | Cumple | Compromiso contractual; en lo técnico, pruebas y demo solo con datos sintéticos |
@@ -795,31 +794,31 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 | Componente | Base contractual | Estado |
 |---|---|---|
-| Sistema desplegado y operativo en el servidor de la DSTI | TdR 4.2, 4.5 y 6.3 | Entregado |
+| Sistema desplegado y operativo en el servidor de la DSTI, en el dominio oficial `https://ciln.unasam.edu.pe` (versión v1.1.0) | TdR 4.2, 4.5 y 6.3 | Entregado |
 | Código fuente y repositorio completo con su historial | TdR 6.1; Anexo IV.1 | Entregado a la DSTI |
 | Scripts de implementación (instalación tradicional y con contenedores, actualización automática con reversión, migraciones) | TdR 6.1 | Entregado, en el repositorio |
 | Documentación técnica (presente informe, arquitectura, modelo de datos, seguridad, guía de despliegue, ADR, documentación OpenAPI de la API) | TdR 4.2, 4.5 y 6.3 | Entregado |
 | Diccionario de Datos – Sistema de Gestión del CILN | TdR 4.2 | Entregado |
 | Reporte del escaneo de seguridad OWASP ZAP (versión v1.0.1) | Anexo II.2.a y IV.2 | Entregado |
-| Manuales de usuario (estudiante, docente y personal del CILN) | TdR 4.2 y 6.1 | Pendiente de entrega |
+| Manuales de usuario (estudiante, docente y personal del CILN) | TdR 4.2 y 6.1 | Entregado |
 | Capacitación al personal directivo, administrativo y docente del CILN | TdR 4.2 y 6.1 | Pendiente, por programar con el CILN |
 | Garantía técnica de funcionamiento y soporte por 12 meses | TdR 6.1 y 6.10; Anexo IV.4 | Se inicia con la conformidad final |
 
 # 12. CONCLUSIONES
 
 1. El Sistema de Gestión Académica y Administrativa del CILN **cumple los seis módulos funcionales** del Anexo Técnico: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y pruebas automatizadas que lo comprueban.
-2. De los 96 requisitos verificados del Anexo Técnico, **93 se cumplen y 3 se cumplen parcialmente** por tratarse de obligaciones que se completan con la conformidad del servicio (formalización de la cesión de derechos, entrega de manuales de usuario y garantía). **Ningún requisito queda sin atender.**
-3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091 y atendió las actividades del numeral 4.2 de los TdR; el sistema se encuentra desplegado en el servidor de la DSTI y el código fuente está en poder de la DSTI.
+2. De los 96 requisitos verificados del Anexo Técnico, **94 se cumplen y 2 se cumplen parcialmente** por tratarse de obligaciones que se completan con la conformidad del servicio que otorga la Dirección del CILN mediante Informe de Conformidad de Servicio (TdR 6.7): la cesión de derechos, que opera por el numeral 6.1 de los TdR, y el inicio de la garantía. **Ningún requisito queda sin atender.**
+3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091 y atendió las actividades del numeral 4.2 de los TdR; el sistema se encuentra desplegado en el servidor de la DSTI y el código fuente está en poder de la DSTI; los manuales de usuario del estudiante, del docente y del personal del CILN fueron entregados.
 4. El sistema supera las limitaciones señaladas por la DSTI en el Informe Técnico N.° 023-2026-FMAJ: usa tecnologías con soporte vigente, aplica los controles del OWASP Top 10, registra una pista de auditoría inmutable en la base de datos y protege los datos personales conforme a la Ley N.° 29733.
 5. El cálculo de las notas sigue el sistema de evaluación del CILN: promedio de las cuatro habilidades y promedio de los exámenes, con la nota final redondeada a un entero y una nota mínima aprobatoria configurable.
 
 # 13. RECOMENDACIONES
 
 1. **Correo y respaldos.** Que la DSTI mantenga la configuración del correo institucional y de los respaldos programados del servidor de producción, y que realice una prueba de restauración de los respaldos al menos una vez por semestre.
-2. **Seguridad.** Que la DSTI instale la versión v1.0.1, active el módulo `mod_headers` de Apache, repita el escaneo OWASP ZAP sobre `https://ciln.unasam.edu.pe`, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
+2. **Seguridad.** Que la DSTI instale la versión entregada v1.1.0, active el módulo `mod_headers` de Apache, repita el escaneo OWASP ZAP sobre `https://ciln.unasam.edu.pe`, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
 3. **Garantía.** Que, con la conformidad final, se formalice el inicio de la garantía técnica de doce meses y el canal de reporte de incidencias entre el CILN, la DSTI y el contratista.
 4. **Actualizaciones.** Que las nuevas versiones se instalen solo desde **etiquetas publicadas** (`vX.Y.Z`) de la rama principal, que pasan la integración continua, mediante la actualización automática o el procedimiento manual de la guía de despliegue, y que la DSTI mantenga las dependencias dentro de sus versiones con soporte.
-6. **Validación institucional.** Que el CILN valide los supuestos registrados durante las pruebas de aceptación y registre en el panel los datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que se programen la capacitación y la entrega de los manuales de usuario.
+5. **Validación institucional.** Que el CILN valide los supuestos registrados durante las pruebas de aceptación y registre en el panel los datos institucionales (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que se programe la capacitación del personal del CILN.
 
 # ANEXO A. EVIDENCIA TÉCNICA POR REQUISITO
 
@@ -972,7 +971,7 @@ Rutas del código fuente que implementan cada requisito y pruebas automatizadas 
 | ID | Código fuente | Pruebas automatizadas |
 |---|---|---|
 | IV.1.a | — | — |
-| IV.1.b | `docs/` (arquitectura, modelo de datos, despliegue, seguridad, ADR 0001–0009) | — |
+| IV.1.b | `docs/` (arquitectura, modelo de datos, despliegue, seguridad, ADR 0001–0009); manuales de usuario en `docs/manuales/` | — |
 | IV.2.a | Ver II.2.a a II.2.d | Ver II.2 |
 | IV.2.b | `app/Shared/Audit/Database/Migrations/2026_10_24_125000_create_aud_registros_table.php`, `app/Shared/Audit/Database/Migrations/2026_10_24_160000_add_solicitud_id_to_aud_registros.php` | `tests/Feature/Audit/AuditTrailTest.php`, `tests/Feature/Auditoria/CambiosDelRegistroTest.php` |
 | IV.3.a | `database/seeders/DatabaseSeeder.php` (se niega a correr en producción) | `tests/Feature/DemoSeederTest.php` |
