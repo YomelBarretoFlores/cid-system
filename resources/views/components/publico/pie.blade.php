@@ -44,7 +44,10 @@
     <div class="border-t border-white/12">
         <div class="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-4 text-[13px] text-celeste-100/70 sm:px-6 lg:px-8">
             <span>© {{ now('America/Lima')->year }} Centro de Idiomas y Lenguas Nativas · UNASAM</span>
-            <span>Huaraz, Perú</span>
+            <span class="flex flex-wrap gap-x-4 gap-y-1">
+                <a href="{{ route('privacidad') }}" class="transition-colors hover:text-white hover:underline">Política de privacidad</a>
+                <span>Huaraz, Perú</span>
+            </span>
         </div>
     </div>
 </footer>

@@ -32,7 +32,7 @@
             <label class="flex items-start gap-2.5 text-[14.5px] text-secundario">
                 <input type="checkbox" wire:model="acepta_tratamiento" class="casilla mt-0.5"
                     @error('acepta_tratamiento') aria-invalid="true" aria-describedby="campo-acepta-tratamiento-error" @enderror>
-                <span>Acepto que el CILN de la UNASAM trate mis datos personales para gestionar mi matrícula, pagos y certificados, conforme a la Ley N° 29733, Ley de Protección de Datos Personales.</span>
+                <span>Acepto que el CILN de la UNASAM trate mis datos personales para gestionar mi matrícula, pagos y certificados, conforme a la Ley N° 29733, Ley de Protección de Datos Personales, y según su <a href="{{ route('privacidad') }}" target="_blank" rel="noopener" class="enlace">política de privacidad</a>.</span>
             </label>
             @error('acepta_tratamiento')
                 <p id="campo-acepta-tratamiento-error" class="text-[13px] font-medium text-peligro">{{ $message }}</p>

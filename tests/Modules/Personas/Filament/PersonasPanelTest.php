@@ -13,6 +13,7 @@ use App\Modules\Personas\Filament\Resources\Personas\PersonaResource;
 use App\Modules\Personas\Filament\Resources\Personas\Schemas\PersonaForm;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -127,7 +128,48 @@ it('shows staff when the person accepted the processing of their personal data a
         ->assertSee('03/11/2026 15:15');
     Livewire::test(ViewPersona::class, ['record' => $this->extranjera->getRouteKey()])
         ->assertSee('Aceptó el tratamiento de datos')
-        ->assertSee('No registrado');
+        ->assertSee('Sin consentimiento registrado');
+});
+
+it('records the consent staff mark when registering a person, and leaves it empty when not marked', function (): void {
+    $this->freezeSecond();
+    $this->actingAs(usuarioDePersonas(PermisoPersona::Ver, PermisoPersona::Gestionar));
+
+    Livewire::test(CreatePersona::class)
+        ->assertFormFieldExists('acepta_tratamiento')
+        ->assertSee('La persona aceptó el tratamiento de sus datos personales')
+        ->fillForm([...datosDePersona(), 'acepta_tratamiento' => true])
+        ->call('create')
+        ->assertHasNoFormErrors();
+    Livewire::test(CreatePersona::class)
+        ->fillForm([...datosDePersona(['numero_documento' => '45678913']), 'acepta_tratamiento' => false])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Persona::query()->where('numero_documento', '45678912')->sole()->tratamiento_aceptado_en)->toEqual(now())
+        ->and(Persona::query()->where('numero_documento', '45678913')->sole()->tratamiento_aceptado_en)->toBeNull();
+});
+
+it('keeps a recorded consent when staff edit the person, and records it when marked later', function (): void {
+    $this->persona->forceFill(['tratamiento_aceptado_en' => '2026-11-03 20:15:00+00'])->save();
+    $this->freezeSecond();
+    $this->actingAs(usuarioDePersonas(PermisoPersona::Ver, PermisoPersona::Gestionar));
+
+    Livewire::test(EditPersona::class, ['record' => $this->persona->getRouteKey()])
+        ->assertFormFieldHidden('acepta_tratamiento')
+        ->fillForm(['nombres' => 'Ana María'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+    Livewire::test(EditPersona::class, ['record' => $this->extranjera->getRouteKey()])
+        ->assertFormFieldVisible('acepta_tratamiento')
+        ->fillForm(['acepta_tratamiento' => true])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($this->persona->refresh())
+        ->nombres->toBe('Ana María')
+        ->tratamiento_aceptado_en->toEqual(CarbonImmutable::parse('2026-11-03 20:15:00+00'))
+        ->and($this->extranjera->refresh()->tratamiento_aceptado_en)->toEqual(now());
 });
 
 it('registers a person with a normalized document and phone', function (): void {

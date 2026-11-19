@@ -8,6 +8,7 @@ use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use Closure;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -67,6 +68,10 @@ final class PersonaForm
                     ->options(self::opciones(TipoVinculo::cases()))
                     ->default(TipoVinculo::PublicoGeneral->value)
                     ->required(),
+                Checkbox::make('acepta_tratamiento')
+                    ->label('La persona aceptó el tratamiento de sus datos personales')
+                    ->helperText('Márquelo solo si la persona firmó su consentimiento conforme a la Ley N.° 29733.')
+                    ->visible(fn (?Persona $record): bool => $record?->tratamiento_aceptado_en === null),
             ]);
     }
 

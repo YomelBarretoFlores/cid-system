@@ -69,6 +69,14 @@ final class Persona extends Model
         return (string) preg_replace('/[\s().-]/', '', $celular);
     }
 
+    // Withdrawing consent is an ARCO request, so a recorded consent is never cleared here.
+    public function registrarConsentimiento(bool $aceptado): void
+    {
+        if ($aceptado && $this->tratamiento_aceptado_en === null) {
+            $this->tratamiento_aceptado_en = now();
+        }
+    }
+
     /**
      * @return BelongsTo<User, $this>
      */
