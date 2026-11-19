@@ -24,6 +24,7 @@ final readonly class DatosDelCurso
         public int $horasLectivas,
         public int $periodoId,
         public string $periodo,
+        public CarbonImmutable $fechaInicio,
         public ?CarbonImmutable $actasInicio,
         public ?CarbonImmutable $actasFin,
     ) {}
@@ -43,6 +44,7 @@ final readonly class DatosDelCurso
             horasLectivas: $grupo->ciclo->horas_lectivas,
             periodoId: $periodo->id,
             periodo: $periodo->nombre,
+            fechaInicio: CarbonImmutable::parse($periodo->fecha_inicio->toDateString(), 'America/Lima'),
             actasInicio: $periodo->actas_inicio === null ? null : CarbonImmutable::parse($periodo->actas_inicio->toDateString(), 'America/Lima'),
             actasFin: $periodo->actas_fin === null ? null : CarbonImmutable::parse($periodo->actas_fin->toDateString(), 'America/Lima'),
         );

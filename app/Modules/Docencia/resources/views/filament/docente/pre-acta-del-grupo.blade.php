@@ -22,6 +22,10 @@
             @endif
         </x-filament::section>
 
+        @if ($cerradas)
+            <x-filament::callout color="warning" icon="heroicon-o-lock-closed" :heading="$cerradas" />
+        @endif
+
         <form wire:submit="guardar" novalidate>
             <x-filament::section heading="Notas parciales" :description="$esquema->nombre.' · notas de 0 a '.PreActaDelGrupo::numero($esquema->notaMaxima).', con hasta dos decimales. Deja en blanco lo que aún no evalúas; al cerrar, una nota en blanco cuenta como cero.'">
                 @php($porGrupo = collect(GrupoDeComponente::cases())->mapWithKeys(fn (GrupoDeComponente $grupo): array => [$grupo->value => array_values(array_filter($esquema->componentes, fn ($componente): bool => $componente->grupo === $grupo))]))
@@ -61,11 +65,15 @@
                                     <tr wire:key="estudiante-{{ $estudiante->matriculaId }}">
                                         <th scope="row" class="font-normal"><span class="font-medium text-tinta">{{ $estudiante->nombreCompleto }}</span></th>
                                         @foreach ($porGrupo->flatten(1) as $componente)
-                                            <td>
-                                                <x-filament::input.wrapper class="ml-auto w-[92px]">
-                                                    <x-filament::input type="text" inputmode="decimal" placeholder="—" class="text-right" wire:model="notas.{{ $estudiante->matriculaId }}.{{ $componente->id }}" aria-label="{{ $componente->nombre }} de {{ $estudiante->nombreCompleto }}" />
-                                                </x-filament::input.wrapper>
-                                            </td>
+                                            @if ($cerradas)
+                                                <td class="text-right tabular-nums">{{ ($notas[$estudiante->matriculaId][$componente->id] ?? '') ?: '—' }}</td>
+                                            @else
+                                                <td>
+                                                    <x-filament::input.wrapper class="ml-auto w-[92px]">
+                                                        <x-filament::input type="text" inputmode="decimal" placeholder="—" class="text-right" wire:model="notas.{{ $estudiante->matriculaId }}.{{ $componente->id }}" aria-label="{{ $componente->nombre }} de {{ $estudiante->nombreCompleto }}" />
+                                                    </x-filament::input.wrapper>
+                                                </td>
+                                            @endif
                                         @endforeach
                                     </tr>
                                 @endforeach
@@ -73,9 +81,11 @@
                         </table>
                     </div>
 
-                    <div>
-                        <x-filament::button type="submit">Guardar notas</x-filament::button>
-                    </div>
+                    @unless ($cerradas)
+                        <div>
+                            <x-filament::button type="submit">Guardar notas</x-filament::button>
+                        </div>
+                    @endunless
                 </div>
             </x-filament::section>
         </form>

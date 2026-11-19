@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace App\Modules\Docencia\Actions;
 
 use App\Modules\Academico\Contracts\BloqueoDeGrupo;
+use App\Modules\Academico\Contracts\CursoDelGrupo;
 use App\Modules\Academico\Contracts\EsquemaDelGrupo;
 use App\Modules\Academico\Data\ComponenteDeEvaluacion;
 use App\Modules\Academico\Data\EsquemaDeEvaluacion;
+use App\Modules\Certificacion\Contracts\EstadosDeActas;
 use App\Modules\Docencia\Models\NotaParcial;
 use App\Modules\Docencia\Support\GrupoACargo;
+use App\Modules\Docencia\Support\VentanaDeNotasParciales;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Notas\Nota;
+use Carbon\CarbonImmutable;
 
 final readonly class RegistrarNotasParciales
 {
@@ -23,6 +27,8 @@ final readonly class RegistrarNotasParciales
         private BloqueoDeGrupo $bloqueoDeGrupo,
         private EsquemaDelGrupo $esquemaDelGrupo,
         private EstudiantesDelGrupo $estudiantesDelGrupo,
+        private CursoDelGrupo $cursoDelGrupo,
+        private EstadosDeActas $estadosDeActas,
     ) {}
 
     /**
@@ -34,6 +40,12 @@ final readonly class RegistrarNotasParciales
             // Same lock as assignment and unassignment, so a teacher removed from the group cannot save after that change commits.
             $grupo = ($this->bloqueoDeGrupo)($grupoId);
             GrupoACargo::asegurar($grupo, $docenteId, 'las notas parciales solo se registran');
+            // Read under the group lock CerrarActa also takes, so a grade cannot slip in while the acta is being validated.
+            VentanaDeNotasParciales::asegurar(
+                ($this->cursoDelGrupo)($grupoId) ?? throw new ReglaDeNegocioIncumplida("El grupo {$grupo->codigo} no existe."),
+                ($this->estadosDeActas)([$grupoId])[$grupoId] ?? null,
+                CarbonImmutable::now(),
+            );
             $esquema = ($this->esquemaDelGrupo)($grupoId)
                 ?? throw new ReglaDeNegocioIncumplida("El grupo {$grupo->codigo} no tiene un sistema de evaluación vigente; pide a coordinación que lo registre.");
 

@@ -18,12 +18,14 @@ use App\Modules\Docencia\Data\EtapasDelActa;
 use App\Modules\Docencia\Models\NotaParcial;
 use App\Modules\Docencia\Support\ClasesDelHorario;
 use App\Modules\Docencia\Support\GrupoACargo;
+use App\Modules\Docencia\Support\VentanaDeNotasParciales;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Matricula\Data\EstudianteDelGrupo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\PestanasDelGrupo;
 use App\Shared\Support\Logging\RegistroDeRechazos;
+use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Panel;
@@ -129,18 +131,20 @@ final class PreActaDelGrupo extends Page
         $esquema = $this->esquema();
         $estudiantes = $this->estudiantes();
         $registradas = $this->registradasPorComponente($estudiantes);
-        $curso = app(CursoDelGrupo::class)($this->grupoId);
+        $curso = app(CursoDelGrupo::class)($this->grupoId) ?? abort(404);
+        $acta = app(EstadosDeActas::class)([$this->grupoId])[$this->grupoId] ?? null;
 
         return [
             'esquema' => $esquema,
             'estudiantes' => $estudiantes,
             'registradas' => $registradas,
+            'cerradas' => VentanaDeNotasParciales::motivoDelCierre($curso, $acta, CarbonImmutable::now()),
             'etapas' => EtapasDelActa::de(
                 array_sum($registradas),
                 count($estudiantes) * count($esquema->componentes ?? []),
-                app(EstadosDeActas::class)([$this->grupoId])[$this->grupoId] ?? null,
-                $curso?->actasInicio,
-                $curso?->actasFin,
+                $acta,
+                $curso->actasInicio,
+                $curso->actasFin,
                 ClasesDelHorario::hoy(),
             ),
         ];

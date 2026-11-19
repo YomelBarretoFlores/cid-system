@@ -9,11 +9,17 @@ use App\Modules\Academico\Models\ComponenteEvaluacion;
 use App\Modules\Academico\Models\EsquemaEvaluacion;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Certificacion\Actions\AutorizarRectificacion;
+use App\Modules\Certificacion\Actions\CerrarActa;
+use App\Modules\Certificacion\Enums\PermisoCertificacion;
+use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Docencia\Actions\RegistrarNotasParciales;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Models\NotaParcial;
 use App\Modules\Matricula\Models\Matricula;
+use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\PortalDocente;
@@ -21,7 +27,8 @@ use Tests\Support\PortalDocente;
 beforeEach(function (): void {
     [$this->usuario, $this->docente] = PortalDocente::docente();
     $ciclo = Ciclo::factory()->create(['nivel' => NivelCurricular::Basico]);
-    $periodo = Periodo::factory()->create(['fecha_inicio' => '2027-03-01', 'fecha_fin' => '2027-04-25']);
+    $this->travelTo(CarbonImmutable::parse('2027-03-15 10:00', 'America/Lima'));
+    $periodo = Periodo::factory()->create(['fecha_inicio' => '2027-03-01', 'fecha_fin' => '2027-04-25', 'actas_inicio' => '2027-04-26', 'actas_fin' => '2027-04-30']);
     $this->grupo = Grupo::factory()->create(['codigo' => 'ING-01-A', 'ciclo_id' => $ciclo->id, 'periodo_id' => $periodo->id, 'estado' => EstadoGrupo::Cerrado]);
     PortalDocente::asignar($this->grupo, $this->docente);
     $esquema = EsquemaEvaluacion::factory()->create(['idioma_id' => $ciclo->idioma_id, 'nota_maxima' => '20.00', 'vigente_desde' => '2027-01-01']);
@@ -114,3 +121,50 @@ it('accepts grades sent as numbers', function (): void {
 
     expect(notasGuardadas())->toBe([[$this->ana->id, $this->parcial->id, '15.50'], [$this->ana->id, $this->final->id, '18.00']]);
 });
+
+it('refuses grades outside the calendar of the period and saves nothing', function (string $momento): void {
+    $this->travelTo(CarbonImmutable::parse($momento, 'America/Lima'));
+
+    expect(fn () => registrarNotas([$this->ana->id => [$this->parcial->id => '15']]))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Las notas parciales del grupo ING-01-A se registran del 01/03/2027 al 30/04/2027.')
+        ->and(NotaParcial::query()->count())->toBe(0);
+})->with([
+    'the day before classes start' => ['2027-02-28 23:59'],
+    'the day after the acta calendar ends' => ['2027-05-01 00:00'],
+]);
+
+it('accepts grades from the first day of classes through the last day of the acta calendar', function (string $momento): void {
+    $this->travelTo(CarbonImmutable::parse($momento, 'America/Lima'));
+
+    registrarNotas([$this->ana->id => [$this->parcial->id => '15']]);
+
+    expect(notasGuardadas())->toBe([[$this->ana->id, $this->parcial->id, '15.00']]);
+})->with([
+    'the first day of classes' => ['2027-03-01 00:00'],
+    'the last day of the acta calendar' => ['2027-04-30 23:59'],
+]);
+
+it('refuses grades when the period has no acta calendar', function (): void {
+    Periodo::query()->whereKey($this->grupo->periodo_id)->update(['nombre' => 'Marzo 2027', 'actas_inicio' => null, 'actas_fin' => null]);
+
+    expect(fn () => registrarNotas([$this->ana->id => [$this->parcial->id => '15']]))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El periodo Marzo 2027 no tiene fechas para actas finales; pide a coordinación que las registre.')
+        ->and(NotaParcial::query()->count())->toBe(0);
+});
+
+it('refuses grades once the acta of the group is validated, also while it is being rectified', function (bool $enRectificacion): void {
+    registrarNotas([
+        $this->ana->id => [$this->parcial->id => '15', $this->final->id => '16'],
+        $this->luis->id => [$this->parcial->id => '12', $this->final->id => '13'],
+    ]);
+    $this->travelTo(CarbonImmutable::parse('2027-04-27 10:00', 'America/Lima'));
+    app(CerrarActa::class)($this->grupo->id, $this->docente->id, $this->usuario);
+    if ($enRectificacion) {
+        $administrador = User::factory()->create()->givePermissionTo(PermisoCertificacion::Actas->value);
+        app(AutorizarRectificacion::class)(Acta::query()->where('grupo_id', $this->grupo->id)->value('id'), 'Corrección del examen final.', $administrador);
+    }
+
+    expect(fn () => registrarNotas([$this->ana->id => [$this->parcial->id => '20']]))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El acta final del grupo ING-01-A ya fue validada; sus notas parciales ya no se modifican.')
+        ->and(NotaParcial::query()->where('matricula_id', $this->ana->id)->where('componente_id', $this->parcial->id)->value('nota'))->toBe('15.00');
+})->with(['closed' => [false], 'in rectification' => [true]]);

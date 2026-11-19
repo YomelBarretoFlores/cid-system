@@ -7,6 +7,7 @@ use App\Modules\Academico\Models\ComponenteEvaluacion;
 use App\Modules\Academico\Models\EsquemaEvaluacion;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Docencia\Data\EtapasDelActa;
 use App\Modules\Docencia\Filament\Docente\Pages\PreActaDelGrupo;
@@ -23,7 +24,8 @@ use Tests\Support\PortalDocente;
 beforeEach(function (): void {
     Filament::setCurrentPanel('docente');
     [$this->usuario, $this->docente] = PortalDocente::docente();
-    $this->grupo = Grupo::factory()->create(['codigo' => 'ING-01-A', 'periodo_id' => Periodo::factory()->create(['fecha_inicio' => '2027-03-01'])->id, 'estado' => EstadoGrupo::Abierto]);
+    $this->travelTo(CarbonImmutable::parse('2027-03-15 10:00', 'America/Lima'));
+    $this->grupo = Grupo::factory()->create(['codigo' => 'ING-01-A', 'periodo_id' => Periodo::factory()->create(['fecha_inicio' => '2027-03-01', 'actas_inicio' => '2027-03-28', 'actas_fin' => '2027-04-05'])->id, 'estado' => EstadoGrupo::Abierto]);
     PortalDocente::asignar($this->grupo, $this->docente);
     $esquema = EsquemaEvaluacion::factory()->create(['nombre' => 'Esquema general', 'nota_maxima' => '20.00', 'vigente_desde' => '2027-01-01']);
     $this->oral = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'nombre' => 'Expresión oral', 'orden' => 1]);
@@ -136,4 +138,33 @@ it('marks every stage done once the acta is closed', function (): void {
 
     expect(array_map(fn (array $etapa): array => [$etapa[2], $etapa[3]], $etapas))->toBe([['4 de 4 notas', 'hecho'], ['Revisada', 'hecho'], ['Cerrada', 'hecho']])
         ->and(EtapasDelActa::de(0, 4, null, null, null, CarbonImmutable::parse('2027-04-02'))[2][2])->toBe('Sin fechas de actas');
+});
+
+it('shows the grades read-only with the calendar outside the dates for partial grades', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-04-06 08:00', 'America/Lima'));
+    NotaParcial::query()->create(['grupo_id' => $this->grupo->id, 'matricula_id' => $this->ana->id, 'componente_id' => $this->parcial->id, 'nota' => '14.50', 'registrado_por' => $this->usuario->id]);
+
+    $this->actingAs($this->usuario)
+        ->get(route('filament.docente.pages.grupos.notas', $this->grupo->id))
+        ->assertOk()
+        ->assertSeeInOrder(['Las notas parciales del grupo ING-01-A se registran del 01/03/2027 al 05/04/2027.', 'Quispe Rojas, Ana', '14.50'])
+        ->assertDontSee('wire:model="notas.', false)
+        ->assertDontSee('Guardar notas');
+});
+
+it('shows the grades read-only once the acta is validated', function (): void {
+    foreach ([$this->ana, $this->luis] as $matricula) {
+        foreach ([$this->parcial, $this->oral] as $componente) {
+            NotaParcial::query()->create(['grupo_id' => $this->grupo->id, 'matricula_id' => $matricula->id, 'componente_id' => $componente->id, 'nota' => '15.00', 'registrado_por' => $this->usuario->id]);
+        }
+    }
+    $this->travelTo(CarbonImmutable::parse('2027-03-30 10:00', 'America/Lima'));
+    app(CerrarActa::class)($this->grupo->id, $this->docente->id, $this->usuario);
+
+    $this->actingAs($this->usuario)
+        ->get(route('filament.docente.pages.grupos.notas', $this->grupo->id))
+        ->assertOk()
+        ->assertSee('El acta final del grupo ING-01-A ya fue validada; sus notas parciales ya no se modifican.')
+        ->assertDontSee('wire:model="notas.', false)
+        ->assertDontSee('Guardar notas');
 });
