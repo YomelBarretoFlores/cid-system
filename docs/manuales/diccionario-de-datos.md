@@ -8,7 +8,7 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 |---|---|
 | Gestor de base de datos | PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) |
 | Esquema | `public` |
-| Última migración aplicada | `2026_11_17_100100_describe_the_groups_of_cer_actas_components` |
+| Última migración aplicada | `2026_11_19_090000_describe_the_final_grade_as_a_simple_average` |
 
 **Convenciones:**
 
@@ -1449,7 +1449,7 @@ Nota final de cada estudiante en un acta.
 | 5 | `estudiante_nombre` | varchar(200) | No |  | Nombre del estudiante al emitir el acta. |
 | 6 | `estudiante_documento` | varchar(40) | No |  | Documento del estudiante al emitir el acta. |
 | 7 | `notas` | jsonb | No |  | Notas por componente (JSON). |
-| 8 | `promedio` | numeric(4,2) | Sí |  | Promedio ponderado; nulo si no se presentó. |
+| 8 | `promedio` | numeric(4,2) | Sí |  | Nota final: promedio simple del promedio de habilidades y del promedio de exámenes, redondeado a entero; nulo si no se presentó. |
 | 9 | `estado_final` | varchar(255) | No |  | Resultado: aprobado, desaprobado o NSP (no se presentó). Valores: `aprobado`, `desaprobado`, `nsp`. |
 | 10 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
 | 11 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
