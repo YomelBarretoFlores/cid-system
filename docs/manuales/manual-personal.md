@@ -8,7 +8,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 
 # HISTORIAL DE VERSIONES
 
-| Versión | Fecha | Descripción | Elaborado por | Revisado por |
+| Versión | Fecha | Descripción | Elaborado por | Dirigido a |
 |---|---|---|---|---|
 | 1.0 | 18/11/2026 | Versión inicial | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
@@ -17,7 +17,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 
 ## 1.1. Objetivo
 
-El presente manual describe el uso del panel administrativo del Sistema de Gestión Académica y Administrativa del Centro de Idiomas (CILN) de la UNASAM. Está dirigido al personal del CILN que administra la oferta académica, registra y valida pagos, gestiona matrículas y clasificaciones, atiende trámites, emite actas, constancias y certificados, consulta reportes y administra las cuentas del personal.
+El presente manual describe el uso del panel administrativo del Sistema de Gestión Académica y Administrativa del Centro de Idiomas y Lenguas Nativas (CILN) de la UNASAM. Está dirigido al personal del CILN que administra la oferta académica, registra y valida pagos, gestiona matrículas y clasificaciones, atiende trámites, emite actas, constancias y certificados, consulta reportes y administra las cuentas del personal.
 
 Cada procedimiento indica su finalidad, los pasos a seguir con los nombres exactos de los botones y campos de la pantalla (en **negrita**), el resultado esperado y una figura de referencia. Las figuras se obtuvieron con datos de demostración generados para las pruebas: los nombres, documentos de identidad, correos, teléfonos, montos y fechas que aparecen en ellas son ficticios.
 
@@ -68,7 +68,7 @@ Resultado esperado: se muestra la pantalla de inicio que corresponde a sus permi
 
 ![Figura 1. Pantalla de ingreso al panel](figuras/p01-acceso-al-panel.png)
 
-Si se ingresa varias veces una contraseña incorrecta, el sistema bloquea temporalmente los intentos; espere un minuto antes de volver a intentarlo.
+Si se ingresa varias veces una contraseña incorrecta, el sistema bloquea temporalmente los intentos y el mensaje indica cuántos segundos esperar antes de volver a intentarlo.
 
 ## 2.2. Doble factor de autenticación
 
@@ -94,8 +94,9 @@ El menú lateral muestra primero el **Tablero gerencial** y organiza las demás 
 Finalidad: actualizar la contraseña propia y el doble factor.
 
 1. Pulse su nombre en la parte inferior del menú y elija el perfil.
-2. Escriba la **Nueva contraseña**.
-3. Pulse **Guardar cambios**.
+2. Escriba la **Nueva contraseña** y repítala en **Confirmar nueva contraseña**.
+3. Escriba su **Contraseña actual**, que el sistema pide para confirmar el cambio.
+4. Pulse **Guardar cambios**.
 
 Resultado esperado: la contraseña queda actualizada. El nombre y el correo de la cuenta solo los modifica el administrador.
 
@@ -275,7 +276,7 @@ Resultado esperado: el listado muestra cada grupo con su estado, docente, matric
 
 Finalidad: registrar a los docentes y su perfil académico.
 
-1. Registre antes a la persona en **Matrícula > Personas** (sección 6.1).
+1. Registre antes a la persona en **Matrícula > Personas** (sección 6.1), con su **Correo personal**: es el correo con el que el docente creará su cuenta en el sistema.
 2. Ingrese a **Docencia > Docentes** y pulse **Crear docente**.
 3. En **Persona**, busque por documento o por apellidos y nombres.
 4. En la sección **Docente**, complete **Correo institucional**, **Condición laboral** (obligatoria) y **Grado académico**; en **Datos para el expediente**, **RUC**, **Banco** y **Número de cuenta**.
@@ -448,9 +449,9 @@ Para corregir un resultado ya registrado, use **Corregir resultado** en la solic
 
 1. Ingrese a **Matrícula > Matrículas** y pulse **Ver** en la matrícula. El listado se filtra por **Estado** y **Grupo**. Las matrículas las registra el propio estudiante desde su portal; el personal no las crea desde el panel.
 2. Revise el **Estudiante**, el **Grupo**, el **Horario**, la **Condición**, el **Estado**, el pago asociado y la sección **Traslados y retiros**.
-3. Pulse **Ficha de matrícula** para descargar la ficha en PDF.
+3. Pulse **Ficha de matrícula** para abrir la ficha en PDF.
 
-Resultado esperado: se descarga la ficha, que incluye un código para verificar su autenticidad.
+Resultado esperado: la ficha se abre en una pestaña nueva, desde donde puede imprimirse o descargarse; incluye un código para verificar su autenticidad.
 
 ![Figura 24. Vista de una matrícula](figuras/p24-matricula.png)
 

@@ -10,7 +10,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 
 *Tabla 1. Historial de versiones del documento*
 
-| Versión | Fecha | Descripción | Elaborado por | Revisado por |
+| Versión | Fecha | Descripción | Elaborado por | Dirigido a |
 |---|---|---|---|---|
 | 1.0 | 18/11/2026 | Versión inicial | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
@@ -34,8 +34,8 @@ El manual está dirigido a los docentes del CILN que tienen grupos asignados por
 | Equipo | Computadora, tableta o teléfono con conexión a internet. |
 | Navegador | Versión reciente de Google Chrome, Mozilla Firefox, Microsoft Edge o Safari. |
 | Dirección del sistema | **https://ciln.unasam.edu.pe** |
-| Ficha docente | La coordinación académica registra al docente en el sistema, con su documento de identidad y su correo. |
-| Cuenta de usuario | El propio docente crea su cuenta con el mismo documento y el mismo correo de su ficha docente, y verifica el correo (sección 2.1). |
+| Ficha docente | La coordinación académica registra al docente en el sistema: su ficha de persona, con su documento de identidad y su correo personal, y su ficha docente. |
+| Cuenta de usuario | El propio docente crea su cuenta con el mismo documento de identidad y el mismo correo personal registrados en su ficha de persona (no con el correo institucional), y verifica el correo (sección 2.1). |
 | Grupos asignados | La coordinación académica debe haber asignado al menos un grupo al docente. |
 
 Las imágenes de este manual se obtuvieron del sistema con datos de demostración generados para las pruebas: los nombres, documentos de identidad, correos, teléfonos, grupos y fechas que aparecen en ellas son ficticios.
@@ -49,14 +49,14 @@ Las imágenes de este manual se obtuvieron del sistema con datos de demostració
 1. Ingrese a **https://ciln.unasam.edu.pe** y presione **Crear cuenta** en la parte superior de la página.
 2. En **Documento de identidad**, elija el **Tipo de documento** y escriba el **Número de documento** registrado en su ficha docente (el DNI tiene 8 dígitos; los otros documentos, de 6 a 12 letras o números).
 3. En **Datos personales**, complete **Apellido paterno**, **Apellido materno (opcional)**, **Nombres**, **Fecha de nacimiento** y **Celular**.
-4. En **Acceso**, escriba en **Correo** el mismo correo que figura en su ficha docente. Escriba una **Contraseña** de al menos 8 caracteres, con letras y números, y repítala en **Repite la contraseña**.
+4. En **Acceso**, escriba en **Correo** su correo personal, el mismo registrado en su ficha de persona del CILN (no el correo institucional). Escriba una **Contraseña** de al menos 8 caracteres, con letras y números, y repítala en **Repite la contraseña**.
 5. Marque la casilla de aceptación del tratamiento de sus datos personales. El enlace **política de privacidad** abre la política del CILN en otra pestaña.
 6. Presione **Crear mi cuenta**.
 7. El sistema muestra la pantalla **Verifica tu correo**. Abra el mensaje **Verifica tu correo del CILN** en su bandeja de entrada (revise también el correo no deseado) y presione **Verificar mi correo**. Si el mensaje no llegó, presione **Enviar otro enlace** (una vez por minuto).
 
 **Resultado esperado:** el sistema muestra "Tu correo quedó verificado." y abre el portal del estudiante. Para pasar al Portal Docente, presione su nombre en la parte inferior del menú lateral y elija **Portal docente**, o ingrese de nuevo por la página de ingreso (sección 2.2).
 
-Si el sistema responde "No podemos crear una cuenta con ese documento…", ya existe una cuenta con ese documento o el correo escrito no coincide con el de la ficha: ingrese con esa cuenta o recupere su contraseña, o pida a la coordinación académica que actualice el correo de su ficha. Si al ingresar aparece "Tu cuenta no está vinculada a un perfil docente del CILN.", la cuenta no corresponde a su ficha docente; comuníquese con la coordinación académica.
+Si el sistema responde "No podemos crear una cuenta con ese documento…", ya existe una cuenta con ese documento o el correo escrito no coincide con el correo personal de su ficha: ingrese con esa cuenta o recupere su contraseña, o pida a la coordinación académica que actualice el correo personal de su ficha. Si al ingresar aparece "Tu cuenta no está vinculada a un perfil docente del CILN.", la cuenta no corresponde a su ficha docente; comuníquese con la coordinación académica.
 
 ![Figura 1. Formulario «Crea tu cuenta de estudiante», que el docente usa en su primer acceso](figuras/registro.png)
 
@@ -78,7 +78,7 @@ Si el correo o la contraseña no coinciden, el sistema muestra "El correo o la c
 
 ## 2.3. Recuperar la contraseña
 
-**Propósito:** crear una nueva contraseña cuando se ha olvidado la actual. El Portal Docente no tiene una opción para cambiar la contraseña; para cambiarla, use también este procedimiento.
+**Propósito:** crear una nueva contraseña cuando se ha olvidado la actual. Para cambiar una contraseña que sí recuerda, use **Modificar datos** en el portal del estudiante (opción **Mi portal de estudiante**, sección 2.5), como se explica en el Manual de Usuario – Estudiante, numeral 3.3.
 
 1. En la página de ingreso, presione **¿Olvidaste tu contraseña?**.
 2. En la sección **Recuperar contraseña**, escriba su correo en el campo **Correo** y presione **Enviar enlace**. El sistema muestra "Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.". Para regresar sin hacer cambios, presione **Volver a ingresar**.
@@ -104,7 +104,7 @@ En la parte inferior del menú aparece el nombre del docente; al presionarlo se 
 **Propósito:** cambiar al portal de estudiante (cuando corresponda) o salir del sistema de forma segura.
 
 1. Presione su nombre en la parte inferior del menú lateral.
-2. Si el docente también está registrado como estudiante del CILN, aparece la opción **Mi portal de estudiante**; al presionarla se abre el portal del estudiante con la misma sesión. Esta opción no se muestra a quien no tiene ficha de estudiante.
+2. Aparece la opción **Mi portal de estudiante**, porque la cuenta del docente está vinculada a su ficha de persona; al presionarla se abre el portal del estudiante con la misma sesión, donde puede modificar sus datos y su contraseña y, si también estudia en el CILN, realizar sus procesos de estudiante.
 3. Para terminar la sesión, presione **Salir**.
 
 **Resultado esperado:** con **Salir**, el sistema cierra la sesión y ya no permite ver el portal sin volver a ingresar. Se recomienda cerrar sesión siempre al terminar, en especial en equipos compartidos.
@@ -378,7 +378,7 @@ Consideraciones importantes:
 
 ## 6.5. Rectificación del acta
 
-Una vez cerrada, el acta solo puede corregirse si el administrador del CILN autoriza una rectificación. En ese caso:
+Una vez cerrada, el acta solo puede corregirse si el CILN autoriza una rectificación; la autoriza el personal con permiso de Certificación. En ese caso:
 
 1. El acta aparece con la marca **En rectificación** y el **Motivo autorizado**.
 2. Corrija las notas directamente en la tabla **Calificaciones** de la pestaña **Acta final** y presione **Guardar notas**. El sistema muestra "Notas del acta rectificadas. Valídala para cerrarla de nuevo."
@@ -405,7 +405,7 @@ Mientras el acta está en rectificación no se emite su PDF; vuelve a estar disp
 
 | Pregunta | Respuesta |
 |---|---|
-| ¿Quién me da el usuario y la contraseña? | Nadie: el docente crea su propia cuenta con el documento y el correo de su ficha docente (sección 2.1). |
+| ¿Quién me da el usuario y la contraseña? | Nadie: el docente crea su propia cuenta con su documento y el correo personal registrado en su ficha (sección 2.1). |
 | Al ingresar aparece "Tu cuenta no está vinculada a un perfil docente del CILN.". | La cuenta no corresponde a su ficha docente (otro documento u otro correo). Comuníquese con la coordinación académica. |
 | No veo un grupo que me asignaron. | Solo aparecen los grupos que la coordinación tiene asignados al docente en ese momento. Si un grupo fue reasignado, deja de mostrarse. Consulte con la coordinación académica. |
 | No puedo guardar el llamado de inicio. | El llamado de inicio se abre 10 minutos antes del inicio de la clase y se cierra a la hora de fin. Si no se tomó a tiempo, use el registro posterior (sección 4.5). |
@@ -419,7 +419,7 @@ Mientras el acta está en rectificación no se emite su PDF; vuelve a estar disp
 | ¿Cómo se redondea la nota final? | Solo se redondea la nota final, al entero: 0.5 o más sube al entero siguiente (13.50 pasa a 14). |
 | ¿Qué significa NSP? | Que el estudiante no tiene ninguna nota registrada en el acta. |
 | El botón **Validar y cerrar acta** está deshabilitado. | El acta solo puede cerrarse dentro de las fechas para actas finales del periodo, que se muestran en la pestaña **Acta final**. |
-| Cerré el acta con un error. | El docente no puede modificar un acta cerrada. Solicite a la coordinación académica una rectificación autorizada por el administrador. |
+| Cerré el acta con un error. | El docente no puede modificar un acta cerrada. Solicite a la coordinación académica una rectificación, que autoriza el personal del CILN con permiso de Certificación. |
 | No recuerdo mi contraseña o quiero cambiarla. | Use **¿Olvidaste tu contraseña?** en la página de ingreso (sección 2.3). |
 
 # 9. SOPORTE

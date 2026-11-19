@@ -10,7 +10,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 
 *Tabla 1. Historial de versiones del documento*
 
-| Versión | Fecha | Descripción | Elaborado por | Revisado por |
+| Versión | Fecha | Descripción | Elaborado por | Dirigido a |
 |---|---|---|---|---|
 | 1.0 | 18/11/2026 | Versión inicial | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
@@ -299,8 +299,8 @@ Muestra sus matrículas por periodo, de la más reciente a la más antigua.
 
 1. En el menú, presione **Mis matrículas**.
 2. Revise, por cada matrícula, el **Idioma y ciclo**, el **Grupo**, el **Horario**, el **Aula**, el **Docente**, la **Condición**, el **Estado** y la fecha en que se matriculó (**Matriculado el**).
-3. Para descargar la ficha de matrícula del periodo, presione **Ficha de matrícula (PDF)**.
-4. Para descargar la constancia de una matrícula, presione **Constancia (PDF)** en la columna **Documentos**.
+3. Para obtener la ficha de matrícula del periodo, presione **Ficha de matrícula (PDF)**; se abre en una pestaña nueva.
+4. Para obtener la constancia de una matrícula, presione **Constancia (PDF)** en la columna **Documentos**; se abre en una pestaña nueva.
 
 **Resultado:** el documento PDF se abre en una pestaña nueva, listo para guardar o imprimir. Si el grupo es virtual, la columna **Aula** muestra el enlace **Clase virtual**. La **Condición** indica si cursa el ciclo por primera vez (**Regular**) o lo repite (**Repitente**); el **Estado** indica si la matrícula está **Activa** o **Retirada**. La **Constancia (PDF)** solo se ofrece para matrículas activas.
 
@@ -369,7 +369,7 @@ Reúne en una sola pantalla todos sus reportes académicos.
 1. En el menú, presione **Horario** (grupo **Reportes**).
 2. Elija el **Periodo**.
 3. Revise **Cursos y docentes** (grupo, docente, aula y modalidad de cada curso) y **Mi horario** (la semana por bloques de hora, con el número del curso y el aula).
-4. Presione **PDF** para descargarlo o **Imprimir** para imprimirlo.
+4. Presione **PDF** para abrirlo en una pestaña nueva o **Imprimir** para imprimirlo.
 
 ![Figura 25. Horario personalizado](figuras/horario.png)
 
@@ -457,7 +457,7 @@ Los documentos que el CILN emite por trámite (constancia de matrícula, constan
 |---|---|
 | No me llegó el correo de verificación. ¿Qué hago? | Revise la carpeta de correo no deseado (spam). Si no está, presione **Enviar otro enlace** en la pantalla **Verifica tu correo**. |
 | Olvidé mi contraseña. | Use **¿Olvidaste tu contraseña?** en la pantalla de ingreso (numeral 2.5). |
-| El sistema no me deja ingresar después de varios intentos. | Por seguridad, el ingreso se bloquea temporalmente tras varios intentos fallidos. Espere un minuto e inténtelo de nuevo. |
+| El sistema no me deja ingresar después de varios intentos. | Por seguridad, el ingreso se bloquea temporalmente tras varios intentos fallidos. Espere los segundos que indica el mensaje e inténtelo de nuevo. |
 | Mis nombres o mi documento tienen un error. | Esos datos solo los corrige el CILN. Acérquese a la oficina con su documento de identidad. |
 | Registré mi pago pero no puedo matricularme. | El pago debe estar **Validado**. Mientras esté pendiente, lleve la boleta original al CILN para validarla. |
 | Mi pago fue rechazado. | Revise que el número de operación, la fecha, el concepto y el recibo adjunto coincidan con el comprobante, y registre el recibo nuevamente. |
