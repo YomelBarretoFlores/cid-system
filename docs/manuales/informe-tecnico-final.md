@@ -14,7 +14,7 @@ entidad: Universidad Nacional Santiago Antúnez de Mayolo – Centro de Idiomas 
 | Versión | Fecha | Descripción | Autor |
 |---|---|---|---|
 | 1.0 | Noviembre de 2026 | Informe técnico final del servicio, con la verificación del cumplimiento de la Orden de Servicio, los Términos de Referencia y su Anexo Técnico | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. |
-| 1.1 | 19/11/2026 | Actualización: brechas corregidas, evidencias de capacitación y requerimientos, declaraciones contractuales | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. |
+| 1.1 | 19/11/2026 | Actualización: brechas corregidas, evidencias de capacitación y requerimientos, declaraciones contractuales y cartas de cesión de derechos y de garantía técnica | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. |
 
 # USO DE LA INFORMACIÓN
 
@@ -580,19 +580,19 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Cláusula | Requisito | Evidencia | Estado |
 |---|---|---|---|
 | 3.2 | Software que automatice el registro, clasificación, matrícula, pagos, gestión docente y certificación, sobre arquitectura moderna y segura | Capítulos 4, 5 y 8; matriz (11.3) | Cumple |
-| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 93 requisitos cumplidos y 3 cumplidos parcialmente (dos por causas contractuales y uno por diseño) | Cumple |
+| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 95 requisitos cumplidos y 1 cumplido parcialmente por diseño (M6.2.e) | Cumple |
 | 4.2 | Seis actividades mínimas | Tabla de actividades (2.3); Anexo C | Cumple |
 | 4.3 | Plan de trabajo con metodología, cronograma y estructura técnica | Secciones 2.1 y 2.2 | Cumple |
 | 4.5 | Sistema desplegado y operativo en el servidor de la DSTI, con código fuente, manuales y documentación técnica | Sección 3.4; relación de componentes (11.5) | Cumple |
 | 4.6 | Plazo máximo de 30 días calendario | Cronograma (2.2): del 21/10 al 19/11/2026 | Cumple |
-| 6.1 | Código fuente, documentación, manuales, scripts y repositorios; garantía; capacitación; Ley N.° 29733 y auditoría inmutable; cesión de derechos | Secciones 9.2, 9.3, 11.5 y 11.6; Anexo C | Cumple |
+| 6.1 | Código fuente, documentación, manuales, scripts y repositorios; garantía; capacitación; Ley N.° 29733 y auditoría inmutable; cesión de derechos | Secciones 9.2, 9.3, 11.5 y 11.6; Anexos C y D | Cumple |
 | 6.2 | Obligaciones de la Entidad: acceso al servidor de la DSTI y contraparte técnica | La DSTI brindó el acceso al servidor de producción y la contraparte técnica (sección 11.6) | Cumplido por la Entidad |
 | 6.3 | Único entregable: informe final, sistema desplegado y operativo, código fuente, repositorios, scripts, manuales y documentación | Presente informe y sección 11.5 | Cumple |
 | 6.5 | Confidencialidad de la información académica, financiera y personal | Pruebas y demostraciones solo con datos sintéticos; sección «Uso de la información» | Cumple |
-| 6.9 | Responsabilidad por vicios ocultos por un (1) año | Compromiso declarado por el contratista (sección 11.6) | Cumple (compromiso declarado) |
-| 6.10 | Garantía técnica de funcionamiento y soporte por 12 meses | Compromiso del contratista desde la conformidad final (sección 11.6) | Cumple parcialmente (se inicia con la conformidad) |
+| 6.9 | Responsabilidad por vicios ocultos por un (1) año | Compromiso formalizado en la carta de garantía técnica (sección 11.6; Anexo D) | Cumple (compromiso formalizado) |
+| 6.10 | Garantía técnica de funcionamiento y soporte por 12 meses | Carta de garantía técnica por 12 meses desde la conformidad final (sección 11.6; Anexo D) | Cumple (compromiso formalizado; rige desde la conformidad) |
 | 6.11 | Cláusula anticorrupción y antisoborno | Declaración del contratista (sección 11.6) | Cumple |
-| Anexo IV.4 | Garantía de funcionamiento y soporte técnico mínimo de 12 meses | Ídem | Cumple parcialmente (se inicia con la conformidad) |
+| Anexo IV.4 | Garantía de funcionamiento y soporte técnico mínimo de 12 meses | Ídem | Cumple (compromiso formalizado; rige desde la conformidad) |
 
 ## 11.3. Matriz de cumplimiento del Anexo Técnico
 
@@ -611,17 +611,15 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M4. Evaluación y certificación | 11 | 11 | 0 | 0 |
 | M5. Tablero gerencial | 7 | 7 | 0 | 0 |
 | M6. Portal público y trámites | 11 | 10 | 1 | 0 |
-| IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 4 | 2 | 0 |
-| **Total** | **96** | **93** | **3** | **0** |
+| IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 6 | 0 | 0 |
+| **Total** | **96** | **95** | **1** | **0** |
 
-**Los seis módulos funcionales están atendidos**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba; 77 se cumplen y uno (M6.2.e) se cumple parcialmente por una decisión de diseño. Los tres requisitos cumplidos parcialmente no dependen de funciones faltantes: dos son obligaciones que se completan con la conformidad del servicio y el tercero mantiene fijos, por diseño, los estados de los trámites:
+**Los seis módulos funcionales están atendidos**: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y, al menos, una prueba automatizada que lo comprueba; 77 se cumplen y uno (M6.2.e) se cumple parcialmente por una decisión de diseño. La cesión de derechos (IV.1.a) y la garantía técnica (IV.4.a) se cumplen con las cartas suscritas por el contratista (Anexo D). El único requisito cumplido parcialmente no depende de una función faltante: mantiene fijos, por diseño, los estados de los trámites:
 
-*Tabla 24. Requisitos cumplidos parcialmente y acción que corresponde*
+*Tabla 24. Requisito cumplido parcialmente y acción que corresponde*
 
 | Requisito | Situación | Acción y responsable |
 |---|---|---|
-| IV.1.a Cesión de derechos a la UNASAM | Obligación contractual declarada en este informe | Opera por el propio numeral 6.1 de los TdR, sin acto adicional; se hace efectiva con la conformidad del servicio que otorga la Dirección del CILN mediante Informe de Conformidad de Servicio (TdR 6.7) |
-| IV.4.a Garantía de 12 meses | Se inicia con la conformidad final | Plan de soporte y garantía del contratista |
 | M6.2.e Panel para configurar etapas, estados y condiciones de cada trámite | Etapas (nombre, porcentaje y condición), tasa, requisitos y acción final configurables desde el panel; los estados del flujo y las tres condiciones de etapa son fijos por diseño | Se mantienen fijos para conservar coherentes las reglas de pago y de auditoría; un estado adicional que requiera el CILN se atiende como mejora, previa evaluación del CILN y la DSTI |
 
 ### 11.3.1. Requisitos técnicos generales (sección II del Anexo)
@@ -769,12 +767,12 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 | ID | Requisito | Ubicación en el sistema | Estado | Observación |
 |---|---|---|---|---|
-| IV.1.a | Cesión total de derechos patrimoniales a la UNASAM | Contractual | Cumple parcialmente | Declarada en este informe; opera por el numeral 6.1 de los TdR y se hace efectiva con la conformidad del servicio (Informe de Conformidad de Servicio, TdR 6.7) |
+| IV.1.a | Cesión total de derechos patrimoniales a la UNASAM | Contractual | Cumple | Cesión formalizada en la carta de cesión de derechos patrimoniales suscrita por el representante legal del contratista, conforme al numeral 6.1 de los TdR (Anexo D) |
 | IV.1.b | Entrega de repositorios completos y documentados al finalizar | Repositorio | Cumple | Código fuente y repositorio entregados a la DSTI con su documentación técnica; manuales de usuario (estudiante, docente y personal del CILN) entregados |
 | IV.2.a | Seguridad conforme a Ley 29733 y OWASP | Transversal | Cumple | Ley N.° 29733 (sección 9.3: política de privacidad en `/privacidad` y consentimiento registrado con fecha y hora) y escaneo OWASP ZAP de la v1.1.1 (sección 9.1) |
 | IV.2.b | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | — |
 | IV.3.a | Confidencialidad de la información académica, financiera y personal | Proceso del proveedor | Cumple | Compromiso contractual; en lo técnico, pruebas y demo solo con datos sintéticos |
-| IV.4.a | Garantía y soporte técnico mínimo de 12 meses | Contractual | Cumple parcialmente | Obligación que se inicia con la conformidad final; no verificable en el código |
+| IV.4.a | Garantía y soporte técnico mínimo de 12 meses | Contractual | Cumple | Compromiso formalizado en la carta de garantía técnica de funcionamiento y soporte (Anexo D); los 12 meses rigen desde la conformidad final |
 
 ## 11.4. Atención al Informe Técnico N.° 023-2026-FMAJ
 
@@ -811,14 +809,16 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | Reporte del escaneo de seguridad OWASP ZAP (versión v1.1.1) | Anexo II.2.a y IV.2 | Entregado |
 | Manuales de usuario (estudiante, docente y personal del CILN) | TdR 4.2 y 6.1 | Entregado |
 | Capacitación al personal docente y administrativo del CILN (16/11/2026) y capacitación continua a docentes y estudiantes (17 y 18/11/2026) | TdR 4.2 y 6.1 | Realizada (Anexo C) |
-| Garantía técnica de funcionamiento y soporte por 12 meses | TdR 6.1 y 6.10; Anexo IV.4 | Compromiso declarado (11.6); se inicia con la conformidad final |
+| Carta de cesión de derechos patrimoniales | TdR 6.1; Anexo IV.1 | Entregada (Anexo D) |
+| Garantía técnica de funcionamiento y soporte por 12 meses | TdR 6.1 y 6.10; Anexo IV.4 | Carta de garantía entregada (Anexo D); rige desde la conformidad final |
 
 ## 11.6. Declaraciones del contratista
 
 ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Referencia y a su Anexo Técnico:
 
-- **Garantía técnica.** Se compromete a brindar la garantía técnica de funcionamiento y el soporte (resolución de errores, atención de incidencias y asistencia en el uso) por doce (12) meses contados desde la conformidad final del sistema (TdR 6.1 y 6.10; Anexo IV.4).
-- **Vicios ocultos.** Asume la responsabilidad por los vicios ocultos del servicio por un (1) año, conforme al numeral 6.9 de los TdR.
+- **Cesión de derechos.** Cede a la UNASAM, en forma total, exclusiva y a perpetuidad, los derechos patrimoniales del software, el diseño de la base de datos, el código fuente, los manuales y los scripts de implementación, mediante la carta de cesión de derechos patrimoniales (TdR 6.1; Anexo IV.1; Anexo D).
+- **Garantía técnica.** Se compromete a brindar la garantía técnica de funcionamiento y el soporte (resolución de errores, atención de incidencias y asistencia en el uso) por doce (12) meses contados desde la conformidad final del sistema (TdR 6.1 y 6.10; Anexo IV.4), según la carta de garantía técnica (Anexo D).
+- **Vicios ocultos.** Asume la responsabilidad por los vicios ocultos del servicio por un (1) año, conforme al numeral 6.9 de los TdR; este compromiso consta en la carta de garantía técnica (Anexo D).
 - **Ejecución directa.** Prestó el servicio directamente, sin subcontratar ninguna de sus prestaciones (TdR 6.1).
 - **Confidencialidad.** Mantiene reserva absoluta sobre la información académica, financiera y personal de la Entidad a la que tuvo acceso (TdR 6.5; Anexo IV.3), según la sección «Uso de la información».
 - **Anticorrupción y antisoborno.** No ofreció, otorgó ni ofrecerá, directa o indirectamente, pagos, dádivas ni otros beneficios indebidos a funcionarios o servidores de la Entidad en relación con el servicio (TdR 6.11).
@@ -827,7 +827,7 @@ ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Re
 # 12. CONCLUSIONES
 
 1. El Sistema de Gestión Académica y Administrativa del CILN **atiende los seis módulos funcionales** del Anexo Técnico: los 78 requisitos funcionales tienen una pantalla o un servicio que los atiende y pruebas automatizadas que lo comprueban; 77 se cumplen y uno (M6.2.e) se cumple parcialmente porque los estados de los trámites y las condiciones de etapa son fijos por diseño.
-2. De los 96 requisitos verificados del Anexo Técnico, **93 se cumplen y 3 se cumplen parcialmente**: dos por tratarse de obligaciones que se completan con la conformidad del servicio que otorga la Dirección del CILN mediante Informe de Conformidad de Servicio (TdR 6.7), la cesión de derechos, que opera por el numeral 6.1 de los TdR, y el inicio de la garantía; y uno (M6.2.e) por la decisión de diseño de mantener fijos los estados de los trámites. **Ningún requisito queda sin atender.**
+2. De los 96 requisitos verificados del Anexo Técnico, **95 se cumplen y 1 se cumple parcialmente**: la cesión de derechos y la garantía técnica quedan formalizadas mediante cartas suscritas por el contratista (Anexo D), y el único requisito parcial (M6.2.e) responde a la decisión de diseño de mantener fijos los estados de los trámites. **Ningún requisito queda sin atender.**
 3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091, del 21 de octubre al 19 de noviembre de 2026, y atendió las seis actividades del numeral 4.2 de los TdR, incluidos el levantamiento de requerimientos con el área usuaria y la capacitación al personal docente y administrativo, a los docentes y a los estudiantes (Anexo C); el sistema se encuentra desplegado en `https://ciln.unasam.edu.pe`, envía sus correos desde la cuenta institucional `sistemacln@unasam.edu.pe` y el código fuente está en poder de la DSTI; los manuales de usuario del estudiante, del docente y del personal del CILN fueron entregados.
 4. El sistema supera las limitaciones señaladas por la DSTI en el Informe Técnico N.° 023-2026-FMAJ: usa tecnologías con soporte vigente, aplica los controles del OWASP Top 10, registra una pista de auditoría inmutable en la base de datos y protege los datos personales conforme a la Ley N.° 29733.
 5. El cálculo de las notas sigue el sistema de evaluación del CILN, como lo indicó el área usuaria: promedio de las cuatro habilidades y promedio de los exámenes, con la nota final redondeada a un entero y una nota mínima aprobatoria configurable.
@@ -991,12 +991,12 @@ Rutas del código fuente que implementan cada requisito y pruebas automatizadas 
 
 | ID | Código fuente | Pruebas automatizadas |
 |---|---|---|
-| IV.1.a | — | — |
+| IV.1.a | Carta de cesión de derechos patrimoniales (Anexo D) | — |
 | IV.1.b | `docs/` (arquitectura, modelo de datos, despliegue, seguridad, ADR 0001–0009); manuales de usuario en `docs/manuales/` | — |
 | IV.2.a | Ver II.2.a a II.2.d | Ver II.2 |
 | IV.2.b | `app/Shared/Audit/Database/Migrations/2026_10_24_125000_create_aud_registros_table.php`, `app/Shared/Audit/Database/Migrations/2026_10_24_160000_add_solicitud_id_to_aud_registros.php` | `tests/Feature/Audit/AuditTrailTest.php`, `tests/Feature/Auditoria/CambiosDelRegistroTest.php` |
 | IV.3.a | `database/seeders/DatabaseSeeder.php` (se niega a correr en producción) | `tests/Feature/DemoSeederTest.php` |
-| IV.4.a | — | — |
+| IV.4.a | Carta de garantía técnica (Anexo D) | — |
 
 # ANEXO B. INVENTARIO DE PRUEBAS AUTOMATIZADAS
 
@@ -1069,3 +1069,14 @@ Registro fotográfico de las reuniones con el área usuaria y de las capacitacio
 *Figura 27. Capacitación continua a estudiantes: uso del sistema en aula (17 y 18/11/2026)*
 
 *Figura 28. Capacitación continua a estudiantes: acompañamiento en el uso del sistema en aula (17 y 18/11/2026)*
+
+# ANEXO D. CARTAS DE CESIÓN DE DERECHOS Y DE GARANTÍA TÉCNICA
+
+Cartas suscritas por el representante legal de ELECTRODATA INGENIERIA & SISTEMAS S.A.C., que se entregan junto con el presente informe como documentos independientes.
+
+*Tabla 45. Cartas del contratista*
+
+| Documento | Base contractual | Contenido |
+|---|---|---|
+| Carta de cesión de derechos patrimoniales | TdR 6.1; Anexo Técnico IV.1 | Cesión total, exclusiva y a perpetuidad a la UNASAM de los derechos patrimoniales del software (versión v1.1.1 y anteriores, con su código fuente), el diseño de la base de datos, los scripts, los manuales, la documentación técnica y los repositorios, sin contraprestación adicional; surte efectos desde su suscripción |
+| Carta de garantía técnica de funcionamiento y soporte | TdR 6.1, 6.9 y 6.10; Anexo Técnico IV.4 | Garantía de funcionamiento y soporte por doce (12) meses desde la conformidad final (resolución de incidencias y errores, asistencia en el uso y correcciones como nuevas versiones), canal de comunicación de incidencias y responsabilidad por vicios ocultos por un (1) año |
