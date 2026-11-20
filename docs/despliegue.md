@@ -1,6 +1,6 @@
 # Despliegue
 
-> El entorno de la DSTI está pendiente de confirmar ([`decisiones-pendientes.md`](decisiones-pendientes.md) #8). Producción corre en servidores de la DSTI, no en Laravel Cloud, por una de dos rutas que elige la DSTI: **tradicional** (esta sección) o **[Docker](#producción-con-docker)**. Ambas usan la misma base de datos, las mismas variables y los mismos dos roles de PostgreSQL. La entrega formal a la DSTI es el Informe Técnico N.° 001-2026-YJBF, que resume esta guía.
+> Producción corre en servidores de la DSTI, no en Laravel Cloud, por una de dos rutas que elige la DSTI: **tradicional** (esta sección) o **[Docker](#producción-con-docker)**. Ambas usan la misma base de datos, las mismas variables y los mismos dos roles de PostgreSQL. El Informe Técnico Final del servicio resume esta guía.
 
 ## Responsabilidades
 
@@ -221,7 +221,7 @@ Se guardan en el disco del propio servidor, en `storage/app/private` (disco `loc
 
 ## Respaldos programados
 
-Están **apagados por defecto** (`CILN_RESPALDOS_PROGRAMADOS=false`): el disco de destino, la retención y la prueba de restauración siguen pendientes con la DSTI ([decisión #5](decisiones-pendientes.md)).
+Se entregan **apagados por defecto** (`CILN_RESPALDOS_PROGRAMADOS=false`) porque el disco de destino, la retención y la prueba de restauración los define la DSTI en su servidor ([decisión #5](decisiones-pendientes.md)); se activan con el procedimiento de esta sección.
 
 | Tarea | Hora (Lima) | Qué hace |
 |---|---|---|
