@@ -32,7 +32,7 @@ El Centro de Idiomas y Lenguas Nativas (CILN) de la UNASAM operaba un sistema we
 
 Mediante el **Oficio N.° 166-2026-UNASAM-DSTI/D** y el **Informe Técnico N.° 023-2026-FMAJ**, ambos del 22 de mayo de 2026, la DSTI informó al CILN sobre el estado situacional del sistema y concluyó que presenta limitaciones técnicas, funcionales y de seguridad que comprometen su continuidad: tecnología obsoleta, vulnerabilidades críticas (inyección SQL, ejecución remota de código, XSS, gestión insegura de sesiones, exposición de información sensible), malas prácticas de desarrollo (código monolítico y acoplado, sin arquitectura modular ni estándares OWASP) y una interfaz no adaptable a dispositivos móviles. En consecuencia, recomendó el rediseño y desarrollo integral de un sistema nuevo bajo tecnologías modernas y seguras.
 
-En atención a dicha recomendación, el CILN aprobó los **Términos de Referencia (TdR)** del «Servicio de Elaboración e Implementación de Software de Sistema de Calidad» y su **Anexo Técnico**, suscritos en Huaraz el **7 de setiembre de 2026**. Mediante la **Orden de Servicio N.° 0003091**, emitida el **20 de octubre de 2026** y notificada al contratista el **23 de octubre de 2026** (Expediente SIAF N.° 0000005315), la UNASAM contrató el servicio con **ELECTRODATA INGENIERIA & SISTEMAS S.A.C.** (RUC 20571285852), por un monto de **S/ 39,500.00** y un plazo de prestación de **treinta (30) días calendario**, contados a partir del día siguiente de notificada la orden, es decir, del 24 de octubre al 22 de noviembre de 2026.
+En atención a dicha recomendación, el CILN aprobó los **Términos de Referencia (TdR)** del «Servicio de Elaboración e Implementación de Software de Sistema de Calidad» y su **Anexo Técnico**, suscritos en Huaraz el **7 de setiembre de 2026**. Mediante la **Orden de Servicio N.° 0003091**, emitida el **20 de octubre de 2026** y notificada al contratista el **23 de octubre de 2026** (Expediente SIAF N.° 0000005315), la UNASAM contrató el servicio con **ELECTRODATA INGENIERIA & SISTEMAS S.A.C.** (RUC 20571285852), por un monto de **S/ 39,500.00** (incluido el IGV) y un plazo de prestación de **treinta (30) días calendario**, contados a partir del día siguiente de notificada la orden, es decir, del 24 de octubre al 22 de noviembre de 2026.
 
 ## 1.2. Objetivo general
 
@@ -104,6 +104,12 @@ Se aplicaron además, como referencias técnicas, el OWASP Top 10 (2021) para la
 | ULID | Identificador público no secuencial que impide recorrer registros por número |
 | OWASP | Open Worldwide Application Security Project, referente internacional de seguridad web |
 | CI | Integración continua: verificación automática de cada cambio del código fuente |
+| LTS | Versión con soporte a largo plazo (Long Term Support), que recibe parches de seguridad |
+| WCAG | Pautas de accesibilidad para el contenido web (Web Content Accessibility Guidelines); el nivel AA fija, entre otros, el contraste mínimo de colores |
+| OWASP ZAP | Herramienta de código abierto para el escaneo de seguridad de aplicaciones web |
+| COEP | Cabecera de seguridad Cross-Origin-Embedder-Policy, que restringe la carga de recursos de otros orígenes |
+| NSP | «No se presentó»: estudiante que no rindió la evaluación |
+| ARCO | Derechos de acceso, rectificación, cancelación y oposición sobre los datos personales (Ley N.° 29733) |
 
 ## 1.7. Convenciones del informe
 
@@ -119,12 +125,12 @@ Los registros de decisiones de arquitectura (ADR 0001 a 0009) y la documentació
 
 Conforme al numeral 4.3 de los TdR, el servicio se ejecutó con un plan de trabajo coordinado con el área usuaria al inicio de la prestación, que definió la metodología, el cronograma y la estructura técnica propuesta. Se adoptó un desarrollo **iterativo e incremental por módulo**:
 
-1. **Análisis.** En reuniones con el área usuaria del 23 al 26 de octubre de 2026 (registro fotográfico en el Anexo C), cada requisito del Anexo Técnico se transcribió y codificó (por ejemplo, `M2.1.b`), y cada supuesto o duda se registró como decisión para la validación del CILN (137 decisiones registradas).
+1. **Análisis.** En reuniones con el área usuaria del 23 al 26 de octubre de 2026 (registro fotográfico en el Anexo C), cada requisito del Anexo Técnico se transcribió y codificó (por ejemplo, `M2.1.b`), y cada supuesto o duda se registró como una decisión del proyecto (137 decisiones registradas).
 2. **Diseño.** Se definieron la arquitectura, el modelo de datos por módulo y las decisiones técnicas en registros de arquitectura (ADR 0001 a 0009).
 3. **Construcción guiada por pruebas.** Cada regla de negocio se implementó junto con su prueba automatizada sobre PostgreSQL, con datos sintéticos.
 4. **Integración continua.** Cada cambio pasó por el análisis estático, el estilo, la auditoría de dependencias y la suite completa de pruebas antes de integrarse.
 5. **Verificación funcional.** Cada flujo se comprobó en el navegador con datos de demostración, como lo usarían el estudiante, el docente y el personal.
-6. **Despliegue, capacitación y cierre.** Se publicaron las versiones con etiqueta (de `v1.0.0` a `v1.1.1`), se desplegaron en el servidor designado por la DSTI, se capacitó al personal directivo, docente y administrativo del CILN, y a docentes y estudiantes en el uso del sistema y se elaboró la documentación técnica.
+6. **Despliegue, capacitación y cierre.** Se publicaron las versiones con etiqueta (de `v1.0.0` a `v1.1.1`), se desplegaron en el servidor designado por la DSTI, se capacitó al personal directivo, docente y administrativo del CILN, se realizaron sesiones prácticas con docentes y estudiantes, y se elaboró la documentación técnica.
 
 ## 2.2. Cronograma de ejecución
 
@@ -138,13 +144,13 @@ La Orden de Servicio se emitió el 20 de octubre de 2026 y se notificó al contr
 | Base técnica (en paralelo con el análisis) | 24/10/2026 | Proyecto base en Laravel 13 con arquitectura modular, integración continua sobre PostgreSQL 18, auditoría por triggers, autenticación y control de acceso |
 | Módulos 1, 2 y 3: primera versión | 24/10 al 25/10/2026 | Oferta académica, personas, clasificación, matrícula, pagos y docencia, con pruebas de concurrencia |
 | Módulos 4, 5 y 6 y API: primera versión | 25/10/2026 | Actas y certificación, tablero gerencial, trámites, portal y servicios REST; panel de administración |
-| Despliegue inicial (sin etiqueta) | 26/10 al 27/10/2026 | Scripts de instalación tradicional y con contenedores, ajustes de rendimiento del panel |
+| Scripts de despliegue | 26/10 al 27/10/2026 | Scripts de instalación tradicional y con contenedores, ajustes de rendimiento del panel |
 | Segunda iteración funcional | 31/10 al 03/11/2026 | Control de clases con asistencia y delegado, reportes, panel docente, tablero, portal público, correcciones del panel de administración |
 | Seguridad y portal del estudiante | 08/11 al 10/11/2026 | Actualizaciones de seguridad de dependencias, cabeceras y política CSP, sesiones cifradas, PHP 8.5, consentimiento de datos personales, portal del estudiante en estilo formal, paleta con contraste WCAG AA |
-| Cierre técnico | 16/11/2026 | Diccionario de datos generado desde PostgreSQL, portada pública institucional, actualización automática por versiones publicadas, correo institucional, guía de despliegue; publicación de la versión `v1.0.0` |
+| Versión v1.0.0 | 16/11/2026 | Diccionario de datos generado desde PostgreSQL, portada pública institucional, actualización automática por versiones publicadas, correo institucional, guía de despliegue; publicación de la versión `v1.0.0` |
 | Capacitación | 16/11 al 18/11/2026 | Capacitación al personal directivo, docente y administrativo del CILN, en sus instalaciones, con exposición del sistema (16/11); capacitación práctica a docentes y estudiantes: ingreso al sistema en producción (`https://ciln.unasam.edu.pe`), portal público, matrícula y uso del sistema por los estudiantes en aula (17 y 18/11) (Anexo C) |
 | Ajuste del sistema de evaluación y documentación final | 17/11/2026 | Cálculo de la nota final por las cuatro habilidades y los exámenes; informe técnico final |
-| Correcciones finales y versión entregada | 18/11 al 19/11/2026 | Verificación del correo en producción con la cuenta institucional `sistemacln@unasam.edu.pe`, escaneo OWASP ZAP, registro de notas parciales limitado al calendario académico, política de privacidad y consentimiento registrado por el personal, emisión masiva de constancias de matrícula; publicación de la versión `v1.1.1` y actualización del presente informe |
+| Correcciones finales y versión entregada | 18/11 al 19/11/2026 | Verificación del correo en producción con la cuenta institucional `sistemacln@unasam.edu.pe`, escaneo OWASP ZAP, registro de notas parciales limitado al calendario académico, política de privacidad y consentimiento registrado por el personal, emisión masiva de constancias de matrícula; publicación de las versiones `v1.0.1`, `v1.1.0` y `v1.1.1`, y actualización del presente informe |
 
 ## 2.3. Actividades del TdR
 
@@ -157,13 +163,13 @@ La Orden de Servicio se emitió el 20 de octubre de 2026 y se notificó al contr
 | Desarrollo, pruebas e implementación de los seis módulos | Desarrollo iterativo por módulo con pruebas automatizadas sobre PostgreSQL | Capítulos 8 y 10; matriz de cumplimiento (11.3); Anexos A y B |
 | Aplicación de estándares de seguridad (OWASP Top 10) y de pistas de auditoría | Controles por cada riesgo OWASP y auditoría inmutable por triggers en 42 tablas | Capítulo 9; `docs/seguridad.md` |
 | Despliegue y puesta en producción en el servidor designado por la DSTI | Instalación en el servidor de la DSTI con la guía y los scripts de implementación | Capítulo 3; `docs/despliegue.md`; versión entregada `v1.1.1` |
-| Capacitación al personal del CILN y entrega de manuales y del código fuente | Capacitación al personal directivo, docente y administrativo del CILN (16/11/2026) y capacitación práctica a docentes y estudiantes en el sistema en producción (17 y 18/11/2026); código fuente y repositorio entregados a la DSTI; manuales de usuario entregados | Sección 11.5; registro fotográfico (Anexo C, figuras 20 a 28) |
+| Capacitación al personal del CILN y entrega de manuales y del código fuente | Capacitación al personal directivo, docente y administrativo del CILN (16/11/2026) y capacitación práctica a docentes y estudiantes en el sistema en producción (17 y 18/11/2026); código fuente en la carpeta «Código fuente» de la USB y repositorio completo entregado a la DSTI; manuales de usuario entregados | Sección 11.5; registro fotográfico (Anexo C, figuras 20 a 28) |
 
 # 3. INFRAESTRUCTURA TECNOLÓGICA
 
 ## 3.1. Servidor web y de aplicaciones
 
-El sistema se ejecuta sobre un servidor Linux de la UNASAM con **PHP 8.5** (PHP-FPM) detrás de un servidor web **Apache 2.4** (o Nginx) con HTTPS. Requiere las extensiones de PHP `pdo_pgsql`, `pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring` y `pcntl`. Junto al servidor web funcionan dos procesos de fondo: un **trabajador de colas** supervisado (envío de correos y reacciones a la validación de pagos) y el **programador de tareas** (cron cada minuto), que ejecuta los procesos automáticos.
+El sistema se ejecuta sobre un servidor Linux de la UNASAM con **PHP 8.5** (PHP-FPM) detrás de un servidor web **Apache 2.4** con HTTPS. Requiere las extensiones de PHP `pdo_pgsql`, `pgsql`, `gd`, `intl`, `zip`, `bcmath`, `mbstring` y `pcntl`. Junto al servidor web funcionan dos procesos de fondo: un **trabajador de colas** supervisado (envío de correos y reacciones a la validación de pagos) y el **programador de tareas** (cron cada minuto), que ejecuta los procesos automáticos.
 
 La DSTI dispone de dos rutas de instalación documentadas: la **instalación tradicional** sobre el sistema operativo y la **instalación con contenedores Docker**, ambas con el mismo código fuente.
 
@@ -190,7 +196,7 @@ Conforme al numeral 4.5 de los TdR, el sistema se encuentra **desplegado y opera
 
 | Componente | Configuración |
 |---|---|
-| Aplicación | PHP 8.5 con Apache 2.4 (o Nginx) y HTTPS; modo de depuración desactivado |
+| Aplicación | PHP 8.5 con Apache 2.4 y HTTPS; modo de depuración desactivado |
 | Base de datos | PostgreSQL 18 con rol dueño (migraciones) y rol de aplicación |
 | Procesos de fondo | Trabajador de colas supervisado y programador de tareas |
 | Correo | Cuenta institucional dedicada `sistemacln@unasam.edu.pe` (Microsoft 365), habilitada por la DSTI; envío verificado en producción el 18/11/2026 |
@@ -575,7 +581,7 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Condición | Requisito | Evidencia | Estado |
 |---|---|---|---|
 | Objeto | Diseño, desarrollo, despliegue y puesta en producción del Sistema de Gestión Académica y Administrativa del CILN | Capítulos 4 a 8; sistema desplegado en el servidor de la DSTI | Cumple |
-| Plazo | 30 días calendario contados desde el día siguiente de la notificación de la orden (emitida el 20/10/2026 y notificada el 23/10/2026) | Cronograma (2.2): ejecución del 23/10 al 19/11/2026, dentro del plazo del 24/10 al 22/11/2026 | Cumple |
+| Plazo | 30 días calendario contados desde el día siguiente de la notificación de la orden (emitida el 20/10/2026 y notificada el 23/10/2026) | Cronograma (2.2): ejecución iniciada el 23/10/2026, tras la notificación, y concluida el 19/11/2026, antes del vencimiento del plazo (22/11/2026) | Cumple |
 | Actividades | Las seis actividades del TdR 4.2, transcritas en la orden | Tabla de actividades (2.3), sección 11.5 y Anexo C | Cumple |
 | Seis módulos | Registro, clasificación y matrícula; pagos; docencia; evaluación y certificación; tablero; portal y trámites | Matriz del Anexo Técnico (11.3): de 78 requisitos funcionales, 77 cumplidos y 1 cumplido parcialmente por diseño (M6.2.e) | Cumple (1 requisito parcial por diseño, M6.2.e) |
 | Seguridad | Estándares OWASP Top 10 y pistas de auditoría | Capítulo 9 | Cumple |
@@ -592,11 +598,12 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | 4.2 | Seis actividades mínimas | Tabla de actividades (2.3); Anexo C | Cumple |
 | 4.3 | Plan de trabajo con metodología, cronograma y estructura técnica | Secciones 2.1 y 2.2 | Cumple |
 | 4.5 | Sistema desplegado y operativo en el servidor de la DSTI, con código fuente, manuales y documentación técnica | Sección 3.4; relación de componentes (11.5) | Cumple |
-| 4.6 | Plazo máximo de 30 días calendario | Cronograma (2.2): ejecución del 23/10 al 19/11/2026, dentro del plazo del 24/10 al 22/11/2026 | Cumple |
+| 4.6 | Plazo máximo de 30 días calendario | Cronograma (2.2): ejecución iniciada el 23/10/2026, tras la notificación, y concluida el 19/11/2026, antes del vencimiento del plazo (22/11/2026) | Cumple |
 | 6.1 | Código fuente, documentación, manuales, scripts y repositorios; garantía; capacitación; Ley N.° 29733 y auditoría inmutable; cesión de derechos | Secciones 9.2, 9.3, 11.5 y 11.6; Anexos C y D | Cumple |
 | 6.2 | Obligaciones de la Entidad: acceso al servidor de la DSTI y contraparte técnica | La DSTI brindó el acceso al servidor de producción y la contraparte técnica (sección 11.6) | Cumplido por la Entidad |
 | 6.3 | Único entregable: informe final, sistema desplegado y operativo, código fuente, repositorios, scripts, manuales y documentación | Presente informe y sección 11.5 | Cumple |
 | 6.5 | Confidencialidad de la información académica, financiera y personal | Pruebas y demostraciones solo con datos sintéticos; sección «Uso de la información» | Cumple |
+| 6.8 | Penalidad por mora (artículo 120 del Reglamento de la Ley N.° 32069) | El entregable se presenta antes del vencimiento del plazo (22/11/2026); no hay días de atraso | No corresponde |
 | 6.9 | Responsabilidad por vicios ocultos por un (1) año | Compromiso formalizado en la carta de garantía técnica (sección 11.6; Anexo D) | Cumple (compromiso formalizado) |
 | 6.10 | Garantía técnica de funcionamiento y soporte por 12 meses | Carta de garantía técnica por 12 meses desde la conformidad final (sección 11.6; Anexo D) | Cumple (compromiso formalizado; rige desde la conformidad) |
 | 6.11 | Cláusula anticorrupción y antisoborno | Declaración del contratista (sección 11.6) | Cumple |
@@ -622,13 +629,13 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 6 | 0 | 0 |
 | **Total** | **96** | **95** | **1** | **0** |
 
-**Los seis módulos funcionales están atendidos**: los 78 requisitos funcionales tienen una pantalla o un servicio que lo atiende y, al menos, una prueba automatizada que lo comprueba; 77 se cumplen y uno (M6.2.e) se cumple parcialmente por una decisión de diseño. La cesión de derechos (IV.1.a) y la garantía técnica (IV.4.a) se cumplen con las cartas suscritas por el contratista (Anexo D). El único requisito cumplido parcialmente no depende de una función faltante: mantiene fijos, por diseño, los estados de los trámites:
+**Los seis módulos funcionales están atendidos**: cada uno de los 78 requisitos funcionales tiene una pantalla o un servicio que lo atiende y, al menos, una prueba automatizada que lo comprueba; 77 se cumplen y uno (M6.2.e) se cumple parcialmente por una decisión de diseño. La cesión de derechos (IV.1.a) y la garantía técnica (IV.4.a) se cumplen con las cartas suscritas por el contratista (Anexo D). El único requisito cumplido parcialmente no depende de una función faltante: mantiene fijos, por diseño, los estados de los trámites:
 
 *Tabla 24. Requisito cumplido parcialmente y acción que corresponde*
 
 | Requisito | Situación | Acción y responsable |
 |---|---|---|
-| M6.2.e Panel para configurar etapas, estados y condiciones de cada trámite | Etapas (nombre, porcentaje y condición), tasa, requisitos y acción final configurables desde el panel; los estados del flujo y las tres condiciones de etapa son fijos por diseño | Se mantienen fijos para conservar coherentes las reglas de pago y de auditoría; un estado adicional que requiera el CILN se atiende como mejora, previa evaluación del CILN y la DSTI |
+| M6.2.e Panel para configurar etapas, estados y condiciones de cada trámite | Etapas (nombre, porcentaje y condición), tasa, requisitos y acción final configurables desde el panel; los estados del flujo y las tres condiciones de etapa son fijos por diseño | Se mantienen fijos para conservar coherentes las reglas de pago y de auditoría; un estado adicional que requiera el CILN se atiende como mejora, fuera del alcance de este servicio, previa evaluación del CILN y la DSTI |
 
 ### 11.3.1. Requisitos técnicos generales (sección II del Anexo)
 
@@ -658,7 +665,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M1.1.a | Registro de postulantes que desean ingresar a nivel superior al básico | Portal del estudiante → Crear cuenta (`/estudiante/registro`) | Cumple | — |
 | M1.1.b | Gestión de solicitudes para rendir el examen de clasificación | Portal del estudiante → Clasificación; Admin → Matrícula → Solicitudes de clasificación | Cumple | Exige pago validado del concepto; vence a los 30 días (#11, #33, #36) |
 | M1.1.c | Ingreso de resultados por coordinación y asignación automática del nivel | Admin → Matrícula → Solicitudes de clasificación (registrar resultado) | Cumple | La coordinación registra el puntaje y el nivel resultante; el sistema asigna automáticamente el ciclo habilitado en el perfil del estudiante (origen "Examen de clasificación") (#34, #35) |
-| M1.1.campos: postulante | Tipo/N.º documento, apellidos, nombres, nacimiento, correo, celular | Admin → Matrícula → Personas; Portal → Crear cuenta | Cumple | — |
+| M1.1.campos: postulante | Tipo/N.° documento, apellidos, nombres, nacimiento, correo, celular | Admin → Matrícula → Personas; Portal → Crear cuenta | Cumple | — |
 | M1.1.campos: vínculo | Tipo de usuario (Estudiante, Docente/Administrativo UNASAM, Público) para tarifas | Admin → Matrícula → Personas; Admin → Catálogos → Conceptos y tarifas | Cumple | Autorregistro como Público General; solo el personal cambia el vínculo (#26) |
 | M1.1.campos: examen | Idioma, fecha, puntaje, nivel asignado | Admin → Matrícula → Solicitudes de clasificación | Cumple | El nivel asignado se expresa como ciclo del idioma (con su nivel) |
 | M1.1.campos: estado | Pendiente de Evaluación, Evaluado, Expirado | Admin → Matrícula → Solicitudes de clasificación | Cumple | Se agrega "Pago anulado" (#131); expiración diaria `clasificacion:expirar` |
@@ -695,7 +702,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M2.1.campos: evidencia | Recibo escaneado, estado, usuario y fecha de validación | Admin → Pagos → Pagos (ficha y recibo) | Cumple | Se agrega estado "Anulado" (#13) |
 | M2.2.a | Reportes consolidados por periodo, idioma, nivel y concepto | Admin → Pagos → Reporte de recaudación | Cumple | Periodo = rango de fechas de pago más filtro de periodo académico (#37) |
 | M2.2.b | Exportación PDF y/o hoja de cálculo (Excel/CSV) para DGF/Tesorería | Admin → Pagos → Reporte de recaudación (PDF, CSV) | Cumple | Exportación en PDF y CSV (UTF-8, se abre directamente en Excel) (#38) |
-| M2.2.campos | Periodo, concepto, monto total, N.º operaciones, detalle por estudiante | Admin → Pagos → Reporte de recaudación | Cumple | Montos sumados en céntimos enteros |
+| M2.2.campos | Periodo, concepto, monto total, N.° operaciones, detalle por estudiante | Admin → Pagos → Reporte de recaudación | Cumple | Montos sumados en céntimos enteros |
 
 ### 11.3.4. Módulo 3: Gestión docente y reportes de carga académica
 
@@ -776,7 +783,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | ID | Requisito | Ubicación en el sistema | Estado | Observación |
 |---|---|---|---|---|
 | IV.1.a | Cesión total de derechos patrimoniales a la UNASAM | Contractual | Cumple | Cesión formalizada en la carta de cesión de derechos patrimoniales suscrita por el representante legal del contratista, conforme al numeral 6.1 de los TdR (Anexo D) |
-| IV.1.b | Entrega de repositorios completos y documentados al finalizar | Repositorio | Cumple | Código fuente y repositorio entregados a la DSTI con su documentación técnica; manuales de usuario (estudiante, docente y personal del CILN) entregados |
+| IV.1.b | Entrega de repositorios completos y documentados al finalizar | Repositorio | Cumple | Código fuente con su documentación técnica en la carpeta «Código fuente» de la USB y repositorio completo entregado a la DSTI; manuales de usuario (estudiante, docente y personal del CILN) entregados |
 | IV.2.a | Seguridad conforme a la Ley N.° 29733 y OWASP | Transversal | Cumple | Ley N.° 29733 (sección 9.3: política de privacidad en `/privacidad` y consentimiento registrado con fecha y hora) y escaneo OWASP ZAP de la v1.1.1 (sección 9.1) |
 | IV.2.b | Log Triggers inmutables: fecha, hora, IP, usuario y detalle | Admin → Seguridad → Auditoría | Cumple | — |
 | IV.3.a | Confidencialidad de la información académica, financiera y personal | Proceso del proveedor | Cumple | Compromiso contractual; en lo técnico, pruebas y demostraciones solo con datos sintéticos |
@@ -811,7 +818,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 |---|---|---|
 | Sistema desplegado y operativo en el servidor de la DSTI, en el dominio oficial `https://ciln.unasam.edu.pe` (versión v1.1.1) | TdR 4.2, 4.5 y 6.3 | Entregado |
 | Código fuente de la versión v1.1.1 y repositorio completo con su historial | TdR 6.1; Anexo IV.1 | Entregado: código fuente en la carpeta «Código fuente» de la USB; repositorio completo, a la DSTI |
-| Scripts de implementación (instalación tradicional y con contenedores, actualización automática con reversión, migraciones) | TdR 6.1 | Entregado, en el repositorio |
+| Scripts de implementación (instalación tradicional y con contenedores, actualización automática con reversión, migraciones) | TdR 6.1 | Entregado, en la carpeta «Código fuente» (`deploy/` y `docker/`) |
 | Documentación técnica (presente informe, arquitectura, modelo de datos, seguridad, guía de despliegue, ADR, documentación OpenAPI de la API) | TdR 4.2, 4.5 y 6.3 | Entregado |
 | Diccionario de Datos – Sistema de Gestión del CILN | TdR 4.2 | Entregado |
 | Reporte del escaneo de seguridad OWASP ZAP (versión v1.1.1) | Anexo II.2.a y IV.2 | Entregado |
@@ -834,19 +841,19 @@ ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Re
 
 # 12. CONCLUSIONES
 
-1. El Sistema de Gestión Académica y Administrativa del CILN **atiende los seis módulos funcionales** del Anexo Técnico: los 78 requisitos funcionales tienen una pantalla o un servicio que lo atiende y pruebas automatizadas que lo comprueban; 77 se cumplen y uno (M6.2.e) se cumple parcialmente porque los estados de los trámites y las condiciones de etapa son fijos por diseño.
+1. El Sistema de Gestión Académica y Administrativa del CILN **atiende los seis módulos funcionales** del Anexo Técnico: cada uno de los 78 requisitos funcionales tiene una pantalla o un servicio que lo atiende y pruebas automatizadas que lo comprueban; 77 se cumplen y uno (M6.2.e) se cumple parcialmente porque los estados de los trámites y las condiciones de etapa son fijos por diseño.
 2. De los 96 requisitos verificados del Anexo Técnico, **95 se cumplen y 1 se cumple parcialmente**: la cesión de derechos y la garantía técnica quedan formalizadas mediante cartas suscritas por el contratista (Anexo D), y el único requisito parcial (M6.2.e) responde a la decisión de diseño de mantener fijos los estados de los trámites. **Ningún requisito queda sin atender.**
-3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091, emitida el 20 de octubre de 2026 y notificada el 23 de octubre de 2026, cuyo plazo corre del 24 de octubre al 22 de noviembre de 2026, y atendió las seis actividades del numeral 4.2 de los TdR, incluidos el levantamiento de requerimientos con el área usuaria y la capacitación al personal directivo, docente y administrativo del CILN y la capacitación práctica de docentes y estudiantes (Anexo C); el sistema se encuentra desplegado en `https://ciln.unasam.edu.pe`, envía sus correos desde la cuenta institucional `sistemacln@unasam.edu.pe` y el código fuente está en poder de la DSTI; los manuales de usuario del estudiante, del docente y del personal del CILN fueron entregados.
+3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091, emitida el 20 de octubre de 2026 y notificada el 23 de octubre de 2026, cuyo plazo corre del 24 de octubre al 22 de noviembre de 2026, y atendió las seis actividades del numeral 4.2 de los TdR, incluidos el levantamiento de requerimientos con el área usuaria y la capacitación al personal directivo, docente y administrativo del CILN y la capacitación práctica de docentes y estudiantes (Anexo C); el sistema se encuentra desplegado en `https://ciln.unasam.edu.pe`, envía sus correos desde la cuenta institucional `sistemacln@unasam.edu.pe`, y el código fuente se entrega en la USB que acompaña al presente informe, con el repositorio completo en poder de la DSTI; los manuales de usuario del estudiante, del docente y del personal del CILN fueron entregados.
 4. El sistema supera las limitaciones señaladas por la DSTI en el Informe Técnico N.° 023-2026-FMAJ: usa tecnologías con soporte vigente, aplica los controles del OWASP Top 10, registra una pista de auditoría inmutable en la base de datos y protege los datos personales conforme a la Ley N.° 29733.
 5. El cálculo de las notas sigue el sistema de evaluación del CILN, como lo indicó el área usuaria: promedio de las cuatro habilidades y promedio de los exámenes, con la nota final redondeada a un entero y una nota mínima aprobatoria configurable.
 
 # 13. RECOMENDACIONES
 
-1. **Correo y respaldos.** Que la DSTI mantenga habilitada la cuenta `sistemacln@unasam.edu.pe` y la configuración de los respaldos programados del servidor de producción, que realice una prueba de restauración de los respaldos al menos una vez por semestre y que, ante la desactivación por defecto de la autenticación básica de SMTP anunciada por Microsoft, evalúe el conector de retransmisión por IP descrito en la guía de despliegue.
+1. **Correo y respaldos.** Que la DSTI mantenga habilitada la cuenta `sistemacln@unasam.edu.pe` y la configuración de los respaldos programados del servidor de producción, que realice una prueba de restauración de los respaldos al menos una vez por semestre y que, si cambia la política de autenticación del servicio de correo institucional, aplique la configuración alternativa descrita en la guía de despliegue.
 2. **Seguridad.** Que la DSTI repita el escaneo OWASP ZAP sobre el servidor de producción `https://ciln.unasam.edu.pe` de forma periódica y después de instalar cada nueva versión, mantenga activo el módulo `mod_headers` de Apache, active el doble factor obligatorio para el personal del panel (`PANEL_DOBLE_FACTOR_OBLIGATORIO=true`) y mantenga la conexión de la aplicación con un rol distinto del dueño del esquema.
-3. **Garantía.** Que, con la conformidad final, se formalice el inicio de la garantía técnica de doce meses y el canal de reporte de incidencias entre el CILN, la DSTI y el contratista.
+3. **Garantía.** Que, con la conformidad final, se registre la fecha de inicio de la garantía técnica de doce meses; el canal de reporte de incidencias consta en la carta de garantía (Anexo D).
 4. **Actualizaciones.** Que las nuevas versiones se instalen solo desde **etiquetas publicadas** (`vX.Y.Z`) de la rama principal, que pasan la integración continua, mediante la actualización automática o el procedimiento manual de la guía de despliegue, y que la DSTI mantenga las dependencias dentro de sus versiones con soporte.
-5. **Validación institucional.** Que el CILN revise los valores configurables con los que se entrega el sistema y registre en el panel los datos institucionales vigentes (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que el personal capacitado replique la capacitación, con los manuales de usuario, al personal y a los docentes que se incorporen.
+5. **Datos institucionales.** Que el CILN mantenga actualizados en el panel los datos institucionales que cambian con el tiempo (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que el personal capacitado replique la capacitación, con los manuales de usuario, al personal y a los docentes que se incorporen.
 6. **Trámites.** Que, si el CILN requiere estados de trámite adicionales a los previstos, los solicite como mejora, para evaluarla con la DSTI sin afectar las reglas de pago y de auditoría.
 
 # ANEXO A. EVIDENCIA TÉCNICA POR REQUISITO
@@ -1000,7 +1007,7 @@ Rutas del código fuente que implementan cada requisito y pruebas automatizadas 
 | ID | Código fuente | Pruebas automatizadas |
 |---|---|---|
 | IV.1.a | Carta de cesión de derechos patrimoniales (Anexo D) | — |
-| IV.1.b | `docs/` (arquitectura, modelo de datos, despliegue, seguridad, ADR 0001–0009); manuales de usuario en `docs/manuales/` | — |
+| IV.1.b | `docs/` (arquitectura, modelo de datos, despliegue, seguridad, ADR 0001–0009); manuales de usuario entregados en Word y PDF | — |
 | IV.2.a | Ver II.2.a a II.2.d | Ver II.2 |
 | IV.2.b | `app/Shared/Audit/Database/Migrations/2026_10_24_125000_create_aud_registros_table.php`, `app/Shared/Audit/Database/Migrations/2026_10_24_160000_add_solicitud_id_to_aud_registros.php` | `tests/Feature/Audit/AuditTrailTest.php`, `tests/Feature/Auditoria/CambiosDelRegistroTest.php` |
 | IV.3.a | `database/seeders/DatabaseSeeder.php` (se niega a correr en producción) | `tests/Feature/DemoSeederTest.php` |
