@@ -1,6 +1,6 @@
 # Módulos y funcionalidades
 
-Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md`](requisitos/anexo-tecnico-ciln.md)) con las reglas de diseño acordadas. **Primero se cumple el TdR al 100 %**; lo adicional está en [`ideas-adicionales.md`](ideas-adicionales.md).
+Resumen operativo del Anexo Técnico (fuente: [`requisitos/anexo-tecnico-ciln.md`](requisitos/anexo-tecnico-ciln.md)) con las reglas de diseño acordadas.
 
 ## Academico (oferta compartida)
 
