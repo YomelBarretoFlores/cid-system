@@ -856,6 +856,12 @@ ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Re
 5. **Datos institucionales.** Que el CILN mantenga actualizados en el panel los datos institucionales que cambian con el tiempo (tarifas TUPA/TUSNE, firmantes, denominación del año, sistemas de evaluación y roles del personal), y que el personal capacitado replique la capacitación, con los manuales de usuario, al personal y a los docentes que se incorporen.
 6. **Trámites.** Que, si el CILN requiere estados de trámite adicionales a los previstos, los solicite como mejora, para evaluarla con la DSTI sin afectar las reglas de pago y de auditoría.
 
+Huaraz, 20 de noviembre de 2026
+
+| Elaborado por | Representante legal |
+|---|---|
+| EDGAR WALDEMAR LUNA VILLALÓN<br>Ingeniero de Sistemas e Informática<br>CIP N.° 175738 – DNI N.° 44955372<br>Analista Programador (personal clave) | LOLO ARTURO LUNA ROJAS<br>Gerente General<br>DNI N.° 31640623<br>ELECTRODATA INGENIERIA & SISTEMAS S.A.C. |
+
 # ANEXO A. EVIDENCIA TÉCNICA POR REQUISITO
 
 Rutas del código fuente que implementan cada requisito y pruebas automatizadas que lo comprueban. Las rutas son relativas a la carpeta raíz del código fuente de la versión v1.1.1 (sección 1.7).
