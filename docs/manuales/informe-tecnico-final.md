@@ -14,7 +14,7 @@ entidad: Universidad Nacional Santiago Antúnez de Mayolo – Centro de Idiomas 
 | Versión | Fecha | Descripción | Autor |
 |---|---|---|---|
 | 1.0 | Noviembre de 2026 | Informe técnico final del servicio, con la verificación del cumplimiento de la Orden de Servicio, los Términos de Referencia y su Anexo Técnico | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. |
-| 1.1 | 19/11/2026 | Actualización a la versión v1.1.1 del sistema; incorporación de las evidencias de capacitación y de levantamiento de requerimientos, de las declaraciones del contratista y de las cartas de cesión de derechos y de garantía técnica | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. |
+| 1.1 | 20/11/2026 | Actualización a la versión v1.1.1 del sistema; incorporación de las evidencias de capacitación y de levantamiento de requerimientos, de las declaraciones del contratista y de las cartas de cesión de derechos y de garantía técnica | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. |
 
 # USO DE LA INFORMACIÓN
 
