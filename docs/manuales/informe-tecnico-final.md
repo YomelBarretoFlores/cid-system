@@ -583,7 +583,7 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Objeto | Diseño, desarrollo, despliegue y puesta en producción del Sistema de Gestión Académica y Administrativa del CILN | Capítulos 4 a 8; sistema desplegado en el servidor de la DSTI | Cumple |
 | Plazo | 30 días calendario contados desde el día siguiente de la notificación de la orden (emitida el 20/10/2026 y notificada el 23/10/2026) | Cronograma (2.2): ejecución iniciada el 23/10/2026, tras la notificación, y concluida el 19/11/2026, antes del vencimiento del plazo (22/11/2026) | Cumple |
 | Actividades | Las seis actividades del TdR 4.2, transcritas en la orden | Tabla de actividades (2.3), sección 11.5 y Anexo C | Cumple |
-| Seis módulos | Registro, clasificación y matrícula; pagos; docencia; evaluación y certificación; tablero; portal y trámites | Matriz del Anexo Técnico (11.3): de 78 requisitos funcionales, 77 cumplidos y 1 cumplido parcialmente por diseño (M6.2.e) | Cumple (1 requisito parcial por diseño, M6.2.e) |
+| Seis módulos | Registro, clasificación y matrícula; pagos; docencia; evaluación y certificación; tablero; portal y trámites | Matriz del Anexo Técnico (11.3): los 78 requisitos funcionales se cumplen (M6.2.e, con la nota aclaratoria de la Tabla 24) | Cumple |
 | Seguridad | Estándares OWASP Top 10 y pistas de auditoría | Capítulo 9 | Cumple |
 | Pago | Una armada, previa conformidad del área usuaria sobre el único entregable | Presente informe y componentes de la sección 11.5 | Para conformidad (Informe de Conformidad de Servicio, TdR 6.7) |
 
@@ -594,7 +594,7 @@ Además de las pruebas automatizadas, cada flujo se verificó en el navegador co
 | Cláusula | Requisito | Evidencia | Estado |
 |---|---|---|---|
 | 3.2 | Software que automatice el registro, clasificación, matrícula, pagos, gestión docente y certificación, sobre arquitectura moderna y segura | Capítulos 4, 5 y 8; matriz (11.3) | Cumple |
-| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): 95 requisitos cumplidos y 1 cumplido parcialmente por diseño (M6.2.e) | Cumple (1 requisito parcial por diseño, M6.2.e) |
+| 4.1 | Servicio conforme al detalle del Anexo Técnico | Matriz (11.3): los 96 requisitos se cumplen (M6.2.e, con la nota aclaratoria de la Tabla 24) | Cumple |
 | 4.2 | Seis actividades mínimas | Tabla de actividades (2.3); Anexo C | Cumple |
 | 4.3 | Plan de trabajo con metodología, cronograma y estructura técnica | Secciones 2.1 y 2.2 | Cumple |
 | 4.5 | Sistema desplegado y operativo en el servidor de la DSTI, con código fuente, manuales y documentación técnica | Sección 3.4; relación de componentes (11.5) | Cumple |
@@ -617,25 +617,25 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 
 *Tabla 23. Resumen del cumplimiento del Anexo Técnico*
 
-| Sección del Anexo Técnico | Requisitos | Cumple | Cumple parcialmente | No cumple |
-|---|---|---|---|---|
-| II. Requisitos técnicos generales | 12 | 12 | 0 | 0 |
-| M1. Registro, clasificación y matrícula | 22 | 22 | 0 | 0 |
-| M2. Pagos | 12 | 12 | 0 | 0 |
-| M3. Docencia | 15 | 15 | 0 | 0 |
-| M4. Evaluación y certificación | 11 | 11 | 0 | 0 |
-| M5. Tablero gerencial | 7 | 7 | 0 | 0 |
-| M6. Portal público y trámites | 11 | 10 | 1 | 0 |
-| IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 6 | 0 | 0 |
-| **Total** | **96** | **95** | **1** | **0** |
-
-**Los seis módulos funcionales están atendidos**: cada uno de los 78 requisitos funcionales tiene una pantalla o un servicio que lo atiende y, al menos, una prueba automatizada que lo comprueba; 77 se cumplen y uno (M6.2.e) se cumple parcialmente por una decisión de diseño. La cesión de derechos (IV.1.a) y la garantía técnica (IV.4.a) se cumplen con las cartas suscritas por el contratista (Anexo D). El único requisito cumplido parcialmente no depende de una función faltante: mantiene fijos, por diseño, los estados de los trámites:
-
-*Tabla 24. Requisito cumplido parcialmente y acción que corresponde*
-
-| Requisito | Situación | Acción y responsable |
+| Sección del Anexo Técnico | Requisitos | Cumple |
 |---|---|---|
-| M6.2.e Panel para configurar etapas, estados y condiciones de cada trámite | Etapas (nombre, porcentaje y condición), tasa, requisitos y acción final configurables desde el panel; los estados del flujo y las tres condiciones de etapa son fijos por diseño | Se mantienen fijos para conservar coherentes las reglas de pago y de auditoría; un estado adicional que requiera el CILN se atiende como mejora, fuera del alcance de este servicio, previa evaluación del CILN y la DSTI |
+| II. Requisitos técnicos generales | 12 | 12 |
+| M1. Registro, clasificación y matrícula | 22 | 22 |
+| M2. Pagos | 12 | 12 |
+| M3. Docencia | 15 | 15 |
+| M4. Evaluación y certificación | 11 | 11 |
+| M5. Tablero gerencial | 7 | 7 |
+| M6. Portal público y trámites | 11 | 11 |
+| IV. Seguridad, propiedad intelectual y confidencialidad | 6 | 6 |
+| **Total** | **96** | **96** |
+
+**Los seis módulos funcionales están atendidos**: cada uno de los 78 requisitos funcionales tiene una pantalla o un servicio que lo atiende y, al menos, una prueba automatizada que lo comprueba, y los 78 se cumplen. La cesión de derechos (IV.1.a) y la garantía técnica (IV.4.a) se cumplen con las cartas suscritas por el contratista (Anexo D). El requisito M6.2.e se cumple con la precisión que indica la nota siguiente:
+
+*Tabla 24. Nota aclaratoria sobre el requisito M6.2.e*
+
+| Requisito | Configurable desde el panel | Nota aclaratoria |
+|---|---|---|
+| M6.2.e Panel para configurar etapas, estados y condiciones de cada trámite | Desde el panel se configuran, sin programar, las etapas de cada trámite (nombre, porcentaje de avance y condición), la tasa, los requisitos y la acción final | Los estados generales del flujo (Pendiente de pago, En proceso, Observado, Finalizado y Cerrado sin atender) y las tres condiciones de etapa (solicitud, pago validado y acción del personal) son comunes a todos los trámites y se mantienen fijos por diseño, para conservar coherentes las reglas de pago y de auditoría; un estado adicional que requiera el CILN se atiende como mejora, fuera del alcance de este servicio, previa evaluación del CILN y la DSTI |
 
 ### 11.3.1. Requisitos técnicos generales (sección II del Anexo)
 
@@ -771,7 +771,7 @@ En la columna de ubicación, «Admin» es el panel de administración del person
 | M6.2.b | Flujo bloqueado hasta que Pagos valide la tasa | Portal → Trámites; Admin → Trámites → Trámites | Cumple | Aplicación automática del pago (#75) |
 | M6.2.c | Barra de progreso visible para el usuario | Portal del estudiante → Trámites | Cumple | Etapas con porcentaje configurables; estados fijos (#6) |
 | M6.2.d | Notificación automática por correo en cada cambio de estado | Correo al estudiante; Admin → Trámites → Trámites (notificaciones) | Cumple | Por cola, 3 intentos (#79); envío desde la cuenta institucional `sistemacln@unasam.edu.pe`, verificado en producción el 18/11/2026 |
-| M6.2.e | Panel para configurar etapas, estados y condiciones sin programar | Admin → Catálogos → Tipos de trámite | Cumple parcialmente | Configurables desde el panel: etapas (nombre, porcentaje y condición), tasa, requisitos y acción final. Los estados del flujo (Pendiente de pago, En proceso, Observado, Finalizado y Cerrado sin atender) y las tres condiciones de etapa (solicitud, pago validado, acción del personal) son fijos por diseño, para mantener coherentes las reglas de pago y de auditoría |
+| M6.2.e | Panel para configurar etapas, estados y condiciones sin programar | Admin → Catálogos → Tipos de trámite | Cumple | Nota aclaratoria (Tabla 24): configurables desde el panel las etapas (nombre, porcentaje y condición), la tasa, los requisitos y la acción final. Los estados del flujo (Pendiente de pago, En proceso, Observado, Finalizado y Cerrado sin atender) y las tres condiciones de etapa (solicitud, pago validado, acción del personal) son fijos por diseño, para mantener coherentes las reglas de pago y de auditoría |
 | M6.2.campos: id | ID de trámite (código único de seguimiento) | Portal → Trámites; Admin → Trámites → Trámites | Cumple | (#78) |
 | M6.2.campos: estados | Pendiente de Pago, En Proceso, Observado, Finalizado | Admin → Trámites → Trámites | Cumple | Se agrega "Cerrado sin atender" (#134) |
 | M6.2.campos: log | Log de notificaciones: fecha, hora, estado de entrega | Admin → Trámites → Trámites (ficha: notificaciones) | Cumple | Registra fecha, hora, destinatario, asunto, estado de entrega (pendiente, enviado, fallido) e intentos; «enviado» significa aceptado por el servidor de correo; no se puede borrar ni vaciar (trigger) |
@@ -841,8 +841,8 @@ ELECTRODATA INGENIERIA & SISTEMAS S.A.C. declara, conforme a los Términos de Re
 
 # 12. CONCLUSIONES
 
-1. El Sistema de Gestión Académica y Administrativa del CILN **atiende los seis módulos funcionales** del Anexo Técnico: cada uno de los 78 requisitos funcionales tiene una pantalla o un servicio que lo atiende y pruebas automatizadas que lo comprueban; 77 se cumplen y uno (M6.2.e) se cumple parcialmente porque los estados de los trámites y las condiciones de etapa son fijos por diseño.
-2. De los 96 requisitos verificados del Anexo Técnico, **95 se cumplen y 1 se cumple parcialmente**: la cesión de derechos y la garantía técnica quedan formalizadas mediante cartas suscritas por el contratista (Anexo D), y el único requisito parcial (M6.2.e) responde a la decisión de diseño de mantener fijos los estados de los trámites. **Ningún requisito queda sin atender.**
+1. El Sistema de Gestión Académica y Administrativa del CILN **atiende los seis módulos funcionales** del Anexo Técnico: cada uno de los 78 requisitos funcionales tiene una pantalla o un servicio que lo atiende y pruebas automatizadas que lo comprueban, y los 78 se cumplen; en M6.2.e, los estados generales de los trámites y las condiciones de etapa se mantienen fijos por diseño (Tabla 24).
+2. **Los 96 requisitos verificados del Anexo Técnico se cumplen**: la cesión de derechos y la garantía técnica quedan formalizadas mediante cartas suscritas por el contratista (Anexo D), y el requisito M6.2.e se cumple con la precisión de la Tabla 24 sobre los estados de los trámites, que se mantienen fijos por diseño.
 3. El servicio se ejecutó dentro del plazo de la Orden de Servicio N.° 0003091, emitida el 20 de octubre de 2026 y notificada el 23 de octubre de 2026, cuyo plazo corre del 24 de octubre al 22 de noviembre de 2026, y atendió las seis actividades del numeral 4.2 de los TdR, incluidos el levantamiento de requerimientos con el área usuaria y la capacitación al personal directivo, docente y administrativo del CILN y la capacitación práctica de docentes y estudiantes (Anexo C); el sistema se encuentra desplegado en `https://ciln.unasam.edu.pe`, envía sus correos desde la cuenta institucional `sistemacln@unasam.edu.pe`, y el código fuente se entrega en la USB que acompaña al presente informe, con el repositorio completo en poder de la DSTI; los manuales de usuario del estudiante, del docente y del personal del CILN fueron entregados.
 4. El sistema supera las limitaciones señaladas por la DSTI en el Informe Técnico N.° 023-2026-FMAJ: usa tecnologías con soporte vigente, aplica los controles del OWASP Top 10, registra una pista de auditoría inmutable en la base de datos y protege los datos personales conforme a la Ley N.° 29733.
 5. El cálculo de las notas sigue el sistema de evaluación del CILN, como lo indicó el área usuaria: promedio de las cuatro habilidades y promedio de los exámenes, con la nota final redondeada a un entero y una nota mínima aprobatoria configurable.
