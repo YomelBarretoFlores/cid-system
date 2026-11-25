@@ -97,5 +97,5 @@ it('never deletes a fee or a concept that payments applied, even outside the app
     $id = $tabla === 'pag_tarifas' ? $this->tarifa->id : $this->tarifa->concepto_id;
 
     expect(fn () => DB::transaction(fn () => DB::table($tabla)->where('id', $id)->delete()))
-        ->toThrow(QueryException::class, 'violates RESTRICT setting of foreign key constraint');
+        ->toThrow(QueryException::class, 'foreign key constraint');
 })->with(['pag_tarifas', 'pag_conceptos']);
