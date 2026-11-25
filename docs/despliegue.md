@@ -33,7 +33,7 @@
 8. `php artisan optimize && php artisan filament:optimize` (cachea config, rutas, vistas, eventos y componentes del panel).
 9. Worker: `php artisan queue:work --tries=3 --timeout=90`, supervisado, con al menos 100 s de espera al detenerlo (en Supervisor, `stopwaitsecs=100`) para que termine el trabajo en curso.
    Sin el worker se detienen: los correos de verificación de cuenta, de recuperación de contraseña y de cambio de trámite, y la reacción de los trámites cuando Pagos valida, rechaza o anula un pago.
-10. Cron: `* * * * * cd /ruta && php artisan schedule:run >> /dev/null 2>&1`
+10. Cron, con el **mismo usuario del servidor web** (`crontab -u <usuario-web> -e`): `* * * * * cd /ruta && php artisan schedule:run >> /dev/null 2>&1`. Si lo ejecuta otra cuenta, el archivo diario de `storage/logs` queda a nombre de esa cuenta y el servidor web ya no puede escribir en él: el sistema sigue atendiendo, pero ese día no se registran sus eventos.
 11. Primera instalación: crear la primera cuenta de administración con `php artisan personal:crear-administrador <correo> "<nombre>"` (necesita el worker de colas para enviar el correo).
 
 ### Actualizar a una nueva versión

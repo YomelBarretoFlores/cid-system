@@ -67,11 +67,20 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // A log file the web server cannot write (for example, created by the cron under another account) must not
+        // turn every request that logs into a 500, so production's LOG_CHANNEL=daily ignores write failures.
         'daily' => [
+            'driver' => 'stack',
+            'channels' => ['diario'],
+            'ignore_exceptions' => true,
+        ],
+
+        'diario' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'max_files' => env('LOG_DAILY_DAYS', 14),
+            'permission' => 0664,
             'replace_placeholders' => true,
         ],
 
