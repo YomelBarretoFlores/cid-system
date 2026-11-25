@@ -12,6 +12,7 @@ use App\Modules\Academico\Filament\Resources\Grupos\RelationManagers\HorariosRel
 use App\Modules\Academico\Filament\Resources\Grupos\Schemas\GrupoForm;
 use App\Modules\Academico\Filament\Resources\Grupos\Tables\GruposTable;
 use App\Modules\Academico\Models\Grupo;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -24,6 +25,7 @@ use UnitEnum;
 
 final class GrupoResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

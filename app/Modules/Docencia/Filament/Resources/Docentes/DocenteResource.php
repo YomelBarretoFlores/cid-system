@@ -14,6 +14,7 @@ use App\Modules\Docencia\Filament\Resources\Docentes\Schemas\DocenteForm;
 use App\Modules\Docencia\Filament\Resources\Docentes\Schemas\DocenteInfolist;
 use App\Modules\Docencia\Filament\Resources\Docentes\Tables\DocentesTable;
 use App\Modules\Docencia\Models\Docente;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -24,6 +25,7 @@ use UnitEnum;
 
 final class DocenteResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

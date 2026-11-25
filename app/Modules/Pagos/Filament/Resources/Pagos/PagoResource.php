@@ -13,6 +13,7 @@ use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoForm;
 use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoInfolist;
 use App\Modules\Pagos\Filament\Resources\Pagos\Tables\PagosTable;
 use App\Modules\Pagos\Models\Pago;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\ContadorDePendientes;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
@@ -26,6 +27,7 @@ use UnitEnum;
 
 final class PagoResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

@@ -10,6 +10,7 @@ use App\Modules\Tramites\Filament\Resources\TiposTramite\Pages\ListTiposTramite;
 use App\Modules\Tramites\Filament\Resources\TiposTramite\Schemas\TipoTramiteForm;
 use App\Modules\Tramites\Filament\Resources\TiposTramite\Tables\TiposTramiteTable;
 use App\Modules\Tramites\Models\TipoTramite;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -20,6 +21,7 @@ use UnitEnum;
 
 final class TipoTramiteResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

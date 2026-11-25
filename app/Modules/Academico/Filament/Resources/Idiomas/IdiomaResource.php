@@ -11,6 +11,7 @@ use App\Modules\Academico\Filament\Resources\Idiomas\RelationManagers\CiclosRela
 use App\Modules\Academico\Filament\Resources\Idiomas\Schemas\IdiomaForm;
 use App\Modules\Academico\Filament\Resources\Idiomas\Tables\IdiomasTable;
 use App\Modules\Academico\Models\Idioma;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -21,6 +22,7 @@ use UnitEnum;
 
 final class IdiomaResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

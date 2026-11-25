@@ -7,6 +7,7 @@ namespace App\Modules\Matricula\Filament\Resources\Habilitaciones;
 use App\Modules\Matricula\Filament\Resources\Habilitaciones\Pages\ListHabilitaciones;
 use App\Modules\Matricula\Filament\Resources\Habilitaciones\Tables\HabilitacionesTable;
 use App\Modules\Matricula\Models\Habilitacion;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,7 @@ use UnitEnum;
 
 final class HabilitacionResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

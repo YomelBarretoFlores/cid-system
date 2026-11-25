@@ -9,6 +9,7 @@ use App\Modules\Matricula\Filament\Resources\Matriculas\Pages\ViewMatricula;
 use App\Modules\Matricula\Filament\Resources\Matriculas\Schemas\MatriculaInfolist;
 use App\Modules\Matricula\Filament\Resources\Matriculas\Tables\MatriculasTable;
 use App\Modules\Matricula\Models\Matricula;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -19,6 +20,7 @@ use UnitEnum;
 
 final class MatriculaResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

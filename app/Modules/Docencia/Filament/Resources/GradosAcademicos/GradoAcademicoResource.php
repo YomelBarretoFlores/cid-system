@@ -9,6 +9,7 @@ use App\Modules\Docencia\Filament\Resources\GradosAcademicos\Pages\EditGradoAcad
 use App\Modules\Docencia\Filament\Resources\GradosAcademicos\Pages\ListGradosAcademicos;
 use App\Modules\Docencia\Models\GradoAcademico;
 use App\Shared\Support\Filament\CatalogoEnElPanel;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -19,6 +20,7 @@ use UnitEnum;
 
 final class GradoAcademicoResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     public const string REPETIDO = 'Ya existe un grado académico con ese nombre.';

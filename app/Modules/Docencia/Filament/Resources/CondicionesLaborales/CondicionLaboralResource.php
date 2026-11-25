@@ -9,6 +9,7 @@ use App\Modules\Docencia\Filament\Resources\CondicionesLaborales\Pages\EditCondi
 use App\Modules\Docencia\Filament\Resources\CondicionesLaborales\Pages\ListCondicionesLaborales;
 use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Shared\Support\Filament\CatalogoEnElPanel;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -19,6 +20,7 @@ use UnitEnum;
 
 final class CondicionLaboralResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     public const string REPETIDO = 'Ya existe una condición laboral con ese nombre.';

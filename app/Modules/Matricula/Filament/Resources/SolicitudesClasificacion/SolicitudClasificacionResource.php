@@ -10,6 +10,7 @@ use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Pages\View
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Schemas\SolicitudClasificacionInfolist;
 use App\Modules\Matricula\Filament\Resources\SolicitudesClasificacion\Tables\SolicitudesClasificacionTable;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\ContadorDePendientes;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
@@ -21,6 +22,7 @@ use UnitEnum;
 
 final class SolicitudClasificacionResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

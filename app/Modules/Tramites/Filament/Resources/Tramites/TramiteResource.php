@@ -10,6 +10,7 @@ use App\Modules\Tramites\Filament\Resources\Tramites\Pages\ViewTramite;
 use App\Modules\Tramites\Filament\Resources\Tramites\Schemas\TramiteInfolist;
 use App\Modules\Tramites\Filament\Resources\Tramites\Tables\TramitesTable;
 use App\Modules\Tramites\Models\Tramite;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\ContadorDePendientes;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
@@ -22,6 +23,7 @@ use UnitEnum;
 
 final class TramiteResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

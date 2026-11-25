@@ -12,6 +12,7 @@ use App\Modules\Personas\Filament\Resources\Personas\Schemas\PersonaForm;
 use App\Modules\Personas\Filament\Resources\Personas\Schemas\PersonaInfolist;
 use App\Modules\Personas\Filament\Resources\Personas\Tables\PersonasTable;
 use App\Modules\Personas\Models\Persona;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -24,6 +25,7 @@ use UnitEnum;
 
 final class PersonaResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

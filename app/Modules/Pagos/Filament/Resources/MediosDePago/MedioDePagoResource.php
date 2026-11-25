@@ -9,6 +9,7 @@ use App\Modules\Pagos\Filament\Resources\MediosDePago\Pages\EditMedioDePago;
 use App\Modules\Pagos\Filament\Resources\MediosDePago\Pages\ListMediosDePago;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Shared\Support\Filament\CatalogoEnElPanel;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -19,6 +20,7 @@ use UnitEnum;
 
 final class MedioDePagoResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

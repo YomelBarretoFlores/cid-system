@@ -9,6 +9,7 @@ use App\Shared\Auth\Filament\Resources\Usuarios\Pages\CreateUsuario;
 use App\Shared\Auth\Filament\Resources\Usuarios\Pages\EditUsuario;
 use App\Shared\Auth\Filament\Resources\Usuarios\Pages\ListUsuarios;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Closure;
@@ -26,6 +27,7 @@ use UnitEnum;
 
 final class UsuarioResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

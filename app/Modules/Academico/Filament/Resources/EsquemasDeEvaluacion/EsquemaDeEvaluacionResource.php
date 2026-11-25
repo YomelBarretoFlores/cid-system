@@ -10,6 +10,7 @@ use App\Modules\Academico\Filament\Resources\EsquemasDeEvaluacion\Pages\ListEsqu
 use App\Modules\Academico\Filament\Resources\EsquemasDeEvaluacion\Schemas\EsquemaDeEvaluacionForm;
 use App\Modules\Academico\Filament\Resources\EsquemasDeEvaluacion\Tables\EsquemasDeEvaluacionTable;
 use App\Modules\Academico\Models\EsquemaEvaluacion;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -20,6 +21,7 @@ use UnitEnum;
 
 final class EsquemaDeEvaluacionResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

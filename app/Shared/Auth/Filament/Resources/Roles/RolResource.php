@@ -11,6 +11,7 @@ use App\Shared\Auth\Filament\Resources\Roles\Pages\EditRol;
 use App\Shared\Auth\Filament\Resources\Roles\Pages\ListRoles;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -27,6 +28,7 @@ use UnitEnum;
 
 final class RolResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

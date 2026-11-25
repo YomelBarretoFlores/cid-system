@@ -8,6 +8,7 @@ use App\Modules\Certificacion\Filament\Resources\DenominacionesDelAnio\Pages\Cre
 use App\Modules\Certificacion\Filament\Resources\DenominacionesDelAnio\Pages\EditDenominacionDelAnio;
 use App\Modules\Certificacion\Filament\Resources\DenominacionesDelAnio\Pages\ListDenominacionesDelAnio;
 use App\Modules\Certificacion\Models\DenominacionDelAnio;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Actions\EditAction;
@@ -21,6 +22,7 @@ use UnitEnum;
 
 final class DenominacionDelAnioResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

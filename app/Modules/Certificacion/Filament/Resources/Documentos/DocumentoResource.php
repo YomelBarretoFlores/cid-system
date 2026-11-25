@@ -9,6 +9,7 @@ use App\Modules\Certificacion\Filament\Resources\Documentos\Pages\ViewDocumento;
 use App\Modules\Certificacion\Filament\Resources\Documentos\Schemas\DocumentoInfolist;
 use App\Modules\Certificacion\Filament\Resources\Documentos\Tables\DocumentosTable;
 use App\Modules\Certificacion\Models\Documento;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -19,6 +20,7 @@ use UnitEnum;
 
 final class DocumentoResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

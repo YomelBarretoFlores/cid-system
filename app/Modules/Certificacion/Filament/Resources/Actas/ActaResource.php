@@ -9,6 +9,7 @@ use App\Modules\Certificacion\Filament\Resources\Actas\Pages\ViewActa;
 use App\Modules\Certificacion\Filament\Resources\Actas\Schemas\ActaInfolist;
 use App\Modules\Certificacion\Filament\Resources\Actas\Tables\ActasTable;
 use App\Modules\Certificacion\Models\Acta;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -19,6 +20,7 @@ use UnitEnum;
 
 final class ActaResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

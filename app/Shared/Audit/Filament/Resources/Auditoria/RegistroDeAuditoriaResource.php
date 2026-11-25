@@ -7,6 +7,7 @@ namespace App\Shared\Audit\Filament\Resources\Auditoria;
 use App\Shared\Audit\Filament\Resources\Auditoria\Pages\ListRegistrosDeAuditoria;
 use App\Shared\Audit\Filament\Resources\Auditoria\Pages\ViewRegistroDeAuditoria;
 use App\Shared\Audit\Models\RegistroDeAuditoria;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,6 +19,7 @@ use UnitEnum;
 
 final class RegistroDeAuditoriaResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

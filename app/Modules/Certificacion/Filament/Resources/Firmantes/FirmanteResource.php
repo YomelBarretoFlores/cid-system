@@ -10,6 +10,7 @@ use App\Modules\Certificacion\Filament\Resources\Firmantes\Pages\ListFirmantes;
 use App\Modules\Certificacion\Models\Firmante;
 use App\Modules\Certificacion\Policies\FirmantePolicy;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Closure;
@@ -29,6 +30,7 @@ use UnitEnum;
 
 final class FirmanteResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

@@ -11,6 +11,7 @@ use App\Modules\Pagos\Filament\Resources\Conceptos\RelationManagers\TarifasRelat
 use App\Modules\Pagos\Filament\Resources\Conceptos\Schemas\ConceptoForm;
 use App\Modules\Pagos\Filament\Resources\Conceptos\Tables\ConceptosTable;
 use App\Modules\Pagos\Models\Concepto;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -21,6 +22,7 @@ use UnitEnum;
 
 final class ConceptoResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]

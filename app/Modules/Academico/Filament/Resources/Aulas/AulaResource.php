@@ -10,6 +10,7 @@ use App\Modules\Academico\Filament\Resources\Aulas\Pages\ListAulas;
 use App\Modules\Academico\Filament\Resources\Aulas\Schemas\AulaForm;
 use App\Modules\Academico\Filament\Resources\Aulas\Tables\AulasTable;
 use App\Modules\Academico\Models\Aula;
+use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -20,6 +21,7 @@ use UnitEnum;
 
 final class AulaResource extends Resource
 {
+    use ClaveDeRegistroValidada;
     use TitulosEnMayusculaInicial;
 
     #[\Override]
