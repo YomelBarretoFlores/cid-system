@@ -90,3 +90,16 @@ it('keeps the person when the user account is deleted', function (): void {
 
     expect($persona->refresh()->user_id)->toBeNull();
 });
+
+it('finds people by name ignoring accents, eñe and case, or by document prefix', function (string $termino): void {
+    $buscada = Persona::factory()->create([
+        'numero_documento' => '70123456', 'apellido_paterno' => 'Maguiña', 'apellido_materno' => 'Agüero', 'nombres' => 'José Ramón',
+    ]);
+    Persona::factory()->create(['numero_documento' => '41234567', 'apellido_paterno' => 'Castillo', 'apellido_materno' => 'Tamara', 'nombres' => 'Noemí']);
+
+    expect(Persona::query()->coincideCon($termino)->pluck('id')->all())->toBe([$buscada->id]);
+})->with(['maguina', 'MAGUIÑA', 'aguero jose', 'ramon', '7012']);
+
+it('searches names without the nondeterministic collation that PostgreSQL 17 cannot use with LIKE', function (): void {
+    expect(Persona::query()->coincideCon('maguiña')->toSql())->not->toContain('collate');
+});

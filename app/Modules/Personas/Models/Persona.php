@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 /**
  * @property TipoVinculo $tipo_vinculo
@@ -41,6 +42,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[UsePolicy(PersonaPolicy::class)]
 final class Persona extends Model
 {
+    private const string CON_TILDE = 'ÁÀÄÂÉÈËÊÍÌÏÎÓÒÖÔÚÙÜÛÑáàäâéèëêíìïîóòöôúùüûñ';
+
+    private const string SIN_TILDE = 'AAAAEEEEIIIIOOOOUUUUNaaaaeeeeiiiioooouuuun';
+
     /** @use HasFactory<PersonaFactory> */
     use HasFactory, HasUlids;
 
@@ -93,9 +98,13 @@ final class Persona extends Model
     {
         $termino = addcslashes(trim($termino), '\\%_');
 
+        // translate() + ILIKE instead of a nondeterministic collation: PostgreSQL before 18 rejects LIKE on those.
         $query->where(fn (Builder $coincidencia) => $coincidencia
             ->whereLike('numero_documento', mb_strtoupper($termino).'%', caseSensitive: true)
-            ->orWhereRaw("concat_ws(' ', apellido_paterno, apellido_materno, nombres) collate sin_tildes LIKE ?", ["%{$termino}%"]));
+            ->orWhereRaw(
+                "translate(concat_ws(' ', apellido_paterno, apellido_materno, nombres), ?, ?) ILIKE ?",
+                [self::CON_TILDE, self::SIN_TILDE, '%'.Str::ascii($termino).'%'],
+            ));
     }
 
     /**
