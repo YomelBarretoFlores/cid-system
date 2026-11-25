@@ -11,6 +11,7 @@ use App\Modules\Academico\Data\ComponenteDeEvaluacion;
 use App\Modules\Academico\Data\EsquemaDeEvaluacion;
 use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Certificacion\Contracts\EstadosDeActas;
+use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Docencia\Actions\RegistrarNotasParciales;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Docencia\Contracts\NotasParcialesDelGrupo;
@@ -88,6 +89,7 @@ final class PreActaDelGrupo extends Page
     public function guardar(RegistrarNotasParciales $registrar): void
     {
         $this->guardadas = null;
+        $this->resetErrorBag('notas');
         /** @var User $usuario */
         $usuario = auth()->user();
 
@@ -119,7 +121,8 @@ final class PreActaDelGrupo extends Page
                 ->label('Descargar pre acta (PDF)')
                 ->icon(Heroicon::OutlinedDocumentArrowDown)
                 ->url(fn (): string => route('docente.preacta.pdf', $this->grupoId))
-                ->openUrlInNewTab(),
+                ->openUrlInNewTab()
+                ->visible(fn (): bool => (app(EstadosDeActas::class)([$this->grupoId])[$this->grupoId] ?? null) !== EstadoActa::Cerrada),
         ];
     }
 

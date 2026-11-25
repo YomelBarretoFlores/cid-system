@@ -168,3 +168,34 @@ it('shows the grades read-only once the acta is validated', function (): void {
         ->assertDontSee('wire:model="notas.', false)
         ->assertDontSee('Guardar notas');
 });
+
+it('offers the pre-acta PDF only while the acta is open, since a closed acta has its own PDF', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(PreActaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertActionVisible('descargarPreActa');
+
+    foreach ([$this->ana, $this->luis] as $matricula) {
+        foreach ([$this->parcial, $this->oral] as $componente) {
+            NotaParcial::query()->create(['grupo_id' => $this->grupo->id, 'matricula_id' => $matricula->id, 'componente_id' => $componente->id, 'nota' => '15.00', 'registrado_por' => $this->usuario->id]);
+        }
+    }
+    $this->travelTo(CarbonImmutable::parse('2027-03-30 10:00', 'America/Lima'));
+    app(CerrarActa::class)($this->grupo->id, $this->docente->id, $this->usuario);
+
+    Livewire::actingAs($this->usuario)
+        ->test(PreActaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->assertActionHidden('descargarPreActa');
+});
+
+it('clears the previous rejection once the corrected grades are saved', function (): void {
+    Livewire::actingAs($this->usuario)
+        ->test(PreActaDelGrupo::class, ['grupo' => $this->grupo->id])
+        ->set("notas.{$this->luis->id}.{$this->parcial->id}", '25')
+        ->call('guardar')
+        ->assertHasErrors('notas')
+        ->set("notas.{$this->luis->id}.{$this->parcial->id}", '16')
+        ->call('guardar')
+        ->assertHasNoErrors()
+        ->assertSee('Notas parciales guardadas.')
+        ->assertDontSee('La nota 25 no es válida');
+});
