@@ -22,7 +22,7 @@ Branch: main · Delivery: one fix release (v1.1.2) · Runner: Pest on PostgreSQL
 - T5 · S7 · inline · hide the action while the acta is closed (PreActaDelGrupo) · done, uncommitted
 - T6 · S8 · inline · resetErrorBag('notas') before saving · done, uncommitted
 - T7 · S9 · inline · `daily` becomes a stack with ignore_exceptions over `diario` (permission 0664); deployment guide: cron as the web server user · done, uncommitted
-- T8 · PostgreSQL 17 suite · ConfiguracionDePagosTest expected PostgreSQL 18 wording of the FK error; now asserts SQLSTATE[23503] · done, uncommitted
+- T8 · PostgreSQL 17 suite · ConfiguracionDePagosTest expected PostgreSQL 18 wording of the FK error; now asserts 'foreign key constraint', shared by PostgreSQL 17 (23503) and 18 (23001, RESTRICT) · done, uncommitted
 
 ## Log
 
@@ -33,3 +33,4 @@ Branch: main · Delivery: one fix release (v1.1.2) · Runner: Pest on PostgreSQL
 - L5 (2026-11-25, user): "debemos de asegurar que el flujo principal esté funcional, por ejemplo asistencias, estudiantes, pre acta, actas. Panel de estudiante, docente. ... quiero que no haya errores en el flujo principal ya para que lo comiencen a usar el sistema los docentes y estudiantes."
 - L6: full suite on PostgreSQL 17 (2257): 2253 pass; failures = accent-insensitive panel search (needs PG18), ProxiesDeConfianza (local env), 2× FK message wording (T8). Demo data seeds completely on PostgreSQL 17.
 - L7: browser on localhost:8001 (PostgreSQL 17 + demo data): student portal 50 links incl. 19 PDFs OK (receipt links 404 only because demo payments have fake file paths); teacher portal 39 links OK except S7; pre-acta save + validation message OK (found S8); delegate dialog opens; admin 39 lists + 127 record/create/edit pages OK; table and global search OK; payment validation OK. Asistencia and Acta final pages do not have S8 (tests passed without changes).
+- L8: native 4-lens review approved and acknowledged (lineage review-77b23d8e58e398c1). Advisory, not applied: no fallback sink when the daily file is unwritable (logs of that day are lost; DSTI fixes ownership); `sin_tildes` stays accent-sensitive on PostgreSQL < 18 despite its name; pre-acta PDF is hidden only for `Cerrada`, the only state where GenerarPreActaPdf refuses.
