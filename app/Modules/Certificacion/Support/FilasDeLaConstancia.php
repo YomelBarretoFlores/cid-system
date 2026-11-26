@@ -76,6 +76,6 @@ final readonly class FilasDeLaConstancia
 
         $grupo = ($this->detalleDeGrupos)([(int) $grupoId])[(int) $grupoId] ?? null;
 
-        return $grupo === null ? ($this->programaPorDefecto)() : $grupo->programa;
+        return $grupo->programa ?? ($this->programaPorDefecto)();
     }
 }
