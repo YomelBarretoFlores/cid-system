@@ -6,7 +6,6 @@ namespace App\Modules\Personas\Models;
 
 use App\Modules\Personas\Database\Factories\PersonaFactory;
 use App\Modules\Personas\Enums\TipoDocumento;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Policies\PersonaPolicy;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -25,13 +24,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
- * @property TipoVinculo $tipo_vinculo
+ * @property string $tipo_vinculo
  * @property TipoDocumento $tipo_documento
  * @property ?CarbonImmutable $fecha_nacimiento
  * @property ?string $direccion
  * @property ?string $foto
  * @property ?CarbonImmutable $tratamiento_aceptado_en
  * @property ?CarbonImmutable $habilitada_en
+ * @property-read TipoVinculo $vinculo
  */
 #[Table('per_personas')]
 #[RouteKey('ulid')]
@@ -89,6 +89,14 @@ final class Persona extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<TipoVinculo, $this>
+     */
+    public function vinculo(): BelongsTo
+    {
+        return $this->belongsTo(TipoVinculo::class, 'tipo_vinculo', 'codigo');
     }
 
     /**
@@ -152,7 +160,6 @@ final class Persona extends Model
     {
         return [
             'tipo_documento' => TipoDocumento::class,
-            'tipo_vinculo' => TipoVinculo::class,
             'fecha_nacimiento' => 'date',
             'tratamiento_aceptado_en' => 'datetime',
             'habilitada_en' => 'datetime',

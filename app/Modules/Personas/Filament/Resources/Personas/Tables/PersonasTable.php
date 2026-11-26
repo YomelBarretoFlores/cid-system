@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Personas\Filament\Resources\Personas\Tables;
 
 use App\Modules\Personas\Enums\TipoDocumento;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Filament\Resources\Personas\Schemas\PersonaForm;
 use App\Modules\Personas\Models\Persona;
 use Filament\Actions\EditAction;
@@ -19,6 +18,8 @@ final class PersonasTable
 {
     public static function configure(Table $table): Table
     {
+        $vinculos = PersonaForm::vinculos(todos: true);
+
         return $table
             ->columns([
                 TextColumn::make('numero_documento')
@@ -31,12 +32,12 @@ final class PersonasTable
                 TextColumn::make('tipo_vinculo')
                     ->label('Vínculo')
                     ->badge()
-                    ->formatStateUsing(fn (TipoVinculo $state): string => $state->etiqueta()),
+                    ->formatStateUsing(fn (string $state): string => $vinculos[$state] ?? $state),
                 TextColumn::make('correo')->label('Correo')->placeholder('—'),
             ])
             ->defaultSort('nombre_completo')
             ->filters([
-                SelectFilter::make('tipo_vinculo')->label('Vínculo')->options(PersonaForm::opciones(TipoVinculo::cases())),
+                SelectFilter::make('tipo_vinculo')->label('Vínculo')->options($vinculos),
                 SelectFilter::make('tipo_documento')->label('Tipo de documento')->options(PersonaForm::opciones(TipoDocumento::cases())),
             ])
             ->recordActions([

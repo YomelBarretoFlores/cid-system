@@ -13,7 +13,6 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -96,9 +95,9 @@ it('makes the database refuse deleting a channel used by a payment', function ()
 it('stops offering an inactive channel and refuses it for a new payment', function (): void {
     Storage::fake('local');
     MedioDePago::query()->where('codigo', 'transferencia')->update(['activo' => false]);
-    $persona = Persona::factory()->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral]);
+    $persona = Persona::factory()->create(['tipo_vinculo' => 'publico_general']);
     $concepto = Concepto::factory()->create();
-    Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '150.00', 'vigente_desde' => '2020-01-01']);
+    Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => 'publico_general', 'monto' => '150.00', 'vigente_desde' => '2020-01-01']);
     $transferencia = MedioDePago::query()->where('codigo', 'transferencia')->value('id');
 
     expect(MedioDePago::query()->activos()->pluck('codigo')->all())->not->toContain('transferencia')

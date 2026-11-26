@@ -86,8 +86,16 @@ final class PersonaResource extends Resource
         $query->whereIn('id', Persona::query()->coincideCon($search)->select('id'));
     }
 
+    /**
+     * @return Builder<Model>
+     */
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with('vinculo');
+    }
+
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        return $record instanceof Persona ? ['Vínculo' => $record->tipo_vinculo->etiqueta()] : [];
+        return $record instanceof Persona ? ['Vínculo' => $record->vinculo->nombre] : [];
     }
 }

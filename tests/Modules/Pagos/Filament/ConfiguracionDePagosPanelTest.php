@@ -13,7 +13,6 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Shared\Auth\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +23,7 @@ beforeEach(function (): void {
     $this->administrador = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoPago::Configurar->value]);
     $this->concepto = Concepto::factory()->create(['codigo' => 'TUPA-010', 'nombre' => 'Derecho de matrícula']);
     $this->vigente = Tarifa::factory()->for($this->concepto)->create([
-        'tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '150.00', 'vigente_desde' => '2027-01-01',
+        'tipo_vinculo' => 'publico_general', 'monto' => '150.00', 'vigente_desde' => '2027-01-01',
     ]);
 });
 
@@ -114,7 +113,7 @@ it('registers a new fee from a date, closing the open one the day before', funct
 
     tarifasDe($this->concepto)
         ->callAction(TestAction::make('registrarTarifa')->table(), data: [
-            'tipo_vinculo' => TipoVinculo::PublicoGeneral->value, 'monto' => '175.50', 'vigente_desde' => '2027-07-01',
+            'tipo_vinculo' => 'publico_general', 'monto' => '175.50', 'vigente_desde' => '2027-07-01',
         ])
         ->assertHasNoFormErrors()
         ->assertNotified('Tarifa registrada');
@@ -139,7 +138,7 @@ it('closes a fee on a date and explains when it cannot', function (): void {
 });
 
 it('deletes only fees that no payment applied', function (): void {
-    $sinUso = Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'vigente_desde' => '2027-01-01']);
+    $sinUso = Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'estudiante_unasam', 'vigente_desde' => '2027-01-01']);
     Pago::factory()->create(['concepto_id' => $this->concepto->id, 'tarifa_id' => $this->vigente->id]);
     $this->actingAs($this->administrador);
 
@@ -157,17 +156,17 @@ it('refuses a fee amount with more than two decimals and accepts one with two', 
 
     tarifasDe($this->concepto)
         ->callAction(TestAction::make('registrarTarifa')->table(), data: [
-            'tipo_vinculo' => TipoVinculo::EstudianteUnasam->value, 'monto' => '150.555', 'vigente_desde' => '2027-07-01',
+            'tipo_vinculo' => 'estudiante_unasam', 'monto' => '150.555', 'vigente_desde' => '2027-07-01',
         ])
         ->assertHasFormErrors(['monto' => 'El monto admite como máximo dos decimales.']);
-    expect(Tarifa::query()->where('tipo_vinculo', TipoVinculo::EstudianteUnasam)->exists())->toBeFalse();
+    expect(Tarifa::query()->where('tipo_vinculo', 'estudiante_unasam')->exists())->toBeFalse();
 
     tarifasDe($this->concepto)
         ->callAction(TestAction::make('registrarTarifa')->table(), data: [
-            'tipo_vinculo' => TipoVinculo::EstudianteUnasam->value, 'monto' => '150.55', 'vigente_desde' => '2027-07-01',
+            'tipo_vinculo' => 'estudiante_unasam', 'monto' => '150.55', 'vigente_desde' => '2027-07-01',
         ])
         ->assertHasNoFormErrors();
-    expect(Tarifa::query()->where('tipo_vinculo', TipoVinculo::EstudianteUnasam)->sole()->monto)->toBe('150.55');
+    expect(Tarifa::query()->where('tipo_vinculo', 'estudiante_unasam')->sole()->monto)->toBe('150.55');
 });
 
 it('registers a fee for one level and program without closing the general fee', function (): void {
@@ -176,7 +175,7 @@ it('registers a fee for one level and program without closing the general fee', 
 
     tarifasDe($this->concepto)
         ->callAction(TestAction::make('registrarTarifa')->table(), data: [
-            'tipo_vinculo' => TipoVinculo::PublicoGeneral->value, 'nivel' => 'avanzado', 'programa_id' => $posgrado, 'monto' => '120.00', 'vigente_desde' => '2027-07-01',
+            'tipo_vinculo' => 'publico_general', 'nivel' => 'avanzado', 'programa_id' => $posgrado, 'monto' => '120.00', 'vigente_desde' => '2027-07-01',
         ])
         ->assertHasNoFormErrors()
         ->assertNotified('Tarifa registrada');

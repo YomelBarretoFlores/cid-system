@@ -11,7 +11,6 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -24,9 +23,9 @@ beforeEach(function (): void {
     $this->cajero = User::factory()->create()->givePermissionTo([
         User::ADMIN_PANEL_PERMISSION, PermisoPago::Ver->value, PermisoPago::Registrar->value,
     ]);
-    $this->persona = Persona::factory()->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral]);
+    $this->persona = Persona::factory()->create(['tipo_vinculo' => 'publico_general']);
     $this->concepto = Concepto::factory()->create(['nombre' => 'Derecho de matrícula']);
-    $this->tarifa = Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'vigente_desde' => '2020-01-01']);
+    $this->tarifa = Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'publico_general', 'vigente_desde' => '2020-01-01']);
 });
 
 function datosDelRegistro(array $cambios = []): array
@@ -63,7 +62,7 @@ it('registers a walk-in payment with its receipt as pending, recording the cashi
 });
 
 it('shows a broken business rule and registers nothing', function (): void {
-    $this->tarifa->update(['tipo_vinculo' => TipoVinculo::EstudianteUnasam]);
+    $this->tarifa->update(['tipo_vinculo' => 'estudiante_unasam']);
     $this->actingAs($this->cajero);
 
     Livewire::test(CreatePago::class)
@@ -128,8 +127,8 @@ it('refuses an amount with more than two decimals and accepts one with two', fun
 
 it('asks the cashier for the level when the concept has level fees and stores that fee', function (): void {
     $this->tarifa->update(['vigente_hasta' => '2020-01-01']);
-    $intermedio = Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'nivel' => 'intermedio', 'monto' => '60.00', 'vigente_desde' => '2020-01-02']);
-    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'nivel' => 'basico', 'monto' => '50.00', 'vigente_desde' => '2020-01-02']);
+    $intermedio = Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'publico_general', 'nivel' => 'intermedio', 'monto' => '60.00', 'vigente_desde' => '2020-01-02']);
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'publico_general', 'nivel' => 'basico', 'monto' => '50.00', 'vigente_desde' => '2020-01-02']);
     $this->actingAs($this->cajero);
 
     Livewire::test(CreatePago::class)

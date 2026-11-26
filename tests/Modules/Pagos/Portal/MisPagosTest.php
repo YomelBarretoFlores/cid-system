@@ -8,7 +8,6 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -20,11 +19,11 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     Storage::fake('local');
     $this->estudiante = User::factory()->create();
-    $this->persona = Persona::factory()->create(['user_id' => $this->estudiante->id, 'tipo_vinculo' => TipoVinculo::EstudianteUnasam]);
+    $this->persona = Persona::factory()->create(['user_id' => $this->estudiante->id, 'tipo_vinculo' => 'estudiante_unasam']);
     $this->concepto = Concepto::factory()->create(['nombre' => 'Derecho de matrícula']);
-    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '120.00', 'vigente_desde' => '2020-01-01', 'vigente_hasta' => '2020-12-31']);
-    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '150.00', 'vigente_desde' => '2021-01-01']);
-    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '180.00', 'vigente_desde' => '2021-01-01']);
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'estudiante_unasam', 'monto' => '120.00', 'vigente_desde' => '2020-01-01', 'vigente_hasta' => '2020-12-31']);
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'estudiante_unasam', 'monto' => '150.00', 'vigente_desde' => '2021-01-01']);
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'publico_general', 'monto' => '180.00', 'vigente_desde' => '2021-01-01']);
 });
 
 function reciboDelPortal(): UploadedFile

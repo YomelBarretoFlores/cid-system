@@ -9,7 +9,6 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -19,14 +18,14 @@ use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
     Storage::fake('local');
-    $this->persona = Persona::factory()->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam]);
+    $this->persona = Persona::factory()->create(['tipo_vinculo' => 'estudiante_unasam']);
     $this->concepto = Concepto::factory()->create();
     $this->tarifa = Tarifa::factory()->for($this->concepto)->create([
-        'tipo_vinculo' => TipoVinculo::EstudianteUnasam,
+        'tipo_vinculo' => 'estudiante_unasam',
         'monto' => '120.00',
         'vigente_desde' => '2027-01-01',
     ]);
-    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '180.00']);
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'publico_general', 'monto' => '180.00']);
 });
 
 function registro(array $cambios = []): RegistroDePago
@@ -91,7 +90,7 @@ it('refuses a payment without a fee in force for the person on the payment date'
         ->and(Storage::disk('local')->allFiles())->toBe([]);
 })->with([
     'before the fee starts' => [['fechaPago' => CarbonImmutable::parse('2026-12-31')]],
-    'link without a fee' => [['personaId' => fn (): int => Persona::factory()->create(['tipo_vinculo' => TipoVinculo::DocenteAdministrativoUnasam])->id]],
+    'link without a fee' => [['personaId' => fn (): int => Persona::factory()->create(['tipo_vinculo' => 'docente_administrativo_unasam'])->id]],
 ]);
 
 it('refuses a concept that is no longer offered', function (): void {

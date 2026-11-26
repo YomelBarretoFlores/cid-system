@@ -10,7 +10,6 @@ use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -18,10 +17,10 @@ use Carbon\CarbonImmutable;
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2027-03-10 09:00', 'America/Lima'));
     $this->user = User::factory()->create();
-    $this->persona = Persona::factory()->create(['user_id' => $this->user->id, 'nombres' => 'Lucía', 'tipo_vinculo' => TipoVinculo::EstudianteUnasam]);
+    $this->persona = Persona::factory()->create(['user_id' => $this->user->id, 'nombres' => 'Lucía', 'tipo_vinculo' => 'estudiante_unasam']);
     $this->matricula = Concepto::factory()->create(['nombre' => 'Derecho de matrícula', 'tipo' => TipoConcepto::Matricula]);
-    Tarifa::factory()->for($this->matricula)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '120.00']);
-    Tarifa::factory()->for($this->matricula)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '150.00']);
+    Tarifa::factory()->for($this->matricula)->create(['tipo_vinculo' => 'estudiante_unasam', 'monto' => '120.00']);
+    Tarifa::factory()->for($this->matricula)->create(['tipo_vinculo' => 'publico_general', 'monto' => '150.00']);
 });
 
 function pagoDeLucia(string $estado, string $fecha, ?Concepto $concepto = null): Pago

@@ -8,14 +8,13 @@ use App\Modules\Pagos\Actions\RegistrarTarifa;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 
 beforeEach(function (): void {
     $this->concepto = Concepto::factory()->create();
     $this->vigente = Tarifa::factory()->for($this->concepto)->create([
-        'tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '150.00', 'vigente_desde' => '2027-01-01',
+        'tipo_vinculo' => 'publico_general', 'monto' => '150.00', 'vigente_desde' => '2027-01-01',
     ]);
 });
 
@@ -24,7 +23,7 @@ function fecha(string $fecha): CarbonImmutable
     return CarbonImmutable::parse($fecha);
 }
 
-function registrarTarifa(string $desde, string $monto = '170.00', TipoVinculo $vinculo = TipoVinculo::PublicoGeneral, ?string $hasta = null): Tarifa
+function registrarTarifa(string $desde, string $monto = '170.00', string $vinculo = 'publico_general', ?string $hasta = null): Tarifa
 {
     return app(RegistrarTarifa::class)(test()->concepto->id, $vinculo, $monto, fecha($desde), $hasta === null ? null : fecha($hasta));
 }
@@ -42,7 +41,7 @@ it('registers a new fee and closes the open one the day before', function (): vo
 });
 
 it('leaves fees of other links untouched', function (): void {
-    $estudiantes = Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'vigente_desde' => '2027-01-01']);
+    $estudiantes = Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'estudiante_unasam', 'vigente_desde' => '2027-01-01']);
 
     registrarTarifa('2027-07-01');
 
@@ -50,9 +49,9 @@ it('leaves fees of other links untouched', function (): void {
 });
 
 it('refuses a fee whose validity overlaps another one', function (string $desde, ?string $hasta, string $mensaje): void {
-    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'vigente_desde' => '2027-03-01', 'vigente_hasta' => '2027-03-31']);
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'estudiante_unasam', 'vigente_desde' => '2027-03-01', 'vigente_hasta' => '2027-03-31']);
 
-    expect(fn (): Tarifa => registrarTarifa($desde, vinculo: TipoVinculo::EstudianteUnasam, hasta: $hasta))
+    expect(fn (): Tarifa => registrarTarifa($desde, vinculo: 'estudiante_unasam', hasta: $hasta))
         ->toThrow(ReglaDeNegocioIncumplida::class, $mensaje);
     expect(Tarifa::query()->count())->toBe(2);
 })->with([

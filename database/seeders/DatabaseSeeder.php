@@ -22,7 +22,6 @@ use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Database\Seeders\PersonasDemoSeeder;
 use App\Modules\Personas\Enums\PermisoPersona;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Modules\Tablero\Enums\PermisoTablero;
 use App\Modules\Tramites\Database\Seeders\TramitesDemoSeeder;
@@ -86,7 +85,7 @@ final class DatabaseSeeder extends Seeder
 
         $tarifa = Tarifa::query()
             ->whereRelation('concepto', 'codigo', 'MAT-01')
-            ->where('tipo_vinculo', TipoVinculo::PublicoGeneral)
+            ->where('tipo_vinculo', 'publico_general')
             ->sole();
 
         $cajero = User::query()->where('email', 'caja@ciln.test')->value('id');

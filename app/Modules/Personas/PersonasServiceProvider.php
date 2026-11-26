@@ -7,6 +7,7 @@ namespace App\Modules\Personas;
 use App\Modules\Pagos\Events\PagoValidado;
 use App\Modules\Personas\Actions\BuscarPersonas;
 use App\Modules\Personas\Actions\EtiquetarPersonas;
+use App\Modules\Personas\Actions\ListarCatalogoDeVinculos;
 use App\Modules\Personas\Actions\ObtenerFichaDelUsuario;
 use App\Modules\Personas\Actions\ObtenerFichaDePersona;
 use App\Modules\Personas\Actions\ObtenerFichasDePersonas;
@@ -14,6 +15,7 @@ use App\Modules\Personas\Actions\ObtenerFotoDePersona;
 use App\Modules\Personas\Actions\ObtenerVinculo;
 use App\Modules\Personas\Actions\SeleccionarIdsDePersonas;
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
+use App\Modules\Personas\Contracts\CatalogoDeVinculos;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
@@ -35,6 +37,7 @@ final class PersonasServiceProvider extends ModuleServiceProvider
      */
     public array $bindings = [
         ConsultaDeVinculo::class => ObtenerVinculo::class,
+        CatalogoDeVinculos::class => ListarCatalogoDeVinculos::class,
         EtiquetasDePersonas::class => EtiquetarPersonas::class,
         BusquedaDePersonas::class => BuscarPersonas::class,
         SubconsultaDePersonas::class => SeleccionarIdsDePersonas::class,

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
 
@@ -33,13 +32,13 @@ it('allows consecutive fees and different fees per university link', function ()
 
     $siguiente = Tarifa::factory()->for($concepto)->create(['vigente_desde' => '2027-07-01', 'vigente_hasta' => null]);
     $estudiantes = Tarifa::factory()->for($concepto)->create([
-        'tipo_vinculo' => TipoVinculo::EstudianteUnasam,
+        'tipo_vinculo' => 'estudiante_unasam',
         'monto' => '80.00',
         'vigente_desde' => '2027-01-01',
     ]);
 
     expect($siguiente->exists)->toBeTrue()
-        ->and($estudiantes->tipo_vinculo)->toBe(TipoVinculo::EstudianteUnasam);
+        ->and($estudiantes->tipo_vinculo)->toBe('estudiante_unasam');
 });
 
 it('finds the fee in force on a given date', function (): void {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Personas\Filament\Resources\Personas\Schemas;
 
 use App\Modules\Personas\Enums\TipoDocumento;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -24,7 +23,7 @@ final class PersonaInfolist
                     ->schema([
                         TextEntry::make('tipo_documento')->label('Tipo de documento')->formatStateUsing(fn (TipoDocumento $state): string => $state->etiqueta()),
                         TextEntry::make('numero_documento')->label('Número de documento')->copyable(),
-                        TextEntry::make('tipo_vinculo')->label('Tipo de vínculo')->badge()->formatStateUsing(fn (TipoVinculo $state): string => $state->etiqueta()),
+                        TextEntry::make('vinculo.nombre')->label('Tipo de vínculo')->badge(),
                         TextEntry::make('apellido_paterno')->label('Apellido paterno'),
                         TextEntry::make('apellido_materno')->label('Apellido materno')->placeholder('—'),
                         TextEntry::make('nombres')->label('Nombres'),

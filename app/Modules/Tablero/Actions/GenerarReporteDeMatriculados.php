@@ -8,7 +8,6 @@ use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Matricula\Enums\CondicionMatricula;
 use App\Modules\Matricula\Enums\EstadoMatricula;
 use App\Modules\Personas\Contracts\FichasDePersonas;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Tablero\Data\ColumnaDeReporte;
 use App\Modules\Tablero\Data\FiltrosDeReporte;
 use App\Modules\Tablero\Data\ReporteGeneral;
@@ -54,8 +53,9 @@ final readonly class GenerarReporteDeMatriculados
     {
         $matriculas = DB::table('mat_matriculas as m')
             ->join('per_personas as p', 'p.id', '=', 'm.persona_id')
+            ->join('per_tipos_vinculo as v', 'v.codigo', '=', 'p.tipo_vinculo')
             ->whereIn('m.grupo_id', array_map(fn (HorarioDeGrupo $grupo): int => $grupo->grupoId, $grupos))
-            ->get(['m.grupo_id', 'm.persona_id', 'm.condicion', 'm.estado', 'm.matriculado_en', 'p.tipo_vinculo']);
+            ->get(['m.grupo_id', 'm.persona_id', 'm.condicion', 'm.estado', 'm.matriculado_en', 'v.nombre as vinculo']);
         $fichas = ($this->fichasDePersonas)(array_values($matriculas->pluck('persona_id')->map(fn (mixed $id): int => (int) $id)->unique()->all()));
 
         return $matriculas->each(function (stdClass $matricula) use ($fichas): void {
@@ -77,7 +77,7 @@ final readonly class GenerarReporteDeMatriculados
             foreach ($matriculas->where('grupo_id', $grupo->grupoId)->sortBy('nombre') as $matricula) {
                 $filas[] = [
                     count($filas) + 1, $grupo->codigo, $matricula->documento, $matricula->nombre,
-                    TipoVinculo::tryFrom((string) $matricula->tipo_vinculo)?->etiqueta(),
+                    (string) $matricula->vinculo,
                     CondicionMatricula::from((string) $matricula->condicion)->etiqueta(),
                     EstadoMatricula::from((string) $matricula->estado)->etiqueta(),
                     CarbonImmutable::parse((string) $matricula->matriculado_en)->timezone('America/Lima')->format('d/m/Y'),

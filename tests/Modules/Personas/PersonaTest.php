@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Modules\Personas\Enums\TipoDocumento;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\QueryException;
@@ -69,7 +68,7 @@ it('defaults the link with the university to general public', function (): void 
         'nombres' => 'Luis',
     ]);
 
-    expect($persona->refresh()->tipo_vinculo)->toBe(TipoVinculo::PublicoGeneral)
+    expect($persona->refresh()->tipo_vinculo)->toBe('publico_general')
         ->and(Str::isUlid($persona->ulid))->toBeTrue()
         ->and($persona->getRouteKey())->toBe($persona->ulid);
 });

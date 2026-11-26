@@ -13,7 +13,6 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -26,7 +25,7 @@ use Livewire\Livewire;
 
 beforeEach(function (): void {
     Storage::fake('local');
-    $this->persona = Persona::factory()->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral]);
+    $this->persona = Persona::factory()->create(['tipo_vinculo' => 'publico_general']);
     $this->concepto = Concepto::factory()->create(['nombre' => 'Certificado de estudios']);
     $this->posgrado = (int) Programa::query()->where('codigo', 'POSGRADO')->value('id');
 });
@@ -93,9 +92,9 @@ it('rejects overlapping fees for the same concept, link, level and program, but 
 });
 
 it('opens a new fee for a level without closing the open fee of another level', function (): void {
-    $basico = app(RegistrarTarifa::class)($this->concepto->id, TipoVinculo::PublicoGeneral, '20.00', CarbonImmutable::parse('2027-01-01'), nivel: NivelCurricular::Basico);
-    app(RegistrarTarifa::class)($this->concepto->id, TipoVinculo::PublicoGeneral, '30.00', CarbonImmutable::parse('2027-03-01'), nivel: NivelCurricular::Intermedio);
-    app(RegistrarTarifa::class)($this->concepto->id, TipoVinculo::PublicoGeneral, '25.00', CarbonImmutable::parse('2027-06-01'), nivel: NivelCurricular::Basico);
+    $basico = app(RegistrarTarifa::class)($this->concepto->id, 'publico_general', '20.00', CarbonImmutable::parse('2027-01-01'), nivel: NivelCurricular::Basico);
+    app(RegistrarTarifa::class)($this->concepto->id, 'publico_general', '30.00', CarbonImmutable::parse('2027-03-01'), nivel: NivelCurricular::Intermedio);
+    app(RegistrarTarifa::class)($this->concepto->id, 'publico_general', '25.00', CarbonImmutable::parse('2027-06-01'), nivel: NivelCurricular::Basico);
 
     expect($basico->refresh()->vigente_hasta?->toDateString())->toBe('2027-05-31')
         ->and(Tarifa::query()->where('nivel', 'intermedio')->value('vigente_hasta'))->toBeNull();

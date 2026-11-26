@@ -6,7 +6,6 @@ namespace App\Modules\Pagos\Support;
 
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -14,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 final readonly class TarifaAplicable
 {
     /** The most specific fee in force: program and level, then level, then program, then the general fee. */
-    public static function buscar(int $conceptoId, TipoVinculo $vinculo, CarbonInterface $fecha, ?NivelCurricular $nivel = null, ?int $programaId = null, bool $bloquear = false): ?Tarifa
+    public static function buscar(int $conceptoId, string $vinculo, CarbonInterface $fecha, ?NivelCurricular $nivel = null, ?int $programaId = null, bool $bloquear = false): ?Tarifa
     {
         return self::vigentes($conceptoId, $vinculo, $fecha)
             ->where(fn (Builder $query): Builder => $query->whereNull('nivel')->when($nivel, fn (Builder $q, NivelCurricular $n): Builder => $q->orWhere('nivel', $n->value)))
@@ -29,7 +28,7 @@ final readonly class TarifaAplicable
      *
      * @return array{nivel: bool, programa: bool}
      */
-    public static function criterios(int $conceptoId, TipoVinculo $vinculo, CarbonInterface $fecha): array
+    public static function criterios(int $conceptoId, string $vinculo, CarbonInterface $fecha): array
     {
         $fila = self::vigentes($conceptoId, $vinculo, $fecha)
             ->toBase()
@@ -42,7 +41,7 @@ final readonly class TarifaAplicable
     /**
      * @return Builder<Tarifa>
      */
-    private static function vigentes(int $conceptoId, TipoVinculo $vinculo, CarbonInterface $fecha): Builder
+    private static function vigentes(int $conceptoId, string $vinculo, CarbonInterface $fecha): Builder
     {
         return Tarifa::query()
             ->where(['concepto_id' => $conceptoId, 'tipo_vinculo' => $vinculo])

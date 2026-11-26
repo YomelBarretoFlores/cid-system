@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\Personas\Filament\Resources\Personas\Schemas;
 
 use App\Modules\Personas\Enums\TipoDocumento;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Personas\Models\TipoVinculo;
 use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
@@ -15,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 final class PersonaForm
 {
@@ -65,8 +66,8 @@ final class PersonaForm
                     ]),
                 Select::make('tipo_vinculo')
                     ->label('Tipo de vínculo')
-                    ->options(self::opciones(TipoVinculo::cases()))
-                    ->default(TipoVinculo::PublicoGeneral->value)
+                    ->options(fn (?Persona $record): array => self::vinculos($record?->tipo_vinculo))
+                    ->default(fn (): ?string => TipoVinculo::query()->where('por_defecto', true)->value('codigo'))
                     ->required(),
                 Checkbox::make('acepta_tratamiento')
                     ->label('La persona aceptó el tratamiento de sus datos personales')
@@ -76,12 +77,27 @@ final class PersonaForm
     }
 
     /**
-     * @param  list<TipoDocumento|TipoVinculo>  $casos
+     * @param  list<TipoDocumento>  $casos
      * @return array<string, string>
      */
     public static function opciones(array $casos): array
     {
-        return collect($casos)->mapWithKeys(fn (TipoDocumento|TipoVinculo $caso): array => [$caso->value => $caso->etiqueta()])->all();
+        return collect($casos)->mapWithKeys(fn (TipoDocumento $caso): array => [$caso->value => $caso->etiqueta()])->all();
+    }
+
+    /**
+     * The active vínculos plus the one stored, so editing a person never drops an inactive value.
+     *
+     * @return array<string, string>
+     */
+    public static function vinculos(?string $guardado = null, bool $todos = false): array
+    {
+        return TipoVinculo::query()
+            ->when(! $todos, fn (Builder $query): Builder => $query->where(fn (Builder $q): Builder => $q->where('activo', true)->orWhere('codigo', $guardado)))
+            ->orderBy('orden')
+            ->orderBy('nombre')
+            ->pluck('nombre', 'codigo')
+            ->all();
     }
 
     private static function formatoDeDocumento(mixed $tipo): Closure

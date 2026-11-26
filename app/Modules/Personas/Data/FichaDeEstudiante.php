@@ -33,7 +33,7 @@ final readonly class FichaDeEstudiante
             correo: $persona->correo,
             celular: $persona->celular,
             fechaNacimiento: $persona->fecha_nacimiento?->format('d/m/Y'),
-            vinculo: $persona->tipo_vinculo->etiqueta(),
+            vinculo: $persona->vinculo->nombre,
             direccion: $persona->direccion,
             versionDeFoto: $persona->foto === null ? null : hash('crc32b', $persona->foto),
             habilitada: $persona->habilitada_en !== null,

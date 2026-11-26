@@ -8,6 +8,7 @@ final class NombresDeTablas
 {
     private const array NOMBRES = [
         'per_personas' => 'Personas',
+        'per_tipos_vinculo' => 'Tipos de vínculo',
         'aca_idiomas' => 'Idiomas',
         'aca_ciclos' => 'Ciclos',
         'aca_periodos' => 'Periodos',

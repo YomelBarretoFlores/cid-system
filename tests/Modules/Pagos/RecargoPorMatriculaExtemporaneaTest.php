@@ -16,7 +16,6 @@ use App\Modules\Pagos\Livewire\MisPagos;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Audit\ContextoAuditoria;
 use App\Shared\Auth\Models\User;
@@ -128,8 +127,8 @@ it('keeps expecting the plain fee for an enrollment paid in the regular window o
 
 it('proposes the fee with the surcharge in the student portal and says so', function (): void {
     $estudiante = User::factory()->create();
-    Persona::factory()->create(['user_id' => $estudiante->id, 'tipo_vinculo' => TipoVinculo::EstudianteUnasam]);
-    Tarifa::factory()->for($this->matricula)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '10.00', 'vigente_desde' => '2027-01-01']);
+    Persona::factory()->create(['user_id' => $estudiante->id, 'tipo_vinculo' => 'estudiante_unasam']);
+    Tarifa::factory()->for($this->matricula)->create(['tipo_vinculo' => 'estudiante_unasam', 'monto' => '10.00', 'vigente_desde' => '2027-01-01']);
 
     Livewire::actingAs($estudiante)
         ->test(MisPagos::class)
@@ -144,8 +143,8 @@ it('proposes the fee with the surcharge in the student portal and says so', func
 
 it('keeps the amount the student typed when the payment date changes', function (): void {
     $estudiante = User::factory()->create();
-    Persona::factory()->create(['user_id' => $estudiante->id, 'tipo_vinculo' => TipoVinculo::EstudianteUnasam]);
-    Tarifa::factory()->for($this->matricula)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '10.00', 'vigente_desde' => '2027-01-01']);
+    Persona::factory()->create(['user_id' => $estudiante->id, 'tipo_vinculo' => 'estudiante_unasam']);
+    Tarifa::factory()->for($this->matricula)->create(['tipo_vinculo' => 'estudiante_unasam', 'monto' => '10.00', 'vigente_desde' => '2027-01-01']);
 
     Livewire::actingAs($estudiante)
         ->test(MisPagos::class)

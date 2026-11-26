@@ -23,7 +23,6 @@ use App\Modules\Docencia\Models\CargaAcademica;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
@@ -106,7 +105,7 @@ final class HistorialDemoSeeder extends Seeder
 
     private function matricular(int $personaId, Grupo $grupo, Periodo $periodo): Matricula
     {
-        $tarifa = Tarifa::query()->whereRelation('concepto', 'codigo', 'MAT-01')->where('tipo_vinculo', TipoVinculo::PublicoGeneral)->sole();
+        $tarifa = Tarifa::query()->whereRelation('concepto', 'codigo', 'MAT-01')->where('tipo_vinculo', 'publico_general')->sole();
         $matriculadoEn = CarbonImmutable::parse($periodo->matricula_inicio->toDateString(), 'America/Lima')->setTime(9, 30);
         $cajero = User::query()->where('email', 'caja@ciln.test')->value('id');
         $pago = Pago::factory()->validado()->create([

@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Data\FichaDeEstudiante;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 
 it('opens the portal on the student profile with the personal data and status, like the SGA', function (): void {
     $user = User::factory()->create();
     Persona::factory()->create(['user_id' => $user->id, 'nombres' => 'Rosa Elena', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'numero_documento' => '41234567',
-        'correo' => 'rosa@example.test', 'celular' => '987654321', 'direccion' => 'Jr. Los Pinos 123, Huaraz', 'fecha_nacimiento' => '2001-05-14', 'tipo_vinculo' => TipoVinculo::PublicoGeneral]);
+        'correo' => 'rosa@example.test', 'celular' => '987654321', 'direccion' => 'Jr. Los Pinos 123, Huaraz', 'fecha_nacimiento' => '2001-05-14', 'tipo_vinculo' => 'publico_general']);
 
     $this->actingAs($user)
         ->get(route('estudiante.inicio'))
@@ -34,7 +33,7 @@ it('refuses the portal to an account without a student record', function (): voi
 
 it('describes the student record of a user and nothing for other users', function (): void {
     $user = User::factory()->create();
-    $persona = Persona::factory()->create(['user_id' => $user->id, 'nombres' => 'Rosa', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'numero_documento' => '41234567', 'correo' => 'rosa@example.test', 'celular' => '987654321', 'direccion' => 'Av. Centenario 200', 'foto' => 'fotos/01JAAAAAAAAAAAAAAAAAAAAAAA.jpg', 'fecha_nacimiento' => '2001-05-14', 'tipo_vinculo' => TipoVinculo::EstudianteUnasam]);
+    $persona = Persona::factory()->create(['user_id' => $user->id, 'nombres' => 'Rosa', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'numero_documento' => '41234567', 'correo' => 'rosa@example.test', 'celular' => '987654321', 'direccion' => 'Av. Centenario 200', 'foto' => 'fotos/01JAAAAAAAAAAAAAAAAAAAAAAA.jpg', 'fecha_nacimiento' => '2001-05-14', 'tipo_vinculo' => 'estudiante_unasam']);
 
     expect(app(FichaDelUsuario::class)($user->id))->toEqual(new FichaDeEstudiante(
         personaId: $persona->id,

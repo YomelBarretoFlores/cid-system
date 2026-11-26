@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Personas\Actions\RegistrarCuentaDeEstudiante;
 use App\Modules\Personas\Enums\TipoDocumento;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Livewire\Registro;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Livewire\IniciarSesion;
@@ -46,11 +45,11 @@ function sondaConteos(): array
 }
 
 it('cannot be tampered into another link type', function (): void {
-    expect(fn () => Livewire::test(Registro::class)->set('tipo_vinculo', TipoVinculo::EstudianteUnasam->value))->toThrow(Exception::class);
+    expect(fn () => Livewire::test(Registro::class)->set('tipo_vinculo', 'estudiante_unasam'))->toThrow(Exception::class);
 
     sondaRegistrarse()->assertHasNoErrors();
 
-    expect(Persona::query()->sole()->tipo_vinculo)->toBe(TipoVinculo::PublicoGeneral);
+    expect(Persona::query()->sole()->tipo_vinculo)->toBe('publico_general');
 });
 
 it('refuses a record on file with another email and one with an account using the same message, creating nothing', function (): void {
@@ -70,7 +69,7 @@ it('links a record on file with the same email and keeps its link type', functio
     sondaRegistrarse(['email' => '  ANA@Correo.test '])->assertHasNoErrors()->assertRedirect(route('estudiante.inicio'));
 
     expect($persona->refresh()->user_id)->toBe(User::query()->sole()->id)
-        ->and($persona->tipo_vinculo)->toBe(TipoVinculo::EstudianteUnasam)
+        ->and($persona->tipo_vinculo)->toBe('estudiante_unasam')
         ->and(Persona::query()->count())->toBe(1);
     Notification::assertNothingSent();
 });

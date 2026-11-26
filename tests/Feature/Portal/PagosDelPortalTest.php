@@ -8,7 +8,6 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -20,12 +19,12 @@ use Livewire\Livewire;
 beforeEach(function (): void {
     Storage::fake('local');
     $this->alumno = User::factory()->create();
-    $this->ficha = Persona::factory()->create(['user_id' => $this->alumno->id, 'tipo_vinculo' => TipoVinculo::PublicoGeneral]);
+    $this->ficha = Persona::factory()->create(['user_id' => $this->alumno->id, 'tipo_vinculo' => 'publico_general']);
     $this->otro = User::factory()->create();
     $this->fichaOtra = Persona::factory()->create(['user_id' => $this->otro->id]);
     $this->conceptoSonda = Concepto::factory()->create(['nombre' => 'Pensión']);
-    Tarifa::factory()->for($this->conceptoSonda)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '180.00', 'vigente_desde' => '2021-01-01']);
-    Tarifa::factory()->for($this->conceptoSonda)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '150.00', 'vigente_desde' => '2021-01-01']);
+    Tarifa::factory()->for($this->conceptoSonda)->create(['tipo_vinculo' => 'publico_general', 'monto' => '180.00', 'vigente_desde' => '2021-01-01']);
+    Tarifa::factory()->for($this->conceptoSonda)->create(['tipo_vinculo' => 'estudiante_unasam', 'monto' => '150.00', 'vigente_desde' => '2021-01-01']);
 });
 
 /**

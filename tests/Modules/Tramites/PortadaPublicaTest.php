@@ -16,7 +16,6 @@ use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use Carbon\CarbonImmutable;
 use Tests\Support\PortalDocente;
@@ -24,8 +23,8 @@ use Tests\Support\PortalDocente;
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2026-10-24 10:30', 'America/Lima'));
     $matricula = Concepto::factory()->create(['codigo' => 'TUSNE-012', 'nombre' => 'Matrícula por ciclo', 'fuente_id' => FuenteDeConcepto::idDe('tusne')]);
-    Tarifa::factory()->for($matricula)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '120.00', 'vigente_desde' => '2026-03-01']);
-    Tarifa::factory()->for($matricula)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '180.00', 'vigente_desde' => '2026-03-01']);
+    Tarifa::factory()->for($matricula)->create(['tipo_vinculo' => 'estudiante_unasam', 'monto' => '120.00', 'vigente_desde' => '2026-03-01']);
+    Tarifa::factory()->for($matricula)->create(['tipo_vinculo' => 'publico_general', 'monto' => '180.00', 'vigente_desde' => '2026-03-01']);
 });
 
 function periodoDePortada(): Periodo
@@ -99,8 +98,8 @@ it('dates each step of the period by the day in Lima, including its last day', f
 it('shows only the fees in force on the Lima day, late in the evening', function (): void {
     $this->travelTo(CarbonImmutable::parse('2026-10-31 23:30', 'America/Lima'));
     $examen = Concepto::factory()->create(['codigo' => 'TUSNE-015', 'nombre' => 'Examen de clasificación']);
-    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '55.00', 'vigente_desde' => '2026-01-01', 'vigente_hasta' => '2026-10-31']);
-    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '65.00', 'vigente_desde' => '2026-11-01']);
+    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => 'publico_general', 'monto' => '55.00', 'vigente_desde' => '2026-01-01', 'vigente_hasta' => '2026-10-31']);
+    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => 'publico_general', 'monto' => '65.00', 'vigente_desde' => '2026-11-01']);
 
     $this->get('/')->assertOk()->assertSeeText('S/ 55.00')->assertDontSeeText('S/ 65.00');
 });
@@ -110,7 +109,7 @@ it('escapes catalog names, also inside the data of the client filters', function
     $periodo->update(['nombre' => '<img src=x onerror=alert(3)>']);
     $idioma = Idioma::factory()->create(['nombre' => '<script>alert(1)</script>"\'x']);
     Grupo::factory()->for($periodo)->for(Ciclo::factory()->for($idioma)->state(['numero' => 1]))->create(['estado' => EstadoGrupo::Abierto]);
-    Concepto::factory()->create(['nombre' => '<script>alert(2)</script>'])->tarifas()->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '10.00', 'vigente_desde' => '2026-01-01']);
+    Concepto::factory()->create(['nombre' => '<script>alert(2)</script>'])->tarifas()->create(['tipo_vinculo' => 'publico_general', 'monto' => '10.00', 'vigente_desde' => '2026-01-01']);
 
     expect($this->get('/')->assertOk()->getContent())
         ->not->toContain('<script>alert(1)')
@@ -155,8 +154,8 @@ it('links to the dates section from the header and footer only when the home sho
 
 it('states the placement exam fee of each link and how long the request stays valid', function (): void {
     $examen = Concepto::factory()->create(['codigo' => 'TUSNE-015', 'nombre' => 'Examen de clasificación', 'tipo' => TipoConcepto::ExamenClasificacion]);
-    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '40.00', 'vigente_desde' => '2026-03-01']);
-    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '60.00', 'vigente_desde' => '2026-03-01']);
+    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => 'estudiante_unasam', 'monto' => '40.00', 'vigente_desde' => '2026-03-01']);
+    Tarifa::factory()->for($examen)->create(['tipo_vinculo' => 'publico_general', 'monto' => '60.00', 'vigente_desde' => '2026-03-01']);
 
     $this->get('/')
         ->assertOk()

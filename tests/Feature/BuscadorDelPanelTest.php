@@ -76,7 +76,7 @@ it('finds people by surname or document for staff who can see people, with their
 
         expect($resultados)->toHaveCount(1)
             ->and($resultados->first()->title)->toBe($persona->etiqueta)
-            ->and($resultados->first()->details)->toBe(['Vínculo' => $persona->tipo_vinculo->etiqueta()])
+            ->and($resultados->first()->details)->toBe(['Vínculo' => $persona->vinculo->nombre])
             ->and($resultados->first()->url)->toBe($recurso::getUrl('view', ['record' => $persona]));
     }
 

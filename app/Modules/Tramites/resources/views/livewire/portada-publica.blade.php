@@ -354,7 +354,7 @@
                                     <tbody>
                                         @foreach ($examen['tarifas'] as $tarifa)
                                             <tr>
-                                                <td>{{ $tarifa->tipoVinculo->etiqueta() }}</td>
+                                                <td>{{ $tarifa->vinculoEtiqueta }}</td>
                                                 <td class="text-right font-semibold whitespace-nowrap tabular-nums">S/ {{ $tarifa->monto }}</td>
                                             </tr>
                                         @endforeach

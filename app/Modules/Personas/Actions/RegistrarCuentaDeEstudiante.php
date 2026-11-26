@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Personas\Actions;
 
 use App\Modules\Personas\Data\SolicitudDeCuenta;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\RestriccionUnica;
@@ -20,6 +19,8 @@ final readonly class RegistrarCuentaDeEstudiante
 
     // One message for both refusals so the form does not reveal whether a document is on file or already has an account.
     public const string DOCUMENTO_NO_DISPONIBLE = 'No podemos crear una cuenta con ese documento. Si ya tienes una, ingresa o recupera tu contraseña; si no, acércate a la oficina del CILN para actualizar tu correo.';
+
+    public function __construct(private ObtenerVinculoPorDefecto $vinculoPorDefecto) {}
 
     public function __invoke(SolicitudDeCuenta $solicitud): User
     {
@@ -87,7 +88,7 @@ final readonly class RegistrarCuentaDeEstudiante
             'fecha_nacimiento' => $solicitud->fechaNacimiento,
             'correo' => $correo,
             'celular' => filled($solicitud->celular) ? $solicitud->celular : null,
-            'tipo_vinculo' => TipoVinculo::PublicoGeneral,
+            'tipo_vinculo' => ($this->vinculoPorDefecto)(),
         ]);
     }
 

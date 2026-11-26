@@ -14,7 +14,8 @@ use App\Modules\Matricula\Data\VigenciaDeClasificacion;
 use App\Modules\Pagos\Contracts\TarifasVigentes;
 use App\Modules\Pagos\Data\TarifaVigente;
 use App\Modules\Pagos\Enums\TipoConcepto;
-use App\Modules\Personas\Enums\TipoVinculo;
+use App\Modules\Personas\Contracts\CatalogoDeVinculos;
+use App\Modules\Personas\Data\TipoDeVinculo;
 use App\Shared\Support\Cache\ContenidoPublico;
 use App\Shared\Ui\Formato;
 use Carbon\CarbonImmutable;
@@ -25,6 +26,7 @@ final readonly class ContenidoDePortada
         private OfertaPublica $ofertaPublica,
         private CatalogoDeIdiomas $catalogoDeIdiomas,
         private TarifasVigentes $tarifasVigentes,
+        private CatalogoDeVinculos $catalogoDeVinculos,
     ) {}
 
     /**
@@ -145,11 +147,11 @@ final readonly class ContenidoDePortada
      */
     private function vinculos(array $tarifas): array
     {
-        $vinculos = array_map(fn (TipoVinculo $vinculo): array => [
-            'clave' => $vinculo->value,
-            'etiqueta' => $vinculo->etiqueta(),
-            'tarifas' => array_values(array_filter($tarifas, fn (TarifaVigente $tarifa): bool => $tarifa->tipoVinculo === $vinculo)),
-        ], TipoVinculo::cases());
+        $vinculos = array_map(fn (TipoDeVinculo $vinculo): array => [
+            'clave' => $vinculo->codigo,
+            'etiqueta' => $vinculo->nombre,
+            'tarifas' => array_values(array_filter($tarifas, fn (TarifaVigente $tarifa): bool => $tarifa->tipoVinculo === $vinculo->codigo)),
+        ], ($this->catalogoDeVinculos)());
 
         return array_values(array_filter($vinculos, fn (array $vinculo): bool => $vinculo['tarifas'] !== []));
     }

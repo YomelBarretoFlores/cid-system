@@ -7,16 +7,26 @@ namespace App\Modules\Pagos\Actions;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
+use App\Modules\Personas\Contracts\CatalogoDeVinculos;
+use App\Modules\Personas\Data\TipoDeVinculo;
 use App\Shared\Support\Database\Transaccion;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 
 final readonly class RegistrarTarifa
 {
-    public function __construct(private CerrarTarifa $cerrarTarifa) {}
+    public const string VINCULO_NO_DISPONIBLE = 'El tipo de vínculo no existe o no está disponible para tarifas nuevas.';
 
-    public function __invoke(int $conceptoId, TipoVinculo $vinculo, string $monto, CarbonImmutable $desde, ?CarbonImmutable $hasta = null, ?NivelCurricular $nivel = null, ?int $programaId = null): Tarifa
+    public function __construct(private CerrarTarifa $cerrarTarifa, private CatalogoDeVinculos $vinculos) {}
+
+    public function __invoke(int $conceptoId, string $vinculo, string $monto, CarbonImmutable $desde, ?CarbonImmutable $hasta = null, ?NivelCurricular $nivel = null, ?int $programaId = null): Tarifa
     {
+        $disponible = array_any(($this->vinculos)(), fn (TipoDeVinculo $tipo): bool => $tipo->codigo === $vinculo && $tipo->activo);
+
+        if (! $disponible) {
+            throw new ReglaDeNegocioIncumplida(self::VINCULO_NO_DISPONIBLE);
+        }
+
         return Transaccion::ejecutar(function () use ($conceptoId, $vinculo, $monto, $desde, $hasta, $nivel, $programaId): Tarifa {
             // Locking the concept serializes fee changes for it.
             Concepto::query()->whereKey($conceptoId)->lockForUpdate()->firstOrFail();

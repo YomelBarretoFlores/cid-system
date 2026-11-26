@@ -12,7 +12,6 @@ use App\Modules\Academico\Models\Periodo;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +43,7 @@ it('builds the public page once and serves the same content for a few minutes', 
 it('rebuilds the public page at once when the offer or a fee changes', function (): void {
     $this->get('/')->assertSeeText('Inglés')->assertDontSeeText('S/ 180.00');
 
-    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '180.00', 'vigente_desde' => '2026-03-01']);
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'publico_general', 'monto' => '180.00', 'vigente_desde' => '2026-03-01']);
     $this->get('/')->assertSeeText('S/ 180.00');
 
     $this->ingles->update(['nombre' => 'Inglés británico']);
@@ -82,7 +81,7 @@ it('rebuilds the public page when any model it shows is saved or deleted', funct
 it('serves the cached page from a store that serializes it, as production does', function (): void {
     config(['cache.default' => 'file']);
     Cache::flush();
-    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'monto' => '180.00', 'vigente_desde' => '2026-03-01']);
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => 'publico_general', 'monto' => '180.00', 'vigente_desde' => '2026-03-01']);
 
     $this->get('/')->assertOk()->assertSeeText('20 vacantes');
     DB::table('aca_grupos')->where('id', $this->grupo->id)->update(['matriculados' => 5]);

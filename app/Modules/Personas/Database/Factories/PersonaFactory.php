@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Personas\Database\Factories;
 
 use App\Modules\Personas\Enums\TipoDocumento;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -31,13 +30,13 @@ final class PersonaFactory extends Factory
             'fecha_nacimiento' => $faker->dateTimeBetween('-50 years', '-16 years')->format('Y-m-d'),
             'correo' => $faker->unique()->safeEmail(),
             'celular' => $faker->numerify('9########'),
-            'tipo_vinculo' => TipoVinculo::PublicoGeneral,
+            'tipo_vinculo' => 'publico_general',
         ];
     }
 
     public function estudianteUnasam(): static
     {
-        return $this->state(['tipo_vinculo' => TipoVinculo::EstudianteUnasam]);
+        return $this->state(['tipo_vinculo' => 'estudiante_unasam']);
     }
 
     public function extranjera(): static

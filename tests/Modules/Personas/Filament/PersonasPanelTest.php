@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Personas\Enums\PermisoPersona;
 use App\Modules\Personas\Enums\TipoDocumento;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\CreatePersona;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\EditPersona;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\ListPersonas;
@@ -41,7 +40,7 @@ function datosDePersona(array $cambios = []): array
         'fecha_nacimiento' => '1998-05-14',
         'correo' => 'lucia.prueba@example.com',
         'celular' => '987654321',
-        'tipo_vinculo' => TipoVinculo::EstudianteUnasam->value,
+        'tipo_vinculo' => 'estudiante_unasam',
         ...$cambios,
     ];
 }
@@ -49,7 +48,7 @@ function datosDePersona(array $cambios = []): array
 beforeEach(function (): void {
     $this->persona = Persona::factory()->create([
         'numero_documento' => '40123456', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'nombres' => 'Ana',
-        'tipo_vinculo' => TipoVinculo::DocenteAdministrativoUnasam,
+        'tipo_vinculo' => 'docente_administrativo_unasam',
     ]);
     $this->extranjera = Persona::factory()->extranjera()->create([
         'numero_documento' => '001234567', 'apellido_paterno' => 'Rossi', 'nombres' => 'Marco',
@@ -106,7 +105,7 @@ it('filters people by link type and document type', function (string $filtro, st
         ->assertCanSeeTableRecords([$this->{$encontrada}])
         ->assertCanNotSeeTableRecords([$this->{$descartada}]);
 })->with([
-    'link type' => ['tipo_vinculo', TipoVinculo::DocenteAdministrativoUnasam->value, 'persona', 'extranjera'],
+    'link type' => ['tipo_vinculo', 'docente_administrativo_unasam', 'persona', 'extranjera'],
     'document type' => ['tipo_documento', TipoDocumento::Ce->value, 'extranjera', 'persona'],
 ]);
 
@@ -187,7 +186,7 @@ it('registers a person with a normalized document and phone', function (): void 
         ->tipo_documento->toBe(TipoDocumento::Pasaporte)
         ->apellido_materno->toBeNull()
         ->celular->toBe('+51987654321')
-        ->tipo_vinculo->toBe(TipoVinculo::EstudianteUnasam)
+        ->tipo_vinculo->toBe('estudiante_unasam')
         ->user_id->toBeNull()
         ->tratamiento_aceptado_en->toBeNull();
 });

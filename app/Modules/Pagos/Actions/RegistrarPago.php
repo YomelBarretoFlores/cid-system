@@ -12,7 +12,6 @@ use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Pagos\Support\TarifaAplicable;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
@@ -105,7 +104,7 @@ final readonly class RegistrarPago
             ?? throw new ReglaDeNegocioIncumplida($this->sinTarifa($concepto->id, $vinculo, $registro));
     }
 
-    private function sinTarifa(int $conceptoId, TipoVinculo $vinculo, RegistroDePago $registro): string
+    private function sinTarifa(int $conceptoId, string $vinculo, RegistroDePago $registro): string
     {
         $criterios = TarifaAplicable::criterios($conceptoId, $vinculo, $registro->fechaPago);
 

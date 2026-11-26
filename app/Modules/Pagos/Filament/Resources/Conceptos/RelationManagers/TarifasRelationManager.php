@@ -12,7 +12,8 @@ use App\Modules\Pagos\Actions\EliminarTarifa;
 use App\Modules\Pagos\Actions\RegistrarTarifa;
 use App\Modules\Pagos\Filament\Schemas\CampoDeMonto;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
+use App\Modules\Personas\Contracts\CatalogoDeVinculos;
+use App\Modules\Personas\Data\TipoDeVinculo;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -37,7 +38,7 @@ final class TarifasRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('monto')
             ->columns([
-                TextColumn::make('tipo_vinculo')->label('Vínculo')->formatStateUsing(fn (TipoVinculo $state): string => $state->etiqueta()),
+                TextColumn::make('tipo_vinculo')->label('Vínculo')->formatStateUsing(fn (string $state): string => $this->vinculos(soloActivos: false)[$state] ?? $state),
                 TextColumn::make('nivel')->label('Nivel')->formatStateUsing(fn (?NivelCurricular $state): string => $state?->etiqueta() ?? 'Todos')->placeholder('Todos'),
                 TextColumn::make('programa_id')->label('Programa')->formatStateUsing(fn (?int $state): string => $state === null ? 'Todos' : ($this->programas(soloActivos: false)[$state] ?? 'Todos'))->placeholder('Todos'),
                 TextColumn::make('monto')->label('Monto')->money('PEN'),
@@ -69,7 +70,7 @@ final class TarifasRelationManager extends RelationManager
             ->schema([
                 Select::make('tipo_vinculo')
                     ->label('Vínculo con la UNASAM')
-                    ->options(collect(TipoVinculo::cases())->mapWithKeys(fn (TipoVinculo $vinculo): array => [$vinculo->value => $vinculo->etiqueta()])->all())
+                    ->options(fn (): array => $this->vinculos(soloActivos: true))
                     ->required(),
                 Select::make('nivel')
                     ->label('Nivel')
@@ -87,7 +88,7 @@ final class TarifasRelationManager extends RelationManager
                 $action,
                 fn (): Tarifa => app(RegistrarTarifa::class)(
                     $this->getOwnerRecord()->getKey(),
-                    TipoVinculo::from($data['tipo_vinculo']),
+                    (string) $data['tipo_vinculo'],
                     (string) $data['monto'],
                     CarbonImmutable::parse($data['vigente_desde']),
                     filled($data['vigente_hasta'] ?? null) ? CarbonImmutable::parse($data['vigente_hasta']) : null,
@@ -96,6 +97,16 @@ final class TarifasRelationManager extends RelationManager
                 ),
                 'Tarifa registrada',
             ));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function vinculos(bool $soloActivos): array
+    {
+        $vinculos = array_filter(app(CatalogoDeVinculos::class)(), fn (TipoDeVinculo $vinculo): bool => $vinculo->activo || ! $soloActivos);
+
+        return array_column(array_map(fn (TipoDeVinculo $vinculo): array => [$vinculo->codigo, $vinculo->nombre], $vinculos), 1, 0);
     }
 
     /**

@@ -6,7 +6,6 @@ namespace App\Modules\Pagos\Database\Factories;
 
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,7 +20,7 @@ final class TarifaFactory extends Factory
     {
         return [
             'concepto_id' => Concepto::factory(),
-            'tipo_vinculo' => TipoVinculo::PublicoGeneral,
+            'tipo_vinculo' => 'publico_general',
             'monto' => '150.00',
             'vigente_desde' => '2027-01-01',
             'vigente_hasta' => null,

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Personas\Actions\RegistrarCuentaDeEstudiante;
 use App\Modules\Personas\Enums\TipoDocumento;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Livewire\Registro;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -70,7 +69,7 @@ it('creates the person and an account not yet enabled and signs it in without a 
         ->nombres->toBe('Rosa Elena')
         ->correo->toBe('rosa@correo.test')
         ->celular->toBe('987654321')
-        ->tipo_vinculo->toBe(TipoVinculo::PublicoGeneral)
+        ->tipo_vinculo->toBe('publico_general')
         ->tratamiento_aceptado_en->toEqual(now())
         ->habilitada_en->toBeNull()
         ->and(Hash::check('clave-segura1', $user->password))->toBeTrue()
@@ -96,7 +95,7 @@ it('links an existing CILN record when its email matches and keeps its data', fu
     expect(Persona::query()->count())->toBe(1)
         ->and($persona->user_id)->toBe(User::query()->where('email', 'rosa@correo.test')->sole()->id)
         ->and($persona->nombres)->toBe('Rosa')
-        ->and($persona->tipo_vinculo)->toBe(TipoVinculo::EstudianteUnasam)
+        ->and($persona->tipo_vinculo)->toBe('estudiante_unasam')
         ->and($persona->tratamiento_aceptado_en)->toEqual(now());
 });
 

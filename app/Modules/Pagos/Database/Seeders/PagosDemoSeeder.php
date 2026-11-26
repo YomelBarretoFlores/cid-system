@@ -13,7 +13,7 @@ use App\Modules\Pagos\Models\FuenteDeConcepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
+use App\Modules\Personas\Contracts\CatalogoDeVinculos;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -80,10 +80,10 @@ final class PagosDemoSeeder extends Seeder
     {
         $concepto = Concepto::query()->create(['codigo' => $codigo, 'nombre' => $nombre, 'tipo' => $tipo, 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
 
-        foreach (TipoVinculo::cases() as $vinculo) {
+        foreach (app(CatalogoDeVinculos::class)() as $vinculo) {
             foreach ($tarifas as [$monto, $nivel, $programa]) {
                 $concepto->tarifas()->create([
-                    'tipo_vinculo' => $vinculo, 'monto' => $monto, 'vigente_desde' => '2026-01-01',
+                    'tipo_vinculo' => $vinculo->codigo, 'monto' => $monto, 'vigente_desde' => '2026-01-01',
                     'nivel' => $nivel, 'programa_id' => $programa === null ? null : $programas[$programa],
                 ]);
             }

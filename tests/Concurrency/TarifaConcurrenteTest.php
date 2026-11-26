@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Models\Persona;
 use Illuminate\Process\Pool;
 use Illuminate\Support\Facades\Process;
@@ -18,9 +17,9 @@ use Illuminate\Support\Facades\Storage;
 function cerrarTarifaMientrasSeRegistraUnPago(array $esperas, float $retrasoDelCierre, string $modo = 'action'): array
 {
     // Payments, people and fees refuse TRUNCATE or are referenced by payments, so these rows stay until the next migrate:fresh.
-    $persona = Persona::factory()->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral]);
+    $persona = Persona::factory()->create(['tipo_vinculo' => 'publico_general']);
     $concepto = Concepto::factory()->create();
-    $tarifa = Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'vigente_desde' => '2026-01-01']);
+    $tarifa = Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => 'publico_general', 'vigente_desde' => '2026-01-01']);
     $recibo = (string) tempnam(sys_get_temp_dir(), 'recibo');
     file_put_contents($recibo, "%PDF-1.4\n% ".uniqid('', true)."\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
     $conexion = config('database.connections.pgsql');
@@ -70,9 +69,9 @@ it('makes the database refuse a direct closing before a payment still being regi
 
 it('applies the new fee to a payment registered while the fee is being replaced', function (): void {
     // Payments, people and fees refuse TRUNCATE or are referenced by payments, so these rows stay until the next migrate:fresh.
-    $persona = Persona::factory()->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral]);
+    $persona = Persona::factory()->create(['tipo_vinculo' => 'publico_general']);
     $concepto = Concepto::factory()->create();
-    $anterior = Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'vigente_desde' => '2026-01-01']);
+    $anterior = Tarifa::factory()->for($concepto)->create(['tipo_vinculo' => 'publico_general', 'vigente_desde' => '2026-01-01']);
     $recibo = (string) tempnam(sys_get_temp_dir(), 'recibo');
     file_put_contents($recibo, "%PDF-1.4\n% ".uniqid('', true)."\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
     $conexion = config('database.connections.pgsql');

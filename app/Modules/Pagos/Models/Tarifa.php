@@ -7,7 +7,6 @@ namespace App\Modules\Pagos\Models;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Pagos\Database\Factories\TarifaFactory;
 use App\Modules\Pagos\Policies\TarifaPolicy;
-use App\Modules\Personas\Enums\TipoVinculo;
 use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
@@ -22,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property TipoVinculo $tipo_vinculo
+ * @property string $tipo_vinculo
  * @property ?NivelCurricular $nivel
  * @property ?int $programa_id
  * @property CarbonImmutable $vigente_desde
@@ -59,7 +58,6 @@ final class Tarifa extends Model
     protected function casts(): array
     {
         return [
-            'tipo_vinculo' => TipoVinculo::class,
             'nivel' => NivelCurricular::class,
             'monto' => 'decimal:2',
             'vigente_desde' => 'date',
