@@ -79,24 +79,17 @@ it('creates the person and an account not yet enabled and signs it in without a 
     Notification::assertNothingSent();
 });
 
-it('links an existing CILN record when its email matches and keeps its data', function (): void {
+it('refuses an existing CILN record even when its email matches, since nothing proves who owns that email', function (): void {
     $persona = Persona::factory()->estudianteUnasam()->create([
         'numero_documento' => '41234567', 'nombres' => 'Rosa', 'correo' => 'rosa@correo.test',
     ]);
 
-    $this->freezeSecond();
-
     registrarse(['email' => 'ROSA@correo.test', 'nombres' => 'Otro Nombre'])
-        ->assertHasNoErrors()
-        ->assertRedirect(route('estudiante.inicio'));
+        ->assertHasErrors(['numero_documento' => RegistrarCuentaDeEstudiante::DOCUMENTO_NO_DISPONIBLE]);
 
-    $persona->refresh();
-
-    expect(Persona::query()->count())->toBe(1)
-        ->and($persona->user_id)->toBe(User::query()->where('email', 'rosa@correo.test')->sole()->id)
+    expect($persona->refresh()->user_id)->toBeNull()
         ->and($persona->nombres)->toBe('Rosa')
-        ->and($persona->tipo_vinculo)->toBe('estudiante_unasam')
-        ->and($persona->tratamiento_aceptado_en)->toEqual(now());
+        ->and(User::query()->count())->toBe(0);
 });
 
 it('refuses to link a CILN record registered with another email or without one', function (?string $correoRegistrado): void {
@@ -171,12 +164,12 @@ it('sends signed-in users away from the registration form', function (): void {
         ->assertRedirect(route('estudiante.inicio'));
 });
 
-it('links a CILN record whose email was typed with capitals and spaces', function (): void {
+it('refuses a CILN record whose email was typed with capitals and spaces too', function (): void {
     $persona = Persona::factory()->create(['numero_documento' => '41234567', 'correo' => ' Rosa@Correo.TEST ']);
 
-    registrarse()->assertHasNoErrors();
+    registrarse()->assertHasErrors(['numero_documento' => RegistrarCuentaDeEstudiante::DOCUMENTO_NO_DISPONIBLE]);
 
-    expect($persona->refresh()->user_id)->not->toBeNull();
+    expect($persona->refresh()->user_id)->toBeNull();
 });
 
 it('logs a refused registration from the portal', function (): void {

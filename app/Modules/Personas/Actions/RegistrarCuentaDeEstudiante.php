@@ -17,8 +17,8 @@ final readonly class RegistrarCuentaDeEstudiante
 {
     public const string CORREO_EN_USO = 'Ya existe una cuenta con ese correo.';
 
-    // One message for both refusals so the form does not reveal whether a document is on file or already has an account.
-    public const string DOCUMENTO_NO_DISPONIBLE = 'No podemos crear una cuenta con ese documento. Si ya tienes una, ingresa o recupera tu contraseña; si no, acércate a la oficina del CILN para actualizar tu correo.';
+    // One message whether or not the record already has an account, so the form reveals no more than that.
+    public const string DOCUMENTO_NO_DISPONIBLE = 'No podemos crear una cuenta con ese documento. Si ya tienes una, ingresa o recupera tu contraseña; si no, acércate a la oficina del CILN con tu documento de identidad para que te creen la cuenta.';
 
     public function __construct(private ObtenerVinculoPorDefecto $vinculoPorDefecto) {}
 
@@ -43,7 +43,7 @@ final readonly class RegistrarCuentaDeEstudiante
             throw new ReglaDeNegocioIncumplida(self::CORREO_EN_USO);
         }
 
-        $persona = $this->personaVinculable($solicitud, $correo);
+        $persona = $this->nuevaPersona($solicitud, $correo);
         $user = User::query()->create([
             'name' => "{$persona->nombres} {$persona->apellido_paterno}",
             'email' => $correo,
@@ -52,33 +52,22 @@ final readonly class RegistrarCuentaDeEstudiante
 
         $persona->user()->associate($user);
         $persona->tratamiento_aceptado_en = $solicitud->aceptaTratamiento ? now() : null;
-        // Without email verification, only the payment validated at the office proves who holds the account.
         $persona->habilitada_en = null;
         $persona->save();
 
         return $user;
     }
 
-    // Matching the email already on file is what proves an existing record belongs to whoever registers it.
-    private function personaVinculable(SolicitudDeCuenta $solicitud, string $correo): Persona
-    {
-        $persona = Persona::query()
-            ->where('tipo_documento', $solicitud->tipoDocumento)
-            ->where('numero_documento', Persona::normalizarDocumento($solicitud->numeroDocumento))
-            ->lockForUpdate()
-            ->first();
-
-        if ($persona === null) {
-            return $this->nuevaPersona($solicitud, $correo);
-        }
-
-        throw_if($persona->user_id !== null || $persona->correo !== $correo, ReglaDeNegocioIncumplida::class, self::DOCUMENTO_NO_DISPONIBLE);
-
-        return $persona;
-    }
-
+    // Without email verification nothing proves an existing record belongs to whoever registers it, so staff create those accounts at the office.
     private function nuevaPersona(SolicitudDeCuenta $solicitud, string $correo): Persona
     {
+        $existe = Persona::query()
+            ->where('tipo_documento', $solicitud->tipoDocumento)
+            ->where('numero_documento', Persona::normalizarDocumento($solicitud->numeroDocumento))
+            ->exists();
+
+        throw_if($existe, ReglaDeNegocioIncumplida::class, self::DOCUMENTO_NO_DISPONIBLE);
+
         return Persona::query()->create([
             'tipo_documento' => $solicitud->tipoDocumento,
             'numero_documento' => $solicitud->numeroDocumento,

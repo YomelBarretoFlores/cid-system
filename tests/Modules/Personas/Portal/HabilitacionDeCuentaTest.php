@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Docencia\Models\Docente;
 use App\Modules\Pagos\Actions\RechazarPago;
 use App\Modules\Pagos\Actions\ValidarPago;
 use App\Modules\Pagos\Models\Pago;
@@ -56,12 +57,14 @@ it('signs a new account in straight to the portal without sending a verification
     Notification::assertNothingSent();
 });
 
-it('keeps a linked existing record waiting for the enablement at the CILN office', function (): void {
+it('does not let a registration take over the record of a teacher on file', function (): void {
     $persona = Persona::factory()->create(['numero_documento' => '41234567', 'correo' => 'rosa@correo.test']);
+    Docente::factory()->create(['persona_id' => $persona->id]);
 
-    registrarCuenta()->assertHasNoErrors();
+    registrarCuenta()->assertHasErrors('numero_documento');
 
-    expect($persona->fresh()->habilitada_en)->toBeNull();
+    expect($persona->fresh()->user_id)->toBeNull();
+    $this->assertGuest();
 });
 
 it('lets an account not yet enabled open the generic sections', function (string $ruta): void {

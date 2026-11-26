@@ -63,14 +63,15 @@ it('refuses a record on file with another email and one with an account using th
     expect(sondaConteos())->toBe($antes)->and(auth()->check())->toBeFalse();
 });
 
-it('links a record on file with the same email and keeps its link type', function (): void {
+it('refuses a record on file with the same email and leaves it for the office to link', function (): void {
     $persona = Persona::factory()->estudianteUnasam()->create(['tipo_documento' => TipoDocumento::Dni, 'numero_documento' => '45678912', 'correo' => 'ana@correo.test']);
+    $antes = sondaConteos();
 
-    sondaRegistrarse(['email' => '  ANA@Correo.test '])->assertHasNoErrors()->assertRedirect(route('estudiante.inicio'));
+    sondaRegistrarse(['email' => '  ANA@Correo.test '])->assertHasErrors(['numero_documento' => RegistrarCuentaDeEstudiante::DOCUMENTO_NO_DISPONIBLE]);
 
-    expect($persona->refresh()->user_id)->toBe(User::query()->sole()->id)
-        ->and($persona->tipo_vinculo)->toBe('estudiante_unasam')
-        ->and(Persona::query()->count())->toBe(1);
+    expect($persona->refresh()->user_id)->toBeNull()
+        ->and(sondaConteos())->toBe($antes)
+        ->and(auth()->check())->toBeFalse();
     Notification::assertNothingSent();
 });
 

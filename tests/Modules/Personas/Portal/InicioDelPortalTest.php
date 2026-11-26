@@ -46,5 +46,6 @@ it('describes the student record of a user and nothing for other users', functio
         vinculo: 'Estudiante UNASAM',
         direccion: 'Av. Centenario 200',
         versionDeFoto: hash('crc32b', 'fotos/01JAAAAAAAAAAAAAAAAAAAAAAA.jpg'),
+        habilitada: true,
     ))->and(app(FichaDelUsuario::class)(User::factory()->create()->id))->toBeNull();
 });

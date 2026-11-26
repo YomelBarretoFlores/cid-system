@@ -20,7 +20,7 @@ final readonly class FichaDeEstudiante
         public ?string $direccion = null,
         // Changes with every new photo so the browser does not show a cached one; never the file path itself.
         public ?string $versionDeFoto = null,
-        public bool $habilitada = true,
+        public bool $habilitada = false,
     ) {}
 
     public static function desde(Persona $persona): self
