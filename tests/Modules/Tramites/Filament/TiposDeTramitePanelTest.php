@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Models\Programa;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Tramites\Actions\GuardarTipoDeTramite;
@@ -140,4 +141,49 @@ it('links a trámite type to a payment concept, taking the fee type from it', fu
 
     expect(TipoTramite::query()->where('codigo', 'DUPLICADO-CARNE')->sole())
         ->concepto_id->toBe($concepto->id)->tipo_concepto->toBe(TipoConcepto::Certificado);
+});
+
+it('refuses a configuration that drops or relaxes a field the final action needs', function (array $campos): void {
+    expect(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo(['accion_final' => AccionFinal::CertificadoNivel->value, ...$campos])), $this->administrador))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'La acción «Emitir el certificado de nivel» necesita el campo «Nivel» como obligatorio.')
+        ->and(TipoTramite::query()->where('codigo', 'DUPLICADO-CARNE')->exists())->toBeFalse();
+})->with([
+    'dropped' => [['campos' => ['idioma'], 'obligatorios' => ['idioma']]],
+    'optional' => [['campos' => ['idioma', 'nivel'], 'obligatorios' => ['idioma']]],
+]);
+
+it('configures the FUT fields, the previous type, the programs and the attachments of a type', function (): void {
+    $this->actingAs($this->administrador);
+    $posgrado = Programa::factory()->create(['nombre' => 'Posgrado de prueba']);
+    $previo = TipoTramite::query()->where('codigo', 'CONSTANCIA-NOTAS')->sole();
+
+    Livewire::test(CreateTipoTramite::class)
+        ->fillForm(formularioDeTipo([
+            'campos' => ['exposicion', 'celular', 'mencion'],
+            'obligatorios' => ['exposicion', 'mencion'],
+            'requiere_tipo_previo_id' => $previo->id,
+            'programas' => [$posgrado->id],
+            'adjuntos' => [['nombre' => 'Copia de DNI', 'obligatorio' => true], ['nombre' => 'Fotografía', 'obligatorio' => false]],
+        ]))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $tipo = TipoTramite::query()->where('codigo', 'DUPLICADO-CARNE')->sole();
+    expect($tipo->campos)->toBe([['clave' => 'mencion', 'obligatorio' => true], ['clave' => 'exposicion', 'obligatorio' => true], ['clave' => 'celular', 'obligatorio' => false]])
+        ->and($tipo->requiere_tipo_previo_id)->toBe($previo->id)
+        ->and($tipo->programas()->pluck('programa_id')->all())->toBe([$posgrado->id])
+        ->and($tipo->adjuntos)->toBe([['nombre' => 'Copia de DNI', 'obligatorio' => true], ['nombre' => 'Fotografía', 'obligatorio' => false]]);
+
+    Livewire::test(EditTipoTramite::class, ['record' => $tipo->getRouteKey()])
+        ->assertFormSet(['campos' => ['mencion', 'exposicion', 'celular'], 'obligatorios' => ['mencion', 'exposicion'], 'requiere_tipo_previo_id' => $previo->id, 'programas' => [$posgrado->id]]);
+});
+
+it('refuses more than five attachments and a type that requires itself', function (): void {
+    $seis = array_map(fn (int $numero): array => ['nombre' => "Documento {$numero}", 'obligatorio' => false], range(1, 6));
+    $tipo = TipoTramite::query()->where('codigo', 'RETIRO')->sole();
+
+    expect(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo(['adjuntos' => $seis])), $this->administrador))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Un trámite pide como máximo 5 adjuntos, cada uno con un nombre de 3 a 80 caracteres sin repetir.')
+        ->and(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo(['codigo' => 'RETIRO', 'requiere_tipo_previo_id' => $tipo->id])), $this->administrador, $tipo->id))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El trámite previo debe ser otro tipo de trámite.');
 });

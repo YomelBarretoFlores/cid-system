@@ -313,9 +313,14 @@ Permite solicitar constancias, certificados y otros trámites académicos (por e
 1. En el menú, presione **Trámites**.
 2. En **Nuevo trámite**, revise la lista de trámites disponibles y su **Tasa** (el tipo de pago que requiere, por ejemplo Constancia o Certificado, o **Sin tasa**), y presione **Elegir** en el que necesita.
 3. Lea los **Requisitos** del trámite. Si tiene tasa, el sistema aplica automáticamente un pago validado sin usar; si no lo tiene, regístrelo en **Registro de pagos**.
-4. Complete los datos que pida el trámite: la **Matrícula** o el **Idioma y nivel** según corresponda, y el **Motivo** cuando el trámite lo requiera (entre 5 y 500 caracteres). La constancia de notas se solicita **por nivel**: la lista muestra solo los niveles en los que aprobó al menos un ciclo, y cada nivel es un trámite y una tasa aparte.
-5. Si desea, escriba un **Comentario (opcional)** de hasta 500 caracteres.
-6. Presione **Iniciar trámite**. Para desistir, presione **Cancelar**.
+4. Complete los datos del formato único de trámite (FUT) que pida el trámite; su nombre y DNI se toman de su cuenta. Según el trámite, puede pedir la **Matrícula**, el **Idioma y nivel**, el **Programa**, la **Mención** (maestría o doctorado y su especialidad), **Y expongo que** (entre 10 y 1000 caracteres), el **Celular** (9 dígitos) o el **Motivo** (entre 5 y 500 caracteres). Los campos marcados «(opcional)» pueden quedar vacíos. La constancia de notas se solicita **por nivel**: la lista muestra solo los niveles en los que aprobó al menos un ciclo, y cada nivel es un trámite y una tasa aparte.
+5. Si el trámite pide **adjuntos** (por ejemplo, una copia del DNI), elija cada archivo: PDF, JPG o PNG de hasta 5 MB.
+6. Si desea, escriba un **Comentario (opcional)** de hasta 500 caracteres.
+7. Presione **Iniciar trámite**. Para desistir, presione **Cancelar**.
+
+Algunos trámites solo se muestran a los estudiantes de ciertos programas (por ejemplo, Posgrado), y otros requieren haber finalizado antes otro trámite del mismo idioma y nivel: el certificado de nivel requiere la constancia de notas de ese nivel. Ya no necesita autenticar la constancia en Secretaría General.
+
+Para imprimir el **cargo** de su solicitud, presione **Imprimir cargo** debajo del trámite en **Mis trámites**: muestra el código de seguimiento, el trámite, la fecha y hora, los datos que llenó y el número de adjuntos. Reemplaza al cargo desglosable del FUT en papel.
 
 **Resultado:** se muestra el mensaje «Registramos tu trámite …» con su código (por ejemplo, TR-2026-000001). Si falta el pago de la tasa, el trámite queda **Pendiente de pago** y continúa cuando el CILN valide el pago. Solo puede tener un trámite de cada tipo en curso para la misma matrícula o el mismo idioma y nivel. El retiro del ciclo no devuelve el pago de la matrícula.
 

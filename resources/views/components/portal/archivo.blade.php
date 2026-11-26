@@ -6,7 +6,7 @@
 @endphp
 <x-portal.control :id="$id" :etiqueta="$etiqueta" :nombre="$nombre" :ayuda="$ayuda">
     {{-- The real input stays in the tab order (visually hidden); the dashed area is its second label, so a click or Enter opens the file picker. --}}
-    <div x-data="{ elegido: '' }" x-effect="if (! $wire.{{ $nombre }}) elegido = ''" class="relative">
+    <div x-data="{ elegido: '' }" x-effect="if (! $wire.$get('{{ $nombre }}')) elegido = ''" class="relative">
         <input id="{{ $id }}" type="file" wire:model="{{ $nombre }}"
             x-on:change="elegido = $event.target.files[0]?.name ?? ''"
             @if ($acepta) accept="{{ $acepta }}" @endif

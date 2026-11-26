@@ -154,12 +154,11 @@ it('finishes a grade record and a level certificate trámite with the language a
     Pago::factory()->validado()->for(Concepto::factory()->state(['tipo' => TipoConcepto::Constancia]))->create(['persona_id' => $this->persona->id]);
     Pago::factory()->validado()->for(Concepto::factory()->state(['tipo' => TipoConcepto::Certificado]))->create(['persona_id' => $this->persona->id]);
     $notas = app(SolicitarTramite::class)($this->persona->id, TipoTramite::query()->where('codigo', 'CONSTANCIA-NOTAS')->value('id'), new DatosDeSolicitud(idioma: 'Inglés', nivel: 'basico'));
+    app(AvanzarTramite::class)($notas->id, $this->personal);
+    app(FinalizarTramite::class)($notas->id, $this->personal);
     $certificado = app(SolicitarTramite::class)($this->persona->id, TipoTramite::query()->where('codigo', 'CERTIFICADO-NIVEL')->value('id'), new DatosDeSolicitud(idioma: 'Inglés', nivel: 'basico'));
-
-    foreach ([$notas, $certificado] as $tramite) {
-        app(AvanzarTramite::class)($tramite->id, $this->personal);
-        app(FinalizarTramite::class)($tramite->id, $this->personal);
-    }
+    app(AvanzarTramite::class)($certificado->id, $this->personal);
+    app(FinalizarTramite::class)($certificado->id, $this->personal);
 
     expect(Documento::query()->whereKey($notas->refresh()->documento_id)->sole())->tipo->toBe(TipoDocumento::ConstanciaNotas)->idioma->toBe('Inglés')->nivel->toBe(NivelCurricular::Basico)
         ->and(Documento::query()->whereKey($certificado->refresh()->documento_id)->sole())->tipo->toBe(TipoDocumento::CertificadoNivel)->nivel->toBe(NivelCurricular::Basico);

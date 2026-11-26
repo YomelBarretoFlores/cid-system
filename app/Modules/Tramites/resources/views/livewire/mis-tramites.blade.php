@@ -1,3 +1,5 @@
+@use('App\Modules\Tramites\Enums\AccionFinal')
+@use('App\Modules\Tramites\Enums\CampoFut')
 @use('App\Modules\Tramites\Enums\EstadoTramite')
 <div class="flex flex-col gap-2 sm:gap-3.5">
     <x-portal.encabezado titulo="Trámites">
@@ -53,6 +55,7 @@
                                             <a href="{{ route('estudiante.pagos') }}" class="enlace">Registra tu recibo en Registro de pagos</a>; el trámite continúa cuando el CILN lo valide.
                                         </p>
                                     @endif
+                                    <p class="mb-1.5"><a href="{{ route('estudiante.tramites.cargo', $tramite->codigo) }}" class="enlace" target="_blank" rel="noopener">Imprimir cargo</a></p>
                                     <details>
                                         <summary class="cursor-pointer text-enlace hover:text-enlace-hover">Ver etapas</summary>
                                         <x-portal.etapas class="max-w-[640px] pt-2.5" :etapas="$tramite->etapas" :actual="$tramite->etapa_actual" :observado="$tramite->estado === EstadoTramite::Observado" :finalizado="$tramite->estado === EstadoTramite::Finalizado" />
@@ -112,23 +115,50 @@
                 @endif
 
                 <form wire:submit="solicitar" class="flex flex-col gap-3.5" novalidate>
-                    @isset($opciones['matricula'])
-                        @if ($opciones['matricula'] === [])
-                            <x-portal.alerta tipo="aviso">No tienes matrículas activas para este trámite.</x-portal.alerta>
-                        @else
-                            <x-portal.seleccion nombre="matricula" etiqueta="Matrícula" :opciones="$opciones['matricula']" vacio="Elige tu matrícula" />
-                        @endif
-                    @endisset
-                    @isset($opciones['nivel'])
-                        @if ($opciones['nivel'] === [])
-                            <x-portal.alerta tipo="aviso">{{ $tipo->accion_final === \App\Modules\Tramites\Enums\AccionFinal::ConstanciaNotas ? 'Aún no apruebas ningún ciclo con acta final cerrada.' : 'Aún no completas un nivel por certificar, o ya tienes sus certificados.' }}</x-portal.alerta>
-                        @else
-                            <x-portal.seleccion nombre="nivel" etiqueta="Idioma y nivel" :opciones="$opciones['nivel']" vacio="Elige el nivel" />
-                        @endif
-                    @endisset
-                    @if ($tipo->accion_final->pideMotivo())
-                        <x-portal.texto-largo nombre="motivo" etiqueta="Motivo" />
-                    @endif
+                    @foreach ($campos as ['campo' => $campo, 'obligatorio' => $obligatorio, 'opciones' => $opciones])
+                        @php($etiqueta = $campo->etiqueta().($obligatorio ? '' : ' (opcional)'))
+                        @switch($campo)
+                            @case(CampoFut::Matricula)
+                                @if ($opciones === [])
+                                    <x-portal.alerta tipo="aviso">No tienes matrículas activas para este trámite.</x-portal.alerta>
+                                @else
+                                    <x-portal.seleccion nombre="matricula" :etiqueta="$etiqueta" :opciones="$opciones" vacio="Elige tu matrícula" />
+                                @endif
+                                @break
+                            @case(CampoFut::Idioma)
+                                @if (! $tipo->accion_final->validaIdiomaYNivel())
+                                    <x-portal.seleccion nombre="idioma" :etiqueta="$etiqueta" :opciones="$opciones" vacio="Elige el idioma" />
+                                @elseif ($opciones === [])
+                                    <x-portal.alerta tipo="aviso">{{ $tipo->accion_final === AccionFinal::ConstanciaNotas ? 'Aún no apruebas ningún ciclo con acta final cerrada.' : 'Aún no completas un nivel por certificar, o ya tienes sus certificados.' }}</x-portal.alerta>
+                                @else
+                                    <x-portal.seleccion nombre="nivel" etiqueta="Idioma y nivel" :opciones="$opciones" vacio="Elige el nivel" />
+                                @endif
+                                @break
+                            @case(CampoFut::Nivel)
+                                <x-portal.seleccion nombre="nivel" :etiqueta="$etiqueta" :opciones="$opciones" vacio="Elige el nivel" />
+                                @break
+                            @case(CampoFut::Programa)
+                                <x-portal.seleccion nombre="programa" :etiqueta="$etiqueta" :opciones="$opciones" vacio="Elige tu programa" />
+                                @break
+                            @case(CampoFut::Mencion)
+                                <x-portal.seleccion nombre="mencionGrado" :etiqueta="$etiqueta" :opciones="$grados" vacio="Maestría o doctorado" />
+                                <x-portal.campo nombre="mencionTexto" etiqueta="Mención en" ayuda="Por ejemplo: Educación Superior." maxlength="150" />
+                                @break
+                            @case(CampoFut::Exposicion)
+                                <x-portal.texto-largo nombre="exposicion" :etiqueta="$etiqueta" />
+                                @break
+                            @case(CampoFut::Celular)
+                                <x-portal.campo nombre="celular" :etiqueta="$etiqueta" tipo="tel" inputmode="numeric" maxlength="11" />
+                                @break
+                            @case(CampoFut::Motivo)
+                                <x-portal.texto-largo nombre="motivo" :etiqueta="$etiqueta" />
+                                @break
+                        @endswitch
+                    @endforeach
+                    @foreach ($tipo->adjuntos as $indice => $pedido)
+                        <x-portal.archivo nombre="adjuntos.{{ $indice }}" :etiqueta="$pedido['nombre'].($pedido['obligatorio'] ? '' : ' (opcional)')"
+                            acepta="image/jpeg,image/png,application/pdf" formatos="PDF, JPG o PNG, hasta 5 MB" />
+                    @endforeach
                     <x-portal.texto-largo nombre="comentario" etiqueta="Comentario (opcional)" filas="2" />
 
                     <div class="flex flex-wrap gap-2">

@@ -40,6 +40,7 @@ final class TipoTramiteFactory extends Factory
             'tipo_concepto' => TipoConcepto::Constancia,
             'accion_final' => AccionFinal::ConstanciaMatricula,
             'activo' => true,
+            'campos' => fn (array $atributos): array => AccionFinal::from($atributos['accion_final'] instanceof AccionFinal ? $atributos['accion_final']->value : (string) $atributos['accion_final'])->camposPorDefecto(),
         ];
     }
 

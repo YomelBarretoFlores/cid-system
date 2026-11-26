@@ -20,7 +20,7 @@ function requisitosDelCertificado(): string
 }
 
 it('says that every cycle of the level is required, not four', function (): void {
-    expect(requisitosDelCertificado())->toBe(REQUISITO_ACTUAL);
+    DB::table('tra_tipos_tramite')->where('codigo', 'CERTIFICADO-NIVEL')->update(['requisitos' => REQUISITO_ACTUAL]);
 
     migracionDeRequisitosDelCertificado()->down();
 
@@ -38,5 +38,21 @@ it('keeps a requirement the CILN already rewrote, in both directions', function 
     expect(requisitosDelCertificado())->toBe('Texto del CILN.');
 
     migracionDeRequisitosDelCertificado()->up();
+    expect(requisitosDelCertificado())->toBe('Texto del CILN.');
+});
+
+it('drops the authenticated grade record from the certificate requirements, unless the CILN rewrote them', function (): void {
+    $migracion = require base_path('app/Modules/Tramites/Database/Migrations/2026_11_28_100000_configure_the_digital_fut.php');
+    $actual = 'La constancia de notas del mismo idioma y nivel tramitada en el sistema, todos los ciclos del nivel aprobados en actas cerradas y el pago de la tasa.';
+
+    expect(requisitosDelCertificado())->toBe($actual)
+        ->and(requisitosDelCertificado())->not->toContain('autentic');
+
+    $migracion->down();
+    expect(requisitosDelCertificado())->toBe(REQUISITO_ACTUAL);
+
+    DB::table('tra_tipos_tramite')->where('codigo', 'CERTIFICADO-NIVEL')->update(['requisitos' => 'Texto del CILN.']);
+    $migracion->up();
+
     expect(requisitosDelCertificado())->toBe('Texto del CILN.');
 });

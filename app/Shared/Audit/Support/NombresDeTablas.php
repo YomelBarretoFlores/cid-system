@@ -48,6 +48,8 @@ final class NombresDeTablas
         'tra_tipos_tramite' => 'Tipos de trámite',
         'tra_etapas' => 'Etapas de trámite',
         'tra_tramites' => 'Trámites',
+        'tra_tipo_tramite_programa' => 'Programas por tipo de trámite',
+        'tra_adjuntos' => 'Adjuntos de trámites',
         'roles' => 'Roles',
         'model_has_roles' => 'Roles de las cuentas',
         'model_has_permissions' => 'Permisos de las cuentas',

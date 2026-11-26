@@ -70,6 +70,8 @@ it('refuses an enrollment that is not active or not the student\'s', function (C
 it('asks a grade record for a level with a passed cycle and a certificate for a completed level without a valid certificate', function (): void {
     ActasFinales::historial($this->persona, 'Inglés', [[1, '15.00', 'aprobado'], [2, '14.00', 'aprobado'], [3, '13.00', 'aprobado'], [4, '16.00', 'aprobado']]);
     ActasFinales::historial($this->persona, 'Quechua', [[1, '12.00', 'aprobado'], [5, '08.00', 'desaprobado']]);
+    $constanciaDeIngles = solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Inglés', nivel: NivelCurricular::Basico->value));
+    DB::table('tra_tramites')->where('id', $constanciaDeIngles->id)->update(['estado' => 'finalizado', 'etapa_actual' => 3, 'finalizado_en' => now()]);
 
     expect(solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Quechua', nivel: NivelCurricular::Basico->value))->datos)->toMatchArray(['idioma' => 'Quechua', 'nivel' => 'basico'])
         ->and(solicitar($this->persona, 'CERTIFICADO-NIVEL', new DatosDeSolicitud(idioma: 'Inglés', nivel: NivelCurricular::Basico->value))->datos)

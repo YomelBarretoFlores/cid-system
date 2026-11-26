@@ -25,6 +25,7 @@ use App\Modules\Academico\Actions\ListarGruposParaTraslado;
 use App\Modules\Academico\Actions\ListarIniciosDePeriodos;
 use App\Modules\Academico\Actions\ListarOfertaDeMatricula;
 use App\Modules\Academico\Actions\ListarOfertaPublica;
+use App\Modules\Academico\Actions\ListarProgramasDeGrupos;
 use App\Modules\Academico\Actions\ListarVentanasDeMatricula;
 use App\Modules\Academico\Actions\MoverVacante;
 use App\Modules\Academico\Actions\ReservarVacante;
@@ -49,6 +50,7 @@ use App\Modules\Academico\Contracts\OfertaDeMatricula;
 use App\Modules\Academico\Contracts\OfertaPublica;
 use App\Modules\Academico\Contracts\PeriodoEnCurso;
 use App\Modules\Academico\Contracts\ProgramaPorDefecto;
+use App\Modules\Academico\Contracts\ProgramasDeGrupos;
 use App\Modules\Academico\Contracts\ReservaDeVacante;
 use App\Modules\Academico\Contracts\TrasladoDeVacante;
 use App\Modules\Academico\Contracts\VentanasDeMatricula;
@@ -86,6 +88,7 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         IniciosDePeriodos::class => ListarIniciosDePeriodos::class,
         ProgramaPorDefecto::class => BuscarProgramaPorDefecto::class,
         CatalogoDeProgramas::class => ListarCatalogoDeProgramas::class,
+        ProgramasDeGrupos::class => ListarProgramasDeGrupos::class,
     ];
 
     #[\Override]

@@ -167,9 +167,19 @@ Resultado esperado: el registro aparece en los formularios de pagos y conceptos.
 3. En **Tasa**, elija el tipo de pago que debe presentarse (por ejemplo, Matrícula, Pensión o Constancia) o deje **Sin tasa**. Con tasa, el trámite espera a que Pagos valide un pago de ese tipo.
    - Opcionalmente, en **Concepto de pago**, elija el concepto exacto que debe pagarse (por ejemplo, «Constancia de notas»). La **Tasa** toma el tipo de ese concepto y el trámite solo acepta un pago de ese concepto; si la tarifa del pago es por nivel, además debe ser del mismo nivel que el trámite. Sin concepto, se acepta cualquier pago del tipo elegido. Los trámites ya solicitados conservan el concepto con el que se iniciaron.
 4. Defina al menos dos **Etapas** con **Agregar etapa**. Cada etapa tiene su nombre, su **Avance** y **Se alcanza**: **Al recibir la solicitud**, **Cuando Pagos valida la tasa** o **Cuando el personal la avanza**. La primera es la solicitud recibida (0 %); con tasa, la segunda se alcanza cuando Pagos valida la tasa; la última llega al 100 % por acción del personal.
-5. Elija qué ocurre **Al finalizar** (por ejemplo, emitir la constancia de notas o trasladar la matrícula) y guarde.
+5. Elija qué ocurre **Al finalizar** (por ejemplo, emitir la constancia de notas o trasladar la matrícula).
+6. En **Formato único de trámite (FUT)**, configure lo que el estudiante llena (su nombre y DNI salen de su cuenta):
 
-Resultado esperado: si está marcado **Disponible para nuevas solicitudes**, el tipo aparece en el portal del estudiante. Los trámites ya iniciados conservan sus etapas.
+| Opción | Uso |
+|---|---|
+| **Campos del FUT** y **Obligatorios** | Marque los campos que se piden: Matrícula, Idioma, Nivel, Programa, Mención (maestría o doctorado y su especialidad), «Y expongo que» (10 a 1000 caracteres), Celular (9 dígitos) y Motivo (5 a 500 caracteres). Los no marcados como obligatorios son opcionales. La acción final exige sus propios campos como obligatorios (por ejemplo, el certificado de nivel exige Idioma y Nivel); si se quitan, el sistema no guarda el tipo. |
+| **Requiere haber finalizado** | Otro tipo de trámite que el estudiante debe tener finalizado para el mismo idioma y nivel. Por defecto, el certificado de nivel requiere la constancia de notas; puede quitarse. |
+| **Programas que pueden solicitarlo** | Si elige programas, solo los estudiantes de esos programas (según su última matrícula en cada idioma) ven y solicitan el trámite. Vacío: todos. |
+| **Adjuntos** | Hasta 5 archivos con su nombre y si son obligatorios (PDF, JPG o PNG de hasta 5 MB). Por defecto ningún trámite pide adjuntos: el certificado ya no requiere la constancia autenticada en Secretaría General, porque el sistema valida las actas cerradas y los documentos llevan código QR. |
+
+7. Guarde.
+
+Resultado esperado: si está marcado **Disponible para nuevas solicitudes**, el tipo aparece en el portal del estudiante. Los trámites ya iniciados conservan sus etapas, sus datos y sus adjuntos; los cambios solo afectan a las nuevas solicitudes.
 
 ## 3.4. Sistemas de evaluación
 
@@ -590,7 +600,7 @@ Resultado esperado: el documento queda anulado y la verificación pública lo mo
 
 Finalidad: atender las solicitudes de trámite que los estudiantes inician desde su portal.
 
-En **Trámites > Trámites** se listan los trámites con su **Código** de seguimiento, **Estudiante**, **Trámite**, **Etapa**, **Estado** e inicio. Pulse **Ver** para abrir uno; la vista muestra la solicitud, la tasa y el pago aplicado, el **Historial** y los **Correos enviados** al estudiante. Las acciones disponibles dependen del estado:
+En **Trámites > Trámites** se listan los trámites con su **Código** de seguimiento, **Estudiante**, **Trámite**, **Etapa**, **Estado** e inicio. Pulse **Ver** para abrir uno; la vista muestra la solicitud con los campos del FUT, los **Adjuntos** (pulse **Descargar** para abrir cada archivo), la tasa y el pago aplicado, el **Historial** y los **Correos enviados** al estudiante. Las acciones disponibles dependen del estado:
 
 1. **Avanzar a «…»**: pasa el trámite a la etapa siguiente que indica el botón. Confirme; el estudiante recibe un correo con el cambio.
 2. **Finalizar: «…»**: lleva el trámite a su última etapa y ejecuta la acción final del tipo de trámite (por ejemplo, emitir la constancia de notas o trasladar la matrícula; para un traslado se elige el **Grupo de destino**).

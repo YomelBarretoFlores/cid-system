@@ -25,25 +25,31 @@ enum AccionFinal: string
         };
     }
 
-    public function pideMatricula(): bool
+    /**
+     * @return list<CampoFut> the fields this final action reads, so a type can never drop them or make them optional
+     */
+    public function camposRequeridos(): array
     {
-        return in_array($this, [self::ConstanciaMatricula, self::Traslado, self::Retiro], true);
+        return match ($this) {
+            self::ConstanciaMatricula => [CampoFut::Matricula],
+            self::ConstanciaNotas, self::CertificadoNivel => [CampoFut::Idioma, CampoFut::Nivel],
+            self::Traslado, self::Retiro => [CampoFut::Matricula, CampoFut::Motivo],
+            self::Ninguna => [],
+        };
     }
 
-    public function pideIdioma(): bool
+    /**
+     * @return list<array{clave: string, obligatorio: bool}>
+     */
+    public function camposPorDefecto(): array
     {
-        return in_array($this, [self::ConstanciaNotas, self::CertificadoNivel], true);
+        return array_map(fn (CampoFut $campo): array => ['clave' => $campo->value, 'obligatorio' => true], $this->camposRequeridos());
     }
 
     // Both are issued per level: the grade record offers the levels with a passed cycle, the certificate the completed ones.
-    public function pideNivel(): bool
+    public function validaIdiomaYNivel(): bool
     {
         return in_array($this, [self::ConstanciaNotas, self::CertificadoNivel], true);
-    }
-
-    public function pideMotivo(): bool
-    {
-        return in_array($this, [self::Traslado, self::Retiro], true);
     }
 
     public function emiteDocumento(): bool

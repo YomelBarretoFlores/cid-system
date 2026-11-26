@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property ?string $motivo_cierre
  * @property CarbonImmutable $created_at
  * @property-read TipoTramite $tipoTramite
+ * @property-read Collection<int, Adjunto> $adjuntos
  */
 #[Table('tra_tramites')]
 #[Fillable([
@@ -66,6 +68,14 @@ final class Tramite extends Model
     public function movimientos(): HasMany
     {
         return $this->hasMany(Movimiento::class)->orderBy('id');
+    }
+
+    /**
+     * @return HasMany<Adjunto, $this>
+     */
+    public function adjuntos(): HasMany
+    {
+        return $this->hasMany(Adjunto::class)->orderBy('id');
     }
 
     /**

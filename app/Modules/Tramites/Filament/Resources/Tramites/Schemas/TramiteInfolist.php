@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Filament\Resources\Tramites\Schemas;
 
-use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Pagos\Contracts\ConsultaDePago;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
+use App\Modules\Tramites\Enums\CampoFut;
 use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Models\Tramite;
+use App\Modules\Tramites\Support\PresentacionDelFut;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Section;
@@ -48,13 +49,16 @@ final class TramiteInfolist
                 Section::make('Solicitud')
                     ->columns(3)
                     ->schema([
-                        TextEntry::make('datos.matricula')->label('Matrícula')->visible(fn (Tramite $record): bool => isset($record->datos['matricula'])),
-                        TextEntry::make('datos.idioma')->label('Idioma')->visible(fn (Tramite $record): bool => isset($record->datos['idioma'])),
-                        TextEntry::make('datos.nivel')->label('Nivel')->visible(fn (Tramite $record): bool => isset($record->datos['nivel']))
-                            ->formatStateUsing(fn (string $state): string => NivelCurricular::tryFrom($state)?->etiqueta() ?? $state),
-                        TextEntry::make('datos.motivo')->label('Motivo')->visible(fn (Tramite $record): bool => isset($record->datos['motivo']))->columnSpanFull(),
+                        ...array_map(fn (CampoFut $campo): TextEntry => TextEntry::make("fut_{$campo->value}")
+                            ->label($campo->etiqueta())
+                            ->state(fn (Tramite $record): ?string => PresentacionDelFut::valor($campo, $record->datos))
+                            ->visible(fn (Tramite $record): bool => PresentacionDelFut::valor($campo, $record->datos) !== null)
+                            ->columnSpan(in_array($campo, [CampoFut::Exposicion, CampoFut::Motivo], true) ? 'full' : 1), CampoFut::cases()),
                         TextEntry::make('datos.comentario')->label('Comentario del estudiante')->visible(fn (Tramite $record): bool => isset($record->datos['comentario']))->columnSpanFull(),
                     ]),
+                Section::make('Adjuntos')
+                    ->visible(fn (Tramite $record): bool => $record->adjuntos()->exists())
+                    ->schema([ViewEntry::make('adjuntos')->hiddenLabel()->view('tramites::filament.adjuntos-del-tramite')]),
                 Section::make('Tasa')
                     ->columns(4)
                     ->visible(fn (Tramite $record): bool => $record->tipo_concepto !== null)

@@ -4,24 +4,27 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Actions;
 
+use App\Modules\Academico\Contracts\CatalogoDeProgramas;
+use App\Modules\Academico\Data\ProgramaDelCatalogo;
 use App\Modules\Pagos\Contracts\CatalogoDeConceptos;
 use App\Modules\Pagos\Data\ConceptoDelCatalogo;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Tramites\Data\DatosDeTipoTramite;
 use App\Modules\Tramites\Enums\PermisoTramite;
 use App\Modules\Tramites\Models\TipoTramite;
+use App\Modules\Tramites\Support\ConfiguracionDelFut;
 use App\Modules\Tramites\Support\ReglasDeEtapas;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Database\UniqueConstraintViolationException;
 
-// Trámites already requested keep their own copy of the stages, so replacing them here only affects new requests.
+// Trámites already requested keep their own copy of the stages and data, so replacing them here only affects new requests.
 final readonly class GuardarTipoDeTramite
 {
     public const array CONCEPTOS = [TipoConcepto::Constancia, TipoConcepto::Certificado, TipoConcepto::Tramite, TipoConcepto::Otro];
 
-    public function __construct(private CatalogoDeConceptos $conceptos) {}
+    public function __construct(private CatalogoDeConceptos $conceptos, private CatalogoDeProgramas $programas) {}
 
     public function __invoke(DatosDeTipoTramite $datos, User $usuario, ?int $tipoId = null): TipoTramite
     {
@@ -29,15 +32,23 @@ final readonly class GuardarTipoDeTramite
         $datos = $this->conTipoDelConcepto($datos);
         throw_if($datos->tipoConcepto instanceof TipoConcepto && ! in_array($datos->tipoConcepto, self::CONCEPTOS, true), ReglaDeNegocioIncumplida::class, 'La tasa de un trámite es de constancia, certificado, trámite u otro concepto.');
         ReglasDeEtapas::validar($datos->etapas, $datos->tipoConcepto !== null);
+        $campos = ConfiguracionDelFut::campos($datos->campos, $datos->accionFinal);
+        $adjuntos = ConfiguracionDelFut::adjuntos($datos->adjuntos);
+        $this->asegurarProgramas($datos->programaIds);
+        $this->asegurarTipoPrevio($datos->tipoPrevioId, $tipoId);
 
         try {
-            return Transaccion::ejecutar(fn (): TipoTramite => $this->guardar($datos, $tipoId));
+            return Transaccion::ejecutar(fn (): TipoTramite => $this->guardar($datos, $tipoId, $campos, $adjuntos));
         } catch (UniqueConstraintViolationException) {
             throw new ReglaDeNegocioIncumplida('Ya existe un tipo de trámite con el código '.TipoTramite::normalizarCodigo($datos->codigo).'.');
         }
     }
 
-    private function guardar(DatosDeTipoTramite $datos, ?int $tipoId): TipoTramite
+    /**
+     * @param  list<array{clave: string, obligatorio: bool}>  $campos
+     * @param  list<array{nombre: string, obligatorio: bool}>  $adjuntos
+     */
+    private function guardar(DatosDeTipoTramite $datos, ?int $tipoId, array $campos, array $adjuntos): TipoTramite
     {
         $tipo = $tipoId === null ? new TipoTramite : TipoTramite::query()->whereKey($tipoId)->lockForUpdate()->firstOrFail();
 
@@ -49,7 +60,16 @@ final readonly class GuardarTipoDeTramite
             'concepto_id' => $datos->conceptoId,
             'accion_final' => $datos->accionFinal,
             'activo' => $datos->activo,
+            'campos' => $campos,
+            'adjuntos' => $adjuntos,
+            'requiere_tipo_previo_id' => $datos->tipoPrevioId,
         ])->save();
+
+        $tipo->programas()->whereNotIn('programa_id', $datos->programaIds)->delete();
+
+        foreach (array_unique($datos->programaIds) as $programaId) {
+            $tipo->programas()->firstOrCreate(['programa_id' => $programaId]);
+        }
 
         $tipo->etapas()->delete();
 
@@ -58,6 +78,23 @@ final readonly class GuardarTipoDeTramite
         }
 
         return $tipo->load('etapas');
+    }
+
+    /**
+     * @param  list<int>  $programaIds
+     */
+    private function asegurarProgramas(array $programaIds): void
+    {
+        $existentes = array_map(fn (ProgramaDelCatalogo $programa): int => $programa->id, ($this->programas)());
+
+        throw_if(array_diff($programaIds, $existentes) !== [], ReglaDeNegocioIncumplida::class, 'Elige programas del catálogo.');
+    }
+
+    private function asegurarTipoPrevio(?int $tipoPrevioId, ?int $tipoId): void
+    {
+        $valido = $tipoPrevioId === null || ($tipoPrevioId !== $tipoId && TipoTramite::query()->whereKey($tipoPrevioId)->exists());
+
+        throw_unless($valido, ReglaDeNegocioIncumplida::class, 'El trámite previo debe ser otro tipo de trámite.');
     }
 
     // A named concept fixes the fee type, so the type and the concept can never disagree.
@@ -75,6 +112,6 @@ final readonly class GuardarTipoDeTramite
             'El concepto de pago debe estar activo y ser de constancia, certificado, trámite u otro.',
         );
 
-        return new DatosDeTipoTramite($datos->codigo, $datos->nombre, $datos->requisitos, $concepto->tipo, $datos->accionFinal, $datos->activo, $datos->etapas, $concepto->id);
+        return $datos->conConcepto($concepto->id, $concepto->tipo);
     }
 }

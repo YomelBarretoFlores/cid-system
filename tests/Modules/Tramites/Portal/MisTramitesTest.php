@@ -2,14 +2,21 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Models\Programa;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Tramites\Actions\SolicitarTramite;
+use App\Modules\Tramites\Data\DatosDeSolicitud;
+use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Livewire\MisTramites;
+use App\Modules\Tramites\Models\Adjunto;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Tests\Support\ActasFinales;
@@ -62,6 +69,8 @@ it('starts a trámite chosen from the list of types with the data its final acti
 it('requests a level certificate from the levels the student completed', function (): void {
     $this->actingAs($this->user);
     ActasFinales::historial($this->persona, 'Inglés', [[1, '15.00', 'aprobado'], [2, '14.00', 'aprobado'], [3, '13.00', 'aprobado'], [4, '16.00', 'aprobado']]);
+    $constancia = app(SolicitarTramite::class)($this->persona->id, TipoTramite::query()->where('codigo', 'CONSTANCIA-NOTAS')->value('id'), new DatosDeSolicitud(idioma: 'Inglés', nivel: 'basico'));
+    DB::table('tra_tramites')->where('id', $constancia->id)->update(['estado' => 'finalizado', 'etapa_actual' => 3, 'finalizado_en' => now()]);
 
     Livewire::test(MisTramites::class)
         ->call('elegir', TipoTramite::query()->where('codigo', 'CERTIFICADO-NIVEL')->value('id'))
@@ -70,7 +79,7 @@ it('requests a level certificate from the levels the student completed', functio
         ->call('solicitar')
         ->assertHasNoErrors();
 
-    expect(Tramite::query()->where('persona_id', $this->persona->id)->sole()->datos)->toMatchArray(['idioma' => 'Inglés', 'nivel' => 'basico']);
+    expect(Tramite::query()->where(['persona_id' => $this->persona->id, 'tipo_nombre' => 'Certificado de culminación de nivel'])->sole()->datos)->toMatchArray(['idioma' => 'Inglés', 'nivel' => 'basico']);
 });
 
 it('requests a grade record choosing among the levels with a passed cycle', function (): void {
@@ -117,4 +126,58 @@ it('ignores a type that is not available and does not let the browser choose it'
 
 it('sends guests to the portal sign-in', function (): void {
     $this->get(route('estudiante.tramites'))->assertRedirect(route('ingresar'));
+});
+
+it('renders the FUT fields a type configures and sends them with the attachments', function (): void {
+    Storage::fake('local');
+    $this->actingAs($this->user);
+    $tipo = TipoTramite::factory()->sinTasa()->create([
+        'nombre' => 'Otro', 'accion_final' => AccionFinal::Ninguna,
+        'campos' => [['clave' => 'exposicion', 'obligatorio' => true], ['clave' => 'celular', 'obligatorio' => false]],
+        'adjuntos' => [['nombre' => 'Copia de DNI', 'obligatorio' => true]],
+    ]);
+
+    Livewire::test(MisTramites::class)
+        ->call('elegir', $tipo->id)
+        ->assertSeeTextInOrder(['Y expongo que', 'Celular (opcional)', 'Copia de DNI'])
+        ->assertDontSeeText('Elige tu matrícula')
+        ->set('exposicion', 'Solicito una constancia de estudios para mi trabajo.')
+        ->set('celular', '987654321')
+        ->set('adjuntos.0', UploadedFile::fake()->createWithContent('dni.pdf', "%PDF-1.4\n%%EOF\n"))
+        ->call('solicitar')
+        ->assertHasNoErrors()
+        ->assertRedirect(route('estudiante.tramites'));
+
+    $tramite = Tramite::query()->where('persona_id', $this->persona->id)->sole();
+    expect($tramite->datos)->toEqual(['exposicion' => 'Solicito una constancia de estudios para mi trabajo.', 'celular' => '987654321'])
+        ->and(Adjunto::query()->where('tramite_id', $tramite->id)->count())->toBe(1);
+});
+
+it('hides the types restricted to programs the student is not in', function (): void {
+    $this->actingAs($this->user);
+    $tipo = TipoTramite::factory()->sinTasa()->create(['nombre' => 'Acreditación de posgrado', 'accion_final' => AccionFinal::Ninguna]);
+    $tipo->programas()->create(['programa_id' => Programa::factory()->create(['nombre' => 'Posgrado de prueba'])->id]);
+
+    Livewire::test(MisTramites::class)->assertSeeText('Constancia de matrícula')->assertDontSeeText('Acreditación de posgrado');
+});
+
+it('prints the receipt of the student\'s own trámite only', function (): void {
+    Storage::fake('local');
+    $tipo = TipoTramite::factory()->sinTasa()->create([
+        'nombre' => 'Otro', 'accion_final' => AccionFinal::Ninguna,
+        'campos' => [['clave' => 'exposicion', 'obligatorio' => true]],
+        'adjuntos' => [['nombre' => 'Copia de DNI', 'obligatorio' => true]],
+    ]);
+    $tramite = app(SolicitarTramite::class)($this->persona->id, $tipo->id, new DatosDeSolicitud(
+        exposicion: 'Solicito una constancia de estudios para mi trabajo.',
+        adjuntos: [UploadedFile::fake()->createWithContent('dni.pdf', "%PDF-1.4\n%%EOF\n")],
+    ));
+    $ajeno = Tramite::factory()->for($this->constancia)->create()->refresh();
+
+    $this->actingAs($this->user)->get(route('estudiante.tramites.cargo', $tramite->codigo))
+        ->assertOk()
+        ->assertSeeTextInOrder(['Cargo de trámite', $tramite->codigo, 'Otro', $tramite->created_at->timezone('America/Lima')->format('d/m/Y H:i'),
+            'Y expongo que', 'Solicito una constancia de estudios para mi trabajo.', 'Adjuntos', '1']);
+
+    $this->get(route('estudiante.tramites.cargo', $ajeno->codigo))->assertNotFound();
 });

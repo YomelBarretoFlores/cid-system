@@ -23,7 +23,7 @@ final class EditTipoTramite extends EditRecord
     {
         $tipo = $this->getRecord();
 
-        return $tipo instanceof TipoTramite ? TipoTramiteForm::estado($tipo->load('etapas')) : $data;
+        return $tipo instanceof TipoTramite ? TipoTramiteForm::estado($tipo->load(['etapas', 'programas'])) : $data;
     }
 
     /**
