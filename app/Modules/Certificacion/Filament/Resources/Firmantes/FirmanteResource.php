@@ -46,6 +46,7 @@ final class FirmanteResource extends Resource
     #[\Override]
     protected static ?string $cluster = Configuracion::class;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Institución';
 
     #[\Override]

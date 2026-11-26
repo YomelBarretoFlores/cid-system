@@ -241,5 +241,5 @@ it('takes placement scores up to the maximum the system parameters set', functio
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El puntaje va de 0 a 20, con hasta dos decimales.');
 
     app(RegistrarResultadoDeClasificacion::class)($solicitud->id, $resultado('20.00'), $this->coordinador);
-    expect($solicitud->refresh()->puntaje)->toBe('20.00');
+    expect($solicitud->refresh())->puntaje->toBe('20.00')->puntaje_maximo->toBe(20);
 });

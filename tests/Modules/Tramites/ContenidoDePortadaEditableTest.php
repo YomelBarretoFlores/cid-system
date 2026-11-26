@@ -98,6 +98,15 @@ it('highlights few vacancies and states the placement validity from the system p
     $this->get('/')->assertDontSee('text-ambar-texto', false)->assertSeeText('2 vacantes')->assertSeeText('La solicitud queda vigente por 45 días desde su registro en el portal.');
 });
 
+it('refreshes the cached page as soon as the system parameters are saved', function (): void {
+    grupoConDosVacantes();
+    $this->get('/')->assertSee('text-ambar-texto', false)->assertSeeText('La solicitud queda vigente por 30 días desde su registro en el portal.');
+
+    app(GuardarParametrosDelSistema::class)(['umbral_pocas_vacantes' => 1, 'dias_vigencia_clasificacion' => 45], User::factory()->create()->givePermissionTo(PermisoUsuario::Gestionar->value));
+
+    $this->get('/')->assertDontSee('text-ambar-texto', false)->assertSeeText('La solicitud queda vigente por 45 días desde su registro en el portal.');
+});
+
 it('keeps the default few-vacancies highlight of five', function (): void {
     grupoConDosVacantes();
 

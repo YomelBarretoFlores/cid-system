@@ -108,6 +108,20 @@ it('lists the fees of a concept with their validity', function (): void {
         ->assertTableColumnFormattedStateSet('tipo_vinculo', 'Público general', $this->vigente);
 });
 
+it('reads the vínculo catalog once for the whole fee table, not once per row', function (): void {
+    $this->actingAs($this->administrador);
+    foreach (['estudiante_unasam', 'docente_administrativo_unasam'] as $vinculo) {
+        Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => $vinculo, 'vigente_desde' => '2027-01-01']);
+    }
+
+    DB::enableQueryLog();
+    tarifasDe($this->concepto)->assertSeeText(['Público general', 'Estudiante UNASAM', 'Docente/Administrativo UNASAM']);
+    $lecturas = collect(DB::getQueryLog())->filter(fn (array $consulta): bool => str_contains($consulta['query'], 'per_tipos_vinculo'));
+    DB::disableQueryLog();
+
+    expect($lecturas)->toHaveCount(1);
+});
+
 it('registers a new fee from a date, closing the open one the day before', function (): void {
     $this->actingAs($this->administrador);
 

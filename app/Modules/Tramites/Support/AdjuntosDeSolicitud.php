@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 // The real MIME type is PDF, JPG or PNG, within the size set in «Parámetros del sistema», kept on the private disk.
-final class AdjuntosDeSolicitud
+final readonly class AdjuntosDeSolicitud
 {
     public const string DISCO = 'local';
 

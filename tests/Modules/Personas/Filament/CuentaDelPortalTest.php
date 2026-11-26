@@ -27,9 +27,23 @@ it('creates the portal account of a record on file from its page and emails the 
         ->assertNotified('Cuenta creada y enlace enviado');
 
     $usuario = User::query()->where('email', 'rosa@correo.test')->sole();
-    expect($persona->refresh()->user_id)->toBe($usuario->id)
-        ->and($persona->habilitada_en)->not->toBeNull();
+    expect($persona->refresh()->user_id)->toBe($usuario->id);
     Notification::assertSentTo($usuario, CorreoDeRestablecimiento::class);
+});
+
+it('leaves the enablement of the record as it was: only a validated payment enables an account', function (?string $habilitadaEn): void {
+    $persona = Persona::factory()->create(['habilitada_en' => $habilitadaEn]);
+
+    app(CrearCuentaDelPortal::class)($persona->id, $this->personal);
+
+    expect($persona->refresh()->user_id)->not->toBeNull()
+        ->and($persona->habilitada_en?->toDateTimeString())->toBe($habilitadaEn);
+})->with(['enabled record' => '2026-03-01 09:00:00', 'record not enabled yet' => null]);
+
+it('hides the action on the page of a record that already has an account', function (): void {
+    $persona = Persona::factory()->create(['user_id' => User::factory()->create()->id]);
+
+    Livewire::actingAs($this->personal)->test(ViewPersona::class, ['record' => $persona->getRouteKey()])->assertActionHidden('crearCuentaDelPortal');
 });
 
 it('refuses a record that already has an account, has no email or whose email another account uses', function (array $persona, string $mensaje): void {

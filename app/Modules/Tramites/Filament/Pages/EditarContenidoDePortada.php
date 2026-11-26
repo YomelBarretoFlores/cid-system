@@ -43,6 +43,7 @@ final class EditarContenidoDePortada extends Page
     #[\Override]
     protected static ?string $cluster = Configuracion::class;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Institución';
 
     #[\Override]
@@ -86,8 +87,8 @@ final class EditarContenidoDePortada extends Page
                     Textarea::make('nosotros')->label('Presentación del centro')->required()->maxLength(2000)->rows(5)
                         ->helperText('Separe los párrafos con una línea en blanco.'),
                 ]),
-                Section::make('Cómo matricularse')->schema([self::pasos('pasos_matricula')]),
-                Section::make('Examen de clasificación')->schema([self::pasos('pasos_clasificacion')]),
+                Section::make('Cómo matricularse')->schema([$this->pasos('pasos_matricula')]),
+                Section::make('Examen de clasificación')->schema([$this->pasos('pasos_clasificacion')]),
                 Section::make('Ruta de aprendizaje')->schema([
                     Repeater::make('niveles')->hiddenLabel()->reorderable()->minItems(1)->maxItems(12)->addActionLabel('Agregar nivel')->schema([
                         TextInput::make('nombre')->label('Nivel')->required()->maxLength(40),
@@ -127,7 +128,7 @@ final class EditarContenidoDePortada extends Page
         Notification::make()->success()->title('Contenido de la portada guardado')->send();
     }
 
-    private static function pasos(string $lista): Repeater
+    private function pasos(string $lista): Repeater
     {
         return Repeater::make($lista)->hiddenLabel()->reorderable()->minItems(1)->maxItems(12)->addActionLabel('Agregar paso')
             ->helperText(self::AYUDA_LUGARES)

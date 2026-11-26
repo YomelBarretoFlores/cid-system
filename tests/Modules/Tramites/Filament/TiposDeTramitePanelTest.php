@@ -200,3 +200,11 @@ it('accepts as many attachments as the system parameters allow', function (): vo
         ->and(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo(['codigo' => 'OTRO', 'adjuntos' => $documentos(7)])), $this->administrador))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Un trámite pide como máximo 6 adjuntos, cada uno con un nombre de 3 a 80 caracteres sin repetir.');
 });
+
+it('tells staff the attachment size the system parameters allow', function (): void {
+    app(GuardarParametrosDelSistema::class)(['adjunto_maximo_mb' => 8], User::factory()->create()->givePermissionTo(PermisoUsuario::Gestionar->value));
+
+    Livewire::actingAs($this->administrador)->test(CreateTipoTramite::class)
+        ->assertSeeText('PDF, JPG o PNG de hasta 8 MB cada uno.')
+        ->assertDontSeeText('de hasta 5 MB');
+});

@@ -12,6 +12,7 @@ use App\Modules\Docencia\Filament\Resources\Bancos\BancoResource;
 use App\Modules\Docencia\Filament\Resources\Bancos\Pages\CreateBanco;
 use App\Modules\Docencia\Filament\Resources\Bancos\Pages\EditBanco;
 use App\Modules\Docencia\Filament\Resources\Bancos\Pages\ListBancos;
+use App\Modules\Docencia\Filament\Resources\Docentes\Pages\EditDocente;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ViewDocente;
 use App\Modules\Docencia\Models\Banco;
 use App\Modules\Docencia\Models\CondicionLaboral;
@@ -19,6 +20,7 @@ use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
+use Filament\Forms\Components\Select;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
@@ -69,6 +71,20 @@ it('refuses an inactive or unknown bank for a teacher but keeps the inactive one
         ->and(fn () => app(GuardarDocente::class)(docenteConBanco('banco_inventado')))->toThrow(ReglaDeNegocioIncumplida::class, 'El banco elegido no está disponible.')
         ->and(app(GuardarDocente::class)(docenteConBanco('caja_cusco', $docente->persona_id), $docente->id)->banco)->toBe('caja_cusco')
         ->and(Docente::query()->count())->toBe(1);
+});
+
+it('offers the inactive bank a teacher already has when staff edit the teacher, and keeps it on save', function (): void {
+    $docente = app(GuardarDocente::class)(docenteConBanco('caja_cusco'));
+    Banco::query()->where('codigo', 'caja_cusco')->update(['activo' => false]);
+
+    Livewire::actingAs($this->gestor)->test(EditDocente::class, ['record' => $docente->getRouteKey()])
+        ->assertSchemaStateSet(['banco' => 'caja_cusco'])
+        ->assertFormFieldExists('banco', fn (Select $campo): bool => array_key_exists('caja_cusco', $campo->getOptions()))
+        ->fillForm(['ruc' => '10456789099'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($docente->refresh())->banco->toBe('caja_cusco')->ruc->toBe('10456789099');
 });
 
 it('makes the database refuse a teacher bank outside the catalog', function (): void {

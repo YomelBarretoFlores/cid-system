@@ -29,10 +29,10 @@ final readonly class RegistrarResultadoDeClasificacion
     public function __invoke(int $solicitudId, ResultadoDeClasificacion $resultado, User $evaluador): SolicitudClasificacion
     {
         throw_unless($evaluador->can(PermisoClasificacion::Evaluar->value), ReglaDeNegocioIncumplida::class, 'No tienes permiso para registrar resultados de clasificación.');
-        $this->validacion->puntaje($resultado->puntaje);
+        $puntajeMaximo = $this->validacion->puntaje($resultado->puntaje);
 
         // Person first, like enrollment, so the enabled cycle never changes under an enrollment in progress.
-        return Transaccion::ejecutar(function () use ($solicitudId, $resultado, $evaluador): SolicitudClasificacion {
+        return Transaccion::ejecutar(function () use ($solicitudId, $resultado, $evaluador, $puntajeMaximo): SolicitudClasificacion {
             MovimientoDeMatricula::bloquearPersona((int) SolicitudClasificacion::query()->whereKey($solicitudId)->value('persona_id'));
             $solicitud = SolicitudClasificacion::query()->whereKey($solicitudId)->lockForUpdate()->firstOrFail();
 
@@ -47,6 +47,7 @@ final readonly class RegistrarResultadoDeClasificacion
                 'estado' => EstadoSolicitudClasificacion::Evaluado,
                 'fecha_examen' => $resultado->fechaExamen->toDateString(),
                 'puntaje' => $resultado->puntaje,
+                'puntaje_maximo' => $puntajeMaximo,
                 'ciclo_asignado_id' => $resultado->cicloId,
                 'observaciones' => filled($resultado->observaciones) ? trim($resultado->observaciones) : null,
                 'evaluado_por' => $evaluador->id,

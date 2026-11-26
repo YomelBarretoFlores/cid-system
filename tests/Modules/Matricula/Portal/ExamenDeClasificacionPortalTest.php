@@ -77,6 +77,19 @@ it('shows the exam date, score and assigned level of an evaluated request in its
         ->assertSeeHtmlInOrder(['Fecha del examen', 'Puntaje', 'Empiezas en', 'Inglés', '24/10/2026', '—', 'Evaluado', '20/10/2026', '78.50 de 100', 'Ciclo 6 (Intermedio)']);
 });
 
+it('prints each score on the scale it was recorded on, and only the score for results older than that', function (): void {
+    $evaluada = SolicitudClasificacion::factory()->evaluada()->state(['persona_id' => $this->persona->id, 'idioma_id' => $this->ingles->id, 'ciclo_asignado_id' => $this->cicloVI->id]);
+    $evaluada->create(['puntaje' => '18.00', 'puntaje_maximo' => 20]);
+    $evaluada->create(['puntaje' => '78.50', 'puntaje_maximo' => null]);
+
+    Livewire::actingAs($this->user)
+        ->test(ExamenDeClasificacion::class)
+        ->assertSee('18.00 de 20')
+        ->assertSee('78.50')
+        ->assertDontSee('78.50 de')
+        ->assertDontSee('de 100');
+});
+
 it('requests the exam with an unused validated placement payment and reloads the page', function (): void {
     Livewire::actingAs($this->user)
         ->test(ExamenDeClasificacion::class)

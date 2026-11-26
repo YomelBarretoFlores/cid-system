@@ -46,6 +46,7 @@ final class TipoVinculoResource extends Resource
     #[\Override]
     protected static ?string $cluster = Configuracion::class;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Personas';
 
     #[\Override]

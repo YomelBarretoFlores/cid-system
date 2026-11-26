@@ -14,7 +14,6 @@ use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Contracts\HasTable;
-use UnitEnum;
 
 final class ReporteDeNotas extends Page implements HasTable
 {
@@ -25,8 +24,6 @@ final class ReporteDeNotas extends Page implements HasTable
 
     #[\Override]
     protected static ?string $cluster = Reportes::class;
-
-    protected static string|UnitEnum|null $navigationGroup = null;
 
     #[\Override]
     protected static ?int $navigationSort = 3;

@@ -41,6 +41,7 @@ final class EditarPoliticaDePrivacidad extends Page
     #[\Override]
     protected static ?string $cluster = Configuracion::class;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Institución';
 
     #[\Override]

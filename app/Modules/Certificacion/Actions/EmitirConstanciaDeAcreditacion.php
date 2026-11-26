@@ -21,7 +21,8 @@ final readonly class EmitirConstanciaDeAcreditacion
 {
     public function __construct(private EmisionDeDocumento $emision, private FilasDeLaConstancia $filas, private TextosDeDocumentos $textosDeDocumentos) {}
 
-    public function __invoke(int $personaId, string $idioma, NivelCurricular $nivel, string $mencion, User $emisor): Documento
+    // $gradoOtorgado: the degree a trámite froze with its request; without it the FUT grades catalog derives it from the mention.
+    public function __invoke(int $personaId, string $idioma, NivelCurricular $nivel, string $mencion, User $emisor, ?string $gradoOtorgado = null): Documento
     {
         EmisionDeDocumento::asegurarPermiso($emisor);
         $mencion = trim($mencion);
@@ -41,7 +42,7 @@ final readonly class EmitirConstanciaDeAcreditacion
                 'notas' => array_map(fn (NotaDelHistorial $nota): array => $nota->comoDetalle(), $notas),
                 'filas' => FilasDeLaConstancia::filas($notas),
                 'programa_curricular' => $this->filas->programaCurricular($idioma),
-                ...DatosDeLaAcreditacion::de($notas, $mencion, ($this->textosDeDocumentos)()),
+                ...DatosDeLaAcreditacion::de($notas, $mencion, ($this->textosDeDocumentos)(), $gradoOtorgado),
             ],
         ], $emisor);
     }

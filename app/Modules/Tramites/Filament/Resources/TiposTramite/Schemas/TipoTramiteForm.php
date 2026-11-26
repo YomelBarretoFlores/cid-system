@@ -83,7 +83,7 @@ final class TipoTramiteForm
                             ->options(fn (): array => self::programas()),
                         Repeater::make('adjuntos')
                             ->label('Adjuntos')
-                            ->helperText('PDF, JPG o PNG de hasta 5 MB cada uno.')
+                            ->helperText(fn (): string => 'PDF, JPG o PNG de hasta '.app(ParametrosDelSistema::class)()->adjuntoMaximoMb.' MB cada uno.')
                             ->addActionLabel('Agregar adjunto')
                             ->defaultItems(0)
                             ->maxItems(fn (): int => app(ParametrosDelSistema::class)()->maximoAdjuntosTramite)

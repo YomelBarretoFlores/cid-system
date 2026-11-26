@@ -44,6 +44,23 @@ final class PresentacionDelFut
         };
     }
 
+    /**
+     * The degree the frozen grade grants with its specialty ("Maestro en Educación"), or null for requests made before it was frozen.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    public static function gradoOtorgado(array $datos): ?string
+    {
+        $titulo = $datos['mencion_grado_titulo'] ?? null;
+        $especialidad = $datos['mencion'] ?? null;
+
+        if (! is_string($titulo)) {
+            return null;
+        }
+
+        return is_string($especialidad) ? "{$titulo} en {$especialidad}" : $titulo;
+    }
+
     // Requests made before the name was frozen read it from the catalog.
     private static function mencion(?string $grado, ?string $congelado, ?string $especialidad): ?string
     {

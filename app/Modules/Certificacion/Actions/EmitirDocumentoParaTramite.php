@@ -37,7 +37,7 @@ final readonly class EmitirDocumentoParaTramite implements DocumentoParaTramite
                 ? ($this->constanciaDeNotas)($personaId, $datos['idioma'] ?? '', $this->nivel($datos), $emisor)
                 : ($this->constanciaDelIdioma)($personaId, $datos['idioma'] ?? '', $emisor),
             TipoDocumento::CertificadoNivel => ($this->certificadoDeNivel)($personaId, $datos['idioma'] ?? '', $this->nivel($datos), $emisor),
-            TipoDocumento::ConstanciaAcreditacion => ($this->constanciaDeAcreditacion)($personaId, $datos['idioma'] ?? '', $this->nivel($datos), $datos['mencion_completa'] ?? '', $emisor),
+            TipoDocumento::ConstanciaAcreditacion => ($this->constanciaDeAcreditacion)($personaId, $datos['idioma'] ?? '', $this->nivel($datos), $datos['mencion_completa'] ?? '', $emisor, $datos['grado_otorgado'] ?? null),
         };
 
         throw_if($documento->persona_id !== $personaId, ReglaDeNegocioIncumplida::class, 'El documento no corresponde al estudiante del trámite.');

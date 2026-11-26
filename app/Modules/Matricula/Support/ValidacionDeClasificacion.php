@@ -20,14 +20,16 @@ final readonly class ValidacionDeClasificacion
         private ParametrosDelSistema $parametrosDelSistema,
     ) {}
 
-    // Compared in hundredths so no float rounding lets 20.001 pass a scale of 20.
-    public function puntaje(string $puntaje): void
+    // Compared in hundredths so no float rounding lets 20.001 pass a scale of 20. Returns the scale, which the result keeps.
+    public function puntaje(string $puntaje): int
     {
         $maximo = ($this->parametrosDelSistema)()->puntajeMaximoClasificacion;
         $valido = preg_match('/^(\d{1,2}|[1-9]\d{2})(?:\.(\d{1,2}))?$/', $puntaje, $partes) === 1
             && (int) $partes[1] * 100 + (int) str_pad($partes[2] ?? '', 2, '0') <= $maximo * 100;
 
         throw_unless($valido, ReglaDeNegocioIncumplida::class, "El puntaje va de 0 a {$maximo}, con hasta dos decimales.");
+
+        return $maximo;
     }
 
     public function cicloYFecha(SolicitudClasificacion $solicitud, ResultadoDeClasificacion $resultado): void

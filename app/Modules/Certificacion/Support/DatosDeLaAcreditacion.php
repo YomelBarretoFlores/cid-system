@@ -17,13 +17,13 @@ final class DatosDeLaAcreditacion
      * @param  list<NotaDelHistorial>  $notas  passed cycles of the level
      * @return array{calificativo: ?int, modalidad: string, fecha_nivel: ?string, validez: string}
      */
-    public static function de(array $notas, string $mencion, TextosDeLosDocumentos $textos): array
+    public static function de(array $notas, string $mencion, TextosDeLosDocumentos $textos, ?string $gradoOtorgado = null): array
     {
         return [
             'calificativo' => self::calificativo($notas),
             'modalidad' => self::porExamen($notas) ? $textos->suficienciaAcreditacion : $textos->programaAcreditacion,
             'fecha_nivel' => self::fecha($notas),
-            'validez' => str_replace('{mencion}', self::grado($mencion), $textos->validezAcreditacion),
+            'validez' => str_replace('{mencion}', $gradoOtorgado ?? self::grado($mencion), $textos->validezAcreditacion),
         ];
     }
 
@@ -62,9 +62,13 @@ final class DatosDeLaAcreditacion
     }
 
     // "Maestría en Educación" is the degree of "Maestro en Educación" by the FUT grades catalog; any other mention is printed as written.
+    // Longer names go first, so "Doctorado honoris causa" is never read as "Doctorado".
     private static function grado(string $mencion): string
     {
-        foreach (app(TitulosDeGrados::class)() as $nombre => $titulo) {
+        $titulos = app(TitulosDeGrados::class)();
+        uksort($titulos, fn (string $uno, string $otro): int => mb_strlen($otro) <=> mb_strlen($uno));
+
+        foreach ($titulos as $nombre => $titulo) {
             if (preg_match('/^'.preg_quote($nombre, '/').'(?![\pL\pN])/iu', $mencion, $marca) === 1) {
                 $mencion = $titulo.mb_substr($mencion, mb_strlen($marca[0]));
 

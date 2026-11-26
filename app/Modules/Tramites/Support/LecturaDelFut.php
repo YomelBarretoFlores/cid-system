@@ -159,12 +159,12 @@ final readonly class LecturaDelFut
             return [];
         }
 
-        $nombre = GradoFut::query()->where(['codigo' => (string) $grado, 'activo' => true])->value('nombre');
+        $gradoFut = GradoFut::query()->where(['codigo' => (string) $grado, 'activo' => true])->first(['nombre', 'titulo_otorgado']);
 
-        throw_unless(is_string($nombre) && mb_strlen($especialidad) <= 150, ReglaDeNegocioIncumplida::class, self::MENCION_INVALIDA);
+        throw_unless($gradoFut !== null && mb_strlen($especialidad) <= 150, ReglaDeNegocioIncumplida::class, self::MENCION_INVALIDA);
 
-        // The grade name is frozen with the request, so renaming it later never changes what was asked.
-        $elegido = ['mencion_grado' => (string) $grado, 'mencion_grado_nombre' => $nombre];
+        // The grade name and the degree it grants are frozen with the request, so renaming them later never changes what was asked or accredited.
+        $elegido = ['mencion_grado' => (string) $grado, 'mencion_grado_nombre' => $gradoFut->nombre, 'mencion_grado_titulo' => $gradoFut->titulo_otorgado];
 
         return $especialidad === '' ? $elegido : [...$elegido, 'mencion' => $especialidad];
     }

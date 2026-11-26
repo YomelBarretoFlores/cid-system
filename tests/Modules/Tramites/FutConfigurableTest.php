@@ -108,7 +108,7 @@ it('asks the mention of the degree as master or doctorate with its specialty', f
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Indica la mención: elige el grado y escribe su especialidad en hasta 150 caracteres.');
 
     expect(solicitarDelFut($this->persona, $tipo, new DatosDeSolicitud(mencionGrado: 'doctorado', mencionTexto: ' Educación Superior '))->datos)
-        ->toEqual(['mencion_grado' => 'doctorado', 'mencion_grado_nombre' => 'Doctorado', 'mencion' => 'Educación Superior']);
+        ->toEqual(['mencion_grado' => 'doctorado', 'mencion_grado_nombre' => 'Doctorado', 'mencion_grado_titulo' => 'Doctor', 'mencion' => 'Educación Superior']);
 });
 
 it('asks for a finished trámite of the previous type for the same language and level', function (): void {

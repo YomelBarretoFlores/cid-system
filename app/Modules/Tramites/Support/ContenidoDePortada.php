@@ -99,10 +99,10 @@ final readonly class ContenidoDePortada
 
         return [
             'nosotros' => array_values(array_filter(array_map(trim(...), preg_split('/\R\s*\R/u', $textos->nosotros) ?: []), fn (string $parrafo): bool => $parrafo !== '')),
-            'pasos' => self::conLugares($textos->pasosMatricula, $lugares),
-            'pasosDeClasificacion' => self::conLugares($textos->pasosClasificacion, $lugares),
+            'pasos' => $this->conLugares($textos->pasosMatricula, $lugares),
+            'pasosDeClasificacion' => $this->conLugares($textos->pasosClasificacion, $lugares),
             'niveles' => $textos->niveles,
-            'preguntas' => self::conLugares($textos->preguntas, $lugares),
+            'preguntas' => $this->conLugares($textos->preguntas, $lugares),
         ];
     }
 
@@ -110,7 +110,7 @@ final readonly class ContenidoDePortada
      * @param  list<array<string, string>>  $filas
      * @return list<array<string, string>>
      */
-    private static function conLugares(array $filas, string $lugares): array
+    private function conLugares(array $filas, string $lugares): array
     {
         return array_map(
             fn (array $fila): array => array_map(fn (string $texto): string => str_replace(TextosDeLaPortada::LUGARES_DE_PAGO, $lugares, $texto), $fila),

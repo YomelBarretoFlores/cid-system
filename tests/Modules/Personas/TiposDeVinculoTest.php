@@ -81,7 +81,22 @@ it('refuses a fee for an unknown or an inactive vínculo', function (string $cod
 })->with(['inactive' => 'egresado_unasam', 'unknown' => 'jubilado']);
 
 it('makes the database refuse a person or a fee with a code outside the catalog', function (): void {
-    expect(fn () => DB::transaction(fn () => Persona::factory()->create(['tipo_vinculo' => 'jubilado'])))->toThrow(QueryException::class, 'per_personas_tipo_vinculo_foreign');
+    $concepto = Concepto::factory()->create();
+
+    expect(fn () => DB::transaction(fn () => Persona::factory()->create(['tipo_vinculo' => 'jubilado'])))->toThrow(QueryException::class, 'per_personas_tipo_vinculo_foreign')
+        ->and(fn () => DB::transaction(fn () => DB::table('pag_tarifas')->insert(['concepto_id' => $concepto->id, 'tipo_vinculo' => 'jubilado', 'monto' => '95.00', 'vigente_desde' => '2027-01-01', 'created_at' => now(), 'updated_at' => now()])))
+        ->toThrow(QueryException::class, 'pag_tarifas_tipo_vinculo_foreign')
+        ->and($concepto->tarifas()->count())->toBe(0);
+});
+
+it('derives a code that fits its column from the longest name the form accepts', function (): void {
+    $nombre = str_repeat('Egresado de posgrado ', 4);
+    $primero = app(GuardarTipoDeVinculo::class)(null, ['nombre' => mb_substr($nombre, 0, 80), 'orden' => 4, 'activo' => true, 'por_defecto' => false]);
+    $segundo = app(GuardarTipoDeVinculo::class)(null, ['nombre' => mb_substr($nombre, 0, 79), 'orden' => 5, 'activo' => true, 'por_defecto' => false]);
+
+    expect($primero->codigo)->toBe('egresado_de_posgrado_egresado_de_pos')
+        ->and($segundo->codigo)->toBe('egresado_de_posgrado_egresado_de_pos_2')
+        ->and(mb_strlen($segundo->codigo))->toBeLessThanOrEqual(40);
 });
 
 it('gives a self-registered account the default vínculo of the catalog', function (): void {

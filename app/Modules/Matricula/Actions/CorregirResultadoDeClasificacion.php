@@ -36,9 +36,9 @@ final readonly class CorregirResultadoDeClasificacion
 
         $motivo = trim($motivo);
         throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indica el motivo de la corrección, entre 5 y 500 caracteres.');
-        $this->validacion->puntaje($resultado->puntaje);
+        $puntajeMaximo = $this->validacion->puntaje($resultado->puntaje);
 
-        return Transaccion::ejecutar(function () use ($solicitudId, $resultado, $motivo, $usuario): SolicitudClasificacion {
+        return Transaccion::ejecutar(function () use ($solicitudId, $resultado, $motivo, $usuario, $puntajeMaximo): SolicitudClasificacion {
             MovimientoDeMatricula::bloquearPersona((int) SolicitudClasificacion::query()->whereKey($solicitudId)->value('persona_id'));
             $solicitud = SolicitudClasificacion::query()->whereKey($solicitudId)->lockForUpdate()->firstOrFail();
 
@@ -53,6 +53,7 @@ final readonly class CorregirResultadoDeClasificacion
             $solicitud->update([
                 'fecha_examen' => $resultado->fechaExamen->toDateString(),
                 'puntaje' => $resultado->puntaje,
+                'puntaje_maximo' => $puntajeMaximo,
                 'ciclo_asignado_id' => $resultado->cicloId,
                 'observaciones' => filled($resultado->observaciones) ? trim($resultado->observaciones) : null,
                 'corregido_por' => $usuario->id,

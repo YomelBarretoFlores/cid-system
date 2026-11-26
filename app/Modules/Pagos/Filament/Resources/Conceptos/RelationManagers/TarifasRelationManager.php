@@ -33,6 +33,12 @@ final class TarifasRelationManager extends RelationManager
     #[\Override]
     protected static ?string $title = 'Tarifas';
 
+    /** @var ?list<TipoDeVinculo> read once per request: the table formats every row with it */
+    private ?array $catalogoDeVinculos = null;
+
+    /** @var ?list<ProgramaDelCatalogo> */
+    private ?array $catalogoDeProgramas = null;
+
     public function table(Table $table): Table
     {
         return $table
@@ -104,7 +110,8 @@ final class TarifasRelationManager extends RelationManager
      */
     private function vinculos(bool $soloActivos): array
     {
-        $vinculos = array_filter(app(CatalogoDeVinculos::class)(), fn (TipoDeVinculo $vinculo): bool => $vinculo->activo || ! $soloActivos);
+        $this->catalogoDeVinculos ??= app(CatalogoDeVinculos::class)();
+        $vinculos = array_filter($this->catalogoDeVinculos, fn (TipoDeVinculo $vinculo): bool => $vinculo->activo || ! $soloActivos);
 
         return array_column(array_map(fn (TipoDeVinculo $vinculo): array => [$vinculo->codigo, $vinculo->nombre], $vinculos), 1, 0);
     }
@@ -114,7 +121,8 @@ final class TarifasRelationManager extends RelationManager
      */
     private function programas(bool $soloActivos): array
     {
-        $programas = array_filter(app(CatalogoDeProgramas::class)(), fn (ProgramaDelCatalogo $programa): bool => $programa->activo || ! $soloActivos);
+        $this->catalogoDeProgramas ??= app(CatalogoDeProgramas::class)();
+        $programas = array_filter($this->catalogoDeProgramas, fn (ProgramaDelCatalogo $programa): bool => $programa->activo || ! $soloActivos);
 
         return array_column(array_map(fn (ProgramaDelCatalogo $programa): array => [$programa->id, $programa->nombre], $programas), 1, 0);
     }

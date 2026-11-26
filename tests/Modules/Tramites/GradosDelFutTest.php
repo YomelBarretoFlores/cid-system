@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\NivelCurricular;
+use App\Modules\Certificacion\Actions\EmitirConstanciaDeAcreditacion;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Personas\Models\Persona;
@@ -53,13 +55,13 @@ it('ships master and doctorate with the degree each grants', function (): void {
     ]);
 });
 
-it('accepts a new grade in the FUT and freezes its name with the request', function (): void {
+it('accepts a new grade in the FUT and freezes its name and degree with the request', function (): void {
     $grado = segundaEspecialidad();
 
     $tramite = pedirMencion($this->persona, $grado->codigo);
     $grado->update(['nombre' => 'Segunda especialidad profesional']);
 
-    expect($tramite->datos)->toEqual(['mencion_grado' => 'segunda_especialidad', 'mencion_grado_nombre' => 'Segunda especialidad', 'mencion' => 'Gestión Pública'])
+    expect($tramite->datos)->toEqual(['mencion_grado' => 'segunda_especialidad', 'mencion_grado_nombre' => 'Segunda especialidad', 'mencion_grado_titulo' => 'Especialista', 'mencion' => 'Gestión Pública'])
         ->and(PresentacionDelFut::valor(CampoFut::Mencion, $tramite->refresh()->datos))->toBe('Segunda especialidad en Gestión Pública');
 });
 
@@ -87,6 +89,32 @@ it('prints the degree the catalog grants on the accreditation of a new grade', f
 
     expect($documento->detalle['mencion'])->toBe('Segunda especialidad en Gestión Pública')
         ->and($documento->detalle['validez'])->toBe('Válido para obtener el Grado de Especialista en Gestión Pública.');
+});
+
+it('accredits the degree frozen with the request even when the grade is renamed before the record is issued', function (): void {
+    $grado = segundaEspecialidad();
+    ActasFinales::historial($this->persona, 'Inglés', [[1, '15.00', 'aprobado'], [2, '17.00', 'aprobado']]);
+    $tramite = pedirMencion($this->persona, 'segunda_especialidad', AccionFinal::Acreditacion, ['idioma' => 'Inglés', 'nivel' => 'basico']);
+    $grado->update(['nombre' => 'Segunda especialidad profesional', 'titulo_otorgado' => 'Especialista profesional']);
+    $personal = User::factory()->create()->givePermissionTo([PermisoTramite::Gestionar->value, PermisoCertificacion::Documentos->value]);
+    app(AvanzarTramite::class)($tramite->id, $personal);
+
+    app(FinalizarTramite::class)($tramite->id, $personal);
+
+    $documento = Documento::query()->findOrFail($tramite->refresh()->documento_id);
+
+    expect($documento->detalle['mencion'])->toBe('Segunda especialidad en Gestión Pública')
+        ->and($documento->detalle['validez'])->toBe('Válido para obtener el Grado de Especialista en Gestión Pública.');
+});
+
+it('reads a mention typed at the office by the longest grade name it starts with', function (): void {
+    app(GuardarGradoFut::class)(null, ['nombre' => 'Doctorado honoris causa', 'titulo_otorgado' => 'Doctor Honoris Causa', 'orden' => 9, 'activo' => true]);
+    ActasFinales::historial($this->persona, 'Inglés', [[1, '15.00', 'aprobado'], [2, '17.00', 'aprobado']]);
+    $emisor = User::factory()->create()->givePermissionTo(PermisoCertificacion::Documentos->value);
+
+    $documento = app(EmitirConstanciaDeAcreditacion::class)($this->persona->id, 'Inglés', NivelCurricular::Basico, 'Doctorado honoris causa en Educación', $emisor);
+
+    expect($documento->detalle['validez'])->toBe('Válido para obtener el Grado de Doctor Honoris Causa en Educación.');
 });
 
 it('lets staff who configure procedures create and rename a grade whose code never changes, never delete it', function (): void {

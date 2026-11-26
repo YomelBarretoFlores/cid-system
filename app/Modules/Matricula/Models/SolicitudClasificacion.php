@@ -28,13 +28,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $idioma_id
  * @property ?int $pago_id
  * @property ?int $ciclo_asignado_id
+ * @property ?int $puntaje_maximo
  * @property ?CarbonImmutable $evaluado_en
  * @property ?CarbonImmutable $corregido_en
  */
 #[Table('mat_solicitudes_clasificacion')]
 #[RouteKey('ulid')]
 #[Fillable([
-    'persona_id', 'idioma_id', 'pago_id', 'estado', 'vence_en', 'fecha_examen', 'puntaje',
+    'persona_id', 'idioma_id', 'pago_id', 'estado', 'vence_en', 'fecha_examen', 'puntaje', 'puntaje_maximo',
     'ciclo_asignado_id', 'evaluado_por', 'evaluado_en', 'observaciones', 'corregido_por', 'corregido_en', 'motivo_correccion',
 ])]
 #[UseFactory(SolicitudClasificacionFactory::class)]
@@ -80,6 +81,7 @@ final class SolicitudClasificacion extends Model
             'vence_en' => 'date',
             'fecha_examen' => 'date',
             'puntaje' => 'decimal:2',
+            'puntaje_maximo' => 'integer',
             'evaluado_en' => 'datetime',
             'corregido_en' => 'datetime',
         ];

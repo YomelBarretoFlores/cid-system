@@ -34,6 +34,7 @@ final class CostoPorHoraResource extends Resource
     #[\Override]
     protected static ?string $cluster = Configuracion::class;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
     #[\Override]

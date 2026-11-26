@@ -221,6 +221,14 @@ it('keeps the document type screens away from staff who cannot manage people', f
     $this->actingAs($this->gestor)->get(TipoDocumentoResource::getUrl('index'))->assertOk()->assertSeeText('Carné de Extranjería');
 });
 
+it('makes the database refuse a document number with anything but upper-case letters and digits', function (string $numero): void {
+    $persona = Persona::factory()->extranjera()->create();
+
+    expect(fn () => DB::transaction(fn () => DB::table('per_personas')->where('id', $persona->id)->update(['numero_documento' => $numero])))
+        ->toThrow(QueryException::class, 'per_personas_numero_documento_formato_check')
+        ->and($persona->refresh()->numero_documento)->not->toBe($numero);
+})->with(['lower case' => 'ab123456', 'hyphen' => 'AB-12345', 'space' => 'AB 12345', 'empty' => '']);
+
 it('rolls the catalog back to the fixed document types and forward again, keeping every stored number', function (): void {
     $migracion = require base_path('app/Modules/Personas/Database/Migrations/2026_12_01_100000_turn_tipo_documento_into_a_catalog.php');
     $persona = Persona::factory()->extranjera()->create();

@@ -36,6 +36,7 @@ final class SolicitudClasificacionFactory extends Factory
             'estado' => EstadoSolicitudClasificacion::Evaluado,
             'fecha_examen' => now()->toDateString(),
             'puntaje' => '72.50',
+            'puntaje_maximo' => 100,
             'ciclo_asignado_id' => fn (array $attributes): int => Ciclo::factory()->create(['idioma_id' => $attributes['idioma_id']])->id,
             'evaluado_por' => User::factory(),
             'evaluado_en' => now(),

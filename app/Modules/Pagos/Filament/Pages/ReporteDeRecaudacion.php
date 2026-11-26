@@ -29,7 +29,6 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use UnitEnum;
 
 final class ReporteDeRecaudacion extends Page implements HasTable
 {
@@ -40,8 +39,6 @@ final class ReporteDeRecaudacion extends Page implements HasTable
 
     #[\Override]
     protected static ?string $cluster = Reportes::class;
-
-    protected static string|UnitEnum|null $navigationGroup = null;
 
     #[\Override]
     protected static ?int $navigationSort = 2;

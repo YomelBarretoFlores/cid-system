@@ -78,7 +78,7 @@ final readonly class FinalizarTramite
     private function documento(TipoDocumento $tipo, Tramite $tramite, User $usuario): ResultadoDeAccionFinal
     {
         $datos = $tipo === TipoDocumento::ConstanciaAcreditacion
-            ? [...$tramite->datos, 'mencion_completa' => PresentacionDelFut::valor(CampoFut::Mencion, $tramite->datos) ?? '']
+            ? [...$tramite->datos, 'mencion_completa' => PresentacionDelFut::valor(CampoFut::Mencion, $tramite->datos) ?? '', 'grado_otorgado' => PresentacionDelFut::gradoOtorgado($tramite->datos)]
             : $tramite->datos;
 
         return new ResultadoDeAccionFinal(documentoId: ($this->documentoParaTramite)($tipo, $tramite->persona_id, $datos, $usuario)->id);

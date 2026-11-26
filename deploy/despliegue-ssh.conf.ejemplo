@@ -13,6 +13,10 @@ CILN_RUTA_REMOTA=/var/www/ciln
 # Folder under the account's home for the backups taken before each update.
 CILN_RESPALDOS_REMOTOS=respaldos-ciln
 
+# How many code backups (codigo-*.tar.gz) to keep there; older ones are deleted after each new backup.
+# Database backups follow the app's own backup cleanup.
+CILN_RESPALDOS_A_CONSERVAR=5
+
 # Optional: file on the server with DB_USERNAME and DB_PASSWORD of the owner role, when the
 # app connects with a role that cannot run migrations. Empty: migrate with the .env credentials.
 CILN_MIGRACIONES_ENV_REMOTO=

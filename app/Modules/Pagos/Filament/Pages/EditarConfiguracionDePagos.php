@@ -35,6 +35,7 @@ final class EditarConfiguracionDePagos extends Page
     #[\Override]
     protected static ?string $cluster = ClusterDeConfiguracion::class;
 
+    #[\Override]
     protected static string|UnitEnum|null $navigationGroup = 'Pagos';
 
     #[\Override]

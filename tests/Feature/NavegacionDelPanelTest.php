@@ -18,6 +18,7 @@ use App\Shared\Ui\Filament\Clusters\Reportes;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
+use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 
@@ -48,7 +49,6 @@ it('gathers the reports and every catalog, setting and editable text under two m
     $this->actingAs(User::factory()->create()->givePermissionTo(Permission::all()));
 
     $contenido = fn (string $cluster): array => collect($cluster::getClusteredComponents())
-        ->sortBy(fn (string $pantalla): int => $pantalla::getNavigationSort() ?? 0)
         ->groupBy(fn (string $pantalla): string => (string) ($pantalla::getNavigationGroup() ?? ''))
         ->map(fn ($pantallas): array => $pantallas->map(fn (string $pantalla): string => (string) $pantalla::getNavigationLabel())->sort()->values()->all())
         ->sortKeys()->all();
@@ -65,6 +65,20 @@ it('gathers the reports and every catalog, setting and editable text under two m
     $this->get(Configuracion::getUrl())->assertRedirect();
     $this->get(Reportes::getUrl())->assertRedirect();
 });
+
+it('opens every moved screen at its cluster address for staff allowed to use it', function (string $cluster, string $prefijo): void {
+    $this->actingAs(User::factory()->create()->givePermissionTo(Permission::all()));
+
+    foreach ($cluster::getClusteredComponents() as $pantalla) {
+        $url = is_subclass_of($pantalla, Resource::class) ? $pantalla::getUrl('index') : $pantalla::getUrl();
+
+        expect(parse_url($url, PHP_URL_PATH))->toStartWith($prefijo);
+        $this->get($url)->assertOk();
+    }
+})->with([
+    'configuration' => [Configuracion::class, '/admin/configuracion/'],
+    'reports' => [Reportes::class, '/admin/reportes/'],
+]);
 
 it('hides the configuration entry from staff without any catalog permission', function (): void {
     $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, 'pagos.ver']));
