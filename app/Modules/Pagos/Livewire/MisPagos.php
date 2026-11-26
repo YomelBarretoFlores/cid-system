@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Livewire;
 
+use App\Modules\Academico\Contracts\CatalogoDeProgramas;
+use App\Modules\Academico\Data\ProgramaDelCatalogo;
+use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Pagos\Actions\ListarPagosDeEstudiante;
 use App\Modules\Pagos\Actions\RegistrarPago;
 use App\Modules\Pagos\Data\RegistroDePago;
@@ -14,6 +17,7 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
+use App\Modules\Pagos\Support\TarifaAplicable;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Data\FichaDeEstudiante;
@@ -52,6 +56,10 @@ final class MisPagos extends Component
 
     public string $monto = '';
 
+    public string $nivel = '';
+
+    public string $programa_id = '';
+
     public ?TemporaryUploadedFile $recibo = null;
 
     public bool $registrando = false;
@@ -65,7 +73,18 @@ final class MisPagos extends Component
 
     public function updatedConceptoId(): void
     {
-        $this->monto = ctype_digit($this->concepto_id) ? $this->tarifaVigente((int) $this->concepto_id) : '';
+        $this->reset('nivel', 'programa_id');
+        $this->monto = $this->tarifaVigente();
+    }
+
+    public function updatedNivel(): void
+    {
+        $this->monto = $this->tarifaVigente();
+    }
+
+    public function updatedProgramaId(): void
+    {
+        $this->monto = $this->tarifaVigente();
     }
 
     public function registrar(RegistrarPago $registrar): void
@@ -91,7 +110,7 @@ final class MisPagos extends Component
 
     public function cancelarRegistro(): void
     {
-        $this->reset('concepto_id', 'medio_pago_id', 'numero_operacion', 'monto', 'recibo', 'registrando');
+        $this->reset('concepto_id', 'medio_pago_id', 'numero_operacion', 'monto', 'nivel', 'programa_id', 'recibo', 'registrando');
         $this->fecha_pago = $this->hoy();
         $this->resetValidation();
     }
@@ -110,6 +129,9 @@ final class MisPagos extends Component
             ],
             'conceptos' => Concepto::query()->where('activo', true)->orderBy('nombre')->pluck('nombre', 'id')->all(),
             'mediosDePago' => MedioDePago::query()->activos()->pluck('nombre', 'id')->all(),
+            'criterios' => $this->criterios(),
+            'niveles' => array_column(array_map(fn (NivelCurricular $nivel): array => [$nivel->value, $nivel->etiqueta()], NivelCurricular::cases()), 1, 0),
+            'programas' => $this->programasActivos(),
             'hoy' => $this->hoy(),
         ]);
     }
@@ -125,6 +147,8 @@ final class MisPagos extends Component
             'numero_operacion' => ['required', 'string', 'max:40'],
             'fecha_pago' => ['required', 'date_format:Y-m-d', 'before_or_equal:'.$this->hoy()],
             'monto' => ['required', 'numeric', 'decimal:0,2', 'gt:0', 'max:99999999.99'],
+            'nivel' => [Rule::requiredIf(fn (): bool => $this->criterios()['nivel']), 'nullable', Rule::enum(NivelCurricular::class)],
+            'programa_id' => ['nullable', Rule::in(array_map(strval(...), array_keys($this->programasActivos())))],
             'recibo' => ['required', 'file', 'max:'.PagoForm::RECIBO_MAXIMO_KB],
         ];
     }
@@ -141,6 +165,9 @@ final class MisPagos extends Component
             'concepto_id.integer' => 'Elige un concepto de la lista.',
             'medio_pago_id.exists' => 'Elige un medio de pago de la lista.',
             'medio_pago_id.integer' => 'Elige un medio de pago de la lista.',
+            'nivel.required' => 'Elige el nivel que pagaste.',
+            'nivel.enum' => 'Elige un nivel de la lista.',
+            'programa_id.in' => 'Elige un programa de la lista.',
             'fecha_pago.date_format' => 'Escribe una fecha de pago válida.',
             'fecha_pago.before_or_equal' => 'La fecha de pago no puede ser posterior a hoy.',
             'monto.numeric' => $montoInvalido,
@@ -165,6 +192,8 @@ final class MisPagos extends Component
             'numero_operacion' => 'número de operación',
             'fecha_pago' => 'fecha de pago',
             'monto' => 'monto',
+            'nivel' => 'nivel',
+            'programa_id' => 'programa',
             'recibo' => 'recibo',
         ];
     }
@@ -177,15 +206,47 @@ final class MisPagos extends Component
         return ReporteDeRecaudacion::soles($pagos->sum(fn (Pago $pago): int => ReporteDeRecaudacion::centimosDe($pago->monto)));
     }
 
-    private function tarifaVigente(int $conceptoId): string
+    private function tarifaVigente(): string
     {
-        $monto = Tarifa::query()
-            ->where('concepto_id', $conceptoId)
-            ->where('tipo_vinculo', app(ConsultaDeVinculo::class)($this->ficha()->personaId))
-            ->vigenteEn(CarbonImmutable::today(self::ZONA_HORARIA))
-            ->value('monto');
+        if (! ctype_digit($this->concepto_id)) {
+            return '';
+        }
 
-        return is_string($monto) ? $monto : '';
+        $criterios = $this->criterios();
+
+        if ($criterios['nivel'] && $this->nivel === '') {
+            return '';
+        }
+
+        $tarifa = TarifaAplicable::buscar(
+            (int) $this->concepto_id,
+            app(ConsultaDeVinculo::class)($this->ficha()->personaId),
+            CarbonImmutable::today(self::ZONA_HORARIA),
+            NivelCurricular::tryFrom($this->nivel),
+            ctype_digit($this->programa_id) ? (int) $this->programa_id : null,
+        );
+
+        return $tarifa instanceof Tarifa ? (string) $tarifa->monto : '';
+    }
+
+    /**
+     * @return array{nivel: bool, programa: bool}
+     */
+    private function criterios(): array
+    {
+        return ctype_digit($this->concepto_id)
+            ? TarifaAplicable::criterios((int) $this->concepto_id, app(ConsultaDeVinculo::class)($this->ficha()->personaId), CarbonImmutable::today(self::ZONA_HORARIA))
+            : ['nivel' => false, 'programa' => false];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function programasActivos(): array
+    {
+        $activos = array_filter(app(CatalogoDeProgramas::class)(), fn (ProgramaDelCatalogo $programa): bool => $programa->activo);
+
+        return array_column(array_map(fn (ProgramaDelCatalogo $programa): array => [$programa->id, $programa->nombre], $activos), 1, 0);
     }
 
     private function registro(): RegistroDePago
@@ -197,6 +258,8 @@ final class MisPagos extends Component
             numeroOperacion: $this->numero_operacion,
             fechaPago: CarbonImmutable::parse($this->fecha_pago),
             monto: $this->monto,
+            nivel: NivelCurricular::tryFrom($this->nivel),
+            programaId: ctype_digit($this->programa_id) ? (int) $this->programa_id : null,
         );
     }
 

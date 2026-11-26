@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 final class TarifaVigenteResource extends JsonResource
 {
     /**
-     * @return array{codigo: string, concepto: string, fuente: string, fuente_etiqueta: string, vinculo: string, vinculo_etiqueta: string, monto: string, vigente_desde: string}
+     * @return array{codigo: string, concepto: string, fuente: string, fuente_etiqueta: string, vinculo: string, vinculo_etiqueta: string, monto: string, vigente_desde: string, nivel: string|null, programa: string|null}
      */
     public function toArray(Request $request): array
     {
@@ -29,6 +29,8 @@ final class TarifaVigenteResource extends JsonResource
             'vinculo_etiqueta' => $tarifa->tipoVinculo->etiqueta(),
             'monto' => $tarifa->monto,
             'vigente_desde' => $tarifa->vigenteDesde->toDateString(),
+            'nivel' => $tarifa->nivel?->value,
+            'programa' => $tarifa->programa,
         ];
     }
 }

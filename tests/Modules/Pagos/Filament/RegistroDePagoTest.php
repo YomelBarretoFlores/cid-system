@@ -125,3 +125,20 @@ it('refuses an amount with more than two decimals and accepts one with two', fun
         ->assertHasNoFormErrors();
     expect(Pago::query()->sole()->monto)->toBe('150.55');
 });
+
+it('asks the cashier for the level when the concept has level fees and stores that fee', function (): void {
+    $this->tarifa->update(['vigente_hasta' => '2020-01-01']);
+    $intermedio = Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'nivel' => 'intermedio', 'monto' => '60.00', 'vigente_desde' => '2020-01-02']);
+    Tarifa::factory()->for($this->concepto)->create(['tipo_vinculo' => TipoVinculo::PublicoGeneral, 'nivel' => 'basico', 'monto' => '50.00', 'vigente_desde' => '2020-01-02']);
+    $this->actingAs($this->cajero);
+
+    Livewire::test(CreatePago::class)
+        ->fillForm(datosDelRegistro(['monto' => '60.00']))
+        ->call('create')
+        ->assertHasFormErrors(['nivel' => 'required'])
+        ->fillForm(['nivel' => 'intermedio'])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Pago::query()->sole()->tarifa_id)->toBe($intermedio->id);
+});

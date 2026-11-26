@@ -13,7 +13,7 @@ use Illuminate\Database\QueryException;
 
 final readonly class CerrarTarifa
 {
-    public const string SUPERPOSICION = 'La vigencia se superpone con otra tarifa de este concepto y vínculo.';
+    public const string SUPERPOSICION = 'La vigencia se superpone con otra tarifa del mismo concepto, vínculo, nivel y programa.';
 
     private const string EXCLUSION_VIOLATION = '23P01';
 

@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property ?string $observacion
  * @property AccionFinal $accion_final
  * @property ?TipoConcepto $tipo_concepto
+ * @property ?int $concepto_id
  * @property list<array{nombre: string, avance: int, condicion: string}> $etapas
  * @property int $etapa_actual
  * @property EstadoTramite $estado
@@ -41,7 +42,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Table('tra_tramites')]
 #[Fillable([
-    'persona_id', 'tipo_tramite_id', 'tipo_nombre', 'accion_final', 'tipo_concepto', 'etapas', 'etapa_actual', 'estado', 'datos',
+    'persona_id', 'tipo_tramite_id', 'tipo_nombre', 'accion_final', 'tipo_concepto', 'concepto_id', 'etapas', 'etapa_actual', 'estado', 'datos',
     'pago_id', 'observacion', 'documento_id', 'finalizado_en', 'cerrado_en', 'motivo_cierre',
 ])]
 #[UseFactory(TramiteFactory::class)]

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Modules\Pagos;
 
 use App\Modules\Pagos\Actions\DescribirPago;
+use App\Modules\Pagos\Actions\ListarCatalogoDeConceptos;
 use App\Modules\Pagos\Actions\ListarPagosValidadosDePersona;
 use App\Modules\Pagos\Actions\ListarTarifasVigentes;
 use App\Modules\Pagos\Actions\ResumirPagosDePersona;
 use App\Modules\Pagos\Actions\VerificarPagoParaServicio;
+use App\Modules\Pagos\Contracts\CatalogoDeConceptos;
 use App\Modules\Pagos\Contracts\ConsultaDePago;
 use App\Modules\Pagos\Contracts\PagosValidadosDePersona;
 use App\Modules\Pagos\Contracts\ResumenDePagosDePersona;
@@ -27,6 +29,7 @@ final class PagosServiceProvider extends ModuleServiceProvider
         ConsultaDePago::class => DescribirPago::class,
         TarifasVigentes::class => ListarTarifasVigentes::class,
         ResumenDePagosDePersona::class => ResumirPagosDePersona::class,
+        CatalogoDeConceptos::class => ListarCatalogoDeConceptos::class,
     ];
 
     #[\Override]

@@ -31,7 +31,7 @@ final readonly class ReanudarTramite
         $tasaPendiente = $tramite->pago_id === null ? $tramite->tipo_concepto : null;
 
         $tramite->update(['estado' => $tasaPendiente === null ? EstadoTramite::EnProceso : EstadoTramite::PendientePago, 'observacion' => null]);
-        $pagoLibre = $tasaPendiente === null ? null : $this->aplicacionDePago->pagoLibre($tramite->persona_id, $tasaPendiente);
+        $pagoLibre = $tasaPendiente === null ? null : $this->aplicacionDePago->pagoLibre($tramite);
         $reanudacion = RegistroDeMovimiento::registrar($tramite, $usuario->id, notificar: $pagoLibre === null);
 
         if ($pagoLibre !== null && ! $this->aplicacionDePago->aplicarSiSigueLibre($tramite, $pagoLibre)) {

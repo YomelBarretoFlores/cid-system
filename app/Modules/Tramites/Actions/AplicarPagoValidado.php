@@ -13,7 +13,7 @@ use App\Modules\Tramites\Support\RegistroDeMovimiento;
 use App\Shared\Support\Database\Transaccion;
 use Illuminate\Database\Eloquent\Builder;
 
-// A newly validated fee goes to the person's oldest trámite waiting for that concept type (or observed only for a rejected receipt); running it twice changes nothing.
+// A newly validated fee goes to the person's oldest trámite waiting for that concept type (and that concept and level when its type names one) (or observed only for a rejected receipt); running it twice changes nothing.
 final readonly class AplicarPagoValidado
 {
     public function __construct(
@@ -40,7 +40,8 @@ final readonly class AplicarPagoValidado
                     ->orWhere(fn (Builder $rechazado) => $rechazado->where('estado', EstadoTramite::Observado->value)->where('observacion', ObservarPorPagoRechazado::OBSERVACION)))
                 ->orderBy('id')
                 ->lockForUpdate()
-                ->first();
+                ->get()
+                ->first(fn (Tramite $candidato): bool => AplicacionDePago::admite($candidato, $pago->conceptoId, $pago->nivel));
 
             if ($tramite === null || Tramite::query()->where('pago_id', $pagoId)->exists()) {
                 return null;

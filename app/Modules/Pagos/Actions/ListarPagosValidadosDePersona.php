@@ -17,7 +17,7 @@ final readonly class ListarPagosValidadosDePersona implements PagosValidadosDePe
     public function __invoke(int $personaId, TipoConcepto $servicio): array
     {
         $pagos = Pago::query()
-            ->with('concepto')
+            ->with(['concepto', 'tarifa'])
             ->where(['persona_id' => $personaId, 'estado' => EstadoPago::Validado])
             ->whereHas('concepto', fn (Builder $concepto) => $concepto->where('tipo', $servicio))
             ->orderByDesc('fecha_pago')
@@ -30,6 +30,9 @@ final readonly class ListarPagosValidadosDePersona implements PagosValidadosDePe
             numeroOperacion: $pago->numero_operacion,
             monto: (string) $pago->monto,
             fechaPago: CarbonImmutable::parse($pago->fecha_pago),
+            conceptoId: $pago->concepto_id,
+            nivel: $pago->tarifa?->nivel,
+            programaId: $pago->tarifa?->programa_id,
         ))->all());
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Actions;
 
+use App\Modules\Academico\Contracts\CatalogoDeProgramas;
+use App\Modules\Academico\Data\ProgramaDelCatalogo;
 use App\Modules\Pagos\Contracts\TarifasVigentes;
 use App\Modules\Pagos\Data\TarifaVigente;
 use App\Modules\Pagos\Models\Tarifa;
@@ -13,8 +15,11 @@ use Illuminate\Database\Eloquent\Builder;
 
 final readonly class ListarTarifasVigentes implements TarifasVigentes
 {
+    public function __construct(private CatalogoDeProgramas $programas) {}
+
     public function __invoke(CarbonInterface $fecha): array
     {
+        $programas = array_column(array_map(fn (ProgramaDelCatalogo $programa): array => [$programa->id, $programa->nombre], ($this->programas)()), 1, 0);
         $orden = array_flip(array_column(TipoVinculo::cases(), 'value'));
 
         $tarifas = Tarifa::query()
@@ -25,6 +30,8 @@ final readonly class ListarTarifasVigentes implements TarifasVigentes
             ->sortBy([
                 fn (Tarifa $a, Tarifa $b): int => $a->concepto->nombre <=> $b->concepto->nombre,
                 fn (Tarifa $a, Tarifa $b): int => $orden[$a->tipo_vinculo->value] <=> $orden[$b->tipo_vinculo->value],
+                fn (Tarifa $a, Tarifa $b): int => ($a->programa_id ?? 0) <=> ($b->programa_id ?? 0),
+                fn (Tarifa $a, Tarifa $b): int => ($a->nivel?->orden() ?? 0) <=> ($b->nivel?->orden() ?? 0),
             ])
             ->map(fn (Tarifa $tarifa): TarifaVigente => new TarifaVigente(
                 codigo: $tarifa->concepto->codigo,
@@ -35,6 +42,8 @@ final readonly class ListarTarifasVigentes implements TarifasVigentes
                 monto: (string) $tarifa->monto,
                 vigenteDesde: $tarifa->vigente_desde,
                 tipo: $tarifa->concepto->tipo,
+                nivel: $tarifa->nivel,
+                programa: $tarifa->programa_id === null ? null : ($programas[$tarifa->programa_id] ?? null),
             ));
 
         return array_values($tarifas->all());

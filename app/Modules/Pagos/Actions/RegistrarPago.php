@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Actions;
 
+use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Pagos\Data\RegistroDePago;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
+use App\Modules\Pagos\Support\TarifaAplicable;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
+use App\Modules\Personas\Enums\TipoVinculo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
@@ -96,11 +99,20 @@ final readonly class RegistrarPago
             ->first()
             ?? throw new ReglaDeNegocioIncumplida('El concepto de pago no está disponible.');
 
-        return $concepto->tarifas()
-            ->where('tipo_vinculo', ($this->vinculo)($registro->personaId))
-            ->vigenteEn($registro->fechaPago)
-            ->when($bloquear, fn (Builder $query): Builder => $query->sharedLock())
-            ->first()
-            ?? throw new ReglaDeNegocioIncumplida('No hay una tarifa vigente para este concepto en la fecha de pago.');
+        $vinculo = ($this->vinculo)($registro->personaId);
+
+        return TarifaAplicable::buscar($concepto->id, $vinculo, $registro->fechaPago, $registro->nivel, $registro->programaId, $bloquear)
+            ?? throw new ReglaDeNegocioIncumplida($this->sinTarifa($concepto->id, $vinculo, $registro));
+    }
+
+    private function sinTarifa(int $conceptoId, TipoVinculo $vinculo, RegistroDePago $registro): string
+    {
+        $criterios = TarifaAplicable::criterios($conceptoId, $vinculo, $registro->fechaPago);
+
+        return match (true) {
+            $criterios['nivel'] && ! $registro->nivel instanceof NivelCurricular => 'Indica el nivel al que corresponde el pago.',
+            $criterios['programa'] && $registro->programaId === null => 'Indica el programa al que corresponde el pago.',
+            default => 'No hay una tarifa vigente para este concepto en la fecha de pago.',
+        };
     }
 }

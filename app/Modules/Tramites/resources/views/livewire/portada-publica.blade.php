@@ -434,7 +434,7 @@
                                     @foreach ($vinculo['tarifas'] as $tarifa)
                                         <tr>
                                             <td class="pl-0!">
-                                                <span class="block font-semibold">{{ $tarifa->concepto }}</span>
+                                                <span class="block font-semibold">{{ $tarifa->concepto }}@if ($tarifa->alcance() !== '') ({{ $tarifa->alcance() }})@endif</span>
                                                 <span class="block text-[13px] text-marino-800/75">{{ $tarifa->codigo }} · {{ $tarifa->fuenteEtiqueta }}</span>
                                             </td>
                                             <td class="pr-0! text-right font-semibold whitespace-nowrap tabular-nums">S/ {{ $tarifa->monto }}</td>

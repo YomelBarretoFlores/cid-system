@@ -18,22 +18,30 @@ use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 // Payment dates are Lima dates no later than today, so the collection report of the current month has data.
 final class PagosDemoSeeder extends Seeder
 {
     /**
-     * Demo amounts only; real fees come from the CILN TUPA/TUSNE.
+     * Current CILN poster values (CILN enters the real fees in the admin panel): code => [name, type, [[amount, level, program code], ...]].
+     * Each fee applies to every university link.
      *
-     * @var array<string, array{0: string, 1: TipoConcepto, 2: array<string, string>}>
+     * @var array<string, array{0: string, 1: TipoConcepto, 2: list<array{0: string, 1: ?string, 2: ?string}>}>
      */
     private const array CONCEPTOS = [
-        'MAT-01' => ['Derecho de matrícula', TipoConcepto::Matricula, ['estudiante_unasam' => '50.00', 'docente_administrativo_unasam' => '60.00', 'publico_general' => '80.00']],
-        'PEN-01' => ['Pensión mensual', TipoConcepto::Pension, ['estudiante_unasam' => '120.00', 'docente_administrativo_unasam' => '140.00', 'publico_general' => '180.00']],
-        'EXC-01' => ['Examen de clasificación', TipoConcepto::ExamenClasificacion, ['estudiante_unasam' => '30.00', 'docente_administrativo_unasam' => '30.00', 'publico_general' => '40.00']],
-        'CON-01' => ['Constancia', TipoConcepto::Constancia, ['estudiante_unasam' => '20.00', 'docente_administrativo_unasam' => '20.00', 'publico_general' => '25.00']],
-        'CER-01' => ['Certificado de nivel', TipoConcepto::Certificado, ['estudiante_unasam' => '60.00', 'docente_administrativo_unasam' => '70.00', 'publico_general' => '90.00']],
-        'TRA-01' => ['Trámite académico', TipoConcepto::Tramite, ['estudiante_unasam' => '15.00', 'docente_administrativo_unasam' => '15.00', 'publico_general' => '20.00']],
+        'MAT-01' => ['Derecho de matrícula', TipoConcepto::Matricula, [['10.00', null, null]]],
+        'PEN-01' => ['Pensión mensual', TipoConcepto::Pension, [['100.00', null, null]]],
+        'EXC-01' => ['Examen de clasificación o reclasificación', TipoConcepto::ExamenClasificacion, [['40.00', null, null]]],
+        'SUF-01' => ['Examen de suficiencia', TipoConcepto::Otro, [['180.00', null, null]]],
+        'CON-01' => ['Constancia de matrícula', TipoConcepto::Constancia, [['20.00', null, null]]],
+        'CON-NOT' => ['Constancia de notas (por nivel)', TipoConcepto::Constancia, [['20.00', 'basico', null], ['20.00', 'intermedio', null], ['20.00', 'avanzado', null]]],
+        'CER-01' => ['Certificado de estudios (por nivel)', TipoConcepto::Certificado, [
+            ['50.00', 'basico', null], ['60.00', 'intermedio', null], ['70.00', 'avanzado', null],
+            ['100.00', 'basico', 'POSGRADO'], ['110.00', 'intermedio', 'POSGRADO'], ['120.00', 'avanzado', 'POSGRADO'],
+        ]],
+        'ACR-PG' => ['Acreditación (posgrado)', TipoConcepto::Tramite, [['50.00', null, 'POSGRADO']]],
+        'TRA-01' => ['Trámite académico', TipoConcepto::Tramite, [['15.00', null, null]]],
     ];
 
     private const array MEDIOS = ['banco_nacion', 'pagalo_pe', 'tesoreria_unasam'];
@@ -42,12 +50,10 @@ final class PagosDemoSeeder extends Seeder
 
     public function run(): void
     {
-        foreach (self::CONCEPTOS as $codigo => [$nombre, $tipo, $montos]) {
-            $concepto = Concepto::query()->create(['codigo' => $codigo, 'nombre' => $nombre, 'tipo' => $tipo, 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
+        $programas = DB::table('aca_programas')->pluck('id', 'codigo')->all();
 
-            foreach ($montos as $vinculo => $monto) {
-                $concepto->tarifas()->create(['tipo_vinculo' => TipoVinculo::from($vinculo), 'monto' => $monto, 'vigente_desde' => '2026-01-01']);
-            }
+        foreach (self::CONCEPTOS as $codigo => [$nombre, $tipo, $tarifas]) {
+            $this->crearConcepto($codigo, $nombre, $tipo, $tarifas, $programas);
         }
 
         $cajero = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
@@ -64,6 +70,24 @@ final class PagosDemoSeeder extends Seeder
 
         $this->pensionesDelMes($cajero, $hoy);
         $this->pagosPorRevisar($cajero, $hoy);
+    }
+
+    /**
+     * @param  list<array{0: string, 1: ?string, 2: ?string}>  $tarifas
+     * @param  array<string, int>  $programas
+     */
+    private function crearConcepto(string $codigo, string $nombre, TipoConcepto $tipo, array $tarifas, array $programas): void
+    {
+        $concepto = Concepto::query()->create(['codigo' => $codigo, 'nombre' => $nombre, 'tipo' => $tipo, 'fuente_id' => FuenteDeConcepto::idDe('tupa')]);
+
+        foreach (TipoVinculo::cases() as $vinculo) {
+            foreach ($tarifas as [$monto, $nivel, $programa]) {
+                $concepto->tarifas()->create([
+                    'tipo_vinculo' => $vinculo, 'monto' => $monto, 'vigente_desde' => '2026-01-01',
+                    'nivel' => $nivel, 'programa_id' => $programa === null ? null : $programas[$programa],
+                ]);
+            }
+        }
     }
 
     private function pensionesDelMes(User $cajero, CarbonImmutable $hoy): void

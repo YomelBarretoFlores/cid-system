@@ -47,6 +47,7 @@ final class TramiteFactory extends Factory
                 'tipo_nombre' => $tipo->nombre,
                 'accion_final' => $tipo->accion_final,
                 'tipo_concepto' => $tipo->tipo_concepto,
+                'concepto_id' => $tipo->concepto_id,
                 'etapas' => $tipo->etapas->map(fn (Etapa $etapa): array => ['nombre' => $etapa->nombre, 'avance' => $etapa->avance, 'condicion' => $etapa->condicion->value])->all(),
             ]);
         });

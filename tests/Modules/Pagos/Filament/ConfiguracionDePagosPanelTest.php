@@ -169,3 +169,18 @@ it('refuses a fee amount with more than two decimals and accepts one with two', 
         ->assertHasNoFormErrors();
     expect(Tarifa::query()->where('tipo_vinculo', TipoVinculo::EstudianteUnasam)->sole()->monto)->toBe('150.55');
 });
+
+it('registers a fee for one level and program without closing the general fee', function (): void {
+    $this->actingAs($this->administrador);
+    $posgrado = (int) DB::table('aca_programas')->where('codigo', 'POSGRADO')->value('id');
+
+    tarifasDe($this->concepto)
+        ->callAction(TestAction::make('registrarTarifa')->table(), data: [
+            'tipo_vinculo' => TipoVinculo::PublicoGeneral->value, 'nivel' => 'avanzado', 'programa_id' => $posgrado, 'monto' => '120.00', 'vigente_desde' => '2027-07-01',
+        ])
+        ->assertHasNoFormErrors()
+        ->assertNotified('Tarifa registrada');
+
+    expect($this->vigente->refresh()->vigente_hasta)->toBeNull()
+        ->and(Tarifa::query()->latest('id')->first())->nivel->value->toBe('avanzado')->programa_id->toBe($posgrado)->monto->toBe('120.00');
+});

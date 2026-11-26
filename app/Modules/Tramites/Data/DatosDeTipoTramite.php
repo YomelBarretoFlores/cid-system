@@ -21,5 +21,6 @@ final readonly class DatosDeTipoTramite
         public AccionFinal $accionFinal,
         public bool $activo,
         public array $etapas,
+        public ?int $conceptoId = null,
     ) {}
 }

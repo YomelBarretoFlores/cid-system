@@ -20,11 +20,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property ?TipoConcepto $tipo_concepto
+ * @property ?int $concepto_id
  * @property AccionFinal $accion_final
  * @property-read Collection<int, Etapa> $etapas
  */
 #[Table('tra_tipos_tramite')]
-#[Fillable(['codigo', 'nombre', 'requisitos', 'tipo_concepto', 'accion_final', 'activo'])]
+#[Fillable(['codigo', 'nombre', 'requisitos', 'tipo_concepto', 'concepto_id', 'accion_final', 'activo'])]
 #[UseFactory(TipoTramiteFactory::class)]
 #[UsePolicy(TipoTramitePolicy::class)]
 final class TipoTramite extends Model

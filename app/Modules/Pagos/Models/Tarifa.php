@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Models;
 
+use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Pagos\Database\Factories\TarifaFactory;
 use App\Modules\Pagos\Policies\TarifaPolicy;
 use App\Modules\Personas\Enums\TipoVinculo;
@@ -22,12 +23,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property TipoVinculo $tipo_vinculo
+ * @property ?NivelCurricular $nivel
+ * @property ?int $programa_id
  * @property CarbonImmutable $vigente_desde
  * @property CarbonImmutable|null $vigente_hasta
  * @property-read Concepto $concepto
  */
 #[Table('pag_tarifas')]
-#[Fillable(['concepto_id', 'tipo_vinculo', 'monto', 'vigente_desde', 'vigente_hasta'])]
+#[Fillable(['concepto_id', 'tipo_vinculo', 'monto', 'vigente_desde', 'vigente_hasta', 'nivel', 'programa_id'])]
 #[UseFactory(TarifaFactory::class)]
 #[UsePolicy(TarifaPolicy::class)]
 final class Tarifa extends Model
@@ -57,6 +60,7 @@ final class Tarifa extends Model
     {
         return [
             'tipo_vinculo' => TipoVinculo::class,
+            'nivel' => NivelCurricular::class,
             'monto' => 'decimal:2',
             'vigente_desde' => 'date',
             'vigente_hasta' => 'date',

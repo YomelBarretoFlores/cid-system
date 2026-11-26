@@ -17,7 +17,7 @@ final readonly class VerificarPagoParaServicio implements VerificacionDePago
     public function __invoke(int $pagoId, int $personaId, TipoConcepto $servicio): PagoData
     {
         return Transaccion::ejecutar(function () use ($pagoId, $personaId, $servicio): PagoData {
-            $pago = Pago::query()->with('concepto')->whereKey($pagoId)->lockForUpdate()->firstOrFail();
+            $pago = Pago::query()->with(['concepto', 'tarifa'])->whereKey($pagoId)->lockForUpdate()->firstOrFail();
 
             $error = match (true) {
                 $pago->persona_id !== $personaId => 'El pago pertenece a otra persona.',
@@ -30,7 +30,7 @@ final readonly class VerificarPagoParaServicio implements VerificacionDePago
                 throw new ReglaDeNegocioIncumplida($error);
             }
 
-            return new PagoData($pago->id, $pago->persona_id, $servicio);
+            return new PagoData($pago->id, $pago->persona_id, $servicio, $pago->concepto_id, $pago->tarifa?->nivel, $pago->tarifa?->programa_id);
         });
     }
 }

@@ -56,13 +56,13 @@ it('refuses a fee whose validity overlaps another one', function (string $desde,
         ->toThrow(ReglaDeNegocioIncumplida::class, $mensaje);
     expect(Tarifa::query()->count())->toBe(2);
 })->with([
-    'inside a closed fee' => ['2027-03-15', '2027-04-30', 'La vigencia se superpone con otra tarifa de este concepto y vínculo.'],
-    'open fee covering a later closed one' => ['2027-02-01', null, 'La vigencia se superpone con otra tarifa de este concepto y vínculo.'],
+    'inside a closed fee' => ['2027-03-15', '2027-04-30', 'La vigencia se superpone con otra tarifa del mismo concepto, vínculo, nivel y programa.'],
+    'open fee covering a later closed one' => ['2027-02-01', null, 'La vigencia se superpone con otra tarifa del mismo concepto, vínculo, nivel y programa.'],
 ]);
 
 it('refuses an open fee starting on or before the open one, as an overlap', function (string $desde): void {
     expect(fn (): Tarifa => registrarTarifa($desde))
-        ->toThrow(ReglaDeNegocioIncumplida::class, 'La vigencia se superpone con otra tarifa de este concepto y vínculo.');
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'La vigencia se superpone con otra tarifa del mismo concepto, vínculo, nivel y programa.');
     expect($this->vigente->refresh()->vigente_hasta)->toBeNull()
         ->and(Tarifa::query()->count())->toBe(1);
 })->with(['2027-01-01', '2026-06-01']);

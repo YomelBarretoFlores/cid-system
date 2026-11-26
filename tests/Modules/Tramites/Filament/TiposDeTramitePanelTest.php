@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\Pagos\Enums\TipoConcepto;
+use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Tramites\Actions\GuardarTipoDeTramite;
 use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\CondicionDeEtapa;
@@ -126,3 +127,17 @@ it('refuses a fee of a concept that belongs to enrollment, monthly fees or the p
     expect(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo(['tipo_concepto' => $concepto->value])), $this->administrador))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'La tasa de un trámite es de constancia, certificado, trámite u otro concepto.');
 })->with([TipoConcepto::Matricula, TipoConcepto::Pension, TipoConcepto::ExamenClasificacion]);
+
+it('links a trámite type to a payment concept, taking the fee type from it', function (): void {
+    $this->actingAs($this->administrador);
+    $concepto = Concepto::factory()->create(['nombre' => 'Certificado de estudios', 'tipo' => TipoConcepto::Certificado]);
+
+    Livewire::test(CreateTipoTramite::class)
+        ->assertFormFieldExists('concepto_id')
+        ->fillForm(formularioDeTipo(['concepto_id' => $concepto->id]))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(TipoTramite::query()->where('codigo', 'DUPLICADO-CARNE')->sole())
+        ->concepto_id->toBe($concepto->id)->tipo_concepto->toBe(TipoConcepto::Certificado);
+});

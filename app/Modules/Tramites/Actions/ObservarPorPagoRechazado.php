@@ -7,6 +7,7 @@ namespace App\Modules\Tramites\Actions;
 use App\Modules\Pagos\Contracts\ConsultaDePago;
 use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Models\Tramite;
+use App\Modules\Tramites\Support\AplicacionDePago;
 use App\Modules\Tramites\Support\RegistroDeMovimiento;
 use App\Shared\Support\Database\Transaccion;
 
@@ -33,7 +34,8 @@ final readonly class ObservarPorPagoRechazado
                 ->whereNull('pago_id')
                 ->orderBy('id')
                 ->lockForUpdate()
-                ->first();
+                ->get()
+                ->first(fn (Tramite $candidato): bool => AplicacionDePago::admite($candidato, $pago->conceptoId, $pago->nivel));
 
             if ($tramite === null) {
                 return null;

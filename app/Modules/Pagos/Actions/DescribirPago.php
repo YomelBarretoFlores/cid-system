@@ -13,7 +13,7 @@ final readonly class DescribirPago implements ConsultaDePago
 {
     public function __invoke(int $pagoId): DetalleDePago
     {
-        $pago = Pago::query()->with(['concepto', 'medioDePago'])->whereKey($pagoId)->firstOrFail();
+        $pago = Pago::query()->with(['concepto', 'medioDePago', 'tarifa'])->whereKey($pagoId)->firstOrFail();
 
         return new DetalleDePago(
             concepto: $pago->concepto->nombre,
@@ -26,6 +26,9 @@ final readonly class DescribirPago implements ConsultaDePago
             tipo: $pago->concepto->tipo,
             validadoEn: $pago->validado_en === null ? null : CarbonImmutable::parse($pago->validado_en)->setTimezone('America/Lima'),
             ulid: $pago->ulid,
+            conceptoId: $pago->concepto_id,
+            nivel: $pago->tarifa?->nivel,
+            programaId: $pago->tarifa?->programa_id,
         );
     }
 }

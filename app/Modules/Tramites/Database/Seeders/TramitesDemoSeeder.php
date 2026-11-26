@@ -8,6 +8,7 @@ use App\Modules\Certificacion\Contracts\NivelesConNotas;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Actions\RechazarPago;
 use App\Modules\Pagos\Enums\EstadoPago;
+use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Models\Persona;
@@ -30,6 +31,8 @@ final class TramitesDemoSeeder extends Seeder
     {
         $cola = config('queue.default');
         config(['queue.default' => 'sync']);
+
+        $this->vincularConceptos();
 
         try {
             $this->delEstudianteDelPortal();
@@ -67,7 +70,7 @@ final class TramitesDemoSeeder extends Seeder
             $escenario = $escenarios[$indice];
 
             if ($escenario !== 'recibo rechazado') {
-                $this->pagar($persona, 'CON-01', EstadoPago::Validado);
+                $this->pagar($persona, 'CON-NOT', EstadoPago::Validado, $niveles[0]->nivel->value);
             }
 
             $tramite = $this->solicitar($persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: $niveles[0]->idioma, nivel: $niveles[0]->nivel->value));
@@ -75,7 +78,7 @@ final class TramitesDemoSeeder extends Seeder
             match ($escenario) {
                 'finalizado' => $this->finalizar($tramite, $administrador),
                 'observado por el personal' => app(ObservarTramite::class)($tramite->id, $administrador, 'Indica la institución para la que necesitas la constancia, para consignarla en el documento.'),
-                'recibo rechazado' => app(RechazarPago::class)($this->pagar($persona, 'CON-01', EstadoPago::Pendiente)->id, $cajero, 'El número de operación no corresponde a un depósito del Banco de la Nación.'),
+                'recibo rechazado' => app(RechazarPago::class)($this->pagar($persona, 'CON-NOT', EstadoPago::Pendiente, $niveles[0]->nivel->value)->id, $cajero, 'El número de operación no corresponde a un depósito del Banco de la Nación.'),
             };
         }
     }
@@ -91,9 +94,17 @@ final class TramitesDemoSeeder extends Seeder
         return app(SolicitarTramite::class)($persona->id, (int) TipoTramite::query()->where('codigo', $codigo)->value('id'), $datos);
     }
 
-    private function pagar(Persona $persona, string $codigo, EstadoPago $estado): Pago
+    // The grade record and level certificate types take only a payment of their own per-level concept.
+    private function vincularConceptos(): void
     {
-        $tarifa = Tarifa::query()->whereRelation('concepto', 'codigo', $codigo)->where('tipo_vinculo', $persona->tipo_vinculo)->sole();
+        foreach (['CONSTANCIA-NOTAS' => 'CON-NOT', 'CERTIFICADO-NIVEL' => 'CER-01'] as $tipo => $concepto) {
+            TipoTramite::query()->where('codigo', $tipo)->update(['concepto_id' => Concepto::query()->where('codigo', $concepto)->value('id')]);
+        }
+    }
+
+    private function pagar(Persona $persona, string $codigo, EstadoPago $estado, ?string $nivel = null): Pago
+    {
+        $tarifa = Tarifa::query()->whereRelation('concepto', 'codigo', $codigo)->where(['tipo_vinculo' => $persona->tipo_vinculo, 'nivel' => $nivel])->whereNull('programa_id')->sole();
 
         return Pago::factory()->create([
             'persona_id' => $persona->id, 'concepto_id' => $tarifa->concepto_id, 'tarifa_id' => $tarifa->id, 'monto' => $tarifa->monto,

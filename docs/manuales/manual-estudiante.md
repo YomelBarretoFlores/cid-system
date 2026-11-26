@@ -222,10 +222,10 @@ Todo pago al CILN (derecho de matrícula, examen de clasificación, constancias,
 
 1. En el menú, presione **Registro de pagos**.
 2. Presione **Registrar recibo**. Se abre el recuadro **Registrar un recibo**.
-3. Elija el **Concepto** que pagó y el **Medio de pago**.
+3. Elija el **Concepto** que pagó y el **Medio de pago**. Si el monto del concepto depende del nivel (por ejemplo, la constancia de notas o el certificado de estudios), elija también el **Nivel que pagaste**; si aparece **Programa**, elíjalo solo cuando pagó la tarifa de un programa, por ejemplo Posgrado.
 4. Elija la **Fecha de pago** en el calendario.
 5. Escriba el **N.° de recibo u operación** tal como figura en el comprobante.
-6. Verifique el **Monto pagado (S/)**: se completa con la tarifa vigente del concepto.
+6. Verifique el **Monto pagado (S/)**: se completa con la tarifa vigente del concepto (y del nivel o programa elegido).
 7. En **Recibo escaneado**, presione **Elegir archivo** y adjunte la imagen o el PDF del recibo (JPG, PNG o PDF, hasta 5 MB).
 8. Presione **Registrar recibo**. Para cerrar el recuadro sin registrar, presione **Cancelar**.
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Actions;
 
+use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Enums\TipoVinculo;
@@ -14,14 +15,14 @@ final readonly class RegistrarTarifa
 {
     public function __construct(private CerrarTarifa $cerrarTarifa) {}
 
-    public function __invoke(int $conceptoId, TipoVinculo $vinculo, string $monto, CarbonImmutable $desde, ?CarbonImmutable $hasta = null): Tarifa
+    public function __invoke(int $conceptoId, TipoVinculo $vinculo, string $monto, CarbonImmutable $desde, ?CarbonImmutable $hasta = null, ?NivelCurricular $nivel = null, ?int $programaId = null): Tarifa
     {
-        return Transaccion::ejecutar(function () use ($conceptoId, $vinculo, $monto, $desde, $hasta): Tarifa {
+        return Transaccion::ejecutar(function () use ($conceptoId, $vinculo, $monto, $desde, $hasta, $nivel, $programaId): Tarifa {
             // Locking the concept serializes fee changes for it.
             Concepto::query()->whereKey($conceptoId)->lockForUpdate()->firstOrFail();
 
             $abierta = Tarifa::query()
-                ->where(['concepto_id' => $conceptoId, 'tipo_vinculo' => $vinculo])
+                ->where(['concepto_id' => $conceptoId, 'tipo_vinculo' => $vinculo, 'nivel' => $nivel?->value, 'programa_id' => $programaId])
                 ->whereNull('vigente_hasta')
                 ->first();
 
@@ -36,6 +37,8 @@ final readonly class RegistrarTarifa
                 'monto' => $monto,
                 'vigente_desde' => $desde->toDateString(),
                 'vigente_hasta' => $hasta?->toDateString(),
+                'nivel' => $nivel,
+                'programa_id' => $programaId,
             ]));
         });
     }

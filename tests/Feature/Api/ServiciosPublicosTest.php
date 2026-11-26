@@ -68,7 +68,7 @@ it('lists the fees in force today in Lima with their amount as a decimal string'
         ->assertOk()
         ->assertExactJson(['data' => [[
             'codigo' => 'TUSNE-012', 'concepto' => 'Matrícula por ciclo', 'fuente' => 'tusne', 'fuente_etiqueta' => 'TUSNE',
-            'vinculo' => 'publico_general', 'vinculo_etiqueta' => TipoVinculo::PublicoGeneral->etiqueta(), 'monto' => '180.00', 'vigente_desde' => '2026-03-01',
+            'vinculo' => 'publico_general', 'vinculo_etiqueta' => TipoVinculo::PublicoGeneral->etiqueta(), 'monto' => '180.00', 'vigente_desde' => '2026-03-01', 'nivel' => null, 'programa' => null,
         ]]]);
 });
 

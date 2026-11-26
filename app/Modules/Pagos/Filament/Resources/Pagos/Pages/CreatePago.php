@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Filament\Resources\Pagos\Pages;
 
+use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Pagos\Actions\RegistrarPago;
 use App\Modules\Pagos\Data\RegistroDePago;
 use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
@@ -27,7 +28,7 @@ final class CreatePago extends CreateRecord
     protected static bool $canCreateAnother = false;
 
     /**
-     * @param  array{persona_id: int|string, concepto_id: int|string, medio_pago_id: int|string, numero_operacion: string, fecha_pago: string, monto: int|float|string, recibo: UploadedFile}  $data
+     * @param  array{persona_id: int|string, concepto_id: int|string, medio_pago_id: int|string, numero_operacion: string, fecha_pago: string, monto: int|float|string, recibo: UploadedFile, nivel?: string|null, programa_id?: int|string|null}  $data
      */
     protected function handleRecordCreation(array $data): Model
     {
@@ -38,6 +39,8 @@ final class CreatePago extends CreateRecord
             numeroOperacion: $data['numero_operacion'],
             fechaPago: CarbonImmutable::parse($data['fecha_pago']),
             monto: (string) $data['monto'],
+            nivel: NivelCurricular::tryFrom((string) ($data['nivel'] ?? '')),
+            programaId: is_numeric($data['programa_id'] ?? null) ? (int) $data['programa_id'] : null,
         );
 
         try {

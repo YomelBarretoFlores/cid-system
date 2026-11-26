@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos\Data;
 
+use App\Modules\Academico\Enums\NivelCurricular;
 use Carbon\CarbonImmutable;
 
 final readonly class PagoValidado
@@ -14,5 +15,8 @@ final readonly class PagoValidado
         public string $numeroOperacion,
         public string $monto,
         public CarbonImmutable $fechaPago,
+        public ?int $conceptoId = null,
+        public ?NivelCurricular $nivel = null,
+        public ?int $programaId = null,
     ) {}
 }

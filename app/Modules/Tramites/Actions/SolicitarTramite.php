@@ -50,12 +50,13 @@ final readonly class SolicitarTramite
                 'tipo_nombre' => $tipo->nombre,
                 'accion_final' => $tipo->accion_final,
                 'tipo_concepto' => $tipo->tipo_concepto,
+                'concepto_id' => $tipo->concepto_id,
                 'etapas' => array_map(fn (array $etapa): array => [...$etapa, 'condicion' => $etapa['condicion']->value], array_values($etapas)),
                 'estado' => $tipo->cobraTasa() ? EstadoTramite::PendientePago : EstadoTramite::EnProceso,
                 'datos' => $guardados,
             ])->refresh();
 
-            $pagoLibre = $tipo->tipo_concepto === null ? null : $this->aplicacionDePago->pagoLibre($personaId, $tipo->tipo_concepto);
+            $pagoLibre = $this->aplicacionDePago->pagoLibre($tramite);
             $solicitud = RegistroDeMovimiento::registrar($tramite, notificar: $pagoLibre === null);
 
             if ($pagoLibre !== null && ! $this->aplicacionDePago->aplicarSiSigueLibre($tramite, $pagoLibre)) {

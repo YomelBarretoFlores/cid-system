@@ -18,6 +18,12 @@
 
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     <x-portal.seleccion nombre="concepto_id" etiqueta="Concepto" :opciones="$conceptos" vacio="Elige el concepto que pagaste" vivo />
+                    @if ($criterios['nivel'])
+                        <x-portal.seleccion nombre="nivel" etiqueta="Nivel que pagaste" :opciones="$niveles" vacio="Elige el nivel" vivo />
+                    @endif
+                    @if ($criterios['programa'])
+                        <x-portal.seleccion nombre="programa_id" etiqueta="Programa" :opciones="$programas" vacio="Ninguno en particular" ayuda="Elígelo solo si pagaste la tarifa de un programa, por ejemplo Posgrado." vivo />
+                    @endif
                     <x-portal.seleccion nombre="medio_pago_id" etiqueta="Medio de pago" :opciones="$mediosDePago" vacio="Elige cómo pagaste" />
                     <x-portal.fecha nombre="fecha_pago" etiqueta="Fecha de pago" :max="$hoy" />
                     <x-portal.campo nombre="numero_operacion" etiqueta="N.° de recibo u operación" autocomplete="off" maxlength="40" placeholder="Ej.: 00482193" required />

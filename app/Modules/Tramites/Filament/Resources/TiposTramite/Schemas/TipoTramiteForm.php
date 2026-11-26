@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Filament\Resources\TiposTramite\Schemas;
 
+use App\Modules\Pagos\Contracts\CatalogoDeConceptos;
+use App\Modules\Pagos\Data\ConceptoDelCatalogo;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Tramites\Actions\GuardarTipoDeTramite;
 use App\Modules\Tramites\Data\DatosDeTipoTramite;
@@ -37,6 +39,11 @@ final class TipoTramiteForm
                             ->placeholder('Sin tasa')
                             ->helperText('El trámite espera a que Pagos valide un pago de este concepto.')
                             ->options(array_column(array_map(fn (TipoConcepto $tipo): array => [$tipo->value, $tipo->etiqueta()], GuardarTipoDeTramite::CONCEPTOS), 1, 0)),
+                        Select::make('concepto_id')
+                            ->label('Concepto de pago')
+                            ->placeholder('Cualquier concepto de la tasa')
+                            ->helperText('Si eliges uno, solo se acepta un pago de ese concepto (y del nivel del trámite cuando su tarifa es por nivel). La tasa toma su tipo.')
+                            ->options(fn (): array => self::conceptos()),
                         Select::make('accion_final')
                             ->label('Al finalizar')
                             ->options(array_column(array_map(fn (AccionFinal $accion): array => [$accion->value, $accion->etiqueta()], AccionFinal::cases()), 1, 0))
@@ -72,6 +79,7 @@ final class TipoTramiteForm
         return [
             ...$tipo->only(['codigo', 'nombre', 'requisitos', 'activo']),
             'tipo_concepto' => $tipo->tipo_concepto?->value,
+            'concepto_id' => $tipo->concepto_id,
             'accion_final' => $tipo->accion_final->value,
             'etapas' => $tipo->etapas->map(fn (Etapa $etapa): array => ['nombre' => $etapa->nombre, 'avance' => $etapa->avance, 'condicion' => $etapa->condicion->value])->all(),
         ];
@@ -96,7 +104,26 @@ final class TipoTramiteForm
                 'avance' => (int) (is_array($fila) && is_numeric($fila['avance'] ?? null) ? $fila['avance'] : -1),
                 'condicion' => CondicionDeEtapa::tryFrom(self::texto(is_array($fila) ? ($fila['condicion'] ?? null) : null)) ?? CondicionDeEtapa::AccionDelPersonal,
             ], $etapas),
+            conceptoId: self::entero($data['concepto_id'] ?? null),
         );
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function conceptos(): array
+    {
+        $cobrables = array_filter(
+            app(CatalogoDeConceptos::class)(),
+            fn (ConceptoDelCatalogo $concepto): bool => $concepto->activo && in_array($concepto->tipo, GuardarTipoDeTramite::CONCEPTOS, true),
+        );
+
+        return array_column(array_map(fn (ConceptoDelCatalogo $concepto): array => [$concepto->id, "{$concepto->nombre} ({$concepto->tipo->etiqueta()})"], $cobrables), 1, 0);
+    }
+
+    private static function entero(mixed $valor): ?int
+    {
+        return is_numeric($valor) ? (int) $valor : null;
     }
 
     private static function texto(mixed $valor): string

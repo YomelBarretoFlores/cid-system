@@ -140,8 +140,11 @@ Finalidad: registrar los conceptos que se cobran y su tarifa vigente.
 2. Pulse **Nuevo concepto** y complete **Código TUPA/TUSNE** (no cambia después de crear el concepto), **Nombre**, **Fuente** y **Servicio que habilita**. Deje marcado **Disponible para nuevos pagos**.
 3. Guarde y, en la sección **Tarifas** del concepto, pulse **Nueva tarifa**.
 4. Elija el **Vínculo con la UNASAM**, el **Monto** y la fecha **Vigente desde**; indique **Vigente hasta** solo si la tarifa tiene fecha de cierre.
+5. Si el monto depende del nivel o del programa (por ejemplo, el certificado de estudios cuesta distinto en Básico, Intermedio y Avanzado, o en Posgrado), elija el **Nivel** y/o el **Programa**. Déjelos vacíos para una tarifa que vale para todos.
 
-Resultado esperado: el concepto aparece en el listado y su tarifa se aplica a los pagos con fecha dentro de la vigencia. Si ya había una tarifa abierta para el mismo vínculo, el sistema la cierra el día anterior al inicio de la nueva, de modo que los pagos anteriores conservan el monto que aplicaron.
+Resultado esperado: el concepto aparece en el listado y su tarifa se aplica a los pagos con fecha dentro de la vigencia. Si ya había una tarifa abierta para el mismo vínculo, nivel y programa, el sistema la cierra el día anterior al inicio de la nueva, de modo que los pagos anteriores conservan el monto que aplicaron.
+
+Al registrar un pago se aplica la tarifa más específica vigente: programa y nivel; luego solo nivel; luego solo programa; por último la tarifa general. Dos tarifas del mismo concepto, vínculo, nivel y programa no pueden superponer sus vigencias. Una tarifa ya aplicada a pagos no cambia de nivel ni de programa.
 
 En la sección **Tarifas**, cada fila tiene además las acciones **Cerrar**, que registra el **Último día de vigencia** de la tarifa, y **Borrar**, que solo elimina una tarifa que ningún pago usa.
 
@@ -162,6 +165,7 @@ Resultado esperado: el registro aparece en los formularios de pagos y conceptos.
 1. Ingrese a **Catálogos > Tipos de trámite** y cree o edite un tipo.
 2. Complete **Código**, **Nombre** y **Requisitos** (el estudiante los ve antes de iniciar el trámite).
 3. En **Tasa**, elija el tipo de pago que debe presentarse (por ejemplo, Matrícula, Pensión o Constancia) o deje **Sin tasa**. Con tasa, el trámite espera a que Pagos valide un pago de ese tipo.
+   - Opcionalmente, en **Concepto de pago**, elija el concepto exacto que debe pagarse (por ejemplo, «Constancia de notas»). La **Tasa** toma el tipo de ese concepto y el trámite solo acepta un pago de ese concepto; si la tarifa del pago es por nivel, además debe ser del mismo nivel que el trámite. Sin concepto, se acepta cualquier pago del tipo elegido. Los trámites ya solicitados conservan el concepto con el que se iniciaron.
 4. Defina al menos dos **Etapas** con **Agregar etapa**. Cada etapa tiene su nombre, su **Avance** y **Se alcanza**: **Al recibir la solicitud**, **Cuando Pagos valida la tasa** o **Cuando el personal la avanza**. La primera es la solicitud recibida (0 %); con tasa, la segunda se alcanza cuando Pagos valida la tasa; la última llega al 100 % por acción del personal.
 5. Elija qué ocurre **Al finalizar** (por ejemplo, emitir la constancia de notas o trasladar la matrícula) y guarde.
 
@@ -399,7 +403,7 @@ Finalidad: registrar un pago que la persona presenta en ventanilla.
 
 1. Ingrese a **Pagos > Pagos** y pulse **Registrar pago**.
 2. En **Persona**, busque por número de documento o por apellidos y nombres.
-3. Elija el **Concepto TUPA/TUSNE**.
+3. Elija el **Concepto TUPA/TUSNE**. Si sus tarifas varían por nivel o programa, aparecen **Nivel pagado** (obligatorio) y **Programa** (solo si el pago es la tarifa de un programa, por ejemplo Posgrado).
 4. Elija el **Medio de pago**, escriba el **N.° de recibo u operación**, la **Fecha de pago** (no puede ser posterior a hoy) y el **Monto** que figura en la boleta, con dos decimales como máximo.
 5. Adjunte el **Recibo escaneado (JPG, PNG o PDF)**, de hasta 5 MB.
 6. Pulse **Crear**.
