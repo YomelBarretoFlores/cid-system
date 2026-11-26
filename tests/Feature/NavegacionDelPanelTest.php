@@ -32,7 +32,7 @@ it('orders the sidebar by TdR module, with every section in its group', function
     expect($menu)->toBe([
         '' => ['Tablero gerencial'],
         'Matrícula' => ['Personas', 'Solicitudes de clasificación', 'Matrículas', 'Ciclos habilitados'],
-        'Oferta académica' => ['Periodos', 'Idiomas y ciclos', 'Grupos', 'Aulas'],
+        'Oferta académica' => ['Periodos', 'Idiomas y ciclos', 'Grupos', 'Aulas', 'Programas'],
         'Pagos' => ['Pagos', 'Reporte de recaudación'],
         'Docencia' => ['Docentes', 'Control de clases', 'Expediente de horas', 'Carga docente', 'Costos por hora'],
         'Certificación' => ['Actas pendientes', 'Actas finales', 'Constancias y certificados'],

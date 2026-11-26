@@ -18,6 +18,7 @@ final class IdiomasTable
             ->columns([
                 TextColumn::make('codigo')->label('Código')->searchable()->sortable(),
                 TextColumn::make('nombre')->label('Nombre')->searchable()->sortable(),
+                TextColumn::make('curriculo')->label('Currículo'),
                 IconColumn::make('es_lengua_nativa')->label('Lengua originaria')->boolean(),
                 TextColumn::make('ciclos_count')->label('Ciclos')->counts('ciclos'),
                 IconColumn::make('activo')->label('Disponible')->boolean(),

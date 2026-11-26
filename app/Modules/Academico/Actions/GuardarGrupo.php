@@ -11,6 +11,7 @@ use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Academico\Models\Programa;
 use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -44,6 +45,7 @@ final readonly class GuardarGrupo
         }
 
         $this->asegurarCicloDisponible($grupo, $datos);
+        $this->asegurarPrograma($grupo, $datos);
 
         if ($datos->cupoMaximo < $grupo->matriculados) {
             throw new ReglaDeNegocioIncumplida("El cupo máximo no puede ser menor que los {$grupo->matriculados} estudiantes matriculados.");
@@ -56,6 +58,7 @@ final readonly class GuardarGrupo
         $grupo->fill([
             'periodo_id' => $datos->periodoId,
             'ciclo_id' => $datos->cicloId,
+            'programa_id' => $datos->programaId,
             'aula_id' => $datos->aulaId,
             'codigo' => $datos->codigo,
             'modalidad' => $datos->modalidad,
@@ -90,6 +93,22 @@ final readonly class GuardarGrupo
 
         throw_unless($ciclo->activo, ReglaDeNegocioIncumplida::class, 'El ciclo seleccionado no está disponible para nuevos grupos.');
         throw_unless($ciclo->idioma->activo, ReglaDeNegocioIncumplida::class, "El idioma {$ciclo->idioma->nombre} no está disponible para nuevos grupos.");
+    }
+
+    private function asegurarPrograma(Grupo $grupo, DatosDeGrupo $datos): void
+    {
+        $programa = Programa::query()->whereKey($datos->programaId)->firstOrFail();
+
+        // A deactivated program keeps serving the groups that already belong to it.
+        if (! $programa->activo && (int) $grupo->programa_id !== $programa->id) {
+            throw new ReglaDeNegocioIncumplida("El programa {$programa->nombre} no está disponible para nuevos grupos.");
+        }
+
+        if (! $programa->regimen->admiteGrupo($datos->esAcelerado)) {
+            throw new ReglaDeNegocioIncumplida($datos->esAcelerado
+                ? "El programa {$programa->nombre} no admite grupos acelerados."
+                : "El programa {$programa->nombre} solo admite grupos acelerados.");
+        }
     }
 
     private function asegurarAula(Grupo $grupo, DatosDeGrupo $datos): void

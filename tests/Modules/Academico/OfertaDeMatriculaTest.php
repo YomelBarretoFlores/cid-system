@@ -92,6 +92,7 @@ it('describes each offered group with its schedule, classroom and live vacancies
         vacantesDisponibles: 2,
         sesiones: [new SesionDeClase(1, '08:00:00', '10:00:00'), new SesionDeClase(3, '18:00:00', '20:00:00')],
         aulaCodigo: 'A-101',
+        programa: 'Jóvenes y Adultos',
     )]);
 });
 
@@ -112,7 +113,7 @@ it('loads the offer with a fixed number of queries', function (): void {
     DB::enableQueryLog();
     app(OfertaDeMatricula::class)([]);
 
-    expect(DB::getQueryLog())->toHaveCount(6);
+    expect(DB::getQueryLog())->toHaveCount(7);
 });
 
 it('describes groups by id, including virtual ones, whatever their state', function (): void {

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Academico\Filament\Resources\Idiomas\IdiomaResource;
@@ -106,6 +107,46 @@ it('edits a language keeping its code and deactivates it instead of deleting it'
         ->codigo->toBe('ING')
         ->nombre->toBe('Inglés británico')
         ->activo->toBeFalse();
+});
+
+it('gives a new language the curriculum code 01 and lets the coordinator change it', function (): void {
+    $this->actingAs($this->coordinador);
+
+    Livewire::test(CreateIdioma::class)
+        ->fillForm(['codigo' => 'ALE', 'nombre' => 'Alemán'])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Idioma::query()->where('codigo', 'ALE')->sole()->curriculo)->toBe('01');
+
+    Livewire::test(EditIdioma::class, ['record' => $this->ingles->getRouteKey()])
+        ->assertSchemaStateSet(['curriculo' => '01'])
+        ->fillForm(['curriculo' => ' 02 '])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($this->ingles->refresh()->curriculo)->toBe('02');
+
+    Livewire::test(ListIdiomas::class)->assertTableColumnStateSet('curriculo', '02', $this->ingles);
+});
+
+it('requires a curriculum code of at most ten characters', function (?string $curriculo): void {
+    $this->actingAs($this->coordinador);
+
+    Livewire::test(EditIdioma::class, ['record' => $this->ingles->getRouteKey()])
+        ->fillForm(['curriculo' => $curriculo])
+        ->call('save')
+        ->assertHasFormErrors(['curriculo']);
+
+    expect($this->ingles->refresh()->curriculo)->toBe('01');
+})->with(['empty' => null, 'too long' => '12345678901']);
+
+it('lists the curriculum code in the language catalog other modules read', function (): void {
+    $this->ingles->update(['curriculo' => '03']);
+
+    $catalogo = collect(app(CatalogoDeIdiomas::class)())->keyBy('nombre');
+
+    expect($catalogo['Inglés']->curriculo)->toBe('03');
 });
 
 it('refuses to rename a language to another one on edit, also when it happens at the same time', function (): void {

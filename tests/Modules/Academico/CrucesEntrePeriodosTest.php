@@ -52,7 +52,7 @@ it('keeps the classroom free for a period whose dates do not overlap', function 
 it('refuses moving a group to a classroom a group of an overlapping period uses at the same time', function (): void {
     $grupo = Grupo::factory()->create(['periodo_id' => $this->bimestre->id, 'aula_id' => Aula::factory()->create(['capacidad' => 30])->id, 'codigo' => 'ING-02']);
     Horario::factory()->for($grupo)->create(['dia_semana' => 5, 'hora_inicio' => '17:00', 'hora_fin' => '19:00']);
-    $datos = new DatosDeGrupo($this->bimestre->id, $grupo->ciclo_id, 'ING-02', Modalidad::Presencial, false, 25, 10, $this->aula->id);
+    $datos = new DatosDeGrupo($this->bimestre->id, $grupo->ciclo_id, 'ING-02', Modalidad::Presencial, false, 25, 10, $grupo->programa_id, $this->aula->id);
 
     expect(fn (): Grupo => app(GuardarGrupo::class)($datos, $grupo->id))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El aula A-101 ya está ocupada por el grupo FRA-01 el Viernes de 16:00 a 18:00.')

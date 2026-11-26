@@ -9,6 +9,7 @@ use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Academico\Models\Programa;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,6 +25,7 @@ final class GrupoFactory extends Factory
         return [
             'periodo_id' => Periodo::factory(),
             'ciclo_id' => Ciclo::factory(),
+            'programa_id' => fn (): int => Programa::query()->firstOrCreate(['codigo' => 'JA'], ['nombre' => 'Jóvenes y Adultos', 'regimen' => 'ambos'])->id,
             'aula_id' => null,
             'codigo' => fake()->unique()->bothify('G-####'),
             'modalidad' => Modalidad::Presencial,

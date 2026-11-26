@@ -10,11 +10,13 @@ use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
+use App\Modules\Academico\Enums\RegimenDePrograma;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Academico\Models\Programa;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 
@@ -72,6 +74,13 @@ final class AcademicoDemoSeeder extends Seeder
         ['ING-3-A', 'ING', 3, 'A-103', [1, 3, 5], '09:00', '10:30'],
         ['ING-4-A', 'ING', 4, 'A-103', [1, 3, 5], '09:00', '10:30'],
     ];
+
+    /**
+     * Groups outside Jóvenes y Adultos; Posgrado only admits accelerated groups.
+     *
+     * @var array<string, string>
+     */
+    private const array PROGRAMAS = ['ING-2-M' => 'NINOS', 'POR-2-T' => 'POSGRADO'];
 
     public function run(): void
     {
@@ -164,7 +173,9 @@ final class AcademicoDemoSeeder extends Seeder
     private function grupos(Periodo $periodo, array $grupos, array $idiomas, array $aulas, EstadoGrupo $estado = EstadoGrupo::Abierto): void
     {
         foreach ($grupos as [$codigo, $idioma, $ciclo, $aula, $dias, $inicio, $fin]) {
+            $programa = Programa::query()->where('codigo', self::PROGRAMAS[$codigo] ?? 'JA')->firstOrFail();
             $grupo = Grupo::query()->create([
+                'programa_id' => $programa->id, 'es_acelerado' => $programa->regimen === RegimenDePrograma::Acelerado,
                 'periodo_id' => $periodo->id, 'ciclo_id' => Ciclo::query()->where(['idioma_id' => $idiomas[$idioma]->id, 'numero' => $ciclo])->value('id'),
                 'aula_id' => $aulas[$aula], 'codigo' => $codigo, 'modalidad' => Modalidad::Presencial,
                 'cupo_maximo' => 25, 'cupo_minimo' => 5, 'estado' => $estado,

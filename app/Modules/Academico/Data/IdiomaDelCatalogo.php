@@ -16,5 +16,6 @@ final readonly class IdiomaDelCatalogo
         public bool $activo,
         public array $ciclos,
         public array $horasPorCiclo = [],
+        public string $curriculo = '01',
     ) {}
 }

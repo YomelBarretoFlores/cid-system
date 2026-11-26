@@ -36,7 +36,7 @@ La Tabla 1 resume los perfiles habituales del CILN y los permisos que cada uno n
 | Coordinación académica | Prepara periodos, idiomas, ciclos, aulas y grupos; registra a los docentes y gestiona sus cargas, las matrículas y las clasificaciones. | Ver personas · Gestionar personas · Ver la oferta académica · Gestionar la oferta académica · Ver docentes y carga académica · Gestionar docentes y carga académica · Gestionar costos por hora · Ver reportes de docencia · Ver matrículas · Gestionar matrículas, traslados y retiros · Ver solicitudes de examen de clasificación · Registrar resultados de clasificación |
 | Certificación | Revisa actas finales, autoriza rectificaciones y emite constancias y certificados. | Gestionar actas · Emitir y anular constancias y certificados |
 | Trámites | Atiende las solicitudes de trámite de los estudiantes. | Atender trámites |
-| Dirección (tablero) | Consulta indicadores y reportes gerenciales. | Ver el tablero gerencial (opcional, según los reportes que consulte: Ver reportes de pagos, Ver reportes de docencia, Ver matrículas; ver la Tabla 8) |
+| Dirección (tablero) | Consulta indicadores y reportes gerenciales. | Ver el tablero gerencial (opcional, según los reportes que consulte: Ver reportes de pagos, Ver reportes de docencia, Ver matrículas; ver la Tabla 9) |
 
 El permiso «Ingresar al panel» se concede automáticamente a toda cuenta del personal, por lo que no figura en los formularios.
 
@@ -85,7 +85,7 @@ Si pierde el teléfono, use un código de recuperación o pida al administrador 
 
 ## 2.3. Menú por grupos
 
-El menú lateral muestra primero el **Tablero gerencial** y organiza las demás opciones en grupos: **Matrícula** (Personas, Solicitudes de clasificación, Matrículas, Ciclos habilitados), **Oferta académica** (Periodos, Idiomas y ciclos, Grupos, Aulas), **Pagos** (Pagos, Reporte de recaudación), **Docencia** (Docentes, Control de clases, Expediente de horas, Carga docente, Costos por hora), **Certificación** (Actas pendientes, Actas finales, Constancias y certificados), **Trámites**, **Reportes** (Matriculados, Asistencia por grupo, Notas por periodo), **Catálogos** y **Seguridad** (Usuarios del personal, Roles, Auditoría). Cada grupo puede contraerse con la flecha de su encabezado, y el menú completo se contrae con **Contraer el menú**. Las cifras resaltadas junto a una opción indican tareas pendientes, por ejemplo pagos por validar o solicitudes de clasificación por evaluar.
+El menú lateral muestra primero el **Tablero gerencial** y organiza las demás opciones en grupos: **Matrícula** (Personas, Solicitudes de clasificación, Matrículas, Ciclos habilitados), **Oferta académica** (Periodos, Idiomas y ciclos, Grupos, Aulas, Programas), **Pagos** (Pagos, Reporte de recaudación), **Docencia** (Docentes, Control de clases, Expediente de horas, Carga docente, Costos por hora), **Certificación** (Actas pendientes, Actas finales, Constancias y certificados), **Trámites**, **Reportes** (Matriculados, Asistencia por grupo, Notas por periodo), **Catálogos** y **Seguridad** (Usuarios del personal, Roles, Auditoría). Cada grupo puede contraerse con la flecha de su encabezado, y el menú completo se contrae con **Contraer el menú**. Las cifras resaltadas junto a una opción indican tareas pendientes, por ejemplo pagos por validar o solicitudes de clasificación por evaluar.
 
 ![Figura 2. Menú del panel y tablero de inicio](figuras/p02-menu-del-panel.png)
 
@@ -203,7 +203,7 @@ Resultado esperado: los documentos emitidos usan automáticamente los firmantes 
 Finalidad: registrar los idiomas que ofrece el CILN y sus ciclos.
 
 1. Ingrese a **Oferta académica > Idiomas y ciclos** y pulse **Nuevo idioma**, o **Editar** sobre uno existente.
-2. Complete **Código** (no cambia después de crearlo), **Nombre** y, si corresponde, **Bandera** y **Lengua originaria**. Deje marcado **Disponible para matrícula**.
+2. Complete **Código** (no cambia después de crearlo), **Nombre**, **Currículo** (código del plan de estudios vigente, por defecto «01», que se imprime en la constancia de notas) y, si corresponde, **Bandera** y **Lengua originaria**. Deje marcado **Disponible para matrícula**.
 3. Guarde y, en la sección **Plan de estudios**, pulse **Nuevo ciclo** para registrar cada **Ciclo** con su **Nombre**, **Nivel** (Básico, Intermedio o Avanzado) y **Horas lectivas**.
 
 Resultado esperado: el idioma y sus ciclos quedan disponibles para crear grupos. Si se desactiva un idioma, sus grupos dejan de ofrecerse en la matrícula y no se pueden crear grupos nuevos.
@@ -250,7 +250,7 @@ Finalidad: crear los grupos de cada ciclo y registrar sus horarios.
 
 1. Ingrese a **Oferta académica > Grupos** y pulse **Nuevo grupo**.
 2. Elija el **Periodo** y el **Idioma y ciclo** (no cambian después de crear el grupo).
-3. Complete **Código de grupo**, **Modalidad** (Presencial, Virtual o Semipresencial), **Acelerado** si corresponde, **Aula** (o **Enlace de la clase virtual**), **Cupo máximo** y **Cupo mínimo de apertura**.
+3. Elija el **Programa** (Jóvenes y Adultos por defecto) y complete **Código de grupo**, **Modalidad** (Presencial, Virtual o Semipresencial), **Acelerado** si corresponde, **Aula** (o **Enlace de la clase virtual**), **Cupo máximo** y **Cupo mínimo de apertura**.
 4. Guarde y, en la sección **Horarios** del grupo, pulse **Agregar horario** para cada día, con su **Día**, **Desde** y **Hasta**.
 5. Para conducir el grupo, use el menú **Estado** de su tarjeta en el listado (o de la cabecera de la página de edición) con las opciones **Abrir**, **Cerrar**, **Reabrir**, **Finalizar** o **Cancelar grupo**, que piden confirmación. Para abrir un grupo, este debe tener horario y docente asignado, y su periodo debe estar **Planificado** o en **Matrícula abierta**. Si al cerrarlo no alcanza el cupo mínimo, el sistema pregunta si desea iniciarlo de todas formas. No se puede finalizar mientras la matrícula del periodo esté abierta.
 
@@ -264,11 +264,33 @@ Finalidad: crear los grupos de cada ciclo y registrar sus horarios.
 | Finalizado | Terminó el dictado; queda para el acta final. |
 | Cancelado | No se dicta. Solo se cancela un grupo sin estudiantes matriculados. |
 
-Resultado esperado: el listado muestra cada grupo con su estado, docente, matriculados y vacantes. Cada horario del grupo puede corregirse con **Editar** o quitarse con **Borrar**. Desde la vista del grupo, quien tiene el permiso «Gestionar actas» puede usar **Pre acta (PDF)** para obtener la pre acta con los estudiantes matriculados.
+El sistema rechaza un grupo que el régimen de su programa no admite; por ejemplo, Posgrado solo admite grupos acelerados.
+
+Resultado esperado: el listado muestra cada grupo con su programa, estado, docente, matriculados y vacantes. Cada horario del grupo puede corregirse con **Editar** o quitarse con **Borrar**. Desde la vista del grupo, quien tiene el permiso «Gestionar actas» puede usar **Pre acta (PDF)** para obtener la pre acta con los estudiantes matriculados.
 
 ![Figura 10. Listado de grupos](figuras/p10-grupos.png)
 
 ![Figura 11. Grupo con sus horarios](figuras/p11-grupo-horarios.png)
+
+## 4.5. Programas
+
+Finalidad: definir los programas del CILN y el régimen de ciclo que admiten sus grupos.
+
+El sistema se instala con tres programas, todos editables:
+
+*Tabla 6. Programas iniciales*
+
+| Código | Programa | Régimen de ciclo |
+|---|---|---|
+| JA | Jóvenes y Adultos | Regular y acelerado |
+| NINOS | Niños | Regular y acelerado |
+| POSGRADO | Posgrado | Solo acelerado |
+
+1. Ingrese a **Oferta académica > Programas** y pulse **Nuevo programa**, o **Editar** sobre uno existente.
+2. Complete **Código** (no cambia después de crearlo), **Nombre** y **Régimen de ciclo** (Solo regular, Solo acelerado, o Regular y acelerado). Deje marcado **Disponible para nuevos grupos**.
+3. Guarde.
+
+Resultado esperado: el programa puede elegirse al crear un grupo. Un programa desactivado no recibe grupos nuevos, pero conserva los que ya tiene.
 
 # 5. DOCENCIA
 
@@ -406,7 +428,7 @@ Solo la cuenta con el permiso «Anular pagos» (administración) ve este botón.
 
 Resultado esperado: el pago pasa a **Anulado**. Los pagos nunca se eliminan: el registro se conserva con el motivo, el usuario y la fecha de anulación.
 
-*Tabla 6. Estados del pago*
+*Tabla 7. Estados del pago*
 
 | Estado | Significado |
 |---|---|
@@ -553,7 +575,7 @@ En **Trámites > Trámites** se listan los trámites con su **Código** de segui
 4. **Levantar la observación**: el trámite continúa desde su etapa actual; si la tasa sigue sin pagar, vuelve a esperar el pago.
 5. **Cerrar sin atender**: escriba el **Motivo del cierre**; no se ejecuta la acción final y el trámite no se elimina.
 
-*Tabla 7. Estados del trámite*
+*Tabla 8. Estados del trámite*
 
 | Estado | Significado |
 |---|---|
@@ -587,7 +609,7 @@ Resultado esperado: los indicadores se recalculan con los filtros y el archivo d
 
 Los reportes del grupo **Reportes** (y **Carga docente** en **Docencia**) comparten los filtros **Periodo académico**, **Idioma**, **Nivel** y **Grupo**, y los botones **Exportar PDF** y **Excel**. Cada reporte requiere su propio permiso. El reporte **Matriculados** tiene dos pestañas: **Resumen por grupo** y **Detalle de matriculados**.
 
-*Tabla 8. Reportes del panel*
+*Tabla 9. Reportes del panel*
 
 | Reporte | Contenido | Permiso |
 |---|---|---|
@@ -641,7 +663,7 @@ Resultado esperado: todas las cuentas con el rol reciben sus permisos. Solo se p
 
 # 12. PREGUNTAS FRECUENTES
 
-*Tabla 9. Preguntas frecuentes*
+*Tabla 10. Preguntas frecuentes*
 
 | Pregunta | Respuesta |
 |---|---|

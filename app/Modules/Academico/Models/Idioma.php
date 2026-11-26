@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property BanderaDeIdioma|null $bandera
  */
-#[Fillable(['codigo', 'nombre', 'es_lengua_nativa', 'activo', 'bandera'])]
+#[Fillable(['codigo', 'nombre', 'es_lengua_nativa', 'activo', 'bandera', 'curriculo'])]
 #[UseFactory(IdiomaFactory::class)]
 #[UsePolicy(OfertaAcademicaPolicy::class)]
 final class Idioma extends Model

@@ -9,7 +9,7 @@ use App\Modules\Academico\Models\Horario;
 
 final readonly class FichaDeGrupo
 {
-    public const array RELACIONES = ['ciclo.idioma', 'periodo', 'aula', 'horarios'];
+    public const array RELACIONES = ['ciclo.idioma', 'periodo', 'programa', 'aula', 'horarios'];
 
     /**
      * @param  list<string>  $horarios
@@ -31,6 +31,7 @@ final readonly class FichaDeGrupo
         public int $vacantesDisponibles,
         public array $sesiones,
         public ?string $aulaCodigo,
+        public string $programa,
     ) {}
 
     public static function desde(Grupo $grupo): self
@@ -51,6 +52,7 @@ final readonly class FichaDeGrupo
             vacantesDisponibles: max(0, $grupo->vacantes_disponibles),
             sesiones: array_values($grupo->horarios->map(fn (Horario $horario): SesionDeClase => SesionDeClase::desde($horario))->all()),
             aulaCodigo: $grupo->aula?->codigo,
+            programa: $grupo->programa->nombre,
         );
     }
 

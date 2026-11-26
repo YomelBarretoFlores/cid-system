@@ -13,6 +13,7 @@ use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Academico\Models\Programa;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\OfertaAcademica;
@@ -27,6 +28,7 @@ function datosDeGrupo(array $cambios = []): DatosDeGrupo
         'esAcelerado' => false,
         'cupoMaximo' => 25,
         'cupoMinimo' => 10,
+        'programaId' => Programa::query()->where('codigo', 'JA')->value('id'),
         'aulaId' => test()->aula->id,
         'enlaceVirtual' => null,
         ...$cambios,

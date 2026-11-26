@@ -18,6 +18,7 @@ use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Academico\Models\Programa;
 use App\Shared\Auth\Models\User;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\DB;
@@ -54,6 +55,7 @@ function formularioDeGrupo(array $cambios = []): array
         'aula_id' => test()->aula->id,
         'cupo_maximo' => 20,
         'cupo_minimo' => 8,
+        'programa_id' => Programa::query()->where('codigo', 'JA')->value('id'),
         ...$cambios,
     ];
 }
@@ -115,6 +117,25 @@ it('creates a group through the action as scheduled', function (): void {
         ->es_acelerado->toBeTrue()
         ->estado->toBe(EstadoGrupo::Programado)
         ->matriculados->toBe(0);
+});
+
+it('creates a group in the chosen program and refuses a regular group in Posgrado', function (): void {
+    $posgrado = Programa::query()->where('codigo', 'POSGRADO')->sole();
+    $this->actingAs($this->gestor);
+
+    Livewire::test(CreateGrupo::class)
+        ->fillForm(formularioDeGrupo(['programa_id' => $posgrado->id]))
+        ->call('create')
+        ->assertNotified('El programa Posgrado solo admite grupos acelerados.');
+
+    Livewire::test(CreateGrupo::class)
+        ->fillForm(formularioDeGrupo(['programa_id' => $posgrado->id, 'es_acelerado' => true]))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Grupo::query()->where('codigo', 'ING-03-B')->sole()->programa_id)->toBe($posgrado->id);
+
+    Livewire::test(ListGrupos::class)->assertTableColumnStateSet('programa.nombre', 'Posgrado', Grupo::query()->where('codigo', 'ING-03-B')->sole());
 });
 
 it('shows a broken group rule as a notification and keeps the form', function (): void {

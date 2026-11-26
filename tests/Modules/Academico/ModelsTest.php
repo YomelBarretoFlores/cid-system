@@ -13,6 +13,7 @@ use App\Modules\Academico\Models\EsquemaEvaluacion;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Periodo;
+use App\Modules\Academico\Models\Programa;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -53,6 +54,7 @@ it('starts new periods as planned and new groups as scheduled with no students',
     $grupo = Grupo::query()->create([
         'periodo_id' => $periodo->id,
         'ciclo_id' => Ciclo::factory()->create()->id,
+        'programa_id' => Programa::query()->where('codigo', 'JA')->value('id'),
         'codigo' => 'ING-B1-01',
         'modalidad' => Modalidad::Virtual,
         'cupo_maximo' => 20,

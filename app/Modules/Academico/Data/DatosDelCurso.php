@@ -11,7 +11,7 @@ use Carbon\CarbonImmutable;
 
 final readonly class DatosDelCurso
 {
-    public const array RELACIONES = ['ciclo.idioma', 'periodo'];
+    public const array RELACIONES = ['ciclo.idioma', 'periodo', 'programa'];
 
     public function __construct(
         public int $grupoId,
@@ -27,6 +27,7 @@ final readonly class DatosDelCurso
         public CarbonImmutable $fechaInicio,
         public ?CarbonImmutable $actasInicio,
         public ?CarbonImmutable $actasFin,
+        public string $programa,
     ) {}
 
     public static function desde(Grupo $grupo): self
@@ -47,6 +48,7 @@ final readonly class DatosDelCurso
             fechaInicio: CarbonImmutable::parse($periodo->fecha_inicio->toDateString(), 'America/Lima'),
             actasInicio: $periodo->actas_inicio === null ? null : CarbonImmutable::parse($periodo->actas_inicio->toDateString(), 'America/Lima'),
             actasFin: $periodo->actas_fin === null ? null : CarbonImmutable::parse($periodo->actas_fin->toDateString(), 'America/Lima'),
+            programa: $grupo->programa->nombre,
         );
     }
 

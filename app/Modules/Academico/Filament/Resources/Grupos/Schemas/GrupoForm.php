@@ -9,6 +9,7 @@ use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
+use App\Modules\Academico\Models\Programa;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -42,6 +43,15 @@ final class GrupoForm
                     ->required()
                     ->disabledOn('edit')
                     ->helperText('El periodo y el ciclo no cambian después de crear el grupo.'),
+                Select::make('programa_id')
+                    ->label('Programa')
+                    ->relationship('programa', 'nombre', fn (Builder $query, ?Grupo $record): Builder => $query
+                        ->where(fn (Builder $disponibles): Builder => $disponibles->where('activo', true)->when($record?->programa_id, fn (Builder $q, int $actual): Builder => $q->orWhereKey($actual)))
+                        ->orderBy('nombre'))
+                    ->default(fn (): ?int => Programa::query()->where('codigo', 'JA')->value('id'))
+                    ->preload()
+                    ->required()
+                    ->helperText('El régimen del programa decide si el grupo puede ser regular o acelerado.'),
                 TextInput::make('codigo')->label('Código de grupo')->required()->maxLength(20),
                 Select::make('modalidad')
                     ->label('Modalidad')
@@ -82,6 +92,7 @@ final class GrupoForm
             esAcelerado: (bool) ($data['es_acelerado'] ?? false),
             cupoMaximo: self::entero($data['cupo_maximo'] ?? null),
             cupoMinimo: self::entero($data['cupo_minimo'] ?? null),
+            programaId: self::entero($data['programa_id'] ?? null),
             aulaId: filled($data['aula_id'] ?? null) ? self::entero($data['aula_id']) : null,
             enlaceVirtual: filled($data['enlace_virtual'] ?? null) ? trim(self::texto($data['enlace_virtual'])) : null,
         );

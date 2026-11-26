@@ -16,6 +16,7 @@ final readonly class DatosDeGrupo
         public bool $esAcelerado,
         public int $cupoMaximo,
         public int $cupoMinimo,
+        public int $programaId,
         public ?int $aulaId = null,
         public ?string $enlaceVirtual = null,
     ) {}

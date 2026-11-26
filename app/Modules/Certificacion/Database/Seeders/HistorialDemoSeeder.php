@@ -86,7 +86,7 @@ final class HistorialDemoSeeder extends Seeder
     {
         $grupo = Grupo::query()->create([
             'periodo_id' => $periodo->id, 'ciclo_id' => Ciclo::query()->where(['idioma_id' => $molde->ciclo->idioma_id, 'numero' => $numero])->value('id'),
-            'aula_id' => $molde->aula_id, 'codigo' => $this->codigo($molde, $numero), 'modalidad' => $molde->modalidad,
+            'programa_id' => $molde->programa_id, 'aula_id' => $molde->aula_id, 'codigo' => $this->codigo($molde, $numero), 'modalidad' => $molde->modalidad,
             'cupo_maximo' => 25, 'cupo_minimo' => 5, 'estado' => EstadoGrupo::Cerrado,
         ]);
         $grupo->horarios()->createMany($molde->horarios->map(fn (Horario $horario): array => $horario->only(['dia_semana', 'hora_inicio', 'hora_fin']))->all());

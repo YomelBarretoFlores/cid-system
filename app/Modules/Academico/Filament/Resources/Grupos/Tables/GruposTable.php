@@ -32,7 +32,7 @@ final class GruposTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['periodo', 'ciclo.idioma', 'aula']))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['periodo', 'ciclo.idioma', 'programa', 'aula']))
             ->contentGrid(['md' => 2, 'xl' => 3])
             ->columns([
                 Stack::make([
@@ -48,6 +48,7 @@ final class GruposTable
                     TextColumn::make('ciclo.idioma.nombre')
                         ->label('Idioma y ciclo')
                         ->formatStateUsing(fn (Grupo $record): HtmlString => IdiomaConBandera::html($record->ciclo->idioma->nombre, GrupoForm::etiquetaDeCiclo($record->ciclo))),
+                    TextColumn::make('programa.nombre')->label('Programa')->prefix('Programa ')->color('gray'),
                     TextColumn::make('periodo.nombre')->label('Periodo')->icon(Heroicon::OutlinedCalendar)->color('gray'),
                     Split::make([
                         TextColumn::make('modalidad')->label('Modalidad')->formatStateUsing(fn (Modalidad $state): string => $state->etiqueta())->color('gray'),

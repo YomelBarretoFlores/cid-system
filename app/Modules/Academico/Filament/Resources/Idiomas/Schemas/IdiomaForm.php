@@ -43,6 +43,13 @@ final class IdiomaForm
                     ->maxLength(80)
                     ->unique(ignoreRecord: true)
                     ->validationMessages(['unique' => self::NOMBRE_REPETIDO]),
+                TextInput::make('curriculo')
+                    ->label('Currículo')
+                    ->required()
+                    ->maxLength(10)
+                    ->default('01')
+                    ->dehydrateStateUsing(fn (?string $state): string => trim((string) $state))
+                    ->helperText('Código del plan de estudios vigente; se imprime en la constancia de notas.'),
                 Select::make('bandera')
                     ->label('Bandera')
                     ->options(BanderaDeIdioma::opciones())

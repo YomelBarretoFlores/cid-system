@@ -12,6 +12,7 @@ final class NombresDeTablas
         'aca_ciclos' => 'Ciclos',
         'aca_periodos' => 'Periodos',
         'aca_aulas' => 'Aulas',
+        'aca_programas' => 'Programas',
         'aca_grupos' => 'Grupos',
         'aca_horarios' => 'Horarios',
         'aca_esquemas_evaluacion' => 'Sistemas de evaluación',
