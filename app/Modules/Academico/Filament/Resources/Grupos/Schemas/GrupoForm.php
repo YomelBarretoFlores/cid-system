@@ -41,6 +41,7 @@ final class GrupoForm
                     ->getOptionLabelFromRecordUsing(fn (Ciclo $record): string => self::etiquetaDeCiclo($record))
                     ->preload()
                     ->required()
+                    ->live()
                     ->disabledOn('edit')
                     ->helperText('El periodo y el ciclo no cambian después de crear el grupo.'),
                 Select::make('programa_id')
@@ -58,7 +59,11 @@ final class GrupoForm
                     ->options(collect(Modalidad::cases())->mapWithKeys(fn (Modalidad $modalidad): array => [$modalidad->value => $modalidad->etiqueta()])->all())
                     ->required()
                     ->live(),
-                Toggle::make('es_acelerado')->label('Acelerado')->default(false),
+                Toggle::make('es_acelerado')
+                    ->label('Acelerado')
+                    ->default(false)
+                    ->live()
+                    ->helperText(fn (Get $get, ?Grupo $record): ?string => self::segundoCiclo($get, $record)),
                 Select::make('aula_id')
                     ->label('Aula')
                     ->relationship('aula', 'codigo', fn (Builder $query, ?Grupo $record): Builder => $query
@@ -101,6 +106,32 @@ final class GrupoForm
     public static function etiquetaDeCiclo(Ciclo $ciclo): string
     {
         return "{$ciclo->idioma->nombre} · Ciclo {$ciclo->numero} ({$ciclo->nivel->etiqueta()})";
+    }
+
+    public static function etiquetaDeGrupo(Grupo $grupo): string
+    {
+        $ciclo = $grupo->ciclo;
+
+        return $grupo->cicloHasta === null
+            ? self::etiquetaDeCiclo($ciclo)
+            : "{$ciclo->idioma->nombre} · Ciclos {$ciclo->numero} y {$grupo->cicloHasta->numero} ({$ciclo->nivel->etiqueta()})";
+    }
+
+    private static function segundoCiclo(Get $get, ?Grupo $record): ?string
+    {
+        if (! (bool) $get('es_acelerado')) {
+            return null;
+        }
+
+        $ciclo = $record->ciclo ?? Ciclo::query()->find(self::entero($get('ciclo_id')));
+
+        if ($ciclo === null) {
+            return 'Cubre también el ciclo siguiente del mismo nivel.';
+        }
+
+        $siguiente = $record->cicloHasta->nombre ?? Ciclo::query()->siguienteDelNivel($ciclo)->value('nombre');
+
+        return $siguiente === null ? "{$ciclo->nombre} no tiene ciclo siguiente en su nivel." : "Cubre también: {$siguiente}";
     }
 
     private static function modalidad(Get $get): ?Modalidad

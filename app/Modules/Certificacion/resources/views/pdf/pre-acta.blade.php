@@ -7,7 +7,7 @@
     <h2>Datos del curso</h2>
     <table class="datos">
         <tr><th>Idioma</th><td>{{ $acta->idioma }}</td><th>Periodo académico</th><td>{{ $acta->periodo }}</td></tr>
-        <tr><th>Nivel</th><td>{{ $acta->nivel->etiqueta() }}</td><th>Ciclo</th><td>{{ $acta->cicloNombre }} ({{ $acta->cicloNumero }})</td></tr>
+        <tr><th>Nivel</th><td>{{ $acta->nivel->etiqueta() }}</td><th>Ciclo</th><td>{{ $acta->ciclos() }} ({{ $acta->cicloNumero }}{{ $acta->cicloNumeroHasta === null ? '' : " y {$acta->cicloNumeroHasta}" }})</td></tr>
         <tr><th>Grupo</th><td>{{ $acta->grupoCodigo }}</td><th>Sistema de evaluación</th><td>{{ $acta->esquema }}</td></tr>
         <tr><th>Docente</th><td>{{ $acta->docente }}</td><th>Generada el</th><td>{{ $generadaEl }}</td></tr>
     </table>

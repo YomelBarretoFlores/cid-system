@@ -31,6 +31,7 @@ beforeEach(function (): void {
     $this->periodo = Periodo::factory()->create(['nombre' => 'Marzo 2027']);
     $this->idioma = Idioma::factory()->create(['nombre' => 'Inglés']);
     $this->ciclo = Ciclo::factory()->for($this->idioma)->create(['numero' => 3, 'nivel' => NivelCurricular::Basico]);
+    $this->cicloSiguiente = Ciclo::factory()->for($this->idioma)->create(['numero' => 4, 'nivel' => NivelCurricular::Basico, 'nombre' => 'Básico IV']);
     $this->aula = Aula::factory()->create(['codigo' => 'A-101', 'capacidad' => 30]);
     $this->grupo = Grupo::factory()->create([
         'periodo_id' => $this->periodo->id, 'ciclo_id' => $this->ciclo->id, 'aula_id' => $this->aula->id,
@@ -115,8 +116,22 @@ it('creates a group through the action as scheduled', function (): void {
     expect(Grupo::query()->where('codigo', 'ING-03-B')->sole())
         ->aula_id->toBe($this->aula->id)
         ->es_acelerado->toBeTrue()
+        ->ciclo_hasta_id->toBe($this->cicloSiguiente->id)
         ->estado->toBe(EstadoGrupo::Programado)
         ->matriculados->toBe(0);
+});
+
+it('shows the second cycle of an accelerated group in the form and in the list', function (): void {
+    $this->actingAs($this->gestor);
+
+    Livewire::test(CreateGrupo::class)
+        ->fillForm(formularioDeGrupo(['es_acelerado' => true]))
+        ->assertSeeText('Cubre también: Básico IV')
+        ->call('create');
+
+    Livewire::test(ListGrupos::class)
+        ->assertSeeText('Inglés · Ciclos 3 y 4 (Básico)')
+        ->assertSeeText('Inglés · Ciclo 3 (Básico)');
 });
 
 it('creates a group in the chosen program and refuses a regular group in Posgrado', function (): void {

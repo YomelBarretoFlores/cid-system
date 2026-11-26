@@ -45,7 +45,8 @@ final readonly class HabilitarCiclosSiguientes
      */
     private function habilitar(int $personaId, GrupoData $grupo, array $orden): bool
     {
-        $siguiente = (int) array_search($grupo->cicloId, $orden, true) + 1;
+        // An accelerated group passes its cycle and the next one, so the student moves on to the cycle after its second.
+        $siguiente = (int) array_search($grupo->cicloHastaId ?? $grupo->cicloId, $orden, true) + 1;
 
         if (! isset($orden[$siguiente])) {
             return false;

@@ -79,7 +79,7 @@ final class ActasFinales
     /**
      * Closed actas of past cycles for one student, without going through the teacher flow; the language gets the 4/4/4 plan unless it has its cycles already.
      *
-     * @param  list<array{0: int, 1: ?string, 2: string}>  $ciclos  cycle number, average (null for NSP) and final state
+     * @param  list<array{0: int, 1: ?string, 2: string, 3?: int}>  $ciclos  cycle number, average (null for NSP), final state and, for an accelerated group, its second cycle number
      */
     public static function historial(Persona $persona, string $idioma, array $ciclos, string $estadoActa = 'cerrada', ?int $periodoId = null): void
     {
@@ -94,14 +94,20 @@ final class ActasFinales
         $usuario = User::factory()->create();
         $idiomaId = self::planDeEstudios($idioma)->id;
 
-        foreach ($ciclos as [$numero, $promedio, $estado]) {
+        foreach ($ciclos as $fila) {
+            [$numero, $promedio, $estado] = $fila;
+            $hasta = $fila[3] ?? null;
             $ciclo = Ciclo::query()->where(['idioma_id' => $idiomaId, 'numero' => $numero])->sole();
             $nivel = $ciclo->nivel;
-            $grupo = Grupo::factory()->create(['ciclo_id' => $ciclo->id, ...($periodoId === null ? [] : ['periodo_id' => $periodoId])]);
+            $grupo = Grupo::factory()->create([
+                'ciclo_id' => $ciclo->id, ...($periodoId === null ? [] : ['periodo_id' => $periodoId]),
+                ...($hasta === null ? [] : ['es_acelerado' => true, 'ciclo_hasta_id' => Ciclo::query()->where(['idioma_id' => $idiomaId, 'numero' => $hasta])->value('id')]),
+            ]);
             $actaId = DB::table('cer_actas')->insertGetId([
                 'grupo_id' => $grupo->id, 'periodo_id' => $grupo->periodo_id, 'estado' => 'abierta', 'grupo_codigo' => "G-{$numero}",
                 'idioma' => $idioma, 'nivel' => $nivel->value, 'ciclo_numero' => $numero, 'ciclo_nombre' => "{$nivel->etiqueta()} {$numero}",
-                'horas_lectivas' => 60, 'periodo' => "Periodo {$numero}", 'docente_id' => $docente->id, 'docente_nombre' => 'Docente',
+                'horas_lectivas' => $hasta === null ? 60 : 120, 'periodo' => "Periodo {$numero}", 'docente_id' => $docente->id, 'docente_nombre' => 'Docente',
+                ...($hasta === null ? [] : ['ciclo_numero_hasta' => $hasta, 'ciclo_nombre_hasta' => "{$nivel->etiqueta()} {$hasta}", 'horas_lectivas_hasta' => 60]),
                 'esquema_id' => $esquema->id, 'esquema_nombre' => 'Esquema', 'nota_maxima' => '20.00', 'nota_minima_aprobatoria' => '11.00',
                 'componentes' => '[]', 'created_at' => now(), 'updated_at' => now(),
             ]);

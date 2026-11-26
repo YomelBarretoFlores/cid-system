@@ -27,10 +27,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property ?CarbonImmutable $validada_en
  * @property ?list<array{nombre: string, cargo: string}> $firmas
  * @property ?string $denominacion
+ * @property ?int $ciclo_numero_hasta
+ * @property ?string $ciclo_nombre_hasta
+ * @property ?int $horas_lectivas_hasta
  */
 #[Table('cer_actas')]
 #[Fillable([
     'grupo_id', 'periodo_id', 'estado', 'grupo_codigo', 'idioma', 'nivel', 'ciclo_numero', 'ciclo_nombre', 'horas_lectivas', 'periodo',
+    'ciclo_numero_hasta', 'ciclo_nombre_hasta', 'horas_lectivas_hasta',
     'docente_id', 'docente_nombre', 'esquema_id', 'esquema_nombre', 'nota_maxima', 'nota_minima_aprobatoria', 'componentes',
     'validada_por', 'validada_en', 'firmas', 'denominacion',
 ])]
@@ -85,6 +89,8 @@ final class Acta extends Model
             'nivel' => NivelCurricular::class,
             'ciclo_numero' => 'integer',
             'horas_lectivas' => 'integer',
+            'ciclo_numero_hasta' => 'integer',
+            'horas_lectivas_hasta' => 'integer',
             'nota_maxima' => 'decimal:2',
             'nota_minima_aprobatoria' => 'decimal:2',
             'componentes' => 'array',

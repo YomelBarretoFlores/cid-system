@@ -174,9 +174,12 @@ final class AcademicoDemoSeeder extends Seeder
     {
         foreach ($grupos as [$codigo, $idioma, $ciclo, $aula, $dias, $inicio, $fin]) {
             $programa = Programa::query()->where('codigo', self::PROGRAMAS[$codigo] ?? 'JA')->firstOrFail();
+            $esAcelerado = $programa->regimen === RegimenDePrograma::Acelerado;
             $grupo = Grupo::query()->create([
-                'programa_id' => $programa->id, 'es_acelerado' => $programa->regimen === RegimenDePrograma::Acelerado,
+                'programa_id' => $programa->id, 'es_acelerado' => $esAcelerado,
                 'periodo_id' => $periodo->id, 'ciclo_id' => Ciclo::query()->where(['idioma_id' => $idiomas[$idioma]->id, 'numero' => $ciclo])->value('id'),
+                // An accelerated group also covers the next cycle of its level.
+                'ciclo_hasta_id' => $esAcelerado ? Ciclo::query()->where(['idioma_id' => $idiomas[$idioma]->id, 'numero' => $ciclo + 1])->value('id') : null,
                 'aula_id' => $aulas[$aula], 'codigo' => $codigo, 'modalidad' => Modalidad::Presencial,
                 'cupo_maximo' => 25, 'cupo_minimo' => 5, 'estado' => $estado,
             ]);

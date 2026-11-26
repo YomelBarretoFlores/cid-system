@@ -295,7 +295,7 @@
                                         @php([$textoVacantes, $colorVacantes] = $vacantes($grupo))
                                         <tr x-show="idioma === @js($grupo->idioma) && (modalidad === 'Todas' || modalidad === @js($grupo->modalidad))" @if ($grupo->idioma !== $primerIdioma) x-cloak @endif
                                             x-transition:enter="transition-opacity duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                                            <td class="font-semibold whitespace-nowrap">Ciclo {{ Formato::romano($grupo->cicloNumero) }}</td>
+                                            <td class="font-semibold whitespace-nowrap">{{ $grupo->cicloNumeroHasta === null ? 'Ciclo '.Formato::romano($grupo->cicloNumero) : 'Ciclos '.Formato::romano($grupo->cicloNumero).' y '.Formato::romano($grupo->cicloNumeroHasta) }}</td>
                                             <td>{{ $grupo->nivel }}{{ $grupo->esAcelerado ? ' (acelerado)' : '' }}</td>
                                             @if ($grupo->bloques === [])
                                                 <td colspan="2" class="text-marino-800/75">Horario por publicar</td>

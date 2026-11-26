@@ -42,7 +42,7 @@
                                 <tr wire:key="matricula-{{ $matricula->id }}">
                                     <td>
                                         <span class="block font-semibold">{{ $grupo->idioma }}</span>
-                                        <span class="block whitespace-nowrap text-[13px] text-terciario">Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }}</span>
+                                        <span class="block whitespace-nowrap text-[13px] text-terciario">{{ $grupo->cicloNumeroHasta === null ? "Ciclo {$grupo->cicloNumero}" : "Ciclos {$grupo->cicloNumero} y {$grupo->cicloNumeroHasta}" }} · {{ $grupo->nivel }}{{ $grupo->esAcelerado ? ' · Acelerado' : '' }}</span>
                                     </td>
                                     <td class="whitespace-nowrap">{{ $grupo->codigo }}</td>
                                     <td class="whitespace-nowrap">

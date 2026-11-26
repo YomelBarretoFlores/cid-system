@@ -30,12 +30,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Modalidad $modalidad
  * @property-read Periodo $periodo
  * @property-read Ciclo $ciclo
+ * @property-read ?Ciclo $cicloHasta
  * @property-read Programa $programa
  */
 #[Table('aca_grupos')]
 #[RouteKey('ulid')]
 #[Fillable([
-    'periodo_id', 'ciclo_id', 'programa_id', 'aula_id', 'codigo', 'modalidad', 'es_acelerado',
+    'periodo_id', 'ciclo_id', 'ciclo_hasta_id', 'programa_id', 'aula_id', 'codigo', 'modalidad', 'es_acelerado',
     'enlace_virtual', 'cupo_maximo', 'cupo_minimo', 'estado',
 ])]
 #[UseFactory(GrupoFactory::class)]
@@ -74,6 +75,14 @@ final class Grupo extends Model
     public function ciclo(): BelongsTo
     {
         return $this->belongsTo(Ciclo::class);
+    }
+
+    /**
+     * @return BelongsTo<Ciclo, $this>
+     */
+    public function cicloHasta(): BelongsTo
+    {
+        return $this->belongsTo(Ciclo::class, 'ciclo_hasta_id');
     }
 
     /**

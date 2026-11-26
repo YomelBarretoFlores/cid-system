@@ -9,9 +9,11 @@ use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Policies\OfertaAcademicaPolicy;
 use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -35,6 +37,17 @@ final class Ciclo extends Model
     public function idioma(): BelongsTo
     {
         return $this->belongsTo(Idioma::class);
+    }
+
+    /**
+     * The active cycle right after the given one in the same language and level: the second cycle of an accelerated group.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function siguienteDelNivel(Builder $query, self $ciclo): void
+    {
+        $query->where(['idioma_id' => $ciclo->idioma_id, 'nivel' => $ciclo->nivel, 'numero' => $ciclo->numero + 1, 'activo' => true]);
     }
 
     protected function casts(): array

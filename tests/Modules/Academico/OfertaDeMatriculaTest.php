@@ -68,9 +68,10 @@ it('hides groups that are not open for enrollment and languages that are inactiv
 
 it('describes each offered group with its schedule, classroom and live vacancies', function (): void {
     $this->inglesI->update(['nivel' => NivelCurricular::Basico]);
+    $this->inglesII->update(['nivel' => NivelCurricular::Basico]);
     $aula = Aula::factory()->create(['codigo' => 'A-101', 'nombre' => 'Laboratorio 1']);
     $grupo = Grupo::factory()->for($this->periodo)->for($this->inglesI)->create([
-        'codigo' => 'ING-I-A', 'aula_id' => $aula->id, 'cupo_maximo' => 20, 'es_acelerado' => true,
+        'codigo' => 'ING-I-A', 'aula_id' => $aula->id, 'cupo_maximo' => 20, 'es_acelerado' => true, 'ciclo_hasta_id' => $this->inglesII->id,
     ]);
     $grupo->forceFill(['matriculados' => 18])->save();
     Horario::factory()->for($grupo)->create(['dia_semana' => 3, 'hora_inicio' => '18:00', 'hora_fin' => '20:00']);
@@ -93,6 +94,7 @@ it('describes each offered group with its schedule, classroom and live vacancies
         sesiones: [new SesionDeClase(1, '08:00:00', '10:00:00'), new SesionDeClase(3, '18:00:00', '20:00:00')],
         aulaCodigo: 'A-101',
         programa: 'Jóvenes y Adultos',
+        cicloNumeroHasta: 2,
     )]);
 });
 

@@ -58,6 +58,7 @@ final readonly class GuardarGrupo
         $grupo->fill([
             'periodo_id' => $datos->periodoId,
             'ciclo_id' => $datos->cicloId,
+            'ciclo_hasta_id' => $this->cicloHasta($grupo, $datos),
             'programa_id' => $datos->programaId,
             'aula_id' => $datos->aulaId,
             'codigo' => $datos->codigo,
@@ -93,6 +94,25 @@ final readonly class GuardarGrupo
 
         throw_unless($ciclo->activo, ReglaDeNegocioIncumplida::class, 'El ciclo seleccionado no está disponible para nuevos grupos.');
         throw_unless($ciclo->idioma->activo, ReglaDeNegocioIncumplida::class, "El idioma {$ciclo->idioma->nombre} no está disponible para nuevos grupos.");
+    }
+
+    private function cicloHasta(Grupo $grupo, DatosDeGrupo $datos): ?int
+    {
+        if (! $datos->esAcelerado) {
+            return null;
+        }
+
+        // An existing accelerated group keeps its second cycle even after that cycle is deactivated.
+        if ($grupo->exists && (int) $grupo->ciclo_id === $datos->cicloId && $grupo->ciclo_hasta_id !== null) {
+            return (int) $grupo->ciclo_hasta_id;
+        }
+
+        $ciclo = Ciclo::query()->whereKey($datos->cicloId)->firstOrFail();
+        $siguiente = Ciclo::query()->siguienteDelNivel($ciclo)->value('id');
+
+        return $siguiente === null
+            ? throw new ReglaDeNegocioIncumplida("Un grupo acelerado cubre el ciclo elegido y el siguiente del mismo nivel; {$ciclo->nombre} no tiene ciclo siguiente en su nivel.")
+            : (int) $siguiente;
     }
 
     private function asegurarPrograma(Grupo $grupo, DatosDeGrupo $datos): void

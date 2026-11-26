@@ -44,6 +44,7 @@ final readonly class ActaPrevia
             docenteId: $docente->docenteId, docente: $docente->nombreCompleto, esquemaId: $esquema->esquemaId, esquema: $esquema->nombre,
             notaMaxima: $esquema->notaMaxima, notaMinimaAprobatoria: $esquema->notaMinimaAprobatoria,
             componentes: $esquema->componentes, filas: $this->filas($grupoId, $esquema), validadaEn: null,
+            cicloNumeroHasta: $curso->cicloNumeroHasta, cicloNombreHasta: $curso->cicloNombreHasta,
         );
     }
 

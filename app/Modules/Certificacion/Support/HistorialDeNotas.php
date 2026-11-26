@@ -18,9 +18,12 @@ final class HistorialDeNotas
     private const array COLUMNAS = [
         'cer_notas_finales.acta_id', 'cer_notas_finales.matricula_id', 'cer_notas_finales.promedio', 'cer_notas_finales.estado_final', 'cer_actas.grupo_codigo',
         'cer_actas.idioma', 'cer_actas.nivel', 'cer_actas.ciclo_numero', 'cer_actas.ciclo_nombre', 'cer_actas.horas_lectivas', 'cer_actas.periodo',
+        'cer_actas.ciclo_numero_hasta', 'cer_actas.ciclo_nombre_hasta', 'cer_actas.horas_lectivas_hasta', 'cer_actas.validada_en',
     ];
 
     /**
+     * An accelerated acta gives one row per cycle it covers, both with its single grade.
+     *
      * @return list<NotaDelHistorial> ordered by cycle and then by validation
      */
     public static function de(int $personaId, string $idioma): array
@@ -28,10 +31,10 @@ final class HistorialDeNotas
         return array_values(self::cerradas()
             ->where('cer_notas_finales.persona_id', $personaId)
             ->where('cer_actas.idioma', $idioma)
-            ->orderBy('cer_actas.ciclo_numero')
             ->orderBy('cer_actas.validada_en')
             ->get(self::COLUMNAS)
-            ->map(self::nota(...))
+            ->flatMap(self::notas(...))
+            ->sortBy(fn (NotaDelHistorial $nota): int => $nota->cicloNumero)
             ->all());
     }
 
@@ -44,7 +47,7 @@ final class HistorialDeNotas
         return self::cerradas()
             ->whereIntegerInRaw('cer_notas_finales.matricula_id', $matriculaIds)
             ->get(self::COLUMNAS)
-            ->mapWithKeys(fn (NotaFinal $nota): array => [$nota->matricula_id => self::nota($nota)])
+            ->mapWithKeys(fn (NotaFinal $nota): array => [$nota->matricula_id => self::notas($nota)[0]])
             ->all();
     }
 
@@ -105,15 +108,28 @@ final class HistorialDeNotas
             ->where('cer_actas.estado', EstadoActa::Cerrada);
     }
 
-    private static function nota(NotaFinal $nota): NotaDelHistorial
+    /**
+     * @return non-empty-list<NotaDelHistorial>
+     */
+    private static function notas(NotaFinal $nota): array
+    {
+        $horasHasta = $nota->getAttribute('horas_lectivas_hasta');
+        $primera = self::nota($nota, (int) $nota->getAttribute('ciclo_numero'), (string) $nota->getAttribute('ciclo_nombre'), (int) $nota->getAttribute('horas_lectivas') - (int) $horasHasta);
+
+        return $horasHasta === null
+            ? [$primera]
+            : [$primera, self::nota($nota, (int) $nota->getAttribute('ciclo_numero_hasta'), (string) $nota->getAttribute('ciclo_nombre_hasta'), (int) $horasHasta)];
+    }
+
+    private static function nota(NotaFinal $nota, int $cicloNumero, string $cicloNombre, int $horasLectivas): NotaDelHistorial
     {
         return new NotaDelHistorial(
             actaId: $nota->acta_id,
             idioma: (string) $nota->getAttribute('idioma'),
             nivel: NivelCurricular::from((string) $nota->getAttribute('nivel')),
-            cicloNumero: (int) $nota->getAttribute('ciclo_numero'),
-            cicloNombre: (string) $nota->getAttribute('ciclo_nombre'),
-            horasLectivas: (int) $nota->getAttribute('horas_lectivas'),
+            cicloNumero: $cicloNumero,
+            cicloNombre: $cicloNombre,
+            horasLectivas: $horasLectivas,
             periodo: (string) $nota->getAttribute('periodo'),
             promedio: $nota->promedio,
             estadoFinal: $nota->estado_final,

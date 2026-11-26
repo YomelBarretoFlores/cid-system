@@ -12,6 +12,7 @@ use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\NotaFinal;
 use App\Modules\Certificacion\Support\PromedioFinal;
 use App\Modules\Docencia\Data\CodigoDeDocente;
+use App\Shared\Ui\Formato;
 use Carbon\CarbonImmutable;
 
 // The final grade sheet of a group: stored when it was closed, otherwise a preview computed from the pre-acta (estado null).
@@ -40,6 +41,8 @@ final readonly class ActaDelGrupo
         public array $componentes,
         public array $filas,
         public ?CarbonImmutable $validadaEn,
+        public ?int $cicloNumeroHasta = null,
+        public ?string $cicloNombreHasta = null,
     ) {}
 
     public static function desde(Acta $acta): self
@@ -68,6 +71,8 @@ final readonly class ActaDelGrupo
                 $nota->notas, $nota->promedio, $nota->estado_final, ...PromedioFinal::promediosPorGrupo($nota->notas, $componentes),
             ))->all()),
             validadaEn: $acta->validada_en?->setTimezone('America/Lima'),
+            cicloNumeroHasta: $acta->ciclo_numero_hasta,
+            cicloNombreHasta: $acta->ciclo_nombre_hasta,
         );
     }
 
@@ -77,6 +82,16 @@ final readonly class ActaDelGrupo
     public function componentesDe(GrupoDeComponente $grupo): array
     {
         return array_values(array_filter($this->componentes, fn (ComponenteDeEvaluacion $componente): bool => $componente->grupo === $grupo));
+    }
+
+    public function ciclos(): string
+    {
+        return $this->cicloNombreHasta === null ? $this->cicloNombre : "{$this->cicloNombre} y {$this->cicloNombreHasta}";
+    }
+
+    public function numerosDeCiclo(): string
+    {
+        return $this->cicloNumeroHasta === null ? Formato::romano($this->cicloNumero) : Formato::romano($this->cicloNumero).' y '.Formato::romano($this->cicloNumeroHasta);
     }
 
     public function docenteCodigo(): string

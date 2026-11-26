@@ -115,6 +115,7 @@ final readonly class CerrarActa
             'grupo_id' => $previa->grupoId, 'periodo_id' => $curso->periodoId, 'estado' => EstadoActa::Abierta,
             'grupo_codigo' => $previa->grupoCodigo, 'idioma' => $previa->idioma, 'nivel' => $previa->nivel,
             'ciclo_numero' => $previa->cicloNumero, 'ciclo_nombre' => $previa->cicloNombre, 'horas_lectivas' => $curso->horasLectivas,
+            'ciclo_numero_hasta' => $previa->cicloNumeroHasta, 'ciclo_nombre_hasta' => $previa->cicloNombreHasta, 'horas_lectivas_hasta' => $curso->horasLectivasHasta,
             'periodo' => $previa->periodo, 'docente_id' => $previa->docenteId, 'docente_nombre' => $previa->docente,
             'esquema_id' => $previa->esquemaId, 'esquema_nombre' => $previa->esquema,
             'nota_maxima' => $previa->notaMaxima, 'nota_minima_aprobatoria' => $previa->notaMinimaAprobatoria,

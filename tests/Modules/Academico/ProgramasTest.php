@@ -32,7 +32,8 @@ function grupoDelPrograma(Programa $programa, bool $esAcelerado): DatosDeGrupo
 
 beforeEach(function (): void {
     $this->periodo = Periodo::factory()->create();
-    $this->ciclo = Ciclo::factory()->create();
+    $this->ciclo = Ciclo::factory()->create(['numero' => 1]);
+    Ciclo::factory()->create(['idioma_id' => $this->ciclo->idioma_id, 'numero' => 2, 'nombre' => 'Básico II']);
     $this->aula = Aula::factory()->create(['capacidad' => 30]);
 });
 

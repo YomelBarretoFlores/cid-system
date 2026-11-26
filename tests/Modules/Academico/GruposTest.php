@@ -95,12 +95,15 @@ it('refuses to cancel a group with enrolled students', function (): void {
 });
 
 it('creates a scheduled face-to-face group with no enrolled students', function (): void {
+    $siguiente = Ciclo::factory()->create(['idioma_id' => $this->ciclo->idioma_id, 'numero' => $this->ciclo->numero + 1]);
+
     $grupo = app(GuardarGrupo::class)(datosDeGrupo(['esAcelerado' => true]));
 
     expect($grupo->refresh())
         ->codigo->toBe('ING-01')
         ->aula_id->toBe($this->aula->id)
         ->es_acelerado->toBeTrue()
+        ->ciclo_hasta_id->toBe($siguiente->id)
         ->estado->toBe(EstadoGrupo::Programado)
         ->matriculados->toBe(0);
 });

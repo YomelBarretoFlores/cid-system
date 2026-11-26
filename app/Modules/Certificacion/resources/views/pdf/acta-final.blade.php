@@ -16,7 +16,7 @@
     <table class="datos">
         <tr>
             <th style="width: 9%;">Idioma</th><td>{{ $acta->idioma }}</td>
-            <th style="width: 11%;">Nivel / ciclo</th><td>{{ $acta->nivel->etiqueta() }} · {{ Formato::romano($acta->cicloNumero) }}</td>
+            <th style="width: 11%;">Nivel / ciclo</th><td>{{ $acta->nivel->etiqueta() }} · {{ $acta->numerosDeCiclo() }}</td>
             <th style="width: 8%;">Grupo</th><td style="white-space: nowrap;">{{ $acta->grupoCodigo }}</td>
             <th style="width: 9%;">Periodo</th><td>{{ $acta->periodo }}</td>
         </tr>

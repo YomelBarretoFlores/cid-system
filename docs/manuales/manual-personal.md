@@ -266,6 +266,12 @@ Finalidad: crear los grupos de cada ciclo y registrar sus horarios.
 
 El sistema rechaza un grupo que el régimen de su programa no admite; por ejemplo, Posgrado solo admite grupos acelerados.
 
+Un grupo **acelerado** cubre dos ciclos seguidos del mismo nivel con una sola nota:
+
+- Al marcar **Acelerado**, el formulario muestra el segundo ciclo («Cubre también: Básico II»), que el sistema asigna solo: es el ciclo activo siguiente del mismo idioma y nivel.
+- No se puede crear un grupo acelerado en el último ciclo de un nivel.
+- El acta final es una sola; al cerrarla, el récord y la constancia muestran los dos ciclos con la misma nota y las horas de cada uno, y quien aprueba queda habilitado para el ciclo que sigue al segundo.
+
 Resultado esperado: el listado muestra cada grupo con su programa, estado, docente, matriculados y vacantes. Cada horario del grupo puede corregirse con **Editar** o quitarse con **Borrar**. Desde la vista del grupo, quien tiene el permiso «Gestionar actas» puede usar **Pre acta (PDF)** para obtener la pre acta con los estudiantes matriculados.
 
 ![Figura 10. Listado de grupos](figuras/p10-grupos.png)

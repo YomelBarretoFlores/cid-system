@@ -58,7 +58,7 @@
                 <div class="flex flex-col gap-4">
                     <dl class="grid gap-2.5 text-sm sm:grid-cols-4">
                         <div><dt class="text-apagado">Idioma</dt><dd class="text-tinta">{{ $acta->idioma }}</dd></div>
-                        <div><dt class="text-apagado">Nivel y ciclo</dt><dd class="text-tinta">{{ $acta->nivel->etiqueta() }} · {{ $acta->cicloNombre }}</dd></div>
+                        <div><dt class="text-apagado">Nivel y ciclo</dt><dd class="text-tinta">{{ $acta->nivel->etiqueta() }} · {{ $acta->ciclos() }}</dd></div>
                         <div><dt class="text-apagado">Periodo académico</dt><dd class="text-tinta">{{ $acta->periodo }}</dd></div>
                         <div><dt class="text-apagado">Docente</dt><dd class="text-tinta">{{ $acta->docente }} <span class="text-apagado">({{ $acta->docenteCodigo() }})</span></dd></div>
                     </dl>

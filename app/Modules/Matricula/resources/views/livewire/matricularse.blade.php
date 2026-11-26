@@ -115,7 +115,7 @@
                                                     x-on:change="eleccion = @js("{$grupo->codigo} · {$idioma}, ciclo {$grupo->cicloNumero}")" class="casilla size-4 focus:outline-none">
                                             </td>
                                             <td class="font-semibold whitespace-nowrap">{{ $grupo->codigo }}</td>
-                                            <td class="whitespace-nowrap">Ciclo {{ $grupo->cicloNumero }} · {{ $grupo->nivel }}</td>
+                                            <td class="whitespace-nowrap">{{ $grupo->cicloNumeroHasta === null ? "Ciclo {$grupo->cicloNumero}" : "Ciclos {$grupo->cicloNumero} y {$grupo->cicloNumeroHasta}" }} · {{ $grupo->nivel }}</td>
                                             <td class="whitespace-nowrap">
                                                 @forelse ($grupo->horarioCompacto() as $horario)
                                                     <span class="block">{{ $horario }}</span>

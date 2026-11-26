@@ -18,7 +18,7 @@
             <dl class="grid gap-3 text-sm sm:grid-cols-2">
                 <x-portal.dato etiqueta="Grupo">{{ $acta->grupo_codigo }}</x-portal.dato>
                 <x-portal.dato etiqueta="Idioma">{{ $acta->idioma }}</x-portal.dato>
-                <x-portal.dato etiqueta="Nivel y ciclo">{{ $acta->nivel->etiqueta() }} · {{ $acta->ciclo_nombre }}</x-portal.dato>
+                <x-portal.dato etiqueta="Nivel y ciclo">{{ $acta->nivel->etiqueta() }} · {{ $acta->ciclo_nombre }}{{ $acta->ciclo_nombre_hasta === null ? '' : " y {$acta->ciclo_nombre_hasta}" }}</x-portal.dato>
                 <x-portal.dato etiqueta="Periodo académico">{{ $acta->periodo }}</x-portal.dato>
                 <x-portal.dato etiqueta="Estado">{{ $acta->estado->etiqueta() }}</x-portal.dato>
                 <x-portal.dato etiqueta="Validada y cerrada el">{{ $acta->validada_en ? Formato::fechaCorta($acta->validada_en->setTimezone('America/Lima')) : '—' }}</x-portal.dato>

@@ -32,6 +32,7 @@ final readonly class FichaDeGrupo
         public array $sesiones,
         public ?string $aulaCodigo,
         public string $programa,
+        public ?int $cicloNumeroHasta = null,
     ) {}
 
     public static function desde(Grupo $grupo): self
@@ -53,6 +54,8 @@ final readonly class FichaDeGrupo
             sesiones: array_values($grupo->horarios->map(fn (Horario $horario): SesionDeClase => SesionDeClase::desde($horario))->all()),
             aulaCodigo: $grupo->aula?->codigo,
             programa: $grupo->programa->nombre,
+            // The aca_grupos_ciclo_hasta trigger keeps the second cycle of an accelerated group as the next one.
+            cicloNumeroHasta: $grupo->es_acelerado ? $grupo->ciclo->numero + 1 : null,
         );
     }
 

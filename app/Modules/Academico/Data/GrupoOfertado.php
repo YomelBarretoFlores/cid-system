@@ -25,6 +25,7 @@ final readonly class GrupoOfertado
         public int $vacantes,
         public bool $abierto,
         public array $bloques,
+        public ?int $cicloNumeroHasta = null,
     ) {}
 
     public static function desde(Grupo $grupo): self
@@ -41,6 +42,8 @@ final readonly class GrupoOfertado
             vacantes: max(0, $grupo->vacantes_disponibles),
             abierto: $grupo->estado === EstadoGrupo::Abierto,
             bloques: SesionDeClase::agrupar($sesiones),
+            // The aca_grupos_ciclo_hasta trigger keeps the second cycle of an accelerated group as the next one.
+            cicloNumeroHasta: $grupo->es_acelerado ? $grupo->ciclo->numero + 1 : null,
         );
     }
 }

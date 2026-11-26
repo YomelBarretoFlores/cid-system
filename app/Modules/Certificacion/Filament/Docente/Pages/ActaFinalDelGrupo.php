@@ -76,7 +76,7 @@ final class ActaFinalDelGrupo extends Page
     {
         $curso = $this->curso();
 
-        return "{$curso->idioma} · Ciclo {$curso->cicloNumero} · {$curso->nivel->etiqueta()} · {$curso->periodo}";
+        return "{$curso->idioma} · {$curso->etiquetaDelCiclo()} · {$curso->nivel->etiqueta()} · {$curso->periodo}";
     }
 
     public function validar(CerrarActa $cerrar): void

@@ -11,7 +11,7 @@ use Carbon\CarbonImmutable;
 
 final readonly class DatosDelCurso
 {
-    public const array RELACIONES = ['ciclo.idioma', 'periodo', 'programa'];
+    public const array RELACIONES = ['ciclo.idioma', 'cicloHasta', 'periodo', 'programa'];
 
     public function __construct(
         public int $grupoId,
@@ -28,11 +28,15 @@ final readonly class DatosDelCurso
         public ?CarbonImmutable $actasInicio,
         public ?CarbonImmutable $actasFin,
         public string $programa,
+        public ?int $cicloNumeroHasta = null,
+        public ?string $cicloNombreHasta = null,
+        public ?int $horasLectivasHasta = null,
     ) {}
 
     public static function desde(Grupo $grupo): self
     {
         $periodo = $grupo->periodo;
+        $hasta = $grupo->cicloHasta;
 
         return new self(
             grupoId: $grupo->id,
@@ -42,14 +46,28 @@ final readonly class DatosDelCurso
             nivel: $grupo->ciclo->nivel,
             cicloNumero: $grupo->ciclo->numero,
             cicloNombre: $grupo->ciclo->nombre,
-            horasLectivas: $grupo->ciclo->horas_lectivas,
+            horasLectivas: $grupo->ciclo->horas_lectivas + ($hasta->horas_lectivas ?? 0),
             periodoId: $periodo->id,
             periodo: $periodo->nombre,
             fechaInicio: CarbonImmutable::parse($periodo->fecha_inicio->toDateString(), 'America/Lima'),
             actasInicio: $periodo->actas_inicio === null ? null : CarbonImmutable::parse($periodo->actas_inicio->toDateString(), 'America/Lima'),
             actasFin: $periodo->actas_fin === null ? null : CarbonImmutable::parse($periodo->actas_fin->toDateString(), 'America/Lima'),
             programa: $grupo->programa->nombre,
+            cicloNumeroHasta: $hasta?->numero,
+            cicloNombreHasta: $hasta?->nombre,
+            horasLectivasHasta: $hasta?->horas_lectivas,
         );
+    }
+
+    // An accelerated group covers its cycle and the next one with a single grade.
+    public function ciclos(): string
+    {
+        return $this->cicloNombreHasta === null ? $this->cicloNombre : "{$this->cicloNombre} y {$this->cicloNombreHasta}";
+    }
+
+    public function etiquetaDelCiclo(): string
+    {
+        return $this->cicloNumeroHasta === null ? "Ciclo {$this->cicloNumero}" : "Ciclos {$this->cicloNumero} y {$this->cicloNumeroHasta}";
     }
 
     public function admiteActasEl(CarbonImmutable $momento): bool

@@ -14,10 +14,11 @@ final readonly class GrupoData
         public int $cicloId,
         public int $cicloNumero,
         public int $idiomaId,
+        public ?int $cicloHastaId = null,
     ) {}
 
     public static function desde(Grupo $grupo): self
     {
-        return new self($grupo->id, $grupo->periodo_id, $grupo->ciclo_id, $grupo->ciclo->numero, $grupo->ciclo->idioma_id);
+        return new self($grupo->id, $grupo->periodo_id, $grupo->ciclo_id, $grupo->ciclo->numero, $grupo->ciclo->idioma_id, $grupo->ciclo_hasta_id === null ? null : (int) $grupo->ciclo_hasta_id);
     }
 }
