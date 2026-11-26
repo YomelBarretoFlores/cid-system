@@ -10,6 +10,7 @@ use App\Modules\Tramites\Enums\CampoFut;
 use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Models\Tramite;
 use App\Modules\Tramites\Support\PresentacionDelFut;
+use App\Modules\Tramites\Support\PresentacionDelResultado;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Section;
@@ -36,6 +37,9 @@ final class TramiteInfolist
                         TextEntry::make('created_at')->label('Iniciado')->dateTime('d/m/Y H:i', 'America/Lima'),
                         TextEntry::make('finalizado_en')->label('Finalizado')->dateTime('d/m/Y H:i', 'America/Lima')->placeholder('—'),
                     ]),
+                Section::make('Resultado')
+                    ->visible(fn (Tramite $record): bool => PresentacionDelResultado::texto($record) !== null)
+                    ->schema([TextEntry::make('resultado')->hiddenLabel()->state(fn (Tramite $record): ?string => PresentacionDelResultado::texto($record))]),
                 Section::make('Observación')
                     ->visible(fn (Tramite $record): bool => $record->estado === EstadoTramite::Observado)
                     ->schema([TextEntry::make('observacion')->hiddenLabel()]),

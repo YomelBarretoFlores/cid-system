@@ -70,7 +70,18 @@ final readonly class AccesoAlTipo
             ))
             ->exists();
 
-        throw_unless($completado, ReglaDeNegocioIncumplida::class, "Primero debes completar el trámite «{$previo->nombre}» para este idioma y nivel.");
+        throw_unless($completado, ReglaDeNegocioIncumplida::class, "Primero debes completar el trámite «{$previo->nombre}»{$this->asunto($tipo)}.");
+    }
+
+    private function asunto(TipoTramite $tipo): string
+    {
+        $claves = array_column($tipo->campos, 'clave');
+
+        return match (true) {
+            in_array('idioma', $claves, true) && in_array('nivel', $claves, true) => ' para este idioma y nivel',
+            in_array('idioma', $claves, true) => ' para este idioma',
+            default => '',
+        };
     }
 
     /**

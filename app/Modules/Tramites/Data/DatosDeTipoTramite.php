@@ -15,6 +15,7 @@ final readonly class DatosDeTipoTramite
      * @param  ?list<array{clave: string, obligatorio: bool}>  $campos  null keeps the fields the final action asks
      * @param  list<int>  $programaIds  empty lets every program request it
      * @param  list<array{nombre: string, obligatorio: bool}>  $adjuntos
+     * @param  ?int  $mesesSinEstudiar  months since the last enrollment a reclassification asks; null uses the default
      */
     public function __construct(
         public string $codigo,
@@ -29,13 +30,14 @@ final readonly class DatosDeTipoTramite
         public ?int $tipoPrevioId = null,
         public array $programaIds = [],
         public array $adjuntos = [],
+        public ?int $mesesSinEstudiar = null,
     ) {}
 
     public function conConcepto(int $conceptoId, TipoConcepto $tipo): self
     {
         return new self(
             $this->codigo, $this->nombre, $this->requisitos, $tipo, $this->accionFinal, $this->activo, $this->etapas,
-            $conceptoId, $this->campos, $this->tipoPrevioId, $this->programaIds, $this->adjuntos,
+            $conceptoId, $this->campos, $this->tipoPrevioId, $this->programaIds, $this->adjuntos, $this->mesesSinEstudiar,
         );
     }
 }

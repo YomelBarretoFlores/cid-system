@@ -12,6 +12,10 @@ enum AccionFinal: string
     case CertificadoNivel = 'certificado_nivel';
     case Traslado = 'traslado';
     case Retiro = 'retiro';
+    case Suficiencia = 'suficiencia';
+    case Reclasificacion = 'reclasificacion';
+    case Acreditacion = 'acreditacion';
+    case Resolucion = 'resolucion';
 
     public function etiqueta(): string
     {
@@ -22,6 +26,10 @@ enum AccionFinal: string
             self::CertificadoNivel => 'Emitir el certificado de nivel',
             self::Traslado => 'Trasladar la matrícula',
             self::Retiro => 'Retirar la matrícula',
+            self::Suficiencia => 'Registrar la nota del examen de suficiencia',
+            self::Reclasificacion => 'Asignar el ciclo de la reclasificación',
+            self::Acreditacion => 'Emitir la constancia de acreditación',
+            self::Resolucion => 'Resolver con un comentario del personal',
         };
     }
 
@@ -32,9 +40,11 @@ enum AccionFinal: string
     {
         return match ($this) {
             self::ConstanciaMatricula => [CampoFut::Matricula],
-            self::ConstanciaNotas, self::CertificadoNivel => [CampoFut::Idioma, CampoFut::Nivel],
+            self::ConstanciaNotas, self::CertificadoNivel, self::Suficiencia => [CampoFut::Idioma, CampoFut::Nivel],
             self::Traslado, self::Retiro => [CampoFut::Matricula, CampoFut::Motivo],
-            self::Ninguna => [],
+            self::Reclasificacion => [CampoFut::Idioma],
+            self::Acreditacion => [CampoFut::Idioma, CampoFut::Nivel, CampoFut::Mencion],
+            self::Ninguna, self::Resolucion => [],
         };
     }
 
@@ -46,14 +56,19 @@ enum AccionFinal: string
         return array_map(fn (CampoFut $campo): array => ['clave' => $campo->value, 'obligatorio' => true], $this->camposRequeridos());
     }
 
-    // Both are issued per level: the grade record offers the levels with a passed cycle, the certificate the completed ones.
+    // Issued per level: the grade and accreditation records offer the levels with a passed cycle, the certificate the completed ones.
     public function validaIdiomaYNivel(): bool
     {
-        return in_array($this, [self::ConstanciaNotas, self::CertificadoNivel], true);
+        return in_array($this, [self::ConstanciaNotas, self::CertificadoNivel, self::Acreditacion], true);
+    }
+
+    public function pideNivelesConNotas(): bool
+    {
+        return in_array($this, [self::ConstanciaNotas, self::Acreditacion], true);
     }
 
     public function emiteDocumento(): bool
     {
-        return in_array($this, [self::ConstanciaMatricula, self::ConstanciaNotas, self::CertificadoNivel], true);
+        return in_array($this, [self::ConstanciaMatricula, self::ConstanciaNotas, self::CertificadoNivel, self::Acreditacion], true);
     }
 }

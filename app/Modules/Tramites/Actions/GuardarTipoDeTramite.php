@@ -10,6 +10,7 @@ use App\Modules\Pagos\Contracts\CatalogoDeConceptos;
 use App\Modules\Pagos\Data\ConceptoDelCatalogo;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Tramites\Data\DatosDeTipoTramite;
+use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\PermisoTramite;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Support\ConfiguracionDelFut;
@@ -36,6 +37,7 @@ final readonly class GuardarTipoDeTramite
         $adjuntos = ConfiguracionDelFut::adjuntos($datos->adjuntos);
         $this->asegurarProgramas($datos->programaIds);
         $this->asegurarTipoPrevio($datos->tipoPrevioId, $tipoId);
+        throw_if($datos->mesesSinEstudiar !== null && ($datos->mesesSinEstudiar < 1 || $datos->mesesSinEstudiar > 24), ReglaDeNegocioIncumplida::class, 'Los meses sin estudiar para la reclasificación van de 1 a 24.');
 
         try {
             return Transaccion::ejecutar(fn (): TipoTramite => $this->guardar($datos, $tipoId, $campos, $adjuntos));
@@ -63,6 +65,7 @@ final readonly class GuardarTipoDeTramite
             'campos' => $campos,
             'adjuntos' => $adjuntos,
             'requiere_tipo_previo_id' => $datos->tipoPrevioId,
+            'meses_sin_estudiar' => $datos->accionFinal === AccionFinal::Reclasificacion ? $datos->mesesSinEstudiar : null,
         ])->save();
 
         $tipo->programas()->whereNotIn('programa_id', $datos->programaIds)->delete();

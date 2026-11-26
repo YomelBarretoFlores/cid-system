@@ -39,7 +39,7 @@ final class MisTramites extends Component
 {
     use WithFileUploads;
 
-    private const array CAMPOS = ['matricula', 'idioma', 'nivel', 'programa', 'mencionGrado', 'mencionTexto', 'exposicion', 'celular', 'motivo', 'comentario', 'adjuntos'];
+    private const array CAMPOS = ['matricula', 'idioma', 'nivel', 'programa', 'mencionGrado', 'mencionTexto', 'modalidad', 'exposicion', 'celular', 'motivo', 'comentario', 'adjuntos'];
 
     #[Locked]
     public ?int $tipoElegido = null;
@@ -56,6 +56,8 @@ final class MisTramites extends Component
     public string $mencionGrado = '';
 
     public string $mencionTexto = '';
+
+    public string $modalidad = '';
 
     public string $exposicion = '';
 
@@ -136,6 +138,7 @@ final class MisTramites extends Component
             programaId: is_numeric($this->programa) ? (int) $this->programa : null,
             mencionGrado: $this->mencionGrado,
             mencionTexto: $this->mencionTexto,
+            modalidad: $this->modalidad,
             exposicion: $this->exposicion,
             celular: $this->celular,
             adjuntos: array_filter($this->adjuntos, fn (mixed $archivo): bool => $archivo instanceof UploadedFile),
@@ -191,7 +194,7 @@ final class MisTramites extends Component
      */
     private function nivelesValidados(AccionFinal $accion): array
     {
-        $niveles = $accion === AccionFinal::ConstanciaNotas ? app(NivelesConNotas::class)($this->personaId()) : app(NivelesPorCertificar::class)($this->personaId());
+        $niveles = $accion->pideNivelesConNotas() ? app(NivelesConNotas::class)($this->personaId()) : app(NivelesPorCertificar::class)($this->personaId());
 
         return collect($niveles)->mapWithKeys(fn (NivelPorCertificar $nivel): array => [$nivel->clave() => $nivel->etiqueta()])->all();
     }

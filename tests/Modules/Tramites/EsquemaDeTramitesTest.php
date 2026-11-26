@@ -24,7 +24,7 @@ function rechazaEnBase(Closure $sentencia, string $mensaje): void
 it('ships the Anexo trámites with valid stages and the two trámite permissions', function (): void {
     $tipos = TipoTramite::query()->with('etapas')->orderBy('id')->get();
 
-    expect($tipos->pluck('codigo')->all())->toBe(['CONSTANCIA-MATRICULA', 'CONSTANCIA-NOTAS', 'CERTIFICADO-NIVEL', 'TRASLADO', 'RETIRO'])
+    expect($tipos->pluck('codigo')->all())->toBe(['CONSTANCIA-MATRICULA', 'CONSTANCIA-NOTAS', 'CERTIFICADO-NIVEL', 'TRASLADO', 'RETIRO', 'SUFICIENCIA', 'RECLASIFICACION', 'ACREDITACION', 'CERTIFICADO-POSGRADO', 'MEDIA-BECA', 'OTRO'])
         ->and($tipos->first()?->etapas->pluck('nombre')->all())->toBe(['Solicitud recibida', 'Pago validado', 'En firma de Dirección', 'Listo para recojo o descarga'])
         ->and($tipos->first()?->etapas->pluck('avance')->all())->toBe([0, 33, 66, 100])
         ->and(Permission::query()->whereIn('name', PermisoTramite::valores())->count())->toBe(2);

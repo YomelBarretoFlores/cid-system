@@ -17,6 +17,7 @@ use App\Modules\Tramites\Enums\CondicionDeEtapa;
 use App\Modules\Tramites\Models\Etapa;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Support\ConfiguracionDelFut;
+use App\Modules\Tramites\Support\ReglaDeReclasificacion;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -24,6 +25,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 final class TipoTramiteForm
@@ -52,7 +55,14 @@ final class TipoTramiteForm
                         Select::make('accion_final')
                             ->label('Al finalizar')
                             ->options(array_column(array_map(fn (AccionFinal $accion): array => [$accion->value, $accion->etiqueta()], AccionFinal::cases()), 1, 0))
-                            ->required(),
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(fn (?string $state, Set $set, string $operation) => self::camposDeLaAccion($state, $set, $operation)),
+                        TextInput::make('meses_sin_estudiar')
+                            ->label('Meses sin estudiar')
+                            ->helperText('La reclasificación se pide cuando pasaron al menos estos meses desde el fin de la última matrícula en el idioma. Vacío: '.ReglaDeReclasificacion::MESES_POR_DEFECTO.'.')
+                            ->numeric()->integer()->minValue(1)->maxValue(24)
+                            ->visible(fn (Get $get): bool => $get('accion_final') === AccionFinal::Reclasificacion->value),
                         Toggle::make('activo')->label('Disponible para nuevas solicitudes')->default(true),
                     ]),
                 Section::make('Formato único de trámite (FUT)')
@@ -118,6 +128,7 @@ final class TipoTramiteForm
             'campos' => array_column($tipo->campos, 'clave'),
             'obligatorios' => array_column(array_filter($tipo->campos, fn (array $campo): bool => $campo['obligatorio']), 'clave'),
             'requiere_tipo_previo_id' => $tipo->requiere_tipo_previo_id,
+            'meses_sin_estudiar' => $tipo->meses_sin_estudiar,
             'programas' => array_map(intval(...), $tipo->programas()->pluck('programa_id')->all()),
             'adjuntos' => $tipo->adjuntos,
             'etapas' => $tipo->etapas->map(fn (Etapa $etapa): array => ['nombre' => $etapa->nombre, 'avance' => $etapa->avance, 'condicion' => $etapa->condicion->value])->all(),
@@ -148,7 +159,22 @@ final class TipoTramiteForm
             tipoPrevioId: self::entero($data['requiere_tipo_previo_id'] ?? null),
             programaIds: self::idsDeProgramas($data['programas'] ?? null),
             adjuntos: self::adjuntos($data['adjuntos'] ?? []),
+            mesesSinEstudiar: self::entero($data['meses_sin_estudiar'] ?? null),
         );
+    }
+
+    // On create, ticking the final action's own fields saves the admin from an error when nothing else is ticked.
+    private static function camposDeLaAccion(?string $accion, Set $set, string $operation): void
+    {
+        $elegida = AccionFinal::tryFrom((string) $accion);
+
+        if ($operation !== 'create' || ! $elegida instanceof AccionFinal) {
+            return;
+        }
+
+        $claves = array_map(fn (CampoFut $campo): string => $campo->value, $elegida->camposRequeridos());
+        $set('campos', $claves);
+        $set('obligatorios', $claves);
     }
 
     /**

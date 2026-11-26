@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Filament\Resources\Tramites\Actions;
 
+use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
 use App\Modules\Academico\Contracts\GruposParaTraslado;
 use App\Modules\Matricula\Contracts\DocumentoDeMatriculaPorId;
 use App\Modules\Tramites\Actions\AvanzarTramite;
@@ -11,15 +12,18 @@ use App\Modules\Tramites\Actions\CerrarTramiteSinAtender;
 use App\Modules\Tramites\Actions\FinalizarTramite;
 use App\Modules\Tramites\Actions\ObservarTramite;
 use App\Modules\Tramites\Actions\ReanudarTramite;
+use App\Modules\Tramites\Data\DatosDeResolucion;
 use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\CondicionDeEtapa;
 use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Models\Tramite;
+use App\Modules\Tramites\Support\ReclasificacionDelTramite;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Support\Icons\Heroicon;
 
 final class AccionesDeTramite
@@ -50,12 +54,10 @@ final class AccionesDeTramite
             ->authorize('gestionar')
             ->visible(fn (Tramite $record): bool => self::puedeAvanzar($record) && self::siguienteEsLaUltima($record))
             ->modalDescription(fn (Tramite $record): string => "Al finalizar se ejecuta: {$record->accion_final->etiqueta()}. El trámite queda cerrado y el estudiante recibe un correo.")
-            ->schema(fn (Tramite $record): array => $record->accion_final === AccionFinal::Traslado ? [
-                Select::make('grupo_destino')->label('Grupo de destino')->options(self::gruposDeDestino($record))->required(),
-            ] : [])
+            ->schema(fn (Tramite $record): array => self::datosAlFinalizar($record))
             ->action(fn (Action $action, Tramite $record, array $data) => AccionDeNegocio::ejecutar(
                 $action,
-                fn (User $usuario) => app(FinalizarTramite::class)($record->id, $usuario, isset($data['grupo_destino']) ? (int) $data['grupo_destino'] : null),
+                fn (User $usuario) => app(FinalizarTramite::class)($record->id, $usuario, isset($data['grupo_destino']) ? (int) $data['grupo_destino'] : null, self::resolucion($data)),
                 'Trámite finalizado',
             ))
             ->after(fn (Tramite $record): Tramite => $record->refresh());
@@ -115,9 +117,41 @@ final class AccionesDeTramite
             ->after(fn (Tramite $record): Tramite => $record->refresh());
     }
 
-    private static function motivo(string $etiqueta): Textarea
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private static function resolucion(array $data): DatosDeResolucion
     {
-        return Textarea::make('motivo')
+        return new DatosDeResolucion(
+            nota: is_scalar($data['nota'] ?? null) ? (string) $data['nota'] : null,
+            cicloId: is_numeric($data['ciclo_id'] ?? null) ? (int) $data['ciclo_id'] : null,
+            comentario: is_string($data['comentario'] ?? null) ? $data['comentario'] : null,
+        );
+    }
+
+    /**
+     * @return list<Select|TextInput|Textarea>
+     */
+    private static function datosAlFinalizar(Tramite $record): array
+    {
+        return match ($record->accion_final) {
+            AccionFinal::Traslado => [Select::make('grupo_destino')->label('Grupo de destino')->options(self::gruposDeDestino($record))->required()],
+            AccionFinal::Suficiencia => [
+                TextInput::make('nota')->label('Nota del examen')->helperText('De 0 a 20. Si aprueba según el esquema de evaluación vigente, se registran los ciclos del nivel y se habilita el siguiente nivel.')
+                    ->numeric()->minValue(0)->maxValue(20)->step(0.01)->required(),
+            ],
+            AccionFinal::Reclasificacion => [
+                Select::make('ciclo_id')->label('Ciclo asignado')->helperText('Se habilita este ciclo (puede ser menor al actual) y los ciclos anteriores se registran como aprobados por clasificación.')
+                    ->options(ReclasificacionDelTramite::ciclosDe(app(CatalogoDeIdiomas::class), (string) ($record->datos['idioma'] ?? '')))->required(),
+            ],
+            AccionFinal::Resolucion => [self::motivo('Respuesta al estudiante', 'comentario')],
+            default => [],
+        };
+    }
+
+    private static function motivo(string $etiqueta, string $campo = 'motivo'): Textarea
+    {
+        return Textarea::make($campo)
             ->label($etiqueta)
             ->required()
             ->minLength(5)

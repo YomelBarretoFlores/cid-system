@@ -20,6 +20,7 @@ final readonly class DatosDeSolicitud
         public ?int $programaId = null,
         public ?string $mencionGrado = null,
         public ?string $mencionTexto = null,
+        public ?string $modalidad = null,
         public ?string $exposicion = null,
         public ?string $celular = null,
         public array $adjuntos = [],

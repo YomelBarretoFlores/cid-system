@@ -1,6 +1,7 @@
 @use('App\Modules\Tramites\Enums\AccionFinal')
 @use('App\Modules\Tramites\Enums\CampoFut')
 @use('App\Modules\Tramites\Enums\EstadoTramite')
+@use('App\Modules\Tramites\Support\PresentacionDelResultado')
 <div class="flex flex-col gap-2 sm:gap-3.5">
     <x-portal.encabezado titulo="Trámites">
         Inicia un trámite y sigue su avance. Recibirás un correo en cada cambio de estado.
@@ -45,6 +46,9 @@
                             </tr>
                             <tr>
                                 <td colspan="6" class="pt-0 text-[13.5px] text-secundario">
+                                    @if ($resultado = PresentacionDelResultado::texto($tramite))
+                                        <p class="mb-1.5 font-medium">{{ $resultado }}</p>
+                                    @endif
                                     @if ($tramite->estado === EstadoTramite::Observado)
                                         <p class="mb-1.5">Observación: {{ $tramite->observacion }}</p>
                                     @elseif ($tramite->estado === EstadoTramite::Cerrado)
@@ -129,7 +133,7 @@
                                 @if (! $tipo->accion_final->validaIdiomaYNivel())
                                     <x-portal.seleccion nombre="idioma" :etiqueta="$etiqueta" :opciones="$opciones" vacio="Elige el idioma" />
                                 @elseif ($opciones === [])
-                                    <x-portal.alerta tipo="aviso">{{ $tipo->accion_final === AccionFinal::ConstanciaNotas ? 'Aún no apruebas ningún ciclo con acta final cerrada.' : 'Aún no completas un nivel por certificar, o ya tienes sus certificados.' }}</x-portal.alerta>
+                                    <x-portal.alerta tipo="aviso">{{ $tipo->accion_final->pideNivelesConNotas() ? 'Aún no apruebas ningún ciclo con acta final cerrada.' : 'Aún no completas un nivel por certificar, o ya tienes sus certificados.' }}</x-portal.alerta>
                                 @else
                                     <x-portal.seleccion nombre="nivel" etiqueta="Idioma y nivel" :opciones="$opciones" vacio="Elige el nivel" />
                                 @endif
@@ -143,6 +147,9 @@
                             @case(CampoFut::Mencion)
                                 <x-portal.seleccion nombre="mencionGrado" :etiqueta="$etiqueta" :opciones="$grados" vacio="Maestría o doctorado" />
                                 <x-portal.campo nombre="mencionTexto" etiqueta="Mención en" ayuda="Por ejemplo: Educación Superior." maxlength="150" />
+                                @break
+                            @case(CampoFut::Modalidad)
+                                <x-portal.campo nombre="modalidad" :etiqueta="$etiqueta" ayuda="Por ejemplo: Ciclo regular, Jóvenes y Adultos." maxlength="100" />
                                 @break
                             @case(CampoFut::Exposicion)
                                 <x-portal.texto-largo nombre="exposicion" :etiqueta="$etiqueta" />

@@ -17,6 +17,7 @@ use App\Modules\Tramites\Support\AplicacionDePago;
 use App\Modules\Tramites\Support\ArchivoAdjunto;
 use App\Modules\Tramites\Support\LecturaDelFut;
 use App\Modules\Tramites\Support\RegistroDeMovimiento;
+use App\Modules\Tramites\Support\ReglaDeReclasificacion;
 use App\Modules\Tramites\Support\ReglasDeEtapas;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -31,6 +32,7 @@ final readonly class SolicitarTramite
         private AccesoAlTipo $acceso,
         private AdjuntosDeSolicitud $adjuntos,
         private AplicacionDePago $aplicacionDePago,
+        private ReglaDeReclasificacion $reclasificacion,
     ) {}
 
     public function __invoke(int $personaId, int $tipoTramiteId, DatosDeSolicitud $datos): Tramite
@@ -69,6 +71,7 @@ final readonly class SolicitarTramite
         $guardados = $this->datos($tipo, $personaId, $datos);
         $this->asegurarUnoEnCurso($personaId, $tipo, $guardados);
         $this->acceso->asegurarPrevio($tipo, $personaId, $guardados);
+        $this->reclasificacion->asegurar($tipo, $personaId, $guardados);
 
         $tramite = Tramite::query()->create([
             'persona_id' => $personaId,

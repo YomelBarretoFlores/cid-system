@@ -61,6 +61,7 @@ final readonly class LecturaDelFut
             CampoFut::Nivel => $validaNivel ? [] : $this->nivel($datos->nivel, $obligatorio),
             CampoFut::Programa => $this->programa($tipo, $personaId, $datos->programaId, $obligatorio),
             CampoFut::Mencion => $this->mencion($datos->mencionGrado, $datos->mencionTexto, $obligatorio),
+            CampoFut::Modalidad => $this->texto('modalidad', $datos->modalidad, [3, 100], $obligatorio, 'Indica la modalidad, entre 3 y 100 caracteres.'),
             CampoFut::Exposicion => $this->texto('exposicion', $datos->exposicion, [10, 1000], $obligatorio, 'Escribe lo que expones, entre 10 y 1000 caracteres.'),
             CampoFut::Celular => $this->celular($datos->celular, $obligatorio),
             CampoFut::Motivo => $this->texto('motivo', $datos->motivo, [5, 500], $obligatorio, 'Indica el motivo, entre 5 y 500 caracteres.'),
@@ -88,7 +89,7 @@ final readonly class LecturaDelFut
      */
     private function nivelValidado(AccionFinal $accion, int $personaId, DatosDeSolicitud $datos): array
     {
-        [$disponibles, $mensaje] = $accion === AccionFinal::ConstanciaNotas
+        [$disponibles, $mensaje] = $accion->pideNivelesConNotas()
             ? [($this->nivelesConNotas)($personaId), 'Aún no apruebas ningún ciclo de ese idioma y nivel.']
             : [($this->nivelesPorCertificar)($personaId), 'Aún no completas ese nivel o ya tienes su certificado vigente.'];
         $elegido = collect($disponibles)->first(fn (NivelPorCertificar $candidato): bool => $candidato->idioma === $datos->idioma && $candidato->nivel->value === $datos->nivel);

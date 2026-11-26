@@ -26,12 +26,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property list<array{clave: string, obligatorio: bool}> $campos
  * @property list<array{nombre: string, obligatorio: bool}> $adjuntos
  * @property ?int $requiere_tipo_previo_id
+ * @property ?int $meses_sin_estudiar
  * @property-read ?TipoTramite $tipoPrevio
  * @property-read Collection<int, ProgramaDeTipoTramite> $programas
  * @property-read Collection<int, Etapa> $etapas
  */
 #[Table('tra_tipos_tramite')]
-#[Fillable(['codigo', 'nombre', 'requisitos', 'tipo_concepto', 'concepto_id', 'accion_final', 'activo', 'campos', 'adjuntos', 'requiere_tipo_previo_id'])]
+#[Fillable(['codigo', 'nombre', 'requisitos', 'tipo_concepto', 'concepto_id', 'accion_final', 'activo', 'campos', 'adjuntos', 'requiere_tipo_previo_id', 'meses_sin_estudiar'])]
 #[UseFactory(TipoTramiteFactory::class)]
 #[UsePolicy(TipoTramitePolicy::class)]
 final class TipoTramite extends Model
@@ -76,6 +77,7 @@ final class TipoTramite extends Model
             'activo' => 'boolean',
             'campos' => 'array',
             'adjuntos' => 'array',
+            'meses_sin_estudiar' => 'integer',
         ];
     }
 }

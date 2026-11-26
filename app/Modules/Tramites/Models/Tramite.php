@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $etapa_actual
  * @property EstadoTramite $estado
  * @property array<string, mixed> $datos
+ * @property ?array<string, mixed> $resultado
  * @property ?CarbonImmutable $finalizado_en
  * @property ?CarbonImmutable $cerrado_en
  * @property ?string $motivo_cierre
@@ -45,7 +46,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Table('tra_tramites')]
 #[Fillable([
     'persona_id', 'tipo_tramite_id', 'tipo_nombre', 'accion_final', 'tipo_concepto', 'concepto_id', 'etapas', 'etapa_actual', 'estado', 'datos',
-    'pago_id', 'observacion', 'documento_id', 'finalizado_en', 'cerrado_en', 'motivo_cierre',
+    'pago_id', 'observacion', 'documento_id', 'finalizado_en', 'cerrado_en', 'motivo_cierre', 'resultado',
 ])]
 #[UseFactory(TramiteFactory::class)]
 #[UsePolicy(TramitePolicy::class)]
@@ -117,6 +118,7 @@ final class Tramite extends Model
             'etapa_actual' => 'integer',
             'estado' => EstadoTramite::class,
             'datos' => 'array',
+            'resultado' => 'array',
             'finalizado_en' => 'immutable_datetime',
             'cerrado_en' => 'immutable_datetime',
         ];

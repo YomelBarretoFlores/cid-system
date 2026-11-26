@@ -12,6 +12,7 @@ enum CampoFut: string
     case Nivel = 'nivel';
     case Programa = 'programa';
     case Mencion = 'mencion';
+    case Modalidad = 'modalidad';
     case Exposicion = 'exposicion';
     case Celular = 'celular';
     case Motivo = 'motivo';
@@ -24,6 +25,7 @@ enum CampoFut: string
             self::Nivel => 'Nivel',
             self::Programa => 'Programa',
             self::Mencion => 'Mención',
+            self::Modalidad => 'Modalidad',
             self::Exposicion => 'Y expongo que',
             self::Celular => 'Celular',
             self::Motivo => 'Motivo',
