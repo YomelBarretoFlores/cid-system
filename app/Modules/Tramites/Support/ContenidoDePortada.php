@@ -11,15 +11,21 @@ use App\Modules\Academico\Data\GrupoOfertado;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Academico\Data\ModalidadDelCatalogo;
 use App\Modules\Academico\Data\OfertaDelPeriodo;
-use App\Modules\Matricula\Data\VigenciaDeClasificacion;
+use App\Modules\Certificacion\Contracts\DatosInstitucionales;
+use App\Modules\Pagos\Contracts\MediosDePago;
 use App\Modules\Pagos\Contracts\TarifasVigentes;
+use App\Modules\Pagos\Data\MedioDePagoDelCatalogo;
 use App\Modules\Pagos\Data\TarifaVigente;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Personas\Contracts\CatalogoDeVinculos;
 use App\Modules\Personas\Data\TipoDeVinculo;
+use App\Modules\Tramites\Actions\ConsultarTextosDePortada;
+use App\Modules\Tramites\Data\TextosDeLaPortada;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Support\Cache\ContenidoPublico;
 use App\Shared\Ui\Formato;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Arr;
 
 final readonly class ContenidoDePortada
 {
@@ -29,6 +35,10 @@ final readonly class ContenidoDePortada
         private TarifasVigentes $tarifasVigentes,
         private CatalogoDeVinculos $catalogoDeVinculos,
         private CatalogoDeModalidades $catalogoDeModalidades,
+        private DatosInstitucionales $datosInstitucionales,
+        private MediosDePago $mediosDePago,
+        private ConsultarTextosDePortada $textosDePortada,
+        private ParametrosDelSistema $parametrosDelSistema,
     ) {}
 
     /**
@@ -53,8 +63,13 @@ final readonly class ContenidoDePortada
         $catalogo = ($this->catalogoDeModalidades)();
         $idiomas = $this->idiomas($grupos, $catalogo, $this->menorMonto($tarifas, TipoConcepto::Matricula));
         $gruposConVacantes = count(array_filter($grupos, fn (GrupoOfertado $grupo): bool => $grupo->abierto && $grupo->vacantes > 0));
+        $institucion = ($this->datosInstitucionales)();
+        $parametros = ($this->parametrosDelSistema)();
 
         return [
+            ...$this->textos(),
+            'umbralDePocasVacantes' => $parametros->umbralPocasVacantes,
+            'institucion' => ['universidad' => $institucion->universidad, 'centro' => $institucion->centro, 'ciudad' => $institucion->ciudad],
             'ahora' => $ahora,
             'oferta' => $oferta,
             'grupos' => $grupos,
@@ -64,12 +79,54 @@ final readonly class ContenidoDePortada
             'cifras' => $this->cifras($idiomas, $gruposConVacantes, $oferta),
             'examen' => [
                 'tarifas' => array_values(array_filter($tarifas, fn (TarifaVigente $tarifa): bool => $tarifa->tipo === TipoConcepto::ExamenClasificacion)),
-                'diasDeVigencia' => VigenciaDeClasificacion::DIAS,
+                'diasDeVigencia' => $parametros->diasVigenciaClasificacion,
             ],
             'vinculos' => $this->vinculos($tarifas),
             'tarifasDesde' => $tarifas === [] ? null : max(array_map(fn (TarifaVigente $tarifa): CarbonImmutable => $tarifa->vigenteDesde, $tarifas)),
             'fechas' => $oferta instanceof OfertaDelPeriodo ? $this->fechas($oferta, $ahora) : [],
         ];
+    }
+
+    /**
+     * The staff-edited texts, with the payment places of the catalog in place of their marker.
+     *
+     * @return array{nosotros: list<string>, pasos: list<array<string, string>>, pasosDeClasificacion: list<array<string, string>>, niveles: list<array{nombre: string, descripcion: string, logro: string}>, preguntas: list<array<string, string>>}
+     */
+    private function textos(): array
+    {
+        $textos = ($this->textosDePortada)();
+        $lugares = $this->lugaresDePago();
+
+        return [
+            'nosotros' => array_values(array_filter(array_map(trim(...), preg_split('/\R\s*\R/u', $textos->nosotros) ?: []), fn (string $parrafo): bool => $parrafo !== '')),
+            'pasos' => self::conLugares($textos->pasosMatricula, $lugares),
+            'pasosDeClasificacion' => self::conLugares($textos->pasosClasificacion, $lugares),
+            'niveles' => $textos->niveles,
+            'preguntas' => self::conLugares($textos->preguntas, $lugares),
+        ];
+    }
+
+    /**
+     * @param  list<array<string, string>>  $filas
+     * @return list<array<string, string>>
+     */
+    private static function conLugares(array $filas, string $lugares): array
+    {
+        return array_map(
+            fn (array $fila): array => array_map(fn (string $texto): string => str_replace(TextosDeLaPortada::LUGARES_DE_PAGO, $lugares, $texto), $fila),
+            $filas,
+        );
+    }
+
+    // "Otro" is the cashier's catch-all channel, not a place to point the public to.
+    private function lugaresDePago(): string
+    {
+        $nombres = array_map(
+            fn (MedioDePagoDelCatalogo $medio): string => $medio->nombre,
+            array_filter(($this->mediosDePago)(), fn (MedioDePagoDelCatalogo $medio): bool => $medio->codigo !== 'otro'),
+        );
+
+        return $nombres === [] ? 'los lugares que indique el CILN' : Arr::join($nombres, ', ', ' o ');
     }
 
     /**

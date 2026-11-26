@@ -7,12 +7,14 @@ namespace App\Modules\Pagos;
 use App\Modules\Pagos\Actions\ConsultarRecargoDeMatricula;
 use App\Modules\Pagos\Actions\DescribirPago;
 use App\Modules\Pagos\Actions\ListarCatalogoDeConceptos;
+use App\Modules\Pagos\Actions\ListarMediosDePago;
 use App\Modules\Pagos\Actions\ListarPagosValidadosDePersona;
 use App\Modules\Pagos\Actions\ListarTarifasVigentes;
 use App\Modules\Pagos\Actions\ResumirPagosDePersona;
 use App\Modules\Pagos\Actions\VerificarPagoParaServicio;
 use App\Modules\Pagos\Contracts\CatalogoDeConceptos;
 use App\Modules\Pagos\Contracts\ConsultaDePago;
+use App\Modules\Pagos\Contracts\MediosDePago;
 use App\Modules\Pagos\Contracts\PagosValidadosDePersona;
 use App\Modules\Pagos\Contracts\RecargoDeMatricula;
 use App\Modules\Pagos\Contracts\ResumenDePagosDePersona;
@@ -33,6 +35,7 @@ final class PagosServiceProvider extends ModuleServiceProvider
         ResumenDePagosDePersona::class => ResumirPagosDePersona::class,
         CatalogoDeConceptos::class => ListarCatalogoDeConceptos::class,
         RecargoDeMatricula::class => ConsultarRecargoDeMatricula::class,
+        MediosDePago::class => ListarMediosDePago::class,
     ];
 
     #[\Override]

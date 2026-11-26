@@ -68,7 +68,7 @@
             @endforeach
         </table>
 
-        <p>Así consta en el Acta Final correspondiente, disponible para verificación en caso de estimarse necesario.</p>
+        <p>{{ $documento->texto('constancia_acta') }}</p>
         <p>{{ $detalle['validez'] }}</p>
 
         <p class="lugar">{{ $institucion->ciudad }}, {{ $emitido->day }} de {{ Formato::mes($emitido->month) }} de {{ $emitido->year }}.</p>

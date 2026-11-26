@@ -1,7 +1,10 @@
 @use('Carbon\CarbonImmutable')
-@php($detalle = $documento->detalle)
+@php
+    $detalle = $documento->detalle;
+    $institucion ??= app(\App\Modules\Certificacion\Contracts\DatosInstitucionales::class)();
+@endphp
 <x-pdf.documento titulo="CONSTANCIA DE MATRÍCULA" :codigo="$documento->codigo" :numero="$documento->numeroOficial()" :denominacion="$denominacion ?? null">
-    <p><strong>LA DIRECCIÓN DEL CENTRO DE IDIOMAS Y LENGUAS NATIVAS DE LA UNIVERSIDAD NACIONAL SANTIAGO ANTÚNEZ DE MAYOLO</strong>, que suscribe:</p>
+    <p><strong>LA DIRECCIÓN DEL {{ mb_strtoupper($institucion->centro) }} DE LA {{ mb_strtoupper($institucion->universidad) }}</strong>, que suscribe:</p>
     <p style="letter-spacing: 1px;"><strong>HACE CONSTAR:</strong></p>
     <p>
         Que, <strong style="text-transform: uppercase;">{{ $documento->estudiante_nombre }}</strong>, identificado(a) con {{ $documento->estudiante_documento }}, se encuentra
@@ -15,8 +18,8 @@
         <tr><th>Horario</th><td>{{ implode(' · ', $detalle['horario']) ?: 'Por confirmar' }}</td><th>Matriculado(a) el</th><td>{{ CarbonImmutable::parse($detalle['matriculado_el'])->format('d/m/Y') }}</td></tr>
     </table>
 
-    <p style="margin-top: 14px;">Se expide la presente a solicitud de la persona interesada, para los fines que estime conveniente.</p>
-    <p style="text-align: right; margin-top: 14px;">{{ $lugarYFecha ?? 'Huaraz, '.$emitidoEl }}.</p>
+    <p style="margin-top: 14px;">{{ $documento->texto('cierre') }}</p>
+    <p style="text-align: right; margin-top: 14px;">{{ $lugarYFecha ?? $institucion->ciudad.', '.$emitidoEl }}.</p>
 
     <x-pdf.firmas :firmas="$firmas ?? []" />
 

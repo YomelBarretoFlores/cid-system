@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Models;
 
+use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
@@ -29,5 +30,8 @@ use Illuminate\Database\Eloquent\Model;
 #[WithoutIncrementing]
 final class Institucion extends Model
 {
+    // The public home page prints the university, the center and the city.
+    use RenuevaContenidoPublico;
+
     public const int FILA = 1;
 }

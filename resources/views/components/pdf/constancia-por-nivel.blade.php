@@ -38,7 +38,7 @@
             @endforeach
         </tbody>
     </table>
-    <p class="nota-al-pie">Escala vigesimal de 0 a 20.</p>
+    <p class="nota-al-pie">{{ $documento->texto('escala') }}</p>
 
     <h2>Programa Curricular</h2>
     <table class="lista" style="width: 50%;">

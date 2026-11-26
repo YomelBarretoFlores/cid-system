@@ -1,4 +1,5 @@
 @use('App\Modules\Certificacion\Contracts\DatosInstitucionales')
+@use('App\Modules\Certificacion\Support\TextoResaltado')
 @use('App\Shared\Ui\EscudoUnasam')
 {{-- A4 landscape diploma from the design proposal (docs/diseno) with the wording of the real CILN certificate; tables only (DOMPDF, ADR 0005). --}}
 @php
@@ -10,7 +11,11 @@
     $firmas ??= [];
     $foto ??= null;
     $lugarYFecha ??= $institucion->ciudad.', '.$emitidoEl;
-    $horas = (int) $documento->horas_lectivas;
+    $texto = TextoResaltado::html($documento->texto('certificado'), [
+        'nivel' => mb_strtoupper((string) $documento->nivel?->etiqueta()),
+        'idioma' => mb_strtoupper((string) $documento->idioma),
+        'horas' => (int) $documento->horas_lectivas.' horas académicas',
+    ]);
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -77,7 +82,7 @@
                 <p class="nombre">{{ $documento->estudiante_nombre }}</p>
                 <p class="documento sans">{{ $documento->estudiante_documento }}</p>
 
-                <p class="texto">Por haber aprobado satisfactoriamente el nivel <strong>{{ mb_strtoupper((string) $documento->nivel?->etiqueta()) }}</strong> del idioma <strong>{{ mb_strtoupper((string) $documento->idioma) }}</strong> desarrollado en el Centro de Idiomas de la UNASAM; haciendo un total de <strong>{{ $horas }} horas académicas</strong>.</p>
+                <p class="texto">{{ $texto }}</p>
 
                 <p class="lugar">{{ $lugarYFecha }}.</p>
 

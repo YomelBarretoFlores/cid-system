@@ -19,5 +19,6 @@ Tu trámite **{{ $tramite->tipo_nombre }}** ({{ $tramite->codigo }}) cambió de 
 Ver mi trámite
 </x-mail::button>
 
-Centro de Idiomas · Universidad Nacional Santiago Antúnez de Mayolo
+@php($institucion = app(\App\Modules\Certificacion\Contracts\DatosInstitucionales::class)())
+{{ $institucion->centro }} · {{ $institucion->universidad }}
 </x-mail::message>

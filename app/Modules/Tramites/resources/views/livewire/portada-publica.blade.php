@@ -9,7 +9,7 @@
     $vacantes = fn ($grupo) => match (true) {
         ! $grupo->abierto => ['Próximamente', 'text-marino-800/75'],
         $grupo->vacantes === 0 => ['Sin vacantes', 'text-marino-800/75'],
-        default => [$grupo->vacantes.($grupo->vacantes === 1 ? ' vacante' : ' vacantes'), $grupo->vacantes <= 5 ? 'text-ambar-texto' : 'text-verde-texto'],
+        default => [$grupo->vacantes.($grupo->vacantes === 1 ? ' vacante' : ' vacantes'), $grupo->vacantes <= $umbralDePocasVacantes ? 'text-ambar-texto' : 'text-verde-texto'],
     };
     $ciclosDe = fn (int $ciclos): string => match ($ciclos) {
         0 => 'Por publicar',
@@ -21,31 +21,6 @@
         fn (string $ancla): bool => $ancla !== 'fechas' || $fechas !== [],
         ARRAY_FILTER_USE_KEY,
     );
-    $pasos = [
-        ['Cree su cuenta', 'Regístrese con su documento de identidad y su correo personal, y confirme el enlace que le enviamos.'],
-        ['Pague la matrícula', 'Pague el derecho de matrícula de su vínculo en el Banco de la Nación, Págalo.pe o la caja de la UNASAM.'],
-        ['Registre su recibo', 'Regístrelo en Registro de pagos con el número de operación. El CILN lo revisa y lo valida.'],
-        ['Elija su grupo', 'Elija un horario con vacantes de su ciclo y descargue su ficha de matrícula.'],
-    ];
-    $pasosDeClasificacion = [
-        ['Pague el examen', 'En el Banco de la Nación, Págalo.pe o la caja de la UNASAM, y registre el recibo en el portal.'],
-        ['Solicítelo en el portal', 'Ingrese al portal del estudiante, elija el idioma y el pago validado del examen.'],
-        ['Rinda el examen', 'En la fecha y el lugar que le comunique la coordinación académica.'],
-        ['Reciba su ciclo', 'La coordinación registra el resultado y le asigna el ciclo en el que puede matricularse.'],
-    ];
-    $niveles = [
-        ['Básico', 'Para quien inicia el estudio del idioma: vocabulario, estructuras y expresiones de uso cotidiano.', 'Comprender y usar expresiones habituales, presentarse y desenvolverse en situaciones sencillas.'],
-        ['Intermedio', 'Amplía el vocabulario y la gramática para comunicarse con mayor precisión en el ámbito personal y académico.', 'Participar en conversaciones, comprender las ideas principales de textos claros y redactar textos breves.'],
-        ['Avanzado', 'Consolida el uso del idioma en contextos académicos y profesionales.', 'Expresarse con fluidez, comprender textos extensos y redactar documentos académicos y profesionales.'],
-    ];
-    $preguntas = [
-        ['¿Cómo me matriculo?', 'Cree su cuenta, pague el derecho de matrícula de su vínculo, registre el recibo en Registro de pagos y, cuando el CILN lo valide, elija un grupo con vacantes. La ficha de matrícula se descarga al instante.'],
-        ['¿Dónde pago?', 'En el Banco de la Nación, en Págalo.pe o en la caja de la UNASAM. Luego registre el número de operación y el recibo en el portal.'],
-        ['Ya conozco el idioma, ¿debo empezar en el ciclo I?', 'No. Rinda el examen de clasificación desde el portal del estudiante y, según su resultado, se matricula en un ciclo superior.'],
-        ['¿Cómo obtengo mi certificado?', 'Al aprobar los ciclos de un nivel, solicite el certificado como trámite desde el portal del estudiante. Cada certificado lleva un código y un QR verificables.'],
-        ['¿Cómo verifico una constancia o certificado?', 'Escriba el código impreso al pie del documento en la sección de verificación, al final de esta página, o escanee su código QR.'],
-        ['Soy docente del CILN, ¿dónde ingreso?', 'En Ingresar, con el mismo correo y contraseña. El sistema lo lleva a su panel de docente.'],
-    ];
     $avisos = $oferta === null ? [] : [
         $oferta->matriculaAbierta
             ? 'Matrícula '.$oferta->periodo.' abierta hasta el '.Formato::diaDeMes($oferta->matriculaFin)
@@ -97,9 +72,9 @@
                     <div class="flex flex-col gap-6">
                         <span data-revelar class="flex items-center gap-2 text-[14px] font-medium text-celeste-100/90">
                             <span aria-hidden="true" class="size-1.5 bg-celeste-300"></span>
-                            Universidad Nacional Santiago Antúnez de Mayolo · Huaraz
+                            {{ $institucion['universidad'] }} · {{ $institucion['ciudad'] }}
                         </span>
-                        <h1 x-data="titularCiln" class="font-display text-[clamp(42px,6.6vw,96px)] leading-[0.98] font-semibold tracking-[-0.035em] text-balance">Centro de Idiomas y Lenguas Nativas</h1>
+                        <h1 x-data="titularCiln" class="font-display text-[clamp(42px,6.6vw,96px)] leading-[0.98] font-semibold tracking-[-0.035em] text-balance">{{ $institucion['centro'] }}</h1>
                     </div>
                     <div data-revelar style="--orden: 4" class="flex flex-col gap-6 lg:pb-3">
                         <p class="text-[17px] leading-relaxed text-pretty text-white/85">
@@ -121,8 +96,9 @@
                         <x-publico.titulo id="titulo-centro" etiqueta="El centro">Idiomas para la universidad y la región</x-publico.titulo>
                     </div>
                     <div data-revelar style="--orden: 1" class="flex flex-col gap-5 {{ $nota }} lg:pt-10">
-                        <p>El Centro de Idiomas y Lenguas Nativas de la UNASAM enseña idiomas extranjeros y lenguas originarias del Perú. Cada idioma se estudia por ciclos, agrupados en los niveles básico, intermedio y avanzado.</p>
-                        <p>La matrícula, los pagos, las notas y los certificados se gestionan en línea desde el portal del estudiante, y cada constancia o certificado lleva un código y un QR para verificar su autenticidad.</p>
+                        @foreach ($nosotros as $parrafo)
+                            <p>{{ $parrafo }}</p>
+                        @endforeach
                     </div>
                 </div>
                 <dl aria-label="Cifras del periodo" class="grid grid-cols-2 border-t border-marino-900/15 lg:grid-cols-4">
@@ -222,7 +198,7 @@
                     <img src="{{ asset('images/portada/aula.jpg') }}" alt="Docente dictando clase a un grupo de estudiantes" width="2000" height="1125" loading="lazy" class="size-full object-cover">
                 </figure>
                 <ol class="grid grid-cols-[minmax(0,1fr)] pt-4 pb-20 sm:-mx-6 sm:grid-cols-2 lg:-mx-8 sm:pb-28 lg:grid-cols-4">
-                    @foreach ($pasos as [$paso, $detalle])
+                    @foreach ($pasos as ['titulo' => $paso, 'detalle' => $detalle])
                         <li data-revelar style="--orden: {{ $loop->index }}" @class([
                             'flex flex-col gap-3 border-b border-white/25 py-8 sm:px-6 lg:border-b-0 lg:px-8',
                             'sm:border-l' => $loop->index % 2 === 1,
@@ -330,7 +306,7 @@
                             <p class="{{ $nota }}">Rinda el examen de clasificación y, según su resultado, empiece en un ciclo superior sin cursar desde el ciclo I.</p>
                         </div>
                         <ol class="border-t border-marino-900/15">
-                            @foreach ($pasosDeClasificacion as [$paso, $detalle])
+                            @foreach ($pasosDeClasificacion as ['titulo' => $paso, 'detalle' => $detalle])
                                 <li data-revelar style="--orden: {{ $loop->index }}" class="grid grid-cols-[2.75rem_minmax(0,1fr)] gap-x-3 gap-y-1 border-b border-marino-900/15 py-5">
                                     <span class="row-span-2 pt-0.5 font-display text-[15px] font-semibold text-real-600 tabular-nums">{{ $numero($loop->index) }}</span>
                                     <span class="font-display text-[17px] font-semibold">{{ $paso }}</span>
@@ -375,7 +351,7 @@
                     <p data-revelar style="--orden: 1" class="{{ $nota }}">Cada nivel agrupa varios ciclos. El estudiante avanza de un ciclo al siguiente al aprobarlo; quien ya conoce el idioma puede <a href="#clasificacion" class="font-semibold text-real-600 underline underline-offset-3 hover:text-marino-900">rendir el examen de clasificación</a>.</p>
                 </div>
                 <ol class="relative grid grid-cols-[minmax(0,1fr)] border-t border-marino-900/15 lg:-mx-8 lg:grid-cols-3 lg:border-t-0 lg:before:absolute lg:before:inset-x-8 lg:before:top-0 lg:before:h-px lg:before:bg-marino-900/15">
-                    @foreach ($niveles as [$nivel, $detalle, $logro])
+                    @foreach ($niveles as ['nombre' => $nivel, 'descripcion' => $detalle, 'logro' => $logro])
                         {{-- A subgrid per level lines up its rows with the other levels, so the rule above the outcome sits at one height. --}}
                         <li data-revelar style="--orden: {{ $loop->index }}" @class([
                             'flex flex-col gap-4 border-b border-marino-900/15 py-10 lg:row-span-5 lg:grid lg:grid-rows-subgrid lg:gap-y-4 lg:border-b-0 lg:px-8',
@@ -488,7 +464,7 @@
                 </div>
                 <div class="preguntas-suaves pb-20 sm:pb-28 lg:pt-28 lg:pl-12">
                     <div class="border-t border-marino-900/15">
-                        @foreach ($preguntas as [$pregunta, $respuesta])
+                        @foreach ($preguntas as ['pregunta' => $pregunta, 'respuesta' => $respuesta])
                             <details data-revelar style="--orden: {{ $loop->index }}" name="preguntas" class="group border-b border-marino-900/15" @if ($loop->first) open @endif>
                                 <summary class="flex cursor-pointer list-none items-center gap-5 py-5 font-display text-[17.5px] font-semibold transition-colors hover:text-real-600 [&::-webkit-details-marker]:hidden">
                                     <span aria-hidden="true" class="shrink-0 text-[22px] leading-none font-normal text-real-600 transition-transform duration-300 group-open:rotate-45 motion-reduce:transition-none">+</span>

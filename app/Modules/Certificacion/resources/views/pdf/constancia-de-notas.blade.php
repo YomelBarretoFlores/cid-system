@@ -2,12 +2,13 @@
 @use('App\Modules\Certificacion\Enums\EstadoFinal')
 @use('App\Shared\Ui\Formato')
 @php
+    $institucion ??= app(\App\Modules\Certificacion\Contracts\DatosInstitucionales::class)();
     $notas = $documento->detalle['notas'];
     $promedios = array_values(array_filter(array_column($notas, 'promedio'), is_numeric(...)));
     $promedio = $promedios === [] ? null : number_format(array_sum($promedios) / count($promedios), 2, '.', '');
 @endphp
 <x-pdf.documento titulo="CONSTANCIA DE NOTAS" :codigo="$documento->codigo" :numero="$documento->numeroOficial()" :denominacion="$denominacion ?? null">
-    <p><strong>LA DIRECCIÓN DEL CENTRO DE IDIOMAS Y LENGUAS NATIVAS DE LA UNIVERSIDAD NACIONAL SANTIAGO ANTÚNEZ DE MAYOLO</strong>, que suscribe:</p>
+    <p><strong>LA DIRECCIÓN DEL {{ mb_strtoupper($institucion->centro) }} DE LA {{ mb_strtoupper($institucion->universidad) }}</strong>, que suscribe:</p>
     <p style="letter-spacing: 1px;"><strong>HACE CONSTAR:</strong></p>
     <p>
         Que, <strong style="text-transform: uppercase;">{{ $documento->estudiante_nombre }}</strong>, identificado(a) con {{ $documento->estudiante_documento }}, ha cursado en este Centro el idioma
@@ -39,9 +40,9 @@
         </tbody>
     </table>
 
-    <p class="nota-al-pie">Escala vigesimal de 0 a 20. NSP: no se presentó.</p>
-    <p style="margin-top: 14px;">Se expide la presente a solicitud de la persona interesada, para los fines que estime conveniente.</p>
-    <p style="text-align: right; margin-top: 14px;">{{ $lugarYFecha ?? 'Huaraz, '.$emitidoEl }}.</p>
+    <p class="nota-al-pie">{{ $documento->texto('escala') }} NSP: no se presentó.</p>
+    <p style="margin-top: 14px;">{{ $documento->texto('cierre') }}</p>
+    <p style="text-align: right; margin-top: 14px;">{{ $lugarYFecha ?? $institucion->ciudad.', '.$emitidoEl }}.</p>
 
     <x-pdf.firmas :firmas="$firmas ?? []" />
 

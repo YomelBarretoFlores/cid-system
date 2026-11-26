@@ -38,7 +38,7 @@ it('orders the sidebar by TdR module, with every section in its group', function
         'Certificación' => ['Actas pendientes', 'Actas finales', 'Constancias y certificados'],
         'Trámites' => ['Trámites'],
         'Reportes' => ['Matriculados', 'Asistencia por grupo', 'Notas por periodo'],
-        'Catálogos' => ['Conceptos y tarifas', 'Medios de pago', 'Fuentes TUPA/TUSNE', 'Tipos de trámite', 'Sistemas de evaluación', 'Condiciones laborales', 'Grados académicos', 'Firmantes', 'Denominación del año', 'Datos institucionales', 'Configuración de pagos', 'Tipos de vínculo', 'Tipos de documento', 'Modalidades', 'Bancos', 'Grados del FUT'],
+        'Catálogos' => ['Conceptos y tarifas', 'Medios de pago', 'Fuentes TUPA/TUSNE', 'Tipos de trámite', 'Sistemas de evaluación', 'Condiciones laborales', 'Grados académicos', 'Firmantes', 'Denominación del año', 'Datos institucionales', 'Textos de documentos', 'Configuración de pagos', 'Política de privacidad', 'Tipos de vínculo', 'Contenido de la portada', 'Tipos de documento', 'Modalidades', 'Bancos', 'Grados del FUT', 'Parámetros del sistema'],
         'Seguridad' => ['Usuarios del personal', 'Roles', 'Auditoría'],
     ]);
 });

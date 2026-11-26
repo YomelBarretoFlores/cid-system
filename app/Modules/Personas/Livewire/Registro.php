@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Personas\Livewire;
 
+use App\Modules\Personas\Actions\ArmarConsentimiento;
 use App\Modules\Personas\Actions\RegistrarCuentaDeEstudiante;
 use App\Modules\Personas\Contracts\CatalogoDeDocumentos;
 use App\Modules\Personas\Data\SolicitudDeCuenta;
@@ -91,6 +92,7 @@ final class Registro extends Component
                 ->filter(fn (TipoDeDocumento $tipo): bool => $tipo->activo)
                 ->mapWithKeys(fn (TipoDeDocumento $tipo): array => [$tipo->codigo => $tipo->nombre])
                 ->all(),
+            'consentimiento' => app(ArmarConsentimiento::class)(),
         ]);
     }
 

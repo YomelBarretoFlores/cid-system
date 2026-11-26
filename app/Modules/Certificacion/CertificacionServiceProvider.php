@@ -10,6 +10,7 @@ use App\Modules\Certificacion\Actions\ConsultarAvanceDeNotas;
 use App\Modules\Certificacion\Actions\ConsultarDatosInstitucionales;
 use App\Modules\Certificacion\Actions\ConsultarDenominacionDelAnio;
 use App\Modules\Certificacion\Actions\ConsultarEstadosDeActas;
+use App\Modules\Certificacion\Actions\ConsultarTextosDeDocumentos;
 use App\Modules\Certificacion\Actions\EmitirDocumentoParaTramite;
 use App\Modules\Certificacion\Actions\ListarIdiomasConNotasCerradas;
 use App\Modules\Certificacion\Actions\ListarMatriculasAprobadas;
@@ -32,6 +33,7 @@ use App\Modules\Certificacion\Contracts\MatriculasCalificadas;
 use App\Modules\Certificacion\Contracts\NivelesConNotas;
 use App\Modules\Certificacion\Contracts\NivelesPorCertificar;
 use App\Modules\Certificacion\Contracts\RecordDeNotas;
+use App\Modules\Certificacion\Contracts\TextosDeDocumentos;
 use App\Modules\Certificacion\Listeners\AlRegistrarClasificacion;
 use App\Modules\Matricula\Events\ClasificacionRegistrada;
 use App\Shared\Support\ModuleServiceProvider;
@@ -54,6 +56,7 @@ final class CertificacionServiceProvider extends ModuleServiceProvider
         DenominacionDelAnio::class => ConsultarDenominacionDelAnio::class,
         EstadosDeActas::class => ConsultarEstadosDeActas::class,
         DatosInstitucionales::class => ConsultarDatosInstitucionales::class,
+        TextosDeDocumentos::class => ConsultarTextosDeDocumentos::class,
         NivelesConNotas::class => ListarNivelesConNotas::class,
         AprobacionesPorSuficiencia::class => RegistrarAprobacionesPorSuficiencia::class,
         AprobacionesPorReclasificacion::class => RegistrarAprobacionesPorReclasificacion::class,

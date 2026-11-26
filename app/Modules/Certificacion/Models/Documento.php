@@ -6,6 +6,7 @@ namespace App\Modules\Certificacion\Models;
 
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Data\DatosDeLaInstitucion;
+use App\Modules\Certificacion\Data\TextosDeLosDocumentos;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Policies\DocumentoPolicy;
 use App\Shared\Auth\Models\User;
@@ -50,6 +51,14 @@ final class Documento extends Model
         $formato = $this->detalle['formato_numero'] ?? self::FORMATO_ORIGINAL;
 
         return DatosDeLaInstitucion::numerar((string) $formato, (int) $numero, (int) $anio);
+    }
+
+    // The text frozen at issue; documents issued before the texts were editable print the original wording.
+    public function texto(string $clave): string
+    {
+        $texto = $this->detalle['textos'][$clave] ?? TextosDeLosDocumentos::ORIGINALES[$clave] ?? '';
+
+        return is_string($texto) ? $texto : '';
     }
 
     // Behind a "N° Registro:" label the pattern's own "N.º"/"N°" prefix would repeat.

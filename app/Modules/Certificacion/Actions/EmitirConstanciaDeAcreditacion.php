@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Certificacion\Actions;
 
 use App\Modules\Academico\Enums\NivelCurricular;
+use App\Modules\Certificacion\Contracts\TextosDeDocumentos;
 use App\Modules\Certificacion\Data\NotaDelHistorial;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Documento;
@@ -18,7 +19,7 @@ use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 // Postgraduate students accredit a level for their degree in the real CILN format (detalle version 3), with its own yearly number.
 final readonly class EmitirConstanciaDeAcreditacion
 {
-    public function __construct(private EmisionDeDocumento $emision, private FilasDeLaConstancia $filas) {}
+    public function __construct(private EmisionDeDocumento $emision, private FilasDeLaConstancia $filas, private TextosDeDocumentos $textosDeDocumentos) {}
 
     public function __invoke(int $personaId, string $idioma, NivelCurricular $nivel, string $mencion, User $emisor): Documento
     {
@@ -40,7 +41,7 @@ final readonly class EmitirConstanciaDeAcreditacion
                 'notas' => array_map(fn (NotaDelHistorial $nota): array => $nota->comoDetalle(), $notas),
                 'filas' => FilasDeLaConstancia::filas($notas),
                 'programa_curricular' => $this->filas->programaCurricular($idioma),
-                ...DatosDeLaAcreditacion::de($notas, $mencion),
+                ...DatosDeLaAcreditacion::de($notas, $mencion, ($this->textosDeDocumentos)()),
             ],
         ], $emisor);
     }

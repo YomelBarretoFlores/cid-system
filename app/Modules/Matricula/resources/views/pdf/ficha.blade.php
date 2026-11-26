@@ -42,7 +42,7 @@
         <div class="estudiante">{{ mb_strtoupper($ficha->estudiante->nombreCompleto) }} <span>{{ $documento }}</span></div>
         <table class="datos">
             <tr>
-                <td style="width: 52%;"><strong>Centro:</strong> CENTRO DE IDIOMAS Y LENGUAS NATIVAS</td>
+                <td style="width: 52%;"><strong>Centro:</strong> {{ mb_strtoupper(app(\App\Modules\Certificacion\Contracts\DatosInstitucionales::class)()->centro) }}</td>
                 <td style="width: 18%;"><strong>Matrículas:</strong> {{ count($ficha->matriculas) }}</td>
                 <td class="derecha"><strong>Fecha de matrícula:</strong> {{ $ficha->primeraMatricula()?->format('d/m/Y h:i A') ?? '—' }}</td>
             </tr>

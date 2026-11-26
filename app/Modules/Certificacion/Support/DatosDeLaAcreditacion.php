@@ -5,28 +5,25 @@ declare(strict_types=1);
 namespace App\Modules\Certificacion\Support;
 
 use App\Modules\Certificacion\Data\NotaDelHistorial;
+use App\Modules\Certificacion\Data\TextosDeLosDocumentos;
 use App\Modules\Certificacion\Enums\FormaDeAprobacion;
 use App\Modules\Tramites\Contracts\TitulosDeGrados;
 use App\Shared\Support\Notas\Nota;
 
-// The rows of the real accreditation format, frozen at issue: grade, modality, completion date and validity sentence.
+// The rows of the real accreditation format, frozen at issue: grade, modality, completion date and validity sentence; modality and validity come from the editable texts.
 final class DatosDeLaAcreditacion
 {
-    public const string PROGRAMA = 'Programa de Enseñanza de Idioma Extranjero';
-
-    public const string SUFICIENCIA = 'Examen de Suficiencia';
-
     /**
      * @param  list<NotaDelHistorial>  $notas  passed cycles of the level
      * @return array{calificativo: ?int, modalidad: string, fecha_nivel: ?string, validez: string}
      */
-    public static function de(array $notas, string $mencion): array
+    public static function de(array $notas, string $mencion, TextosDeLosDocumentos $textos): array
     {
         return [
             'calificativo' => self::calificativo($notas),
-            'modalidad' => self::modalidad($notas),
+            'modalidad' => self::porExamen($notas) ? $textos->suficienciaAcreditacion : $textos->programaAcreditacion,
             'fecha_nivel' => self::fecha($notas),
-            'validez' => self::validez($mencion),
+            'validez' => str_replace('{mencion}', self::grado($mencion), $textos->validezAcreditacion),
         ];
     }
 
@@ -47,12 +44,11 @@ final class DatosDeLaAcreditacion
      *
      * @param  list<NotaDelHistorial>  $notas
      */
-    private static function modalidad(array $notas): string
+    private static function porExamen(array $notas): bool
     {
         $formas = array_map(fn (NotaDelHistorial $nota): FormaDeAprobacion => $nota->forma, $notas);
-        $porExamen = in_array(FormaDeAprobacion::Suficiencia, $formas, true) && ! in_array(FormaDeAprobacion::Matricula, $formas, true);
 
-        return $porExamen ? self::SUFICIENCIA : self::PROGRAMA;
+        return in_array(FormaDeAprobacion::Suficiencia, $formas, true) && ! in_array(FormaDeAprobacion::Matricula, $formas, true);
     }
 
     /**
@@ -66,7 +62,7 @@ final class DatosDeLaAcreditacion
     }
 
     // "Maestría en Educación" is the degree of "Maestro en Educación" by the FUT grades catalog; any other mention is printed as written.
-    private static function validez(string $mencion): string
+    private static function grado(string $mencion): string
     {
         foreach (app(TitulosDeGrados::class)() as $nombre => $titulo) {
             if (preg_match('/^'.preg_quote($nombre, '/').'(?![\pL\pN])/iu', $mencion, $marca) === 1) {
@@ -76,6 +72,6 @@ final class DatosDeLaAcreditacion
             }
         }
 
-        return "Válido para obtener el Grado de {$mencion}.";
+        return $mencion;
     }
 }

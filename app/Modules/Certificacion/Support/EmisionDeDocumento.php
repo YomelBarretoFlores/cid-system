@@ -6,6 +6,7 @@ namespace App\Modules\Certificacion\Support;
 
 use App\Modules\Certificacion\Contracts\DatosInstitucionales;
 use App\Modules\Certificacion\Contracts\DenominacionDelAnio;
+use App\Modules\Certificacion\Contracts\TextosDeDocumentos;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Documento;
@@ -20,7 +21,7 @@ final readonly class EmisionDeDocumento
 {
     private const int INTENTOS_DE_CODIGO = 3;
 
-    public function __construct(private FichaDePersona $fichaDePersona, private DenominacionDelAnio $denominacionDelAnio, private DatosInstitucionales $datosInstitucionales) {}
+    public function __construct(private FichaDePersona $fichaDePersona, private DenominacionDelAnio $denominacionDelAnio, private DatosInstitucionales $datosInstitucionales, private TextosDeDocumentos $textosDeDocumentos) {}
 
     public static function asegurarPermiso(User $usuario): void
     {
@@ -40,12 +41,13 @@ final readonly class EmisionDeDocumento
                 return Transaccion::ejecutar(function () use ($datos, $tipo, $personaId, $ficha, $emisor): Documento {
                     $anio = (int) now('America/Lima')->format('Y');
 
-                    // The signers and the year's denomination in force are frozen in the document, like the rest of it, so editing a signer never rewrites issued documents.
+                    // The signers, the year's denomination and the editable texts in force are frozen in the document, like the rest of it, so editing them never rewrites issued documents.
                     $datos['detalle'] = [
                         ...$datos['detalle'],
                         'firmas' => FirmasDelDocumento::de($tipo->grupoDeFirma(), now('America/Lima')),
                         'denominacion' => ($this->denominacionDelAnio)($anio),
                         'formato_numero' => $this->formatoDeNumero($tipo, $datos['detalle']),
+                        'textos' => ($this->textosDeDocumentos)()->paraDocumento($tipo),
                     ];
 
                     return Documento::query()->create([
