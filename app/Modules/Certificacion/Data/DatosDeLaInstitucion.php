@@ -42,7 +42,7 @@ final readonly class DatosDeLaInstitucion
     {
         $conNumero = (string) preg_replace_callback(
             '/\{numero(?::(\d+))?\}/',
-            fn (array $marca): string => str_pad((string) $numero, (int) ($marca[1] ?? 0), '0', STR_PAD_LEFT),
+            fn (array $marca): string => str_pad((string) $numero, min((int) ($marca[1] ?? 0), 20), '0', STR_PAD_LEFT),
             $formato,
         );
 

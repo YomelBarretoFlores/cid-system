@@ -58,7 +58,7 @@ final readonly class GuardarDatosInstitucionales
         }
 
         foreach (self::FORMATOS as $formato) {
-            throw_unless(preg_match('/\{numero(:\d+)?\}/', $limpios[$formato] ?? '') === 1, ReglaDeNegocioIncumplida::class, 'El formato del número debe incluir {numero} o {numero:N}.');
+            throw_unless(preg_match('/\{numero(:\d{1,2})?\}/', $limpios[$formato] ?? '') === 1 && preg_match('/\{numero:\d{3,}\}/', $limpios[$formato] ?? '') === 0, ReglaDeNegocioIncumplida::class, 'El formato del número debe incluir {numero} o {numero:N}, con N de hasta dos cifras.');
         }
 
         return $limpios;

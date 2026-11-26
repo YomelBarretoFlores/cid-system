@@ -111,8 +111,9 @@ it('refuses blank texts and number patterns without the number', function (array
         ->and(app(DatosInstitucionales::class)()->ciudad)->toBe('Huaraz');
 })->with([
     'blank city' => [['ciudad' => '  '], 'Completa la ciudad, hasta 60 caracteres.'],
-    'pattern without number' => [['formato_numero' => 'N.º {anio}'], 'El formato del número debe incluir {numero} o {numero:N}.'],
-    'grade record pattern without number' => [['formato_numero_constancia_notas' => 'CN'], 'El formato del número debe incluir {numero} o {numero:N}.'],
+    'pattern without number' => [['formato_numero' => 'N.º {anio}'], 'El formato del número debe incluir {numero} o {numero:N}, con N de hasta dos cifras.'],
+    'padding wider than two digits' => [['formato_numero' => 'N.º {numero:999}-{anio}'], 'El formato del número debe incluir {numero} o {numero:N}, con N de hasta dos cifras.'],
+    'grade record pattern without number' => [['formato_numero_constancia_notas' => 'CN'], 'El formato del número debe incluir {numero} o {numero:N}, con N de hasta dos cifras.'],
 ]);
 
 it('keeps a single row of institutional data in the database', function (): void {
