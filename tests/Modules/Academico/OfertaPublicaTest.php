@@ -6,7 +6,6 @@ use App\Modules\Academico\Contracts\OfertaPublica;
 use App\Modules\Academico\Data\GrupoOfertado;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
@@ -35,7 +34,7 @@ it('shows the period whose enrollment is open, with its dates and its open and s
     periodoPublico('2026-III', EstadoPeriodo::Planificado, '2026-11-15', '2026-11-30');
     $quechua = Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Quechua']))->create(['numero' => 2]);
     $abierto = Grupo::factory()->for($periodo)->for($this->inglesI)->create([
-        'estado' => EstadoGrupo::Abierto, 'modalidad' => Modalidad::Virtual, 'cupo_maximo' => 20, 'matriculados' => 18,
+        'estado' => EstadoGrupo::Abierto, 'modalidad' => 'virtual', 'cupo_maximo' => 20, 'matriculados' => 18,
         'enlace_virtual' => 'https://meet.example.test/privado',
     ]);
     Horario::factory()->for($abierto)->create(['dia_semana' => 1, 'hora_inicio' => '07:00', 'hora_fin' => '08:30']);

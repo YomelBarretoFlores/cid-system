@@ -16,10 +16,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @property int $id
+ * @property string $nombre
  * @property RegimenDePrograma $regimen
+ * @property bool $activo
+ * @property bool $por_defecto
  */
 #[Table('aca_programas')]
-#[Fillable(['codigo', 'nombre', 'regimen', 'activo'])]
+#[Fillable(['codigo', 'nombre', 'regimen', 'activo', 'por_defecto'])]
 #[UseFactory(ProgramaFactory::class)]
 #[UsePolicy(OfertaAcademicaPolicy::class)]
 final class Programa extends Model
@@ -30,6 +34,7 @@ final class Programa extends Model
     #[\Override]
     protected $attributes = [
         'activo' => true,
+        'por_defecto' => false,
     ];
 
     protected function casts(): array
@@ -37,6 +42,7 @@ final class Programa extends Model
         return [
             'regimen' => RegimenDePrograma::class,
             'activo' => 'boolean',
+            'por_defecto' => 'boolean',
         ];
     }
 }

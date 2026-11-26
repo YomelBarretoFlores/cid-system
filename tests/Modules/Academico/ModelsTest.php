@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\GrupoDeComponente;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\ComponenteEvaluacion;
@@ -44,7 +43,7 @@ it('casts academic states and catalogs to enums', function (): void {
     $grupo = Grupo::factory()->create()->load('periodo', 'ciclo');
 
     expect($grupo->estado)->toBe(EstadoGrupo::Abierto)
-        ->and($grupo->modalidad)->toBe(Modalidad::Presencial)
+        ->and($grupo->modalidad)->toBe('presencial')
         ->and($grupo->periodo->estado)->toBe(EstadoPeriodo::Planificado)
         ->and($grupo->ciclo->nivel)->toBe(NivelCurricular::Basico);
 });
@@ -56,7 +55,7 @@ it('starts new periods as planned and new groups as scheduled with no students',
         'ciclo_id' => Ciclo::factory()->create()->id,
         'programa_id' => Programa::query()->where('codigo', 'JA')->value('id'),
         'codigo' => 'ING-B1-01',
-        'modalidad' => Modalidad::Virtual,
+        'modalidad' => 'virtual',
         'cupo_maximo' => 20,
         'cupo_minimo' => 8,
     ]);

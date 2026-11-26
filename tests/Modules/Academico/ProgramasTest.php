@@ -6,7 +6,6 @@ use App\Modules\Academico\Actions\GuardarGrupo;
 use App\Modules\Academico\Contracts\CursoDelGrupo;
 use App\Modules\Academico\Contracts\DetalleDeGrupos;
 use App\Modules\Academico\Data\DatosDeGrupo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\RegimenDePrograma;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
@@ -21,7 +20,7 @@ function grupoDelPrograma(Programa $programa, bool $esAcelerado): DatosDeGrupo
         periodoId: test()->periodo->id,
         cicloId: test()->ciclo->id,
         codigo: 'ING-01',
-        modalidad: Modalidad::Presencial,
+        modalidad: 'presencial',
         esAcelerado: $esAcelerado,
         cupoMaximo: 25,
         cupoMinimo: 10,

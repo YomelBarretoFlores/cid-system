@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Actions;
 
 use App\Modules\Academico\Data\DatosDeGrupo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
+use App\Modules\Academico\Models\Modalidad;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Academico\Models\Programa;
 use App\Shared\Support\Database\RestriccionUnica;
@@ -21,8 +21,6 @@ final readonly class GuardarGrupo
 {
     public function __invoke(DatosDeGrupo $datos, ?int $grupoId = null): Grupo
     {
-        $this->asegurarModalidad($datos);
-
         if ($datos->cupoMinimo > $datos->cupoMaximo) {
             throw new ReglaDeNegocioIncumplida('El cupo mínimo no puede superar el cupo máximo.');
         }
@@ -44,6 +42,7 @@ final readonly class GuardarGrupo
             throw new ReglaDeNegocioIncumplida("El grupo {$grupo->codigo} está {$grupo->estado->etiqueta()} y ya no admite cambios.");
         }
 
+        $this->asegurarModalidad($grupo, $datos);
         $this->asegurarCicloDisponible($grupo, $datos);
         $this->asegurarPrograma($grupo, $datos);
 
@@ -72,16 +71,25 @@ final readonly class GuardarGrupo
         return $grupo;
     }
 
-    private function asegurarModalidad(DatosDeGrupo $datos): void
+    private function asegurarModalidad(Grupo $grupo, DatosDeGrupo $datos): void
     {
-        if ($datos->modalidad !== Modalidad::Virtual) {
-            throw_if($datos->aulaId === null, ReglaDeNegocioIncumplida::class, 'Un grupo presencial o semipresencial necesita un aula.');
+        $modalidad = Modalidad::query()->where('codigo', $datos->modalidad)->first();
+
+        // A deactivated modality keeps serving the groups that already use it.
+        if ($modalidad === null || (! $modalidad->activo && $grupo->modalidad !== $modalidad->codigo)) {
+            throw new ReglaDeNegocioIncumplida('La modalidad elegida no está disponible para nuevos grupos.');
+        }
+
+        $nombre = mb_strtolower($modalidad->nombre);
+
+        if ($modalidad->usa_aula) {
+            throw_if($datos->aulaId === null, ReglaDeNegocioIncumplida::class, "Un grupo {$nombre} necesita un aula.");
 
             return;
         }
 
-        throw_if(blank($datos->enlaceVirtual), ReglaDeNegocioIncumplida::class, 'Un grupo virtual necesita el enlace de la clase.');
-        throw_if($datos->aulaId !== null, ReglaDeNegocioIncumplida::class, 'Un grupo virtual no usa aula.');
+        throw_if(blank($datos->enlaceVirtual), ReglaDeNegocioIncumplida::class, "Un grupo {$nombre} necesita el enlace de la clase.");
+        throw_if($datos->aulaId !== null, ReglaDeNegocioIncumplida::class, "Un grupo {$nombre} no usa aula.");
     }
 
     private function asegurarCicloDisponible(Grupo $grupo, DatosDeGrupo $datos): void

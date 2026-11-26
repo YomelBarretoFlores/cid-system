@@ -27,7 +27,7 @@ it('rejects rows that break an academic invariant', function (Closure $violation
     'classroom without capacity' => [fn () => Aula::factory()->create(['capacidad' => 0]), 'aca_aulas_capacidad_check'],
     'minimum quota above maximum' => [fn () => Grupo::factory()->create(['cupo_minimo' => 30, 'cupo_maximo' => 25]), 'aca_grupos_cupos_check'],
     'negative minimum quota' => [fn () => Grupo::factory()->create(['cupo_minimo' => -1]), 'aca_grupos_cupos_check'],
-    'unknown modality' => [fn () => DB::table('aca_grupos')->where('id', Grupo::factory()->create()->id)->update(['modalidad' => 'hibrida']), 'aca_grupos_modalidad_check'],
+    'unknown modality' => [fn () => DB::table('aca_grupos')->where('id', Grupo::factory()->create()->id)->update(['modalidad' => 'hibrida']), 'aca_grupos_modalidad_foreign'],
     'schedule ending before it starts' => [fn () => Horario::factory()->create(['hora_inicio' => '10:00', 'hora_fin' => '09:00']), 'aca_horarios_horas_check'],
     'day of week outside 1-7' => [fn () => Horario::factory()->create(['dia_semana' => 8]), 'aca_horarios_dia_semana_check'],
     'passing grade above the maximum' => [fn () => EsquemaEvaluacion::factory()->create(['nota_minima_aprobatoria' => '21.00']), 'aca_esquemas_evaluacion_notas_check'],

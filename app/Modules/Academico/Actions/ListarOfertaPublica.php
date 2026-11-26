@@ -64,7 +64,7 @@ final readonly class ListarOfertaPublica implements OfertaPublica
             ->where('periodo_id', $periodo->id)
             ->whereIn('estado', [EstadoGrupo::Programado->value, EstadoGrupo::Abierto->value])
             ->whereHas('ciclo.idioma', fn (Builder $idioma) => $idioma->where('activo', true))
-            ->with(['ciclo.idioma', 'horarios'])
+            ->with(['ciclo.idioma', 'modalidadDeDictado', 'horarios'])
             ->get()
             ->sortBy([
                 fn (Grupo $a, Grupo $b): int => $a->ciclo->idioma->nombre <=> $b->ciclo->idioma->nombre,

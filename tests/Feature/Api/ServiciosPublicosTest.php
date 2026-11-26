@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Data\SesionDeClase;
 use App\Modules\Academico\Enums\EstadoPeriodo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
@@ -33,7 +32,7 @@ it('publishes the offer of the period without a token and without private group 
         'matricula_inicio' => '2026-10-06', 'matricula_fin' => '2026-10-31', 'fecha_inicio' => '2026-11-03', 'fecha_fin' => '2026-12-20',
     ]);
     $ciclo = Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Inglés']))->create(['numero' => 1, 'nivel' => NivelCurricular::Basico]);
-    $grupo = Grupo::factory()->for($periodo)->for($ciclo)->create(['codigo' => 'ING-1-M', 'modalidad' => Modalidad::Virtual, 'enlace_virtual' => 'https://meet.test/secreto', 'aula_id' => Aula::factory()->create(['codigo' => 'A-101'])->id, 'cupo_maximo' => 25]);
+    $grupo = Grupo::factory()->for($periodo)->for($ciclo)->create(['codigo' => 'ING-1-M', 'modalidad' => 'virtual', 'enlace_virtual' => 'https://meet.test/secreto', 'aula_id' => Aula::factory()->create(['codigo' => 'A-101'])->id, 'cupo_maximo' => 25]);
     DB::table('aca_horarios')->insert(['grupo_id' => $grupo->id, 'dia_semana' => 1, 'hora_inicio' => '07:00', 'hora_fin' => '09:00', 'created_at' => now(), 'updated_at' => now()]);
 
     $this->getJson('/api/v1/oferta')

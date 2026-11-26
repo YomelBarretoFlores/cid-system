@@ -36,7 +36,7 @@ final readonly class GrupoOfertado
             idioma: $grupo->ciclo->idioma->nombre,
             cicloNumero: $grupo->ciclo->numero,
             nivel: $grupo->ciclo->nivel->etiqueta(),
-            modalidad: $grupo->modalidad->etiqueta(),
+            modalidad: $grupo->modalidadDeDictado->nombre,
             esAcelerado: $grupo->es_acelerado,
             horario: SesionDeClase::compactar($sesiones),
             vacantes: max(0, $grupo->vacantes_disponibles),

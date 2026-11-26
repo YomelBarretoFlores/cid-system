@@ -5,7 +5,6 @@ declare(strict_types=1);
 // Probes from the independent verification of the API, kept as regression tests.
 
 use App\Modules\Academico\Enums\EstadoPeriodo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
@@ -189,7 +188,7 @@ it('limits public endpoints to 60 requests a minute per address', function (): v
 it('never publishes the teacher of a group in the public offer', function (): void {
     $periodo = Periodo::factory()->create(['estado' => EstadoPeriodo::MatriculaAbierta, 'matricula_inicio' => '2027-04-01', 'matricula_fin' => '2027-04-30', 'fecha_inicio' => '2027-05-03', 'fecha_fin' => '2027-06-30']);
     $ciclo = Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Inglés']))->create(['numero' => 1, 'nivel' => NivelCurricular::Basico]);
-    $grupo = Grupo::factory()->for($periodo)->for($ciclo)->create(['modalidad' => Modalidad::Virtual, 'enlace_virtual' => 'https://meet.test/x']);
+    $grupo = Grupo::factory()->for($periodo)->for($ciclo)->create(['modalidad' => 'virtual', 'enlace_virtual' => 'https://meet.test/x']);
     [, $docente] = PortalDocente::docente();
     Persona::query()->whereKey($docente->persona_id)->update(['apellido_paterno' => 'Zevallos']);
     PortalDocente::asignar($grupo, $docente);

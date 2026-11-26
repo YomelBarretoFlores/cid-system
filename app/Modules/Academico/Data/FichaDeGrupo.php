@@ -9,7 +9,7 @@ use App\Modules\Academico\Models\Horario;
 
 final readonly class FichaDeGrupo
 {
-    public const array RELACIONES = ['ciclo.idioma', 'periodo', 'programa', 'aula', 'horarios'];
+    public const array RELACIONES = ['ciclo.idioma', 'modalidadDeDictado', 'periodo', 'programa', 'aula', 'horarios'];
 
     /**
      * @param  list<string>  $horarios
@@ -43,7 +43,7 @@ final readonly class FichaDeGrupo
             idioma: $grupo->ciclo->idioma->nombre,
             cicloNumero: $grupo->ciclo->numero,
             nivel: $grupo->ciclo->nivel->etiqueta(),
-            modalidad: $grupo->modalidad->etiqueta(),
+            modalidad: $grupo->modalidadDeDictado->nombre,
             esAcelerado: $grupo->es_acelerado,
             periodoId: $grupo->periodo_id,
             periodo: $grupo->periodo->nombre,

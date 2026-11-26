@@ -15,6 +15,7 @@ use App\Modules\Academico\Actions\DescribirHorariosDeGrupos;
 use App\Modules\Academico\Actions\LiberarVacante;
 use App\Modules\Academico\Actions\ListarCatalogoDeGrupos;
 use App\Modules\Academico\Actions\ListarCatalogoDeIdiomas;
+use App\Modules\Academico\Actions\ListarCatalogoDeModalidades;
 use App\Modules\Academico\Actions\ListarCatalogoDePeriodos;
 use App\Modules\Academico\Actions\ListarCatalogoDeProgramas;
 use App\Modules\Academico\Actions\ListarCiclosAnteriores;
@@ -35,6 +36,7 @@ use App\Modules\Academico\Actions\VerificarMatriculaExtemporanea;
 use App\Modules\Academico\Contracts\BloqueoDeGrupo;
 use App\Modules\Academico\Contracts\CatalogoDeGrupos;
 use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
+use App\Modules\Academico\Contracts\CatalogoDeModalidades;
 use App\Modules\Academico\Contracts\CatalogoDePeriodos;
 use App\Modules\Academico\Contracts\CatalogoDeProgramas;
 use App\Modules\Academico\Contracts\CiclosAnteriores;
@@ -94,6 +96,7 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         IniciosDePeriodos::class => ListarIniciosDePeriodos::class,
         ProgramaPorDefecto::class => BuscarProgramaPorDefecto::class,
         CatalogoDeProgramas::class => ListarCatalogoDeProgramas::class,
+        CatalogoDeModalidades::class => ListarCatalogoDeModalidades::class,
         ProgramasDeGrupos::class => ListarProgramasDeGrupos::class,
         MatriculaExtemporanea::class => VerificarMatriculaExtemporanea::class,
         CiclosDelIdioma::class => ListarCiclosDelIdioma::class,

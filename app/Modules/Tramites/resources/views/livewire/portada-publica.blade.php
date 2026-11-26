@@ -1,16 +1,10 @@
 @php
-    use App\Modules\Academico\Enums\Modalidad;
     use App\Shared\Ui\Formato;
     use Illuminate\Support\Arr;
 
     $primerIdioma = collect($idiomas)->firstWhere('grupos', '>', 0)['nombre'] ?? ($idiomas[0]['nombre'] ?? '');
     $nombresDeIdiomas = array_column($idiomas, 'nombre');
-    $etiquetasDeModalidad = array_map(fn (Modalidad $modalidad): string => $modalidad->etiqueta(), $modalidades);
-    $detallesDeModalidad = [
-        'presencial' => 'En las aulas del CILN, con su grupo y su docente.',
-        'virtual' => 'Clases en línea con el enlace del grupo.',
-        'semipresencial' => 'Sesiones en aula y sesiones en línea.',
-    ];
+    $etiquetasDeModalidad = array_column($modalidades, 'nombre');
     $conteos = collect($grupos)->groupBy('idioma')->map(fn ($deIdioma) => $deIdioma->countBy('modalidad')->put('Todas', $deIdioma->count()));
     $vacantes = fn ($grupo) => match (true) {
         ! $grupo->abierto => ['Próximamente', 'text-marino-800/75'],
@@ -403,8 +397,8 @@
                     <dl class="grid grid-cols-[minmax(0,1fr)] md:-mx-6 md:grid-cols-3">
                         @foreach ($modalidades as $modalidad)
                             <div data-revelar style="--orden: {{ $loop->index }}" class="flex flex-col gap-1 border-b border-marino-900/15 py-4 md:border-b-0 md:px-6 md:not-first:border-l">
-                                <dt class="font-semibold">{{ $modalidad->etiqueta() }}</dt>
-                                <dd class="text-[15px] text-pretty text-marino-800/80">{{ $detallesDeModalidad[$modalidad->value] ?? 'Grupos que publica el CILN en cada periodo.' }}</dd>
+                                <dt class="font-semibold">{{ $modalidad['nombre'] }}</dt>
+                                <dd class="text-[15px] text-pretty text-marino-800/80">{{ $modalidad['descripcion'] ?? 'Grupos que publica el CILN en cada periodo.' }}</dd>
                             </div>
                         @endforeach
                     </dl>

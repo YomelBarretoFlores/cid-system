@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
@@ -51,7 +50,7 @@ it('gives the student their own profile and refuses guests, accounts without a p
 it('lists only the student\'s own enrollments, newest first, with their group, schedule, room or link and teacher', function (): void {
     $periodo = Periodo::factory()->create(['nombre' => 'Marzo 2027']);
     $ciclo = Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Inglés']))->create(['numero' => 1, 'nivel' => NivelCurricular::Basico]);
-    $grupo = Grupo::factory()->for($periodo)->for($ciclo)->create(['codigo' => 'ING-1-V', 'modalidad' => Modalidad::Virtual, 'enlace_virtual' => 'https://meet.test/ing-1-v']);
+    $grupo = Grupo::factory()->for($periodo)->for($ciclo)->create(['codigo' => 'ING-1-V', 'modalidad' => 'virtual', 'enlace_virtual' => 'https://meet.test/ing-1-v']);
     [, $docente] = PortalDocente::docente();
     PortalDocente::asignar($grupo, $docente);
     $antigua = Matricula::factory()->retirada()->create(['persona_id' => $this->rosa->id, 'grupo_id' => Grupo::factory()->create()->id, 'matriculado_en' => now()->subMonth()]);

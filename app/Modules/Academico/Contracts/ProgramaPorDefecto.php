@@ -6,6 +6,6 @@ namespace App\Modules\Academico\Contracts;
 
 interface ProgramaPorDefecto
 {
-    // The name of the program groups belonged to before programs existed (Jóvenes y Adultos).
+    // The name of the program marked as the default, printed for groups saved before programs existed.
     public function __invoke(): string;
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Database\Factories;
 
 use App\Modules\Academico\Enums\EstadoGrupo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Periodo;
@@ -25,10 +24,10 @@ final class GrupoFactory extends Factory
         return [
             'periodo_id' => Periodo::factory(),
             'ciclo_id' => Ciclo::factory(),
-            'programa_id' => fn (): int => Programa::query()->firstOrCreate(['codigo' => 'JA'], ['nombre' => 'Jóvenes y Adultos', 'regimen' => 'ambos'])->id,
+            'programa_id' => fn (): int => (int) (Programa::query()->where('por_defecto', true)->value('id') ?? Programa::query()->firstOrCreate(['codigo' => 'JA'], ['nombre' => 'Jóvenes y Adultos', 'regimen' => 'ambos'])->id),
             'aula_id' => null,
             'codigo' => fake()->unique()->bothify('G-####'),
-            'modalidad' => Modalidad::Presencial,
+            'modalidad' => 'presencial',
             'es_acelerado' => false,
             'enlace_virtual' => null,
             'cupo_maximo' => 25,

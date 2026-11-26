@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
@@ -22,7 +21,7 @@ beforeEach(function (): void {
     $this->usuario = User::factory()->create();
     $persona = Persona::factory()->create(['user_id' => $this->usuario->id, 'numero_documento' => '41234567', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'nombres' => 'Rosa']);
     $grupo = Grupo::factory()->for(Ciclo::factory()->for(Idioma::factory()->state(['nombre' => 'Inglés'])))->for(Periodo::factory()->state(['nombre' => 'Enero 2027']))
-        ->create(['codigo' => 'ING-I-A', 'modalidad' => Modalidad::Virtual, 'aula_id' => null, 'enlace_virtual' => 'https://meet.example.test/clase']);
+        ->create(['codigo' => 'ING-I-A', 'modalidad' => 'virtual', 'aula_id' => null, 'enlace_virtual' => 'https://meet.example.test/clase']);
     $this->operacion = 'OP-PRIVADA-1';
     $this->matricula = Matricula::factory()->create(['persona_id' => $persona->id, 'grupo_id' => $grupo->id, 'pago_id' => Pago::factory()->validado()->create(['persona_id' => $persona->id, 'numero_operacion' => $this->operacion])->id]);
 });

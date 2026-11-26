@@ -7,7 +7,6 @@ namespace App\Modules\Academico\Models;
 use App\Modules\Academico\Database\Factories\GrupoFactory;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Policies\GrupoPolicy;
 use App\Shared\Support\Eloquent\RenuevaContenidoPublico;
 use Carbon\CarbonImmutable;
@@ -27,7 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property EstadoGrupo $estado
- * @property Modalidad $modalidad
+ * @property string $modalidad
+ * @property-read Modalidad $modalidadDeDictado
  * @property-read Periodo $periodo
  * @property-read Ciclo $ciclo
  * @property-read ?Ciclo $cicloHasta
@@ -94,6 +94,14 @@ final class Grupo extends Model
     }
 
     /**
+     * @return BelongsTo<Modalidad, $this>
+     */
+    public function modalidadDeDictado(): BelongsTo
+    {
+        return $this->belongsTo(Modalidad::class, 'modalidad', 'codigo');
+    }
+
+    /**
      * @return BelongsTo<Aula, $this>
      */
     public function aula(): BelongsTo
@@ -134,7 +142,6 @@ final class Grupo extends Model
     protected function casts(): array
     {
         return [
-            'modalidad' => Modalidad::class,
             'estado' => EstadoGrupo::class,
             'es_acelerado' => 'boolean',
             'cupo_maximo' => 'integer',

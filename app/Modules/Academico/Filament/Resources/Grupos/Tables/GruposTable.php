@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Filament\Resources\Grupos\Tables;
 
 use App\Modules\Academico\Enums\EstadoGrupo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Filament\Resources\Grupos\Actions\AccionesDeGrupo;
 use App\Modules\Academico\Filament\Resources\Grupos\Pages\ListGrupos;
 use App\Modules\Academico\Filament\Resources\Grupos\Schemas\GrupoForm;
@@ -31,6 +30,8 @@ final class GruposTable
 {
     public static function configure(Table $table): Table
     {
+        $modalidades = GrupoForm::modalidades(todas: true);
+
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['periodo', 'ciclo.idioma', 'cicloHasta', 'programa', 'aula']))
             ->contentGrid(['md' => 2, 'xl' => 3])
@@ -51,7 +52,7 @@ final class GruposTable
                     TextColumn::make('programa.nombre')->label('Programa')->prefix('Programa ')->color('gray'),
                     TextColumn::make('periodo.nombre')->label('Periodo')->icon(Heroicon::OutlinedCalendar)->color('gray'),
                     Split::make([
-                        TextColumn::make('modalidad')->label('Modalidad')->formatStateUsing(fn (Modalidad $state): string => $state->etiqueta())->color('gray'),
+                        TextColumn::make('modalidad')->label('Modalidad')->formatStateUsing(fn (string $state): string => $modalidades[$state] ?? $state)->color('gray'),
                         TextColumn::make('aula.codigo')->label('Aula')->placeholder('Virtual')->prefix('Aula ')->color('gray'),
                         TextColumn::make('es_acelerado')->label('Acelerado')->state(fn (Grupo $record): ?string => $record->es_acelerado ? 'Acelerado' : null)->badge()->color('info')->grow(false),
                     ]),
@@ -64,7 +65,7 @@ final class GruposTable
             ->filters([
                 SelectFilter::make('periodo')->label('Periodo')->relationship('periodo', 'nombre')->preload(),
                 SelectFilter::make('estado')->label('Estado')->options(self::opciones(EstadoGrupo::cases())),
-                SelectFilter::make('modalidad')->label('Modalidad')->options(self::opciones(Modalidad::cases())),
+                SelectFilter::make('modalidad')->label('Modalidad')->options($modalidades),
                 SelectFilter::make('idioma')
                     ->label('Idioma')
                     ->options(fn (): array => Idioma::query()->orderBy('nombre')->pluck('nombre', 'id')->all())
@@ -81,11 +82,11 @@ final class GruposTable
     }
 
     /**
-     * @param  list<EstadoGrupo|Modalidad>  $casos
+     * @param  list<EstadoGrupo>  $casos
      * @return array<string, string>
      */
     private static function opciones(array $casos): array
     {
-        return collect($casos)->mapWithKeys(fn (EstadoGrupo|Modalidad $caso): array => [$caso->value => $caso->etiqueta()])->all();
+        return collect($casos)->mapWithKeys(fn (EstadoGrupo $caso): array => [$caso->value => $caso->etiqueta()])->all();
     }
 }

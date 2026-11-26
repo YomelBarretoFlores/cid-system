@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\Academico\Filament\Resources\Grupos\Schemas;
 
 use App\Modules\Academico\Data\DatosDeGrupo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
+use App\Modules\Academico\Models\Modalidad;
 use App\Modules\Academico\Models\Programa;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -49,14 +49,14 @@ final class GrupoForm
                     ->relationship('programa', 'nombre', fn (Builder $query, ?Grupo $record): Builder => $query
                         ->where(fn (Builder $disponibles): Builder => $disponibles->where('activo', true)->when($record?->programa_id, fn (Builder $q, int $actual): Builder => $q->orWhereKey($actual)))
                         ->orderBy('nombre'))
-                    ->default(fn (): ?int => Programa::query()->where('codigo', 'JA')->value('id'))
+                    ->default(fn (): ?int => Programa::query()->where('por_defecto', true)->value('id'))
                     ->preload()
                     ->required()
                     ->helperText('El régimen del programa decide si el grupo puede ser regular o acelerado.'),
                 TextInput::make('codigo')->label('Código de grupo')->required()->maxLength(20),
                 Select::make('modalidad')
                     ->label('Modalidad')
-                    ->options(collect(Modalidad::cases())->mapWithKeys(fn (Modalidad $modalidad): array => [$modalidad->value => $modalidad->etiqueta()])->all())
+                    ->options(fn (?Grupo $record): array => self::modalidades($record?->modalidad))
                     ->required()
                     ->live(),
                 Toggle::make('es_acelerado')
@@ -78,7 +78,7 @@ final class GrupoForm
                     ->url()
                     ->maxLength(255)
                     ->required(fn (Get $get): bool => self::esVirtual($get))
-                    ->visible(fn (Get $get): bool => self::modalidad($get) !== Modalidad::Presencial),
+                    ->visible(fn (Get $get): bool => self::modalidad($get)->usa_enlace ?? false),
                 TextInput::make('cupo_maximo')->label('Cupo máximo')->integer()->minValue(1)->maxValue(999)->required(),
                 TextInput::make('cupo_minimo')->label('Cupo mínimo de apertura')->integer()->minValue(0)->maxValue(999)->required(),
             ]);
@@ -93,7 +93,7 @@ final class GrupoForm
             periodoId: self::entero($data['periodo_id'] ?? null),
             cicloId: self::entero($data['ciclo_id'] ?? null),
             codigo: trim(self::texto($data['codigo'] ?? null)),
-            modalidad: Modalidad::from(self::texto($data['modalidad'] ?? null)),
+            modalidad: self::texto($data['modalidad'] ?? null),
             esAcelerado: (bool) ($data['es_acelerado'] ?? false),
             cupoMaximo: self::entero($data['cupo_maximo'] ?? null),
             cupoMinimo: self::entero($data['cupo_minimo'] ?? null),
@@ -134,16 +134,34 @@ final class GrupoForm
         return $siguiente === null ? "{$ciclo->nombre} no tiene ciclo siguiente en su nivel." : "Cubre también: {$siguiente}";
     }
 
-    private static function modalidad(Get $get): ?Modalidad
+    /**
+     * The active modalities plus the one stored, so editing a group never drops an inactive value.
+     *
+     * @return array<string, string>
+     */
+    public static function modalidades(?string $guardada = null, bool $todas = false): array
     {
-        $estado = $get('modalidad');
-
-        return $estado instanceof Modalidad ? $estado : Modalidad::tryFrom(self::texto($estado));
+        return Modalidad::query()
+            ->when(! $todas, fn (Builder $query): Builder => $query->where(fn (Builder $q): Builder => $q->where('activo', true)->orWhere('codigo', $guardada)))
+            ->orderBy('orden')
+            ->orderBy('nombre')
+            ->pluck('nombre', 'codigo')
+            ->all();
     }
 
+    private static function modalidad(Get $get): ?Modalidad
+    {
+        $codigo = self::texto($get('modalidad'));
+
+        return $codigo === '' ? null : Modalidad::query()->where('codigo', $codigo)->first();
+    }
+
+    // Without a classroom the class link is where the group meets.
     private static function esVirtual(Get $get): bool
     {
-        return self::modalidad($get) === Modalidad::Virtual;
+        $modalidad = self::modalidad($get);
+
+        return $modalidad instanceof Modalidad && ! $modalidad->usa_aula;
     }
 
     private static function entero(mixed $valor): int

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
@@ -38,7 +37,7 @@ function periodoDePortada(): Periodo
 it('publishes the open period with its groups, fees, dates and entries, without private group data', function (): void {
     $ingles = Idioma::factory()->create(['nombre' => 'Inglés']);
     $grupo = Grupo::factory()->for(periodoDePortada())->for(Ciclo::factory()->for($ingles)->state(['numero' => 1]))->create([
-        'estado' => EstadoGrupo::Abierto, 'modalidad' => Modalidad::Virtual, 'cupo_maximo' => 20, 'matriculados' => 18,
+        'estado' => EstadoGrupo::Abierto, 'modalidad' => 'virtual', 'cupo_maximo' => 20, 'matriculados' => 18,
         'aula_id' => Aula::factory()->create(['codigo' => 'AULA-SECRETA'])->id, 'enlace_virtual' => 'https://meet.example.test/privado',
     ]);
     Horario::factory()->for($grupo)->create(['dia_semana' => 2, 'hora_inicio' => '19:00', 'hora_fin' => '21:15']);
@@ -196,7 +195,7 @@ it('describes each language with its cycles, teaching hours, modalities with gro
     $ingles = Idioma::factory()->create(['nombre' => 'Inglés']);
     $cicloI = Ciclo::factory()->for($ingles)->create(['numero' => 1, 'horas_lectivas' => 60]);
     Ciclo::factory()->for($ingles)->create(['numero' => 2, 'horas_lectivas' => 64]);
-    Grupo::factory()->for(periodoDePortada())->for($cicloI)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => Modalidad::Virtual]);
+    Grupo::factory()->for(periodoDePortada())->for($cicloI)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => 'virtual']);
     Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Quechua']))->create(['numero' => 1, 'horas_lectivas' => 48]);
 
     $html = $this->get('/')->assertOk()->getContent();
@@ -210,7 +209,7 @@ it('describes each language with its cycles, teaching hours, modalities with gro
 
 it('names only the modalities of the published groups and drops the modality filter when there is one', function (): void {
     $ciclo = Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Inglés']))->create(['numero' => 1]);
-    Grupo::factory()->for(periodoDePortada())->for($ciclo)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => Modalidad::Presencial]);
+    Grupo::factory()->for(periodoDePortada())->for($ciclo)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => 'presencial']);
 
     $this->get('/')
         ->assertOk()
@@ -224,8 +223,8 @@ it('names only the modalities of the published groups and drops the modality fil
 it('adds a modality and the modality filter as soon as a group of it is published', function (): void {
     $ciclo = Ciclo::factory()->for(Idioma::factory()->create(['nombre' => 'Inglés']))->create(['numero' => 1]);
     $periodo = periodoDePortada();
-    Grupo::factory()->for($periodo)->for($ciclo)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => Modalidad::Presencial]);
-    Grupo::factory()->for($periodo)->for($ciclo)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => Modalidad::Virtual]);
+    Grupo::factory()->for($periodo)->for($ciclo)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => 'presencial']);
+    Grupo::factory()->for($periodo)->for($ciclo)->create(['estado' => EstadoGrupo::Abierto, 'modalidad' => 'virtual']);
 
     $this->get('/')
         ->assertOk()

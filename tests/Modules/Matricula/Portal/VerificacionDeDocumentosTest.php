@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Models\Pago;
@@ -92,7 +91,7 @@ it('P8 shows payment states', function (string $estado, string $etiqueta): void 
 })->with([['anulado', 'Anulado'], ['pendiente', 'Pendiente'], ['validado', 'Verificado']]);
 
 it('P9 shows the link of a virtual group', function (): void {
-    [$user, $matricula] = verifEstudiante(grupo: ['modalidad' => Modalidad::Virtual, 'enlace_virtual' => 'https://meet.example.test/abc-def']);
+    [$user, $matricula] = verifEstudiante(grupo: ['modalidad' => 'virtual', 'enlace_virtual' => 'https://meet.example.test/abc-def']);
 
     $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $matricula))->assertOk();
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => $pdf->contains('https://meet.example.test/abc-def') && $pdf->contains('Virtual'));

@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Modules\Academico\Actions\GuardarGrupo;
 use App\Modules\Academico\Contracts\CursoDelGrupo;
 use App\Modules\Academico\Data\DatosDeGrupo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
@@ -32,7 +31,7 @@ function grupoAcelerado(Ciclo $ciclo, bool $esAcelerado = true): DatosDeGrupo
         periodoId: test()->periodo->id,
         cicloId: $ciclo->id,
         codigo: 'ING-AC',
-        modalidad: Modalidad::Presencial,
+        modalidad: 'presencial',
         esAcelerado: $esAcelerado,
         cupoMaximo: 25,
         cupoMinimo: 10,

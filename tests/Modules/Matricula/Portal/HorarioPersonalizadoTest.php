@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Periodo;
@@ -22,7 +21,7 @@ use Tests\Support\ReportesDelEstudiante;
 beforeEach(function (): void {
     $this->escenario = ReportesDelEstudiante::escenario();
     $this->periodo = Periodo::query()->findOrFail($this->escenario['curso']['grupo']->periodo_id);
-    $italiano = Grupo::factory()->for($this->periodo)->create(['codigo' => 'ITA-1-M', 'modalidad' => Modalidad::Virtual, 'aula_id' => null, 'enlace_virtual' => 'https://meet.example.test/ita-1-m']);
+    $italiano = Grupo::factory()->for($this->periodo)->create(['codigo' => 'ITA-1-M', 'modalidad' => 'virtual', 'aula_id' => null, 'enlace_virtual' => 'https://meet.example.test/ita-1-m']);
     foreach ([[2, '07:00', '08:30'], [4, '07:00', '08:30'], [6, '09:00', '10:00']] as [$dia, $inicio, $fin]) {
         Horario::factory()->for($italiano)->create(['dia_semana' => $dia, 'hora_inicio' => $inicio, 'hora_fin' => $fin]);
     }

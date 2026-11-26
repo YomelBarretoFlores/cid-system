@@ -21,6 +21,7 @@ final class ProgramasTable
                 TextColumn::make('nombre')->label('Nombre')->searchable()->sortable(),
                 TextColumn::make('regimen')->label('Régimen de ciclo')->formatStateUsing(fn (RegimenDePrograma $state): string => $state->etiqueta()),
                 IconColumn::make('activo')->label('Disponible')->boolean(),
+                IconColumn::make('por_defecto')->label('Por defecto')->boolean(),
             ])
             ->defaultSort('nombre')
             ->filters([

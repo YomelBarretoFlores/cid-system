@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Modules\Academico\Enums\EstadoGrupo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Enums\PermisoAcademico;
 use App\Modules\Academico\Filament\Resources\Grupos\GrupoResource;
@@ -51,7 +50,7 @@ function formularioDeGrupo(array $cambios = []): array
         'periodo_id' => test()->periodo->id,
         'ciclo_id' => test()->ciclo->id,
         'codigo' => 'ING-03-B',
-        'modalidad' => Modalidad::Presencial->value,
+        'modalidad' => 'presencial',
         'es_acelerado' => false,
         'aula_id' => test()->aula->id,
         'cupo_maximo' => 20,
@@ -70,7 +69,7 @@ it('keeps the groups away from users without the academic read permission', func
 
 it('lists groups with their offer, classroom, quota and vacancies', function (): void {
     $virtual = Grupo::factory()->create([
-        'periodo_id' => $this->periodo->id, 'ciclo_id' => $this->ciclo->id, 'modalidad' => Modalidad::Virtual,
+        'periodo_id' => $this->periodo->id, 'ciclo_id' => $this->ciclo->id, 'modalidad' => 'virtual',
         'enlace_virtual' => 'https://meet.example.test/v', 'estado' => EstadoGrupo::Programado,
     ]);
     $this->actingAs($this->gestor);
@@ -90,7 +89,7 @@ it('lists groups with their offer, classroom, quota and vacancies', function ():
 it('filters groups by period, state, modality and language', function (): void {
     $otroIdioma = Ciclo::factory()->create();
     $otro = Grupo::factory()->create([
-        'ciclo_id' => $otroIdioma->id, 'modalidad' => Modalidad::Virtual,
+        'ciclo_id' => $otroIdioma->id, 'modalidad' => 'virtual',
         'enlace_virtual' => 'https://meet.example.test/o', 'estado' => EstadoGrupo::Programado,
     ]);
     $this->actingAs($this->gestor);
@@ -100,7 +99,7 @@ it('filters groups by period, state, modality and language', function (): void {
         ->resetTableFilters()
         ->filterTable('estado', EstadoGrupo::Programado->value)->assertCanSeeTableRecords([$otro])->assertCanNotSeeTableRecords([$this->grupo])
         ->resetTableFilters()
-        ->filterTable('modalidad', Modalidad::Presencial->value)->assertCanSeeTableRecords([$this->grupo])->assertCanNotSeeTableRecords([$otro])
+        ->filterTable('modalidad', 'presencial')->assertCanSeeTableRecords([$this->grupo])->assertCanNotSeeTableRecords([$otro])
         ->resetTableFilters()
         ->filterTable('idioma', $this->idioma->id)->assertCanSeeTableRecords([$this->grupo])->assertCanNotSeeTableRecords([$otro]);
 });
@@ -168,7 +167,7 @@ it('creates a virtual group with its link and no classroom', function (): void {
     $this->actingAs($this->gestor);
 
     Livewire::test(CreateGrupo::class)
-        ->fillForm(formularioDeGrupo(['modalidad' => Modalidad::Virtual->value, 'aula_id' => null, 'enlace_virtual' => 'https://meet.example.test/b', 'cupo_maximo' => 40]))
+        ->fillForm(formularioDeGrupo(['modalidad' => 'virtual', 'aula_id' => null, 'enlace_virtual' => 'https://meet.example.test/b', 'cupo_maximo' => 40]))
         ->call('create')
         ->assertHasNoFormErrors();
 

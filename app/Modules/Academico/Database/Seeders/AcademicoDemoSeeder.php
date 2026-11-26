@@ -8,7 +8,6 @@ use App\Modules\Academico\Actions\GuardarEsquemaDeEvaluacion;
 use App\Modules\Academico\Data\DatosDeEsquema;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Enums\RegimenDePrograma;
 use App\Modules\Academico\Models\Aula;
@@ -181,7 +180,7 @@ final class AcademicoDemoSeeder extends Seeder
                 'periodo_id' => $periodo->id, 'ciclo_id' => Ciclo::query()->where(['idioma_id' => $idiomas[$idioma]->id, 'numero' => $ciclo])->value('id'),
                 // An accelerated group also covers the next cycle of its level.
                 'ciclo_hasta_id' => $esAcelerado ? Ciclo::query()->where(['idioma_id' => $idiomas[$idioma]->id, 'numero' => $ciclo + 1])->value('id') : null,
-                'aula_id' => $aulas[$aula], 'codigo' => $codigo, 'modalidad' => Modalidad::Presencial,
+                'aula_id' => $aulas[$aula], 'codigo' => $codigo, 'modalidad' => 'presencial',
                 'cupo_maximo' => 25, 'cupo_minimo' => 5, 'estado' => $estado,
             ]);
             $grupo->horarios()->createMany(array_map(fn (int $dia): array => ['dia_semana' => $dia, 'hora_inicio' => $inicio, 'hora_fin' => $fin], $dias));

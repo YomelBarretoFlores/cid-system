@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Academico\Filament\Resources\Programas\Pages;
 
+use App\Modules\Academico\Actions\GuardarPrograma;
 use App\Modules\Academico\Filament\Resources\Programas\ProgramaResource;
 use App\Modules\Academico\Filament\Resources\Programas\Schemas\ProgramaForm;
 use App\Shared\Support\Database\Transaccion;
@@ -22,7 +23,7 @@ final class CreatePrograma extends CreateRecord
     {
         try {
             // The savepoint keeps the connection usable after a unique violation inside an outer transaction.
-            return Transaccion::ejecutar(fn (): Model => parent::handleRecordCreation($data), reintentar: false);
+            return Transaccion::ejecutar(fn (): Model => app(GuardarPrograma::class)(null, ProgramaForm::datos($data)), reintentar: false);
         } catch (ReglaDeNegocioIncumplida $error) {
             AccionDeNegocio::detener($error);
         } catch (UniqueConstraintViolationException $error) {

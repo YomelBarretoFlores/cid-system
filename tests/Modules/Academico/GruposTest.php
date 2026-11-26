@@ -7,7 +7,6 @@ use App\Modules\Academico\Actions\GuardarGrupo;
 use App\Modules\Academico\Actions\GuardarHorario;
 use App\Modules\Academico\Data\DatosDeGrupo;
 use App\Modules\Academico\Enums\EstadoGrupo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\Grupo;
@@ -24,7 +23,7 @@ function datosDeGrupo(array $cambios = []): DatosDeGrupo
         'periodoId' => test()->periodo->id,
         'cicloId' => test()->ciclo->id,
         'codigo' => 'ING-01',
-        'modalidad' => Modalidad::Presencial,
+        'modalidad' => 'presencial',
         'esAcelerado' => false,
         'cupoMaximo' => 25,
         'cupoMinimo' => 10,
@@ -124,7 +123,7 @@ it('updates a group without touching its state or enrolled count', function (): 
 });
 
 it('stores a virtual group with its link and no classroom', function (): void {
-    $grupo = app(GuardarGrupo::class)(datosDeGrupo(['modalidad' => Modalidad::Virtual, 'aulaId' => null, 'enlaceVirtual' => 'https://meet.example.test/ing-01', 'cupoMaximo' => 40]));
+    $grupo = app(GuardarGrupo::class)(datosDeGrupo(['modalidad' => 'virtual', 'aulaId' => null, 'enlaceVirtual' => 'https://meet.example.test/ing-01', 'cupoMaximo' => 40]));
 
     expect($grupo->refresh())
         ->aula_id->toBeNull()
@@ -137,10 +136,10 @@ it('enforces the group rules with business errors', function (array $cambios, st
         ->toThrow(ReglaDeNegocioIncumplida::class, $mensaje)
         ->and(Grupo::query()->count())->toBe(0);
 })->with([
-    'virtual without link' => [['modalidad' => Modalidad::Virtual, 'aulaId' => null, 'enlaceVirtual' => null], 'Un grupo virtual necesita el enlace de la clase.'],
-    'virtual with classroom' => [['modalidad' => Modalidad::Virtual, 'enlaceVirtual' => 'https://meet.example.test/x'], 'Un grupo virtual no usa aula.'],
-    'face-to-face without classroom' => [['aulaId' => null], 'Un grupo presencial o semipresencial necesita un aula.'],
-    'blended without classroom' => [['modalidad' => Modalidad::Semipresencial, 'aulaId' => null], 'Un grupo presencial o semipresencial necesita un aula.'],
+    'virtual without link' => [['modalidad' => 'virtual', 'aulaId' => null, 'enlaceVirtual' => null], 'Un grupo virtual necesita el enlace de la clase.'],
+    'virtual with classroom' => [['modalidad' => 'virtual', 'enlaceVirtual' => 'https://meet.example.test/x'], 'Un grupo virtual no usa aula.'],
+    'face-to-face without classroom' => [['aulaId' => null], 'Un grupo presencial necesita un aula.'],
+    'blended without classroom' => [['modalidad' => 'semipresencial', 'aulaId' => null], 'Un grupo semipresencial necesita un aula.'],
     'quota above classroom capacity' => [['cupoMaximo' => 31], 'El aula A-101 tiene capacidad para 30 estudiantes; el cupo máximo no puede superarla.'],
     'minimum above maximum' => [['cupoMinimo' => 26], 'El cupo mínimo no puede superar el cupo máximo.'],
 ]);
@@ -227,12 +226,12 @@ it('allows the same classroom and time in another period that does not overlap, 
     Horario::factory()->for($otroPeriodo)->create(['dia_semana' => 5, 'hora_inicio' => '16:00', 'hora_fin' => '18:00']);
     $contiguo = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'aula_id' => $this->aula->id]);
     Horario::factory()->for($contiguo)->create(['dia_semana' => 5, 'hora_inicio' => '14:00', 'hora_fin' => '16:00']);
-    $virtual = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'modalidad' => Modalidad::Virtual, 'enlace_virtual' => 'https://meet.example.test/v']);
+    $virtual = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'modalidad' => 'virtual', 'enlace_virtual' => 'https://meet.example.test/v']);
     Horario::factory()->for($virtual)->create(['dia_semana' => 5, 'hora_inicio' => '16:00', 'hora_fin' => '18:00']);
     $grupo = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'aula_id' => $this->aula->id]);
 
     app(GuardarHorario::class)($grupo->id, 5, '16:00', '18:00');
-    $otroVirtual = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'modalidad' => Modalidad::Virtual, 'enlace_virtual' => 'https://meet.example.test/w']);
+    $otroVirtual = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'modalidad' => 'virtual', 'enlace_virtual' => 'https://meet.example.test/w']);
     app(GuardarHorario::class)($otroVirtual->id, 5, '16:00', '18:00');
 
     expect($grupo->horarios()->count())->toBe(1)
@@ -297,9 +296,9 @@ it('refuses renaming a group to a code already used in its period', function ():
 it('refuses turning a virtual group face-to-face in a classroom another group uses at that time', function (): void {
     $ocupante = Grupo::factory()->create(['periodo_id' => $this->periodo->id, 'aula_id' => $this->aula->id, 'codigo' => 'FRA-01']);
     Horario::factory()->for($ocupante)->create(['dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']);
-    $virtual = app(GuardarGrupo::class)(datosDeGrupo(['modalidad' => Modalidad::Virtual, 'aulaId' => null, 'enlaceVirtual' => 'https://meet.example.test/ing']));
+    $virtual = app(GuardarGrupo::class)(datosDeGrupo(['modalidad' => 'virtual', 'aulaId' => null, 'enlaceVirtual' => 'https://meet.example.test/ing']));
     Horario::factory()->for($virtual)->create(['dia_semana' => 1, 'hora_inicio' => '09:00', 'hora_fin' => '11:00']);
 
-    expect(fn (): Grupo => app(GuardarGrupo::class)(datosDeGrupo(['modalidad' => Modalidad::Presencial]), $virtual->id))
+    expect(fn (): Grupo => app(GuardarGrupo::class)(datosDeGrupo(['modalidad' => 'presencial']), $virtual->id))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El aula A-101 ya está ocupada por el grupo FRA-01');
 });

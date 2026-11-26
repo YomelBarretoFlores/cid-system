@@ -51,7 +51,28 @@ final class ProgramaForm
                 Toggle::make('activo')
                     ->label('Disponible para nuevos grupos')
                     ->default(true),
+                Toggle::make('por_defecto')
+                    ->label('Programa por defecto')
+                    ->default(false)
+                    ->helperText('Se propone para grupos nuevos y se imprime en los documentos de grupos anteriores a los programas.'),
             ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array{codigo: string, nombre: string, regimen: string, activo: bool, por_defecto: bool}
+     */
+    public static function datos(array $data, ?Programa $actual = null): array
+    {
+        $regimen = $data['regimen'] ?? $actual?->regimen;
+
+        return [
+            'codigo' => is_string($data['codigo'] ?? null) ? $data['codigo'] : '',
+            'nombre' => is_string($data['nombre'] ?? null) ? $data['nombre'] : '',
+            'regimen' => $regimen instanceof RegimenDePrograma ? $regimen->value : (is_string($regimen) ? $regimen : ''),
+            'activo' => (bool) ($data['activo'] ?? $actual->activo ?? true),
+            'por_defecto' => (bool) ($data['por_defecto'] ?? $actual->por_defecto ?? false),
+        ];
     }
 
     public static function errorDeDuplicado(UniqueConstraintViolationException $error): ValidationException|UniqueConstraintViolationException

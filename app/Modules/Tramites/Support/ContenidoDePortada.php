@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Modules\Tramites\Support;
 
 use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
+use App\Modules\Academico\Contracts\CatalogoDeModalidades;
 use App\Modules\Academico\Contracts\OfertaPublica;
 use App\Modules\Academico\Data\GrupoOfertado;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
+use App\Modules\Academico\Data\ModalidadDelCatalogo;
 use App\Modules\Academico\Data\OfertaDelPeriodo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Matricula\Data\VigenciaDeClasificacion;
 use App\Modules\Pagos\Contracts\TarifasVigentes;
 use App\Modules\Pagos\Data\TarifaVigente;
@@ -27,6 +28,7 @@ final readonly class ContenidoDePortada
         private CatalogoDeIdiomas $catalogoDeIdiomas,
         private TarifasVigentes $tarifasVigentes,
         private CatalogoDeVinculos $catalogoDeVinculos,
+        private CatalogoDeModalidades $catalogoDeModalidades,
     ) {}
 
     /**
@@ -48,14 +50,15 @@ final readonly class ContenidoDePortada
         $oferta = ($this->ofertaPublica)();
         $grupos = $oferta->grupos ?? [];
         $tarifas = ($this->tarifasVigentes)($ahora->startOfDay());
-        $idiomas = $this->idiomas($grupos, $this->menorMonto($tarifas, TipoConcepto::Matricula));
+        $catalogo = ($this->catalogoDeModalidades)();
+        $idiomas = $this->idiomas($grupos, $catalogo, $this->menorMonto($tarifas, TipoConcepto::Matricula));
         $gruposConVacantes = count(array_filter($grupos, fn (GrupoOfertado $grupo): bool => $grupo->abierto && $grupo->vacantes > 0));
 
         return [
             'ahora' => $ahora,
             'oferta' => $oferta,
             'grupos' => $grupos,
-            'modalidades' => $this->modalidades($grupos),
+            'modalidades' => $this->modalidades($grupos, $catalogo),
             'idiomas' => $idiomas,
             'gruposConVacantes' => $gruposConVacantes,
             'cifras' => $this->cifras($idiomas, $gruposConVacantes, $oferta),
@@ -71,13 +74,14 @@ final readonly class ContenidoDePortada
 
     /**
      * @param  list<GrupoOfertado>  $grupos
+     * @param  list<ModalidadDelCatalogo>  $catalogo
      * @return list<array{nombre: string, ciclos: int, grupos: int, horas: array{int, int}|null, modalidades: list<string>, matriculaDesde: string|null}>
      */
-    private function idiomas(array $grupos, ?string $matriculaDesde): array
+    private function idiomas(array $grupos, array $catalogo, ?string $matriculaDesde): array
     {
         $activos = array_filter(($this->catalogoDeIdiomas)(), fn (IdiomaDelCatalogo $idioma): bool => $idioma->activo);
 
-        return array_values(array_map(function (IdiomaDelCatalogo $idioma) use ($grupos, $matriculaDesde): array {
+        return array_values(array_map(function (IdiomaDelCatalogo $idioma) use ($grupos, $catalogo, $matriculaDesde): array {
             $suyos = array_filter($grupos, fn (GrupoOfertado $grupo): bool => $grupo->idioma === $idioma->nombre);
             $modalidades = array_unique(array_map(fn (GrupoOfertado $grupo): string => $grupo->modalidad, $suyos));
 
@@ -87,8 +91,8 @@ final readonly class ContenidoDePortada
                 'grupos' => count($suyos),
                 'horas' => $idioma->horasPorCiclo === [] ? null : [min($idioma->horasPorCiclo), max($idioma->horasPorCiclo)],
                 'modalidades' => array_values(array_filter(
-                    array_map(fn (Modalidad $modalidad): string => $modalidad->etiqueta(), Modalidad::cases()),
-                    fn (string $etiqueta): bool => in_array($etiqueta, $modalidades, true),
+                    array_map(fn (ModalidadDelCatalogo $modalidad): string => $modalidad->nombre, $catalogo),
+                    fn (string $nombre): bool => in_array($nombre, $modalidades, true),
                 )),
                 'matriculaDesde' => $matriculaDesde,
             ];
@@ -112,17 +116,22 @@ final readonly class ContenidoDePortada
     }
 
     /**
-     * The CILN teaches in person only for now, so that is what the home states until a group of another modality is published.
+     * Until a group is published the home states the first active modality of the catalog (presencial as shipped).
      *
      * @param  list<GrupoOfertado>  $grupos
-     * @return non-empty-list<Modalidad>
+     * @param  list<ModalidadDelCatalogo>  $catalogo
+     * @return list<array{nombre: string, descripcion: ?string}> plain arrays: the cache unserializes only the classes it allows
      */
-    private function modalidades(array $grupos): array
+    private function modalidades(array $grupos, array $catalogo): array
     {
         $publicadas = array_map(fn (GrupoOfertado $grupo): string => $grupo->modalidad, $grupos);
-        $modalidades = array_values(array_filter(Modalidad::cases(), fn (Modalidad $modalidad): bool => in_array($modalidad->etiqueta(), $publicadas, true)));
+        $modalidades = array_values(array_filter($catalogo, fn (ModalidadDelCatalogo $modalidad): bool => in_array($modalidad->nombre, $publicadas, true)));
+        $activas = array_values(array_filter($catalogo, fn (ModalidadDelCatalogo $modalidad): bool => $modalidad->activo));
 
-        return $modalidades === [] ? [Modalidad::Presencial] : $modalidades;
+        return array_map(
+            fn (ModalidadDelCatalogo $modalidad): array => ['nombre' => $modalidad->nombre, 'descripcion' => $modalidad->descripcion],
+            $modalidades === [] ? array_slice($activas, 0, 1) : $modalidades,
+        );
     }
 
     /**

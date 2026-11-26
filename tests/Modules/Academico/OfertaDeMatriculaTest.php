@@ -8,7 +8,6 @@ use App\Modules\Academico\Data\FichaDeGrupo;
 use App\Modules\Academico\Data\SesionDeClase;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
-use App\Modules\Academico\Enums\Modalidad;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
@@ -115,12 +114,12 @@ it('loads the offer with a fixed number of queries', function (): void {
     DB::enableQueryLog();
     app(OfertaDeMatricula::class)([]);
 
-    expect(DB::getQueryLog())->toHaveCount(7);
+    expect(DB::getQueryLog())->toHaveCount(8);
 });
 
 it('describes groups by id, including virtual ones, whatever their state', function (): void {
     $virtual = Grupo::factory()->for(Periodo::factory()->create(['nombre' => '2025-II']))->for($this->inglesII)->create([
-        'codigo' => 'ING-II-V', 'modalidad' => Modalidad::Virtual, 'enlace_virtual' => 'https://meet.example.test/ing2', 'estado' => EstadoGrupo::Finalizado,
+        'codigo' => 'ING-II-V', 'modalidad' => 'virtual', 'enlace_virtual' => 'https://meet.example.test/ing2', 'estado' => EstadoGrupo::Finalizado,
     ]);
     Grupo::factory()->for($this->periodo)->for($this->inglesI)->create();
 
