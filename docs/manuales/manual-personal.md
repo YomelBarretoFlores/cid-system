@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Personal del CILN
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.1
+version: 1.2
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -12,6 +12,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 |---|---|---|---|---|
 | 1.0 | 18/11/2026 | Versión inicial | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: programas, grupos acelerados, forma de aprobación, constancia de notas por nivel, datos institucionales, tarifas por nivel y programa, FUT configurable, nuevos trámites y matrícula extemporánea | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -36,7 +37,7 @@ La Tabla 1 resume los perfiles habituales del CILN y los permisos que cada uno n
 | Coordinación académica | Prepara periodos, idiomas, ciclos, aulas y grupos; registra a los docentes y gestiona sus cargas, las matrículas y las clasificaciones. | Ver personas · Gestionar personas · Ver la oferta académica · Gestionar la oferta académica · Ver docentes y carga académica · Gestionar docentes y carga académica · Gestionar costos por hora · Ver reportes de docencia · Ver matrículas · Gestionar matrículas, traslados y retiros · Ver solicitudes de examen de clasificación · Registrar resultados de clasificación |
 | Certificación | Revisa actas finales, autoriza rectificaciones y emite constancias y certificados. | Gestionar actas · Emitir y anular constancias y certificados |
 | Trámites | Atiende las solicitudes de trámite de los estudiantes. | Atender trámites |
-| Dirección (tablero) | Consulta indicadores y reportes gerenciales. | Ver el tablero gerencial (opcional, según los reportes que consulte: Ver reportes de pagos, Ver reportes de docencia, Ver matrículas; ver la Tabla 9) |
+| Dirección (tablero) | Consulta indicadores y reportes gerenciales. | Ver el tablero gerencial (opcional, según los reportes que consulte: Ver reportes de pagos, Ver reportes de docencia, Ver matrículas; ver la Tabla 10) |
 
 El permiso «Ingresar al panel» se concede automáticamente a toda cuenta del personal, por lo que no figura en los formularios.
 
@@ -121,7 +122,7 @@ Antes de abrir el primer periodo, el administrador revisa los catálogos del gru
 
 | Catálogo | Contenido | Permiso |
 |---|---|---|
-| Conceptos y tarifas | Conceptos TUPA/TUSNE (matrícula, pensión, constancias, examen de clasificación, etc.) y sus tarifas por vínculo con la UNASAM y vigencia. | Configurar conceptos y tarifas |
+| Conceptos y tarifas | Conceptos TUPA/TUSNE (matrícula, pensión, constancias, examen de clasificación, etc.) y sus tarifas por vínculo con la UNASAM, nivel, programa y vigencia. | Configurar conceptos y tarifas |
 | Medios de pago | Bancos, agentes y canales con los que se paga (por ejemplo, Banco de la Nación, Tesorería UNASAM, Págalo.pe). | Configurar conceptos y tarifas |
 | Fuentes TUPA/TUSNE | Documento normativo del que proviene cada concepto. | Configurar conceptos y tarifas |
 | Tipos de trámite | Trámites que el estudiante puede iniciar, con requisitos, tasa, etapas y acción al finalizar. | Configurar tipos de trámite |
@@ -219,9 +220,9 @@ Resultado esperado: los documentos emitidos usan automáticamente los firmantes 
 |---|---|
 | Encabezado | **Universidad**, **Lema** y **Centro** |
 | Pie de página | **Dirección**, **Teléfono y anexo**, **Web** y **Facebook** |
-| Fecha y numeración | **Ciudad** que precede a la fecha; **Número de los documentos** (por defecto «N.º {numero:06}-{anio}») y **Número de la constancia de notas** (por defecto «N° {anio} - {numero:05}»). {anio} es el año y {numero:5} el correlativo con 5 dígitos. |
+| Fecha y numeración | **Ciudad** que precede a la fecha; **Número de los documentos** (por defecto «N.º {numero:06}-{anio}») y **Número de la constancia de notas** (por defecto «N° {anio} - {numero:05}»). {anio} es el año y {numero:N} el correlativo con N dígitos (N de una o dos cifras). |
 
-A diferencia de los firmantes, estos datos no se congelan: cada PDF, incluso el de un documento ya emitido, se imprime con los datos vigentes. El cambio queda en la auditoría.
+El formato del número queda fijo en cada documento al emitirlo. Los demás textos no se congelan, a diferencia de los firmantes: cada PDF, incluso el de un documento ya emitido, se imprime con el encabezado, el pie y la ciudad vigentes. El cambio queda en la auditoría.
 
 # 4. OFERTA ACADÉMICA
 
@@ -438,7 +439,7 @@ Finalidad: confirmar un pago contra la boleta original.
 2. Revise la **Persona**, el **Concepto TUPA/TUSNE**, el **Monto** frente a la **Tarifa vigente**, el **Medio de pago**, el **N.° de recibo u operación** y la **Fecha de pago**. Use **Descargar recibo** para ver el comprobante escaneado.
 3. Pulse **Validar**.
 4. Marque la casilla **Tengo la boleta original y coincide con el número, la fecha y el monto registrados**. Valide solo con la boleta original en la mano.
-5. Si el monto pagado es distinto de la tarifa, el sistema lo advierte y pide la **Justificación del monto distinto de la tarifa**; escríbala.
+5. Si el monto pagado es distinto de la tarifa, el sistema lo advierte y pide la **Justificación del monto distinto de la tarifa**; escríbala. Para un pago de matrícula hecho en el plazo extemporáneo, el monto esperado es la tarifa más el recargo vigente al validar (sección 4.3).
 6. Pulse **Validar**.
 
 Resultado esperado: el pago pasa a **Validado** y habilita el servicio correspondiente (por ejemplo, la matrícula o el avance de un trámite). Quedan registrados el usuario que validó y la fecha.
@@ -624,7 +625,7 @@ En **Trámites > Trámites** se listan los trámites con su **Código** de segui
 
 Resultado esperado: cada acción queda en el **Historial** con fecha, estado, etapa, comentario y usuario.
 
-*Tabla 8a. Qué pide **Finalizar** según el trámite*
+*Tabla 9. Qué pide **Finalizar** según el trámite*
 
 | Trámite (código) | Al finalizar | Efecto |
 |---|---|---|
@@ -639,7 +640,7 @@ Notas de configuración:
 
 - La reclasificación solo se acepta si la última matrícula del estudiante en el idioma terminó hace al menos los **Meses sin estudiar** del tipo (por defecto 2), contados desde el fin del periodo.
 - La acreditación y el **Certificado de estudios (posgrado)** solo están disponibles para el programa Posgrado; el certificado de posgrado requiere la acreditación finalizada del mismo idioma y nivel. El certificado de culminación de nivel regular sigue abierto a todos los programas.
-- Los tipos nuevos se crean sin **Concepto de pago**: vincule el concepto y sus tarifas en **Catálogos > Tipos de trámite** para que cada tasa solo acepte su propio pago.
+- Los tipos nuevos se crean sin **Concepto de pago**: vincule el concepto y sus tarifas en **Catálogos > Tipos de trámite** para que cada tasa solo acepte su propio pago. Mientras no se vinculen, la suficiencia y la reclasificación aceptan cualquier pago validado de tipo «Otro». Un concepto de tipo «Examen de clasificación» no puede vincularse a un tipo de trámite.
 
 ![Figura 32. Vista de un trámite observado](figuras/p31-tramite.png)
 
@@ -663,7 +664,7 @@ Resultado esperado: los indicadores se recalculan con los filtros y el archivo d
 
 Los reportes del grupo **Reportes** (y **Carga docente** en **Docencia**) comparten los filtros **Periodo académico**, **Idioma**, **Nivel** y **Grupo**, y los botones **Exportar PDF** y **Excel**. Cada reporte requiere su propio permiso. El reporte **Matriculados** tiene dos pestañas: **Resumen por grupo** y **Detalle de matriculados**.
 
-*Tabla 9. Reportes del panel*
+*Tabla 10. Reportes del panel*
 
 | Reporte | Contenido | Permiso |
 |---|---|---|
@@ -717,7 +718,7 @@ Resultado esperado: todas las cuentas con el rol reciben sus permisos. Solo se p
 
 # 12. PREGUNTAS FRECUENTES
 
-*Tabla 10. Preguntas frecuentes*
+*Tabla 11. Preguntas frecuentes*
 
 | Pregunta | Respuesta |
 |---|---|
@@ -725,7 +726,7 @@ Resultado esperado: todas las cuentas con el rol reciben sus permisos. Solo se p
 | El sistema no me deja ingresar tras varios intentos. | Por seguridad se bloquean temporalmente los intentos y el sistema indica cuántos segundos esperar; si olvidó la contraseña, pida al administrador **Reenviar enlace para crear contraseña**. |
 | Perdí el teléfono con la aplicación autenticadora. | Use un código de recuperación o pida al administrador **Reiniciar doble factor**. |
 | No aparece el botón **Validar** en un pago. | Solo se validan pagos en estado **Pendiente** y con el permiso «Validar pagos». |
-| El monto del pago no coincide con la tarifa. | Al validar, el sistema pide la **Justificación del monto distinto de la tarifa**; si el pago no corresponde, use **Rechazar**. |
+| El monto del pago no coincide con la tarifa. | Al validar, el sistema pide la **Justificación del monto distinto de la tarifa**; si el pago no corresponde, use **Rechazar**. Un pago de matrícula del plazo extemporáneo debe incluir el recargo. |
 | Validé o registré un pago por error. | Un pago validado solo puede anularlo administración con **Anular** y un motivo; nunca se elimina. |
 | Un estudiante no puede matricularse en el ciclo que le corresponde. | Revise **Ciclos habilitados** y, si corresponde, use **Ajustar ciclo habilitado** con el motivo. |
 | No puedo cancelar un grupo. | Solo se cancela un grupo sin estudiantes matriculados; traslade antes a los estudiantes. |

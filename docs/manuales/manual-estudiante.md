@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Estudiante
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.1
+version: 1.2
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -14,6 +14,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 |---|---|---|---|---|
 | 1.0 | 18/11/2026 | Versión inicial | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: programas y grupos acelerados, constancia de notas por nivel, tarifas por nivel y programa, FUT digital, nuevos trámites y matrícula extemporánea | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -231,7 +232,7 @@ Todo pago al CILN (derecho de matrícula, examen de clasificación, constancias,
 
 **Resultado:** se muestra el mensaje «Registramos tu pago. El CILN revisará el recibo y te mostrará aquí el resultado.» y el pago aparece en la lista **Recibos registrados**. Mientras un pago esté pendiente, lleve la boleta original al CILN para validarla.
 
-El sistema no acepta un número de recibo u operación ya registrado con el mismo medio de pago, un recibo ya usado, una fecha de pago posterior a hoy ni un concepto sin tarifa vigente en la fecha de pago; en esos casos muestra el motivo junto al campo. El monto propuesto corresponde a su vínculo con la UNASAM (numeral 2.2). Si paga la matrícula durante el plazo de matrícula extemporánea, el monto propuesto ya incluye el recargo y el formulario lo indica («Incluye el recargo de 20 % por matrícula extemporánea.»).
+El sistema no acepta un número de recibo u operación ya registrado con el mismo medio de pago, un recibo ya usado, una fecha de pago posterior a hoy ni un concepto sin tarifa vigente en la fecha de pago; en esos casos muestra el motivo junto al campo. El monto propuesto corresponde a su vínculo con la UNASAM (numeral 2.2). Si paga la matrícula durante el plazo de matrícula extemporánea, el monto propuesto ya incluye el recargo y el formulario lo indica («Incluye el recargo de 20 % por matrícula extemporánea.»). Si cambia la fecha de pago, el monto propuesto se actualiza solo cuando usted no lo modificó.
 
 ![Figura 14. Formulario «Registrar un recibo»](figuras/pagos-formulario.png)
 
@@ -277,8 +278,8 @@ Permite matricularse en un grupo del periodo abierto. El sistema revisa automát
 
 | Requisito | Qué verifica el sistema |
 |---|---|
-| Periodo de matrícula abierto | Que la fecha actual esté dentro del plazo de matrícula del periodo. |
-| Ciclo que te corresponde | El ciclo que le toca en cada idioma: el ciclo 1 si recién empieza, el siguiente si aprobó el anterior o el que asignó el examen de clasificación. |
+| Periodo de matrícula abierto | Que la fecha actual esté dentro del plazo de matrícula del periodo o, si el periodo lo tiene, del plazo de matrícula extemporánea (el pago de matrícula lleva un recargo). La página de inicio muestra ambas fechas. |
+| Ciclo que te corresponde | El ciclo que le toca en cada idioma: el ciclo 1 si recién empieza, el siguiente si aprobó el anterior, o el que resulta de un examen de clasificación, de reclasificación o de suficiencia. |
 | Pago de matrícula validado y sin usar | Que tenga al menos un pago de matrícula validado por el CILN que no se haya usado en otra matrícula. |
 | Grupos de tu ciclo con vacantes | Que exista al menos un grupo abierto de su ciclo con vacantes disponibles. |
 | Sin otra matrícula en el mismo ciclo y periodo | Que no tenga otra matrícula activa en el mismo ciclo del periodo. |
@@ -288,6 +289,8 @@ Permite matricularse en un grupo del periodo abierto. El sistema revisa automát
 6. Presione **Matricularme**.
 
 **Resultado:** se muestra el mensaje «Te matriculaste en el grupo …» con el código del grupo, y la matrícula aparece en **Mis matrículas**. Si algún requisito no se cumple, el sistema indica cuál falta y cómo resolverlo.
+
+Un grupo **acelerado** cubre dos ciclos seguidos del mismo nivel en un solo periodo, con una sola nota; si lo aprueba, queda habilitado para el ciclo que sigue al segundo. Los grupos del programa Posgrado siempre son acelerados.
 
 La lista de grupos actualiza las vacantes cada 15 segundos y los grupos sin vacantes no pueden elegirse. Puede matricularse en más de un idioma en el mismo periodo; cada matrícula usa su propio pago de matrícula validado.
 
@@ -320,7 +323,7 @@ Permite solicitar constancias, certificados y otros trámites académicos (por e
 
 Algunos trámites solo se muestran a los estudiantes de ciertos programas (por ejemplo, Posgrado), y otros requieren haber finalizado antes otro trámite del mismo idioma y nivel: el certificado de nivel requiere la constancia de notas de ese nivel. Ya no necesita autenticar la constancia en Secretaría General.
 
-*Tabla 5a. Trámites del FUT*
+*Tabla 6. Trámites del FUT*
 
 | Trámite | Qué llena | Condición |
 |---|---|---|
@@ -345,7 +348,7 @@ Para seguir el avance de un trámite, presione **Ver etapas** en la lista **Mis 
 
 ![Figura 22. Etapas de un trámite](figuras/tramite-etapas.png)
 
-*Tabla 6. Estados de un trámite*
+*Tabla 7. Estados de un trámite*
 
 | Estado | Significado |
 |---|---|
@@ -408,7 +411,7 @@ La evaluación de cada ciclo se calcula con los componentes del sistema de evalu
 
 Los promedios se muestran con dos decimales y la nota final se calcula con los promedios sin redondear. Un componente sin nota cuenta como cero, y quien no tiene ninguna nota registrada figura como **NSP** (no se presentó). Mientras el acta del curso esté abierta, la pantalla muestra el **Promedio parcial** con las notas registradas hasta ese momento y la marca **Acta abierta**. Cuando el acta final se cierra, muestra el **Promedio final** con el estado **Aprobado**, **Desaprobado** o **NSP**, y la nota oficial queda en la boleta de notas.
 
-*Tabla 7. Componentes de la evaluación*
+*Tabla 8. Componentes de la evaluación*
 
 | Componente | Grupo | Cómo interviene en la nota |
 |---|---|---|
@@ -429,9 +432,9 @@ En **Asistencia** verá cuántas clases se dictaron de las programadas («X de Y
 El panel **Descargar en PDF**, a la derecha de los reportes, permite descargar los documentos del periodo elegido.
 
 1. Abra cualquier reporte del periodo (por ejemplo, **Avance de notas** u **Horario**).
-2. En **Descargar en PDF**, presione el documento que necesite (Tabla 8).
+2. En **Descargar en PDF**, presione el documento que necesite (Tabla 9).
 
-*Tabla 8. Reportes descargables en PDF*
+*Tabla 9. Reportes descargables en PDF*
 
 | Reporte | Contenido |
 |---|---|
@@ -447,6 +450,8 @@ El panel **Descargar en PDF**, a la derecha de los reportes, permite descargar l
 
 El récord muestra su historial por idioma: una fila por ciclo, con el último resultado aprobado o, si aún no lo aprueba, el último resultado obtenido (Aprobado, Desaprobado o NSP) y cuántas veces lo llevó.
 
+Los ciclos reconocidos por examen figuran con su forma de aprobación: **Clasificación** (sin nota) o **Suficiencia** (con la nota del examen).
+
 1. En **Reportes**, abra **Avance por idioma**.
 2. Revise, por cada idioma, los ciclos con su nota y su resultado, el **Promedio de ciclos aprobados** y los ciclos que le faltan para completar el nivel.
 3. Para obtener el récord en PDF, use **Récord de …** o **Récord completo** en el panel **Descargar en PDF**.
@@ -457,7 +462,7 @@ Este reporte es informativo y no tiene valor oficial; para trámites, solicite l
 
 # 6. VERIFICAR UN DOCUMENTO
 
-Los documentos que el CILN emite por trámite (constancia de matrícula, constancia de notas y certificado de culminación de nivel) llevan un código único y un código QR al pie. Cualquier persona (por ejemplo, un empleador o una universidad) puede comprobar su autenticidad sin crear una cuenta. La ficha de matrícula tiene su propio código QR, que abre la verificación pública de la ficha; la constancia de inscripción de **Mis matrículas** no lleva código ni QR.
+Los documentos que el CILN emite por trámite (constancia de matrícula, constancia de notas, certificado de culminación de nivel y constancia de acreditación) llevan un código único y un código QR al pie. Cualquier persona (por ejemplo, un empleador o una universidad) puede comprobar su autenticidad sin crear una cuenta. La ficha de matrícula tiene su propio código QR, que abre la verificación pública de la ficha; la constancia de inscripción de **Mis matrículas** no lleva código ni QR.
 
 1. En el menú del portal, presione **Verificar un documento** (o **Verificar documento** en la parte superior de la web pública). También puede escanear el código QR del documento con un teléfono celular.
 2. Escriba el código único del documento con el formato CILN-XXXXXXXXXX.
@@ -469,7 +474,7 @@ Los documentos que el CILN emite por trámite (constancia de matrícula, constan
 
 # 7. PREGUNTAS FRECUENTES
 
-*Tabla 9. Preguntas frecuentes*
+*Tabla 10. Preguntas frecuentes*
 
 | Pregunta | Respuesta |
 |---|---|
@@ -479,7 +484,7 @@ Los documentos que el CILN emite por trámite (constancia de matrícula, constan
 | Mis nombres o mi documento tienen un error. | Esos datos solo los corrige el CILN. Acérquese a la oficina con su documento de identidad. |
 | Registré mi pago pero no puedo matricularme. | El pago debe estar **Validado**. Mientras esté pendiente, lleve la boleta original al CILN para validarla. |
 | Mi pago fue rechazado. | Revise que el número de operación, la fecha, el concepto y el recibo adjunto coincidan con el comprobante, y registre el recibo nuevamente. |
-| ¿En qué ciclo me matriculo? | El sistema lo calcula y lo muestra en **Ciclo que te corresponde**: ciclo 1 si recién empieza, el siguiente si aprobó el anterior, o el asignado por el examen de clasificación. |
+| ¿En qué ciclo me matriculo? | El sistema lo calcula y lo muestra en **Ciclo que te corresponde**: ciclo 1 si recién empieza, el siguiente si aprobó el anterior, o el asignado por un examen de clasificación, de reclasificación o de suficiencia. |
 | No aparecen grupos para mi ciclo. | Por ahora no hay grupos abiertos con vacantes para su ciclo. Consulte **Horarios y vacantes** en la web pública o comuníquese con el CILN. |
 | ¿Cómo se calcula mi nota final? | Es el promedio del promedio de las cuatro habilidades y del promedio del examen parcial y final, redondeado al entero (0.5 hacia arriba). Se aprueba con el mínimo configurado por el CILN, 11 de 20 por defecto. |
 | Soy estudiante o trabajador de la UNASAM y el sistema me propone la tarifa de público general. | Toda cuenta creada desde la web queda como **Público general**. Pida al CILN que actualice su vínculo con la UNASAM antes de registrar el pago. |

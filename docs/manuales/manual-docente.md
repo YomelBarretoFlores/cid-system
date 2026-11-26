@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Docente
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.1
+version: 1.2
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -14,6 +14,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 |---|---|---|---|---|
 | 1.0 | 18/11/2026 | Versión inicial | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: grupos acelerados | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -142,6 +143,8 @@ Un paso terminado se marca con un check verde; el paso que corresponde atender s
 ![Figura 6. Tarjeta de un grupo con sus pasos Asistencia, Notas y Acta final](figuras/04-tarjeta-grupo.png)
 
 Dentro de un grupo, las tres pestañas **Asistencia**, **Pre-acta** y **Acta final** permiten pasar de un paso a otro sin volver a la lista.
+
+Un grupo **acelerado** cubre dos ciclos seguidos del mismo nivel en un solo periodo (por ejemplo, Básico I y Básico II). Se registran la asistencia, las notas y una sola acta final como en cualquier grupo: la nota final de cada estudiante vale para los dos ciclos.
 
 # 4. ASISTENCIA Y CONTROL DE CLASES
 

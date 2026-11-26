@@ -153,12 +153,29 @@ it('seeds trámites in every state through the real flow, each change e-mailed a
         'Constancia de notas: finalizado 100',
         'Constancia de notas: observado 33',
         'Constancia de notas: observado 0',
+        'Acreditación (posgrado): finalizado 100',
+        'Examen de suficiencia: finalizado 100',
     ])
         ->and($tramites->take(2)->every(fn (Tramite $tramite): bool => $tramite->persona_id === $estudiante))->toBeTrue()
         ->and($tramites[2]->documento_id)->not->toBeNull()
-        // The three requests that took a payment at once send one e-mail for both steps.
-        ->and(Notificacion::query()->count())->toBe(Movimiento::query()->count() - 3)
+        // The five requests that took a payment at once send one e-mail for both steps.
+        ->and(Notificacion::query()->count())->toBe(Movimiento::query()->count() - 5)
         ->and(Notificacion::query()->where('estado', '!=', 'enviado')->exists())->toBeFalse();
+});
+
+it('seeds a passed proficiency exam and the accreditation of a Posgrado student through the FUT procedures', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $suficiencia = Tramite::query()->whereRelation('tipoTramite', 'codigo', 'SUFICIENCIA')->sole();
+    $acreditacion = Tramite::query()->whereRelation('tipoTramite', 'codigo', 'ACREDITACION')->sole();
+    $posgrado = Grupo::query()->where('codigo', 'POR-2-T')->whereRelation('programa', 'codigo', 'POSGRADO')->sole();
+
+    expect($suficiencia->resultado)->toBe(['nota' => '16.00', 'aprobado' => true, 'nota_minima' => '11.00'])
+        ->and(DB::table('cer_aprobaciones')->where(['persona_id' => $suficiencia->persona_id, 'forma' => 'suficiencia', 'idioma' => 'Francés', 'nota' => '16.00'])->orderBy('ciclo_numero')->pluck('ciclo_numero')->all())->toBe([1, 2, 3, 4])
+        ->and(Documento::query()->whereKey($acreditacion->documento_id)->sole()->tipo)->toBe(TipoDocumento::ConstanciaAcreditacion)
+        ->and(Matricula::query()->where(['persona_id' => $acreditacion->persona_id, 'grupo_id' => $posgrado->id])->exists())->toBeTrue()
+        ->and(DB::table('tra_tipos_tramite')->whereIn('tra_tipos_tramite.codigo', ['SUFICIENCIA', 'ACREDITACION', 'CERTIFICADO-POSGRADO', 'RECLASIFICACION'])->join('pag_conceptos', 'pag_conceptos.id', '=', 'tra_tipos_tramite.concepto_id', 'left')->orderBy('tra_tipos_tramite.codigo')->select(['tra_tipos_tramite.codigo as tipo', 'pag_conceptos.codigo as concepto'])->pluck('concepto', 'tipo')->all())
+        ->toBe(['ACREDITACION' => 'ACR-PG', 'CERTIFICADO-POSGRADO' => 'CER-01', 'RECLASIFICACION' => null, 'SUFICIENCIA' => 'SUF-01']);
 });
 
 it('refuses to seed demo data in production even when forced', function (): void {

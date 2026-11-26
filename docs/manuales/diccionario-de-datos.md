@@ -8,7 +8,7 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 |---|---|
 | Gestor de base de datos | PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) |
 | Esquema | `public` |
-| Última migración aplicada | `2026_11_19_100000_describe_the_consent_recorded_by_staff` |
+| Última migración aplicada | `2026_11_29_100300_insert_fut_procedure_types` |
 
 **Convenciones:**
 
@@ -23,17 +23,17 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 
 | Módulo | Tablas | Columnas |
 |---|---|---|
-| Académico (oferta académica) | 8 | 78 |
+| Académico (oferta académica) | 9 | 89 |
 | Personas | 1 | 17 |
 | Matrícula | 5 | 54 |
-| Pagos | 5 | 55 |
+| Pagos | 6 | 61 |
 | Docencia | 11 | 94 |
-| Certificación | 7 | 88 |
-| Trámites | 5 | 55 |
+| Certificación | 9 | 122 |
+| Trámites | 7 | 77 |
 | Auditoría | 1 | 10 |
 | Seguridad y control de acceso | 9 | 52 |
 | Infraestructura de la aplicación | 7 | 45 |
-| **Total** | **59** | **548** |
+| **Total** | **65** | **621** |
 
 ## 3. Académico (oferta académica)
 
@@ -43,8 +43,10 @@ erDiagram
     aca_esquemas_evaluacion ||--o{ aca_componentes_evaluacion : "esquema_id"
     aca_idiomas ||--o{ aca_esquemas_evaluacion : "idioma_id"
     aca_aulas ||--o{ aca_grupos : "aula_id"
+    aca_ciclos ||--o{ aca_grupos : "ciclo_hasta_id"
     aca_ciclos ||--o{ aca_grupos : "ciclo_id"
     aca_periodos ||--o{ aca_grupos : "periodo_id"
+    aca_programas ||--o{ aca_grupos : "programa_id"
     aca_grupos ||--o{ aca_horarios : "grupo_id"
 ```
 
@@ -203,6 +205,8 @@ Oferta académica: grupo de un ciclo en un periodo, con modalidad, aula, cupos y
 | 13 | `estado` | varchar(255) | No | `'programado'` | Estado del grupo. Valores: `programado`, `abierto`, `cerrado`, `cancelado`, `finalizado`. |
 | 14 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
 | 15 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
+| 16 | `programa_id` | bigint | No |  | Programa al que pertenece el grupo; su régimen decide si el grupo puede ser regular o acelerado. Referencia a aca_programas. Referencia a `aca_programas`. |
+| 17 | `ciclo_hasta_id` | bigint | Sí |  | Segundo ciclo que cubre un grupo acelerado: el siguiente del mismo idioma y nivel; vacío en un grupo regular. Referencia a aca_ciclos. Referencia a `aca_ciclos`. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -213,11 +217,14 @@ Oferta académica: grupo de un ciclo en un periodo, con modalidad, aula, cupos y
 **Llaves foráneas:**
 
 - `aca_grupos_aula_id_foreign`: `FOREIGN KEY (aula_id) REFERENCES aca_aulas(id) ON DELETE RESTRICT`
+- `aca_grupos_ciclo_hasta_id_foreign`: `FOREIGN KEY (ciclo_hasta_id) REFERENCES aca_ciclos(id) ON DELETE RESTRICT`
 - `aca_grupos_ciclo_id_foreign`: `FOREIGN KEY (ciclo_id) REFERENCES aca_ciclos(id) ON DELETE RESTRICT`
 - `aca_grupos_periodo_id_foreign`: `FOREIGN KEY (periodo_id) REFERENCES aca_periodos(id) ON DELETE RESTRICT`
+- `aca_grupos_programa_id_foreign`: `FOREIGN KEY (programa_id) REFERENCES aca_programas(id) ON DELETE RESTRICT`
 
 **Reglas de validación:**
 
+- `aca_grupos_ciclo_hasta_check`: `CHECK (((es_acelerado AND (ciclo_hasta_id IS NOT NULL)) OR ((NOT es_acelerado) AND (ciclo_hasta_id IS NULL))))`
 - `aca_grupos_cupos_check`: `CHECK (((cupo_maximo > 0) AND (cupo_minimo >= 0) AND (cupo_minimo <= cupo_maximo)))`
 - `aca_grupos_estado_check`: `CHECK (((estado) = ANY ((ARRAY['programado', 'abierto', 'cerrado', 'cancelado', 'finalizado']))))`
 - `aca_grupos_matriculados_check`: `CHECK (((matriculados >= 0) AND (matriculados <= cupo_maximo)))`
@@ -227,6 +234,7 @@ Oferta académica: grupo de un ciclo en un periodo, con modalidad, aula, cupos y
 
 - `aca_grupos_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 - `aca_grupos_aula_libre`: AFTER UPDATE OF aula_id, periodo_id, estado, ejecuta `aca_grupos_aula_libre()`
+- `aca_grupos_ciclo_hasta`: BEFORE INSERT, UPDATE OF ciclo_id, ciclo_hasta_id, ejecuta `aca_controlar_ciclo_hasta()`
 - `doc_aca_grupos_docente_sin_cruces`: AFTER UPDATE OF periodo_id, estado, ejecuta `doc_docente_sin_cruces_por_grupo()`
 
 ### 3.6. `aca_horarios`
@@ -277,6 +285,7 @@ Idiomas extranjeros y lenguas nativas que ofrece el CILN.
 | 6 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
 | 7 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
 | 8 | `bandera` | varchar(30) | Sí |  | Identificador de la bandera o emblema que se muestra en el portal. |
+| 9 | `curriculo` | varchar(10) | No | `'01'` | Código del currículo vigente del idioma, impreso en la constancia de notas. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -307,6 +316,7 @@ Periodos académicos con sus fechas de clases, matrícula y registro de actas.
 | 11 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
 | 12 | `actas_inicio` | date | Sí |  | Inicio del plazo para registrar notas y cerrar actas. |
 | 13 | `actas_fin` | date | Sí |  | Fin del plazo para registrar notas y cerrar actas. |
+| 14 | `matricula_extemporanea_fin` | date | Sí |  | Último día de la matrícula extemporánea, posterior al fin de la matrícula regular; vacío si el periodo no la tiene. El pago de matrícula en ese plazo lleva el recargo de la configuración de pagos. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -320,6 +330,7 @@ Periodos académicos con sus fechas de clases, matrícula y registro de actas.
 - `aca_periodos_estado_check`: `CHECK (((estado) = ANY ((ARRAY['planificado', 'matricula_abierta', 'en_curso', 'cerrado']))))`
 - `aca_periodos_fechas_check`: `CHECK ((fecha_fin > fecha_inicio))`
 - `aca_periodos_matricula_check`: `CHECK (((matricula_fin >= matricula_inicio) AND (matricula_fin <= fecha_fin)))`
+- `aca_periodos_matricula_extemporanea_check`: `CHECK (((matricula_extemporanea_fin IS NULL) OR ((matricula_extemporanea_fin > matricula_fin) AND (matricula_extemporanea_fin <= fecha_fin))))`
 - `aca_periodos_numero_check`: `CHECK (((numero >= 1) AND (numero <= 12)))`
 
 **Triggers:**
@@ -327,6 +338,34 @@ Periodos académicos con sus fechas de clases, matrícula y registro de actas.
 - `aca_periodos_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 - `aca_periodos_aula_libre`: AFTER UPDATE OF fecha_inicio, fecha_fin, ejecuta `aca_periodos_aula_libre()`
 - `doc_aca_periodos_docente_sin_cruces`: AFTER UPDATE OF fecha_inicio, fecha_fin, ejecuta `doc_docente_sin_cruces_por_periodo()`
+
+### 3.9. `aca_programas`
+
+Programas del centro (Jóvenes y Adultos, Niños, Posgrado) con el régimen de ciclo que admiten sus grupos.
+
+| N° | Columna | Tipo | Nulo | Por defecto | Descripción |
+|---|---|---|---|---|---|
+| 1 | `id` | bigint | No | Autoincremental | Identificador interno. |
+| 2 | `codigo` | varchar(20) | No |  | Código único del programa, en mayúsculas. |
+| 3 | `nombre` | varchar(80) | No |  | Nombre único del programa, como aparece en los documentos. |
+| 4 | `regimen` | varchar(10) | No |  | Régimen de ciclo que admiten sus grupos. Valores: regular, acelerado, ambos. Valores: `regular`, `acelerado`, `ambos`. |
+| 5 | `activo` | boolean | No | `true` | Indica si el programa está disponible para nuevos grupos. |
+| 6 | `created_at` | timestamptz | Sí |  | Fecha y hora de registro. |
+| 7 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación. |
+
+**Llave primaria y restricciones únicas:**
+
+- `aca_programas_pkey`: `PRIMARY KEY (id)`
+- `aca_programas_codigo_unique`: `UNIQUE (codigo)`
+- `aca_programas_nombre_unique`: `UNIQUE (nombre)`
+
+**Reglas de validación:**
+
+- `aca_programas_regimen_valido_check`: `CHECK (((regimen) = ANY ((ARRAY['regular', 'acelerado', 'ambos']))))`
+
+**Triggers:**
+
+- `aca_programas_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 
 ## 4. Personas
 
@@ -433,7 +472,7 @@ Ciclo en el que cada persona puede matricularse en cada idioma. Sin fila, la per
 | 2 | `persona_id` | bigint | No |  | Persona habilitada. Referencia a `per_personas`. |
 | 3 | `idioma_id` | bigint | No |  | Idioma de la habilitación. Referencia a `aca_idiomas`. |
 | 4 | `ciclo_id` | bigint | No |  | Ciclo habilitado; pertenece al idioma. |
-| 5 | `origen` | varchar(255) | No |  | Origen de la habilitación: clasificación, aprobación del ciclo anterior o ajuste administrativo. Valores: `clasificacion`, `aprobacion`, `ajuste_administrativo`. |
+| 5 | `origen` | varchar(255) | No |  | Origen de la habilitación: clasificación, aprobación del ciclo anterior, ajuste administrativo, examen de suficiencia o reclasificación. Valores: `clasificacion`, `aprobacion`, `ajuste_administrativo`, `suficiencia`, `reclasificacion`. |
 | 6 | `actualizado_por` | bigint | Sí |  | Cuenta que hizo el último ajuste. Referencia a `users`. |
 | 7 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
 | 8 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
@@ -454,7 +493,7 @@ Ciclo en el que cada persona puede matricularse en cada idioma. Sin fila, la per
 **Reglas de validación:**
 
 - `mat_habilitaciones_motivo_check`: `CHECK (((((origen) = 'ajuste_administrativo') = (motivo IS NOT NULL)) AND ((motivo IS NULL) OR ((char_length((motivo)) >= 5) AND (char_length((motivo)) <= 500)))))`
-- `mat_habilitaciones_origen_check`: `CHECK (((origen) = ANY ((ARRAY['clasificacion', 'aprobacion', 'ajuste_administrativo']))))`
+- `mat_habilitaciones_origen_check`: `CHECK (((origen) = ANY ((ARRAY['clasificacion', 'aprobacion', 'ajuste_administrativo', 'suficiencia', 'reclasificacion']))))`
 
 **Triggers:**
 
@@ -609,6 +648,7 @@ erDiagram
     per_personas ||--o{ pag_pagos : "persona_id"
     pag_tarifas ||--o{ pag_pagos : "tarifa_id"
     pag_conceptos ||--o{ pag_tarifas : "concepto_id"
+    aca_programas ||--o{ pag_tarifas : "programa_id"
 ```
 
 ### 6.1. `pag_conceptos`
@@ -644,7 +684,31 @@ Conceptos de pago del TUPA/TUSNE (matrícula, pensión, examen, certificado, con
 - `pag_conceptos_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 - `pag_conceptos_tipo_protegido`: BEFORE UPDATE OF tipo, ejecuta `pag_proteger_tipo_de_concepto()`
 
-### 6.2. `pag_fuentes_concepto`
+### 6.2. `pag_configuracion`
+
+Parámetros de pagos que configura el CILN; una sola fila.
+
+| N° | Columna | Tipo | Nulo | Por defecto | Descripción |
+|---|---|---|---|---|---|
+| 1 | `id` | smallint | No | `'1'` | Identificador de la única fila; siempre 1. |
+| 2 | `recargo_matricula_extemporanea` | smallint | No | `'20'` | Porcentaje entero (0 a 100) que se suma a la tarifa de matrícula pagada en el plazo de matrícula extemporánea del periodo. |
+| 3 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación de la fila. |
+| 4 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación. |
+
+**Llave primaria y restricciones únicas:**
+
+- `pag_configuracion_pkey`: `PRIMARY KEY (id)`
+
+**Reglas de validación:**
+
+- `pag_configuracion_recargo_check`: `CHECK (((recargo_matricula_extemporanea >= 0) AND (recargo_matricula_extemporanea <= 100)))`
+- `pag_configuracion_unica_check`: `CHECK ((id = 1))`
+
+**Triggers:**
+
+- `pag_configuracion_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
+
+### 6.3. `pag_fuentes_concepto`
 
 Fuentes normativas de los conceptos de pago (TUPA, TUSNE).
 
@@ -674,7 +738,7 @@ Fuentes normativas de los conceptos de pago (TUPA, TUSNE).
 
 - `pag_fuentes_concepto_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 
-### 6.3. `pag_medios_pago`
+### 6.4. `pag_medios_pago`
 
 Medios de pago aceptados (agencia bancaria, transferencia, caja).
 
@@ -704,7 +768,7 @@ Medios de pago aceptados (agencia bancaria, transferencia, caja).
 
 - `pag_medios_pago_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 
-### 6.4. `pag_pagos`
+### 6.5. `pag_pagos`
 
 Pagos con su comprobante y su validación. Nunca se borran: un pago validado se anula con motivo.
 
@@ -775,7 +839,7 @@ Pagos con su comprobante y su validación. Nunca se borran: un pago validado se 
 - `pag_pagos_sin_borrado`: BEFORE DELETE, ejecuta `pag_impedir_borrado()`
 - `pag_pagos_sin_truncate`: BEFORE TRUNCATE, ejecuta `pag_impedir_borrado()`
 
-### 6.5. `pag_tarifas`
+### 6.6. `pag_tarifas`
 
 Monto de cada concepto según el vínculo de la persona, con vigencia; no se superponen.
 
@@ -789,6 +853,8 @@ Monto de cada concepto según el vínculo de la persona, con vigencia; no se sup
 | 6 | `vigente_hasta` | date | Sí |  | Fin de vigencia; nulo si sigue vigente. |
 | 7 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
 | 8 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
+| 9 | `nivel` | varchar(12) | Sí |  | Nivel al que se aplica la tarifa (basico, intermedio, avanzado); vacío si vale para todos los niveles. |
+| 10 | `programa_id` | bigint | Sí |  | Programa al que se aplica la tarifa (aca_programas); vacío si vale para todos los programas. Referencia a `aca_programas`. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -797,13 +863,15 @@ Monto de cada concepto según el vínculo de la persona, con vigencia; no se sup
 **Llaves foráneas:**
 
 - `pag_tarifas_concepto_id_foreign`: `FOREIGN KEY (concepto_id) REFERENCES pag_conceptos(id) ON DELETE RESTRICT`
+- `pag_tarifas_programa_id_foreign`: `FOREIGN KEY (programa_id) REFERENCES aca_programas(id) ON DELETE RESTRICT`
 
 **Reglas de validación:**
 
 - `pag_tarifas_monto_check`: `CHECK ((monto > (0)))`
+- `pag_tarifas_nivel_valido_check`: `CHECK (((nivel IS NULL) OR ((nivel) = ANY ((ARRAY['basico', 'intermedio', 'avanzado'])))))`
 - `pag_tarifas_tipo_vinculo_check`: `CHECK (((tipo_vinculo) = ANY ((ARRAY['estudiante_unasam', 'docente_administrativo_unasam', 'publico_general']))))`
 - `pag_tarifas_vigencia_check`: `CHECK (((vigente_hasta IS NULL) OR (vigente_hasta >= vigente_desde)))`
-- `pag_tarifas_sin_superposicion`: `EXCLUDE USING gist (concepto_id WITH =, tipo_vinculo WITH =, daterange(vigente_desde, vigente_hasta, '[]') WITH &&)`
+- `pag_tarifas_sin_superposicion`: `EXCLUDE USING gist (concepto_id WITH =, tipo_vinculo WITH =, COALESCE(nivel, '') WITH =, COALESCE(programa_id, (0)::bigint) WITH =, daterange(vigente_desde, vigente_hasta, '[]') WITH &&)`
 
 **Triggers:**
 
@@ -1229,6 +1297,7 @@ erDiagram
     aca_esquemas_evaluacion ||--o{ cer_actas : "esquema_id"
     aca_grupos ||--o{ cer_actas : "grupo_id"
     aca_periodos ||--o{ cer_actas : "periodo_id"
+    per_personas ||--o{ cer_aprobaciones : "persona_id"
     mat_matriculas ||--o{ cer_documentos : "matricula_id"
     per_personas ||--o{ cer_documentos : "persona_id"
     cer_actas ||--o{ cer_notas_finales : "acta_id"
@@ -1267,6 +1336,9 @@ Actas finales de notas por grupo. Guardan una copia de los datos del grupo y se 
 | 22 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
 | 23 | `firmas` | jsonb | Sí |  | Firmantes del acta al cerrarse (JSON). |
 | 24 | `denominacion` | varchar(250) | Sí |  | Denominación oficial del año al cerrarse. |
+| 25 | `ciclo_numero_hasta` | smallint | Sí |  | Número del segundo ciclo cuando el acta es de un grupo acelerado; vacío en un grupo regular. |
+| 26 | `ciclo_nombre_hasta` | varchar(60) | Sí |  | Nombre del segundo ciclo al cerrar el acta de un grupo acelerado. |
+| 27 | `horas_lectivas_hasta` | smallint | Sí |  | Horas lectivas del segundo ciclo de un grupo acelerado, incluidas en horas_lectivas. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -1283,6 +1355,7 @@ Actas finales de notas por grupo. Guardan una copia de los datos del grupo y se 
 
 **Reglas de validación:**
 
+- `cer_actas_ciclo_hasta_check`: `CHECK ((((ciclo_numero_hasta IS NULL) AND (ciclo_nombre_hasta IS NULL) AND (horas_lectivas_hasta IS NULL)) OR ((ciclo_numero_hasta = (ciclo_numero + 1)) AND (ciclo_nombre_hasta IS NOT NULL) AND (horas_lectivas_hasta > 0) AND (horas_lectivas_hasta < horas_lectivas))))`
 - `cer_actas_denominacion_check`: `CHECK (((denominacion IS NULL) OR (firmas IS NOT NULL)))`
 - `cer_actas_estado_check`: `CHECK (((estado) = ANY ((ARRAY['abierta', 'cerrada']))))`
 - `cer_actas_nivel_check`: `CHECK (((nivel) = ANY ((ARRAY['basico', 'intermedio', 'avanzado']))))`
@@ -1295,7 +1368,62 @@ Actas finales de notas por grupo. Guardan una copia de los datos del grupo y se 
 - `cer_actas_bloqueo`: BEFORE DELETE, UPDATE, ejecuta `cer_controlar_acta()`
 - `cer_actas_sin_truncate`: BEFORE TRUNCATE, ejecuta `cer_impedir_truncate()`
 
-### 8.2. `cer_correlativos`
+### 8.2. `cer_aprobaciones`
+
+Ciclos aprobados sin acta final (examen de clasificación o de suficiencia); no se eliminan y solo se anulan una vez.
+
+| N° | Columna | Tipo | Nulo | Por defecto | Descripción |
+|---|---|---|---|---|---|
+| 1 | `id` | bigint | No | Autoincremental | Identificador interno (llave primaria). |
+| 2 | `persona_id` | bigint | No |  | Estudiante que aprobó el ciclo. Referencia a `per_personas`. Referencia a `per_personas`. |
+| 3 | `idioma` | varchar(60) | No |  | Nombre del idioma al registrar la aprobación, como en las actas. |
+| 4 | `nivel` | varchar(255) | No |  | Nivel curricular del ciclo aprobado. Valores: `basico`, `intermedio`, `avanzado`. |
+| 5 | `ciclo_numero` | smallint | No |  | Número del ciclo aprobado en el plan de estudios del idioma. |
+| 6 | `ciclo_nombre` | varchar(60) | No |  | Nombre del ciclo al registrar la aprobación. |
+| 7 | `horas_lectivas` | smallint | Sí |  | Horas lectivas reconocidas; vacío cuando el ciclo no se cursó (clasificación). |
+| 8 | `forma` | varchar(255) | No |  | Forma de aprobación del ciclo. Valores: `suficiencia`, `clasificacion`. |
+| 9 | `nota` | numeric(5,2) | Sí |  | Nota obtenida en el examen; vacía en la clasificación, que no califica los ciclos que salta. |
+| 10 | `fecha` | date | No |  | Fecha del examen (hora de Lima), de la que salen el año y el mes de la constancia. |
+| 11 | `origen_tipo` | varchar(30) | No |  | Registro que originó la aprobación: solicitud_clasificacion o tramite. |
+| 12 | `origen_id` | bigint | No |  | Identificador del registro que originó la aprobación. |
+| 13 | `registrado_por` | bigint | Sí |  | Usuario que registró el resultado del examen. Referencia a `users`. |
+| 14 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
+| 15 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
+| 16 | `anulada_en` | timestamptz | Sí |  | Fecha y hora de anulación; vacía mientras la aprobación está vigente. |
+| 17 | `anulada_por` | bigint | Sí |  | Usuario que anuló la aprobación. Referencia a `users`. |
+| 18 | `motivo_anulacion` | varchar(300) | Sí |  | Motivo de la anulación. |
+
+**Llave primaria y restricciones únicas:**
+
+- `cer_aprobaciones_pkey`: `PRIMARY KEY (id)`
+
+**Índices únicos parciales:**
+
+- `cer_aprobaciones_vigente_unique`: `(persona_id, idioma, ciclo_numero, forma) WHERE (anulada_en IS NULL)`
+
+**Llaves foráneas:**
+
+- `cer_aprobaciones_anulada_por_foreign`: `FOREIGN KEY (anulada_por) REFERENCES users(id) ON DELETE RESTRICT`
+- `cer_aprobaciones_persona_id_foreign`: `FOREIGN KEY (persona_id) REFERENCES per_personas(id) ON DELETE RESTRICT`
+- `cer_aprobaciones_registrado_por_foreign`: `FOREIGN KEY (registrado_por) REFERENCES users(id) ON DELETE RESTRICT`
+
+**Reglas de validación:**
+
+- `cer_aprobaciones_anulacion_check`: `CHECK ((((anulada_en IS NULL) = (anulada_por IS NULL)) AND ((anulada_en IS NULL) = (motivo_anulacion IS NULL))))`
+- `cer_aprobaciones_ciclo_numero_check`: `CHECK ((ciclo_numero > 0))`
+- `cer_aprobaciones_clasificacion_check`: `CHECK ((((forma) <> 'clasificacion') OR (nota IS NULL)))`
+- `cer_aprobaciones_forma_check`: `CHECK (((forma) = ANY ((ARRAY['suficiencia', 'clasificacion']))))`
+- `cer_aprobaciones_horas_check`: `CHECK (((horas_lectivas IS NULL) OR (horas_lectivas > 0)))`
+- `cer_aprobaciones_nivel_check`: `CHECK (((nivel) = ANY ((ARRAY['basico', 'intermedio', 'avanzado']))))`
+- `cer_aprobaciones_nota_check`: `CHECK (((nota IS NULL) OR (nota >= (0))))`
+
+**Triggers:**
+
+- `cer_aprobaciones_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
+- `cer_aprobaciones_bloqueo`: BEFORE DELETE, UPDATE, ejecuta `cer_impedir_cambio_de_aprobacion()`
+- `cer_aprobaciones_sin_truncate`: BEFORE TRUNCATE, ejecuta `cer_impedir_truncate()`
+
+### 8.3. `cer_correlativos`
 
 Último número emitido por tipo de documento y año, para la numeración correlativa sin saltos.
 
@@ -1315,7 +1443,41 @@ Actas finales de notas por grupo. Guardan una copia de los datos del grupo y se 
 
 - `cer_correlativos_ultimo_check`: `CHECK ((ultimo >= 0))`
 
-### 8.3. `cer_denominaciones`
+### 8.4. `cer_datos_institucionales`
+
+Datos de la institución que imprimen los documentos oficiales (encabezado, pie, ciudad y formato del número); una sola fila.
+
+| N° | Columna | Tipo | Nulo | Por defecto | Descripción |
+|---|---|---|---|---|---|
+| 1 | `id` | smallint | No | `'1'` | Identificador de la única fila; siempre 1. |
+| 2 | `universidad` | varchar(150) | No |  | Nombre de la universidad en el encabezado y en el texto de la constancia de notas. |
+| 3 | `lema` | varchar(150) | No |  | Lema de la universidad bajo su nombre. |
+| 4 | `centro` | varchar(150) | No |  | Nombre del centro en el encabezado y en el texto de la constancia de notas. |
+| 5 | `direccion` | varchar(200) | No |  | Dirección del centro en el pie de página. |
+| 6 | `telefono` | varchar(100) | No |  | Teléfono y anexo del centro en el pie de página. |
+| 7 | `web` | varchar(100) | No |  | Sitio web del centro en el pie de página. |
+| 8 | `facebook` | varchar(100) | No |  | Página de Facebook del centro en el pie de página. |
+| 9 | `ciudad` | varchar(60) | No | `'Huaraz'` | Ciudad que precede a la fecha de emisión ("Huaraz, 16 de noviembre de 2026"). |
+| 10 | `formato_numero` | varchar(60) | No | `'N.º {numero:06}-{anio}'` | Formato del número anual de los documentos: {anio} es el año y {numero:N} el correlativo con N dígitos. |
+| 11 | `formato_numero_constancia_notas` | varchar(60) | No | `'N° {anio} - {numero:05}'` | Formato del número anual de la constancia de notas por nivel, con las mismas marcas que formato_numero. |
+| 12 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación de la fila. |
+| 13 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación. |
+
+**Llave primaria y restricciones únicas:**
+
+- `cer_datos_institucionales_pkey`: `PRIMARY KEY (id)`
+
+**Reglas de validación:**
+
+- `cer_datos_institucionales_formatos_check`: `CHECK ((((formato_numero) ~ '\{numero(:[0-9]+)?\}') AND ((formato_numero_constancia_notas) ~ '\{numero(:[0-9]+)?\}')))`
+- `cer_datos_institucionales_textos_check`: `CHECK (((btrim((universidad)) <> '') AND (btrim((lema)) <> '') AND (btrim((centro)) <> '') AND (btrim((direccion)) <> '') AND (btrim((telefono)) <> '') AND (btrim((web)) <> '') AND (btrim((facebook)) <> '') AND (btrim((ciudad)) <> '') AND (btrim((formato_numero)) <> '') AND (btrim((formato_numero_constancia_notas)) <> '')))`
+- `cer_datos_institucionales_unica_check`: `CHECK ((id = 1))`
+
+**Triggers:**
+
+- `cer_datos_institucionales_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
+
+### 8.5. `cer_denominaciones`
 
 Denominación oficial de cada año, impresa en los documentos.
 
@@ -1341,7 +1503,7 @@ Denominación oficial de cada año, impresa en los documentos.
 
 - `cer_denominaciones_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 
-### 8.4. `cer_documentos`
+### 8.6. `cer_documentos`
 
 Constancias y certificados emitidos, verificables por código y QR. Se anulan, nunca se borran.
 
@@ -1349,7 +1511,7 @@ Constancias y certificados emitidos, verificables por código y QR. Se anulan, n
 |---|---|---|---|---|---|
 | 1 | `id` | bigint | No | Autoincremental | Identificador interno (llave primaria). |
 | 2 | `codigo` | varchar(20) | No |  | Código único de verificación impreso junto al QR. |
-| 3 | `tipo` | varchar(255) | No |  | Tipo de documento. Valores: `constancia_matricula`, `constancia_notas`, `certificado_nivel`. |
+| 3 | `tipo` | varchar(255) | No |  | Tipo de documento. Valores: `constancia_matricula`, `constancia_notas`, `certificado_nivel`, `constancia_acreditacion`. |
 | 4 | `persona_id` | bigint | No |  | Estudiante. Referencia a `per_personas`. |
 | 5 | `matricula_id` | bigint | Sí |  | Matrícula que sustenta una constancia de matrícula. Referencia a `mat_matriculas`. |
 | 6 | `estudiante_nombre` | varchar(200) | No |  | Nombre del estudiante al emitir. |
@@ -1390,12 +1552,13 @@ Constancias y certificados emitidos, verificables por código y QR. Se anulan, n
 
 **Reglas de validación:**
 
+- `cer_documentos_acreditacion_check`: `CHECK ((((tipo) <> 'constancia_acreditacion') OR (nivel IS NOT NULL)))`
 - `cer_documentos_anulacion_check`: `CHECK ((((anulado_en IS NULL) = (anulado_por IS NULL)) AND ((anulado_en IS NULL) = (motivo_anulacion IS NULL)) AND ((motivo_anulacion IS NULL) OR ((char_length((motivo_anulacion)) >= 5) AND (char_length((motivo_anulacion)) <= 500)))))`
 - `cer_documentos_certificado_check`: `CHECK ((((tipo) <> 'certificado_nivel') OR ((nivel IS NOT NULL) AND (horas_lectivas IS NOT NULL) AND (nota_final IS NOT NULL))))`
 - `cer_documentos_nivel_check`: `CHECK (((nivel) = ANY ((ARRAY['basico', 'intermedio', 'avanzado']))))`
 - `cer_documentos_numero_check`: `CHECK ((((numero IS NULL) = (anio_numero IS NULL)) AND ((numero IS NULL) OR (numero > 0))))`
 - `cer_documentos_revision_check`: `CHECK (((revisar_desde IS NULL) = (motivo_revision IS NULL)))`
-- `cer_documentos_tipo_check`: `CHECK (((tipo) = ANY ((ARRAY['constancia_matricula', 'constancia_notas', 'certificado_nivel']))))`
+- `cer_documentos_tipo_check`: `CHECK (((tipo) = ANY ((ARRAY['constancia_matricula', 'constancia_notas', 'certificado_nivel', 'constancia_acreditacion']))))`
 
 **Triggers:**
 
@@ -1403,7 +1566,7 @@ Constancias y certificados emitidos, verificables por código y QR. Se anulan, n
 - `cer_documentos_bloqueo`: BEFORE DELETE, UPDATE, ejecuta `cer_controlar_documentos()`
 - `cer_documentos_sin_truncate`: BEFORE TRUNCATE, ejecuta `cer_impedir_truncate()`
 
-### 8.5. `cer_firmantes`
+### 8.7. `cer_firmantes`
 
 Autoridades que firman actas, constancias y certificados, con vigencia.
 
@@ -1436,7 +1599,7 @@ Autoridades que firman actas, constancias y certificados, con vigencia.
 
 - `cer_firmantes_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 
-### 8.6. `cer_notas_finales`
+### 8.8. `cer_notas_finales`
 
 Nota final de cada estudiante en un acta.
 
@@ -1476,7 +1639,7 @@ Nota final de cada estudiante en un acta.
 - `cer_notas_finales_bloqueo`: BEFORE INSERT, DELETE, UPDATE, ejecuta `cer_controlar_notas_finales()`
 - `cer_notas_finales_sin_truncate`: BEFORE TRUNCATE, ejecuta `cer_impedir_truncate()`
 
-### 8.7. `cer_rectificaciones`
+### 8.9. `cer_rectificaciones`
 
 Rectificaciones de actas cerradas, autorizadas por el administrador.
 
@@ -1519,17 +1682,59 @@ Rectificaciones de actas cerradas, autorizadas por el administrador.
 
 ```mermaid
 erDiagram
+    tra_tramites ||--o{ tra_adjuntos : "tramite_id"
     tra_tipos_tramite ||--o{ tra_etapas : "tipo_tramite_id"
     tra_tramites ||--o{ tra_movimientos : "tramite_id"
     tra_movimientos ||--o{ tra_notificaciones : "movimiento_id"
     tra_tramites ||--o{ tra_notificaciones : "tramite_id"
+    pag_conceptos ||--o{ tra_tipos_tramite : "concepto_id"
+    tra_tipos_tramite ||--o{ tra_tipos_tramite : "requiere_tipo_previo_id"
+    aca_programas ||--o{ tra_tipo_tramite_programa : "programa_id"
+    tra_tipos_tramite ||--o{ tra_tipo_tramite_programa : "tipo_tramite_id"
+    pag_conceptos ||--o{ tra_tramites : "concepto_id"
     cer_documentos ||--o{ tra_tramites : "documento_id"
     pag_pagos ||--o{ tra_tramites : "pago_id"
     per_personas ||--o{ tra_tramites : "persona_id"
     tra_tipos_tramite ||--o{ tra_tramites : "tipo_tramite_id"
 ```
 
-### 9.1. `tra_etapas`
+### 9.1. `tra_adjuntos`
+
+Archivos que el estudiante adjunta a su trámite, guardados en el disco privado; no se modifican ni se eliminan.
+
+| N° | Columna | Tipo | Nulo | Por defecto | Descripción |
+|---|---|---|---|---|---|
+| 1 | `id` | bigint | No | Autoincremental | Identificador interno (llave primaria). |
+| 2 | `ulid` | char(26) | No |  | Identificador público usado en el enlace de descarga. |
+| 3 | `tramite_id` | bigint | No |  | Trámite al que pertenece. Referencia a tra_tramites. Referencia a `tra_tramites`. |
+| 4 | `nombre` | varchar(80) | No |  | Nombre del adjunto pedido por el tipo de trámite al momento de la solicitud. |
+| 5 | `path` | varchar(255) | No |  | Ruta del archivo en el disco privado. |
+| 6 | `sha256` | char(64) | No |  | Huella SHA-256 del archivo. |
+| 7 | `bytes` | integer | No |  | Tamaño del archivo en bytes (máximo 5 MB). |
+| 8 | `mime` | varchar(80) | No |  | Tipo MIME real del archivo (PDF, JPG o PNG). |
+| 9 | `created_at` | timestamptz | Sí |  | Fecha y hora de registro. |
+| 10 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación. |
+
+**Llave primaria y restricciones únicas:**
+
+- `tra_adjuntos_pkey`: `PRIMARY KEY (id)`
+- `tra_adjuntos_ulid_unique`: `UNIQUE (ulid)`
+
+**Llaves foráneas:**
+
+- `tra_adjuntos_tramite_id_foreign`: `FOREIGN KEY (tramite_id) REFERENCES tra_tramites(id) ON DELETE RESTRICT`
+
+**Reglas de validación:**
+
+- `tra_adjuntos_bytes_check`: `CHECK (((bytes >= 1) AND (bytes <= 5242880)))`
+
+**Triggers:**
+
+- `tra_adjuntos_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
+- `tra_adjuntos_bloqueo`: BEFORE DELETE, UPDATE, ejecuta `tra_impedir_cambio_de_adjuntos()`
+- `tra_adjuntos_sin_truncate`: BEFORE TRUNCATE, ejecuta `tra_impedir_truncate()`
+
+### 9.2. `tra_etapas`
 
 Etapas de cada tipo de trámite con su porcentaje de avance y la condición para pasar.
 
@@ -1562,7 +1767,7 @@ Etapas de cada tipo de trámite con su porcentaje de avance y la condición para
 
 - `tra_etapas_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 
-### 9.2. `tra_movimientos`
+### 9.3. `tra_movimientos`
 
 Historial inmutable de cambios de estado y etapa de cada trámite.
 
@@ -1595,7 +1800,7 @@ Historial inmutable de cambios de estado y etapa de cada trámite.
 - `tra_movimientos_bloqueo`: BEFORE DELETE, UPDATE, ejecuta `tra_impedir_borrado()`
 - `tra_movimientos_sin_truncate`: BEFORE TRUNCATE, ejecuta `tra_impedir_truncate()`
 
-### 9.3. `tra_notificaciones`
+### 9.4. `tra_notificaciones`
 
 Registro de correos enviados por cada cambio de estado de un trámite.
 
@@ -1632,7 +1837,33 @@ Registro de correos enviados por cada cambio de estado de un trámite.
 - `tra_notificaciones_bloqueo`: BEFORE DELETE, ejecuta `tra_impedir_borrado()`
 - `tra_notificaciones_sin_truncate`: BEFORE TRUNCATE, ejecuta `tra_impedir_truncate()`
 
-### 9.4. `tra_tipos_tramite`
+### 9.5. `tra_tipo_tramite_programa`
+
+Programas cuyos estudiantes pueden solicitar un tipo de trámite; sin filas, lo solicita cualquiera.
+
+| N° | Columna | Tipo | Nulo | Por defecto | Descripción |
+|---|---|---|---|---|---|
+| 1 | `id` | bigint | No | Autoincremental | Identificador interno (llave primaria). |
+| 2 | `tipo_tramite_id` | bigint | No |  | Tipo de trámite restringido. Referencia a tra_tipos_tramite. Referencia a `tra_tipos_tramite`. |
+| 3 | `programa_id` | bigint | No |  | Programa autorizado. Referencia a aca_programas. Referencia a `aca_programas`. |
+| 4 | `created_at` | timestamptz | Sí |  | Fecha y hora de registro. |
+| 5 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación. |
+
+**Llave primaria y restricciones únicas:**
+
+- `tra_tipo_tramite_programa_pkey`: `PRIMARY KEY (id)`
+- `tra_tipo_tramite_programa_tipo_tramite_id_programa_id_unique`: `UNIQUE (tipo_tramite_id, programa_id)`
+
+**Llaves foráneas:**
+
+- `tra_tipo_tramite_programa_programa_id_foreign`: `FOREIGN KEY (programa_id) REFERENCES aca_programas(id) ON DELETE RESTRICT`
+- `tra_tipo_tramite_programa_tipo_tramite_id_foreign`: `FOREIGN KEY (tipo_tramite_id) REFERENCES tra_tipos_tramite(id) ON DELETE RESTRICT`
+
+**Triggers:**
+
+- `tra_tipo_tramite_programa_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
+
+### 9.6. `tra_tipos_tramite`
 
 Tipos de trámite configurables (constancia, certificado, traslado, retiro).
 
@@ -1643,19 +1874,31 @@ Tipos de trámite configurables (constancia, certificado, traslado, retiro).
 | 3 | `nombre` | varchar(120) | No |  | Nombre del tipo de trámite. |
 | 4 | `requisitos` | varchar(1000) | Sí |  | Requisitos que se muestran al solicitante. |
 | 5 | `tipo_concepto` | varchar(255) | Sí |  | Tipo de concepto de pago que exige. Valores: `constancia`, `certificado`, `tramite`, `otro`. |
-| 6 | `accion_final` | varchar(255) | No |  | Acción que ejecuta el sistema al finalizar el trámite. Valores: `ninguna`, `constancia_matricula`, `constancia_notas`, `certificado_nivel`, `traslado`, `retiro`. |
+| 6 | `accion_final` | varchar(255) | No |  | Acción que ejecuta el sistema al finalizar el trámite. Valores: `ninguna`, `constancia_matricula`, `constancia_notas`, `certificado_nivel`, `traslado`, `retiro`, `suficiencia`, `reclasificacion`, `acreditacion`, `resolucion`. |
 | 7 | `activo` | boolean | No | `true` | Indica si se puede solicitar. |
 | 8 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
 | 9 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
+| 10 | `concepto_id` | bigint | Sí |  | Concepto de pago (pag_conceptos) cuya tasa exige el trámite; vacío si basta cualquier pago del tipo de concepto. Referencia a `pag_conceptos`. |
+| 11 | `campos` | jsonb | No | `'[]'` | Campos del FUT que pide el tipo: lista de {clave, obligatorio} con claves matricula, idioma, nivel, programa, mencion, exposicion, celular o motivo. |
+| 12 | `adjuntos` | jsonb | No | `'[]'` | Archivos que pide el tipo: lista de hasta 5 {nombre, obligatorio}. |
+| 13 | `requiere_tipo_previo_id` | bigint | Sí |  | Tipo de trámite que la persona debe tener finalizado para el mismo idioma y nivel antes de solicitar este. Referencia a `tra_tipos_tramite`. |
+| 14 | `meses_sin_estudiar` | smallint | Sí |  | Meses que deben pasar desde el fin de la última matrícula en el idioma para pedir una reclasificación; vacío usa 2. |
 
 **Llave primaria y restricciones únicas:**
 
 - `tra_tipos_tramite_pkey`: `PRIMARY KEY (id)`
 - `tra_tipos_tramite_codigo_unique`: `UNIQUE (codigo)`
 
+**Llaves foráneas:**
+
+- `tra_tipos_tramite_concepto_id_foreign`: `FOREIGN KEY (concepto_id) REFERENCES pag_conceptos(id) ON DELETE RESTRICT`
+- `tra_tipos_tramite_requiere_tipo_previo_id_foreign`: `FOREIGN KEY (requiere_tipo_previo_id) REFERENCES tra_tipos_tramite(id) ON DELETE RESTRICT`
+
 **Reglas de validación:**
 
-- `tra_tipos_tramite_accion_final_check`: `CHECK (((accion_final) = ANY ((ARRAY['ninguna', 'constancia_matricula', 'constancia_notas', 'certificado_nivel', 'traslado', 'retiro']))))`
+- `tra_tipos_tramite_accion_final_check`: `CHECK (((accion_final) = ANY ((ARRAY['ninguna', 'constancia_matricula', 'constancia_notas', 'certificado_nivel', 'traslado', 'retiro', 'suficiencia', 'reclasificacion', 'acreditacion', 'resolucion']))))`
+- `tra_tipos_tramite_fut_check`: `CHECK (((jsonb_typeof(campos) = 'array') AND (jsonb_typeof(adjuntos) = 'array') AND (jsonb_array_length(adjuntos) <= 5) AND (requiere_tipo_previo_id IS DISTINCT FROM id)))`
+- `tra_tipos_tramite_meses_check`: `CHECK (((meses_sin_estudiar IS NULL) OR ((meses_sin_estudiar >= 1) AND (meses_sin_estudiar <= 24))))`
 - `tra_tipos_tramite_tipo_concepto_check`: `CHECK (((tipo_concepto) = ANY ((ARRAY['constancia', 'certificado', 'tramite', 'otro']))))`
 
 **Triggers:**
@@ -1663,7 +1906,7 @@ Tipos de trámite configurables (constancia, certificado, traslado, retiro).
 - `tra_tipos_tramite_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
 - `tra_tipos_tramite_bloqueo`: BEFORE DELETE, ejecuta `tra_impedir_borrado()`
 
-### 9.5. `tra_tramites`
+### 9.7. `tra_tramites`
 
 Trámites solicitados, con su estado, etapa actual y una copia de las etapas al solicitarse.
 
@@ -1674,7 +1917,7 @@ Trámites solicitados, con su estado, etapa actual y una copia de las etapas al 
 | 3 | `persona_id` | bigint | No |  | Solicitante. Referencia a `per_personas`. |
 | 4 | `tipo_tramite_id` | bigint | No |  | Tipo de trámite. Referencia a `tra_tipos_tramite`. |
 | 5 | `tipo_nombre` | varchar(120) | No |  | Nombre del tipo al solicitarse. |
-| 6 | `accion_final` | varchar(255) | No |  | Acción final al solicitarse. Valores: `ninguna`, `constancia_matricula`, `constancia_notas`, `certificado_nivel`, `traslado`, `retiro`. |
+| 6 | `accion_final` | varchar(255) | No |  | Acción final al solicitarse. Valores: `ninguna`, `constancia_matricula`, `constancia_notas`, `certificado_nivel`, `traslado`, `retiro`, `suficiencia`, `reclasificacion`, `acreditacion`, `resolucion`. |
 | 7 | `tipo_concepto` | varchar(255) | Sí |  | Tipo de concepto de pago exigido. Valores: `constancia`, `certificado`, `tramite`, `otro`. |
 | 8 | `etapas` | jsonb | No |  | Etapas del trámite al solicitarse (JSON). |
 | 9 | `etapa_actual` | smallint | No | `'0'` | Índice de la etapa actual. |
@@ -1688,6 +1931,8 @@ Trámites solicitados, con su estado, etapa actual y una copia de las etapas al 
 | 17 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
 | 18 | `cerrado_en` | timestamptz | Sí |  | Fecha y hora de cierre sin completarse. |
 | 19 | `motivo_cierre` | varchar(500) | Sí |  | Motivo del cierre. |
+| 20 | `concepto_id` | bigint | Sí |  | Concepto de pago exigido, copiado del tipo de trámite al solicitarlo. Referencia a `pag_conceptos`. |
+| 21 | `resultado` | jsonb | Sí |  | Resultado registrado por el personal al finalizar: nota del examen de suficiencia, ciclo de la reclasificación o comentario de la resolución. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -1697,6 +1942,7 @@ Trámites solicitados, con su estado, etapa actual y una copia de las etapas al 
 
 **Llaves foráneas:**
 
+- `tra_tramites_concepto_id_foreign`: `FOREIGN KEY (concepto_id) REFERENCES pag_conceptos(id) ON DELETE RESTRICT`
 - `tra_tramites_documento_id_foreign`: `FOREIGN KEY (documento_id) REFERENCES cer_documentos(id) ON DELETE RESTRICT`
 - `tra_tramites_pago_id_foreign`: `FOREIGN KEY (pago_id) REFERENCES pag_pagos(id) ON DELETE RESTRICT`
 - `tra_tramites_persona_id_foreign`: `FOREIGN KEY (persona_id) REFERENCES per_personas(id) ON DELETE RESTRICT`
@@ -1704,11 +1950,12 @@ Trámites solicitados, con su estado, etapa actual y una copia de las etapas al 
 
 **Reglas de validación:**
 
-- `tra_tramites_accion_final_check`: `CHECK (((accion_final) = ANY ((ARRAY['ninguna', 'constancia_matricula', 'constancia_notas', 'certificado_nivel', 'traslado', 'retiro']))))`
+- `tra_tramites_accion_final_check`: `CHECK (((accion_final) = ANY ((ARRAY['ninguna', 'constancia_matricula', 'constancia_notas', 'certificado_nivel', 'traslado', 'retiro', 'suficiencia', 'reclasificacion', 'acreditacion', 'resolucion']))))`
 - `tra_tramites_cierre_check`: `CHECK (((((estado) = 'cerrado') = (cerrado_en IS NOT NULL)) AND (((estado) = 'cerrado') = (motivo_cierre IS NOT NULL)) AND ((motivo_cierre IS NULL) OR ((char_length((motivo_cierre)) >= 5) AND (char_length((motivo_cierre)) <= 500)))))`
 - `tra_tramites_estado_check`: `CHECK (((estado) = ANY ((ARRAY['pendiente_pago', 'en_proceso', 'observado', 'finalizado', 'cerrado']))))`
 - `tra_tramites_etapa_check`: `CHECK (((jsonb_typeof(etapas) = 'array') AND (jsonb_array_length(etapas) >= 2) AND (etapa_actual >= 0) AND (etapa_actual < jsonb_array_length(etapas))))`
 - `tra_tramites_observacion_check`: `CHECK (((((estado) = 'observado') = (observacion IS NOT NULL)) AND (((estado) = 'finalizado') = (finalizado_en IS NOT NULL)) AND ((observacion IS NULL) OR ((char_length((observacion)) >= 5) AND (char_length((observacion)) <= 500)))))`
+- `tra_tramites_resultado_check`: `CHECK (((resultado IS NULL) OR ((jsonb_typeof(resultado) = 'object') AND ((estado) = 'finalizado'))))`
 - `tra_tramites_tipo_concepto_check`: `CHECK (((tipo_concepto) = ANY ((ARRAY['constancia', 'certificado', 'tramite', 'otro']))))`
 
 **Triggers:**
@@ -2081,17 +2328,19 @@ Funciones de PostgreSQL que ejecutan los triggers descritos en cada tabla. `aud_
 | Función | Tablas que la usan |
 |---|---|
 | `aca_componentes_grupos()` | `aca_componentes_evaluacion` |
+| `aca_controlar_ciclo_hasta()` | `aca_grupos` |
 | `aca_esquemas_grupos()` | `aca_esquemas_evaluacion` |
 | `aca_grupos_aula_libre()` | `aca_grupos` |
 | `aca_horarios_aula_libre()` | `aca_horarios` |
 | `aca_periodos_aula_libre()` | `aca_periodos` |
 | `aud_impedir_cambios()` | `aud_registros` |
-| `aud_registrar()` | `aca_aulas`, `aca_ciclos`, `aca_componentes_evaluacion`, `aca_esquemas_evaluacion`, `aca_grupos`, `aca_horarios`, `aca_idiomas`, `aca_periodos`, `cer_actas`, `cer_denominaciones`, `cer_documentos`, `cer_firmantes`, `cer_notas_finales`, `cer_rectificaciones`, `doc_asistencias`, `doc_cargas_academicas`, `doc_clases_dictadas`, `doc_condiciones_laborales`, `doc_costos_hora`, `doc_delegados`, `doc_disponibilidades`, `doc_docente_idiomas`, `doc_docentes`, `doc_grados_academicos`, `doc_notas_parciales`, `mat_habilitaciones`, `mat_matriculas`, `mat_movimientos`, `mat_solicitudes_clasificacion`, `model_has_permissions`, `model_has_roles`, `pag_conceptos`, `pag_fuentes_concepto`, `pag_medios_pago`, `pag_pagos`, `pag_tarifas`, `per_personas`, `role_has_permissions`, `roles`, `tra_etapas`, `tra_tipos_tramite`, `tra_tramites` |
+| `aud_registrar()` | `aca_aulas`, `aca_ciclos`, `aca_componentes_evaluacion`, `aca_esquemas_evaluacion`, `aca_grupos`, `aca_horarios`, `aca_idiomas`, `aca_periodos`, `aca_programas`, `cer_actas`, `cer_aprobaciones`, `cer_datos_institucionales`, `cer_denominaciones`, `cer_documentos`, `cer_firmantes`, `cer_notas_finales`, `cer_rectificaciones`, `doc_asistencias`, `doc_cargas_academicas`, `doc_clases_dictadas`, `doc_condiciones_laborales`, `doc_costos_hora`, `doc_delegados`, `doc_disponibilidades`, `doc_docente_idiomas`, `doc_docentes`, `doc_grados_academicos`, `doc_notas_parciales`, `mat_habilitaciones`, `mat_matriculas`, `mat_movimientos`, `mat_solicitudes_clasificacion`, `model_has_permissions`, `model_has_roles`, `pag_conceptos`, `pag_configuracion`, `pag_fuentes_concepto`, `pag_medios_pago`, `pag_pagos`, `pag_tarifas`, `per_personas`, `role_has_permissions`, `roles`, `tra_adjuntos`, `tra_etapas`, `tra_tipo_tramite_programa`, `tra_tipos_tramite`, `tra_tramites` |
 | `cer_controlar_acta()` | `cer_actas` |
 | `cer_controlar_documentos()` | `cer_documentos` |
 | `cer_controlar_notas_finales()` | `cer_notas_finales` |
 | `cer_controlar_rectificaciones()` | `cer_rectificaciones` |
-| `cer_impedir_truncate()` | `cer_actas`, `cer_documentos`, `cer_notas_finales`, `cer_rectificaciones` |
+| `cer_impedir_cambio_de_aprobacion()` | `cer_aprobaciones` |
+| `cer_impedir_truncate()` | `cer_actas`, `cer_aprobaciones`, `cer_documentos`, `cer_notas_finales`, `cer_rectificaciones` |
 | `doc_docente_sin_cruces_por_carga()` | `doc_cargas_academicas` |
 | `doc_docente_sin_cruces_por_grupo()` | `aca_grupos` |
 | `doc_docente_sin_cruces_por_horario()` | `aca_horarios` |
@@ -2103,4 +2352,5 @@ Funciones de PostgreSQL que ejecutan los triggers descritos en cada tabla. `aud_
 | `pag_proteger_tipo_de_concepto()` | `pag_conceptos` |
 | `tra_controlar_tramites()` | `tra_tramites` |
 | `tra_impedir_borrado()` | `tra_movimientos`, `tra_notificaciones`, `tra_tipos_tramite` |
-| `tra_impedir_truncate()` | `tra_movimientos`, `tra_notificaciones`, `tra_tramites` |
+| `tra_impedir_cambio_de_adjuntos()` | `tra_adjuntos` |
+| `tra_impedir_truncate()` | `tra_adjuntos`, `tra_movimientos`, `tra_notificaciones`, `tra_tramites` |
