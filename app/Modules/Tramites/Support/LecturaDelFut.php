@@ -14,13 +14,14 @@ use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
 use App\Modules\Tramites\Data\DatosDeSolicitud;
 use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\CampoFut;
+use App\Modules\Tramites\Models\GradoFut;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 
 // Reads and validates the FUT fields a type asks, keeping the keys stored before (matricula_id, idioma, nivel, motivo).
 final readonly class LecturaDelFut
 {
-    public const array GRADOS = ['maestria' => 'Maestría', 'doctorado' => 'Doctorado'];
+    public const string MENCION_INVALIDA = 'Indica la mención: elige el grado y escribe su especialidad en hasta 150 caracteres.';
 
     public function __construct(
         private MatriculasActivasDePersona $matriculasActivas,
@@ -158,11 +159,14 @@ final readonly class LecturaDelFut
             return [];
         }
 
-        $valida = array_key_exists((string) $grado, self::GRADOS) && mb_strlen($especialidad) <= 150;
+        $nombre = GradoFut::query()->where(['codigo' => (string) $grado, 'activo' => true])->value('nombre');
 
-        throw_unless($valida, ReglaDeNegocioIncumplida::class, 'Indica la mención: maestría o doctorado, y su especialidad en hasta 150 caracteres.');
+        throw_unless(is_string($nombre) && mb_strlen($especialidad) <= 150, ReglaDeNegocioIncumplida::class, self::MENCION_INVALIDA);
 
-        return $especialidad === '' ? ['mencion_grado' => (string) $grado] : ['mencion_grado' => (string) $grado, 'mencion' => $especialidad];
+        // The grade name is frozen with the request, so renaming it later never changes what was asked.
+        $elegido = ['mencion_grado' => (string) $grado, 'mencion_grado_nombre' => $nombre];
+
+        return $especialidad === '' ? $elegido : [...$elegido, 'mencion' => $especialidad];
     }
 
     /**

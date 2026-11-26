@@ -18,10 +18,10 @@ use App\Modules\Tramites\Data\DatosDeSolicitud;
 use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\CampoFut;
 use App\Modules\Tramites\Enums\EstadoTramite;
+use App\Modules\Tramites\Models\GradoFut;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Support\AccesoAlTipo;
 use App\Modules\Tramites\Support\AdjuntosDeSolicitud;
-use App\Modules\Tramites\Support\LecturaDelFut;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Logging\RegistroDeRechazos;
 use Illuminate\Contracts\View\View;
@@ -121,7 +121,7 @@ final class MisTramites extends Component
             'tipos' => $this->tiposDisponibles(),
             'tipo' => $tipo,
             'campos' => $tipo instanceof TipoTramite ? $this->campos($tipo) : [],
-            'grados' => LecturaDelFut::GRADOS,
+            'grados' => GradoFut::query()->activos()->pluck('nombre', 'codigo')->all(),
         ]);
     }
 

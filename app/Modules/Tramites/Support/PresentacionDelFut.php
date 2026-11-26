@@ -6,6 +6,7 @@ namespace App\Modules\Tramites\Support;
 
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Tramites\Enums\CampoFut;
+use App\Modules\Tramites\Models\GradoFut;
 
 // Shows the stored request by the FUT labels, whatever the type asks today.
 final class PresentacionDelFut
@@ -38,18 +39,19 @@ final class PresentacionDelFut
 
         return match ($campo) {
             CampoFut::Nivel => NivelCurricular::tryFrom((string) $texto('nivel'))?->etiqueta() ?? $texto('nivel'),
-            CampoFut::Mencion => self::mencion($texto('mencion_grado'), $texto('mencion')),
+            CampoFut::Mencion => self::mencion($texto('mencion_grado'), $texto('mencion_grado_nombre'), $texto('mencion')),
             default => $texto($campo->value),
         };
     }
 
-    private static function mencion(?string $grado, ?string $especialidad): ?string
+    // Requests made before the name was frozen read it from the catalog.
+    private static function mencion(?string $grado, ?string $congelado, ?string $especialidad): ?string
     {
         if ($grado === null) {
             return null;
         }
 
-        $nombre = LecturaDelFut::GRADOS[$grado] ?? $grado;
+        $nombre = $congelado ?? GradoFut::query()->where('codigo', $grado)->value('nombre') ?? $grado;
 
         return $especialidad === null ? $nombre : "{$nombre} en {$especialidad}";
     }

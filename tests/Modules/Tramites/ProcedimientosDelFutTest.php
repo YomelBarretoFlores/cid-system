@@ -127,9 +127,9 @@ it('lets only postgraduate students request the accreditation, for a level with 
     expect(fn (): Tramite => pedir($this->persona, $acreditacion, new DatosDeSolicitud(idioma: 'Inglés', nivel: 'intermedio', mencionGrado: 'maestria', mencionTexto: 'Educación Superior')))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Aún no apruebas ningún ciclo de ese idioma y nivel.')
         ->and(fn (): Tramite => pedir($this->persona, $acreditacion, new DatosDeSolicitud(idioma: 'Inglés', nivel: 'basico')))
-        ->toThrow(ReglaDeNegocioIncumplida::class, 'Indica la mención: maestría o doctorado');
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Indica la mención: elige el grado');
 
-    expect(pedir($this->persona, $acreditacion, $datos)->datos)->toEqual(['idioma' => 'Inglés', 'nivel' => 'basico', 'mencion_grado' => 'maestria', 'mencion' => 'Educación Superior']);
+    expect(pedir($this->persona, $acreditacion, $datos)->datos)->toEqual(['idioma' => 'Inglés', 'nivel' => 'basico', 'mencion_grado' => 'maestria', 'mencion_grado_nombre' => 'Maestría', 'mencion' => 'Educación Superior']);
 });
 
 it('asks for a finished accreditation of the same language and level before the postgraduate certificate', function (): void {

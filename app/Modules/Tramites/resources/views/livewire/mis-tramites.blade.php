@@ -145,7 +145,7 @@
                                 <x-portal.seleccion nombre="programa" :etiqueta="$etiqueta" :opciones="$opciones" vacio="Elige tu programa" />
                                 @break
                             @case(CampoFut::Mencion)
-                                <x-portal.seleccion nombre="mencionGrado" :etiqueta="$etiqueta" :opciones="$grados" vacio="Maestría o doctorado" />
+                                <x-portal.seleccion nombre="mencionGrado" :etiqueta="$etiqueta" :opciones="$grados" vacio="Elija el grado" />
                                 <x-portal.campo nombre="mencionTexto" etiqueta="Mención en" ayuda="Por ejemplo: Educación Superior." maxlength="150" />
                                 @break
                             @case(CampoFut::Modalidad)
