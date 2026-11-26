@@ -69,6 +69,21 @@ it('records both cycles with the one grade and enables the cycle after the secon
         ->toBe([['persona_id' => $this->ana->persona_id, 'ciclo_id' => $this->cicloTres->id]]);
 });
 
+it('enables the cycle after the second even when the second cycle was deactivated after the group was created', function (): void {
+    // The cycle order keeps inactive cycles; the pair sits after other cycles so a missed lookup could not pass by chance.
+    $this->cicloTres->update(['numero' => 5]);
+    $this->cicloDos->update(['numero' => 4, 'activo' => false]);
+    $this->grupo->ciclo->update(['numero' => 3]);
+    $idiomaId = $this->grupo->ciclo->idioma_id;
+    Ciclo::factory()->create(['idioma_id' => $idiomaId, 'numero' => 1, 'nivel' => NivelCurricular::Basico]);
+    Ciclo::factory()->create(['idioma_id' => $idiomaId, 'numero' => 2, 'nivel' => NivelCurricular::Basico]);
+
+    cerrarActaAcelerada();
+
+    expect(Habilitacion::query()->get(['persona_id', 'ciclo_id'])->map->only(['persona_id', 'ciclo_id'])->all())
+        ->toBe([['persona_id' => $this->ana->persona_id, 'ciclo_id' => $this->cicloTres->id]]);
+});
+
 it('certifies a level completed through a mix of regular and accelerated groups', function (): void {
     $emisor = User::factory()->create()->givePermissionTo(PermisoCertificacion::Documentos->value);
     $eva = Persona::factory()->create();
