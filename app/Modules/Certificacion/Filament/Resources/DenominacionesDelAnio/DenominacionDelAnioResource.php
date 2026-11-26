@@ -10,6 +10,7 @@ use App\Modules\Certificacion\Filament\Resources\DenominacionesDelAnio\Pages\Lis
 use App\Modules\Certificacion\Models\DenominacionDelAnio;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
@@ -35,7 +36,9 @@ final class DenominacionDelAnioResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Institución';
 
     #[\Override]
     protected static ?int $navigationSort = 9;

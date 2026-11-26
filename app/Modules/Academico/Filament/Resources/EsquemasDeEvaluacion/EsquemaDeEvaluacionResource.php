@@ -12,6 +12,7 @@ use App\Modules\Academico\Filament\Resources\EsquemasDeEvaluacion\Tables\Esquema
 use App\Modules\Academico\Models\EsquemaEvaluacion;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -34,7 +35,9 @@ final class EsquemaDeEvaluacionResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedScale;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Académico';
 
     #[\Override]
     protected static ?int $navigationSort = 5;

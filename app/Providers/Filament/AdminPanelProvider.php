@@ -15,6 +15,8 @@ use App\Shared\Auth\Http\Middleware\ExigirDobleFactorSiEsObligatorio;
 use App\Shared\Auth\Http\Middleware\ProtegerSesionDelPanel;
 use App\Shared\Parametros\Filament\EditarParametrosDelSistema;
 use App\Shared\Support\Filament\Inicio;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
+use App\Shared\Ui\Filament\Clusters\Reportes;
 use Filament\Enums\GlobalSearchPosition;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -51,6 +53,8 @@ final class AdminPanelProvider extends PanelProvider
             ->multiFactorAuthenticationRequiredMiddlewareName(ExigirDobleFactorSiEsObligatorio::class)
             ->strictAuthorization()
             ->pages([
+                Configuracion::class,
+                Reportes::class,
                 Inicio::class,
                 EditarParametrosDelSistema::class,
             ])
@@ -60,7 +64,7 @@ final class AdminPanelProvider extends PanelProvider
                 RolResource::class,
                 RegistroDeAuditoriaResource::class,
             ])
-            ->navigationGroups(['Matrícula', 'Oferta académica', 'Pagos', 'Docencia', 'Certificación', 'Trámites', 'Reportes', 'Catálogos', 'Seguridad'])
+            ->navigationGroups(['Matrícula', 'Oferta académica', 'Pagos', 'Docencia', 'Certificación', 'Trámites', 'Administración', 'Seguridad'])
             ->authMiddleware([
                 Authenticate::class,
                 ProtegerSesionDelPanel::class,

@@ -10,6 +10,7 @@ use App\Modules\Docencia\Models\CostoPorHora;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Resources\Resource;
@@ -31,6 +32,8 @@ final class CostoPorHoraResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
     #[\Override]
+    protected static ?string $cluster = Configuracion::class;
+
     protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
     #[\Override]

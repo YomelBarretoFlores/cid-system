@@ -10,6 +10,7 @@ use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Parametros\Enums\Parametro;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
@@ -37,7 +38,9 @@ final class EditarParametrosDelSistema extends Page
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Institución';
 
     #[\Override]
     protected static ?int $navigationSort = 30;

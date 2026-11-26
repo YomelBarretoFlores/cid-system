@@ -13,6 +13,8 @@ use App\Modules\Tramites\Filament\Resources\Tramites\TramiteResource;
 use App\Modules\Tramites\Models\Tramite;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Filament\ContadorDePendientes;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
+use App\Shared\Ui\Filament\Clusters\Reportes;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
@@ -33,14 +35,44 @@ it('orders the sidebar by TdR module, with every section in its group', function
         '' => ['Tablero gerencial'],
         'Matrícula' => ['Personas', 'Solicitudes de clasificación', 'Matrículas', 'Ciclos habilitados'],
         'Oferta académica' => ['Periodos', 'Idiomas y ciclos', 'Grupos', 'Aulas', 'Programas'],
-        'Pagos' => ['Pagos', 'Reporte de recaudación'],
-        'Docencia' => ['Docentes', 'Control de clases', 'Expediente de horas', 'Carga docente', 'Costos por hora'],
+        'Pagos' => ['Pagos'],
+        'Docencia' => ['Docentes', 'Control de clases', 'Expediente de horas'],
         'Certificación' => ['Actas pendientes', 'Actas finales', 'Constancias y certificados'],
         'Trámites' => ['Trámites'],
-        'Reportes' => ['Matriculados', 'Asistencia por grupo', 'Notas por periodo'],
-        'Catálogos' => ['Conceptos y tarifas', 'Medios de pago', 'Fuentes TUPA/TUSNE', 'Tipos de trámite', 'Sistemas de evaluación', 'Condiciones laborales', 'Grados académicos', 'Firmantes', 'Denominación del año', 'Datos institucionales', 'Textos de documentos', 'Configuración de pagos', 'Política de privacidad', 'Tipos de vínculo', 'Contenido de la portada', 'Tipos de documento', 'Modalidades', 'Bancos', 'Grados del FUT', 'Parámetros del sistema'],
+        'Administración' => ['Reportes', 'Configuración'],
         'Seguridad' => ['Usuarios del personal', 'Roles', 'Auditoría'],
     ]);
+});
+
+it('gathers the reports and every catalog, setting and editable text under two menu entries', function (): void {
+    $this->actingAs(User::factory()->create()->givePermissionTo(Permission::all()));
+
+    $contenido = fn (string $cluster): array => collect($cluster::getClusteredComponents())
+        ->sortBy(fn (string $pantalla): int => $pantalla::getNavigationSort() ?? 0)
+        ->groupBy(fn (string $pantalla): string => (string) ($pantalla::getNavigationGroup() ?? ''))
+        ->map(fn ($pantallas): array => $pantallas->map(fn (string $pantalla): string => (string) $pantalla::getNavigationLabel())->sort()->values()->all())
+        ->sortKeys()->all();
+
+    expect($contenido(Reportes::class))->toBe(['' => ['Asistencia por grupo', 'Carga docente', 'Matriculados', 'Notas por periodo', 'Reporte de recaudación']])
+        ->and($contenido(Configuracion::class))->toBe([
+            'Académico' => ['Modalidades', 'Sistemas de evaluación'],
+            'Docencia' => ['Bancos', 'Condiciones laborales', 'Costos por hora', 'Grados académicos'],
+            'Institución' => ['Contenido de la portada', 'Datos institucionales', 'Denominación del año', 'Firmantes', 'Parámetros del sistema', 'Política de privacidad', 'Textos de documentos'],
+            'Pagos' => ['Conceptos y tarifas', 'Configuración de pagos', 'Fuentes TUPA/TUSNE', 'Medios de pago'],
+            'Personas' => ['Tipos de documento', 'Tipos de vínculo'],
+            'Trámites' => ['Grados del FUT', 'Tipos de trámite'],
+        ]);
+    $this->get(Configuracion::getUrl())->assertRedirect();
+    $this->get(Reportes::getUrl())->assertRedirect();
+});
+
+it('hides the configuration entry from staff without any catalog permission', function (): void {
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, 'pagos.ver']));
+    $this->get('/admin/pagos')->assertOk();
+
+    $entradas = collect(Filament::getNavigation())->flatMap(fn (NavigationGroup $grupo): array => collect($grupo->getItems())->map(fn (NavigationItem $item): string => $item->getLabel())->all());
+
+    expect($entradas)->not->toContain('Configuración');
 });
 
 it('opens the panel on the dashboard for staff who can see it', function (): void {

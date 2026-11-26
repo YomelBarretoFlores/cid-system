@@ -11,6 +11,7 @@ use App\Modules\Pagos\Models\MedioDePago;
 use App\Shared\Support\Filament\CatalogoEnElPanel;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -33,7 +34,9 @@ final class MedioDePagoResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingLibrary;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Pagos';
 
     #[\Override]
     protected static ?int $navigationSort = 2;

@@ -11,6 +11,7 @@ use App\Modules\Personas\Filament\Resources\TiposDocumento\Pages\ListTiposDocume
 use App\Modules\Personas\Models\TipoDocumento;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
@@ -44,7 +45,9 @@ final class TipoDocumentoResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFingerPrint;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Personas';
 
     #[\Override]
     protected static ?int $navigationSort = 13;

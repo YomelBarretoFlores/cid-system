@@ -11,6 +11,7 @@ use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Shared\Support\Filament\CatalogoEnElPanel;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -37,7 +38,9 @@ final class CondicionLaboralResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Docencia';
 
     #[\Override]
     protected static ?int $navigationSort = 6;

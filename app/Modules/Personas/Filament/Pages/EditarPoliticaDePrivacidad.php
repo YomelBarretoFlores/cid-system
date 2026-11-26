@@ -9,6 +9,7 @@ use App\Modules\Personas\Actions\GuardarTextosLegales;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\MarkdownEditor;
@@ -38,7 +39,9 @@ final class EditarPoliticaDePrivacidad extends Page
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Institución';
 
     #[\Override]
     protected static ?int $navigationSort = 12;

@@ -9,6 +9,7 @@ use App\Modules\Tablero\Actions\GenerarReporteDeCargaDocente;
 use App\Modules\Tablero\Data\FiltrosDeReporte;
 use App\Modules\Tablero\Data\ReporteGeneral;
 use App\Modules\Tablero\Filament\Concerns\ReporteGeneralDelPanel;
+use App\Shared\Ui\Filament\Clusters\Reportes;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -23,7 +24,9 @@ final class ReporteDeCargaDocente extends Page implements HasTable
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Docencia';
+    protected static ?string $cluster = Reportes::class;
+
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     #[\Override]
     protected static ?int $navigationSort = 5;

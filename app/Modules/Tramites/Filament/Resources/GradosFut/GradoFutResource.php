@@ -10,6 +10,7 @@ use App\Modules\Tramites\Filament\Resources\GradosFut\Pages\ListGradosFut;
 use App\Modules\Tramites\Models\GradoFut;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
@@ -43,7 +44,9 @@ final class GradoFutResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Trámites';
 
     #[\Override]
     protected static ?int $navigationSort = 16;

@@ -12,6 +12,7 @@ use App\Modules\Certificacion\Policies\FirmantePolicy;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Closure;
 use Filament\Actions\EditAction;
@@ -43,7 +44,9 @@ final class FirmanteResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Institución';
 
     #[\Override]
     protected static ?int $navigationSort = 8;

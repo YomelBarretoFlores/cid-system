@@ -9,6 +9,7 @@ use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Models\Configuracion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Ui\Filament\Clusters\Configuracion as ClusterDeConfiguracion;
 use BackedEnum;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -32,7 +33,9 @@ final class EditarConfiguracionDePagos extends Page
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAdjustmentsHorizontal;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = ClusterDeConfiguracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Pagos';
 
     #[\Override]
     protected static ?int $navigationSort = 11;

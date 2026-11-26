@@ -9,6 +9,7 @@ use App\Modules\Certificacion\Contracts\TextosDeDocumentos;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -33,7 +34,9 @@ final class EditarTextosDeDocumentos extends Page
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Institución';
 
     #[\Override]
     protected static ?int $navigationSort = 11;

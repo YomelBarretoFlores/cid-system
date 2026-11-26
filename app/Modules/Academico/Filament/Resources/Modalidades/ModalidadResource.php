@@ -10,6 +10,7 @@ use App\Modules\Academico\Filament\Resources\Modalidades\Pages\ListModalidades;
 use App\Modules\Academico\Models\Modalidad;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
@@ -44,7 +45,9 @@ final class ModalidadResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedComputerDesktop;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Académico';
 
     #[\Override]
     protected static ?int $navigationSort = 14;

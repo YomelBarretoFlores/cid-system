@@ -16,6 +16,7 @@ use App\Modules\Pagos\Models\Pago;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use App\Shared\Support\Filament\DescargaDePdf;
+use App\Shared\Ui\Filament\Clusters\Reportes;
 use BackedEnum;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -38,7 +39,9 @@ final class ReporteDeRecaudacion extends Page implements HasTable
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPresentationChartBar;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Pagos';
+    protected static ?string $cluster = Reportes::class;
+
+    protected static string|UnitEnum|null $navigationGroup = null;
 
     #[\Override]
     protected static ?int $navigationSort = 2;

@@ -12,6 +12,7 @@ use App\Modules\Tramites\Filament\Resources\TiposTramite\Tables\TiposTramiteTabl
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -31,7 +32,9 @@ final class TipoTramiteResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAdjustmentsHorizontal;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Trámites';
 
     #[\Override]
     protected static ?int $navigationSort = 4;

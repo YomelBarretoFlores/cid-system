@@ -10,6 +10,7 @@ use App\Modules\Personas\Filament\Resources\TiposVinculo\Pages\ListTiposVinculo;
 use App\Modules\Personas\Models\TipoVinculo;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
+use App\Shared\Ui\Filament\Clusters\Configuracion;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
@@ -43,7 +44,9 @@ final class TipoVinculoResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
     #[\Override]
-    protected static string|UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static ?string $cluster = Configuracion::class;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Personas';
 
     #[\Override]
     protected static ?int $navigationSort = 12;

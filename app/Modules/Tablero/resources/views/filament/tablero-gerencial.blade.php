@@ -45,7 +45,7 @@
             <x-ciln.cifra titulo="Recaudación" :valor="$soles($tablero->recaudacion->totalCentimos)" marca
                 :detalle="$tablero->recaudacion->operaciones.' '.($tablero->recaudacion->operaciones === 1 ? 'pago validado' : 'pagos validados').' del periodo'">
                 @if ($puedeReportar)
-                    <a href="{{ route('filament.admin.pages.reporte-de-recaudacion') }}" class="font-medium text-enlace hover:text-enlace-hover">Reporte de recaudación →</a>
+                    <a href="{{ route('filament.admin.reportes.pages.reporte-de-recaudacion') }}" class="font-medium text-enlace hover:text-enlace-hover">Reporte de recaudación →</a>
                 @endif
             </x-ciln.cifra>
 
