@@ -11,7 +11,7 @@ use App\Shared\Auth\Models\User;
 interface DocumentoParaTramite
 {
     /**
-     * Issues the document a finished trámite asks for, with the same rules and permission as the panel.
+     * Issues the document a finished trámite asks for, with the same rules and permission as the panel; grade records and certificates are per level.
      *
      * @param  array{matricula_id?: int, idioma?: string, nivel?: string}  $datos
      */

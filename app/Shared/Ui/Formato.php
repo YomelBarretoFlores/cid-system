@@ -39,6 +39,12 @@ final class Formato
         return $fecha->day.' de '.self::MESES_LARGOS[$fecha->month - 1];
     }
 
+    // The month as the CILN grade records write it, capitalized: "Setiembre".
+    public static function mes(int $mes): string
+    {
+        return ucfirst(self::MESES_LARGOS[$mes - 1] ?? '');
+    }
+
     public static function fechaLarga(CarbonInterface $fecha): string
     {
         return self::diaDeMes($fecha).' de '.$fecha->year;

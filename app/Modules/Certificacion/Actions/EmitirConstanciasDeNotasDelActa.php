@@ -14,6 +14,7 @@ use App\Shared\Auth\Models\User;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Logging\RegistroDeRechazos;
+use Illuminate\Database\Eloquent\Builder;
 
 final readonly class EmitirConstanciasDeNotasDelActa
 {
@@ -38,7 +39,7 @@ final readonly class EmitirConstanciasDeNotasDelActa
 
             foreach ($estudiantes->whereNotIn('persona_id', $conConstancia) as $estudiante) {
                 try {
-                    $emitidos[] = ($this->emitir)($estudiante->persona_id, $acta->idioma, $emisor);
+                    $emitidos[] = ($this->emitir)($estudiante->persona_id, $acta->idioma, $acta->nivel, $emisor);
                 } catch (ReglaDeNegocioIncumplida $error) {
                     RegistroDeRechazos::registrar($error);
                     $fallidos[] = "{$estudiante->estudiante_nombre}: {$error->getMessage()}";
@@ -51,13 +52,14 @@ final readonly class EmitirConstanciasDeNotasDelActa
 
     /**
      * @param  list<int>  $personas
-     * @return list<int> students who already got a valid grade record after this acta closed
+     * @return list<int> students who already got a valid grade record of the acta's level (or of every level, as before) after this acta closed
      */
     private function conConstanciaDesdeElCierre(Acta $acta, array $personas): array
     {
         return array_values(array_unique(Documento::query()
             ->whereIn('persona_id', $personas)
             ->where(['tipo' => TipoDocumento::ConstanciaNotas, 'idioma' => $acta->idioma])
+            ->where(fn (Builder $documentos): Builder => $documentos->where('nivel', $acta->nivel)->orWhereNull('nivel'))
             ->whereNull('anulado_en')
             ->where('emitido_en', '>=', $acta->validada_en)
             ->pluck('persona_id')

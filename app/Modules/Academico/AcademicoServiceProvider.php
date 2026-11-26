@@ -7,6 +7,7 @@ namespace App\Modules\Academico;
 use App\Modules\Academico\Actions\BloquearGrupo;
 use App\Modules\Academico\Actions\BuscarEsquemaDelGrupo;
 use App\Modules\Academico\Actions\BuscarPeriodoEnCurso;
+use App\Modules\Academico\Actions\BuscarProgramaPorDefecto;
 use App\Modules\Academico\Actions\DescribirCursoDelGrupo;
 use App\Modules\Academico\Actions\DescribirGrupos;
 use App\Modules\Academico\Actions\DescribirHorariosDeGrupos;
@@ -45,6 +46,7 @@ use App\Modules\Academico\Contracts\LiberacionDeVacante;
 use App\Modules\Academico\Contracts\OfertaDeMatricula;
 use App\Modules\Academico\Contracts\OfertaPublica;
 use App\Modules\Academico\Contracts\PeriodoEnCurso;
+use App\Modules\Academico\Contracts\ProgramaPorDefecto;
 use App\Modules\Academico\Contracts\ReservaDeVacante;
 use App\Modules\Academico\Contracts\TrasladoDeVacante;
 use App\Modules\Academico\Contracts\VentanasDeMatricula;
@@ -80,6 +82,7 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         PeriodoEnCurso::class => BuscarPeriodoEnCurso::class,
         CiclosAnteriores::class => ListarCiclosAnteriores::class,
         IniciosDePeriodos::class => ListarIniciosDePeriodos::class,
+        ProgramaPorDefecto::class => BuscarProgramaPorDefecto::class,
     ];
 
     #[\Override]

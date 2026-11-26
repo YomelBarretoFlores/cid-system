@@ -28,7 +28,7 @@ beforeEach(function (): void {
 });
 
 it('keeps the documents away from panel users without the documents permission', function (): void {
-    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->gestor);
+    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->gestor);
     $ajeno = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoCertificacion::Actas->value]);
 
     $this->actingAs($ajeno)->get(DocumentoResource::getUrl('index'))->assertForbidden();
@@ -48,7 +48,7 @@ it('issues each type of document from the panel and opens it', function (Closure
 
     expect(Documento::query()->sole())->tipo->toBe($tipo)->persona_id->toBe($this->ana->id);
 })->with([
-    'a grade record' => [fn (): array => ['tipo' => 'constancia_notas', 'idioma' => 'Inglés'], TipoDocumento::ConstanciaNotas],
+    'a grade record' => [fn (): array => ['tipo' => 'constancia_notas', 'idioma' => 'Inglés', 'nivel' => 'basico'], TipoDocumento::ConstanciaNotas],
     'a level certificate' => [fn (): array => ['tipo' => 'certificado_nivel', 'idioma' => 'Inglés', 'nivel' => 'basico'], TipoDocumento::CertificadoNivel],
     'an enrollment record' => [fn (): array => ['tipo' => 'constancia_matricula', 'matricula_id' => Matricula::factory()->activa()->create(['persona_id' => $this->ana->id, 'grupo_id' => Grupo::factory()->create()->id])->id], TipoDocumento::ConstanciaMatricula],
 ]);
@@ -88,8 +88,8 @@ it('issues the grade records of a closed acta from its page', function (): void 
 });
 
 it('lists and filters documents by type and state', function (): void {
-    $notas = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->gestor);
-    $anulada = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->gestor);
+    $notas = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->gestor);
+    $anulada = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->gestor);
     $anulada->update(['anulado_por' => $this->gestor->id, 'anulado_en' => now(), 'motivo_anulacion' => 'Se emitió dos veces.']);
     $this->actingAs($this->gestor);
 
@@ -107,7 +107,7 @@ it('lists and filters documents by type and state', function (): void {
 
 it('voids a document with a reason, after which its PDF is no longer offered or served', function (): void {
     Pdf::fake();
-    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->gestor);
+    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->gestor);
     $this->actingAs($this->gestor)->get(route('panel.documentos.pdf', $documento))->assertOk();
 
     Livewire::test(ViewDocumento::class, ['record' => $documento->getRouteKey()])

@@ -73,6 +73,22 @@ it('requests a level certificate from the levels the student completed', functio
     expect(Tramite::query()->where('persona_id', $this->persona->id)->sole()->datos)->toMatchArray(['idioma' => 'Inglés', 'nivel' => 'basico']);
 });
 
+it('requests a grade record choosing among the levels with a passed cycle', function (): void {
+    $this->actingAs($this->user);
+    ActasFinales::historial($this->persona, 'Italiano', [[1, '15.00', 'aprobado'], [5, '08.00', 'desaprobado']]);
+
+    Livewire::test(MisTramites::class)
+        ->call('elegir', TipoTramite::query()->where('codigo', 'CONSTANCIA-NOTAS')->value('id'))
+        ->assertSeeText('Idioma y nivel')
+        ->assertSeeText('Italiano · Básico')
+        ->assertDontSeeText('Italiano · Intermedio')
+        ->set('nivel', 'Italiano|basico')
+        ->call('solicitar')
+        ->assertHasNoErrors();
+
+    expect(Tramite::query()->where('persona_id', $this->persona->id)->sole()->datos)->toMatchArray(['idioma' => 'Italiano', 'nivel' => 'basico']);
+});
+
 it('shows why a request is refused and keeps the form open', function (): void {
     $this->actingAs($this->user);
 

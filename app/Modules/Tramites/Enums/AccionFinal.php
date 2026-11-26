@@ -35,6 +35,12 @@ enum AccionFinal: string
         return in_array($this, [self::ConstanciaNotas, self::CertificadoNivel], true);
     }
 
+    // Both are issued per level: the grade record offers the levels with a passed cycle, the certificate the completed ones.
+    public function pideNivel(): bool
+    {
+        return in_array($this, [self::ConstanciaNotas, self::CertificadoNivel], true);
+    }
+
     public function pideMotivo(): bool
     {
         return in_array($this, [self::Traslado, self::Retiro], true);

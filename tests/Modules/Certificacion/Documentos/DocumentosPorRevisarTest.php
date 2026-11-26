@@ -39,12 +39,12 @@ beforeEach(function (): void {
     $this->gestor = User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoCertificacion::Documentos->value, PermisoCertificacion::Actas->value]);
     $this->travelTo(CarbonImmutable::parse('2027-04-10 11:30', 'America/Lima'));
 
-    $this->constanciaDeAna = app(EmitirConstanciaDeNotas::class)($this->ana->persona_id, 'Inglés', $this->gestor);
+    $this->constanciaDeAna = app(EmitirConstanciaDeNotas::class)($this->ana->persona_id, 'Inglés', NivelCurricular::Basico, $this->gestor);
     $this->certificadoDeAna = app(EmitirCertificadoDeNivel::class)($this->ana->persona_id, 'Inglés', NivelCurricular::Basico, $this->gestor);
     $this->matriculaDeAna = app(EmitirConstanciaDeMatricula::class)($this->ana->id, $this->gestor);
-    $this->anuladaDeAna = app(EmitirConstanciaDeNotas::class)($this->ana->persona_id, 'Inglés', $this->gestor);
+    $this->anuladaDeAna = app(EmitirConstanciaDeNotas::class)($this->ana->persona_id, 'Inglés', NivelCurricular::Basico, $this->gestor);
     app(AnularDocumento::class)($this->anuladaDeAna->id, 'Se emitió dos veces.', $this->gestor);
-    $this->constanciaDeBeto = app(EmitirConstanciaDeNotas::class)($this->beto->persona_id, 'Inglés', $this->gestor);
+    $this->constanciaDeBeto = app(EmitirConstanciaDeNotas::class)($this->beto->persona_id, 'Inglés', NivelCurricular::Basico, $this->gestor);
 });
 
 function rectificarYCerrar(array ...$cambios): void

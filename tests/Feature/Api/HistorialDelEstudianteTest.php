@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Actions\AnularDocumento;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeNotas;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
@@ -81,16 +82,16 @@ it('lists only the student\'s own trámites with their stage, progress and obser
 it('lists the student\'s own issued documents and downloads only their own valid PDFs', function (): void {
     ActasFinales::historial($this->rosa, 'Inglés', [[1, '14.00', 'aprobado']]);
     ActasFinales::historial($this->otra, 'Inglés', [[1, '15.00', 'aprobado']]);
-    $propia = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', $this->emisor);
-    $anulada = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', $this->emisor);
+    $propia = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
+    $anulada = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
     app(AnularDocumento::class)($anulada->id, 'Se emitió dos veces por error.', $this->emisor);
-    $ajena = app(EmitirConstanciaDeNotas::class)($this->otra->id, 'Inglés', $this->emisor);
+    $ajena = app(EmitirConstanciaDeNotas::class)($this->otra->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
 
     $respuesta = $this->withToken($this->token)->getJson('/api/v1/estudiante/documentos')->assertOk()->assertDontSee($ajena->codigo);
 
     expect($respuesta->json('data.*.codigo'))->toEqualCanonicalizing([$propia->codigo, $anulada->codigo])
         ->and(collect($respuesta->json('data'))->firstWhere('codigo', $propia->codigo))->toBe([
-            'codigo' => $propia->codigo, 'tipo' => 'constancia_notas', 'tipo_etiqueta' => $propia->tipo->etiqueta(), 'idioma' => 'Inglés', 'nivel' => null,
+            'codigo' => $propia->codigo, 'tipo' => 'constancia_notas', 'tipo_etiqueta' => $propia->tipo->etiqueta(), 'idioma' => 'Inglés', 'nivel' => 'Básico',
             'emitido_el' => '2027-04-10', 'vigente' => true, 'anulado_el' => null, 'verificacion' => route('verificacion.documento', $propia->codigo),
         ])
         ->and(collect($respuesta->json('data'))->firstWhere('codigo', $anulada->codigo)['vigente'])->toBeFalse();
@@ -106,10 +107,10 @@ it('lists the student\'s own issued documents and downloads only their own valid
 it('lists trámites and documents newest first', function (): void {
     $antiguo = Tramite::factory()->create(['persona_id' => $this->rosa->id]);
     ActasFinales::historial($this->rosa, 'Inglés', [[1, '14.00', 'aprobado']]);
-    $primera = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', $this->emisor);
+    $primera = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
     $this->travel(1)->hour();
     $reciente = Tramite::factory()->create(['persona_id' => $this->rosa->id]);
-    $segunda = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', $this->emisor);
+    $segunda = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
 
     expect($this->withToken($this->token)->getJson('/api/v1/estudiante/tramites')->json('data.*.codigo'))->toBe([$reciente->fresh()?->codigo, $antiguo->fresh()?->codigo])
         ->and($this->withToken($this->token)->getJson('/api/v1/estudiante/documentos')->json('data.*.codigo'))->toBe([$segunda->codigo, $primera->codigo]);
@@ -125,7 +126,7 @@ it('limits PDF downloads to 10 a minute per student', function (): void {
 
 it('logs why a PDF of the student was refused, while still answering 404', function (): void {
     ActasFinales::historial($this->rosa, 'Inglés', [[1, '14.00', 'aprobado']]);
-    $anulada = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', $this->emisor);
+    $anulada = app(EmitirConstanciaDeNotas::class)($this->rosa->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
     app(AnularDocumento::class)($anulada->id, 'Se emitió por error.', $this->emisor);
     Log::spy();
 

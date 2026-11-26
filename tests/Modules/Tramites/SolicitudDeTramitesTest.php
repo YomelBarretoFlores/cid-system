@@ -67,17 +67,31 @@ it('refuses an enrollment that is not active or not the student\'s', function (C
     'someone else\'s' => [fn (): Matricula => Matricula::factory()->activa()->create()],
 ]);
 
-it('asks a grade record for a language with closed actas and a certificate for a completed level without a valid certificate', function (): void {
+it('asks a grade record for a level with a passed cycle and a certificate for a completed level without a valid certificate', function (): void {
     ActasFinales::historial($this->persona, 'Inglés', [[1, '15.00', 'aprobado'], [2, '14.00', 'aprobado'], [3, '13.00', 'aprobado'], [4, '16.00', 'aprobado']]);
-    ActasFinales::historial($this->persona, 'Quechua', [[1, '12.00', 'aprobado']]);
+    ActasFinales::historial($this->persona, 'Quechua', [[1, '12.00', 'aprobado'], [5, '08.00', 'desaprobado']]);
 
-    expect(solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Quechua'))->datos)->toMatchArray(['idioma' => 'Quechua'])
+    expect(solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Quechua', nivel: NivelCurricular::Basico->value))->datos)->toMatchArray(['idioma' => 'Quechua', 'nivel' => 'basico'])
         ->and(solicitar($this->persona, 'CERTIFICADO-NIVEL', new DatosDeSolicitud(idioma: 'Inglés', nivel: NivelCurricular::Basico->value))->datos)
         ->toMatchArray(['idioma' => 'Inglés', 'nivel' => 'basico'])
-        ->and(fn (): Tramite => solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Francés')))
-        ->toThrow(ReglaDeNegocioIncumplida::class, 'Aún no tienes actas finales cerradas en ese idioma.')
+        ->and(fn (): Tramite => solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Francés', nivel: NivelCurricular::Basico->value)))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Aún no apruebas ningún ciclo de ese idioma y nivel.')
+        ->and(fn (): Tramite => solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Quechua', nivel: NivelCurricular::Intermedio->value)))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Aún no apruebas ningún ciclo de ese idioma y nivel.')
+        ->and(fn (): Tramite => solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Quechua')))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Aún no apruebas ningún ciclo de ese idioma y nivel.')
         ->and(fn (): Tramite => solicitar($this->persona, 'CERTIFICADO-NIVEL', new DatosDeSolicitud(idioma: 'Quechua', nivel: NivelCurricular::Basico->value)))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Aún no completas ese nivel o ya tienes su certificado vigente.');
+});
+
+it('keeps one unfinished grade record trámite per language and level, and allows another level meanwhile', function (): void {
+    ActasFinales::historial($this->persona, 'Inglés', [[1, '15.00', 'aprobado'], [5, '14.00', 'aprobado']]);
+    solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Inglés', nivel: NivelCurricular::Basico->value));
+
+    expect(fn (): Tramite => solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Inglés', nivel: NivelCurricular::Basico->value)))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Ya tienes un trámite de Constancia de notas en curso para lo mismo.')
+        ->and(solicitar($this->persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: 'Inglés', nivel: NivelCurricular::Intermedio->value))->datos)
+        ->toMatchArray(['idioma' => 'Inglés', 'nivel' => 'intermedio']);
 });
 
 it('keeps one unfinished trámite per type and subject, and allows a new one once it is finished', function (): void {

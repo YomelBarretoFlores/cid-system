@@ -31,17 +31,20 @@ final readonly class EmitirDocumentoParaTramite implements DocumentoParaTramite
 
         $documento = match ($tipo) {
             TipoDocumento::ConstanciaMatricula => ($this->constanciaDeMatricula)($datos['matricula_id'] ?? 0, $emisor),
-            TipoDocumento::ConstanciaNotas => ($this->constanciaDeNotas)($personaId, $datos['idioma'] ?? '', $emisor),
-            TipoDocumento::CertificadoNivel => ($this->certificadoDeNivel)(
-                $personaId,
-                $datos['idioma'] ?? '',
-                NivelCurricular::tryFrom($datos['nivel'] ?? '') ?? throw new ReglaDeNegocioIncumplida('El trámite no indica un nivel válido.'),
-                $emisor,
-            ),
+            TipoDocumento::ConstanciaNotas => ($this->constanciaDeNotas)($personaId, $datos['idioma'] ?? '', $this->nivel($datos), $emisor),
+            TipoDocumento::CertificadoNivel => ($this->certificadoDeNivel)($personaId, $datos['idioma'] ?? '', $this->nivel($datos), $emisor),
         };
 
         throw_if($documento->persona_id !== $personaId, ReglaDeNegocioIncumplida::class, 'El documento no corresponde al estudiante del trámite.');
 
         return new DocumentoEmitido($documento->id, $documento->codigo);
+    }
+
+    /**
+     * @param  array{nivel?: string}  $datos
+     */
+    private function nivel(array $datos): NivelCurricular
+    {
+        return NivelCurricular::tryFrom($datos['nivel'] ?? '') ?? throw new ReglaDeNegocioIncumplida('El trámite no indica un nivel válido.');
     }
 }

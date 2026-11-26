@@ -59,9 +59,9 @@ final class AccionesDeDocumento
                     ->visible(fn (Get $get): bool => in_array($get('tipo'), [TipoDocumento::ConstanciaNotas->value, TipoDocumento::CertificadoNivel->value], true))
                     ->required(),
                 Select::make('nivel')
-                    ->label('Nivel culminado')
+                    ->label(fn (Get $get): string => $get('tipo') === TipoDocumento::CertificadoNivel->value ? 'Nivel culminado' : 'Nivel')
                     ->options(collect(NivelCurricular::cases())->mapWithKeys(fn (NivelCurricular $nivel): array => [$nivel->value => $nivel->etiqueta()])->all())
-                    ->visible(fn (Get $get): bool => $get('tipo') === TipoDocumento::CertificadoNivel->value)
+                    ->visible(fn (Get $get): bool => in_array($get('tipo'), [TipoDocumento::ConstanciaNotas->value, TipoDocumento::CertificadoNivel->value], true))
                     ->required(),
             ])
             ->action(function (Action $action, array $data): void {
@@ -173,7 +173,7 @@ final class AccionesDeDocumento
 
         return match (TipoDocumento::from((string) $data['tipo'])) {
             TipoDocumento::ConstanciaMatricula => app(EmitirConstanciaDeMatricula::class)((int) $data['matricula_id'], $usuario),
-            TipoDocumento::ConstanciaNotas => app(EmitirConstanciaDeNotas::class)($personaId, (string) $data['idioma'], $usuario),
+            TipoDocumento::ConstanciaNotas => app(EmitirConstanciaDeNotas::class)($personaId, (string) $data['idioma'], NivelCurricular::from((string) $data['nivel']), $usuario),
             TipoDocumento::CertificadoNivel => app(EmitirCertificadoDeNivel::class)($personaId, (string) $data['idioma'], NivelCurricular::from((string) $data['nivel']), $usuario),
         };
     }

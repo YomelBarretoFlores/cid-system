@@ -313,11 +313,11 @@ Permite solicitar constancias, certificados y otros trámites académicos (por e
 1. En el menú, presione **Trámites**.
 2. En **Nuevo trámite**, revise la lista de trámites disponibles y su **Tasa** (el tipo de pago que requiere, por ejemplo Constancia o Certificado, o **Sin tasa**), y presione **Elegir** en el que necesita.
 3. Lea los **Requisitos** del trámite. Si tiene tasa, el sistema aplica automáticamente un pago validado sin usar; si no lo tiene, regístrelo en **Registro de pagos**.
-4. Complete los datos que pida el trámite: la **Matrícula**, el **Idioma** o el **Idioma y nivel** según corresponda, y el **Motivo** cuando el trámite lo requiera (entre 5 y 500 caracteres).
+4. Complete los datos que pida el trámite: la **Matrícula** o el **Idioma y nivel** según corresponda, y el **Motivo** cuando el trámite lo requiera (entre 5 y 500 caracteres). La constancia de notas se solicita **por nivel**: la lista muestra solo los niveles en los que aprobó al menos un ciclo, y cada nivel es un trámite y una tasa aparte.
 5. Si desea, escriba un **Comentario (opcional)** de hasta 500 caracteres.
 6. Presione **Iniciar trámite**. Para desistir, presione **Cancelar**.
 
-**Resultado:** se muestra el mensaje «Registramos tu trámite …» con su código (por ejemplo, TR-2026-000001). Si falta el pago de la tasa, el trámite queda **Pendiente de pago** y continúa cuando el CILN valide el pago. Solo puede tener un trámite de cada tipo en curso. El retiro del ciclo no devuelve el pago de la matrícula.
+**Resultado:** se muestra el mensaje «Registramos tu trámite …» con su código (por ejemplo, TR-2026-000001). Si falta el pago de la tasa, el trámite queda **Pendiente de pago** y continúa cuando el CILN valide el pago. Solo puede tener un trámite de cada tipo en curso para la misma matrícula o el mismo idioma y nivel. El retiro del ciclo no devuelve el pago de la matrícula.
 
 ![Figura 20. Pantalla «Trámites»](figuras/tramites.png)
 

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Actions\EmitirCertificadosDelPeriodo;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeNotas;
 use App\Modules\Certificacion\Actions\EmitirConstanciasDeNotasDelActa;
@@ -70,7 +71,7 @@ function avisoConTitulo(string $titulo): ?Notification
 
 it('issues the grade records of an acta once and reports the students who already had one as omitted', function (): void {
     $acta = actaConEstudiantes($this->ana, $this->beto);
-    app(EmitirConstanciaDeNotas::class)($this->beto->id, 'Inglés', $this->emisor);
+    app(EmitirConstanciaDeNotas::class)($this->beto->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
 
     $primera = app(EmitirConstanciasDeNotasDelActa::class)($acta->id, $this->emisor);
     $segunda = app(EmitirConstanciasDeNotasDelActa::class)($acta->id, $this->emisor);
@@ -97,7 +98,7 @@ it('goes on with the rest of the acta when one grade record is refused and repor
 
 it('shows the issued, omitted and refused grade records of an acta in the panel', function (): void {
     $acta = actaConEstudiantes($this->ana, $this->beto, $this->ciro);
-    app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
     rechazarDocumentoDe($this->beto);
 
     Livewire::actingAs($this->emisor)->test(ViewActa::class, ['record' => $acta->getRouteKey()])

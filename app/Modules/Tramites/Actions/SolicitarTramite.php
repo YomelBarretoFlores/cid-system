@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Actions;
 
-use App\Modules\Certificacion\Contracts\IdiomasConNotasCerradas;
+use App\Modules\Certificacion\Contracts\NivelesConNotas;
 use App\Modules\Certificacion\Contracts\NivelesPorCertificar;
 use App\Modules\Certificacion\Data\NivelPorCertificar;
 use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
@@ -27,7 +27,7 @@ final readonly class SolicitarTramite
 
     public function __construct(
         private MatriculasActivasDePersona $matriculasActivas,
-        private IdiomasConNotasCerradas $idiomasConNotas,
+        private NivelesConNotas $nivelesConNotas,
         private NivelesPorCertificar $nivelesPorCertificar,
         private AplicacionDePago $aplicacionDePago,
     ) {}
@@ -73,8 +73,12 @@ final readonly class SolicitarTramite
     {
         $guardados = [
             ...$accion->pideMatricula() ? $this->matricula($personaId, $datos->matriculaId) : [],
-            ...$accion === AccionFinal::ConstanciaNotas ? $this->idiomaConNotas($personaId, $datos->idioma) : [],
-            ...$accion === AccionFinal::CertificadoNivel ? $this->nivel($personaId, $datos->idioma, $datos->nivel) : [],
+            ...$accion === AccionFinal::ConstanciaNotas
+                ? $this->nivelEntre(($this->nivelesConNotas)($personaId), $datos, 'Aún no apruebas ningún ciclo de ese idioma y nivel.')
+                : [],
+            ...$accion === AccionFinal::CertificadoNivel
+                ? $this->nivelEntre(($this->nivelesPorCertificar)($personaId), $datos, 'Aún no completas ese nivel o ya tienes su certificado vigente.')
+                : [],
             ...$accion->pideMotivo() ? ['motivo' => $this->texto($datos->motivo, 'Indica el motivo, entre 5 y 500 caracteres.', obligatorio: true)] : [],
         ];
         $comentario = $this->texto($datos->comentario, 'El comentario admite hasta 500 caracteres.', obligatorio: false);
@@ -95,26 +99,16 @@ final readonly class SolicitarTramite
     }
 
     /**
-     * @return array{idioma: string}
-     */
-    private function idiomaConNotas(int $personaId, ?string $idioma): array
-    {
-        throw_unless(in_array($idioma, ($this->idiomasConNotas)($personaId), true), ReglaDeNegocioIncumplida::class, 'Aún no tienes actas finales cerradas en ese idioma.');
-
-        return ['idioma' => $idioma];
-    }
-
-    /**
+     * @param  list<NivelPorCertificar>  $disponibles
      * @return array{idioma: string, nivel: string}
      */
-    private function nivel(int $personaId, ?string $idioma, ?string $nivel): array
+    private function nivelEntre(array $disponibles, DatosDeSolicitud $datos, string $mensaje): array
     {
-        $disponible = collect(($this->nivelesPorCertificar)($personaId))
-            ->first(fn (NivelPorCertificar $candidato): bool => $candidato->idioma === $idioma && $candidato->nivel->value === $nivel);
+        $elegido = collect($disponibles)->first(fn (NivelPorCertificar $candidato): bool => $candidato->idioma === $datos->idioma && $candidato->nivel->value === $datos->nivel);
 
-        throw_unless($disponible instanceof NivelPorCertificar, ReglaDeNegocioIncumplida::class, 'Aún no completas ese nivel o ya tienes su certificado vigente.');
+        throw_unless($elegido instanceof NivelPorCertificar, ReglaDeNegocioIncumplida::class, $mensaje);
 
-        return ['idioma' => $disponible->idioma, 'nivel' => $disponible->nivel->value];
+        return ['idioma' => $elegido->idioma, 'nivel' => $elegido->nivel->value];
     }
 
     private function texto(?string $texto, string $mensaje, bool $obligatorio): string

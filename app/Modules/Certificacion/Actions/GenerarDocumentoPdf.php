@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Actions;
 
+use App\Modules\Certificacion\Contracts\DatosInstitucionales;
 use App\Modules\Certificacion\Contracts\DenominacionDelAnio;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Documento;
@@ -16,7 +17,7 @@ use Spatie\LaravelPdf\PdfBuilder;
 
 final readonly class GenerarDocumentoPdf
 {
-    public function __construct(private DenominacionDelAnio $denominacionDelAnio) {}
+    public function __construct(private DenominacionDelAnio $denominacionDelAnio, private DatosInstitucionales $datosInstitucionales) {}
 
     public function __invoke(int $documentoId): PdfBuilder
     {
@@ -28,12 +29,15 @@ final readonly class GenerarDocumentoPdf
 
         $verificacion = route('verificacion.documento', $documento->codigo);
         $emitido = $documento->emitido_en->setTimezone('America/Lima');
-        $pdf = Pdf::view($documento->tipo->vistaPdf(), [
+        $institucion = ($this->datosInstitucionales)();
+        $vista = $documento->esConstanciaPorNivel() ? 'certificacion::pdf.constancia-de-notas-por-nivel' : $documento->tipo->vistaPdf();
+        $pdf = Pdf::view($vista, [
             'documento' => $documento,
             'verificacion' => $verificacion,
             'qr' => CodigoQr::comoDataUri($verificacion),
             'emitidoEl' => Formato::fechaCorta($emitido),
-            'lugarYFecha' => 'Huaraz, '.Formato::fechaLarga($emitido),
+            'lugarYFecha' => "{$institucion->ciudad}, ".Formato::fechaLarga($emitido),
+            'institucion' => $institucion,
             'firmas' => $documento->detalle['firmas'] ?? FirmasDelDocumento::de($documento->tipo->grupoDeFirma(), $emitido),
             // Documents issued before the denomination existed take the one of their issue year.
             'denominacion' => array_key_exists('denominacion', $documento->detalle ?? []) ? $documento->detalle['denominacion'] : ($this->denominacionDelAnio)((int) $emitido->format('Y')),

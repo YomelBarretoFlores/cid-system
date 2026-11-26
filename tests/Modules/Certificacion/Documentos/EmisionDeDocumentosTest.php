@@ -88,17 +88,17 @@ it('issues a new certificate once the previous one is voided', function (): void
         ->and(Documento::query()->whereNull('anulado_en')->pluck('id')->all())->toBe([$nuevo->id]);
 });
 
-it('issues a grade record of a language with every closed acta, NSP included', function (): void {
+it('issues a grade record of one level with its cycles passed in closed actas only', function (): void {
     ActasFinales::historial($this->ana, 'Inglés', [[1, '14.00', 'aprobado'], [2, null, 'nsp']]);
     ActasFinales::historial($this->ana, 'Inglés', [[3, '18.00', 'aprobado']], 'abierta');
     ActasFinales::historial($this->ana, 'Francés', [[1, '12.00', 'aprobado']]);
 
-    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
 
     expect($documento->tipo)->toBe(TipoDocumento::ConstanciaNotas)
-        ->and($documento->nivel)->toBeNull()
-        ->and(array_map(fn (array $nota): array => [$nota['ciclo_numero'], $nota['promedio'], $nota['estado_final']], $documento->detalle['notas']))->toBe([[1, '14.00', 'aprobado'], [2, null, 'nsp']])
-        ->and(fn () => app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Italiano', $this->emisor))->toThrow(ReglaDeNegocioIncumplida::class, 'La persona no tiene notas finales de Italiano en actas cerradas.');
+        ->and($documento->nivel)->toBe(NivelCurricular::Basico)
+        ->and(array_map(fn (array $nota): array => [$nota['ciclo_numero'], $nota['promedio'], $nota['estado_final']], $documento->detalle['notas']))->toBe([[1, '14.00', 'aprobado']])
+        ->and(fn () => app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Italiano', NivelCurricular::Basico, $this->emisor))->toThrow(ReglaDeNegocioIncumplida::class, 'La persona no tiene ciclos aprobados de Italiano en el nivel Básico.');
 });
 
 it('issues an enrollment record only for an active enrollment', function (): void {
@@ -137,7 +137,7 @@ it('issues in bulk the certificates completed in a period, once per student, and
 
 it('voids a document once with a reason and keeps it otherwise unchanged', function (): void {
     basicoCompleto($this->ana);
-    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
 
     expect(fn () => app(AnularDocumento::class)($documento->id, 'Mal', $this->emisor))->toThrow(ReglaDeNegocioIncumplida::class, 'Indica el motivo de la anulación, de 5 a 500 caracteres.');
 
@@ -153,9 +153,9 @@ it('voids a document once with a reason and keeps it otherwise unchanged', funct
 it('lets only users with the documents permission issue or void', function (): void {
     basicoCompleto($this->ana);
     $ajeno = User::factory()->create();
-    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    $documento = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
 
-    expect(fn () => app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $ajeno))->toThrow(AuthorizationException::class)
+    expect(fn () => app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $ajeno))->toThrow(AuthorizationException::class)
         ->and(fn () => app(EmitirCertificadoDeNivel::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $ajeno))->toThrow(AuthorizationException::class)
         ->and(fn () => app(EmitirCertificadosDelPeriodo::class)(1, $ajeno))->toThrow(AuthorizationException::class)
         ->and(fn () => app(AnularDocumento::class)($documento->id, 'Se entregó por error.', $ajeno))->toThrow(AuthorizationException::class)

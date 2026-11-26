@@ -36,7 +36,7 @@ it('builds the PDF of a document with its QR pointing to the public verification
 });
 
 it('renders the certificate and the grade record with the accreditation data, the code, the issue date and the QR', function (): void {
-    $notas = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    $notas = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
     $datos = fn (Documento $documento): array => ['documento' => $documento, 'verificacion' => 'https://ciln.test/verificar/'.$documento->codigo, 'qr' => CodigoQr::comoDataUri('x'), 'emitidoEl' => '10 abr 2027'];
 
     expect(view('certificacion::pdf.certificado-de-nivel', $datos($this->certificado))->render())

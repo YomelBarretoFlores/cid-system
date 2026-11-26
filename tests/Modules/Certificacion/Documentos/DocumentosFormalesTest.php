@@ -8,9 +8,13 @@ use App\Modules\Certificacion\Actions\EmitirCertificadoDeNivel;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeNotas;
 use App\Modules\Certificacion\Actions\GenerarActaFinalPdf;
 use App\Modules\Certificacion\Actions\GenerarDocumentoPdf;
+use App\Modules\Certificacion\Data\NotaDelHistorial;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
+use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\Firmante;
+use App\Modules\Certificacion\Support\EmisionDeDocumento;
+use App\Modules\Certificacion\Support\HistorialDeNotas;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -47,16 +51,16 @@ it('prints the level certificate in landscape, as a formal certificate with its 
 });
 
 it('prints a constancia as a formal letter with only its own signers', function (): void {
-    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
     $html = htmlDelPdf(app(GenerarDocumentoPdf::class)($constancia->id));
 
-    expect($html)->toContain('CONSTANCIA DE NOTAS', 'HACE CONSTAR', 'Alva Prueba, Ana', 'Se expide la presente', 'Huaraz, 10 de abril de 2027', 'Dr. Mario Huerta Ríos', 'N.º 000001-2027', $constancia->codigo)
+    expect($html)->toContain('CONSTANCIA DE NOTAS N° 2027 - 00001', 'HACE CONSTAR', 'ALVA PRUEBA, ANA', 'Huaraz, 10 de Abril de 2027', 'Dr. Mario Huerta Ríos', $constancia->codigo)
         ->and($html)->not->toContain('Mg. Luis Paredes Vega');
 });
 
 it('leaves a signature line for the CILN direction when no signer is registered', function (): void {
     Firmante::query()->delete();
-    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
 
     expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($constancia->id)))->toContain('Dirección del Centro de Idiomas y Lenguas Nativas');
 });
@@ -73,7 +77,7 @@ it('prints the acta final with signature lines for the teacher and the acta sign
 });
 
 it('keeps the signers a document was issued with, even if a signer changes later', function (): void {
-    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
     Firmante::query()->where('nombre', 'Dr. Mario Huerta Ríos')->update(['nombre' => 'Dr. Otro Nombre']);
 
     expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($constancia->id)))->toContain('Dr. Mario Huerta Ríos')->not->toContain('Dr. Otro Nombre');
@@ -86,8 +90,11 @@ it('writes the hours and the final grade in words on the certificate, with a spa
         ->toContain('doscientas cuarenta (240) horas lectivas', 'Catorce con sesenta y nueve (14.69)', 'ciclos I al IV', 'Sello');
 });
 
-it('writes each grade in words on the constancia de notas, with the total and the average', function (): void {
-    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+it('writes each grade in words on a constancia de notas issued before the per level format, with the total and the average', function (): void {
+    $constancia = app(EmisionDeDocumento::class)->emitir(TipoDocumento::ConstanciaNotas, $this->ana->id, [
+        'idioma' => 'Inglés',
+        'detalle' => ['notas' => array_map(fn (NotaDelHistorial $nota): array => $nota->comoDetalle(), HistorialDeNotas::de($this->ana->id, 'Inglés'))],
+    ], $this->emisor);
 
     expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($constancia->id)))
         ->toContain('En letras', 'Catorce', 'Quince con cincuenta', 'Total / promedio', '240', 'que suscribe', 'Sello');

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeNotas;
 use App\Modules\Certificacion\Actions\GenerarActaFinalPdf;
@@ -57,14 +58,14 @@ it('lets the documents staff register one denomination per year and keeps others
 
 it('prints the denomination of the issue year and keeps it after the text changes', function (): void {
     DenominacionDelAnio::query()->create(['anio' => 2027, 'texto' => 'Año de la Prueba Sintética']);
-    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
     DenominacionDelAnio::query()->where('anio', 2027)->update(['texto' => 'Texto cambiado después']);
 
     expect(htmlDe(app(GenerarDocumentoPdf::class)($constancia->id)))->toContain('«Año de la Prueba Sintética»')->not->toContain('Texto cambiado después');
 });
 
 it('leaves the line out when the year has no denomination', function (): void {
-    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', $this->emisor);
+    $constancia = app(EmitirConstanciaDeNotas::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
 
     expect(htmlDe(app(GenerarDocumentoPdf::class)($constancia->id)))->not->toContain('«');
 });

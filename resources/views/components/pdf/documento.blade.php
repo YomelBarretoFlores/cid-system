@@ -1,7 +1,9 @@
-@props(['titulo', 'codigo' => null, 'numero' => null, 'denominacion' => null, 'imprimible' => false])
-{{-- Official letter layout from the design proposal (docs/diseno): UNASAM mark on the left, CILN on the right, a gold double rule and a spaced serif title. DOMPDF lays out tables and simple CSS only (ADR 0005). --}}
+@props(['titulo', 'codigo' => null, 'numero' => null, 'denominacion' => null, 'imprimible' => false, 'institucion' => null, 'membrete' => 'ciln'])
+{{-- Official letter layout from the design proposal (docs/diseno): UNASAM mark on the left, CILN on the right, a gold double rule and a spaced serif title. The "institucional" letterhead follows the CILN paper format: shield, centred names, emblem. DOMPDF lays out tables and simple CSS only (ADR 0005). --}}
 @php
+    $institucion ??= app(\App\Modules\Certificacion\Contracts\DatosInstitucionales::class)();
     $unasam = 'data:image/png;base64,'.base64_encode((string) file_get_contents(resource_path('images/pdf/unasam.png')));
+    $institucional = $membrete === 'institucional';
     $emblema = 'data:image/png;base64,'.base64_encode((string) file_get_contents(resource_path('images/pdf/emblema.png')));
 @endphp
 <!DOCTYPE html>
@@ -32,6 +34,11 @@
             .num { text-align: right; }
             .centro { text-align: center; }
             .nota-al-pie { font-family: 'DejaVu Sans', sans-serif; font-size: 7.5pt; color: #5e5a50; margin-top: 6px; }
+            .membrete td { vertical-align: middle; }
+            .membrete .nombres { text-align: center; font-family: 'DejaVu Sans', sans-serif; line-height: 1.35; }
+            .membrete .universidad { font-size: 11pt; font-weight: bold; letter-spacing: 0.5px; }
+            .membrete .lema { font-family: 'DejaVu Serif', serif; font-style: italic; font-size: 8.5pt; color: #4a463d; }
+            .membrete .centro-del-membrete { font-size: 12pt; font-weight: bold; letter-spacing: 1px; }
             .pie { position: fixed; bottom: -1.3cm; left: 0; right: 0; font-family: 'DejaVu Sans', sans-serif; font-size: 7pt; color: #6e695e; text-align: center; }
             @if ($imprimible)
                 body { max-width: 26cm; margin: 1.5cm auto; }
@@ -46,23 +53,47 @@
             <button type="button" class="imprimir" onclick="window.print()">Imprimir</button>
         @endif
 
-        <table class="encabezado">
-            <tr>
-                <td><img src="{{ $unasam }}" alt="Universidad Nacional Santiago Antúnez de Mayolo" style="width: 190px;"></td>
-                <td class="centro-ciln">Centro de Idiomas y<br>Lenguas Nativas<strong>CILN</strong></td>
-                <td style="width: 58px; text-align: right;"><img src="{{ $emblema }}" alt="CILN" width="50"></td>
-            </tr>
-        </table>
+        @if ($institucional)
+            <table class="encabezado membrete">
+                <tr>
+                    <td style="width: 70px;"><img src="{{ \App\Shared\Ui\EscudoUnasam::comoDataUri() }}" alt="Escudo de la universidad" width="58"></td>
+                    <td class="nombres">
+                        <div class="universidad">{{ mb_strtoupper($institucion->universidad) }}</div>
+                        <div class="lema">{{ $institucion->lema }}</div>
+                        <div class="centro-del-membrete">{{ mb_strtoupper($institucion->centro) }}</div>
+                    </td>
+                    <td style="width: 70px; text-align: right;"><img src="{{ $emblema }}" alt="Logotipo del centro" width="58"></td>
+                </tr>
+            </table>
+        @else
+            <table class="encabezado">
+                <tr>
+                    <td><img src="{{ $unasam }}" alt="{{ $institucion->universidad }}" style="width: 190px;"></td>
+                    <td class="centro-ciln">{{ $institucion->centro }}<strong>CILN</strong></td>
+                    <td style="width: 58px; text-align: right;"><img src="{{ $emblema }}" alt="CILN" width="50"></td>
+                </tr>
+            </table>
+        @endif
 
         @if (filled($denominacion))
             <p class="denominacion">«{{ $denominacion }}»</p>
         @endif
 
         <h1>{{ $titulo }}</h1>
-        <p class="numero">{{ $numero ?? ($codigo ? "Código {$codigo}" : '') }}</p>
+        @unless ($institucional)
+            <p class="numero">{{ $numero ?? ($codigo ? "Código {$codigo}" : '') }}</p>
+        @endunless
 
         {{ $slot }}
 
-        <div class="pie">Documento generado por el Sistema de Gestión Académica del CILN{{ $codigo ? " · Código {$codigo}" : '' }}</div>
+        <div class="pie">
+            @if ($institucional)
+                {{ $institucion->direccion }} – Telf: {{ $institucion->telefono }}<br>
+                Web: {{ $institucion->web }} / Facebook: {{ $institucion->facebook }}
+            @else
+                {{ $institucion->direccion }} – Telf: {{ $institucion->telefono }} · Web: {{ $institucion->web }} / Facebook: {{ $institucion->facebook }}<br>
+                Documento generado por el Sistema de Gestión Académica del CILN{{ $codigo ? " · Código {$codigo}" : '' }}
+            @endif
+        </div>
     </body>
 </html>

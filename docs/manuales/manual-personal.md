@@ -130,6 +130,7 @@ Antes de abrir el primer periodo, el administrador revisa los catálogos del gru
 | Grados académicos | Grado del docente; define su costo por hora. | Gestionar docentes y carga académica |
 | Firmantes | Autoridades que firman actas, constancias y certificados, con su periodo en el cargo. | Emitir y anular constancias y certificados (para marcar o editar un firmante de actas, también Gestionar actas) |
 | Denominación del año | Nombre oficial del año que se imprime en los documentos. | Emitir y anular constancias y certificados para consultarla; para crearla o editarla, también Gestionar actas |
+| Datos institucionales | Encabezado, pie de página, ciudad y formato del número de los documentos oficiales. | Emitir y anular constancias y certificados y Gestionar actas |
 
 ## 3.1. Conceptos y tarifas
 
@@ -195,6 +196,16 @@ Resultado esperado: el sistema se aplica a los grupos que inician dentro de su v
 3. **Denominación del año**: pulse **Nueva denominación**, indique el **Año** y la **Denominación** sin comillas; los documentos la imprimen entre « » sobre el título.
 
 Resultado esperado: los documentos emitidos usan automáticamente los firmantes y la denominación vigentes en su fecha de emisión.
+
+**Datos institucionales**: en **Catálogos > Datos institucionales** edite los textos que imprimen los documentos y pulse **Guardar**:
+
+| Sección | Campos |
+|---|---|
+| Encabezado | **Universidad**, **Lema** y **Centro** |
+| Pie de página | **Dirección**, **Teléfono y anexo**, **Web** y **Facebook** |
+| Fecha y numeración | **Ciudad** que precede a la fecha; **Número de los documentos** (por defecto «N.º {numero:06}-{anio}») y **Número de la constancia de notas** (por defecto «N° {anio} - {numero:05}»). {anio} es el año y {numero:5} el correlativo con 5 dígitos. |
+
+A diferencia de los firmantes, estos datos no se congelan: cada PDF, incluso el de un documento ya emitido, se imprime con los datos vigentes. El cambio queda en la auditoría.
 
 # 4. OFERTA ACADÉMICA
 
@@ -527,7 +538,7 @@ Resultado esperado: el ciclo habilitado se actualiza y el cambio queda en la aud
 El docente valida y cierra el acta final de su grupo desde su portal. En **Certificación > Actas finales** el personal consulta las actas (el botón **Actas pendientes** de la cabecera lleva a la sección 8.1) y realiza las siguientes acciones desde la vista de cada acta:
 
 - **Acta en PDF**: disponible con el acta cerrada; abre el acta con las calificaciones, los firmantes y un código de verificación.
-- **Emitir constancias de notas**: emite una constancia de notas del idioma para cada estudiante del acta. Quien ya recibió una después del cierre del acta no recibe otra.
+- **Emitir constancias de notas**: emite a cada estudiante del acta la constancia de notas del nivel del acta. Quien ya recibió una de ese nivel después del cierre del acta no recibe otra; quien no aprobó ningún ciclo del nivel figura en el aviso con el motivo.
 - **Autorizar rectificación**: reabre el acta para que el docente a cargo corrija las notas y la vuelva a validar.
 
 Para autorizar una rectificación:
@@ -549,8 +560,10 @@ Para emitir un documento individual:
 
 1. Ingrese a **Certificación > Constancias y certificados** y pulse **Emitir documento**.
 2. Elija el **Tipo de documento**: Constancia de matrícula, Constancia de notas o Certificado de culminación de nivel.
-3. Elija el **Estudiante** (busque por documento o por apellidos y nombres) y, según el tipo, la **Matrícula activa**, el **Idioma** o el **Nivel culminado**.
+3. Elija el **Estudiante** (busque por documento o por apellidos y nombres) y, según el tipo, la **Matrícula activa**, el **Idioma** y el **Nivel** (o **Nivel culminado** para el certificado).
 4. Pulse **Enviar**.
+
+La constancia de notas se emite **por nivel**, como la cobra el CILN, con el formato oficial: alumno, idioma y programa, DNI, currículo, la tabla ITEM, NIVEL, CICLO, AÑO, MES, NOTA y FORMA DE APROBACIÓN con los ciclos aprobados del nivel, el **Programa Curricular** (ciclos de cada nivel del idioma), la fecha, la firma y el código QR. Requiere al menos un ciclo aprobado del nivel. Las constancias emitidas antes de este cambio conservan su formato anterior.
 
 Para emitir los certificados de un periodo completo, pulse **Certificados del periodo**, elija el **Periodo** y confirme: el sistema emite el certificado de culminación de nivel a cada estudiante que completó su nivel con un acta cerrada del periodo; quien ya tiene su certificado vigente no recibe otro.
 

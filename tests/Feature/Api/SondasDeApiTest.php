@@ -43,7 +43,7 @@ function sondaEstudianteCompleto(string $marca, User $emisor): array
     $pago = Pago::factory()->validado()->for(Concepto::factory()->create(['nombre' => "Concepto {$marca}"]))->create(['persona_id' => $persona->id, 'numero_operacion' => "OP-{$marca}"]);
     Tramite::factory()->create(['persona_id' => $persona->id, 'tipo_nombre' => "Tramite {$marca}"]);
     ActasFinales::historial($persona, "Idioma {$marca}", [[1, '14.00', 'aprobado']]);
-    $documento = app(EmitirConstanciaDeNotas::class)($persona->id, "Idioma {$marca}", $emisor);
+    $documento = app(EmitirConstanciaDeNotas::class)($persona->id, "Idioma {$marca}", NivelCurricular::Basico, $emisor);
 
     return ['usuario' => $usuario, 'persona' => $persona, 'matricula' => $matricula, 'pago' => $pago, 'documento' => $documento];
 }

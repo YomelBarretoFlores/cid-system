@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Support;
 
+use App\Modules\Certificacion\Contracts\DatosInstitucionales;
 use App\Modules\Certificacion\Contracts\DenominacionDelAnio;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Enums\TipoDocumento;
@@ -19,7 +20,7 @@ final readonly class EmisionDeDocumento
 {
     private const int INTENTOS_DE_CODIGO = 3;
 
-    public function __construct(private FichaDePersona $fichaDePersona, private DenominacionDelAnio $denominacionDelAnio) {}
+    public function __construct(private FichaDePersona $fichaDePersona, private DenominacionDelAnio $denominacionDelAnio, private DatosInstitucionales $datosInstitucionales) {}
 
     public static function asegurarPermiso(User $usuario): void
     {
@@ -44,6 +45,7 @@ final readonly class EmisionDeDocumento
                         ...$datos['detalle'],
                         'firmas' => FirmasDelDocumento::de($tipo->grupoDeFirma(), now('America/Lima')),
                         'denominacion' => ($this->denominacionDelAnio)($anio),
+                        'formato_numero' => $this->formatoDeNumero($tipo, $datos['detalle']),
                     ];
 
                     return Documento::query()->create([
@@ -57,6 +59,16 @@ final readonly class EmisionDeDocumento
                 $this->traducir($error, $intento, $duplicado);
             }
         }
+    }
+
+    /**
+     * @param  array<string, mixed>  $detalle
+     */
+    private function formatoDeNumero(TipoDocumento $tipo, array $detalle): string
+    {
+        $datos = ($this->datosInstitucionales)();
+
+        return $tipo === TipoDocumento::ConstanciaNotas && ($detalle['version'] ?? 1) === 2 ? $datos->formatoNumeroConstanciaNotas : $datos->formatoNumero;
     }
 
     private function traducir(UniqueConstraintViolationException $error, int $intento, string $duplicado): void

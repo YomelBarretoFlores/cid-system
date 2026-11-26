@@ -119,16 +119,9 @@
                             <x-portal.seleccion nombre="matricula" etiqueta="Matrícula" :opciones="$opciones['matricula']" vacio="Elige tu matrícula" />
                         @endif
                     @endisset
-                    @isset($opciones['idioma'])
-                        @if ($opciones['idioma'] === [])
-                            <x-portal.alerta tipo="aviso">Aún no tienes actas finales cerradas.</x-portal.alerta>
-                        @else
-                            <x-portal.seleccion nombre="idioma" etiqueta="Idioma" :opciones="$opciones['idioma']" vacio="Elige el idioma" />
-                        @endif
-                    @endisset
                     @isset($opciones['nivel'])
                         @if ($opciones['nivel'] === [])
-                            <x-portal.alerta tipo="aviso">Aún no completas un nivel por certificar, o ya tienes sus certificados.</x-portal.alerta>
+                            <x-portal.alerta tipo="aviso">{{ $tipo->accion_final === \App\Modules\Tramites\Enums\AccionFinal::ConstanciaNotas ? 'Aún no apruebas ningún ciclo con acta final cerrada.' : 'Aún no completas un nivel por certificar, o ya tienes sus certificados.' }}</x-portal.alerta>
                         @else
                             <x-portal.seleccion nombre="nivel" etiqueta="Idioma y nivel" :opciones="$opciones['nivel']" vacio="Elige el nivel" />
                         @endif

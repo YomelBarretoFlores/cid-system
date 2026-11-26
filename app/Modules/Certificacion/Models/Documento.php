@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Certificacion\Models;
 
 use App\Modules\Academico\Enums\NivelCurricular;
+use App\Modules\Certificacion\Data\DatosDeLaInstitucion;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Policies\DocumentoPolicy;
 use App\Shared\Auth\Models\User;
@@ -33,13 +34,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[UsePolicy(DocumentoPolicy::class)]
 final class Documento extends Model
 {
+    public const string FORMATO_ORIGINAL = 'N.º {numero:06}-{anio}';
+
     // The yearly number printed on the document; documents issued before numbering have none.
     public function numeroOficial(): ?string
     {
         $numero = $this->getAttribute('numero');
         $anio = $this->getAttribute('anio_numero');
 
-        return is_numeric($numero) && is_numeric($anio) ? sprintf('N.º %06d-%d', (int) $numero, (int) $anio) : null;
+        if (! is_numeric($numero) || ! is_numeric($anio)) {
+            return null;
+        }
+
+        // The pattern is frozen at issue time; documents issued before it was configurable keep the original one.
+        $formato = $this->detalle['formato_numero'] ?? self::FORMATO_ORIGINAL;
+
+        return DatosDeLaInstitucion::numerar((string) $formato, (int) $numero, (int) $anio);
+    }
+
+    // Grade records issued per level (detalle version 2) print the real CILN format; older ones keep the first template.
+    public function esConstanciaPorNivel(): bool
+    {
+        return $this->tipo === TipoDocumento::ConstanciaNotas && ($this->detalle['version'] ?? 1) === 2;
     }
 
     public function estaVigente(): bool

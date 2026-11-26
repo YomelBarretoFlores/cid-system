@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Database\Seeders;
 
-use App\Modules\Certificacion\Contracts\IdiomasConNotasCerradas;
+use App\Modules\Certificacion\Contracts\NivelesConNotas;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Actions\RechazarPago;
 use App\Modules\Pagos\Enums\EstadoPago;
@@ -58,19 +58,19 @@ final class TramitesDemoSeeder extends Seeder
         $cajero = User::query()->where('email', 'caja@ciln.test')->firstOrFail();
         $escenarios = ['finalizado', 'observado por el personal', 'recibo rechazado'];
         $cohorte = Persona::query()->whereNull('user_id')->orderBy('id')->get()
-            ->map(fn (Persona $persona): array => [$persona, app(IdiomasConNotasCerradas::class)($persona->id)])
-            ->filter(fn (array $conIdiomas): bool => $conIdiomas[1] !== [])
+            ->map(fn (Persona $persona): array => [$persona, app(NivelesConNotas::class)($persona->id)])
+            ->filter(fn (array $conNiveles): bool => $conNiveles[1] !== [])
             ->take(count($escenarios))
             ->values();
 
-        foreach ($cohorte as $indice => [$persona, $idiomas]) {
+        foreach ($cohorte as $indice => [$persona, $niveles]) {
             $escenario = $escenarios[$indice];
 
             if ($escenario !== 'recibo rechazado') {
                 $this->pagar($persona, 'CON-01', EstadoPago::Validado);
             }
 
-            $tramite = $this->solicitar($persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: $idiomas[0]));
+            $tramite = $this->solicitar($persona, 'CONSTANCIA-NOTAS', new DatosDeSolicitud(idioma: $niveles[0]->idioma, nivel: $niveles[0]->nivel->value));
 
             match ($escenario) {
                 'finalizado' => $this->finalizar($tramite, $administrador),

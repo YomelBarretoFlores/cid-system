@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Livewire;
 
-use App\Modules\Certificacion\Contracts\IdiomasConNotasCerradas;
+use App\Modules\Certificacion\Contracts\NivelesConNotas;
 use App\Modules\Certificacion\Contracts\NivelesPorCertificar;
 use App\Modules\Certificacion\Data\NivelPorCertificar;
 use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
@@ -27,14 +27,12 @@ use Livewire\Component;
 #[Title('Trámites')]
 final class MisTramites extends Component
 {
-    private const array CAMPOS = ['matricula', 'idioma', 'nivel', 'motivo', 'comentario'];
+    private const array CAMPOS = ['matricula', 'nivel', 'motivo', 'comentario'];
 
     #[Locked]
     public ?int $tipoElegido = null;
 
     public string $matricula = '';
-
-    public string $idioma = '';
 
     public string $nivel = '';
 
@@ -68,7 +66,7 @@ final class MisTramites extends Component
         try {
             $tramite = $solicitarTramite($this->personaId(), $this->tipoElegido, new DatosDeSolicitud(
                 matriculaId: is_numeric($this->matricula) ? (int) $this->matricula : null,
-                idioma: $this->nivel === '' ? $this->idioma : $idiomaDelNivel,
+                idioma: $idiomaDelNivel === '' ? null : $idiomaDelNivel,
                 nivel: $nivel,
                 motivo: $this->motivo,
                 comentario: $this->comentario,
@@ -106,21 +104,18 @@ final class MisTramites extends Component
     {
         return array_filter([
             'matricula' => $accion->pideMatricula() ? app(MatriculasActivasDePersona::class)($this->personaId()) : null,
-            'idioma' => $accion === AccionFinal::ConstanciaNotas ? $this->idiomasConNotas() : null,
-            'nivel' => $accion === AccionFinal::CertificadoNivel
-                ? collect(app(NivelesPorCertificar::class)($this->personaId()))->mapWithKeys(fn (NivelPorCertificar $nivel): array => [$nivel->clave() => $nivel->etiqueta()])->all()
-                : null,
+            'nivel' => $accion->pideNivel() ? $this->niveles($accion) : null,
         ], fn (?array $opciones): bool => $opciones !== null);
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, string> "idioma|nivel" => "Idioma · Nivel"
      */
-    private function idiomasConNotas(): array
+    private function niveles(AccionFinal $accion): array
     {
-        $idiomas = app(IdiomasConNotasCerradas::class)($this->personaId());
+        $niveles = $accion === AccionFinal::ConstanciaNotas ? app(NivelesConNotas::class)($this->personaId()) : app(NivelesPorCertificar::class)($this->personaId());
 
-        return array_combine($idiomas, $idiomas);
+        return collect($niveles)->mapWithKeys(fn (NivelPorCertificar $nivel): array => [$nivel->clave() => $nivel->etiqueta()])->all();
     }
 
     private function personaId(): int
