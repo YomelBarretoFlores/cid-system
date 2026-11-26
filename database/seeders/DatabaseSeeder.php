@@ -17,9 +17,11 @@ use App\Modules\Matricula\Enums\PermisoClasificacion;
 use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Pagos\Database\Seeders\PagosDemoSeeder;
+use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Enums\PermisoPago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
+use App\Modules\Personas\Actions\ObtenerVinculoPorDefecto;
 use App\Modules\Personas\Database\Seeders\PersonasDemoSeeder;
 use App\Modules\Personas\Enums\PermisoPersona;
 use App\Modules\Personas\Models\Persona;
@@ -64,13 +66,14 @@ final class DatabaseSeeder extends Seeder
         ]);
 
         $this->estudianteDelPortal();
+        $this->estudianteSinHabilitar();
         $this->call(DocenciaDemoSeeder::class);
         $this->call(CertificacionDemoSeeder::class);
         $this->call(TramitesDemoSeeder::class);
         $this->call(ComplementoDemoSeeder::class);
     }
 
-    // A verified student enrolled in English I, French I and Italian I, withdrawn from Quechua I, and with an unused validated enrollment payment to try next period's enrollment.
+    // An enabled student enrolled in English I, French I and Italian I, withdrawn from Quechua I, and with an unused validated enrollment payment to try next period's enrollment.
     private function estudianteDelPortal(): void
     {
         $user = User::factory()->create(['name' => 'Estudiante Demo', 'email' => 'estudiante@ciln.test']);
@@ -114,5 +117,37 @@ final class DatabaseSeeder extends Seeder
         }
 
         $pagar(CarbonImmutable::today('America/Lima')->subDays(2)->toDateString());
+    }
+
+    // A self-registered account still waiting for its first validated payment, so staff can validate it and watch the account become enabled.
+    private function estudianteSinHabilitar(): void
+    {
+        $user = User::factory()->create(['name' => 'Postulante Demo', 'email' => 'postulante@ciln.test']);
+        $persona = Persona::factory()->create([
+            'user_id' => $user->id,
+            'numero_documento' => '70000009',
+            'apellido_paterno' => 'Demo',
+            'apellido_materno' => null,
+            'nombres' => 'Postulante',
+            'correo' => 'postulante@ciln.test',
+            'tipo_vinculo' => app(ObtenerVinculoPorDefecto::class)(),
+            'tratamiento_aceptado_en' => now(),
+            'habilitada_en' => null,
+        ]);
+
+        $tarifa = Tarifa::query()
+            ->whereRelation('concepto', 'codigo', 'MAT-01')
+            ->where('tipo_vinculo', $persona->tipo_vinculo)
+            ->sole();
+
+        Pago::factory()->create([
+            'persona_id' => $persona->id,
+            'concepto_id' => $tarifa->concepto_id,
+            'tarifa_id' => $tarifa->id,
+            'monto' => $tarifa->monto,
+            'fecha_pago' => CarbonImmutable::today('America/Lima')->toDateString(),
+            'estado' => EstadoPago::Pendiente,
+            'registrado_por' => $user->id,
+        ]);
     }
 }

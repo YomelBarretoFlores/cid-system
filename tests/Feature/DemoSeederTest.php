@@ -54,7 +54,8 @@ it('seeds consistent demo data for local development', function (): void {
         ->and(Pago::query()->whereIn('id', Matricula::query()->select('pago_id'))->where('estado', '!=', EstadoPago::Validado)->exists())->toBeFalse()
         ->and(User::query()->where('email', 'admin@ciln.test')->firstOrFail()->can(User::ADMIN_PANEL_PERMISSION))->toBeTrue()
         ->and(app(DocentesDeGrupos::class)([$grupo->id]))->toBe([$grupo->id => 'Docente Demo, Ana'])
-        ->and(DB::table('cer_aprobaciones')->where('forma', 'clasificacion')->orderBy('ciclo_numero')->pluck('ciclo_numero')->all())->toBe([2, 3, 4]);
+        // The placement student also sits in English I, where the demo grades depend on the random name order: placement covers cycle 1 only when its acta was not passed.
+        ->and(DB::table('cer_aprobaciones')->where('forma', 'clasificacion')->orderBy('ciclo_numero')->pluck('ciclo_numero')->all())->toBeIn([[2, 3, 4], [1, 2, 3, 4]]);
 });
 
 it('dates the demo around today in Lima so the closed flows show data', function (): void {
@@ -93,6 +94,16 @@ it('seeds a verified portal student with an active enrollment and an unused vali
         // Three current groups plus Portuguese I and II of the record, whose enrollments stay active once the period closes.
         ->and(Matricula::query()->where(['persona_id' => $persona->id, 'estado' => 'activa'])->count())->toBe(5)
         ->and(Pago::query()->where(['persona_id' => $persona->id, 'estado' => EstadoPago::Validado])->whereNotIn('id', $usados)->count())->toBe(1);
+});
+
+it('seeds a self-registered applicant whose account waits for its first validated payment', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    $persona = Persona::query()->whereRelation('user', 'email', 'postulante@ciln.test')->sole();
+
+    expect($persona->habilitada_en)->toBeNull()
+        ->and(Pago::query()->where('persona_id', $persona->id)->pluck('estado')->map->value->all())->toBe([EstadoPago::Pendiente->value])
+        ->and(DB::table('per_tipos_vinculo')->where('nombre', 'Egresado UNASAM')->exists())->toBeTrue();
 });
 
 it('seeds a verified portal teacher who has the first demo group', function (): void {
