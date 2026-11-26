@@ -56,7 +56,7 @@ Es la ruta para un servidor que tiene una **copia de la carpeta** del sistema y 
 **Preparación** (una vez, en el equipo que despliega):
 
 1. Autorizar una llave SSH en la cuenta del servidor que es dueña de la carpeta del sitio (`ssh-copy-id -i ~/.ssh/<llave>.pub usuario@servidor`).
-2. Copiar `deploy/despliegue-ssh.conf.ejemplo` a `deploy/despliegue-ssh.conf` (Git lo ignora) y completar el destino, el puerto, la llave y la ruta de la carpeta en el servidor.
+2. Copiar `deploy/despliegue-ssh.conf.ejemplo` a `deploy/despliegue-ssh.conf` (Git lo ignora) y completar el destino, el puerto, la llave y la ruta de la carpeta en el servidor. Opcionalmente, `CILN_RESPALDOS_REMOTOS` (carpeta de respaldos bajo el usuario, por defecto `respaldos-ciln`) y `CILN_RESPALDOS_A_CONSERVAR` (copias del código que se conservan, por defecto 5; entero de 1 en adelante).
 3. Tener PHP, Composer y Node en ese equipo, porque el paquete se arma ahí.
 
 **Uso:**
@@ -73,13 +73,20 @@ Solo acepta etiquetas publicadas en `main`. El script hace lo siguiente:
 |---|---|---|
 | Armar el paquete | Equipo del proveedor | Código de la etiqueta, `composer install --no-dev`, `npm run build`, archivo `VERSION_DESPLEGADA` |
 | Comprobar | Servidor | La carpeta existe y se puede escribir, hay `.env` y `rsync`, y la versión de PHP alcanza |
-| Respaldar | Servidor | Copia del código actual (con su `.env` y `vendor`) y de la base de datos en `~/respaldos-ciln` |
+| Respaldar | Servidor | Copia del código actual (con su `.env` y `vendor`, sin `storage`) y de la base de datos en `~/respaldos-ciln`. Conserva las `CILN_RESPALDOS_A_CONSERVAR` copias de código más recientes y borra las anteriores; los respaldos de la base siguen la limpieza de respaldos de la aplicación |
 | Subir | Servidor | Modo mantenimiento y `rsync` del paquete. Nunca toca `.env`, `storage` ni el enlace `public/storage` |
 | Terminar | Servidor | `package:discover`, `config:clear`, `migrate --force`, `optimize`, `filament:optimize`, `queue:restart`, fin del mantenimiento |
 
-Si algo falla:
-- **Antes de migrar:** restaura el código anterior y saca el sitio del mantenimiento.
-- **Durante o después de migrar:** deja el sitio en mantenimiento para una revisión manual. El respaldo de esa pasada queda en `~/respaldos-ciln`.
+Si algo falla, el script informa en qué estado quedó el sitio y con qué marca (fecha y hora) se guardó el respaldo de esa pasada:
+
+| Situación | Qué hace el script | Qué hacer |
+|---|---|---|
+| Falla antes de migrar (subida o preparación) | Restaura el código anterior desde el respaldo y saca el sitio del mantenimiento. Solo restaura si la copia está completa (`artisan`, `.env` y `vendor`); la extrae junto a los respaldos, no en `/tmp` | Revisar el error y repetir el despliegue |
+| Copia de respaldo incompleta | No toca la carpeta; el sitio sigue en mantenimiento | Restaurar a mano desde otro respaldo y ejecutar `php artisan up` |
+| Falla durante o después de migrar | Deja el sitio en mantenimiento para revisión manual | Revisar el servidor; el respaldo queda en `~/respaldos-ciln` |
+| Se pierde la conexión SSH durante la instalación | No restaura nada, porque no se sabe en qué paso quedó; el sitio queda en mantenimiento | Revisar el servidor y repetir el despliegue de la misma versión |
+| Ctrl-C antes del mantenimiento | Se detiene; el sitio sigue con la versión anterior | Nada; repetir cuando convenga |
+| Ctrl-C con el sitio en mantenimiento | No restaura nada por sí solo; avisa que el código puede haber quedado a medias | Repetir el despliegue de la misma versión; si la base aún no se migró, también puede restaurarse `codigo-<marca>.tar.gz` y ejecutar `php artisan up` |
 
 El respaldo de la base usa `pg_dump`. Si el servidor no lo tiene, el script se detiene antes de cambiar nada. En ese caso, la base se respalda aparte y se repite con `--sin-respaldo-bd`. Si la aplicación se conecta con un rol que no puede migrar, `CILN_MIGRACIONES_ENV_REMOTO` apunta a un archivo del servidor con las credenciales del rol dueño.
 
@@ -188,7 +195,7 @@ Variables que, si faltan, toman un valor por defecto que no sirve en producción
 
 `SESSION_PANEL_LIFETIME` son los minutos sin actividad tras los que se cierra la sesión del panel. Al publicar esta versión, las sesiones del panel abiertas se cierran en su siguiente pedido (aún no tienen la marca del ingreso del panel): conviene publicarla fuera del horario de atención. `PANEL_DOBLE_FACTOR_OBLIGATORIO` (por defecto `false`) exige que toda cuenta del panel configure su aplicación autenticadora antes de entrar; si se activa, avisar antes al personal y regenerar la caché de configuración (`php artisan config:cache`), porque el valor no cambia hasta entonces. El secreto del doble factor se cifra con `APP_KEY`: al rotar la clave, dejar la anterior en `APP_PREVIOUS_KEYS`; si se pierde, hay que reiniciar el segundo factor de cada cuenta (`php artisan auth:reiniciar-doble-factor <correo>`). Los QR de las actas finales impresas llevan un enlace firmado con `APP_KEY` que no caduca: al rotar la clave, la anterior debe quedar en `APP_PREVIOUS_KEYS` o esos QR dejarán de verificar. El enlace usa `APP_URL` como dirección pública, así que debe ser el dominio definitivo antes de imprimir actas.
 
-`APP_URL` debe ser la dirección pública con `https`: los enlaces de verificación de correo y de recuperación de contraseña los arma el proceso de la cola, que no conoce la petición original. La caché usa el almacén por defecto (`database`); la portada pública solo guarda objetos de valor autorizados en `config/cache.php` (`serializable_classes`).
+`APP_URL` debe ser la dirección pública con `https`: los enlaces para crear o recuperar la contraseña los arma el proceso de la cola, que no conoce la petición original. La caché usa el almacén por defecto (`database`); la portada pública solo guarda objetos de valor autorizados en `config/cache.php` (`serializable_classes`).
 
 ## Base de datos y proxy
 
@@ -223,7 +230,7 @@ La auditoría se sigue escribiendo: la función `aud_registrar()` es `SECURITY D
 
 ## Correo
 
-Sin SMTP no llegan el enlace de la primera cuenta de administración, la verificación de cuenta de un estudiante nuevo, la recuperación de contraseña, el aviso de cambio de contraseña ni los avisos de trámite. Todos salen por la cola, así que también necesitan el worker.
+Sin SMTP no llegan el enlace de la primera cuenta de administración, el enlace para crear la contraseña de una cuenta del portal creada en la oficina, la recuperación de contraseña, el aviso de cambio de contraseña ni los avisos de trámite. Todos salen por la cola, así que también necesitan el worker.
 
 El dominio `unasam.edu.pe` usa Microsoft 365 (su registro SPF incluye `spf.protection.outlook.com`). Hay dos formas de enviar, y las define la DSTI como administradora del tenant:
 
@@ -231,6 +238,14 @@ El dominio `unasam.edu.pe` usa Microsoft 365 (su registro SPF incluye `spf.prote
 |---|---|---|
 | SMTP autenticado (SMTP AUTH) | `MAIL_HOST=smtp.office365.com`, `MAIL_PORT=587`, `MAIL_USERNAME` y `MAIL_PASSWORD` de un buzón del CILN, `MAIL_FROM_ADDRESS` igual a ese buzón. La DSTI debe habilitar «SMTP autenticado» para el buzón | En uso en producción con `sistemacln@unasam.edu.pe`. Microsoft anunció que la autenticación básica de SMTP AUTH se desactiva por defecto desde fines de diciembre de 2026 (el administrador puede reactivarla) y se retira en una fecha de 2027 por anunciar |
 | Conector de retransmisión de Microsoft 365 por IP | `MAIL_HOST=<dominio>.mail.protection.outlook.com`, `MAIL_PORT=25`, sin usuario ni contraseña; la DSTI crea en Exchange Online un conector que acepta la IP pública del servidor | Alternativa ante el retiro de la autenticación básica: no depende de la contraseña de un buzón |
+
+**Síntoma de los valores predeterminados de seguridad.** Desde el 22/11/2026 los valores predeterminados de seguridad (*security defaults*) del tenant de Microsoft 365 bloquean el SMTP AUTH de `sistemacln@unasam.edu.pe`: los correos no salen y el registro de la cola muestra `535 5.7.139 Authentication unsuccessful, user is locked by your organization's security defaults policy`, aunque la contraseña sea correcta. Habilitar «SMTP autenticado» en el buzón no basta mientras esos valores estén activos. Opciones, todas a cargo de la DSTI ([decisiones pendientes](decisiones-pendientes.md)):
+
+| Opción | Detalle | Recomendación |
+|---|---|---|
+| Conector de retransmisión de Exchange Online por IP | El conector acepta la IP pública del servidor; `.env` con `MAIL_HOST=<dominio>.mail.protection.outlook.com`, `MAIL_PORT=25`, sin `MAIL_USERNAME` ni `MAIL_PASSWORD` | Recomendada: no usa contraseña, no depende del MFA y sobrevive al retiro de la autenticación básica |
+| Exclusión de Acceso condicional | Reemplazar los valores predeterminados por directivas de Acceso condicional que excluyan el buzón del sistema (requiere Entra ID P1) | Solo si la DSTI ya usa Acceso condicional |
+| Relay interno de la universidad | `MAIL_HOST` apunta al servidor de retransmisión interno que la DSTI indique | Si la DSTI ya opera uno |
 
 El remitente es la cuenta institucional dedicada del sistema `sistemacln@unasam.edu.pe`, habilitada por la DSTI con «SMTP autenticado». Su contraseña se escribe solo en el `.env` del servidor; nunca va en documentos ni en el repositorio. El 18/11/2026 se verificó en producción la recepción de los correos de recuperación de contraseña y de aviso de cambio de contraseña enviados desde esta cuenta.
 
@@ -383,5 +398,5 @@ Límites de este entorno frente a producción:
 - **Solo datos sintéticos** (Ley 29733). Nunca cargar datos reales de estudiantes.
 - **Contraseñas de demostración**: las cuentas `*@ciln.test` usan `password`. En una dirección pública, cambiarlas tras el primer despliegue o proteger el subdominio (por ejemplo, con Cloudflare Access).
 - **Un solo rol de PostgreSQL**: la aplicación se conecta como dueña de las tablas, sin la separación de roles que exige [`seguridad.md`](seguridad.md).
-- **Correo**: con `MAIL_MAILER=log` no se envían correos; la verificación de cuenta de un registro nuevo no llega. Para probarla, configurar un SMTP.
+- **Correo**: con `MAIL_MAILER=log` no se envían correos; el enlace para crear o recuperar la contraseña no llega (queda en el registro de la aplicación). Para probarlo, configurar un SMTP.
 - **Recursos**: en un servidor compartido, fijar límites de CPU y memoria al contenedor.

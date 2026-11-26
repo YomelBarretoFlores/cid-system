@@ -97,8 +97,8 @@ Clientes externos (una app móvil, otro sistema de la UNASAM) leen datos en `/ap
 |---|---|
 | Sin token | `GET /oferta`, `GET /tarifas`, `GET /documentos/{codigo}` |
 | Sesión | `POST /sesiones` (token), `GET` y `DELETE /sesiones/actual` |
-| Estudiante (token, correo verificado y ficha) | `GET /estudiante/perfil`, `/matriculas`, `/notas`, `/pagos`, `/tramites`, `/documentos`, `/documentos/{codigo}/pdf` |
-| Docente (token, correo verificado y perfil docente) | `GET /docente/grupos` |
+| Estudiante (token y ficha; salvo perfil y pagos, también cuenta habilitada) | `GET /estudiante/perfil`, `/matriculas`, `/notas`, `/pagos`, `/tramites`, `/documentos`, `/documentos/{codigo}/pdf` |
+| Docente (token y perfil docente) | `GET /docente/grupos` |
 
 - Las rutas de sesión están en `routes/api.php`; las de cada módulo, en su `routes/api.php` (el proveedor del módulo añade el prefijo `/api/v1`). Controladores delgados en `Http/Controllers/Api` y respuestas con JSON Resources en `Http/Resources`, nunca modelos.
 - Los identificadores públicos son ULID (matrículas, pagos) o el código del documento o del trámite, nunca el `id` interno.

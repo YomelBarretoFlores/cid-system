@@ -12,7 +12,7 @@ Hasta ahora el sistema guardaba un solo llamado por clase, que el docente podía
 
 | Tema | Decisión |
 |---|---|
-| Dos llamados | Llamado de inicio desde 10 minutos antes del inicio hasta el fin de la clase (Presente o Ausente). Llamado de cierre desde 15 minutos antes del fin hasta 30 minutos después (Presente o Ausente), solo para quienes estuvieron presentes al inicio y solo después del primer llamado. Las ventanas se configuran en `config/ciln.php` y se calculan en la hora de Lima |
+| Dos llamados | Llamado de inicio desde 10 minutos antes del inicio hasta el fin de la clase (Presente o Ausente). Llamado de cierre desde 15 minutos antes del fin hasta 30 minutos después (Presente o Ausente), solo para quienes estuvieron presentes al inicio y solo después del primer llamado. Las ventanas son valores por defecto que el CILN cambia en «Parámetros del sistema» (`sis_parametros`, desde 2026-11-26) y se calculan en la hora de Lima |
 | Asistencia efectiva | Ausente si el estudiante está ausente en el cierre (se retiró); si no, cuenta el estado del inicio |
 | Tema de la sesión | El docente escribe el tema dictado; es obligatorio para tomar el llamado de cierre y en el registro posterior. La clase se enlaza con la semana del sílabo publicado que cubre su fecha, cuyo contenido se sugiere como tema. El delegado ve el tema al confirmar y puede observar la clase si no corresponde |
 | Delegado | El docente designa al delegado del grupo entre sus estudiantes con matrícula activa (uno por grupo, se puede cambiar). Un delegado cuya matrícula deja de estar activa ya no es delegado |
@@ -31,5 +31,5 @@ Hasta ahora el sistema guardaba un solo llamado por clase, que el docente podía
 - Una clase pasada que no se registró en sus ventanas se registra después en un solo llamado y queda como "registro posterior"; nunca llega al delegado.
 - Las clases guardadas antes de este cambio conservan su significado y se leen como "registro anterior" (registrada).
 - Confirmadas y no confirmadas son informativas en el expediente de horas: no cambian las horas ni el monto. Los descuentos al docente por clases no dictadas se definirán más adelante y fuera del sistema, porque el Anexo deja la planilla a la DGF.
-- Cambiar una ventana es editar `config/ciln.php`; las reglas, la página del docente, la del delegado y el filtro de coordinación leen los mismos valores.
+- Cambiar una ventana se hace en «Parámetros del sistema» (antes, editando `config/ciln.php`); las reglas, la página del docente, la del delegado y el filtro de coordinación leen los mismos valores.
 - Nota (2026-11-17): el sílabo se retiró porque el CILN no lo usa. La clase ya no se enlaza con una semana del sílabo ni se sugiere su contenido: el docente escribe el tema dictado.

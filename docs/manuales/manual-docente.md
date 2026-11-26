@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Docente
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.2
+version: 1.3
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -15,6 +15,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.0 | 18/11/2026 | Versión inicial | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: grupos acelerados | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.3 | 26/11/2026 | Actualización para la versión v1.3.0 del sistema: el personal crea la cuenta del docente y ya no se verifica el correo; ventanas de los llamados configurables por el CILN | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -36,30 +37,23 @@ El manual está dirigido a los docentes del CILN que tienen grupos asignados por
 | Navegador | Versión reciente de Google Chrome, Mozilla Firefox, Microsoft Edge o Safari. |
 | Dirección del sistema | **https://ciln.unasam.edu.pe** |
 | Ficha docente | La coordinación académica registra al docente en el sistema: su ficha de persona, con su documento de identidad y su correo personal, y su ficha docente. |
-| Cuenta de usuario | El propio docente crea su cuenta con el mismo documento de identidad y el mismo correo personal registrados en su ficha de persona (no con el correo institucional), y verifica el correo (sección 2.1). |
+| Cuenta de usuario | El personal del CILN crea la cuenta del docente desde su ficha de persona, con el correo personal registrado en ella (no con el correo institucional); el docente crea su contraseña con el enlace que recibe en ese correo (sección 2.1). |
 | Grupos asignados | La coordinación académica debe haber asignado al menos un grupo al docente. |
 
 Las imágenes de este manual se obtuvieron del sistema con datos de demostración generados para las pruebas: los nombres, documentos de identidad, correos, teléfonos, grupos y fechas que aparecen en ellas son ficticios.
 
 # 2. ACCESO AL PORTAL DOCENTE
 
-## 2.1. Crear la cuenta y verificar el correo (primer acceso)
+## 2.1. Obtener la cuenta y crear la contraseña (primer acceso)
 
-**Propósito:** obtener el acceso al Portal Docente la primera vez. El docente usa la misma cuenta y la misma página de ingreso que los estudiantes; el sistema lo reconoce como docente porque su cuenta queda vinculada a su ficha docente.
+**Propósito:** obtener el acceso al Portal Docente la primera vez. El docente usa la misma cuenta y la misma página de ingreso que los estudiantes; el sistema lo reconoce como docente porque su cuenta queda vinculada a su ficha docente. El docente no crea su cuenta desde la web: como su documento ya figura en el CILN, el formulario **Crear cuenta** lo rechaza con "No podemos crear una cuenta con ese documento…".
 
-1. Ingrese a **https://ciln.unasam.edu.pe** y presione **Crear cuenta** en la parte superior de la página.
-2. En **Documento de identidad**, elija el **Tipo de documento** y escriba el **Número de documento** registrado en su ficha docente (el DNI tiene 8 dígitos; los otros documentos, de 6 a 12 letras o números).
-3. En **Datos personales**, complete **Apellido paterno**, **Apellido materno (opcional)**, **Nombres**, **Fecha de nacimiento** y **Celular**.
-4. En **Acceso**, escriba en **Correo** su correo personal, el mismo registrado en su ficha de persona del CILN (no el correo institucional). Escriba una **Contraseña** de al menos 8 caracteres, con letras y números, y repítala en **Repite la contraseña**.
-5. Marque la casilla de aceptación del tratamiento de sus datos personales. El enlace **política de privacidad** abre la política del CILN en otra pestaña.
-6. Presione **Crear mi cuenta**.
-7. El sistema muestra la pantalla **Verifica tu correo**. Abra el mensaje **Verifica tu correo del CILN** en su bandeja de entrada (revise también el correo no deseado) y presione **Verificar mi correo**. Si el mensaje no llegó, presione **Enviar otro enlace** (una vez por minuto).
+1. Pida a la coordinación académica que cree su cuenta. El personal verifica su documento de identidad y usa **Crear cuenta del portal** en su ficha de persona; la cuenta se crea con el correo personal registrado en la ficha.
+2. Abra el mensaje **Restablece tu contraseña del CILN** en su correo personal (revise también el correo no deseado) y presione **Restablecer mi contraseña**. El enlace vence a los 60 minutos; si venció, pida otro con **¿Olvidaste tu contraseña?** en la página de ingreso (sección 2.3).
+3. En la página **Crea una nueva contraseña**, escriba la **Nueva contraseña** (al menos 8 caracteres, con letras y números), repítala en **Repite la nueva contraseña** y presione **Guardar contraseña**.
+4. Ingrese con su correo personal y la contraseña creada (sección 2.2).
 
-**Resultado esperado:** el sistema muestra "Tu correo quedó verificado." y abre el portal del estudiante. Para pasar al Portal Docente, presione su nombre en la parte inferior del menú lateral y elija **Portal docente**, o ingrese de nuevo por la página de ingreso (sección 2.2).
-
-Si el sistema responde "No podemos crear una cuenta con ese documento…", ya existe una cuenta con ese documento o el correo escrito no coincide con el correo personal de su ficha: ingrese con esa cuenta o recupere su contraseña, o pida a la coordinación académica que actualice el correo personal de su ficha. Si al ingresar aparece "Tu cuenta no está vinculada a un perfil docente del CILN.", la cuenta no corresponde a su ficha docente; comuníquese con la coordinación académica.
-
-![Figura 1. Formulario «Crea tu cuenta de estudiante», que el docente usa en su primer acceso](figuras/registro.png)
+**Resultado esperado:** el sistema abre el Portal Docente. Si al ingresar aparece "Tu cuenta no está vinculada a un perfil docente del CILN.", la cuenta no corresponde a su ficha docente; comuníquese con la coordinación académica.
 
 ## 2.2. Ingresar al portal
 
@@ -73,9 +67,9 @@ Si el sistema responde "No podemos crear una cuenta con ese documento…", ya ex
 
 **Resultado esperado:** el sistema reconoce la cuenta de docente y muestra la página **Mis grupos** del Portal Docente.
 
-Si el correo o la contraseña no coinciden, el sistema muestra "El correo o la contraseña no son correctos.". Después de cinco intentos fallidos en un minuto, muestra "Demasiados intentos. Vuelve a intentarlo en … segundos." y espera ese tiempo antes de aceptar un nuevo intento. Si la cuenta aún no verificó su correo, el sistema muestra primero la pantalla **Verifica tu correo** (sección 2.1).
+Si el correo o la contraseña no coinciden, el sistema muestra "El correo o la contraseña no son correctos.". Después de cinco intentos fallidos en un minuto, muestra "Demasiados intentos. Vuelve a intentarlo en … segundos." y espera ese tiempo antes de aceptar un nuevo intento.
 
-![Figura 2. Página de ingreso al portal del CILN](figuras/01-ingresar.png)
+![Figura 1. Página de ingreso al portal del CILN](figuras/01-ingresar.png)
 
 ## 2.3. Recuperar la contraseña
 
@@ -89,7 +83,7 @@ Si el correo o la contraseña no coinciden, el sistema muestra "El correo o la c
 
 **Resultado esperado:** el sistema abre la página de ingreso con el mensaje "Tu contraseña fue restablecida. Ya puedes ingresar.". Si el enlace ya venció, el sistema muestra "El enlace no es válido o ya venció. Solicita uno nuevo." y debe repetir el procedimiento.
 
-![Figura 3. Página para recuperar la contraseña](figuras/02-recuperar-clave.png)
+![Figura 2. Página para recuperar la contraseña](figuras/02-recuperar-clave.png)
 
 ## 2.4. Menú del portal
 
@@ -110,7 +104,7 @@ En la parte inferior del menú aparece el nombre del docente; al presionarlo se 
 
 **Resultado esperado:** con **Salir**, el sistema cierra la sesión y ya no permite ver el portal sin volver a ingresar. Se recomienda cerrar sesión siempre al terminar, en especial en equipos compartidos.
 
-![Figura 4. Menú de usuario con las opciones Mi portal de estudiante y Salir](figuras/05-menu-usuario.png)
+![Figura 3. Menú de usuario con las opciones Mi portal de estudiante y Salir](figuras/05-menu-usuario.png)
 
 # 3. MIS GRUPOS
 
@@ -123,7 +117,7 @@ En la parte inferior del menú aparece el nombre del docente; al presionarlo se 
 
 **Resultado esperado:** se muestra una tarjeta por cada grupo a cargo, con su estado: **Programado** (aún no recibe matrículas), **Abierto** (recibe matrículas) o **Cerrado** (ya no recibe matrículas). Los grupos cancelados o finalizados no se muestran. Si aún no tiene grupos, el sistema muestra el mensaje "Aún no tienes grupos asignados."
 
-![Figura 5. Página Mis grupos](figuras/03-mis-grupos.png)
+![Figura 4. Página Mis grupos](figuras/03-mis-grupos.png)
 
 ## 3.2. Contenido de la tarjeta de un grupo
 
@@ -140,7 +134,7 @@ Cada tarjeta muestra:
 
 Un paso terminado se marca con un check verde; el paso que corresponde atender se resalta. Cada paso es un enlace: al presionarlo se abre la pestaña correspondiente del grupo (**Asistencia**, **Pre-acta** o **Acta final**).
 
-![Figura 6. Tarjeta de un grupo con sus pasos Asistencia, Notas y Acta final](figuras/04-tarjeta-grupo.png)
+![Figura 5. Tarjeta de un grupo con sus pasos Asistencia, Notas y Acta final](figuras/04-tarjeta-grupo.png)
 
 Dentro de un grupo, las tres pestañas **Asistencia**, **Pre-acta** y **Acta final** permiten pasar de un paso a otro sin volver a la lista.
 
@@ -160,7 +154,7 @@ Cada clase del horario se controla con dos llamados de asistencia: el **Llamado 
 | Llamado de cierre | 15 minutos antes de la hora de fin de la clase | 30 minutos después de la hora de fin de la clase |
 | Confirmación del delegado | Cuando el docente guarda el llamado de cierre | 120 minutos después de la hora de fin de la clase |
 
-Por ejemplo, para una clase de 07:00 a 08:30, el llamado de inicio está disponible de 06:50 a 08:30 y el llamado de cierre de 08:15 a 09:00; el delegado puede confirmar la clase desde que el docente guarda el llamado de cierre hasta las 10:30. Estos tiempos son parámetros del sistema; su modificación requiere un ajuste técnico a cargo de la DSTI.
+Por ejemplo, para una clase de 07:00 a 08:30, el llamado de inicio está disponible de 06:50 a 08:30 y el llamado de cierre de 08:15 a 09:00; el delegado puede confirmar la clase desde que el docente guarda el llamado de cierre hasta las 10:30. Estos tiempos son los valores por defecto; el personal del CILN puede cambiarlos en **Parámetros del sistema**.
 
 Si el grupo aún no tiene clases cuyo llamado de inicio haya abierto, la pestaña muestra "Este grupo todavía no tiene clases para registrar."; si no tiene estudiantes matriculados, "El grupo no tiene estudiantes matriculados.". En cada clase solo aparecen los estudiantes matriculados en la fecha de esa clase.
 
@@ -176,9 +170,9 @@ Si el grupo aún no tiene clases cuyo llamado de inicio haya abierto, la pestañ
 
 **Resultado esperado:** el sistema muestra un mensaje de confirmación, por ejemplo "Llamado de inicio del miércoles 18/11/2026 de 07:00 a 08:30 guardado.". El indicador de pasos sigue mostrando el llamado de inicio **En curso** y el llamado de cierre **Pendiente**: mientras dure la ventana, puede corregir el llamado de inicio guardando de nuevo ("Llamado de inicio: abierto hasta las … Guardar de nuevo corrige este llamado."). Cuando se abre la ventana del llamado de cierre, el llamado de inicio pasa a **Tomado**.
 
-La Figura 7 muestra la pantalla de asistencia del grupo. Fue capturada por la tarde, cuando la clase de 07:00 a 08:30 ya había terminado y sus dos llamados figuraban como **Cerrado**; por eso la sección **Estudiantes** indica "Los llamados de esta clase ya cerraron." y no aparece el botón para guardar. Durante el llamado de inicio se ven el botón **Todos presentes** y el botón para guardar; durante el llamado de cierre y el registro posterior, solo el botón para guardar.
+La Figura 6 muestra la pantalla de asistencia del grupo. Fue capturada por la tarde, cuando la clase de 07:00 a 08:30 ya había terminado y sus dos llamados figuraban como **Cerrado**; por eso la sección **Estudiantes** indica "Los llamados de esta clase ya cerraron." y no aparece el botón para guardar. Durante el llamado de inicio se ven el botón **Todos presentes** y el botón para guardar; durante el llamado de cierre y el registro posterior, solo el botón para guardar.
 
-![Figura 7. Pestaña Asistencia de un grupo, con la clase, el tema dictado, los llamados y la lista de estudiantes](figuras/06-asistencia.png)
+![Figura 6. Pestaña Asistencia de un grupo, con la clase, el tema dictado, los llamados y la lista de estudiantes](figuras/06-asistencia.png)
 
 ## 4.3. Tomar el llamado de cierre y registrar el tema dictado
 
@@ -200,7 +194,7 @@ La Figura 7 muestra la pantalla de asistencia del grupo. Fue capturada por la ta
 
 **Resultado esperado:** la página muestra la asistencia registrada de la clase elegida y su estado.
 
-![Figura 8. Lista de clases del grupo con su estado](figuras/08-elegir-clase.png)
+![Figura 7. Lista de clases del grupo con su estado](figuras/08-elegir-clase.png)
 
 *Tabla 4. Estados de una clase en la lista Clase*
 
@@ -227,7 +221,7 @@ La Figura 7 muestra la pantalla de asistencia del grupo. Fue capturada por la ta
 
 **Resultado esperado:** la clase queda registrada con el estado **registro posterior**. Si se detecta un error, puede corregirse guardando de nuevo. Este registro no requiere confirmación del delegado.
 
-![Figura 9. Registro posterior de una clase](figuras/15-registro-posterior.png)
+![Figura 8. Registro posterior de una clase](figuras/15-registro-posterior.png)
 
 ## 4.6. Designar al delegado del grupo
 
@@ -239,7 +233,7 @@ La Figura 7 muestra la pantalla de asistencia del grupo. Fue capturada por la ta
 
 **Resultado esperado:** el sistema muestra "Delegado del grupo: …" con el nombre del estudiante, y la página muestra "Delegado: " seguido de su nombre. Si el grupo aún no tiene delegado, la página indica "Este grupo todavía no tiene delegado.". El delegado puede cambiarse en cualquier momento repitiendo estos pasos.
 
-![Figura 10. Ventana para designar al delegado del grupo](figuras/07-designar-delegado.png)
+![Figura 9. Ventana para designar al delegado del grupo](figuras/07-designar-delegado.png)
 
 ## 4.7. Confirmación de la clase por el delegado
 
@@ -288,9 +282,9 @@ Si el grupo no tiene un sistema de evaluación vigente, la pestaña muestra "El 
 - "El acta final del grupo … ya fue validada; sus notas parciales ya no se modifican.", con el acta validada.
 - "El periodo … no tiene fechas para actas finales; pide a coordinación que las registre.", si el periodo aún no tiene esas fechas.
 
-![Figura 11. Sección Notas parciales de la pre-acta](figuras/09-pre-acta.png)
+![Figura 10. Sección Notas parciales de la pre-acta](figuras/09-pre-acta.png)
 
-![Figura 12. Sección Camino al acta final de la pre-acta, con el avance de las notas y el botón Revisar el acta final](figuras/12-camino-acta.png)
+![Figura 11. Sección Camino al acta final de la pre-acta, con el avance de las notas y el botón Revisar el acta final](figuras/12-camino-acta.png)
 
 ## 5.3. Obtener la pre-acta en PDF
 
@@ -315,9 +309,9 @@ Si el grupo no tiene un sistema de evaluación vigente, la pestaña muestra "El 
 
 **Resultado esperado:** el docente verifica las notas finales. Si encuentra un error, lo corrige en la pestaña **Pre-acta** y la vista previa se actualiza.
 
-![Figura 13. Acta final en vista previa, con sus etapas y totales](figuras/10-acta-final.png)
+![Figura 12. Acta final en vista previa, con sus etapas y totales](figuras/10-acta-final.png)
 
-![Figura 14. Tabla Calificaciones del acta final](figuras/13-acta-calificaciones.png)
+![Figura 13. Tabla Calificaciones del acta final](figuras/13-acta-calificaciones.png)
 
 ## 6.2. Cálculo de la nota final
 
@@ -336,7 +330,7 @@ El sistema calcula la nota final de cada estudiante de la siguiente manera:
 | Nota final | 13.50 y 13.50 | (13.50 + 13.50) / 2 = 13.50, redondeado | 14 (en la tabla, 14.00) |
 | Estado final | 14 frente a la nota mínima 11 | 14 ≥ 11 | Aprobado |
 
-Este ejemplo corresponde a la fila del estudiante "Uribe Galarza, Maximiliano" de la Figura 14.
+Este ejemplo corresponde a la fila del estudiante "Uribe Galarza, Maximiliano" de la Figura 13.
 
 *Tabla 7. Estados finales del estudiante*
 
@@ -363,7 +357,7 @@ La nota mínima aprobatoria la define el CILN en el sistema de evaluación; por 
 Consideraciones importantes:
 
 - El cierre es irreversible para el docente: después de cerrar el acta ya no puede cambiar las notas.
-- El botón **Validar y cerrar acta** solo está habilitado dentro de las fechas para actas finales del periodo. Fuera de esas fechas se muestra deshabilitado, como en la Figura 13, capturada antes del 25 de noviembre; si se intenta fuera de plazo, el sistema indica "El acta final del grupo … se valida del … al …".
+- El botón **Validar y cerrar acta** solo está habilitado dentro de las fechas para actas finales del periodo. Fuera de esas fechas se muestra deshabilitado, como en la Figura 12, capturada antes del 25 de noviembre; si se intenta fuera de plazo, el sistema indica "El acta final del grupo … se valida del … al …".
 - Si el periodo aún no tiene fechas para actas finales, el sistema muestra "El periodo … no tiene fechas para actas finales; pide a coordinación que las registre.".
 - El acta no se valida si el grupo no tiene estudiantes activos ("El grupo … no tiene estudiantes activos para el acta final.") o si el grupo está programado o cancelado.
 
@@ -377,7 +371,7 @@ Consideraciones importantes:
 
 **Resultado esperado:** el PDF del acta final se abre en una pestaña nueva del navegador, desde donde puede guardarlo o imprimirlo. El acta en PDF lleva su número (ACTA-NNNNNN), las firmas y un código QR; cualquier persona puede comprobar su autenticidad en la opción **Verificar documento** de la página pública del CILN.
 
-![Figura 15. Acta final cerrada con la opción Descargar acta (PDF)](figuras/16-acta-cerrada.png)
+![Figura 14. Acta final cerrada con la opción Descargar acta (PDF)](figuras/16-acta-cerrada.png)
 
 ## 6.5. Rectificación del acta
 
@@ -400,7 +394,7 @@ Mientras el acta está en rectificación no se emite su PDF; vuelve a estar disp
 
 **Resultado esperado:** se muestra la lista de actas validadas por el docente. Si todavía no ha cerrado ninguna, el sistema muestra "Aún no has cerrado actas finales." con la indicación de cerrarlas desde **Mis grupos**, en la pestaña **Acta final** de cada grupo.
 
-![Figura 16. Página Actas finales](figuras/11-actas-finales.png)
+![Figura 15. Página Actas finales](figuras/11-actas-finales.png)
 
 # 8. PREGUNTAS FRECUENTES
 
@@ -408,14 +402,14 @@ Mientras el acta está en rectificación no se emite su PDF; vuelve a estar disp
 
 | Pregunta | Respuesta |
 |---|---|
-| ¿Quién me da el usuario y la contraseña? | Nadie: el docente crea su propia cuenta con su documento y el correo personal registrado en su ficha (sección 2.1). |
+| ¿Quién me da el usuario y la contraseña? | La coordinación académica crea la cuenta con su correo personal; usted crea su propia contraseña con el enlace que recibe en ese correo (sección 2.1). Nadie más conoce su contraseña. |
 | Al ingresar aparece "Tu cuenta no está vinculada a un perfil docente del CILN.". | La cuenta no corresponde a su ficha docente (otro documento u otro correo). Comuníquese con la coordinación académica. |
 | No veo un grupo que me asignaron. | Solo aparecen los grupos que la coordinación tiene asignados al docente en ese momento. Si un grupo fue reasignado, deja de mostrarse. Consulte con la coordinación académica. |
-| No puedo guardar el llamado de inicio. | El llamado de inicio se abre 10 minutos antes del inicio de la clase y se cierra a la hora de fin. Si no se tomó a tiempo, use el registro posterior (sección 4.5). |
-| No puedo guardar el llamado de cierre. | El llamado de cierre se abre 15 minutos antes del fin de la clase y se cierra 30 minutos después. Además, requiere escribir el tema dictado y ya no se corrige si el delegado revisó la clase. |
+| No puedo guardar el llamado de inicio. | Por defecto, el llamado de inicio se abre 10 minutos antes del inicio de la clase y se cierra a la hora de fin. Si no se tomó a tiempo, use el registro posterior (sección 4.5). |
+| No puedo guardar el llamado de cierre. | Por defecto, el llamado de cierre se abre 15 minutos antes del fin de la clase y se cierra 30 minutos después. Además, requiere escribir el tema dictado y ya no se corrige si el delegado revisó la clase. |
 | Olvidé tomar la asistencia de una clase. | Si no tomó el llamado de inicio, seleccione la clase en el campo **Clase** y use el **Registro posterior** (sección 4.5). Si tomó el llamado de inicio pero no el de cierre, la clase queda **sin llamado de cierre**; comuníquelo a la coordinación académica. |
 | ¿Puedo registrar una clase futura? | No. Solo aparecen las clases del horario cuyo llamado de inicio ya abrió. |
-| ¿Por qué mi delegado no puede confirmar la clase? | La clase aparece para el delegado solo después de guardar el llamado de cierre, y el delegado debe figurar presente en ese llamado. El plazo vence 120 minutos después del fin de la clase. |
+| ¿Por qué mi delegado no puede confirmar la clase? | La clase aparece para el delegado solo después de guardar el llamado de cierre, y el delegado debe figurar presente en ese llamado. El plazo vence, por defecto, 120 minutos después del fin de la clase. |
 | ¿Qué pasa si dejo una nota en blanco? | Puede completarla después, mientras la pre-acta esté habilitada. En los promedios del acta, una nota en blanco cuenta como cero. |
 | No aparece el botón **Guardar notas**. | La pre-acta está fuera de las fechas para registrar notas, el acta ya fue validada o el periodo no tiene fechas de actas; el aviso de la pantalla indica el motivo (sección 5.2). |
 | ¿Cuántos decimales admite una nota? | Hasta dos decimales, de 0 a la nota máxima del sistema de evaluación (20 por defecto). |

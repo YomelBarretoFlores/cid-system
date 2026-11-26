@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Personal del CILN
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.2
+version: 1.3
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -13,6 +13,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.0 | 18/11/2026 | Versión inicial | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: programas, grupos acelerados, forma de aprobación, constancia de notas por nivel, datos institucionales, tarifas por nivel y programa, FUT configurable, nuevos trámites y matrícula extemporánea | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.3 | 26/11/2026 | Actualización para la versión v1.3.0 del sistema: menú «Administración» con «Reportes» y «Configuración», catálogos de tipos de vínculo, tipos de documento, modalidades, bancos y grados del FUT, programa por defecto, parámetros del sistema, textos editables, cuentas del portal creadas en la oficina y habilitación de la cuenta del estudiante con su primer pago validado | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -37,7 +38,7 @@ La Tabla 1 resume los perfiles habituales del CILN y los permisos que cada uno n
 | Coordinación académica | Prepara periodos, idiomas, ciclos, aulas y grupos; registra a los docentes y gestiona sus cargas, las matrículas y las clasificaciones. | Ver personas · Gestionar personas · Ver la oferta académica · Gestionar la oferta académica · Ver docentes y carga académica · Gestionar docentes y carga académica · Gestionar costos por hora · Ver reportes de docencia · Ver matrículas · Gestionar matrículas, traslados y retiros · Ver solicitudes de examen de clasificación · Registrar resultados de clasificación |
 | Certificación | Revisa actas finales, autoriza rectificaciones y emite constancias y certificados. | Gestionar actas · Emitir y anular constancias y certificados |
 | Trámites | Atiende las solicitudes de trámite de los estudiantes. | Atender trámites |
-| Dirección (tablero) | Consulta indicadores y reportes gerenciales. | Ver el tablero gerencial (opcional, según los reportes que consulte: Ver reportes de pagos, Ver reportes de docencia, Ver matrículas; ver la Tabla 10) |
+| Dirección (tablero) | Consulta indicadores y reportes gerenciales. | Ver el tablero gerencial (opcional, según los reportes que consulte: Ver reportes de pagos, Ver reportes de docencia, Ver matrículas; ver la Tabla 15) |
 
 El permiso «Ingresar al panel» se concede automáticamente a toda cuenta del personal, por lo que no figura en los formularios.
 
@@ -86,7 +87,22 @@ Si pierde el teléfono, use un código de recuperación o pida al administrador 
 
 ## 2.3. Menú por grupos
 
-El menú lateral muestra primero el **Tablero gerencial** y organiza las demás opciones en grupos: **Matrícula** (Personas, Solicitudes de clasificación, Matrículas, Ciclos habilitados), **Oferta académica** (Periodos, Idiomas y ciclos, Grupos, Aulas, Programas), **Pagos** (Pagos, Reporte de recaudación), **Docencia** (Docentes, Control de clases, Expediente de horas, Carga docente, Costos por hora), **Certificación** (Actas pendientes, Actas finales, Constancias y certificados), **Trámites**, **Reportes** (Matriculados, Asistencia por grupo, Notas por periodo), **Catálogos** y **Seguridad** (Usuarios del personal, Roles, Auditoría). Cada grupo puede contraerse con la flecha de su encabezado, y el menú completo se contrae con **Contraer el menú**. Las cifras resaltadas junto a una opción indican tareas pendientes, por ejemplo pagos por validar o solicitudes de clasificación por evaluar.
+El menú lateral muestra primero el **Tablero gerencial** y organiza las demás opciones en grupos:
+
+*Tabla 3. Grupos del menú del panel*
+
+| Grupo | Opciones |
+|---|---|
+| Matrícula | Personas, Solicitudes de clasificación, Matrículas, Ciclos habilitados |
+| Oferta académica | Periodos, Idiomas y ciclos, Grupos, Aulas, Programas |
+| Pagos | Pagos |
+| Docencia | Docentes, Control de clases, Expediente de horas |
+| Certificación | Actas pendientes, Actas finales, Constancias y certificados |
+| Trámites | Trámites |
+| Administración | **Reportes** (todos los reportes, en pestañas; sección 10.2) y **Configuración** (todos los catálogos, parámetros y textos editables; capítulo 3) |
+| Seguridad | Usuarios del personal, Roles, Auditoría |
+
+Cada grupo puede contraerse con la flecha de su encabezado, y el menú completo se contrae con **Contraer el menú**. Las cifras resaltadas junto a una opción indican tareas pendientes, por ejemplo pagos por validar o solicitudes de clasificación por evaluar. Al pasar de una pantalla a otra, el menú lateral y el submenú de **Configuración** conservan la posición en que estaban.
 
 ![Figura 2. Menú del panel y tablero de inicio](figuras/p02-menu-del-panel.png)
 
@@ -116,29 +132,41 @@ Cierre siempre la sesión al terminar, en especial en equipos compartidos. Por s
 
 # 3. CONFIGURACIÓN INICIAL
 
-Antes de abrir el primer periodo, el administrador revisa los catálogos del grupo **Catálogos**. La Tabla 3 resume su contenido.
+Todos los catálogos, parámetros y textos editables están en **Administración > Configuración**. Al entrar, un submenú a la izquierda los agrupa por tema: **Institución**, **Académico**, **Personas**, **Pagos**, **Docencia** y **Trámites**. Cada opción solo aparece a quien tiene su permiso. En este manual, una ruta como **Configuración > Pagos > Conceptos y tarifas** indica la opción **Conceptos y tarifas** del grupo **Pagos** del submenú. Antes de abrir el primer periodo, el administrador revisa estos catálogos; la Tabla 4 resume su contenido.
 
-*Tabla 3. Catálogos del sistema*
+*Tabla 4. Opciones de Configuración*
 
-| Catálogo | Contenido | Permiso |
-|---|---|---|
-| Conceptos y tarifas | Conceptos TUPA/TUSNE (matrícula, pensión, constancias, examen de clasificación, etc.) y sus tarifas por vínculo con la UNASAM, nivel, programa y vigencia. | Configurar conceptos y tarifas |
-| Medios de pago | Bancos, agentes y canales con los que se paga (por ejemplo, Banco de la Nación, Tesorería UNASAM, Págalo.pe). | Configurar conceptos y tarifas |
-| Fuentes TUPA/TUSNE | Documento normativo del que proviene cada concepto. | Configurar conceptos y tarifas |
-| Tipos de trámite | Trámites que el estudiante puede iniciar, con requisitos, tasa, etapas y acción al finalizar. | Configurar tipos de trámite |
-| Sistemas de evaluación | Componentes de evaluación y nota mínima aprobatoria. | Gestionar la oferta académica |
-| Condiciones laborales | Condición del docente (nombrado, contratado, etc.). | Gestionar docentes y carga académica |
-| Grados académicos | Grado del docente; define su costo por hora. | Gestionar docentes y carga académica |
-| Firmantes | Autoridades que firman actas, constancias y certificados, con su periodo en el cargo. | Emitir y anular constancias y certificados (para marcar o editar un firmante de actas, también Gestionar actas) |
-| Denominación del año | Nombre oficial del año que se imprime en los documentos. | Emitir y anular constancias y certificados para consultarla; para crearla o editarla, también Gestionar actas |
-| Datos institucionales | Encabezado, pie de página, ciudad y formato del número de los documentos oficiales. | Emitir y anular constancias y certificados y Gestionar actas |
-| Configuración de pagos | **Recargo por matrícula extemporánea (%)**: porcentaje entero de 0 a 100 (20 por defecto) que se suma a la tarifa de matrícula pagada en el plazo extemporáneo. 0 lo desactiva. Cada cambio queda en la auditoría. | Configurar conceptos y tarifas |
+| Grupo del submenú | Opción | Contenido | Permiso |
+|---|---|---|---|
+| Institución | Firmantes | Autoridades que firman actas, constancias y certificados, con su periodo en el cargo. | Emitir y anular constancias y certificados (para marcar o editar un firmante de actas, también Gestionar actas) |
+| Institución | Denominación del año | Nombre oficial del año que se imprime en los documentos. | Emitir y anular constancias y certificados para consultarla; para crearla o editarla, también Gestionar actas |
+| Institución | Datos institucionales | Nombre de la universidad y del centro, encabezado, pie de página, ciudad y formato del número de los documentos oficiales. | Emitir y anular constancias y certificados y Gestionar actas |
+| Institución | Textos de documentos | Frases de las constancias, de la acreditación y del certificado de nivel (sección 3.8). | Emitir y anular constancias y certificados |
+| Institución | Política de privacidad | Texto de la política de privacidad y frase de consentimiento del registro (sección 3.8). | Gestionar personas |
+| Institución | Contenido de la portada | Presentación del centro, pasos, ruta de aprendizaje y preguntas frecuentes de la web pública (sección 3.8). | Configurar tipos de trámite |
+| Institución | Parámetros del sistema | Vigencia y puntaje del examen de clasificación, ventanas de los llamados de asistencia, límites de archivos y aviso de pocas vacantes (sección 3.7). | Gestionar usuarios, roles y permisos |
+| Académico | Sistemas de evaluación | Componentes de evaluación y nota mínima aprobatoria. | Gestionar la oferta académica |
+| Académico | Modalidades | Modalidades de los grupos (presencial, virtual, semipresencial u otras) y su descripción en la web pública (sección 3.6). | Gestionar la oferta académica |
+| Personas | Tipos de vínculo | Vínculo de la persona con la UNASAM, que decide su tarifa (sección 3.6). | Gestionar personas |
+| Personas | Tipos de documento | Documentos de identidad aceptados y la regla de formato de su número (sección 3.6). | Gestionar personas |
+| Pagos | Conceptos y tarifas | Conceptos TUPA/TUSNE (matrícula, pensión, constancias, examen de clasificación, etc.) y sus tarifas por vínculo con la UNASAM, nivel, programa y vigencia. | Configurar conceptos y tarifas |
+| Pagos | Medios de pago | Bancos, agentes y canales con los que se paga (por ejemplo, Banco de la Nación, Tesorería UNASAM, Págalo.pe). La web pública los lista como lugares de pago. | Configurar conceptos y tarifas |
+| Pagos | Fuentes TUPA/TUSNE | Documento normativo del que proviene cada concepto. | Configurar conceptos y tarifas |
+| Pagos | Configuración de pagos | **Recargo por matrícula extemporánea (%)**: porcentaje entero de 0 a 100 (20 por defecto) que se suma a la tarifa de matrícula pagada en el plazo extemporáneo. 0 lo desactiva. Cada cambio queda en la auditoría. | Configurar conceptos y tarifas |
+| Docencia | Costos por hora | Costo por hora del docente según su grado académico (sección 5.4). | Gestionar costos por hora |
+| Docencia | Condiciones laborales | Condición del docente (nombrado, contratado, etc.). | Gestionar docentes y carga académica |
+| Docencia | Grados académicos | Grado del docente; define su costo por hora. | Gestionar docentes y carga académica |
+| Docencia | Bancos | Bancos de la cuenta del docente para el expediente de horas (sección 3.6). | Gestionar docentes y carga académica |
+| Trámites | Tipos de trámite | Trámites que el estudiante puede iniciar, con requisitos, tasa, etapas y acción al finalizar. | Configurar tipos de trámite |
+| Trámites | Grados del FUT | Grados que el estudiante elige en la mención del FUT y el grado que imprime la acreditación (sección 3.6). | Configurar tipos de trámite |
+
+Siguen fijos en el sistema, porque deciden reglas: los niveles Básico, Intermedio y Avanzado, los estados de cada proceso, los límites de seguridad, la fórmula del promedio y los tipos de concepto.
 
 ## 3.1. Conceptos y tarifas
 
 Finalidad: registrar los conceptos que se cobran y su tarifa vigente.
 
-1. Ingrese a **Catálogos > Conceptos y tarifas**.
+1. Ingrese a **Configuración > Pagos > Conceptos y tarifas**.
 2. Pulse **Nuevo concepto** y complete **Código TUPA/TUSNE** (no cambia después de crear el concepto), **Nombre**, **Fuente** y **Servicio que habilita**. Deje marcado **Disponible para nuevos pagos**.
 3. Guarde y, en la sección **Tarifas** del concepto, pulse **Nueva tarifa**.
 4. Elija el **Vínculo con la UNASAM**, el **Monto** y la fecha **Vigente desde**; indique **Vigente hasta** solo si la tarifa tiene fecha de cierre.
@@ -156,7 +184,7 @@ En la sección **Tarifas**, cada fila tiene además las acciones **Cerrar**, que
 
 ## 3.2. Medios de pago y fuentes TUPA/TUSNE
 
-1. Ingrese a **Catálogos > Medios de pago** o **Catálogos > Fuentes TUPA/TUSNE**.
+1. Ingrese a **Configuración > Pagos > Medios de pago** o **Configuración > Pagos > Fuentes TUPA/TUSNE**.
 2. Pulse **Nuevo medio de pago** o **Nueva fuente**, escriba el **Nombre**, defina el **Orden en las listas** y deje marcado **Disponible en los formularios**. El **Código** se genera al crear el registro y no cambia.
 3. Guarde.
 
@@ -164,7 +192,7 @@ Resultado esperado: el registro aparece en los formularios de pagos y conceptos.
 
 ## 3.3. Tipos de trámite
 
-1. Ingrese a **Catálogos > Tipos de trámite** y cree o edite un tipo.
+1. Ingrese a **Configuración > Trámites > Tipos de trámite** y cree o edite un tipo.
 2. Complete **Código**, **Nombre** y **Requisitos** (el estudiante los ve antes de iniciar el trámite).
 3. En **Tasa**, elija el tipo de pago que debe presentarse (por ejemplo, Matrícula, Pensión o Constancia) o deje **Sin tasa**. Con tasa, el trámite espera a que Pagos valide un pago de ese tipo.
    - Opcionalmente, en **Concepto de pago**, elija el concepto exacto que debe pagarse (por ejemplo, «Constancia de notas»). La **Tasa** toma el tipo de ese concepto y el trámite solo acepta un pago de ese concepto; si la tarifa del pago es por nivel, además debe ser del mismo nivel que el trámite. Sin concepto, se acepta cualquier pago del tipo elegido. Los trámites ya solicitados conservan el concepto con el que se iniciaron.
@@ -178,7 +206,7 @@ Resultado esperado: el registro aparece en los formularios de pagos y conceptos.
 | **Meses sin estudiar** | Solo para la reclasificación: meses desde el fin de la última matrícula en el idioma (1 a 24; vacío: 2). |
 | **Requiere haber finalizado** | Otro tipo de trámite que el estudiante debe tener finalizado para el mismo idioma y nivel. Por defecto, el certificado de nivel requiere la constancia de notas; puede quitarse. |
 | **Programas que pueden solicitarlo** | Si elige programas, solo los estudiantes de esos programas (según su última matrícula en cada idioma) ven y solicitan el trámite. Vacío: todos. |
-| **Adjuntos** | Hasta 5 archivos con su nombre y si son obligatorios (PDF, JPG o PNG de hasta 5 MB). Por defecto ningún trámite pide adjuntos: el certificado ya no requiere la constancia autenticada en Secretaría General, porque el sistema valida las actas cerradas y los documentos llevan código QR. |
+| **Adjuntos** | Hasta el máximo de adjuntos de **Parámetros del sistema** (5 por defecto) con su nombre y si son obligatorios (PDF, JPG o PNG del tamaño máximo fijado en **Parámetros del sistema**, 5 MB por defecto). Por defecto ningún trámite pide adjuntos: el certificado ya no requiere la constancia autenticada en Secretaría General, porque el sistema valida las actas cerradas y los documentos llevan código QR. |
 
 7. Guarde.
 
@@ -195,7 +223,7 @@ Cada sistema de evaluación tiene dos grupos de componentes:
 
 El sistema promedia por separado las habilidades y los exámenes; la nota final es el promedio de ambos, redondeado al entero. No se asignan pesos o porcentajes a los componentes. Aprueba quien alcanza la **Nota mínima aprobatoria**.
 
-1. Ingrese a **Catálogos > Sistemas de evaluación** y pulse **Nuevo sistema de evaluación**.
+1. Ingrese a **Configuración > Académico > Sistemas de evaluación** y pulse **Nuevo sistema de evaluación**.
 2. Escriba el **Nombre**. Elija el **Idioma** y el **Nivel** al que se aplica, o deje **Todos los idiomas** y **Todos los niveles**.
 3. Indique la **Nota máxima** (por defecto 20) y la **Nota mínima aprobatoria** (por defecto 11).
 4. Indique **Vigente desde** y, solo si corresponde, **Vigente hasta**.
@@ -208,13 +236,13 @@ Resultado esperado: el sistema se aplica a los grupos que inician dentro de su v
 
 ## 3.5. Condiciones laborales, grados académicos, firmantes y denominación del año
 
-1. **Condiciones laborales** y **Grados académicos**: pulse **Nueva condición laboral** o **Nuevo grado académico**, escriba el **Nombre** y el **Orden en las listas** y guarde. El grado académico del docente determina su costo por hora (sección 5.4).
-2. **Firmantes**: pulse **Nuevo firmante** y registre el **Nombre con grado** (por ejemplo, «Dr. …»), el **Cargo** tal como se imprime bajo la firma; en **Firma**, marque los documentos que firma (**Certificados**, **Constancias**, **Actas**; al menos uno, y **Actas** solo con el permiso «Gestionar actas»); el **Orden en el documento** (de izquierda a derecha: en el certificado de nivel, el Vicerrector Académico con orden 1 y el Director del Centro de Idiomas con orden 2) y las fechas **Firma desde** y **Firma hasta** (vacía mientras siga en el cargo). Si no hay firmantes registrados, el certificado deja las líneas «Vicerrector Académico» y «Director del Centro de Idiomas» sin nombre. Los documentos no imprimen un espacio para el sello: se imprimen, se firman y se sellan a mano.
-3. **Denominación del año**: pulse **Nueva denominación**, indique el **Año** y la **Denominación** sin comillas; los documentos la imprimen entre « » sobre el título.
+1. **Condiciones laborales** y **Grados académicos** (**Configuración > Docencia**): pulse **Nueva condición laboral** o **Nuevo grado académico**, escriba el **Nombre** y el **Orden en las listas** y guarde. El grado académico del docente determina su costo por hora (sección 5.4).
+2. **Firmantes** (**Configuración > Institución**): pulse **Nuevo firmante** y registre el **Nombre con grado** (por ejemplo, «Dr. …»), el **Cargo** tal como se imprime bajo la firma; en **Firma**, marque los documentos que firma (**Certificados**, **Constancias**, **Actas**; al menos uno, y **Actas** solo con el permiso «Gestionar actas»); el **Orden en el documento** (de izquierda a derecha: en el certificado de nivel, el Vicerrector Académico con orden 1 y el Director del Centro de Idiomas con orden 2) y las fechas **Firma desde** y **Firma hasta** (vacía mientras siga en el cargo). Si no hay firmantes registrados, el certificado deja las líneas «Vicerrector Académico» y «Director del Centro de Idiomas» sin nombre. Los documentos no imprimen un espacio para el sello: se imprimen, se firman y se sellan a mano.
+3. **Denominación del año** (**Configuración > Institución**): pulse **Nueva denominación**, indique el **Año** y la **Denominación** sin comillas; los documentos la imprimen entre « » sobre el título.
 
 Resultado esperado: los documentos emitidos usan automáticamente los firmantes y la denominación vigentes en su fecha de emisión.
 
-**Datos institucionales**: en **Catálogos > Datos institucionales** edite los textos que imprimen los documentos y pulse **Guardar**:
+**Datos institucionales**: en **Configuración > Institución > Datos institucionales** edite los textos que imprimen los documentos y pulse **Guardar**. El nombre de la **Universidad** y del **Centro** se usa además en todos los PDF, en los correos y en la web pública:
 
 | Sección | Campos |
 |---|---|
@@ -223,6 +251,79 @@ Resultado esperado: los documentos emitidos usan automáticamente los firmantes 
 | Fecha y numeración | **Ciudad** que precede a la fecha; **Número de los documentos** (por defecto «N.º {numero:06}-{anio}») y **Número de la constancia de notas** (por defecto «N° {anio} - {numero:05}»). {anio} es el año y {numero:N} el correlativo con N dígitos (N de una o dos cifras). |
 
 El formato del número queda fijo en cada documento al emitirlo. Los demás textos no se congelan, a diferencia de los firmantes: cada PDF, incluso el de un documento ya emitido, se imprime con el encabezado, el pie y la ciudad vigentes. El cambio queda en la auditoría.
+
+## 3.6. Catálogos de vínculos, documentos, modalidades, bancos y grados del FUT
+
+Finalidad: mantener las listas que antes eran fijas. Todos estos catálogos funcionan igual:
+
+- El **Código** se genera al crear el registro y no cambia; el **Orden en las listas** decide su posición en los formularios.
+- Un registro no se borra: se desmarca como disponible. Deja de ofrecerse en los formularios, pero se conserva en los registros que ya lo usan.
+- Cada cambio queda en la auditoría.
+
+*Tabla 5. Catálogos nuevos y sus campos*
+
+| Catálogo (ruta) | Campos | Efecto |
+|---|---|---|
+| Tipos de vínculo (**Configuración > Personas**) | **Nombre**, **Orden en las listas**, **Disponible en los formularios y para tarifas nuevas**, **Vínculo de quien crea su cuenta en el portal** | El vínculo de cada persona elige su tarifa (sección 3.1). Uno solo es el vínculo por defecto, que recibe toda cuenta creada desde la web (por ejemplo, Público general). Para un vínculo nuevo, registre también sus tarifas en cada concepto. |
+| Tipos de documento (**Configuración > Personas**) | **Nombre**, **Orden en las listas**, **El número tiene solo dígitos**, **Longitud mínima**, **Longitud máxima**, **Disponible en los formularios**, **Preseleccionado al crear una cuenta en el portal** | Regla de formato del número: sin **solo dígitos**, admite letras y dígitos, sin espacios ni guiones. Por ejemplo, el DNI tiene solo dígitos y longitud 8 a 8. La regla se aplica a los registros nuevos o editados; los números ya guardados no cambian. |
+| Modalidades (**Configuración > Académico**) | **Nombre**, **Orden en las listas**, **Descripción en la página pública**, **Se dicta en aula**, **Admite enlace de clase en línea**, **Disponible para grupos nuevos** | Al crear un grupo, la modalidad decide si pide **Aula**, **Enlace** o ambos (sin aula, el enlace es obligatorio). **Se dicta en aula** y **Admite enlace** no cambian después de crear la modalidad. La descripción se muestra en la web pública. |
+| Bancos (**Configuración > Docencia**) | **Nombre**, **Orden en las listas**, disponibilidad | Lista del campo **Banco** de la ficha docente (sección 5.1). |
+| Grados del FUT (**Configuración > Trámites**) | **Grado (como se elige en el FUT)**, **Grado que otorga (como lo imprime la acreditación)**, **Orden en las listas**, **Disponible en el FUT** | El estudiante elige el grado en la mención del FUT (por ejemplo, «Maestría»); la constancia de acreditación imprime el grado que otorga (por ejemplo, «Maestro»). El trámite guarda el grado elegido, así que editarlo después no cambia los trámites ya solicitados. |
+
+1. Ingrese al catálogo por su ruta y pulse el botón de nuevo registro, o **Editar** sobre uno existente.
+2. Complete los campos de la Tabla 5.
+3. Guarde.
+
+Resultado esperado: el registro aparece en los formularios que usan el catálogo. Si el nombre ya existe, el sistema no lo guarda e indica el motivo.
+
+El **programa por defecto** se marca en **Oferta académica > Programas** (sección 4.5).
+
+## 3.7. Parámetros del sistema
+
+Finalidad: ajustar los valores de funcionamiento que antes requerían un cambio técnico.
+
+1. Ingrese a **Configuración > Institución > Parámetros del sistema**.
+2. Cambie los valores de la Tabla 6. Cada campo acepta solo enteros dentro de su rango.
+3. Pulse **Guardar**.
+
+*Tabla 6. Parámetros del sistema*
+
+| Sección | Campo | Por defecto | Rango |
+|---|---|---|---|
+| Clasificación | Vigencia de la solicitud de examen (días) | 30 | 1 a 365 |
+| Clasificación | Puntaje máximo del examen (el puntaje se registra de 0 a este valor) | 100 | 10 a 100 |
+| Asistencia docente | Llamado de inicio: abre (minutos antes del inicio); cierra al terminar la clase | 10 | 0 a 60 |
+| Asistencia docente | Llamado de cierre: abre (minutos antes del fin) | 15 | 0 a 60 |
+| Asistencia docente | Llamado de cierre: cierra (minutos después del fin) | 30 | 0 a 240 |
+| Asistencia docente | Confirmación del delegado (minutos después del fin); no puede vencer antes de que cierre el llamado de cierre | 120 | 30 a 1440 |
+| Archivos | Adjuntos por trámite | 5 | 1 a 10 |
+| Archivos | Tamaño de cada adjunto (MB) | 5 | 1 a 10 |
+| Archivos | Tamaño del recibo de pago (MB) | 5 | 1 a 10 |
+| Archivos | Tamaño de la fotografía (MB) | 2 | 1 a 10 |
+| Archivos | Lado mínimo de la fotografía (píxeles) | 200 | 100 a 1000 |
+| Archivos | Lado máximo de la fotografía (píxeles) | 3000 | 1000 a 8000 |
+| Portal público | Aviso de pocas vacantes (el grupo se resalta con estas vacantes o menos; 0 lo desactiva) | 5 | 0 a 50 |
+
+Resultado esperado: se muestra «Parámetros del sistema guardados» y los nuevos valores rigen de inmediato en el portal, el panel y la web pública. El cambio queda en la auditoría.
+
+Tenga en cuenta:
+
+- Las ventanas de los llamados se aplican al consultar: un cambio también modifica cómo se leen las clases ya dictadas (por ejemplo, si un llamado de cierre quedó a tiempo).
+- Cada solicitud de clasificación guarda el puntaje máximo vigente al registrarla, así que cambiarlo no altera los resultados ya registrados.
+
+## 3.8. Textos de documentos, política de privacidad y contenido de la portada
+
+Finalidad: editar los textos que imprimen los documentos y los que muestra la web pública, sin un cambio técnico. Las tres pantallas están en **Configuración > Institución** y se guardan con **Guardar**; cada cambio queda en la auditoría.
+
+*Tabla 7. Textos editables*
+
+| Pantalla | Secciones y campos | Comportamiento |
+|---|---|---|
+| Textos de documentos | **Constancias**: **Frase final de la constancia de matrícula** (también la imprime la constancia de inscripción), **Frase final de la constancia de notas**, **Nota de la escala de calificación**. **Acreditación de conocimiento de idioma extranjero**: **Modalidad al llevar ciclos**, **Modalidad por examen de suficiencia**, **Frase del acta final**, **Frase de validez** ({mencion}: grado de la mención). **Certificado de nivel**: **Texto del certificado** ({nivel}, {idioma} y {horas} se imprimen en negrita) | Cada documento guarda los textos vigentes al emitirlo: editarlos no cambia los documentos ya emitidos. Los emitidos antes de esta versión conservan la redacción original. |
+| Política de privacidad | **Política de privacidad**: **Domicilio del titular del banco de datos** (se imprime donde dice {domicilio}) y **Texto de la política** (con negrita, cursiva, enlaces, títulos, listas y tablas; {universidad} y {centro} se toman de los datos institucionales). **Registro de cuenta**: **Frase de consentimiento** ({politica} se muestra como el enlace a la política) | Al cambiar el texto o el domicilio se actualiza la fecha de la política. El HTML que se escriba se muestra como texto. |
+| Contenido de la portada | **El centro** (**Presentación del centro**; párrafos separados por una línea en blanco), **Cómo matricularse** y **Examen de clasificación** (pasos con **Paso** y **Detalle**), **Ruta de aprendizaje** (**Nivel**, **Descripción** y **Al concluir el nivel podrá**), **Preguntas frecuentes** (**Pregunta** y **Respuesta**). Cada lista admite de 1 a 12 elementos, que se reordenan arrastrándolos | {lugares_de_pago} se reemplaza por los medios de pago activos del catálogo. La web pública muestra el cambio al guardar. |
+
+Resultado esperado: se muestra el mensaje de guardado de la pantalla («Textos de documentos guardados», «Política de privacidad guardada» o «Contenido de la portada guardado»). Si un campo obligatorio queda vacío o excede su longitud, el sistema no guarda e indica el campo.
 
 # 4. OFERTA ACADÉMICA
 
@@ -254,10 +355,10 @@ Finalidad: crear el periodo académico (mensual) y conducirlo por sus estados.
 2. Complete **Año**, **Número (mes o periodo)** y **Nombre**; las fechas de **Inicio de clases** y **Fin de clases**; **Matrícula desde** y **Matrícula hasta** (la matrícula no puede terminar después del fin de clases); opcionalmente **Matrícula extemporánea hasta** (posterior a «Matrícula hasta» y no posterior al fin de clases); y **Actas finales desde** y **Actas finales hasta**, que son los días en que el docente puede validar y cerrar el acta final.
 3. Guarde. El periodo se crea en estado **Planificado**.
 
-Matrícula extemporánea: si el periodo la tiene, los grupos siguen abiertos a la matrícula hasta esa fecha. El pago de matrícula hecho en ese plazo debe incluir el recargo de **Catálogos > Configuración de pagos** (por ejemplo, S/ 10.00 + 20 % = S/ 12.00). Al validar un pago de matrícula por la tarifa sin recargo, el sistema pide la justificación del monto.
+Matrícula extemporánea: si el periodo la tiene, los grupos siguen abiertos a la matrícula hasta esa fecha. El pago de matrícula hecho en ese plazo debe incluir el recargo de **Configuración > Pagos > Configuración de pagos** (por ejemplo, S/ 10.00 + 20 % = S/ 12.00). Al validar un pago de matrícula por la tarifa sin recargo, el sistema pide la justificación del monto.
 4. Cuando corresponda, use en el listado los botones de cambio de estado, que siempre piden confirmación.
 
-*Tabla 4. Estados del periodo*
+*Tabla 8. Estados del periodo*
 
 | Estado | Botón que lo activa | Efecto |
 |---|---|---|
@@ -280,11 +381,11 @@ Finalidad: crear los grupos de cada ciclo y registrar sus horarios.
 
 1. Ingrese a **Oferta académica > Grupos** y pulse **Nuevo grupo**.
 2. Elija el **Periodo** y el **Idioma y ciclo** (no cambian después de crear el grupo).
-3. Elija el **Programa** (Jóvenes y Adultos por defecto) y complete **Código de grupo**, **Modalidad** (Presencial, Virtual o Semipresencial), **Acelerado** si corresponde, **Aula** (o **Enlace de la clase virtual**), **Cupo máximo** y **Cupo mínimo de apertura**.
+3. Elija el **Programa** (se propone el programa por defecto, sección 4.5) y complete **Código de grupo**, **Modalidad** (del catálogo de modalidades, sección 3.6), **Acelerado** si corresponde, **Aula** y/o **Enlace de la clase virtual** según la modalidad, **Cupo máximo** y **Cupo mínimo de apertura**.
 4. Guarde y, en la sección **Horarios** del grupo, pulse **Agregar horario** para cada día, con su **Día**, **Desde** y **Hasta**.
 5. Para conducir el grupo, use el menú **Estado** de su tarjeta en el listado (o de la cabecera de la página de edición) con las opciones **Abrir**, **Cerrar**, **Reabrir**, **Finalizar** o **Cancelar grupo**, que piden confirmación. Para abrir un grupo, este debe tener horario y docente asignado, y su periodo debe estar **Planificado** o en **Matrícula abierta**. Si al cerrarlo no alcanza el cupo mínimo, el sistema pregunta si desea iniciarlo de todas formas. No se puede finalizar mientras la matrícula del periodo esté abierta.
 
-*Tabla 5. Estados del grupo*
+*Tabla 9. Estados del grupo*
 
 | Estado | Significado |
 |---|---|
@@ -314,7 +415,7 @@ Finalidad: definir los programas del CILN y el régimen de ciclo que admiten sus
 
 El sistema se instala con tres programas, todos editables:
 
-*Tabla 6. Programas iniciales*
+*Tabla 10. Programas iniciales*
 
 | Código | Programa | Régimen de ciclo |
 |---|---|---|
@@ -324,7 +425,8 @@ El sistema se instala con tres programas, todos editables:
 
 1. Ingrese a **Oferta académica > Programas** y pulse **Nuevo programa**, o **Editar** sobre uno existente.
 2. Complete **Código** (no cambia después de crearlo), **Nombre** y **Régimen de ciclo** (Solo regular, Solo acelerado, o Regular y acelerado). Deje marcado **Disponible para nuevos grupos**.
-3. Guarde.
+3. Marque **Programa por defecto** en el programa que debe proponerse para los grupos nuevos (al instalar, Jóvenes y Adultos). Ese programa también se imprime en los documentos de los grupos anteriores a los programas. Solo un programa es el programa por defecto y debe estar disponible: al marcar otro, el anterior deja de serlo, y para quitar la marca a uno hay que marcar antes otro.
+4. Guarde.
 
 Resultado esperado: el programa puede elegirse al crear un grupo. Un programa desactivado no recibe grupos nuevos, pero conserva los que ya tiene.
 
@@ -334,10 +436,10 @@ Resultado esperado: el programa puede elegirse al crear un grupo. Un programa de
 
 Finalidad: registrar a los docentes y su perfil académico.
 
-1. Registre antes a la persona en **Matrícula > Personas** (sección 6.1), con su **Correo personal**: es el correo con el que el docente creará su cuenta en el sistema.
+1. Registre antes a la persona en **Matrícula > Personas** (sección 6.1), con su **Correo personal**: es el correo de la cuenta del docente, que el personal crea con **Crear cuenta del portal** (sección 6.7).
 2. Ingrese a **Docencia > Docentes** y pulse **Crear docente**.
 3. En **Persona**, busque por documento o por apellidos y nombres.
-4. En la sección **Docente**, complete **Correo institucional**, **Condición laboral** (obligatoria) y **Grado académico**; en **Datos para el expediente**, **RUC**, **Banco** y **Número de cuenta**.
+4. En la sección **Docente**, complete **Correo institucional**, **Condición laboral** (obligatoria) y **Grado académico**; en **Datos para el expediente**, **RUC**, **Banco** (del catálogo de bancos, sección 3.6) y **Número de cuenta**.
 5. En **Perfil académico**, agregue cada **Idioma** habilitado para dictar con su **Nivel máximo autorizado**.
 6. Guarde. Para cambiar la situación de un docente, use **Cambiar estado** en su vista y elija el **Nuevo estado**: **Activo**, **Inactivo** o **De licencia**. Un docente con grupos a cargo no puede pasar a Inactivo ni a De licencia hasta que se reasignen sus grupos.
 
@@ -393,7 +495,7 @@ Resultado esperado: se descarga el archivo. El monto es bruto y referencial, sin
 
 ## 5.7. Carga docente
 
-**Docencia > Carga docente** presenta las horas asignadas y dictadas de cada docente en el periodo. Se filtra y exporta igual que los reportes de la sección 10.2.
+**Administración > Reportes**, pestaña **Carga docente**, presenta las horas asignadas y dictadas de cada docente en el periodo. Se filtra y exporta igual que los reportes de la sección 10.2.
 
 # 6. CAJA Y PAGOS
 
@@ -404,7 +506,7 @@ Finalidad: registrar a un estudiante, docente o tercero antes de registrar su pa
 1. Ingrese a **Matrícula > Personas** y verifique con **Buscar** que la persona no esté registrada.
 2. Pulse **Registrar persona**.
 3. En **Documento de identidad**, elija el **Tipo de documento** y escriba el **Número de documento**.
-4. En **Datos personales**, complete **Apellido paterno**, **Apellido materno**, **Nombres**, **Fecha de nacimiento**, **Celular**, **Correo personal** y **Tipo de vínculo** con la UNASAM.
+4. En **Datos personales**, complete **Apellido paterno**, **Apellido materno**, **Nombres**, **Fecha de nacimiento**, **Celular**, **Correo personal** y **Tipo de vínculo** con la UNASAM (del catálogo de tipos de vínculo). El **Número de documento** debe cumplir la regla de formato del tipo de documento elegido (sección 3.6).
 5. Si la persona firmó su autorización para el tratamiento de sus datos personales (Ley N.° 29733), marque **La persona aceptó el tratamiento de sus datos personales**. El sistema guarda la fecha y hora del consentimiento; si no lo marca, la ficha muestra "Sin consentimiento registrado" y puede registrarlo más adelante con **Editar**. Una vez registrado, el consentimiento no se borra al editar la ficha.
 6. Pulse **Crear**.
 
@@ -420,7 +522,7 @@ Finalidad: registrar un pago que la persona presenta en ventanilla.
 2. En **Persona**, busque por número de documento o por apellidos y nombres.
 3. Elija el **Concepto TUPA/TUSNE**. Si sus tarifas varían por nivel o programa, aparecen **Nivel pagado** (obligatorio) y **Programa** (solo si el pago es la tarifa de un programa, por ejemplo Posgrado).
 4. Elija el **Medio de pago**, escriba el **N.° de recibo u operación**, la **Fecha de pago** (no puede ser posterior a hoy) y el **Monto** que figura en la boleta, con dos decimales como máximo.
-5. Adjunte el **Recibo escaneado (JPG, PNG o PDF)**, de hasta 5 MB.
+5. Adjunte el **Recibo escaneado (JPG, PNG o PDF)**, del tamaño máximo fijado en **Parámetros del sistema** (5 MB por defecto).
 6. Pulse **Crear**.
 
 Resultado esperado: el pago queda en estado **Pendiente** hasta su validación. El sistema rechaza un número de operación repetido para el mismo medio de pago y un concepto sin tarifa vigente en la fecha de pago para el vínculo de la persona.
@@ -442,7 +544,7 @@ Finalidad: confirmar un pago contra la boleta original.
 5. Si el monto pagado es distinto de la tarifa, el sistema lo advierte y pide la **Justificación del monto distinto de la tarifa**; escríbala. Para un pago de matrícula hecho en el plazo extemporáneo, el monto esperado es la tarifa más el recargo vigente al validar (sección 4.3).
 6. Pulse **Validar**.
 
-Resultado esperado: el pago pasa a **Validado** y habilita el servicio correspondiente (por ejemplo, la matrícula o el avance de un trámite). Quedan registrados el usuario que validó y la fecha.
+Resultado esperado: el pago pasa a **Validado** y habilita el servicio correspondiente (por ejemplo, la matrícula o el avance de un trámite). Quedan registrados el usuario que validó y la fecha. Si es el primer pago validado de una cuenta creada desde la web, esa cuenta queda habilitada automáticamente (sección 6.7).
 
 ![Figura 20. Detalle de un pago pendiente](figuras/p20-pago-detalle.png)
 
@@ -464,7 +566,7 @@ Solo la cuenta con el permiso «Anular pagos» (administración) ve este botón.
 
 Resultado esperado: el pago pasa a **Anulado**. Los pagos nunca se eliminan: el registro se conserva con el motivo, el usuario y la fecha de anulación.
 
-*Tabla 7. Estados del pago*
+*Tabla 11. Estados del pago*
 
 | Estado | Significado |
 |---|---|
@@ -477,7 +579,7 @@ Resultado esperado: el pago pasa a **Anulado**. Los pagos nunca se eliminan: el 
 
 Finalidad: obtener la recaudación validada para la DGF y Tesorería.
 
-1. Ingrese a **Pagos > Reporte de recaudación**.
+1. Ingrese a **Administración > Reportes** y elija la pestaña **Reporte de recaudación**.
 2. Indique **Pagos desde** y **Pagos hasta**; opcionalmente elija el **Concepto** y el **Periodo académico**.
 3. Revise el total recaudado, el ticket promedio, la recaudación por concepto TUPA/TUSNE, por idioma y nivel, y el detalle por estudiante.
 4. Pulse **Descargar PDF** o **Descargar CSV**.
@@ -485,6 +587,31 @@ Finalidad: obtener la recaudación validada para la DGF y Tesorería.
 Resultado esperado: se descarga el reporte con los pagos validados del rango elegido.
 
 ![Figura 22. Reporte de recaudación](figuras/p22-reporte-de-recaudacion.png)
+
+## 6.7. Cuentas del portal del estudiante
+
+Resumen: cualquier persona crea su cuenta en la web sin verificar el correo, pero queda **no habilitada** hasta que caja valida su primer pago. Quien ya figura en el CILN no puede registrarse en la web: el personal le crea la cuenta en la oficina.
+
+*Tabla 12. Origen y estado de las cuentas del portal*
+
+| Caso | Cómo se crea | Estado inicial | Qué ve en el portal |
+|---|---|---|---|
+| Persona nueva que se registra en la web | La propia persona, con **Crear cuenta** | No habilitada | Inicio, Modificar datos, Subir fotografía, Preferencias y Registro de pagos |
+| Persona que ya figura en el CILN (estudiante anterior, docente, registrado en ventanilla) | El personal, con **Crear cuenta del portal** | Habilitada | Todas las opciones |
+| Persona registrada por el personal en **Matrícula > Personas** | Registro en ventanilla (sección 6.1) | Habilitada | Todas las opciones, una vez creada su cuenta |
+
+**Habilitación automática.** Al validar el primer pago de una persona no habilitada (sección 6.3), el sistema registra la fecha de habilitación y la persona ve todas las opciones del portal desde su siguiente pantalla. No hay un botón para habilitar a mano: si una persona necesita la cuenta habilitada, debe tener un pago validado.
+
+**Cuenta habilitada en la ficha.** En **Matrícula > Personas**, la vista de la persona muestra **Cuenta habilitada**: la fecha y hora de habilitación, o «Pendiente: se habilita al validar su primer pago». Úselo para orientar a quien dice que no ve la matrícula o los trámites.
+
+**Crear cuenta del portal.** Finalidad: dar acceso al portal (y al Portal Docente, si es docente) a una persona que ya figura en el CILN y no tiene cuenta.
+
+1. Verifique en persona el documento de identidad de quien solicita la cuenta.
+2. En **Matrícula > Personas**, abra la vista de la persona y confirme que su **Correo personal** sea el correcto; si no, corríjalo con **Editar**.
+3. Pulse **Crear cuenta del portal**. El botón solo aparece si la persona aún no tiene cuenta y su cuenta del personal tiene el permiso «Gestionar personas».
+4. Confirme en el recuadro.
+
+Resultado esperado: se muestra «Cuenta creada y enlace enviado». La cuenta se crea con el correo personal de la ficha y la persona recibe un enlace para crear su contraseña (vence a los 60 minutos; si venció, la persona pide otro con **¿Olvidaste tu contraseña?**). El personal nunca conoce ni escribe la contraseña. El sistema no crea la cuenta si la persona ya tiene una («Esta persona ya tiene una cuenta del portal.»), si no tiene correo personal («Registra primero el correo personal de la persona.») o si el correo ya pertenece a otra cuenta («Ya existe una cuenta con ese correo.»).
 
 # 7. MATRÍCULA Y CLASIFICACIÓN
 
@@ -617,7 +744,7 @@ En **Trámites > Trámites** se listan los trámites con su **Código** de segui
 4. **Levantar la observación**: el trámite continúa desde su etapa actual; si la tasa sigue sin pagar, vuelve a esperar el pago.
 5. **Cerrar sin atender**: escriba el **Motivo del cierre**; no se ejecuta la acción final y el trámite no se elimina.
 
-*Tabla 8. Estados del trámite*
+*Tabla 13. Estados del trámite*
 
 | Estado | Significado |
 |---|---|
@@ -629,7 +756,7 @@ En **Trámites > Trámites** se listan los trámites con su **Código** de segui
 
 Resultado esperado: cada acción queda en el **Historial** con fecha, estado, etapa, comentario y usuario.
 
-*Tabla 9. Qué pide **Finalizar** según el trámite*
+*Tabla 14. Qué pide **Finalizar** según el trámite*
 
 | Trámite (código) | Al finalizar | Efecto |
 |---|---|---|
@@ -644,7 +771,7 @@ Notas de configuración:
 
 - La reclasificación solo se acepta si la última matrícula del estudiante en el idioma terminó hace al menos los **Meses sin estudiar** del tipo (por defecto 2), contados desde el fin del periodo.
 - La acreditación y el **Certificado de estudios (posgrado)** solo están disponibles para el programa Posgrado; el certificado de posgrado requiere la acreditación finalizada del mismo idioma y nivel. El certificado de culminación de nivel regular sigue abierto a todos los programas.
-- Los tipos nuevos se crean sin **Concepto de pago**: vincule el concepto y sus tarifas en **Catálogos > Tipos de trámite** para que cada tasa solo acepte su propio pago. Mientras no se vinculen, la suficiencia y la reclasificación aceptan cualquier pago validado de tipo «Otro». Un concepto de tipo «Examen de clasificación» no puede vincularse a un tipo de trámite.
+- Los tipos nuevos se crean sin **Concepto de pago**: vincule el concepto y sus tarifas en **Configuración > Trámites > Tipos de trámite** para que cada tasa solo acepte su propio pago. Mientras no se vinculen, la suficiencia y la reclasificación aceptan cualquier pago validado de tipo «Otro». Un concepto de tipo «Examen de clasificación» no puede vincularse a un tipo de trámite.
 
 ![Figura 32. Vista de un trámite observado](figuras/p31-tramite.png)
 
@@ -666,18 +793,19 @@ Resultado esperado: los indicadores se recalculan con los filtros y el archivo d
 
 ## 10.2. Reportes
 
-Los reportes del grupo **Reportes** (y **Carga docente** en **Docencia**) comparten los filtros **Periodo académico**, **Idioma**, **Nivel** y **Grupo**, y los botones **Exportar PDF** y **Excel**. Cada reporte requiere su propio permiso. El reporte **Matriculados** tiene dos pestañas: **Resumen por grupo** y **Detalle de matriculados**.
+Todos los reportes están en **Administración > Reportes**, cada uno en su pestaña: **Matriculados**, **Reporte de recaudación** (sección 6.6), **Asistencia por grupo**, **Notas por periodo** y **Carga docente**. Solo se muestran las pestañas que la cuenta puede ver. Salvo el reporte de recaudación, que tiene sus propios filtros, comparten los filtros **Periodo académico**, **Idioma**, **Nivel** y **Grupo**, y los botones **Exportar PDF** y **Excel**. Cada reporte requiere su propio permiso. El reporte **Matriculados** tiene dos pestañas: **Resumen por grupo** y **Detalle de matriculados**.
 
-*Tabla 10. Reportes del panel*
+*Tabla 15. Reportes del panel*
 
 | Reporte | Contenido | Permiso |
 |---|---|---|
 | Matriculados | Estudiantes matriculados del periodo por grupo, con su condición, estado y vínculo. | Ver matrículas |
+| Reporte de recaudación | Pagos validados del rango de fechas, por concepto, idioma y nivel, con el detalle por estudiante (sección 6.6). | Ver reportes de pagos |
 | Asistencia por grupo | Clases programadas, dictadas y confirmadas de cada grupo, y la asistencia de cada estudiante. | Ver reportes de docencia |
 | Notas por periodo | Estado del acta, aprobados, desaprobados, NSP y promedio de cada grupo. | Gestionar actas |
 | Carga docente | Horas asignadas y dictadas de cada docente en el periodo. | Ver reportes de docencia |
 
-1. Abra el reporte desde el menú.
+1. Ingrese a **Administración > Reportes** y elija la pestaña del reporte.
 2. Elija los filtros.
 3. Pulse **Exportar PDF** o **Excel**.
 
@@ -722,11 +850,13 @@ Resultado esperado: todas las cuentas con el rol reciben sus permisos. Solo se p
 
 # 12. PREGUNTAS FRECUENTES
 
-*Tabla 11. Preguntas frecuentes*
+*Tabla 16. Preguntas frecuentes*
 
 | Pregunta | Respuesta |
 |---|---|
-| No veo una opción del menú que necesito. | Su cuenta no tiene el permiso correspondiente. Solicítelo al administrador (Tabla 1). |
+| No veo una opción del menú que necesito. | Su cuenta no tiene el permiso correspondiente. Solicítelo al administrador (Tabla 1). Los catálogos, parámetros y textos están en **Administración > Configuración**, y los reportes en **Administración > Reportes**. |
+| Un estudiante creó su cuenta pero no ve la matrícula ni los trámites. | Su cuenta no está habilitada: falta validar su primer pago. Revise **Cuenta habilitada** en su ficha («Pendiente…») y valide el pago con la boleta original (sección 6.7). |
+| Una persona que ya estudió en el CILN no puede crear su cuenta en la web. | Es lo esperado: el registro web rechaza los documentos que ya figuran en el CILN. Verifique su documento y use **Crear cuenta del portal** en su ficha (sección 6.7). |
 | El sistema no me deja ingresar tras varios intentos. | Por seguridad se bloquean temporalmente los intentos y el sistema indica cuántos segundos esperar; si olvidó la contraseña, pida al administrador **Reenviar enlace para crear contraseña**. |
 | Perdí el teléfono con la aplicación autenticadora. | Use un código de recuperación o pida al administrador **Reiniciar doble factor**. |
 | No aparece el botón **Validar** en un pago. | Solo se validan pagos en estado **Pendiente** y con el permiso «Validar pagos». |

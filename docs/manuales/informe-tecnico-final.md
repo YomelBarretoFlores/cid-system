@@ -416,7 +416,7 @@ El acceso se controla por **permisos por acción**, que se agrupan en roles desd
 |---|---|---|
 | Personal del CILN | Cuenta con permiso de acceso al panel y los permisos de su función | Panel de administración, con doble factor opcional u obligatorio por configuración |
 | Docente del CILN | Cuenta vinculada a un legajo docente | Panel docente: sus grupos, asistencia, pre-actas y actas |
-| Estudiante | Cuenta con correo verificado y ficha personal | Portal del estudiante: matrícula, pagos, clasificación, trámites, notas y documentos |
+| Estudiante | Cuenta del portal con ficha personal (habilitada al validarse su primer pago) | Portal del estudiante: matrícula, pagos, clasificación, trámites, notas y documentos |
 | Público | Sin cuenta | Portada, verificación de documentos y creación de cuenta |
 
 *Tabla 18. Permisos disponibles para los roles del personal*
