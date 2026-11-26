@@ -51,10 +51,11 @@
             </div>
 
             <div x-show="vista === 'anios'" x-cloak class="grid grid-cols-3 gap-1">
-                <template x-for="anio in anios" x-bind:key="anio">
-                    <button type="button" x-on:click="elegirAnio(anio)" x-text="anio"
+                {{-- Not "anio": the loop variable would shadow the component's anio and elegirAnio() would write to it. --}}
+                <template x-for="opcion in anios" x-bind:key="opcion">
+                    <button type="button" x-on:click="elegirAnio(opcion)" x-text="opcion"
                         class="h-10 rounded-[10px] text-sm hover:bg-acento-claro focus-visible:shadow-foco focus-visible:outline-none"
-                        x-bind:class="anio === Number(String(valor ?? '').slice(0, 4)) && 'bg-tinta font-semibold text-invertido hover:bg-tinta'"></button>
+                        x-bind:class="opcion === Number(String(valor ?? '').slice(0, 4)) && 'bg-tinta font-semibold text-invertido hover:bg-tinta'"></button>
                 </template>
             </div>
 
