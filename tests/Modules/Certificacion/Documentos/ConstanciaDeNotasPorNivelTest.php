@@ -7,6 +7,7 @@ use App\Modules\Academico\Models\Programa;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeNotas;
 use App\Modules\Certificacion\Actions\EmitirConstanciasDeNotasDelActa;
 use App\Modules\Certificacion\Actions\GenerarDocumentoPdf;
+use App\Modules\Certificacion\Contracts\DocumentoParaTramite;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Acta;
@@ -145,4 +146,14 @@ it('issues the grade records of an acta for its level only', function (): void {
     expect($resumen->emitidos)->toHaveCount(1)
         ->and($resumen->emitidos[0]->nivel)->toBe(NivelCurricular::Intermedio)
         ->and(array_column($resumen->emitidos[0]->detalle['filas'], 'ciclo'))->toBe(['V']);
+});
+
+it('still issues the whole-language record for a trámite requested before records were per level', function (): void {
+    $emitido = app(DocumentoParaTramite::class)(TipoDocumento::ConstanciaNotas, $this->ana->id, ['idioma' => 'Italiano'], $this->emisor);
+    $documento = Documento::query()->findOrFail($emitido->id);
+
+    expect($documento->detalle)->not->toHaveKey('version')
+        ->and(array_column($documento->detalle['notas'], 'ciclo_numero'))->toBe([1, 2, 2, 5])
+        ->and($documento->numeroOficial())->toBe('N.º 000001-2026')
+        ->and(htmlDelDocumento($documento))->toContain('CONSTANCIA DE NOTAS');
 });

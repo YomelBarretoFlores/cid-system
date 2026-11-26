@@ -18,6 +18,7 @@ final readonly class EmitirDocumentoParaTramite implements DocumentoParaTramite
     public function __construct(
         private EmitirConstanciaDeMatricula $constanciaDeMatricula,
         private EmitirConstanciaDeNotas $constanciaDeNotas,
+        private EmitirConstanciaDeNotasDelIdioma $constanciaDelIdioma,
         private EmitirCertificadoDeNivel $certificadoDeNivel,
     ) {}
 
@@ -31,7 +32,9 @@ final readonly class EmitirDocumentoParaTramite implements DocumentoParaTramite
 
         $documento = match ($tipo) {
             TipoDocumento::ConstanciaMatricula => ($this->constanciaDeMatricula)($datos['matricula_id'] ?? 0, $emisor),
-            TipoDocumento::ConstanciaNotas => ($this->constanciaDeNotas)($personaId, $datos['idioma'] ?? '', $this->nivel($datos), $emisor),
+            TipoDocumento::ConstanciaNotas => isset($datos['nivel'])
+                ? ($this->constanciaDeNotas)($personaId, $datos['idioma'] ?? '', $this->nivel($datos), $emisor)
+                : ($this->constanciaDelIdioma)($personaId, $datos['idioma'] ?? '', $emisor),
             TipoDocumento::CertificadoNivel => ($this->certificadoDeNivel)($personaId, $datos['idioma'] ?? '', $this->nivel($datos), $emisor),
         };
 
