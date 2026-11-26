@@ -40,6 +40,7 @@ final class AparienciaDelPanel
             ->defaultAvatarProvider(AvatarDeIniciales::class)
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => Vite::fonts()->toHtml())
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin.dropdown-sin-cierre-por-teclado'))
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('filament.admin.conservar-desplazamiento'))
             ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn (): View => view('filament.admin.alternar-menu'))
             ->darkMode(false)
             ->topbar(false)
