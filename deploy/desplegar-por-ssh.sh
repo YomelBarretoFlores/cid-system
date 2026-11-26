@@ -113,12 +113,20 @@ remoto "cd $RUTA_Q && php artisan down --retry=60"
 restaurar_codigo() {
     registrar "falló antes de migrar: se restaura el código anterior y se sale del mantenimiento"
     remoto "bash -s -- $RUTA_Q $(printf '%q' "$CILN_RESPALDOS_REMOTOS") $MARCA" <<'REMOTO' || registrar "ADVERTENCIA: no se pudo restaurar; revisa el servidor a mano"
-set -uo pipefail
-ruta="$1"; respaldo="$HOME/$2/codigo-$3.tar.gz"; temporal="$(mktemp -d)"
-tar -xzf "$respaldo" -C "$temporal"
+set -euo pipefail
+ruta="$1"; respaldo="$HOME/$2/codigo-$3.tar.gz"
+# Extract next to the backups, not in /tmp, and mirror only a complete copy: a partial one would delete the live app.
+temporal="$(mktemp -d "$HOME/$2/restaurar-XXXXXX")"
+if ! tar -xzf "$respaldo" -C "$temporal" || [[ ! -f "$temporal/artisan" || ! -f "$temporal/.env" || ! -d "$temporal/vendor" ]]; then
+    rm -rf "$temporal"
+    echo "ERROR: la copia de $respaldo está incompleta; no se tocó la carpeta y el sitio sigue en mantenimiento"
+    exit 1
+fi
 rsync -a --delete --exclude=/storage/ "$temporal/" "$ruta/"
 rm -rf "$temporal"
-cd "$ruta" && php artisan optimize; php artisan up
+cd "$ruta"
+php artisan optimize || true
+php artisan up
 REMOTO
     exit 1
 }
