@@ -1,0 +1,6 @@
+/.env
+/.env.*
+/storage/
+/bootstrap/cache/*.php
+/public/storage
+/public/hot

@@ -8,7 +8,7 @@
 |---|---|
 | La DSTI envía al proveedor | Solo la parte pública de la llave de despliegue (`ciln_despliegue.pub`, que no es secreta; sirve para la descarga inicial y para las actualizaciones automáticas), la ruta elegida (tradicional o Docker), el dominio definitivo y la confirmación de que el servidor llega a GitHub |
 | La DSTI hace en sus servidores, sin enviar claves | Crea los roles de PostgreSQL y la base ([Roles de PostgreSQL](#roles-de-postgresql)), habilita el SMTP autenticado de `sistemacln@unasam.edu.pe` (la contraseña la escribe en `MAIL_PASSWORD` quien la custodia), instala el sistema y decide si activa la [actualización automática](#actualización-automática), que exige aceptar que la clave del rol dueño quede guardada en el servidor; además, el certificado HTTPS y los respaldos |
-| El proveedor | Registra la llave de despliegue en GitHub, publica cada versión con su etiqueta cuando CI está en verde, acompaña la instalación y la [verificación](#verificación) y, al cierre del servicio, entrega el repositorio a la UNASAM |
+| El proveedor | Registra la llave de despliegue en GitHub, publica cada versión con su etiqueta cuando CI está en verde. Si el servidor tiene una copia de la carpeta sin Git, instala cada versión con el [script por SSH](#actualizar-subiendo-la-carpeta-por-ssh-sin-git-en-el-servidor) y una cuenta que la DSTI le autoriza. Acompaña la instalación y la [verificación](#verificación) y, al cierre del servicio, entrega el repositorio a la UNASAM |
 
 ## Requisitos del servidor
 
@@ -49,7 +49,43 @@ php artisan queue:restart
 
 `config:clear` va antes de migrar para que la migración tome el rol dueño del comando y no el de la configuración cacheada. `queue:restart` hace que el worker cargue el código nuevo al terminar su trabajo actual. `storage/app` no está en el repositorio y no se toca en la actualización.
 
+### Actualizar subiendo la carpeta por SSH (sin Git en el servidor)
+
+Es la ruta para un servidor que tiene una **copia de la carpeta** del sistema y no se conecta a GitHub. El paquete se arma en el equipo del proveedor y se sube por SSH.
+
+**Preparación** (una vez, en el equipo que despliega):
+
+1. Autorizar una llave SSH en la cuenta del servidor que es dueña de la carpeta del sitio (`ssh-copy-id -i ~/.ssh/<llave>.pub usuario@servidor`).
+2. Copiar `deploy/despliegue-ssh.conf.ejemplo` a `deploy/despliegue-ssh.conf` (Git lo ignora) y completar el destino, el puerto, la llave y la ruta de la carpeta en el servidor.
+3. Tener PHP, Composer y Node en ese equipo, porque el paquete se arma ahí.
+
+**Uso:**
+
+```bash
+deploy/desplegar-por-ssh.sh v1.2.0 --solo-construir   # arma el paquete y no sube nada
+deploy/desplegar-por-ssh.sh v1.2.0 --simular          # comprueba el servidor y lista lo que se borraría
+deploy/desplegar-por-ssh.sh v1.2.0                    # instala la versión
+```
+
+Solo acepta etiquetas publicadas en `main`. El script hace lo siguiente:
+
+| Paso | Dónde | Detalle |
+|---|---|---|
+| Armar el paquete | Equipo del proveedor | Código de la etiqueta, `composer install --no-dev`, `npm run build`, archivo `VERSION_DESPLEGADA` |
+| Comprobar | Servidor | La carpeta existe y se puede escribir, hay `.env` y `rsync`, y la versión de PHP alcanza |
+| Respaldar | Servidor | Copia del código actual (con su `.env` y `vendor`) y de la base de datos en `~/respaldos-ciln` |
+| Subir | Servidor | Modo mantenimiento y `rsync` del paquete. Nunca toca `.env`, `storage` ni el enlace `public/storage` |
+| Terminar | Servidor | `package:discover`, `config:clear`, `migrate --force`, `optimize`, `filament:optimize`, `queue:restart`, fin del mantenimiento |
+
+Si algo falla:
+- **Antes de migrar:** restaura el código anterior y saca el sitio del mantenimiento.
+- **Durante o después de migrar:** deja el sitio en mantenimiento para una revisión manual. El respaldo de esa pasada queda en `~/respaldos-ciln`.
+
+El respaldo de la base usa `pg_dump`. Si el servidor no lo tiene, el script se detiene antes de cambiar nada. En ese caso, la base se respalda aparte y se repite con `--sin-respaldo-bd`. Si la aplicación se conecta con un rol que no puede migrar, `CILN_MIGRACIONES_ENV_REMOTO` apunta a un archivo del servidor con las credenciales del rol dueño.
+
 ### Actualización automática
+
+Esta ruta requiere que la carpeta del servidor sea un clon de Git. Un servidor con una copia de la carpeta se actualiza con el script de la sección anterior.
 
 El servidor instala solo las **versiones publicadas**: etiquetas `vX.Y.Z` que estén en `main`. Un `git push` normal no llega a producción, y una etiqueta creada en otra rama se ignora.
 

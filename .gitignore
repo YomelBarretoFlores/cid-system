@@ -38,3 +38,5 @@ Thumbs.db
 /public/css/filament
 /public/js/filament
 /public/fonts/filament
+
+/deploy/despliegue-ssh.conf

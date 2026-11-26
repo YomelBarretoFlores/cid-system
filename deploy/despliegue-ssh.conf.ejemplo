@@ -1,0 +1,18 @@
+# Copy to deploy/despliegue-ssh.conf (it is ignored by Git) and fill in the server data.
+
+# SSH account and server that hold the app.
+CILN_SSH_DESTINO=usuario@servidor
+CILN_SSH_PUERTO=22
+
+# Private key authorized on that account (leave empty to use the SSH agent).
+CILN_SSH_LLAVE=~/.ssh/ciln_unasam
+
+# Folder of the app on the server (the one with .env, storage and public).
+CILN_RUTA_REMOTA=/var/www/ciln
+
+# Folder under the account's home for the backups taken before each update.
+CILN_RESPALDOS_REMOTOS=respaldos-ciln
+
+# Optional: file on the server with DB_USERNAME and DB_PASSWORD of the owner role, when the
+# app connects with a role that cannot run migrations. Empty: migrate with the .env credentials.
+CILN_MIGRACIONES_ENV_REMOTO=
