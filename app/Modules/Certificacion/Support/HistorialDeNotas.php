@@ -9,6 +9,7 @@ use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Data\NotaDelHistorial;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Enums\EstadoFinal;
+use App\Modules\Certificacion\Enums\FormaDeAprobacion;
 use App\Modules\Certificacion\Models\Aprobacion;
 use App\Modules\Certificacion\Models\NotaFinal;
 use App\Shared\Support\Notas\Nota;
@@ -26,8 +27,9 @@ final class HistorialDeNotas
     ];
 
     /**
-     * An accelerated acta gives one row per cycle it covers, both with its single grade. Within a cycle, rows follow when they were
-     * recorded (acta validation or approval registration), so the last passed attempt is the latest one.
+     * An accelerated acta gives one row per cycle it covers, both with its single grade. Within a cycle, placement rows come first and
+     * graded rows follow when they were recorded (acta validation or approval registration), so the last passed attempt is the latest
+     * graded one and a placement never hides a grade. Voided approvals are left out.
      *
      * @return list<NotaDelHistorial> ordered by cycle and then by when each result was recorded
      */
@@ -38,12 +40,12 @@ final class HistorialDeNotas
             ->where('cer_actas.idioma', $idioma)
             ->get(self::COLUMNAS);
         $inicios = self::inicios($actas);
-        $sinActa = Aprobacion::query()->where(['persona_id' => $personaId, 'idioma' => $idioma])->get();
+        $sinActa = Aprobacion::query()->where(['persona_id' => $personaId, 'idioma' => $idioma])->whereNull('anulada_en')->get();
 
         return array_values($actas
             ->flatMap(fn (NotaFinal $nota): array => array_map(fn (NotaDelHistorial $fila): array => [self::momento((string) $nota->getAttribute('validada_en')), $fila], self::notas($nota, $inicios)))
             ->concat($sinActa->map(fn (Aprobacion $aprobacion): array => [self::momento($aprobacion->created_at), self::sinActa($aprobacion)]))
-            ->sort(fn (array $a, array $b): int => [$a[1]->cicloNumero, $a[0]] <=> [$b[1]->cicloNumero, $b[0]])
+            ->sort(fn (array $a, array $b): int => [$a[1]->cicloNumero, self::conNota($a[1]), $a[0]] <=> [$b[1]->cicloNumero, self::conNota($b[1]), $b[0]])
             ->map(fn (array $entrada): NotaDelHistorial => $entrada[1])
             ->all());
     }
@@ -69,7 +71,7 @@ final class HistorialDeNotas
             ->where('cer_notas_finales.persona_id', $personaId)
             ->distinct()
             ->pluck('cer_actas.idioma')
-            ->merge(Aprobacion::query()->where('persona_id', $personaId)->distinct()->pluck('idioma'))
+            ->merge(Aprobacion::query()->where('persona_id', $personaId)->whereNull('anulada_en')->distinct()->pluck('idioma'))
             ->unique()
             ->sort()
             ->values()
@@ -130,6 +132,11 @@ final class HistorialDeNotas
     private static function inicios(Collection $actas): array
     {
         return app(IniciosDePeriodos::class)(array_values(array_unique($actas->map(fn (NotaFinal $nota): int => (int) $nota->getAttribute('periodo_id'))->all())));
+    }
+
+    private static function conNota(NotaDelHistorial $nota): int
+    {
+        return $nota->forma === FormaDeAprobacion::Clasificacion ? 0 : 1;
     }
 
     private static function momento(CarbonImmutable|string $instante): string

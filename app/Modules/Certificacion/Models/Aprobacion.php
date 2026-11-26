@@ -22,9 +22,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property ?string $nota
  * @property CarbonImmutable $fecha
  * @property CarbonImmutable $created_at
+ * @property ?CarbonImmutable $anulada_en
  */
 #[Table('cer_aprobaciones')]
-#[Fillable(['persona_id', 'idioma', 'nivel', 'ciclo_numero', 'ciclo_nombre', 'horas_lectivas', 'forma', 'nota', 'fecha', 'origen_tipo', 'origen_id', 'registrado_por'])]
+#[Fillable(['persona_id', 'idioma', 'nivel', 'ciclo_numero', 'ciclo_nombre', 'horas_lectivas', 'forma', 'nota', 'fecha', 'origen_tipo', 'origen_id', 'registrado_por', 'anulada_en', 'anulada_por', 'motivo_anulacion'])]
 final class Aprobacion extends Model
 {
     protected function casts(): array
@@ -37,6 +38,7 @@ final class Aprobacion extends Model
             'nota' => 'decimal:2',
             'fecha' => 'immutable_date',
             'created_at' => 'immutable_datetime',
+            'anulada_en' => 'immutable_datetime',
         ];
     }
 }

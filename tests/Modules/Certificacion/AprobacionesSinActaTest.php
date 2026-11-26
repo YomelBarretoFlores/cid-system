@@ -105,7 +105,7 @@ it('rejects changing or deleting an approval at the database', function (string 
     'delete' => ['DELETE FROM cer_aprobaciones'],
 ]);
 
-it('adds the missing cycles when a correction raises the assigned cycle and keeps the recorded ones when it lowers it', function (): void {
+it('adds the missing cycles when a correction raises the assigned cycle and voids the ones it no longer skips when it lowers it', function (): void {
     $solicitud = clasificarEnCiclo(2);
     $corregir = fn (int $numero) => app(CorregirResultadoDeClasificacion::class)(
         $solicitud->id,
@@ -113,13 +113,64 @@ it('adds the missing cycles when a correction raises the assigned cycle and keep
         'Se revisó el examen escrito',
         $this->coordinador,
     );
+    $vigentes = fn (): array => DB::table('cer_aprobaciones')->whereNull('anulada_en')->orderBy('ciclo_numero')->pluck('ciclo_numero')->all();
 
     $corregir(4);
-    $tras = DB::table('cer_aprobaciones')->orderBy('ciclo_numero')->pluck('ciclo_numero')->all();
+    $tras = $vigentes();
     $corregir(2);
 
     expect($tras)->toBe([1, 2, 3])
-        ->and(DB::table('cer_aprobaciones')->orderBy('ciclo_numero')->pluck('ciclo_numero')->all())->toBe([1, 2, 3]);
+        ->and($vigentes())->toBe([1])
+        ->and(DB::table('cer_aprobaciones')->whereNotNull('anulada_en')->orderBy('ciclo_numero')->get(['ciclo_numero', 'anulada_por', 'motivo_anulacion'])->map(fn (object $fila): array => (array) $fila)->all())
+        ->toBe([
+            ['ciclo_numero' => 2, 'anulada_por' => $this->coordinador->id, 'motivo_anulacion' => 'Corrección del examen de clasificación'],
+            ['ciclo_numero' => 3, 'anulada_por' => $this->coordinador->id, 'motivo_anulacion' => 'Corrección del examen de clasificación'],
+        ])
+        ->and(array_column(resumenDelRecord($this->persona->id), 0))->toBe([1]);
+
+    $corregir(3);
+
+    expect($vigentes())->toBe([1, 2])
+        ->and(DB::table('cer_aprobaciones')->count())->toBe(4);
+});
+
+it('allows only voiding an approval once at the database', function (): void {
+    clasificarEnCiclo(2);
+    $id = DB::table('cer_aprobaciones')->value('id');
+    $sentencia = fn (string $sql): bool => DB::transaction(fn (): bool => DB::statement($sql));
+    $anular = fn (string $extra = ''): bool => $sentencia("UPDATE cer_aprobaciones SET anulada_en = now(), anulada_por = {$this->coordinador->id}, motivo_anulacion = 'Prueba'{$extra} WHERE id = {$id}");
+
+    expect(fn (): bool => $anular(", nota = '20.00'"))->toThrow(QueryException::class, 'cer_aprobaciones')
+        ->and(fn (): bool => $sentencia("UPDATE cer_aprobaciones SET anulada_en = now() WHERE id = {$id}"))->toThrow(QueryException::class, 'cer_aprobaciones_anulacion_check')
+        ->and($anular())->toBeTrue()
+        ->and(fn (): bool => $sentencia("UPDATE cer_aprobaciones SET anulada_en = NULL, anulada_por = NULL, motivo_anulacion = NULL WHERE id = {$id}"))->toThrow(QueryException::class, 'cer_aprobaciones')
+        ->and(fn (): bool => $anular())->toThrow(QueryException::class, 'cer_aprobaciones')
+        ->and(fn (): bool => $sentencia('DELETE FROM cer_aprobaciones'))->toThrow(QueryException::class, 'cer_aprobaciones')
+        ->and(DB::table('cer_aprobaciones')->where('id', $id)->value('motivo_anulacion'))->toBe('Prueba');
+});
+
+it('does not record placement rows for cycles already passed by acta and keeps their grades in the record', function (): void {
+    ActasFinales::historial($this->persona, 'Inglés', [[1, '14.00', 'aprobado'], [2, '16.00', 'aprobado']]);
+    $this->travelTo(CarbonImmutable::parse('2026-10-25 10:00', 'America/Lima'));
+
+    clasificarEnCiclo(4);
+
+    expect(DB::table('cer_aprobaciones')->orderBy('ciclo_numero')->pluck('ciclo_numero')->all())->toBe([3])
+        ->and(array_map(fn (array $fila): array => array_slice($fila, 0, 3), resumenDelRecord($this->persona->id)))
+        ->toBe([[1, 'matricula', '14.00'], [2, 'matricula', '16.00'], [3, 'clasificacion', null]])
+        ->and(app(RecordDeNotas::class)($this->persona->id)[0]->promedio)->toBe('15.00');
+});
+
+it('lets a passed acta of a cycle win over a placement row recorded after it', function (): void {
+    ActasFinales::historial($this->persona, 'Inglés', [[1, '14.00', 'aprobado']]);
+    $this->travelTo(CarbonImmutable::parse('2026-10-25 10:00', 'America/Lima'));
+    app(RegistrarAprobacionesSinActa::class)(
+        new AprobacionSinActa($this->persona->id, 'Inglés', FormaDeAprobacion::Clasificacion, null, CarbonImmutable::parse('2026-10-25'), 'solicitud_clasificacion', 99, null),
+        [new CicloAprobadoSinActa(NivelCurricular::Basico, 1, 'Básico 1', null)],
+    );
+
+    expect(array_map(fn (array $fila): array => array_slice($fila, 0, 3), resumenDelRecord($this->persona->id)))->toBe([[1, 'matricula', '14.00']])
+        ->and(HistorialDeNotas::nivelAprobado(HistorialDeNotas::de($this->persona->id, 'Inglés'), [1])[0]->promedio ?? null)->toBe('14.00');
 });
 
 it('gives acta rows the form Matrícula and the year and month of their period start', function (): void {

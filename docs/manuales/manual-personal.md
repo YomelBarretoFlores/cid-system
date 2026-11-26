@@ -471,7 +471,7 @@ Resultado esperado: la solicitud pasa a **Evaluado** y el ciclo asignado queda h
 
 ![Figura 23. Registrar resultado de clasificación](figuras/p23-registrar-resultado.png)
 
-Para corregir un resultado ya registrado, use **Corregir resultado** en la solicitud, indique los nuevos datos y el **Motivo de la corrección**. Si cambia el ciclo asignado, la corrección solo procede cuando el ciclo habilitado aún proviene de esta clasificación y el estudiante no se matriculó en él; en caso contrario, el sistema rechaza la corrección e indica usar «Ajustar ciclo habilitado» (sección 7.4). Si la corrección sube el ciclo asignado, se registran también los ciclos que faltaban; si lo baja, los ciclos ya registrados por clasificación se conservan, porque esos registros no se modifican ni se eliminan.
+Para corregir un resultado ya registrado, use **Corregir resultado** en la solicitud, indique los nuevos datos y el **Motivo de la corrección**. Si cambia el ciclo asignado, la corrección solo procede cuando el ciclo habilitado aún proviene de esta clasificación y el estudiante no se matriculó en él; en caso contrario, el sistema rechaza la corrección e indica usar «Ajustar ciclo habilitado» (sección 7.4). Si la corrección sube el ciclo asignado, se registran también los ciclos que faltaban; si lo baja, los ciclos que dejan de saltarse quedan anulados con el motivo «Corrección del examen de clasificación» y el usuario que corrigió; no se eliminan, pero ya no figuran en el récord, en la constancia ni en el certificado. Los ciclos que el estudiante ya aprobó con nota en un acta no se registran por clasificación y conservan su nota.
 
 ## 7.2. Matrículas: ficha
 

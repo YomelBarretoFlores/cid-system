@@ -54,7 +54,7 @@ it('seeds consistent demo data for local development', function (): void {
         ->and(Pago::query()->whereIn('id', Matricula::query()->select('pago_id'))->where('estado', '!=', EstadoPago::Validado)->exists())->toBeFalse()
         ->and(User::query()->where('email', 'admin@ciln.test')->firstOrFail()->can(User::ADMIN_PANEL_PERMISSION))->toBeTrue()
         ->and(app(DocentesDeGrupos::class)([$grupo->id]))->toBe([$grupo->id => 'Docente Demo, Ana'])
-        ->and(DB::table('cer_aprobaciones')->where('forma', 'clasificacion')->orderBy('ciclo_numero')->pluck('ciclo_numero')->all())->toBe([1, 2, 3, 4]);
+        ->and(DB::table('cer_aprobaciones')->where('forma', 'clasificacion')->orderBy('ciclo_numero')->pluck('ciclo_numero')->all())->toBe([2, 3, 4]);
 });
 
 it('dates the demo around today in Lima so the closed flows show data', function (): void {

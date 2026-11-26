@@ -55,8 +55,12 @@ final class CertificacionDemoSeeder extends Seeder
         $evaluadas = SolicitudClasificacion::query()->where('estado', EstadoSolicitudClasificacion::Evaluado)->whereNotNull('ciclo_asignado_id')->orderBy('id')->get();
 
         foreach ($evaluadas as $solicitud) {
+            if ($solicitud->fecha_examen === null || $solicitud->evaluado_por === null) {
+                continue;
+            }
+
             app(AlRegistrarClasificacion::class)->handle(new ClasificacionRegistrada(
-                $solicitud->id, $solicitud->persona_id, (int) $solicitud->ciclo_asignado_id, (string) $solicitud->fecha_examen?->toDateString(), (int) $solicitud->evaluado_por,
+                $solicitud->id, $solicitud->persona_id, (int) $solicitud->ciclo_asignado_id, $solicitud->fecha_examen->toDateString(), (int) $solicitud->evaluado_por,
             ));
         }
     }
