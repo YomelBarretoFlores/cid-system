@@ -131,6 +131,7 @@ Antes de abrir el primer periodo, el administrador revisa los catálogos del gru
 | Firmantes | Autoridades que firman actas, constancias y certificados, con su periodo en el cargo. | Emitir y anular constancias y certificados (para marcar o editar un firmante de actas, también Gestionar actas) |
 | Denominación del año | Nombre oficial del año que se imprime en los documentos. | Emitir y anular constancias y certificados para consultarla; para crearla o editarla, también Gestionar actas |
 | Datos institucionales | Encabezado, pie de página, ciudad y formato del número de los documentos oficiales. | Emitir y anular constancias y certificados y Gestionar actas |
+| Configuración de pagos | **Recargo por matrícula extemporánea (%)**: porcentaje entero de 0 a 100 (20 por defecto) que se suma a la tarifa de matrícula pagada en el plazo extemporáneo. 0 lo desactiva. Cada cambio queda en la auditoría. | Configurar conceptos y tarifas |
 
 ## 3.1. Conceptos y tarifas
 
@@ -172,7 +173,8 @@ Resultado esperado: el registro aparece en los formularios de pagos y conceptos.
 
 | Opción | Uso |
 |---|---|
-| **Campos del FUT** y **Obligatorios** | Marque los campos que se piden: Matrícula, Idioma, Nivel, Programa, Mención (maestría o doctorado y su especialidad), «Y expongo que» (10 a 1000 caracteres), Celular (9 dígitos) y Motivo (5 a 500 caracteres). Los no marcados como obligatorios son opcionales. La acción final exige sus propios campos como obligatorios (por ejemplo, el certificado de nivel exige Idioma y Nivel); si se quitan, el sistema no guarda el tipo. |
+| **Campos del FUT** y **Obligatorios** | Al crear un tipo, elegir **Al finalizar** marca los campos que esa acción necesita. Marque los campos que se piden: Matrícula, Idioma, Nivel, Programa, Mención (maestría o doctorado y su especialidad), Modalidad (3 a 100 caracteres), «Y expongo que» (10 a 1000 caracteres), Celular (9 dígitos) y Motivo (5 a 500 caracteres). Los no marcados como obligatorios son opcionales. La acción final exige sus propios campos como obligatorios (por ejemplo, el certificado de nivel exige Idioma y Nivel); si se quitan, el sistema no guarda el tipo. |
+| **Meses sin estudiar** | Solo para la reclasificación: meses desde el fin de la última matrícula en el idioma (1 a 24; vacío: 2). |
 | **Requiere haber finalizado** | Otro tipo de trámite que el estudiante debe tener finalizado para el mismo idioma y nivel. Por defecto, el certificado de nivel requiere la constancia de notas; puede quitarse. |
 | **Programas que pueden solicitarlo** | Si elige programas, solo los estudiantes de esos programas (según su última matrícula en cada idioma) ven y solicitan el trámite. Vacío: todos. |
 | **Adjuntos** | Hasta 5 archivos con su nombre y si son obligatorios (PDF, JPG o PNG de hasta 5 MB). Por defecto ningún trámite pide adjuntos: el certificado ya no requiere la constancia autenticada en Secretaría General, porque el sistema valida las actas cerradas y los documentos llevan código QR. |
@@ -248,8 +250,10 @@ Resultado esperado: el aula puede asignarse a los grupos presenciales.
 Finalidad: crear el periodo académico (mensual) y conducirlo por sus estados.
 
 1. Ingrese a **Oferta académica > Periodos** y pulse **Nuevo periodo**.
-2. Complete **Año**, **Número (mes o periodo)** y **Nombre**; las fechas de **Inicio de clases** y **Fin de clases**; **Matrícula desde** y **Matrícula hasta** (la matrícula no puede terminar después del fin de clases); y **Actas finales desde** y **Actas finales hasta**, que son los días en que el docente puede validar y cerrar el acta final.
+2. Complete **Año**, **Número (mes o periodo)** y **Nombre**; las fechas de **Inicio de clases** y **Fin de clases**; **Matrícula desde** y **Matrícula hasta** (la matrícula no puede terminar después del fin de clases); opcionalmente **Matrícula extemporánea hasta** (posterior a «Matrícula hasta» y no posterior al fin de clases); y **Actas finales desde** y **Actas finales hasta**, que son los días en que el docente puede validar y cerrar el acta final.
 3. Guarde. El periodo se crea en estado **Planificado**.
+
+Matrícula extemporánea: si el periodo la tiene, los grupos siguen abiertos a la matrícula hasta esa fecha. El pago de matrícula hecho en ese plazo debe incluir el recargo de **Catálogos > Configuración de pagos** (por ejemplo, S/ 10.00 + 20 % = S/ 12.00). Al validar un pago de matrícula por la tarifa sin recargo, el sistema pide la justificación del monto.
 4. Cuando corresponda, use en el listado los botones de cambio de estado, que siempre piden confirmación.
 
 *Tabla 4. Estados del periodo*
@@ -619,6 +623,23 @@ En **Trámites > Trámites** se listan los trámites con su **Código** de segui
 | Cerrado sin atender | Cerrado por el personal con motivo. |
 
 Resultado esperado: cada acción queda en el **Historial** con fecha, estado, etapa, comentario y usuario.
+
+*Tabla 8a. Qué pide **Finalizar** según el trámite*
+
+| Trámite (código) | Al finalizar | Efecto |
+|---|---|---|
+| Examen de suficiencia (SUFICIENCIA) | **Nota del examen** (0 a 20). | Si alcanza la nota mínima aprobatoria del sistema de evaluación vigente para el idioma y nivel, se registran todos los ciclos activos del nivel como aprobados por **Suficiencia** con esa nota (sin horas lectivas) y se habilita el primer ciclo del nivel siguiente (nunca se baja un ciclo ya alcanzado). Si no la alcanza, el trámite finaliza con la nota y sin aprobaciones. Sin sistema de evaluación vigente, el sistema no permite finalizar. |
+| Examen de reclasificación (RECLASIFICACION) | **Ciclo asignado** (ciclos del idioma). | Se habilita ese ciclo, aunque sea menor al actual, y los ciclos anteriores se registran como aprobados por **Clasificación** (sin nota), salvo los que ya tienen nota en un acta. |
+| Acreditación (ACREDITACION) | Nada adicional. | Se emite la **Constancia de acreditación** del nivel con la mención del grado; tiene numeración anual propia y código QR. |
+| Media beca (MEDIA-BECA) y Otro (OTRO) | **Respuesta al estudiante** (5 a 500 caracteres, obligatoria). | El trámite finaliza con la respuesta; no aplica descuentos automáticos. |
+
+El estudiante ve el resultado (nota, ciclo asignado o respuesta) en **Mis trámites** y en el correo de finalización. La vista del trámite lo muestra en **Resultado**.
+
+Notas de configuración:
+
+- La reclasificación solo se acepta si la última matrícula del estudiante en el idioma terminó hace al menos los **Meses sin estudiar** del tipo (por defecto 2), contados desde el fin del periodo.
+- La acreditación y el **Certificado de estudios (posgrado)** solo están disponibles para el programa Posgrado; el certificado de posgrado requiere la acreditación finalizada del mismo idioma y nivel. El certificado de culminación de nivel regular sigue abierto a todos los programas.
+- Los tipos nuevos se crean sin **Concepto de pago**: vincule el concepto y sus tarifas en **Catálogos > Tipos de trámite** para que cada tasa solo acepte su propio pago.
 
 ![Figura 32. Vista de un trámite observado](figuras/p31-tramite.png)
 

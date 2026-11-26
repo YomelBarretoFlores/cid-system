@@ -231,7 +231,7 @@ Todo pago al CILN (derecho de matrícula, examen de clasificación, constancias,
 
 **Resultado:** se muestra el mensaje «Registramos tu pago. El CILN revisará el recibo y te mostrará aquí el resultado.» y el pago aparece en la lista **Recibos registrados**. Mientras un pago esté pendiente, lleve la boleta original al CILN para validarla.
 
-El sistema no acepta un número de recibo u operación ya registrado con el mismo medio de pago, un recibo ya usado, una fecha de pago posterior a hoy ni un concepto sin tarifa vigente en la fecha de pago; en esos casos muestra el motivo junto al campo. El monto propuesto corresponde a su vínculo con la UNASAM (numeral 2.2).
+El sistema no acepta un número de recibo u operación ya registrado con el mismo medio de pago, un recibo ya usado, una fecha de pago posterior a hoy ni un concepto sin tarifa vigente en la fecha de pago; en esos casos muestra el motivo junto al campo. El monto propuesto corresponde a su vínculo con la UNASAM (numeral 2.2). Si paga la matrícula durante el plazo de matrícula extemporánea, el monto propuesto ya incluye el recargo y el formulario lo indica («Incluye el recargo de 20 % por matrícula extemporánea.»).
 
 ![Figura 14. Formulario «Registrar un recibo»](figuras/pagos-formulario.png)
 
@@ -313,12 +313,25 @@ Permite solicitar constancias, certificados y otros trámites académicos (por e
 1. En el menú, presione **Trámites**.
 2. En **Nuevo trámite**, revise la lista de trámites disponibles y su **Tasa** (el tipo de pago que requiere, por ejemplo Constancia o Certificado, o **Sin tasa**), y presione **Elegir** en el que necesita.
 3. Lea los **Requisitos** del trámite. Si tiene tasa, el sistema aplica automáticamente un pago validado sin usar; si no lo tiene, regístrelo en **Registro de pagos**.
-4. Complete los datos del formato único de trámite (FUT) que pida el trámite; su nombre y DNI se toman de su cuenta. Según el trámite, puede pedir la **Matrícula**, el **Idioma y nivel**, el **Programa**, la **Mención** (maestría o doctorado y su especialidad), **Y expongo que** (entre 10 y 1000 caracteres), el **Celular** (9 dígitos) o el **Motivo** (entre 5 y 500 caracteres). Los campos marcados «(opcional)» pueden quedar vacíos. La constancia de notas se solicita **por nivel**: la lista muestra solo los niveles en los que aprobó al menos un ciclo, y cada nivel es un trámite y una tasa aparte.
+4. Complete los datos del formato único de trámite (FUT) que pida el trámite; su nombre y DNI se toman de su cuenta. Según el trámite, puede pedir la **Matrícula**, el **Idioma y nivel**, el **Programa**, la **Mención** (maestría o doctorado y su especialidad), la **Modalidad**, **Y expongo que** (entre 10 y 1000 caracteres), el **Celular** (9 dígitos) o el **Motivo** (entre 5 y 500 caracteres). Los campos marcados «(opcional)» pueden quedar vacíos. La constancia de notas se solicita **por nivel**: la lista muestra solo los niveles en los que aprobó al menos un ciclo, y cada nivel es un trámite y una tasa aparte.
 5. Si el trámite pide **adjuntos** (por ejemplo, una copia del DNI), elija cada archivo: PDF, JPG o PNG de hasta 5 MB.
 6. Si desea, escriba un **Comentario (opcional)** de hasta 500 caracteres.
 7. Presione **Iniciar trámite**. Para desistir, presione **Cancelar**.
 
 Algunos trámites solo se muestran a los estudiantes de ciertos programas (por ejemplo, Posgrado), y otros requieren haber finalizado antes otro trámite del mismo idioma y nivel: el certificado de nivel requiere la constancia de notas de ese nivel. Ya no necesita autenticar la constancia en Secretaría General.
+
+*Tabla 5a. Trámites del FUT*
+
+| Trámite | Qué llena | Condición |
+|---|---|---|
+| Examen de suficiencia | Idioma y nivel. | Paga la tasa del examen. Si aprueba, se le reconocen los ciclos del nivel y queda habilitado para el nivel siguiente. |
+| Examen de reclasificación | Idioma y, si desea, el nivel que pide evaluar. | Para quienes dejaron de estudiar el idioma 2 meses o más desde el fin de su última matrícula. El CILN le asigna el ciclo. |
+| Acreditación (posgrado) | Idioma y nivel, y la **Mención** del grado de maestría o doctorado. | Solo programa Posgrado y con al menos un ciclo aprobado del nivel. Recibe la constancia de acreditación. |
+| Certificado de estudios (posgrado) | Idioma y nivel. | Solo programa Posgrado; requiere la acreditación finalizada del mismo idioma y nivel. |
+| Media beca | **Modalidad** y **Y expongo que**. | El CILN responde con un comentario. |
+| Otro | **Y expongo que** y, si desea, su celular. | El CILN responde con un comentario. |
+
+Cuando el trámite finaliza, **Mis trámites** muestra el resultado: la nota del examen, el ciclo asignado o la respuesta del CILN.
 
 Para imprimir el **cargo** de su solicitud, presione **Imprimir cargo** debajo del trámite en **Mis trámites**: muestra el código de seguimiento, el trámite, la fecha y hora, los datos que llenó y el número de adjuntos. Reemplaza al cargo desglosable del FUT en papel.
 
