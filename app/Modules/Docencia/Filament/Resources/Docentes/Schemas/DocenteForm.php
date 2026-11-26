@@ -9,6 +9,7 @@ use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Docencia\Data\DatosDeDocente;
 use App\Modules\Docencia\Data\IdiomaHabilitado;
+use App\Modules\Docencia\Models\Banco;
 use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Models\DocenteIdioma;
@@ -49,7 +50,7 @@ final class DocenteForm
                     ->columns(3)
                     ->schema([
                         TextInput::make('ruc')->label('RUC')->required()->length(11),
-                        TextInput::make('banco')->label('Banco')->required()->maxLength(80)->datalist(fn (): array => self::bancos()),
+                        Select::make('banco')->label('Banco')->options(fn (?Docente $record): array => self::bancos($record?->banco))->required(),
                         TextInput::make('cuenta_bancaria')->label('Número de cuenta')->required()->maxLength(30)->password()->revealable(),
                     ]),
                 Section::make('Perfil académico')
@@ -133,13 +134,14 @@ final class DocenteForm
     }
 
     /**
-     * @return list<string>
+     * Active banks, plus the inactive one the teacher already has so editing keeps it.
+     *
+     * @return array<string, string>
      */
-    private static function bancos(): array
+    private static function bancos(?string $actual): array
     {
-        $bancos = config('ciln.docencia.bancos');
-
-        return is_array($bancos) ? array_values(array_filter($bancos, is_string(...))) : [];
+        return Banco::query()->where(fn (Builder $consulta): Builder => $consulta->where('activo', true)->when($actual !== null, fn (Builder $o): Builder => $o->orWhere('codigo', $actual)))
+            ->orderBy('orden')->orderBy('nombre')->pluck('nombre', 'codigo')->all();
     }
 
     private static function entero(mixed $valor): int

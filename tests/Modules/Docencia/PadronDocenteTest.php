@@ -29,7 +29,7 @@ function datosDeDocente(array $cambios = []): DatosDeDocente
         'personaId' => test()->persona->id,
         'correoInstitucional' => 'DOCENTE.Uno@unasam.edu.pe ',
         'ruc' => '10456789012',
-        'banco' => 'Banco de la Nación',
+        'banco' => 'banco_de_la_nacion',
         'cuentaBancaria' => '04-123-456789',
         'condicionLaboralId' => CondicionLaboral::idDe('contratado'), 'gradoAcademicoId' => null,
         'idiomas' => [
@@ -67,7 +67,7 @@ it('registers a teacher with a code, an encrypted account and the languages enab
             'persona_id' => $this->persona->id,
             'correo_institucional' => 'docente.uno@unasam.edu.pe',
             'ruc' => '10456789012',
-            'banco' => 'Banco de la Nación',
+            'banco' => 'banco_de_la_nacion',
             'cuenta_bancaria' => '04-123-456789',
         ])
         ->and([$docente->condicionLaboral->codigo, $docente->estado])->toBe(['contratado', EstadoDocente::Activo])
@@ -83,14 +83,14 @@ it('updates the profile and replaces the enabled languages, keeping the person',
 
     app(GuardarDocente::class)(datosDeDocente([
         'personaId' => $otra->id,
-        'banco' => 'BCP',
+        'banco' => 'bcp',
         'condicionLaboralId' => CondicionLaboral::idDe('tercero'), 'gradoAcademicoId' => null,
         'idiomas' => [new IdiomaHabilitado($this->quechua->id, NivelCurricular::Intermedio)],
     ]), $docente->id);
 
     $docente->refresh();
 
-    expect([$docente->persona_id, $docente->banco, $docente->condicionLaboral->codigo])->toBe([$this->persona->id, 'BCP', 'tercero'])
+    expect([$docente->persona_id, $docente->banco, $docente->condicionLaboral->codigo])->toBe([$this->persona->id, 'bcp', 'tercero'])
         ->and($docente->idiomas()->get()->map(fn ($habilitado): array => [$habilitado->idioma_id, $habilitado->nivel_maximo])->all())
         ->toBe([[$this->quechua->id, NivelCurricular::Intermedio]]);
 });
@@ -122,8 +122,8 @@ it('refuses an update that takes the RUC or email of another teacher and keeps t
         'idiomas' => [new IdiomaHabilitado(test()->quechua->id, NivelCurricular::Basico)],
     ]));
 
-    expect(fn () => app(GuardarDocente::class)(datosDeDocente([...$cambios, 'banco' => 'BCP']), $segundo->id))->toThrow(ReglaDeNegocioIncumplida::class, $mensaje)
-        ->and($segundo->refresh()->only(['correo_institucional', 'ruc', 'banco']))->toBe(['correo_institucional' => 'dos@unasam.edu.pe', 'ruc' => '10222222222', 'banco' => 'Banco de la Nación'])
+    expect(fn () => app(GuardarDocente::class)(datosDeDocente([...$cambios, 'banco' => 'bcp']), $segundo->id))->toThrow(ReglaDeNegocioIncumplida::class, $mensaje)
+        ->and($segundo->refresh()->only(['correo_institucional', 'ruc', 'banco']))->toBe(['correo_institucional' => 'dos@unasam.edu.pe', 'ruc' => '10222222222', 'banco' => 'banco_de_la_nacion'])
         ->and($segundo->idiomas()->pluck('idioma_id')->all())->toBe([test()->quechua->id]);
 })->with([
     'RUC' => [['correoInstitucional' => 'dos@unasam.edu.pe'], 'Ya existe un docente con el RUC 10456789012.'],

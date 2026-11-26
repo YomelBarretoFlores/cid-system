@@ -25,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property ?string $cuenta_bancaria
  * @property int $condicion_laboral_id
  * @property ?int $grado_academico_id
+ * @property string $banco
+ * @property-read Banco $bancoDeLaCuenta
  * @property-read CondicionLaboral $condicionLaboral
  * @property-read ?GradoAcademico $gradoAcademico
  * @property EstadoDocente $estado
@@ -58,6 +60,14 @@ final class Docente extends Model
     public function condicionLaboral(): BelongsTo
     {
         return $this->belongsTo(CondicionLaboral::class);
+    }
+
+    /**
+     * @return BelongsTo<Banco, $this>
+     */
+    public function bancoDeLaCuenta(): BelongsTo
+    {
+        return $this->belongsTo(Banco::class, 'banco', 'codigo');
     }
 
     /**

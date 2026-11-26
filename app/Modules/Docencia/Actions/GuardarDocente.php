@@ -8,6 +8,7 @@ use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Docencia\Data\DatosDeDocente;
 use App\Modules\Docencia\Data\IdiomaHabilitado;
+use App\Modules\Docencia\Models\Banco;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Support\ReglasDeCargaDocente;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
@@ -48,6 +49,8 @@ final readonly class GuardarDocente
     {
         $docente = $docenteId === null ? new Docente : Docente::query()->whereKey($docenteId)->lockForUpdate()->firstOrFail();
 
+        $this->asegurarBanco($docente, trim($datos->banco));
+
         if (! $docente->exists) {
             $this->asegurarPersona($datos->personaId);
             $docente->fill(['persona_id' => $datos->personaId]);
@@ -79,7 +82,7 @@ final readonly class GuardarDocente
         $reglas = [
             'Escribe un correo institucional válido.' => filter_var($correo, FILTER_VALIDATE_EMAIL) !== false,
             'El RUC debe tener 11 dígitos.' => preg_match('/^\d{11}$/', $datos->ruc) === 1,
-            'Indica el banco de la cuenta.' => trim($datos->banco) !== '' && mb_strlen(trim($datos->banco)) <= 80,
+            'Indica el banco de la cuenta.' => trim($datos->banco) !== '',
             'El número de cuenta solo admite dígitos y guiones, entre 6 y 30 caracteres.' => preg_match('/^[0-9-]{6,30}$/', $cuenta) === 1,
         ];
 
@@ -109,6 +112,16 @@ final readonly class GuardarDocente
 
         if (array_diff($ids, $existentes) !== []) {
             throw new ReglaDeNegocioIncumplida('El idioma elegido no existe.');
+        }
+    }
+
+    // A deactivated bank keeps serving the teachers who already have it.
+    private function asegurarBanco(Docente $docente, string $codigo): void
+    {
+        $activo = Banco::query()->where('codigo', $codigo)->value('activo');
+
+        if ($activo === null || (! $activo && $docente->banco !== $codigo)) {
+            throw new ReglaDeNegocioIncumplida('El banco elegido no está disponible.');
         }
     }
 

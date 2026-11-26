@@ -30,7 +30,7 @@ beforeEach(function (): void {
     ]);
     $this->docente = Docente::factory()->create([
         'persona_id' => $this->persona->id, 'correo_institucional' => 'rrimac@unasam.test', 'ruc' => '10401234567',
-        'banco' => 'Banco de la Nación', 'cuenta_bancaria' => '04-123-456789', 'condicion_laboral_id' => CondicionLaboral::idDe('nombrado'),
+        'banco' => 'banco_de_la_nacion', 'cuenta_bancaria' => '04-123-456789', 'condicion_laboral_id' => CondicionLaboral::idDe('nombrado'),
     ]);
     $this->docente->idiomas()->create(['idioma_id' => $this->ingles->id, 'nivel_maximo' => NivelCurricular::Intermedio]);
     $this->undoRepeaterFake = Repeater::fake();
@@ -46,7 +46,7 @@ function formularioDeDocente(array $cambios = []): array
         'persona_id' => Persona::factory()->create()->id,
         'correo_institucional' => 'nuevo@unasam.test',
         'ruc' => '10777777777',
-        'banco' => 'BBVA',
+        'banco' => 'bbva',
         'cuenta_bancaria' => '0011-0222-0333',
         'condicion_laboral_id' => CondicionLaboral::idDe('tercero'),
         'idiomas' => [['idioma_id' => test()->ingles->id, 'nivel_maximo' => NivelCurricular::Basico->value]],
@@ -111,14 +111,14 @@ it('tells why a teacher cannot be registered and saves nothing', function (): vo
 it('edits the profile without changing the person', function (): void {
     Livewire::actingAs($this->gestor)->test(EditDocente::class, ['record' => $this->docente->getRouteKey()])
         ->assertSchemaStateSet(['ruc' => '10401234567', 'idiomas' => [['idioma_id' => $this->ingles->id, 'nivel_maximo' => 'intermedio']]])
-        ->fillForm(['banco' => 'Interbank', 'idiomas' => [['idioma_id' => $this->ingles->id, 'nivel_maximo' => 'avanzado']]])
+        ->fillForm(['banco' => 'interbank', 'idiomas' => [['idioma_id' => $this->ingles->id, 'nivel_maximo' => 'avanzado']]])
         ->call('save')
         ->assertHasNoFormErrors();
 
     $this->docente->refresh();
 
     expect([$this->docente->persona_id, $this->docente->banco, $this->docente->idiomas()->sole()->nivel_maximo])
-        ->toBe([$this->persona->id, 'Interbank', NivelCurricular::Avanzado]);
+        ->toBe([$this->persona->id, 'interbank', NivelCurricular::Avanzado]);
 });
 
 it('changes the status from the profile', function (): void {
@@ -177,14 +177,14 @@ it('replaces an unreadable account from the edit form', function (): void {
     expect([$this->docente->cuenta_bancaria, $this->docente->cuenta_enmascarada])->toBe(['04-555-777888', '•••• 7888']);
 });
 
-it('suggests the common banks while keeping the bank a free text', function (): void {
+it('offers the active banks of the catalog and refuses one outside it', function (): void {
     Livewire::actingAs($this->gestor)->test(CreateDocente::class)
-        ->assertSeeHtml(['<option value="Banco de la Nación"', '<option value="BCP"', '<option value="Caja Huancayo"']);
+        ->assertFormFieldExists('banco', fn ($campo): bool => array_intersect_key($campo->getOptions(), array_flip(['banco_de_la_nacion', 'bcp', 'caja_huancayo'])) === ['banco_de_la_nacion' => 'Banco de la Nación', 'bcp' => 'BCP', 'caja_huancayo' => 'Caja Huancayo']);
 
     Livewire::actingAs($this->gestor)->test(CreateDocente::class)
-        ->fillForm(formularioDeDocente(['banco' => 'Caja Sullana']))
+        ->fillForm(formularioDeDocente(['banco' => 'caja_sullana']))
         ->call('create')
-        ->assertHasNoFormErrors();
+        ->assertHasFormErrors(['banco']);
 
-    expect(Docente::query()->where('banco', 'Caja Sullana')->exists())->toBeTrue();
+    expect(Docente::query()->where('banco', 'caja_sullana')->exists())->toBeFalse();
 });

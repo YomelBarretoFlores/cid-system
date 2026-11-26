@@ -35,7 +35,7 @@ final class DocenteInfolist
                     ->columns(4)
                     ->schema([
                         TextEntry::make('ruc')->label('RUC')->copyable(),
-                        TextEntry::make('banco')->label('Banco'),
+                        TextEntry::make('bancoDeLaCuenta.nombre')->label('Banco'),
                         TextEntry::make('cuenta_enmascarada')->label('Número de cuenta')
                             ->state(fn (Docente $record): ?string => $record->cuentaIlegible() ? 'No se pudo leer (vuelve a registrarla)' : $record->cuenta_enmascarada)
                             ->placeholder('—'),

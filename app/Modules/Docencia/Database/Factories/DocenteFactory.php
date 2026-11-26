@@ -24,7 +24,7 @@ final class DocenteFactory extends Factory
             'persona_id' => Persona::factory(),
             'correo_institucional' => fake()->unique()->bothify('docente.????####').'@unasam.test',
             'ruc' => fake()->unique()->numerify('10#########'),
-            'banco' => 'Banco de la Nación',
+            'banco' => 'banco_de_la_nacion',
             'cuenta_bancaria' => fake()->numerify('04-###-######'),
             'condicion_laboral_id' => fn (): int => CondicionLaboral::idDe('contratado'),
             'estado' => EstadoDocente::Activo,
