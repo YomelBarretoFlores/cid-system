@@ -54,7 +54,7 @@ Plan: ~/.claude/plans/misty-crafting-finch.md (approved 2026-11-25). Accelerated
 Forecast: well above 400 authored lines; delivered as one commit (or more) per task.
 
 - T1 · S2,S4,S5 · Programs catalog (JA, Niños, Posgrado; regimen), aca_grupos.programa_id, aca_idiomas.curriculo · route: delegated (writer, context backstop) · done a6507b6 (RED 17 errors+2 failures → GREEN; Academico 310, related 716 tests)
-- T2 · S3,S4 · Accelerated group = two consecutive cycles, one grade; acta snapshot ciclo_*_hasta; history expands; habilitación +2 · Risk: item 1 (migration on actas) · pending
+- T2 · S3,S4 · Accelerated group = two consecutive cycles, one grade; acta snapshot ciclo_*_hasta; history expands; habilitación +2 · Risk: item 1 (migration on actas) · route: delegated (writer) · done a7f39a4 (RED 11/12 → GREEN; Academico+Certificacion+Matricula+Docencia 1195, concurrency 36, full 2291/2293)
 - T3 · S1 · Forma de aprobación; cer_aprobaciones (suficiencia, clasificación); year/month from period · Risk: item 1 · pending
 - T4 · S1,S5 · Institutional data settings; constancia per level, version 2 template, number format · pending
 - T5 · S5,S6,S8 · Fees per level/program; trámite type pays a specific concept · Risk: items 1,3 (payments) · pending
@@ -71,3 +71,5 @@ Forecast: well above 400 authored lines; delivered as one commit (or more) per t
 - L4 (2026-11-25, user): "Hagamos que ya no haga falta. Y ahora me dices cómo implementarías todo. Entendiste todo?, como te dije los valores que ves no definitivamente son fijos, por eso quiero que todo sea configurable."
 - L5 (2026-11-25, user): "Es la opción a." (accelerated = one month covers two consecutive regular cycles); answer to grading: "Una nota para ambos". Plan approved.
 - L6: calendar fix committed on main as 1a25162; branch feat/flujo-real-ciln created from it.
+- L7: T1 review (risk + reliability) approved and acknowledged, lineage review-857a976bf85f1d49. Advisory, not applied: changing a program's regimen does not recheck its existing groups; editing a group of an inactive program has no explicit test; HistorialDemoSeeder copies the program without rechecking the regimen.
+- L8: T2 committed a7f39a4. Also 9a311db: aca_programas got its audit trigger (T1 had added the label without the trigger; ConsultaDeAuditoriaTest caught it). Public offer page shows "Ciclos I y II" for accelerated groups. Migration: existing accelerated groups without a next cycle in their level become regular (rollback does not restore the flag).
