@@ -11,7 +11,7 @@ use App\Modules\Academico\Data\FichaDeGrupo;
 use App\Modules\Academico\Data\VentanaDeMatricula;
 use Carbon\CarbonImmutable;
 
-// Real deadlines that fall in the current week (Lima): enrollment closings and the acta window of the student's current group.
+// Real deadlines that fall in the current week (Lima): enrollment closings (regular and late) and the acta window of the student's current group.
 final class PlazosDeLaSemana
 {
     /**
@@ -30,7 +30,14 @@ final class PlazosDeLaSemana
 
         foreach (app(VentanasDeMatricula::class)() as $ventana) {
             /** @var VentanaDeMatricula $ventana */
-            $agregar($ventana->cierre(), "Cierra la matrícula de {$ventana->periodo}");
+            if (! $ventana->extemporaneaFin instanceof CarbonImmutable) {
+                $agregar($ventana->fin, "Cierra la matrícula de {$ventana->periodo}");
+
+                continue;
+            }
+
+            $agregar($ventana->fin, "Cierra la matrícula regular de {$ventana->periodo}");
+            $agregar($ventana->extemporaneaFin, "Cierra la matrícula extemporánea de {$ventana->periodo}".PlazoDeMatricula::recargo($ventana->extemporaneaFin));
         }
 
         $curso = $grupo instanceof FichaDeGrupo ? app(CursoDelGrupo::class)($grupo->id) : null;

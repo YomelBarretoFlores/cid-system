@@ -215,6 +215,19 @@ it('records a failed proficiency exam with its grade and nothing else, and never
         ->and(Aprobacion::query()->pluck('ciclo_numero')->sort()->values()->all())->toBe([5, 6, 7, 8]);
 });
 
+it('refuses to finish a proficiency exam when no evaluation scheme applies, leaving the trámite as it was', function (): void {
+    ActasFinales::planDeEstudios('Francés');
+    $tramite = listoParaFinalizar($this->persona, AccionFinal::Suficiencia, new DatosDeSolicitud(idioma: 'Francés', nivel: 'basico'));
+    $movimientos = Movimiento::query()->where('tramite_id', $tramite->id)->count();
+
+    expect(fn () => app(FinalizarTramite::class)($tramite->id, $this->personal, resolucion: new DatosDeResolucion(nota: '15')))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'No hay un esquema de evaluación vigente para Francés en el nivel Básico: configúralo para conocer la nota aprobatoria.')
+        ->and($tramite->refresh())->estado->toBe(EstadoTramite::EnProceso)->resultado->toBeNull()
+        ->and(Movimiento::query()->where('tramite_id', $tramite->id)->count())->toBe($movimientos)
+        ->and(Aprobacion::query()->count())->toBe(0)
+        ->and(Habilitacion::query()->count())->toBe(0);
+});
+
 it('assigns the reclassification cycle, lower ones included, and records the skipped cycles like a placement', function (): void {
     ActasFinales::historial($this->persona, 'Inglés', [[1, '15.00', 'aprobado']]);
     $idioma = ActasFinales::planDeEstudios('Inglés');

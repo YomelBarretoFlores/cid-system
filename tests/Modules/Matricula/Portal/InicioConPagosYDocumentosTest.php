@@ -96,3 +96,15 @@ it('tells a student with a validated payment until when they can choose a group'
         ->assertOk()
         ->assertSeeInOrder(['Tu pago de matrícula ya fue validado.', 'Elige tu grupo de Abril 2027 hasta el 20 de marzo.', 'Elegir mi grupo']);
 });
+
+it('tells a student with a validated payment both the regular and the late enrollment deadlines', function (): void {
+    pagoDeLucia('validado', '2027-03-05');
+    Periodo::factory()->create([
+        'nombre' => 'Abril 2027', 'estado' => EstadoPeriodo::MatriculaAbierta, 'matricula_inicio' => '2027-03-01', 'matricula_fin' => '2027-03-20',
+        'matricula_extemporanea_fin' => '2027-03-27', 'fecha_inicio' => '2027-04-01', 'fecha_fin' => '2027-04-30',
+    ]);
+
+    $this->actingAs($this->user)->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertSeeInOrder(['Tu pago de matrícula ya fue validado.', 'Elige tu grupo de Abril 2027. Matrícula regular hasta el 20 de marzo; extemporánea, con recargo de 20 %, hasta el 27 de marzo.', 'Elegir mi grupo']);
+});

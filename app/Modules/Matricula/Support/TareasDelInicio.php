@@ -10,6 +10,7 @@ use App\Modules\Matricula\Data\TareaDelInicio;
 use App\Modules\Matricula\Enums\PasoDelEstudiante;
 use App\Modules\Pagos\Data\PagoRechazado;
 use App\Shared\Ui\Formato;
+use Carbon\CarbonImmutable;
 
 // The "Te toca a ti" and "Le toca al CILN" lists of the student home, in display order.
 final readonly class TareasDelInicio
@@ -80,10 +81,17 @@ final readonly class TareasDelInicio
         }
 
         $cuando = $this->cierreDeMatricula instanceof VentanaDeMatricula
-            ? "Elige tu grupo de {$this->cierreDeMatricula->periodo} hasta el ".Formato::diaDeMes($this->cierreDeMatricula->cierre()).'.'
+            ? $this->plazoParaElegirGrupo($this->cierreDeMatricula)
             : 'Elige tu grupo mientras la matrícula esté abierta.';
 
         return new TareaDelInicio('Tu pago de matrícula ya fue validado.', $cuando, 'Elegir mi grupo', 'estudiante.matricula');
+    }
+
+    private function plazoParaElegirGrupo(VentanaDeMatricula $ventana): string
+    {
+        return $ventana->extemporaneaFin instanceof CarbonImmutable
+            ? "Elige tu grupo de {$ventana->periodo}. ".PlazoDeMatricula::texto($ventana)
+            : "Elige tu grupo de {$ventana->periodo} hasta el ".Formato::diaDeMes($ventana->fin).'.';
     }
 
     /**

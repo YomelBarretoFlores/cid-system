@@ -67,6 +67,8 @@ final class MisPagos extends Component
 
     private ?FichaDeEstudiante $ficha = null;
 
+    private string $montoPropuestoAntes = '';
+
     public function mount(): void
     {
         $this->fecha_pago = $this->hoy();
@@ -88,12 +90,19 @@ final class MisPagos extends Component
         $this->monto = $this->tarifaVigente();
     }
 
-    // The late enrollment surcharge depends on the payment date.
+    public function updatingFechaPago(): void
+    {
+        $this->montoPropuestoAntes = $this->tarifaVigente();
+    }
+
+    // The late enrollment surcharge depends on the payment date; an amount the student typed is kept.
     public function updatedFechaPago(): void
     {
-        if (ctype_digit($this->concepto_id)) {
-            $this->monto = $this->tarifaVigente();
+        if (! ctype_digit($this->concepto_id) || ! in_array($this->monto, ['', $this->montoPropuestoAntes], true)) {
+            return;
         }
+
+        $this->monto = $this->tarifaVigente();
     }
 
     public function registrar(RegistrarPago $registrar): void

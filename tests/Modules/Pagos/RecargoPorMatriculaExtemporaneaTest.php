@@ -141,3 +141,20 @@ it('proposes the fee with the surcharge in the student portal and says so', func
         ->assertSet('monto', '10.00')
         ->assertDontSee('Incluye el recargo');
 });
+
+it('keeps the amount the student typed when the payment date changes', function (): void {
+    $estudiante = User::factory()->create();
+    Persona::factory()->create(['user_id' => $estudiante->id, 'tipo_vinculo' => TipoVinculo::EstudianteUnasam]);
+    Tarifa::factory()->for($this->matricula)->create(['tipo_vinculo' => TipoVinculo::EstudianteUnasam, 'monto' => '10.00', 'vigente_desde' => '2027-01-01']);
+
+    Livewire::actingAs($estudiante)
+        ->test(MisPagos::class)
+        ->set('registrando', true)
+        ->set('concepto_id', (string) $this->matricula->id)
+        ->set('monto', '11.50')
+        ->set('fecha_pago', '2027-03-04')
+        ->assertSet('monto', '11.50')
+        ->set('monto', '')
+        ->set('fecha_pago', '2027-03-08')
+        ->assertSet('monto', '12.00');
+});

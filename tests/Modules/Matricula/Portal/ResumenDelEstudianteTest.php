@@ -115,3 +115,15 @@ it('puts the enrollment deadline and the acta window of this week on their days'
         ->assertOk()
         ->assertSeeInOrder(['Esta semana', 'Lun', 'Inglés · 07:00', 'Jue', 'Empieza el cierre de actas de Marzo 2027', 'Vie', 'Cierra la matrícula de Abril 2027', 'Dom', 'Último día del cierre de actas de Marzo 2027']);
 });
+
+it('puts the regular and the late enrollment deadlines of this week on their days', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2027-03-10 10:00', 'America/Lima'));
+    Periodo::factory()->create([
+        'nombre' => 'Abril 2027', 'estado' => EstadoPeriodo::MatriculaAbierta, 'matricula_inicio' => '2027-03-01', 'matricula_fin' => '2027-03-09',
+        'matricula_extemporanea_fin' => '2027-03-12', 'fecha_inicio' => '2027-04-01', 'fecha_fin' => '2027-04-30',
+    ]);
+
+    $this->actingAs($this->user)->get(route('estudiante.inicio'))
+        ->assertOk()
+        ->assertSeeInOrder(['Esta semana', 'Mar', 'Cierra la matrícula regular de Abril 2027', 'Vie', 'Cierra la matrícula extemporánea de Abril 2027, con recargo de 20 %']);
+});
