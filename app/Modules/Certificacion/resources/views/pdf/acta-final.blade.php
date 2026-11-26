@@ -94,7 +94,7 @@
                     <img src="{{ $qr }}" alt="" width="74" height="74">
                 @endisset
             </td>
-            <td><x-pdf.firmas :firmas="$firmas ?? []" sello :espacio="18" /></td>
+            <td><x-pdf.firmas :firmas="$firmas ?? []" :espacio="18" /></td>
         </tr>
     </table>
 </x-pdf.documento>

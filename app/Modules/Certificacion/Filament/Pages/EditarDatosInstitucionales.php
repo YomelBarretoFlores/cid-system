@@ -67,6 +67,7 @@ final class EditarDatosInstitucionales extends Page
             'universidad' => $datos->universidad, 'lema' => $datos->lema, 'centro' => $datos->centro, 'direccion' => $datos->direccion,
             'telefono' => $datos->telefono, 'web' => $datos->web, 'facebook' => $datos->facebook, 'ciudad' => $datos->ciudad,
             'formato_numero' => $datos->formatoNumero, 'formato_numero_constancia_notas' => $datos->formatoNumeroConstanciaNotas,
+            'resolucion_creacion' => $datos->resolucionCreacion, 'base_legal_acreditacion' => $datos->baseLegalAcreditacion,
         ]);
     }
 
@@ -79,6 +80,10 @@ final class EditarDatosInstitucionales extends Page
                     TextInput::make('universidad')->label('Universidad')->required()->maxLength(150)->columnSpanFull(),
                     TextInput::make('lema')->label('Lema')->required()->maxLength(150),
                     TextInput::make('centro')->label('Centro')->required()->maxLength(150),
+                    TextInput::make('resolucion_creacion')->label('Resolución de creación')->required()->maxLength(200)->columnSpanFull()
+                        ->helperText('Se imprime en el certificado de nivel bajo el nombre del centro.'),
+                    TextInput::make('base_legal_acreditacion')->label('Base legal de la acreditación')->required()->maxLength(300)->columnSpanFull()
+                        ->helperText('Se imprime en la acreditación de conocimiento de idioma extranjero bajo su título.'),
                 ]),
                 Section::make('Pie de página')->columns(2)->schema([
                     TextInput::make('direccion')->label('Dirección')->required()->maxLength(200),

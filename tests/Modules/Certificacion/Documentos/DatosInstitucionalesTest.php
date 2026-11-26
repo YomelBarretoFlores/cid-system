@@ -37,6 +37,7 @@ function datosEditados(array $cambios = []): array
         'universidad' => 'Universidad Sintética de Prueba', 'lema' => 'Un lema de prueba', 'centro' => 'Centro de Idiomas',
         'direccion' => 'Av. de Prueba 123 – Ciudad Prueba', 'telefono' => '000-000000', 'web' => 'prueba.test', 'facebook' => 'pruebaciln',
         'ciudad' => 'Ciudad Prueba', 'formato_numero' => 'N.º {numero:06}-{anio}', 'formato_numero_constancia_notas' => 'N° {anio} - {numero:05}',
+        'resolucion_creacion' => 'Creado por resolución sintética de prueba', 'base_legal_acreditacion' => '(Base legal sintética de prueba)',
         ...$cambios,
     ];
 }
@@ -53,7 +54,9 @@ it('starts with the texts the documents print today and the real address of the 
         ->and($datos->facebook)->toBe('cidunasam')
         ->and($datos->ciudad)->toBe('Huaraz')
         ->and($datos->formatoNumero)->toBe('N.º {numero:06}-{anio}')
-        ->and($datos->formatoNumeroConstanciaNotas)->toBe('N° {anio} - {numero:05}');
+        ->and($datos->formatoNumeroConstanciaNotas)->toBe('N° {anio} - {numero:05}')
+        ->and($datos->resolucionCreacion)->toBe('Creado por R.R. N° 860-80-UNASAM, del 5 de Setiembre de 1980')
+        ->and($datos->baseLegalAcreditacion)->toBe('(De conformidad con la Normatividad legal. Ley 30220, Art. 43 y Reglamento de Suficiencia de Idioma Extranjero)');
 });
 
 it('saves the institutional data from the settings page and the documents print them', function (): void {
@@ -111,6 +114,7 @@ it('refuses blank texts and number patterns without the number', function (array
         ->and(app(DatosInstitucionales::class)()->ciudad)->toBe('Huaraz');
 })->with([
     'blank city' => [['ciudad' => '  '], 'Completa la ciudad, hasta 60 caracteres.'],
+    'blank legal basis' => [['base_legal_acreditacion' => ''], 'Completa la base legal de la acreditación, hasta 300 caracteres.'],
     'pattern without number' => [['formato_numero' => 'N.º {anio}'], 'El formato del número debe incluir {numero} o {numero:N}, con N de hasta dos cifras.'],
     'padding wider than two digits' => [['formato_numero' => 'N.º {numero:999}-{anio}'], 'El formato del número debe incluir {numero} o {numero:N}, con N de hasta dos cifras.'],
     'grade record pattern without number' => [['formato_numero_constancia_notas' => 'CN'], 'El formato del número debe incluir {numero} o {numero:N}, con N de hasta dos cifras.'],

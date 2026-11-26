@@ -18,7 +18,7 @@
     <p style="margin-top: 14px;">Se expide la presente a solicitud de la persona interesada, para los fines que estime conveniente.</p>
     <p style="text-align: right; margin-top: 14px;">{{ $lugarYFecha ?? 'Huaraz, '.$emitidoEl }}.</p>
 
-    <x-pdf.firmas :firmas="$firmas ?? []" sello />
+    <x-pdf.firmas :firmas="$firmas ?? []" />
 
     <x-pdf.verificacion :codigo="$documento->codigo" :qr="$qr" :url="$verificacion" :emitido-el="$emitidoEl" />
 </x-pdf.documento>

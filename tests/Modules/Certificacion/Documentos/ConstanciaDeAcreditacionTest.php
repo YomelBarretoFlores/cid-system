@@ -60,13 +60,13 @@ it('refuses a level without a passed cycle or a record without the mention', fun
         ->and(Documento::query()->count())->toBe(0);
 });
 
-it('prints the accreditation title, the mention and the QR, and verifies publicly with its type', function (): void {
+it('prints the accreditation title, the degree, the number and the QR, and verifies publicly with its type', function (): void {
     $documento = acreditacion();
     $pdf = app(GenerarDocumentoPdf::class)($documento->id);
     $html = view($pdf->viewName, [...$pdf->viewData, 'qr' => CodigoQr::comoDataUri('x')])->render();
 
     expect($pdf->viewName)->toBe('certificacion::pdf.constancia-de-acreditacion')
-        ->and($html)->toContain('CONSTANCIA DE ACREDITACIÓN N° 2026 - 00001')->toContain('MENCIÓN')->toContain('MAESTRÍA EN EDUCACIÓN SUPERIOR')->toContain($documento->codigo);
+        ->and($html)->toContain('ACREDITACIÓN DE CONOCIMIENTO DE IDIOMA EXTRANJERO', 'N° Registro: <strong>2026 - 00001</strong>', 'Válido para obtener el Grado de Maestro en Educación Superior.', $documento->codigo);
 
     $this->get(route('verificacion.documento', $documento->codigo))
         ->assertOk()

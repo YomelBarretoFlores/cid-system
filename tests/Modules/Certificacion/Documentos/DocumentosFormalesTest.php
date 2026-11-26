@@ -44,9 +44,9 @@ it('prints the level certificate in landscape, as a formal certificate with its 
 
     expect($pdf->orientation)->toBe('Landscape')
         ->and(htmlDelPdf($pdf))->toContain(
-            'CERTIFICADO', 'otorga el presente certificado a', 'Alva Prueba, Ana', 'DNI 70000001', 'Básico', 'Inglés', '(240) horas lectivas', '14.69',
+            'CERTIFICADO', 'Otorgado a:', 'Alva Prueba, Ana', 'DNI 70000001', 'BÁSICO', 'INGLÉS', '240 horas académicas',
             'Huaraz, 10 de abril de 2027', 'Dr. Mario Huerta Ríos', 'Director del Centro de Idiomas y Lenguas Nativas', 'Mg. Luis Paredes Vega', 'Coordinador Académico',
-            'N.º 000001-2027', $certificado->codigo, 'data:image/png;base64,',
+            '000001-2027', $certificado->codigo, 'data:image/png;base64,',
         );
 });
 
@@ -83,11 +83,12 @@ it('keeps the signers a document was issued with, even if a signer changes later
     expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($constancia->id)))->toContain('Dr. Mario Huerta Ríos')->not->toContain('Dr. Otro Nombre');
 });
 
-it('writes the hours and the final grade in words on the certificate, with a space for the seal', function (): void {
+it('writes the academic hours on the certificate like the real one, without the final grade', function (): void {
     $certificado = app(EmitirCertificadoDeNivel::class)($this->ana->id, 'Inglés', NivelCurricular::Basico, $this->emisor);
 
     expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($certificado->id)))
-        ->toContain('doscientas cuarenta (240) horas lectivas', 'Catorce con sesenta y nueve (14.69)', 'ciclos I al IV', 'Sello');
+        ->toContain('haciendo un total de <strong>240 horas académicas</strong>')
+        ->not->toContain('Catorce con sesenta y nueve', 'ciclos I al IV');
 });
 
 it('writes each grade in words on a constancia de notas issued before the per level format, with the total and the average', function (): void {
@@ -97,5 +98,5 @@ it('writes each grade in words on a constancia de notas issued before the per le
     ], $this->emisor);
 
     expect(htmlDelPdf(app(GenerarDocumentoPdf::class)($constancia->id)))
-        ->toContain('En letras', 'Catorce', 'Quince con cincuenta', 'Total / promedio', '240', 'que suscribe', 'Sello');
+        ->toContain('En letras', 'Catorce', 'Quince con cincuenta', 'Total / promedio', '240', 'que suscribe');
 });

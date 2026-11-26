@@ -19,6 +19,7 @@ final readonly class GuardarDatosInstitucionales
         'universidad' => ['la universidad', 150], 'lema' => ['el lema', 150], 'centro' => ['el centro', 150], 'direccion' => ['la dirección', 200],
         'telefono' => ['el teléfono', 100], 'web' => ['la web', 100], 'facebook' => ['el Facebook', 100], 'ciudad' => ['la ciudad', 60],
         'formato_numero' => ['el formato del número', 60], 'formato_numero_constancia_notas' => ['el formato del número de la constancia de notas', 60],
+        'resolucion_creacion' => ['la resolución de creación', 200], 'base_legal_acreditacion' => ['la base legal de la acreditación', 300],
     ];
 
     // Actas print the same header, so changing it needs the actas permission besides the documents one.

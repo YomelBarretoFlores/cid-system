@@ -52,6 +52,14 @@ final class Documento extends Model
         return DatosDeLaInstitucion::numerar((string) $formato, (int) $numero, (int) $anio);
     }
 
+    // Behind a "N° Registro:" label the pattern's own "N.º"/"N°" prefix would repeat.
+    public function numeroDeRegistro(): ?string
+    {
+        $numero = $this->numeroOficial();
+
+        return $numero === null ? null : (string) preg_replace('/^N[.ºo°]*\s*/u', '', $numero);
+    }
+
     // Grade records issued per level (detalle version 2) print the real CILN format; older ones keep the first template.
     public function esConstanciaPorNivel(): bool
     {

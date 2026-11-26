@@ -68,7 +68,7 @@ final readonly class EmisionDeDocumento
     {
         $datos = ($this->datosInstitucionales)();
 
-        $porNivel = in_array($tipo, [TipoDocumento::ConstanciaNotas, TipoDocumento::ConstanciaAcreditacion], true) && ($detalle['version'] ?? 1) === 2;
+        $porNivel = in_array($tipo, [TipoDocumento::ConstanciaNotas, TipoDocumento::ConstanciaAcreditacion], true) && ($detalle['version'] ?? 1) >= 2;
 
         return $porNivel ? $datos->formatoNumeroConstanciaNotas : $datos->formatoNumero;
     }

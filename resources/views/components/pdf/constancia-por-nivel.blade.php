@@ -51,7 +51,7 @@
 
     <p style="text-align: right; margin-top: 14px;">{{ $institucion->ciudad }}, {{ $fecha }}</p>
 
-    <x-pdf.firmas :firmas="$firmas" sello />
+    <x-pdf.firmas :firmas="$firmas" />
 
     <x-pdf.verificacion :codigo="$documento->codigo" :qr="$qr" :url="$verificacion" :emitido-el="$emitidoEl" />
 </x-pdf.documento>

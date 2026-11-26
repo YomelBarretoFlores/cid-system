@@ -13,6 +13,7 @@ use App\Modules\Certificacion\Actions\EmitirConstanciaDeMatricula;
 use App\Modules\Certificacion\Actions\EmitirConstanciasDeNotasDelActa;
 use App\Modules\Certificacion\Listeners\AlRegistrarClasificacion;
 use App\Modules\Certificacion\Models\Acta;
+use App\Modules\Certificacion\Models\Firmante;
 use App\Modules\Docencia\Contracts\DocenteDelGrupo;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Events\ClasificacionRegistrada;
@@ -30,6 +31,7 @@ final class CertificacionDemoSeeder extends Seeder
     {
         $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
         $docenteDemo = User::query()->where('email', 'docente@ciln.test')->firstOrFail();
+        $this->firmantes();
 
         foreach (Grupo::query()->whereRelation('periodo', 'estado', 'cerrado')->orderBy('id')->get() as $grupo) {
             $docente = app(DocenteDelGrupo::class)($grupo->id);
@@ -47,6 +49,17 @@ final class CertificacionDemoSeeder extends Seeder
 
         $this->documentos($administrador);
         $this->ciclosSaltadosPorClasificacion();
+    }
+
+    // Synthetic signers in the real order of the certificate: the Vicerrector on the left, the Director on the right.
+    private function firmantes(): void
+    {
+        Firmante::query()->firstOrCreate(['cargo' => 'Vicerrector Académico'], [
+            'nombre' => 'Dr. Ernesto Demo Salas', 'firma_certificados' => true, 'firma_constancias' => false, 'firma_actas' => false, 'orden' => 1, 'vigente_desde' => '2025-01-01',
+        ]);
+        Firmante::query()->firstOrCreate(['cargo' => 'Director del Centro de Idiomas'], [
+            'nombre' => 'Dr. Julio Prueba Rojas', 'firma_certificados' => true, 'firma_constancias' => true, 'firma_actas' => false, 'orden' => 2, 'vigente_desde' => '2025-01-01',
+        ]);
     }
 
     // The demo placements are seeded without the evaluation Action, so the cycles they skip are recorded here as the listener would.

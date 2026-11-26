@@ -40,7 +40,7 @@ it('renders the certificate and the grade record with the accreditation data, th
     $datos = fn (Documento $documento): array => ['documento' => $documento, 'verificacion' => 'https://ciln.test/verificar/'.$documento->codigo, 'qr' => CodigoQr::comoDataUri('x'), 'emitidoEl' => '10 abr 2027'];
 
     expect(view('certificacion::pdf.certificado-de-nivel', $datos($this->certificado))->render())
-        ->toContain('CERTIFICADO', 'de culminación de nivel', 'Alva Prueba, Ana', 'DNI 70000001', 'Básico</strong>', 'Inglés</strong>', '(240) horas lectivas', '14.69', "Código único: <strong style=\"color: #1d1b16;\">{$this->certificado->codigo}</strong>", 'Huaraz, 10 abr 2027', 'data:image/png;base64,')
+        ->toContain('CERTIFICADO', 'Otorgado a:', 'Alva Prueba, Ana', 'DNI 70000001', 'BÁSICO</strong>', 'INGLÉS</strong>', '240 horas académicas', "Código único: <strong style=\"color: #1d1b16;\">{$this->certificado->codigo}</strong>", 'Huaraz, 10 abr 2027', 'data:image/png;base64,')
         ->and(view('certificacion::pdf.constancia-de-notas', $datos($notas))->render())
         ->toContain('CONSTANCIA DE NOTAS', 'Básico 1 (1)', '14.00', 'Aprobado', 'NSP', "Código único: {$notas->codigo}");
 });

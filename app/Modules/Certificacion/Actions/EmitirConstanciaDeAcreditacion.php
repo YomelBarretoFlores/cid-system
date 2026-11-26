@@ -8,13 +8,14 @@ use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Data\NotaDelHistorial;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Documento;
+use App\Modules\Certificacion\Support\DatosDeLaAcreditacion;
 use App\Modules\Certificacion\Support\EmisionDeDocumento;
 use App\Modules\Certificacion\Support\FilasDeLaConstancia;
 use App\Modules\Certificacion\Support\HistorialDeNotas;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 
-// Postgraduate students accredit a level for their degree: the per-level grade record plus the mention, with its own yearly number.
+// Postgraduate students accredit a level for their degree in the real CILN format (detalle version 3), with its own yearly number.
 final readonly class EmitirConstanciaDeAcreditacion
 {
     public function __construct(private EmisionDeDocumento $emision, private FilasDeLaConstancia $filas) {}
@@ -33,12 +34,13 @@ final readonly class EmitirConstanciaDeAcreditacion
             'idioma' => $idioma,
             'nivel' => $nivel->value,
             'detalle' => [
-                'version' => 2,
+                'version' => 3,
                 ...$this->filas->datosDelEstudiante($personaId, $idioma, $historial),
                 'mencion' => $mencion,
                 'notas' => array_map(fn (NotaDelHistorial $nota): array => $nota->comoDetalle(), $notas),
                 'filas' => FilasDeLaConstancia::filas($notas),
                 'programa_curricular' => $this->filas->programaCurricular($idioma),
+                ...DatosDeLaAcreditacion::de($notas, $mencion),
             ],
         ], $emisor);
     }

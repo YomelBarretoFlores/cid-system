@@ -1462,6 +1462,8 @@ Datos de la institución que imprimen los documentos oficiales (encabezado, pie,
 | 11 | `formato_numero_constancia_notas` | varchar(60) | No | `'N° {anio} - {numero:05}'` | Formato del número anual de la constancia de notas por nivel, con las mismas marcas que formato_numero. |
 | 12 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación de la fila. |
 | 13 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación. |
+| 14 | `resolucion_creacion` | varchar(200) | No | `'Creado por R.R. N° 860-80-UNASAM, del 5 de Setiembre de 1980'` | Resolución de creación del centro que imprime el certificado de nivel bajo su nombre. |
+| 15 | `base_legal_acreditacion` | varchar(300) | No | `'(De conformidad con la Normatividad legal. Ley 30220, Art. 43 y Reglamento de Suficiencia de Idioma Extranjero)'` | Base legal que imprime la acreditación de conocimiento de idioma extranjero bajo su título. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -1470,6 +1472,7 @@ Datos de la institución que imprimen los documentos oficiales (encabezado, pie,
 **Reglas de validación:**
 
 - `cer_datos_institucionales_formatos_check`: `CHECK ((((formato_numero) ~ '\{numero(:[0-9]+)?\}') AND ((formato_numero_constancia_notas) ~ '\{numero(:[0-9]+)?\}')))`
+- `cer_datos_institucionales_leyendas_check`: `CHECK (((btrim((resolucion_creacion)) <> '') AND (btrim((base_legal_acreditacion)) <> '')))`
 - `cer_datos_institucionales_textos_check`: `CHECK (((btrim((universidad)) <> '') AND (btrim((lema)) <> '') AND (btrim((centro)) <> '') AND (btrim((direccion)) <> '') AND (btrim((telefono)) <> '') AND (btrim((web)) <> '') AND (btrim((facebook)) <> '') AND (btrim((ciudad)) <> '') AND (btrim((formato_numero)) <> '') AND (btrim((formato_numero_constancia_notas)) <> '')))`
 - `cer_datos_institucionales_unica_check`: `CHECK ((id = 1))`
 

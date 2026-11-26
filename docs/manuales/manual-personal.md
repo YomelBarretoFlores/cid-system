@@ -209,7 +209,7 @@ Resultado esperado: el sistema se aplica a los grupos que inician dentro de su v
 ## 3.5. Condiciones laborales, grados académicos, firmantes y denominación del año
 
 1. **Condiciones laborales** y **Grados académicos**: pulse **Nueva condición laboral** o **Nuevo grado académico**, escriba el **Nombre** y el **Orden en las listas** y guarde. El grado académico del docente determina su costo por hora (sección 5.4).
-2. **Firmantes**: pulse **Nuevo firmante** y registre el **Nombre con grado** (por ejemplo, «Dr. …»), el **Cargo** tal como se imprime bajo la firma; en **Firma**, marque los documentos que firma (**Certificados**, **Constancias**, **Actas**; al menos uno, y **Actas** solo con el permiso «Gestionar actas»); el **Orden en el documento** y las fechas **Firma desde** y **Firma hasta** (vacía mientras siga en el cargo).
+2. **Firmantes**: pulse **Nuevo firmante** y registre el **Nombre con grado** (por ejemplo, «Dr. …»), el **Cargo** tal como se imprime bajo la firma; en **Firma**, marque los documentos que firma (**Certificados**, **Constancias**, **Actas**; al menos uno, y **Actas** solo con el permiso «Gestionar actas»); el **Orden en el documento** (de izquierda a derecha: en el certificado de nivel, el Vicerrector Académico con orden 1 y el Director del Centro de Idiomas con orden 2) y las fechas **Firma desde** y **Firma hasta** (vacía mientras siga en el cargo). Si no hay firmantes registrados, el certificado deja las líneas «Vicerrector Académico» y «Director del Centro de Idiomas» sin nombre. Los documentos no imprimen un espacio para el sello: se imprimen, se firman y se sellan a mano.
 3. **Denominación del año**: pulse **Nueva denominación**, indique el **Año** y la **Denominación** sin comillas; los documentos la imprimen entre « » sobre el título.
 
 Resultado esperado: los documentos emitidos usan automáticamente los firmantes y la denominación vigentes en su fecha de emisión.
@@ -218,7 +218,7 @@ Resultado esperado: los documentos emitidos usan automáticamente los firmantes 
 
 | Sección | Campos |
 |---|---|
-| Encabezado | **Universidad**, **Lema** y **Centro** |
+| Encabezado | **Universidad**, **Lema**, **Centro**, **Resolución de creación** (el certificado de nivel la imprime bajo el centro) y **Base legal de la acreditación** (la acreditación la imprime bajo su título) |
 | Pie de página | **Dirección**, **Teléfono y anexo**, **Web** y **Facebook** |
 | Fecha y numeración | **Ciudad** que precede a la fecha; **Número de los documentos** (por defecto «N.º {numero:06}-{anio}») y **Número de la constancia de notas** (por defecto «N° {anio} - {numero:05}»). {anio} es el año y {numero:N} el correlativo con N dígitos (N de una o dos cifras). |
 
@@ -581,6 +581,10 @@ Para emitir un documento individual:
 2. Elija el **Tipo de documento**: Constancia de matrícula, Constancia de notas o Certificado de culminación de nivel.
 3. Elija el **Estudiante** (busque por documento o por apellidos y nombres) y, según el tipo, la **Matrícula activa**, el **Idioma** y el **Nivel** (o **Nivel culminado** para el certificado).
 4. Pulse **Enviar**.
+
+El **certificado de nivel** es horizontal y sigue el texto del certificado real: Vicerrectoría Académica, el centro y su resolución de creación, «Otorgado a:», el nivel, el idioma y el total de horas académicas, la fotografía del estudiante si la registró, el **N° Registro**, las firmas del Vicerrector Académico y del Director, y el código QR.
+
+La **acreditación de conocimiento de idioma extranjero** (trámite de posgrado) es vertical y sigue el formato real: base legal, otorgado a, idioma, nivel, **Calificativo** (promedio del nivel redondeado, en letras y cifras), **Modalidad** («Examen de Suficiencia» si el nivel se aprobó por suficiencia; si no, «Programa de Enseñanza de Idioma Extranjero»), **Fecha** en que se completó el nivel (cierre del acta o fecha de la aprobación más reciente), la validez para el grado según la mención, la firma del Director, el **N° Registro** y el código QR. Las acreditaciones emitidas antes conservan su formato anterior.
 
 La constancia de notas se emite **por nivel**, como la cobra el CILN, con el formato oficial: alumno, idioma y programa, DNI, currículo, la tabla ITEM, NIVEL, CICLO, AÑO, MES, NOTA y FORMA DE APROBACIÓN con los ciclos aprobados del nivel, el **Programa Curricular** (ciclos de cada nivel del idioma), la fecha, la firma y el código QR. Requiere al menos un ciclo aprobado del nivel. Las constancias emitidas antes de este cambio conservan su formato anterior.
 

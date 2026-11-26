@@ -26,6 +26,8 @@ final readonly class NotaDelHistorial
         public FormaDeAprobacion $forma = FormaDeAprobacion::Matricula,
         public ?int $anio = null,
         public ?int $mes = null,
+        // Day the result became official (acta validation or approval date), Y-m-d in Lima; not part of the frozen detail.
+        public ?string $fecha = null,
     ) {}
 
     /**

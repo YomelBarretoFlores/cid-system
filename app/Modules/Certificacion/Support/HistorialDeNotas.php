@@ -159,6 +159,11 @@ final class HistorialDeNotas
             : [$primera, self::nota($nota, (int) $nota->getAttribute('ciclo_numero_hasta'), (string) $nota->getAttribute('ciclo_nombre_hasta'), (int) $horasHasta, $inicio)];
     }
 
+    private static function diaOficial(mixed $validadaEn): ?string
+    {
+        return $validadaEn === null ? null : CarbonImmutable::parse((string) $validadaEn)->setTimezone('America/Lima')->toDateString();
+    }
+
     private static function sinActa(Aprobacion $aprobacion): NotaDelHistorial
     {
         return new NotaDelHistorial(
@@ -176,6 +181,7 @@ final class HistorialDeNotas
             forma: $aprobacion->forma,
             anio: $aprobacion->fecha->year,
             mes: $aprobacion->fecha->month,
+            fecha: $aprobacion->fecha->toDateString(),
         );
     }
 
@@ -195,6 +201,7 @@ final class HistorialDeNotas
             grupoCodigo: (string) $nota->getAttribute('grupo_codigo'),
             anio: $inicio?->year,
             mes: $inicio?->month,
+            fecha: self::diaOficial($nota->getAttribute('validada_en')),
         );
     }
 }

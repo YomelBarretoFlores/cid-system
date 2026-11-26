@@ -21,9 +21,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $ciudad
  * @property string $formato_numero
  * @property string $formato_numero_constancia_notas
+ * @property string $resolucion_creacion
+ * @property string $base_legal_acreditacion
  */
 #[Table('cer_datos_institucionales')]
-#[Fillable(['universidad', 'lema', 'centro', 'direccion', 'telefono', 'web', 'facebook', 'ciudad', 'formato_numero', 'formato_numero_constancia_notas'])]
+#[Fillable(['universidad', 'lema', 'centro', 'direccion', 'telefono', 'web', 'facebook', 'ciudad', 'formato_numero', 'formato_numero_constancia_notas', 'resolucion_creacion', 'base_legal_acreditacion'])]
 #[WithoutIncrementing]
 final class Institucion extends Model
 {

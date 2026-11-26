@@ -19,6 +19,8 @@ final readonly class DatosDeLaInstitucion
         public string $ciudad = 'Huaraz',
         public string $formatoNumero = 'N.º {numero:06}-{anio}',
         public string $formatoNumeroConstanciaNotas = 'N° {anio} - {numero:05}',
+        public string $resolucionCreacion = 'Creado por R.R. N° 860-80-UNASAM, del 5 de Setiembre de 1980',
+        public string $baseLegalAcreditacion = '(De conformidad con la Normatividad legal. Ley 30220, Art. 43 y Reglamento de Suficiencia de Idioma Extranjero)',
     ) {}
 
     public static function desde(Institucion $institucion): self
@@ -34,6 +36,8 @@ final readonly class DatosDeLaInstitucion
             ciudad: $institucion->ciudad,
             formatoNumero: $institucion->formato_numero,
             formatoNumeroConstanciaNotas: $institucion->formato_numero_constancia_notas,
+            resolucionCreacion: $institucion->resolucion_creacion,
+            baseLegalAcreditacion: $institucion->base_legal_acreditacion,
         );
     }
 

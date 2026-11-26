@@ -26,7 +26,7 @@ it('prints the acta with the grades in words, the totals, the closing box and a 
     $pdf = app(GenerarActaFinalPdf::class)($this->acta->id);
     $html = view($pdf->viewName, $pdf->viewData)->render();
 
-    expect($html)->toContain('ACTA FINAL DE EVALUACIÓN', 'CERRADA · 30/03/2027', 'En letras', 'Quince', 'Matriculados', 'Aprobados', 'Desaprobados', 'NSP', 'Sello', 'data:image/png;base64,')
+    expect($html)->toContain('ACTA FINAL DE EVALUACIÓN', 'CERRADA · 30/03/2027', 'En letras', 'Quince', 'Matriculados', 'Aprobados', 'Desaprobados', 'NSP', 'data:image/png;base64,')
         ->and($pdf->viewData['verificacion'])->toContain('/verificar/acta/'.$this->acta->id)->toContain('signature=');
 });
 
