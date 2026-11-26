@@ -64,6 +64,7 @@ final readonly class VerificacionDeDocumento
             TipoDocumento::ConstanciaMatricula => "Grupo {$detalle['grupo']} · ciclo {$detalle['ciclo_numero']} · {$detalle['periodo']}",
             TipoDocumento::ConstanciaNotas => self::resumenDeNotas($detalle['notas']),
             TipoDocumento::CertificadoNivel => count($detalle['ciclos']).' ciclos aprobados del nivel',
+            TipoDocumento::ConstanciaAcreditacion => count($detalle['filas']).' ciclos aprobados del nivel · Mención: '.$detalle['mencion'],
         };
     }
 

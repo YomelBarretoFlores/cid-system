@@ -10,10 +10,8 @@ use App\Modules\Certificacion\Actions\AnularAprobacionesDeClasificacion;
 use App\Modules\Certificacion\Actions\RegistrarAprobacionesSinActa;
 use App\Modules\Certificacion\Data\AprobacionSinActa;
 use App\Modules\Certificacion\Data\CicloAprobadoSinActa;
-use App\Modules\Certificacion\Data\NotaDelHistorial;
-use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Certificacion\Enums\FormaDeAprobacion;
-use App\Modules\Certificacion\Support\HistorialDeNotas;
+use App\Modules\Certificacion\Support\CiclosAprobadosConNota;
 use App\Modules\Matricula\Events\ClasificacionRegistrada;
 use App\Shared\Support\Database\Transaccion;
 use Carbon\CarbonImmutable;
@@ -35,7 +33,7 @@ final readonly class AlRegistrarClasificacion implements ShouldQueue
     public function handle(ClasificacionRegistrada $evento): void
     {
         $anteriores = ($this->ciclosAnteriores)($evento->cicloId);
-        $aprobadosConNota = $this->aprobadosConNota($evento->personaId, $anteriores->idioma);
+        $aprobadosConNota = CiclosAprobadosConNota::de($evento->personaId, $anteriores->idioma);
         $porRegistrar = array_values(array_filter($anteriores->ciclos, fn (DatosDeCiclo $ciclo): bool => ! in_array($ciclo->numero, $aprobadosConNota, true)));
 
         Transaccion::ejecutar(function () use ($evento, $anteriores, $porRegistrar): void {
@@ -45,16 +43,5 @@ final readonly class AlRegistrarClasificacion implements ShouldQueue
                 array_map(fn (DatosDeCiclo $ciclo): CicloAprobadoSinActa => new CicloAprobadoSinActa($ciclo->nivel, $ciclo->numero, $ciclo->nombre, null), $porRegistrar),
             );
         });
-    }
-
-    /**
-     * @return list<int>
-     */
-    private function aprobadosConNota(int $personaId, string $idioma): array
-    {
-        return array_values(array_map(
-            fn (NotaDelHistorial $nota): int => $nota->cicloNumero,
-            array_filter(HistorialDeNotas::de($personaId, $idioma), fn (NotaDelHistorial $nota): bool => $nota->estadoFinal === EstadoFinal::Aprobado && $nota->forma !== FormaDeAprobacion::Clasificacion),
-        ));
     }
 }

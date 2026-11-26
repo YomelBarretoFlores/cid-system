@@ -16,6 +16,10 @@ use App\Modules\Certificacion\Actions\ListarMatriculasAprobadas;
 use App\Modules\Certificacion\Actions\ListarMatriculasCalificadas;
 use App\Modules\Certificacion\Actions\ListarNivelesConNotas;
 use App\Modules\Certificacion\Actions\ListarNivelesPorCertificar;
+use App\Modules\Certificacion\Actions\RegistrarAprobacionesPorReclasificacion;
+use App\Modules\Certificacion\Actions\RegistrarAprobacionesPorSuficiencia;
+use App\Modules\Certificacion\Contracts\AprobacionesPorReclasificacion;
+use App\Modules\Certificacion\Contracts\AprobacionesPorSuficiencia;
 use App\Modules\Certificacion\Contracts\AvanceDeNotas;
 use App\Modules\Certificacion\Contracts\BoletaDeNotas;
 use App\Modules\Certificacion\Contracts\DatosInstitucionales;
@@ -51,6 +55,8 @@ final class CertificacionServiceProvider extends ModuleServiceProvider
         EstadosDeActas::class => ConsultarEstadosDeActas::class,
         DatosInstitucionales::class => ConsultarDatosInstitucionales::class,
         NivelesConNotas::class => ListarNivelesConNotas::class,
+        AprobacionesPorSuficiencia::class => RegistrarAprobacionesPorSuficiencia::class,
+        AprobacionesPorReclasificacion::class => RegistrarAprobacionesPorReclasificacion::class,
     ];
 
     #[\Override]

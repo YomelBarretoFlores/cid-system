@@ -11,9 +11,9 @@ use App\Shared\Auth\Models\User;
 interface DocumentoParaTramite
 {
     /**
-     * Issues the document a finished trámite asks for, with the same rules and permission as the panel; grade records and certificates are per level.
+     * Issues the document a finished trámite asks for, with the same rules and permission as the panel; grade records, accreditation records and certificates are per level.
      *
-     * @param  array{matricula_id?: int, idioma?: string, nivel?: string}  $datos
+     * @param  array{matricula_id?: int, idioma?: string, nivel?: string, mencion_completa?: string}  $datos  mencion_completa: the degree mention printed on the accreditation record
      */
     public function __invoke(TipoDocumento $tipo, int $personaId, array $datos, User $emisor): DocumentoEmitido;
 }

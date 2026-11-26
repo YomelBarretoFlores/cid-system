@@ -29,7 +29,7 @@ final class RevisionDeDocumentos
             ->whereNull('revisar_desde')
             ->where(fn (Builder $documentos): Builder => $documentos
                 ->where(fn (Builder $constancias): Builder => $constancias
-                    ->where('tipo', TipoDocumento::ConstanciaNotas)
+                    ->whereIn('tipo', [TipoDocumento::ConstanciaNotas, TipoDocumento::ConstanciaAcreditacion])
                     ->whereJsonContains('detalle->notas', [['ciclo_numero' => $acta->ciclo_numero, 'periodo' => $acta->periodo]]))
                 ->orWhere(fn (Builder $certificados): Builder => $certificados->where('tipo', TipoDocumento::CertificadoNivel)->where('nivel', $acta->nivel)))
             ->update(['revisar_desde' => now(), 'motivo_revision' => self::motivo($acta)]);

@@ -9,6 +9,7 @@ enum TipoDocumento: string
     case ConstanciaMatricula = 'constancia_matricula';
     case ConstanciaNotas = 'constancia_notas';
     case CertificadoNivel = 'certificado_nivel';
+    case ConstanciaAcreditacion = 'constancia_acreditacion';
 
     public function etiqueta(): string
     {
@@ -16,6 +17,7 @@ enum TipoDocumento: string
             self::ConstanciaMatricula => 'Constancia de matrícula',
             self::ConstanciaNotas => 'Constancia de notas',
             self::CertificadoNivel => 'Certificado de culminación de nivel',
+            self::ConstanciaAcreditacion => 'Constancia de acreditación',
         };
     }
 
@@ -35,6 +37,7 @@ enum TipoDocumento: string
             self::ConstanciaMatricula => 'constancia-de-matricula',
             self::ConstanciaNotas => 'constancia-de-notas',
             self::CertificadoNivel => 'certificado-de-nivel',
+            self::ConstanciaAcreditacion => 'constancia-de-acreditacion',
         };
     }
 

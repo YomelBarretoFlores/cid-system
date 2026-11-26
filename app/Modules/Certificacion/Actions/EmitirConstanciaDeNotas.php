@@ -6,7 +6,6 @@ namespace App\Modules\Certificacion\Actions;
 
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Data\NotaDelHistorial;
-use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Certificacion\Enums\TipoDocumento;
 use App\Modules\Certificacion\Models\Documento;
 use App\Modules\Certificacion\Support\EmisionDeDocumento;
@@ -24,20 +23,11 @@ final readonly class EmitirConstanciaDeNotas
     {
         EmisionDeDocumento::asegurarPermiso($emisor);
         $historial = HistorialDeNotas::de($personaId, $idioma);
-        $aprobadas = [];
+        $notas = FilasDeLaConstancia::aprobadasDelNivel($historial, $nivel);
 
-        foreach ($historial as $nota) {
-            if ($nota->nivel === $nivel && $nota->estadoFinal === EstadoFinal::Aprobado) {
-                $aprobadas[$nota->cicloNumero] = $nota;
-            }
-        }
-
-        if ($aprobadas === []) {
+        if ($notas === []) {
             throw new ReglaDeNegocioIncumplida("La persona no tiene ciclos aprobados de {$idioma} en el nivel {$nivel->etiqueta()}.");
         }
-
-        ksort($aprobadas);
-        $notas = array_values($aprobadas);
 
         return $this->emision->emitir(TipoDocumento::ConstanciaNotas, $personaId, [
             'idioma' => $idioma,

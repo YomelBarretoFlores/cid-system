@@ -9,6 +9,8 @@ enum OrigenHabilitacion: string
     case Clasificacion = 'clasificacion';
     case Aprobacion = 'aprobacion';
     case AjusteAdministrativo = 'ajuste_administrativo';
+    case Suficiencia = 'suficiencia';
+    case Reclasificacion = 'reclasificacion';
 
     public function etiqueta(): string
     {
@@ -16,6 +18,8 @@ enum OrigenHabilitacion: string
             self::Clasificacion => 'Examen de clasificación',
             self::Aprobacion => 'Aprobación del ciclo anterior',
             self::AjusteAdministrativo => 'Ajuste administrativo',
+            self::Suficiencia => 'Examen de suficiencia',
+            self::Reclasificacion => 'Reclasificación',
         };
     }
 }

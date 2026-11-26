@@ -22,6 +22,7 @@ use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -161,7 +162,8 @@ final class AccionesDeDocumento
      */
     private static function tipos(): array
     {
-        return collect(TipoDocumento::cases())->mapWithKeys(fn (TipoDocumento $tipo): array => [$tipo->value => $tipo->etiqueta()])->all();
+        // The accreditation record needs the degree mention of its trámite, so it is issued only from there.
+        return collect(TipoDocumento::cases())->reject(fn (TipoDocumento $tipo): bool => $tipo === TipoDocumento::ConstanciaAcreditacion)->mapWithKeys(fn (TipoDocumento $tipo): array => [$tipo->value => $tipo->etiqueta()])->all();
     }
 
     /**
@@ -175,6 +177,7 @@ final class AccionesDeDocumento
             TipoDocumento::ConstanciaMatricula => app(EmitirConstanciaDeMatricula::class)((int) $data['matricula_id'], $usuario),
             TipoDocumento::ConstanciaNotas => app(EmitirConstanciaDeNotas::class)($personaId, (string) $data['idioma'], NivelCurricular::from((string) $data['nivel']), $usuario),
             TipoDocumento::CertificadoNivel => app(EmitirCertificadoDeNivel::class)($personaId, (string) $data['idioma'], NivelCurricular::from((string) $data['nivel']), $usuario),
+            TipoDocumento::ConstanciaAcreditacion => throw new ReglaDeNegocioIncumplida('La constancia de acreditación se emite al finalizar su trámite.'),
         };
     }
 }

@@ -10,6 +10,7 @@ use App\Modules\Academico\Contracts\ProgramaPorDefecto;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Data\NotaDelHistorial;
+use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Personas\Contracts\FichaDePersona;
 use App\Shared\Ui\Formato;
@@ -35,6 +36,27 @@ final readonly class FilasDeLaConstancia
         $curriculo = collect(($this->catalogoDeIdiomas)())->first(fn (IdiomaDelCatalogo $catalogo): bool => $catalogo->nombre === $idioma)?->curriculo;
 
         return ['tipo_documento' => $tipo, 'dni' => $numero, 'programa' => $this->programa($historial), 'curriculo' => $curriculo ?? '01'];
+    }
+
+    /**
+     * The last passed result of each cycle of the level, in cycle order (a graded one wins over a placement).
+     *
+     * @param  list<NotaDelHistorial>  $historial
+     * @return list<NotaDelHistorial>
+     */
+    public static function aprobadasDelNivel(array $historial, NivelCurricular $nivel): array
+    {
+        $aprobadas = [];
+
+        foreach ($historial as $nota) {
+            if ($nota->nivel === $nivel && $nota->estadoFinal === EstadoFinal::Aprobado) {
+                $aprobadas[$nota->cicloNumero] = $nota;
+            }
+        }
+
+        ksort($aprobadas);
+
+        return array_values($aprobadas);
     }
 
     /**

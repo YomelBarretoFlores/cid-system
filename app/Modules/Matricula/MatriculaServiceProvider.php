@@ -11,15 +11,19 @@ use App\Modules\Matricula\Actions\ListarEstudiantesDelGrupo;
 use App\Modules\Matricula\Actions\ListarMatriculasActivasDePersona;
 use App\Modules\Matricula\Actions\ListarProgramasDeLaPersona;
 use App\Modules\Matricula\Actions\MoverMatriculaPorTramite;
+use App\Modules\Matricula\Actions\RegistrarHabilitacionPorTramite;
 use App\Modules\Matricula\Contracts\ContextoAcademicoDePagos;
 use App\Modules\Matricula\Contracts\DocumentoDeMatriculaPorId;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
+use App\Modules\Matricula\Contracts\FinDeLaUltimaMatricula;
+use App\Modules\Matricula\Contracts\HabilitacionPorTramite;
 use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
 use App\Modules\Matricula\Contracts\MovimientoPorTramite;
 use App\Modules\Matricula\Contracts\ProgramasDeLaPersona;
 use App\Modules\Matricula\Listeners\AlAnularPago;
 use App\Modules\Matricula\Listeners\AlCerrarActa;
 use App\Modules\Matricula\Livewire\ResumenDelEstudiante;
+use App\Modules\Matricula\Support\UltimaMatriculaDelIdioma;
 use App\Modules\Pagos\Events\PagoAnulado;
 use App\Shared\Support\ModuleServiceProvider;
 use Illuminate\Support\Facades\Event;
@@ -37,6 +41,8 @@ final class MatriculaServiceProvider extends ModuleServiceProvider
         DocumentoDeMatriculaPorId::class => BuscarDocumentoDeMatricula::class,
         MovimientoPorTramite::class => MoverMatriculaPorTramite::class,
         ProgramasDeLaPersona::class => ListarProgramasDeLaPersona::class,
+        HabilitacionPorTramite::class => RegistrarHabilitacionPorTramite::class,
+        FinDeLaUltimaMatricula::class => UltimaMatriculaDelIdioma::class,
     ];
 
     #[\Override]

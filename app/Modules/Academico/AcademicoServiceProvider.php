@@ -6,6 +6,7 @@ namespace App\Modules\Academico;
 
 use App\Modules\Academico\Actions\BloquearGrupo;
 use App\Modules\Academico\Actions\BuscarEsquemaDelGrupo;
+use App\Modules\Academico\Actions\BuscarNotaAprobatoriaDelNivel;
 use App\Modules\Academico\Actions\BuscarPeriodoEnCurso;
 use App\Modules\Academico\Actions\BuscarProgramaPorDefecto;
 use App\Modules\Academico\Actions\DescribirCursoDelGrupo;
@@ -18,6 +19,7 @@ use App\Modules\Academico\Actions\ListarCatalogoDePeriodos;
 use App\Modules\Academico\Actions\ListarCatalogoDeProgramas;
 use App\Modules\Academico\Actions\ListarCiclosAnteriores;
 use App\Modules\Academico\Actions\ListarCiclosDeGrupos;
+use App\Modules\Academico\Actions\ListarCiclosDelIdioma;
 use App\Modules\Academico\Actions\ListarCiclosDelNivel;
 use App\Modules\Academico\Actions\ListarCursosDelPeriodo;
 use App\Modules\Academico\Actions\ListarGruposDelCiclo;
@@ -37,6 +39,7 @@ use App\Modules\Academico\Contracts\CatalogoDePeriodos;
 use App\Modules\Academico\Contracts\CatalogoDeProgramas;
 use App\Modules\Academico\Contracts\CiclosAnteriores;
 use App\Modules\Academico\Contracts\CiclosDeGrupos;
+use App\Modules\Academico\Contracts\CiclosDelIdioma;
 use App\Modules\Academico\Contracts\CiclosDelNivel;
 use App\Modules\Academico\Contracts\ConsultaGruposDelCiclo;
 use App\Modules\Academico\Contracts\CursoDelGrupo;
@@ -48,6 +51,7 @@ use App\Modules\Academico\Contracts\HorariosDeGrupos;
 use App\Modules\Academico\Contracts\IniciosDePeriodos;
 use App\Modules\Academico\Contracts\LiberacionDeVacante;
 use App\Modules\Academico\Contracts\MatriculaExtemporanea;
+use App\Modules\Academico\Contracts\NotaAprobatoriaDelNivel;
 use App\Modules\Academico\Contracts\OfertaDeMatricula;
 use App\Modules\Academico\Contracts\OfertaPublica;
 use App\Modules\Academico\Contracts\PeriodoEnCurso;
@@ -92,6 +96,8 @@ final class AcademicoServiceProvider extends ModuleServiceProvider
         CatalogoDeProgramas::class => ListarCatalogoDeProgramas::class,
         ProgramasDeGrupos::class => ListarProgramasDeGrupos::class,
         MatriculaExtemporanea::class => VerificarMatriculaExtemporanea::class,
+        CiclosDelIdioma::class => ListarCiclosDelIdioma::class,
+        NotaAprobatoriaDelNivel::class => BuscarNotaAprobatoriaDelNivel::class,
     ];
 
     #[\Override]

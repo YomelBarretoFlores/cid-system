@@ -68,7 +68,9 @@ final readonly class EmisionDeDocumento
     {
         $datos = ($this->datosInstitucionales)();
 
-        return $tipo === TipoDocumento::ConstanciaNotas && ($detalle['version'] ?? 1) === 2 ? $datos->formatoNumeroConstanciaNotas : $datos->formatoNumero;
+        $porNivel = in_array($tipo, [TipoDocumento::ConstanciaNotas, TipoDocumento::ConstanciaAcreditacion], true) && ($detalle['version'] ?? 1) === 2;
+
+        return $porNivel ? $datos->formatoNumeroConstanciaNotas : $datos->formatoNumero;
     }
 
     private function traducir(UniqueConstraintViolationException $error, int $intento, string $duplicado): void
