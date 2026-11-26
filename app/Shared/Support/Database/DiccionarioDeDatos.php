@@ -21,6 +21,7 @@ final readonly class DiccionarioDeDatos
         'cer_' => 'Certificación',
         'tra_' => 'Trámites',
         'aud_' => 'Auditoría',
+        'sis_' => 'Parámetros del sistema',
     ];
 
     private const string SEGURIDAD = 'Seguridad y control de acceso';
@@ -129,7 +130,7 @@ final readonly class DiccionarioDeDatos
 
             **Convenciones:**
 
-            - Cada módulo es dueño de sus tablas, identificadas por un prefijo: `aca_` Académico, `per_` Personas, `mat_` Matrícula, `pag_` Pagos, `doc_` Docencia, `cer_` Certificación, `tra_` Trámites y `aud_` Auditoría.
+            - Cada módulo es dueño de sus tablas, identificadas por un prefijo: `aca_` Académico, `per_` Personas, `mat_` Matrícula, `pag_` Pagos, `doc_` Docencia, `cer_` Certificación, `tra_` Trámites, `aud_` Auditoría y `sis_` Parámetros del sistema.
             - Las relaciones entre módulos son llaves foráneas reales de PostgreSQL. El diagrama de cada módulo omite las columnas que solo registran qué cuenta hizo una operación (por ejemplo, `validado_por`), que se detallan en cada tabla.
             - Los importes se guardan como `numeric` en soles; las fechas y horas, con zona horaria (`timestamptz`) y se muestran en hora de Lima.
             - Las reglas de negocio críticas se garantizan en la propia base: restricciones `CHECK`, `UNIQUE`, `EXCLUDE` y triggers.

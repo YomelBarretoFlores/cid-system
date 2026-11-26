@@ -16,8 +16,8 @@ use App\Modules\Docencia\Models\Delegado;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
 use App\Modules\Personas\Contracts\FichasDePersonas;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Config;
 
 // What the delegate's portal reads: the classes of the groups where the person is the current delegate.
 final readonly class BandejaDelDelegado
@@ -29,6 +29,7 @@ final readonly class BandejaDelDelegado
         private DelegadoDelGrupo $delegadoDelGrupo,
         private DetalleDeGrupos $detalleDeGrupos,
         private FichasDePersonas $fichasDePersonas,
+        private ParametrosDelSistema $parametrosDelSistema,
     ) {}
 
     public function __invoke(int $personaId): ClasesDelDelegado
@@ -79,7 +80,7 @@ final readonly class BandejaDelDelegado
     private function porConfirmar(array $grupoIds): Collection
     {
         $ahora = ClasesDelHorario::ahora();
-        $desde = $ahora->subMinutes(Config::integer('ciln.asistencia.confirmacion_minutos_despues_del_fin'))->subDay();
+        $desde = $ahora->subMinutes(($this->parametrosDelSistema)()->confirmacionMinutosDespuesDelFin)->subDay();
 
         return ClaseDictada::query()
             ->whereIn('grupo_id', $grupoIds)

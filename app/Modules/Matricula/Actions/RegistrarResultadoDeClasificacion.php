@@ -29,7 +29,7 @@ final readonly class RegistrarResultadoDeClasificacion
     public function __invoke(int $solicitudId, ResultadoDeClasificacion $resultado, User $evaluador): SolicitudClasificacion
     {
         throw_unless($evaluador->can(PermisoClasificacion::Evaluar->value), ReglaDeNegocioIncumplida::class, 'No tienes permiso para registrar resultados de clasificación.');
-        ValidacionDeClasificacion::puntaje($resultado->puntaje);
+        $this->validacion->puntaje($resultado->puntaje);
 
         // Person first, like enrollment, so the enabled cycle never changes under an enrollment in progress.
         return Transaccion::ejecutar(function () use ($solicitudId, $resultado, $evaluador): SolicitudClasificacion {

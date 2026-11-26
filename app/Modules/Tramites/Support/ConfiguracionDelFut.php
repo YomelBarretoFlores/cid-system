@@ -6,11 +6,13 @@ namespace App\Modules\Tramites\Support;
 
 use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Enums\CampoFut;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 
 // Normalizes what a trámite type asks: its FUT fields in form order and its attachments.
 final class ConfiguracionDelFut
 {
+    // Default of «Parámetros del sistema»; the rule reads ParametrosDelSistema::maximoAdjuntosTramite.
     public const int MAXIMO_ADJUNTOS = 5;
 
     /**
@@ -46,13 +48,14 @@ final class ConfiguracionDelFut
      */
     public static function adjuntos(array $adjuntos): array
     {
+        $maximo = app(ParametrosDelSistema::class)()->maximoAdjuntosTramite;
         $normalizados = array_map(fn (array $adjunto): array => ['nombre' => trim($adjunto['nombre']), 'obligatorio' => $adjunto['obligatorio']], $adjuntos);
         $nombres = array_map(fn (array $adjunto): string => mb_strtolower($adjunto['nombre']), $normalizados);
-        $validos = count($normalizados) <= self::MAXIMO_ADJUNTOS
+        $validos = count($normalizados) <= $maximo
             && count(array_unique($nombres)) === count($nombres)
             && array_filter($normalizados, fn (array $adjunto): bool => mb_strlen($adjunto['nombre']) < 3 || mb_strlen($adjunto['nombre']) > 80) === [];
 
-        throw_unless($validos, ReglaDeNegocioIncumplida::class, 'Un trámite pide como máximo 5 adjuntos, cada uno con un nombre de 3 a 80 caracteres sin repetir.');
+        throw_unless($validos, ReglaDeNegocioIncumplida::class, "Un trámite pide como máximo {$maximo} adjuntos, cada uno con un nombre de 3 a 80 caracteres sin repetir.");
 
         return $normalizados;
     }

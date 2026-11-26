@@ -12,6 +12,7 @@ use App\Modules\Matricula\Data\ResultadoDeClasificacion;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Shared\Auth\Models\User;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
@@ -80,7 +81,7 @@ final class AccionesDeSolicitudClasificacion
                 ->default(fn (): string => self::hoy())
                 ->maxDate(fn (): string => self::hoy())
                 ->required(),
-            TextInput::make('puntaje')->label('Puntaje')->numeric()->minValue(0)->maxValue(100)->step(0.01)->required(),
+            TextInput::make('puntaje')->label('Puntaje')->numeric()->minValue(0)->maxValue(fn (): int => app(ParametrosDelSistema::class)()->puntajeMaximoClasificacion)->step(0.01)->required(),
             Select::make('ciclo_id')
                 ->label('Ciclo asignado')
                 ->options(fn (SolicitudClasificacion $record): array => self::ciclosDelIdioma($record->idioma_id))

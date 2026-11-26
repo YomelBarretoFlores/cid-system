@@ -16,8 +16,8 @@ use App\Modules\Tramites\Enums\CampoFut;
 use App\Modules\Tramites\Enums\CondicionDeEtapa;
 use App\Modules\Tramites\Models\Etapa;
 use App\Modules\Tramites\Models\TipoTramite;
-use App\Modules\Tramites\Support\ConfiguracionDelFut;
 use App\Modules\Tramites\Support\ReglaDeReclasificacion;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -86,7 +86,7 @@ final class TipoTramiteForm
                             ->helperText('PDF, JPG o PNG de hasta 5 MB cada uno.')
                             ->addActionLabel('Agregar adjunto')
                             ->defaultItems(0)
-                            ->maxItems(ConfiguracionDelFut::MAXIMO_ADJUNTOS)
+                            ->maxItems(fn (): int => app(ParametrosDelSistema::class)()->maximoAdjuntosTramite)
                             ->columns(2)
                             ->columnSpanFull()
                             ->schema([

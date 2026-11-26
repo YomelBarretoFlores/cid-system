@@ -6,24 +6,25 @@ namespace App\Modules\Tramites\Support;
 
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Models\Tramite;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use finfo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-// Same limits as payment receipts: the real MIME type is PDF, JPG or PNG, at most 5 MB, kept on the private disk.
+// The real MIME type is PDF, JPG or PNG, within the size set in «Parámetros del sistema», kept on the private disk.
 final class AdjuntosDeSolicitud
 {
     public const string DISCO = 'local';
-
-    public const int MAXIMO_KB = 5120;
 
     private const array EXTENSIONES = [
         'image/jpeg' => 'jpg',
         'image/png' => 'png',
         'application/pdf' => 'pdf',
     ];
+
+    public function __construct(private ParametrosDelSistema $parametrosDelSistema) {}
 
     /**
      * @param  array<int, UploadedFile>  $archivos
@@ -81,7 +82,8 @@ final class AdjuntosDeSolicitud
         $mime = (string) new finfo(FILEINFO_MIME_TYPE)->file((string) $archivo->getRealPath());
         $extension = self::EXTENSIONES[$mime] ?? throw new ReglaDeNegocioIncumplida("El adjunto «{$nombre}» debe ser un PDF o una imagen JPG o PNG.");
 
-        throw_if((int) $archivo->getSize() > self::MAXIMO_KB * 1024, ReglaDeNegocioIncumplida::class, "El adjunto «{$nombre}» no debe pesar más de 5 MB.");
+        $parametros = ($this->parametrosDelSistema)();
+        throw_if((int) $archivo->getSize() > $parametros->adjuntoMaximoKb() * 1024, ReglaDeNegocioIncumplida::class, "El adjunto «{$nombre}» no debe pesar más de {$parametros->adjuntoMaximoMb} MB.");
 
         return new ArchivoAdjunto($nombre, $archivo, $mime, $extension);
     }

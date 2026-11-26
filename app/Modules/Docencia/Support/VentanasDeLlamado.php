@@ -6,8 +6,9 @@ namespace App\Modules\Docencia\Support;
 
 use App\Modules\Academico\Data\SesionDeClase;
 use App\Modules\Docencia\Models\ClaseDictada;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
+use App\Shared\Parametros\Data\ValoresDeParametros;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Config;
 
 final readonly class VentanasDeLlamado
 {
@@ -28,7 +29,7 @@ final readonly class VentanasDeLlamado
 
     public function abreInicio(): CarbonImmutable
     {
-        return $this->inicio->subMinutes($this->minutos('inicio_abre_minutos_antes'));
+        return $this->inicio->subMinutes($this->parametros()->inicioAbreMinutosAntes);
     }
 
     public function cierraInicio(): CarbonImmutable
@@ -38,17 +39,17 @@ final readonly class VentanasDeLlamado
 
     public function abreCierre(): CarbonImmutable
     {
-        return $this->fin->subMinutes($this->minutos('cierre_abre_minutos_antes_del_fin'));
+        return $this->fin->subMinutes($this->parametros()->cierreAbreMinutosAntesDelFin);
     }
 
     public function cierraCierre(): CarbonImmutable
     {
-        return $this->fin->addMinutes($this->minutos('cierre_cierra_minutos_despues_del_fin'));
+        return $this->fin->addMinutes($this->parametros()->cierreCierraMinutosDespuesDelFin);
     }
 
     public function venceConfirmacion(): CarbonImmutable
     {
-        return $this->fin->addMinutes($this->minutos('confirmacion_minutos_despues_del_fin'));
+        return $this->fin->addMinutes($this->parametros()->confirmacionMinutosDespuesDelFin);
     }
 
     public function yaAbrio(CarbonImmutable $ahora): bool
@@ -74,8 +75,8 @@ final readonly class VentanasDeLlamado
         );
     }
 
-    private function minutos(string $clave): int
+    private function parametros(): ValoresDeParametros
     {
-        return Config::integer("ciln.asistencia.{$clave}");
+        return app(ParametrosDelSistema::class)();
     }
 }

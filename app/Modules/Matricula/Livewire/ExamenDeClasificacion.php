@@ -12,6 +12,7 @@ use App\Modules\Pagos\Contracts\PagosValidadosDePersona;
 use App\Modules\Pagos\Data\PagoValidado;
 use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Livewire\MensajesDeValidacion;
 use App\Shared\Support\Logging\RegistroDeRechazos;
@@ -65,6 +66,7 @@ final class ExamenDeClasificacion extends Component
     public function render(): View
     {
         return view('matricula::livewire.examen-de-clasificacion', [
+            'puntajeMaximo' => app(ParametrosDelSistema::class)()->puntajeMaximoClasificacion,
             'solicitudes' => SolicitudClasificacion::query()
                 ->where('persona_id', $this->personaId())
                 ->latest()

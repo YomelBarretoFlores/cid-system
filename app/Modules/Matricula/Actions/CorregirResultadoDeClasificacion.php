@@ -36,7 +36,7 @@ final readonly class CorregirResultadoDeClasificacion
 
         $motivo = trim($motivo);
         throw_unless(mb_strlen($motivo) >= 5 && mb_strlen($motivo) <= 500, ReglaDeNegocioIncumplida::class, 'Indica el motivo de la corrección, entre 5 y 500 caracteres.');
-        ValidacionDeClasificacion::puntaje($resultado->puntaje);
+        $this->validacion->puntaje($resultado->puntaje);
 
         return Transaccion::ejecutar(function () use ($solicitudId, $resultado, $motivo, $usuario): SolicitudClasificacion {
             MovimientoDeMatricula::bloquearPersona((int) SolicitudClasificacion::query()->whereKey($solicitudId)->value('persona_id'));

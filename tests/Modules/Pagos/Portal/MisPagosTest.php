@@ -9,7 +9,9 @@ use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Personas\Models\Persona;
+use App\Shared\Auth\Enums\PermisoUsuario;
 use App\Shared\Auth\Models\User;
+use App\Shared\Parametros\Actions\GuardarParametrosDelSistema;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -218,4 +220,17 @@ it('keeps the register form open when the receipt data is invalid', function ():
         ->assertSet('registrando', true)
         ->assertSee('Registrar un recibo')
         ->assertSee('Completa el campo número de operación.');
+});
+
+it('takes a receipt up to the size the system parameters set and says that limit', function (): void {
+    app(GuardarParametrosDelSistema::class)(['recibo_maximo_mb' => 8], User::factory()->create()->givePermissionTo(PermisoUsuario::Gestionar->value));
+
+    registrarPagoEnElPortal(['recibo' => UploadedFile::fake()->create('recibo.pdf', 8193, 'application/pdf')])
+        ->assertHasErrors(['recibo' => 'El recibo no debe pesar más de 8 MB.']);
+
+    $grande = UploadedFile::fake()->createWithContent('voucher.pdf', "%PDF-1.4\n".str_repeat('a', 6 * 1024 * 1024)."\n%%EOF\n");
+    registrarPagoEnElPortal(['recibo' => $grande])->assertHasNoErrors();
+
+    expect(Pago::query()->where('persona_id', $this->persona->id)->count())->toBe(1);
+    Livewire::actingAs($this->estudiante)->test(MisPagos::class)->set('registrando', true)->assertSee('JPG, PNG o PDF · hasta 8 MB');
 });

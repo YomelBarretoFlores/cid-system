@@ -21,7 +21,7 @@
 
                 <form wire:submit="guardar" class="flex min-w-0 flex-1 flex-col gap-3.5" novalidate>
                     <x-portal.archivo nombre="foto" etiqueta="Sube tu fotografía aquí" acepta="image/jpeg,image/png"
-                        formatos="JPG o PNG · hasta 2 MB · entre 200 y 3000 píxeles por lado" />
+                        :formatos="'JPG o PNG · hasta '.$parametros->fotoMaximoMb.' MB · entre '.$parametros->fotoLadoMinimoPx.' y '.$parametros->fotoLadoMaximoPx.' píxeles por lado'" />
                     <div class="flex flex-wrap gap-2">
                         <x-portal.boton wire:loading.attr="disabled" wire:target="guardar,foto">Guardar fotografía</x-portal.boton>
                         @if ($actual)
@@ -37,7 +37,7 @@
             <section aria-labelledby="titulo-requisitos" class="flex flex-col overflow-hidden rounded-interna border border-borde-interno">
                 <h2 id="titulo-requisitos" class="bg-marino-700 px-4 py-2.5 font-semibold text-white">Requisitos</h2>
                 <ul class="flex flex-col divide-y divide-separador text-[14.5px]">
-                    @foreach (['Imagen a color con fondo blanco.', 'Tomada de frente.', 'Sin gafas ni lentes oscuros, salvo personas con discapacidad visual.', 'Sin gorra ni sombrero.', 'El rostro desde los hombros, sin mostrar medio cuerpo.', 'JPG o PNG, de hasta 2 MB y entre 200 y 3000 píxeles por lado.'] as $requisito)
+                    @foreach (['Imagen a color con fondo blanco.', 'Tomada de frente.', 'Sin gafas ni lentes oscuros, salvo personas con discapacidad visual.', 'Sin gorra ni sombrero.', 'El rostro desde los hombros, sin mostrar medio cuerpo.', "JPG o PNG, de hasta {$parametros->fotoMaximoMb} MB y entre {$parametros->fotoLadoMinimoPx} y {$parametros->fotoLadoMaximoPx} píxeles por lado."] as $requisito)
                         <li class="px-4 py-2.5">{{ $requisito }}</li>
                     @endforeach
                 </ul>

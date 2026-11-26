@@ -8,19 +8,26 @@ use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Matricula\Data\ResultadoDeClasificacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 
 // The rules a placement result meets when it is recorded and when it is corrected.
 final readonly class ValidacionDeClasificacion
 {
-    public function __construct(private CatalogoDeIdiomas $catalogoDeIdiomas) {}
+    public function __construct(
+        private CatalogoDeIdiomas $catalogoDeIdiomas,
+        private ParametrosDelSistema $parametrosDelSistema,
+    ) {}
 
-    public static function puntaje(string $puntaje): void
+    // Compared in hundredths so no float rounding lets 20.001 pass a scale of 20.
+    public function puntaje(string $puntaje): void
     {
-        if (preg_match('/^(100(\.0{1,2})?|\d{1,2}(\.\d{1,2})?)$/', $puntaje) !== 1) {
-            throw new ReglaDeNegocioIncumplida('El puntaje va de 0 a 100, con hasta dos decimales.');
-        }
+        $maximo = ($this->parametrosDelSistema)()->puntajeMaximoClasificacion;
+        $valido = preg_match('/^(\d{1,2}|[1-9]\d{2})(?:\.(\d{1,2}))?$/', $puntaje, $partes) === 1
+            && (int) $partes[1] * 100 + (int) str_pad($partes[2] ?? '', 2, '0') <= $maximo * 100;
+
+        throw_unless($valido, ReglaDeNegocioIncumplida::class, "El puntaje va de 0 a {$maximo}, con hasta dos decimales.");
     }
 
     public function cicloYFecha(SolicitudClasificacion $solicitud, ResultadoDeClasificacion $resultado): void

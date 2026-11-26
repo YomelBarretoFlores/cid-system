@@ -9,6 +9,8 @@ use App\Modules\Personas\Actions\QuitarFotoDePerfil;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Data\FichaDeEstudiante;
 use App\Modules\Personas\Livewire\Concerns\LimitaIntentos;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
+use App\Shared\Parametros\Data\ValoresDeParametros;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Logging\RegistroDeRechazos;
 use Illuminate\Contracts\View\View;
@@ -24,8 +26,6 @@ final class SubirFotografia extends Component
 {
     use LimitaIntentos;
     use WithFileUploads;
-
-    public const string FOTO_NO_VALIDA = 'La fotografía debe ser una imagen JPG o PNG de hasta 2 MB, entre 200 y 3000 píxeles por lado.';
 
     private const int FOTOS_POR_HORA = 10;
 
@@ -65,7 +65,7 @@ final class SubirFotografia extends Component
 
     public function render(): View
     {
-        return view('personas::livewire.subir-fotografia', ['ficha' => $this->ficha()]);
+        return view('personas::livewire.subir-fotografia', ['ficha' => $this->ficha(), 'parametros' => $this->parametros()]);
     }
 
     /**
@@ -73,8 +73,11 @@ final class SubirFotografia extends Component
      */
     protected function rules(): array
     {
+        $parametros = $this->parametros();
+        [$minimo, $maximo] = [$parametros->fotoLadoMinimoPx, $parametros->fotoLadoMaximoPx];
+
         return [
-            'foto' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048', 'dimensions:min_width=200,min_height=200,max_width=3000,max_height=3000'],
+            'foto' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:'.$parametros->fotoMaximoKb(), "dimensions:min_width={$minimo},min_height={$minimo},max_width={$maximo},max_height={$maximo}"],
         ];
     }
 
@@ -85,8 +88,21 @@ final class SubirFotografia extends Component
     {
         return [
             'foto.required' => 'Elige la fotografía que quieres subir.',
-            ...array_fill_keys(['foto.image', 'foto.mimes', 'foto.max', 'foto.dimensions', 'foto.uploaded'], self::FOTO_NO_VALIDA),
+            ...array_fill_keys(['foto.image', 'foto.mimes', 'foto.max', 'foto.dimensions', 'foto.uploaded'], "La fotografía debe ser una imagen {$this->requisitosDelArchivo()}."),
         ];
+    }
+
+    // "JPG o PNG de hasta 2 MB, entre 200 y 3000 píxeles por lado", from «Parámetros del sistema».
+    private function requisitosDelArchivo(): string
+    {
+        $parametros = $this->parametros();
+
+        return "JPG o PNG de hasta {$parametros->fotoMaximoMb} MB, entre {$parametros->fotoLadoMinimoPx} y {$parametros->fotoLadoMaximoPx} píxeles por lado";
+    }
+
+    private function parametros(): ValoresDeParametros
+    {
+        return app(ParametrosDelSistema::class)();
     }
 
     private function ficha(): FichaDeEstudiante

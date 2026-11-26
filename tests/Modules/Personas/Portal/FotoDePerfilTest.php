@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Modules\Personas\Livewire\SubirFotografia;
 use App\Modules\Personas\Models\Persona;
+use App\Shared\Auth\Enums\PermisoUsuario;
 use App\Shared\Auth\Models\User;
+use App\Shared\Parametros\Actions\GuardarParametrosDelSistema;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
@@ -193,4 +195,15 @@ it('keeps a photo that is already small at its own size', function (): void {
     subirFoto(UploadedFile::fake()->image('foto.jpg', 300, 400))->assertHasNoErrors();
 
     expect(array_slice(getimagesizefromstring(fotoGuardada()), 0, 2))->toBe([300, 400]);
+});
+
+it('takes a bigger photo when the system parameters allow it and states the new limits', function (): void {
+    app(GuardarParametrosDelSistema::class)(['foto_maximo_mb' => 4, 'foto_lado_maximo_px' => 4000], User::factory()->create()->givePermissionTo(PermisoUsuario::Gestionar->value));
+
+    subirFoto(UploadedFile::fake()->image('foto.jpg', 400, 400)->size(4097))
+        ->assertHasErrors(['foto' => 'La fotografía debe ser una imagen JPG o PNG de hasta 4 MB, entre 200 y 4000 píxeles por lado.']);
+    subirFoto(UploadedFile::fake()->image('foto.png', 3500, 400)->size(3000))->assertHasNoErrors();
+
+    expect($this->ficha->refresh()->foto)->not->toBeNull();
+    Livewire::actingAs($this->alumno)->test(SubirFotografia::class)->assertSee('JPG o PNG · hasta 4 MB · entre 200 y 4000 píxeles por lado');
 });

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Matricula\Data;
 
-// Public so the home page states the same validity the placement request is stored with.
+// Default of «Parámetros del sistema»; new requests read ParametrosDelSistema::diasVigenciaClasificacion.
 final class VigenciaDeClasificacion
 {
     public const int DIAS = 30;

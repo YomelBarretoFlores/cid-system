@@ -19,6 +19,9 @@ use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Support\EstadoDeLaClase;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Models\Persona;
+use App\Shared\Auth\Enums\PermisoUsuario;
+use App\Shared\Auth\Models\User;
+use App\Shared\Parametros\Actions\GuardarParametrosDelSistema;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\QueryException;
@@ -271,3 +274,16 @@ it('keeps the calls and the confirmation consistent in the database', function (
     'observed without a comment' => [fn (ClaseDictada $clase): int => DB::table('doc_clases_dictadas')->where('id', $clase->id)->update(['llamado_cierre_en' => now(), 'confirmacion' => 'observada', 'confirmada_por_matricula_id' => $this->ana->id, 'confirmada_en' => now()])],
     'second call mark for a student absent at the start' => [fn (ClaseDictada $clase): int => DB::table('doc_asistencias')->where('clase_id', $clase->id)->where('matricula_id', $this->rosa->id)->update(['estado_cierre' => 'presente'])],
 ]);
+
+it('opens the first call as many minutes before the class as the system parameters say', function (): void {
+    app(GuardarParametrosDelSistema::class)(['asistencia_inicio_abre_minutos_antes' => 30], User::factory()->create()->givePermissionTo(PermisoUsuario::Gestionar->value));
+
+    aLas('17:29');
+    expect(fn (): ClaseDictada => llamadoDeInicio([$this->ana->id => 'presente', $this->luis->id => 'presente', $this->rosa->id => 'presente']))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Todavía no puedes registrar la asistencia de la clase del 10/03/2027. El llamado de inicio se abre a las 17:30.');
+
+    aLas('17:30');
+    $clase = llamadoDeInicio([$this->ana->id => 'presente', $this->luis->id => 'presente', $this->rosa->id => 'presente'])->refresh();
+
+    expect(enLimaALas($clase->llamado_inicio_en))->toBe('2027-03-10 17:30');
+});

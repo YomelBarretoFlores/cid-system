@@ -16,7 +16,9 @@ use App\Modules\Tramites\Filament\Resources\TiposTramite\Schemas\TipoTramiteForm
 use App\Modules\Tramites\Filament\Resources\TiposTramite\TipoTramiteResource;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Models\Tramite;
+use App\Shared\Auth\Enums\PermisoUsuario;
 use App\Shared\Auth\Models\User;
+use App\Shared\Parametros\Actions\GuardarParametrosDelSistema;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Support\Facades\DB;
@@ -186,4 +188,15 @@ it('refuses more than five attachments and a type that requires itself', functio
         ->toThrow(ReglaDeNegocioIncumplida::class, 'Un trámite pide como máximo 5 adjuntos, cada uno con un nombre de 3 a 80 caracteres sin repetir.')
         ->and(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo(['codigo' => 'RETIRO', 'requiere_tipo_previo_id' => $tipo->id])), $this->administrador, $tipo->id))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El trámite previo debe ser otro tipo de trámite.');
+});
+
+it('accepts as many attachments as the system parameters allow', function (): void {
+    app(GuardarParametrosDelSistema::class)(['maximo_adjuntos_tramite' => 6], User::factory()->create()->givePermissionTo(PermisoUsuario::Gestionar->value));
+    $documentos = fn (int $cantidad): array => array_map(fn (int $numero): array => ['nombre' => "Documento {$numero}", 'obligatorio' => false], range(1, $cantidad));
+
+    $tipo = app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo(['adjuntos' => $documentos(6)])), $this->administrador);
+
+    expect($tipo->refresh()->adjuntos)->toHaveCount(6)
+        ->and(fn () => app(GuardarTipoDeTramite::class)(TipoTramiteForm::datos(formularioDeTipo(['codigo' => 'OTRO', 'adjuntos' => $documentos(7)])), $this->administrador))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'Un trámite pide como máximo 6 adjuntos, cada uno con un nombre de 3 a 80 caracteres sin repetir.');
 });

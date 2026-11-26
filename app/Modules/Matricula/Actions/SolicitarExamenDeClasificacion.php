@@ -6,12 +6,12 @@ namespace App\Modules\Matricula\Actions;
 
 use App\Modules\Academico\Contracts\CatalogoDeIdiomas;
 use App\Modules\Academico\Data\IdiomaDelCatalogo;
-use App\Modules\Matricula\Data\VigenciaDeClasificacion;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Matricula\Support\MovimientoDeMatricula;
 use App\Modules\Pagos\Contracts\VerificacionDePago;
 use App\Modules\Pagos\Enums\TipoConcepto;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
@@ -21,14 +21,16 @@ final readonly class SolicitarExamenDeClasificacion
     public function __construct(
         private VerificacionDePago $verificacionDePago,
         private CatalogoDeIdiomas $catalogoDeIdiomas,
+        private ParametrosDelSistema $parametrosDelSistema,
     ) {}
 
     public function __invoke(int $personaId, int $idiomaId, int $pagoId): SolicitudClasificacion
     {
         $idioma = $this->idiomaDisponible($idiomaId);
+        $dias = ($this->parametrosDelSistema)()->diasVigenciaClasificacion;
 
         // Same order as enrollment: person, then payment.
-        return Transaccion::ejecutar(function () use ($personaId, $idioma, $pagoId): SolicitudClasificacion {
+        return Transaccion::ejecutar(function () use ($personaId, $idioma, $pagoId, $dias): SolicitudClasificacion {
             MovimientoDeMatricula::bloquearPersona($personaId);
             ($this->verificacionDePago)($pagoId, $personaId, TipoConcepto::ExamenClasificacion);
 
@@ -44,7 +46,7 @@ final readonly class SolicitarExamenDeClasificacion
                 'persona_id' => $personaId,
                 'idioma_id' => $idioma->id,
                 'pago_id' => $pagoId,
-                'vence_en' => CarbonImmutable::today('America/Lima')->addDays(VigenciaDeClasificacion::DIAS)->toDateString(),
+                'vence_en' => CarbonImmutable::today('America/Lima')->addDays($dias)->toDateString(),
             ]);
         });
     }

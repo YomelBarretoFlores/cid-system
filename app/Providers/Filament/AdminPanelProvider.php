@@ -13,6 +13,7 @@ use App\Shared\Auth\Filament\Resources\Roles\RolResource;
 use App\Shared\Auth\Filament\Resources\Usuarios\UsuarioResource;
 use App\Shared\Auth\Http\Middleware\ExigirDobleFactorSiEsObligatorio;
 use App\Shared\Auth\Http\Middleware\ProtegerSesionDelPanel;
+use App\Shared\Parametros\Filament\EditarParametrosDelSistema;
 use App\Shared\Support\Filament\Inicio;
 use Filament\Enums\GlobalSearchPosition;
 use Filament\Forms\Components\DatePicker;
@@ -51,6 +52,7 @@ final class AdminPanelProvider extends PanelProvider
             ->strictAuthorization()
             ->pages([
                 Inicio::class,
+                EditarParametrosDelSistema::class,
             ])
             // Discovery only scans the modules; the staff accounts and audit screens live in app/Shared.
             ->resources([

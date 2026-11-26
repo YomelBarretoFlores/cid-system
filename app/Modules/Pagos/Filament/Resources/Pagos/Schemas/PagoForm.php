@@ -14,6 +14,7 @@ use App\Modules\Pagos\Support\TarifaAplicable;
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use Carbon\CarbonImmutable;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -24,8 +25,6 @@ use Filament\Schemas\Schema;
 
 final class PagoForm
 {
-    public const int RECIBO_MAXIMO_KB = 5120;
-
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -72,7 +71,7 @@ final class PagoForm
                 FileUpload::make('recibo')
                     ->label('Recibo escaneado (JPG, PNG o PDF)')
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
-                    ->maxSize(self::RECIBO_MAXIMO_KB)
+                    ->maxSize(fn (): int => app(ParametrosDelSistema::class)()->reciboMaximoKb())
                     ->storeFiles(false)
                     ->required()
                     ->columnSpanFull(),

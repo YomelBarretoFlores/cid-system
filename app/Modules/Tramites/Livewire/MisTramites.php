@@ -21,7 +21,7 @@ use App\Modules\Tramites\Enums\EstadoTramite;
 use App\Modules\Tramites\Models\GradoFut;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Support\AccesoAlTipo;
-use App\Modules\Tramites\Support\AdjuntosDeSolicitud;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Logging\RegistroDeRechazos;
 use Illuminate\Contracts\View\View;
@@ -94,7 +94,8 @@ final class MisTramites extends Component
             return;
         }
 
-        $this->validate(['adjuntos.*' => ['nullable', 'file', 'max:'.AdjuntosDeSolicitud::MAXIMO_KB]], ['adjuntos.*.max' => 'Cada adjunto debe pesar como máximo 5 MB.', 'adjuntos.*.file' => 'Adjunta un archivo válido.']);
+        $parametros = app(ParametrosDelSistema::class)();
+        $this->validate(['adjuntos.*' => ['nullable', 'file', 'max:'.$parametros->adjuntoMaximoKb()]], ['adjuntos.*.max' => "Cada adjunto debe pesar como máximo {$parametros->adjuntoMaximoMb} MB.", 'adjuntos.*.file' => 'Adjunta un archivo válido.']);
 
         try {
             $tramite = $solicitarTramite($this->personaId(), $tipo->id, $this->datos($tipo->accion_final));

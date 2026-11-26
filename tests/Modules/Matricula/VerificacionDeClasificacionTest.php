@@ -26,7 +26,9 @@ use App\Modules\Pagos\Enums\TipoConcepto;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Models\Persona;
+use App\Shared\Auth\Enums\PermisoUsuario;
 use App\Shared\Auth\Models\User;
+use App\Shared\Parametros\Actions\GuardarParametrosDelSistema;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -215,4 +217,29 @@ it('audits the result update and the enablement insert and replacement', functio
     expect($ops('mat_solicitudes_clasificacion', $solicitud->id))->toBe(['INSERT', 'UPDATE'])
         ->and($ops('mat_habilitaciones', $habilitacion->id))->toBe(['INSERT', 'UPDATE'])
         ->and($habilitacion->ciclo_id)->toBe($this->ciclo1->id);
+});
+
+it('keeps a placement request valid for the days the system parameters set when it was made', function (): void {
+    app(GuardarParametrosDelSistema::class)(['dias_vigencia_clasificacion' => 45], User::factory()->create()->givePermissionTo(PermisoUsuario::Gestionar->value));
+    $solicitud = app(SolicitarExamenDeClasificacion::class)($this->persona->id, $this->ingles->id, $this->pago->id);
+
+    $this->travelTo(CarbonImmutable::parse('2026-11-24 10:00', 'America/Lima'));
+    expect(app(ExpirarSolicitudesDeClasificacion::class)())->toBe(0)
+        ->and($solicitud->refresh()->vence_en->toDateString())->toBe('2026-12-08');
+
+    $this->travelTo(CarbonImmutable::parse('2026-12-09 00:10', 'America/Lima'));
+    expect(app(ExpirarSolicitudesDeClasificacion::class)())->toBe(1)
+        ->and($solicitud->refresh()->estado)->toBe(EstadoSolicitudClasificacion::Expirado);
+});
+
+it('takes placement scores up to the maximum the system parameters set', function (): void {
+    app(GuardarParametrosDelSistema::class)(['puntaje_maximo_clasificacion' => 20], User::factory()->create()->givePermissionTo(PermisoUsuario::Gestionar->value));
+    $solicitud = app(SolicitarExamenDeClasificacion::class)($this->persona->id, $this->ingles->id, $this->pago->id);
+    $resultado = fn (string $puntaje): ResultadoDeClasificacion => new ResultadoDeClasificacion(CarbonImmutable::parse('2026-10-24'), $puntaje, $this->cicloVI->id, null);
+
+    expect(fn () => app(RegistrarResultadoDeClasificacion::class)($solicitud->id, $resultado('20.01'), $this->coordinador))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El puntaje va de 0 a 20, con hasta dos decimales.');
+
+    app(RegistrarResultadoDeClasificacion::class)($solicitud->id, $resultado('20.00'), $this->coordinador);
+    expect($solicitud->refresh()->puntaje)->toBe('20.00');
 });

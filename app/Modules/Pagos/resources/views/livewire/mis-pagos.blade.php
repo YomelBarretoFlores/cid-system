@@ -30,7 +30,7 @@
                     <x-portal.campo nombre="monto" etiqueta="Monto pagado (S/)" inputmode="decimal" autocomplete="off"
                         :ayuda="$recargo === null ? 'Se completa con la tarifa vigente del concepto.' : 'Incluye el recargo de '.$recargo.' % por matrícula extemporánea.'" required />
                     <x-portal.archivo nombre="recibo" etiqueta="Recibo escaneado" acepta="image/jpeg,image/png,application/pdf"
-                        formatos="JPG, PNG o PDF · hasta 5 MB" />
+                        :formatos="'JPG, PNG o PDF · hasta '.$reciboMaximoMb.' MB'" />
                 </div>
 
                 <div class="flex flex-wrap gap-2">

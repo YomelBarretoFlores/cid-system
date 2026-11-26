@@ -12,6 +12,9 @@ use App\Modules\Tramites\Enums\AccionFinal;
 use App\Modules\Tramites\Models\Adjunto;
 use App\Modules\Tramites\Models\TipoTramite;
 use App\Modules\Tramites\Models\Tramite;
+use App\Shared\Auth\Enums\PermisoUsuario;
+use App\Shared\Auth\Models\User;
+use App\Shared\Parametros\Actions\GuardarParametrosDelSistema;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
@@ -177,4 +180,16 @@ it('keeps attachments insert-only', function (): void {
 
     expect(fn () => DB::transaction(fn () => DB::table('tra_adjuntos')->where('id', $adjunto->id)->update(['nombre' => 'Otro'])))->toThrow(QueryException::class, 'los adjuntos de un trámite no se modifican')
         ->and(fn () => DB::transaction(fn () => DB::table('tra_adjuntos')->where('id', $adjunto->id)->delete()))->toThrow(QueryException::class, 'los adjuntos de un trámite no se modifican');
+});
+
+it('takes attachments up to the size the system parameters set', function (): void {
+    Storage::fake('local');
+    app(GuardarParametrosDelSistema::class)(['adjunto_maximo_mb' => 8], User::factory()->create()->givePermissionTo(PermisoUsuario::Gestionar->value));
+    $tipo = tipoDelFut(['adjuntos' => [['nombre' => 'Copia de DNI', 'obligatorio' => true]]]);
+
+    expect(fn (): Tramite => solicitarDelFut($this->persona, $tipo, new DatosDeSolicitud(adjuntos: [0 => pdfDePrueba('dni.pdf', str_repeat('a', 8 * 1024 * 1024))])))
+        ->toThrow(ReglaDeNegocioIncumplida::class, 'El adjunto «Copia de DNI» no debe pesar más de 8 MB.');
+
+    $tramite = solicitarDelFut($this->persona, $tipo, new DatosDeSolicitud(adjuntos: [0 => pdfDePrueba('dni.pdf', str_repeat('a', 6 * 1024 * 1024))]));
+    expect(Adjunto::query()->where('tramite_id', $tramite->id)->sole()->bytes)->toBeGreaterThan(6 * 1024 * 1024);
 });

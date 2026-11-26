@@ -164,7 +164,7 @@
                     @endforeach
                     @foreach ($tipo->adjuntos as $indice => $pedido)
                         <x-portal.archivo nombre="adjuntos.{{ $indice }}" :etiqueta="$pedido['nombre'].($pedido['obligatorio'] ? '' : ' (opcional)')"
-                            acepta="image/jpeg,image/png,application/pdf" formatos="PDF, JPG o PNG, hasta 5 MB" />
+                            acepta="image/jpeg,image/png,application/pdf" :formatos="'PDF, JPG o PNG, hasta '.app(\App\Shared\Parametros\Contracts\ParametrosDelSistema::class)()->adjuntoMaximoMb.' MB'" />
                     @endforeach
                     <x-portal.texto-largo nombre="comentario" etiqueta="Comentario (opcional)" filas="2" />
 

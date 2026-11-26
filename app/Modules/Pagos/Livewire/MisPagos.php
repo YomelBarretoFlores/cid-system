@@ -12,7 +12,6 @@ use App\Modules\Pagos\Actions\RegistrarPago;
 use App\Modules\Pagos\Data\RegistroDePago;
 use App\Modules\Pagos\Data\ReporteDeRecaudacion;
 use App\Modules\Pagos\Enums\EstadoPago;
-use App\Modules\Pagos\Filament\Resources\Pagos\Schemas\PagoForm;
 use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
@@ -22,6 +21,8 @@ use App\Modules\Pagos\Support\TarifaAplicable;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Data\FichaDeEstudiante;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
+use App\Shared\Parametros\Data\ValoresDeParametros;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Livewire\MensajesDeValidacion;
 use App\Shared\Support\Logging\RegistroDeRechazos;
@@ -152,6 +153,7 @@ final class MisPagos extends Component
             'programas' => $this->programasActivos(),
             'hoy' => $this->hoy(),
             'recargo' => $this->montoPropuesto()?->recargo,
+            'reciboMaximoMb' => $this->parametros()->reciboMaximoMb,
         ]);
     }
 
@@ -168,7 +170,7 @@ final class MisPagos extends Component
             'monto' => ['required', 'numeric', 'decimal:0,2', 'gt:0', 'max:99999999.99'],
             'nivel' => [Rule::requiredIf(fn (): bool => $this->criterios()['nivel']), 'nullable', Rule::enum(NivelCurricular::class)],
             'programa_id' => ['nullable', Rule::in(array_map(strval(...), array_keys($this->programasActivos())))],
-            'recibo' => ['required', 'file', 'max:'.PagoForm::RECIBO_MAXIMO_KB],
+            'recibo' => ['required', 'file', 'max:'.$this->parametros()->reciboMaximoKb()],
         ];
     }
 
@@ -195,7 +197,7 @@ final class MisPagos extends Component
             'monto.max' => 'Revisa el monto: es demasiado alto.',
             'recibo.required' => 'Adjunta el recibo escaneado.',
             'recibo.file' => 'Adjunta el recibo escaneado.',
-            'recibo.max' => 'El recibo no debe pesar más de 5 MB.',
+            'recibo.max' => "El recibo no debe pesar más de {$this->parametros()->reciboMaximoMb} MB.",
         ];
     }
 
@@ -293,6 +295,11 @@ final class MisPagos extends Component
     private function ficha(): FichaDeEstudiante
     {
         return $this->ficha ??= app(FichaDelUsuario::class)((int) auth()->id()) ?? abort(403);
+    }
+
+    private function parametros(): ValoresDeParametros
+    {
+        return app(ParametrosDelSistema::class)();
     }
 
     private function hoy(): string

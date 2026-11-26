@@ -47,7 +47,7 @@
                                         —
                                     @endif
                                 </td>
-                                <td class="tabular-nums">{{ $evaluada && $solicitud->puntaje !== null ? "{$solicitud->puntaje} de 100" : '—' }}</td>
+                                <td class="tabular-nums">{{ $evaluada && $solicitud->puntaje !== null ? "{$solicitud->puntaje} de {$puntajeMaximo}" : '—' }}</td>
                                 <td>{{ $evaluada ? ($idiomaDeSolicitud?->ciclos[$solicitud->ciclo_asignado_id] ?? '—') : '—' }}</td>
                             </tr>
                         @endforeach

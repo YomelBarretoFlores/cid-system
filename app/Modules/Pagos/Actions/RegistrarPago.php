@@ -13,6 +13,7 @@ use App\Modules\Pagos\Models\Tarifa;
 use App\Modules\Pagos\Support\TarifaAplicable;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Shared\Auth\Models\User;
+use App\Shared\Parametros\Contracts\ParametrosDelSistema;
 use App\Shared\Support\Database\RestriccionUnica;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -34,7 +35,10 @@ final readonly class RegistrarPago
         'application/pdf' => 'pdf',
     ];
 
-    public function __construct(private ConsultaDeVinculo $vinculo) {}
+    public function __construct(
+        private ConsultaDeVinculo $vinculo,
+        private ParametrosDelSistema $parametrosDelSistema,
+    ) {}
 
     public function __invoke(RegistroDePago $registro, UploadedFile $recibo, ?User $registradoPor = null): Pago
     {
@@ -83,6 +87,8 @@ final readonly class RegistrarPago
 
     private function extensionDelRecibo(UploadedFile $recibo): string
     {
+        $maximoMb = ($this->parametrosDelSistema)()->reciboMaximoMb;
+        throw_if((int) $recibo->getSize() > $maximoMb * 1024 * 1024, ReglaDeNegocioIncumplida::class, "El recibo no debe pesar más de {$maximoMb} MB.");
         $tipo = new finfo(FILEINFO_MIME_TYPE)->file($recibo->getRealPath());
 
         return self::EXTENSIONES[$tipo]
