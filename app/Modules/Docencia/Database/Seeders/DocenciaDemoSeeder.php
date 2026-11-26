@@ -143,7 +143,8 @@ final class DocenciaDemoSeeder extends Seeder
             $notas[$estudiante->matriculaId] = $componentes->mapWithKeys(fn (ComponenteDeEvaluacion $componente, int $posicion): array => [$componente->id => match (true) {
                 $indice === count($estudiantes) - 1 => '',
                 $indice === 2 && $componente->codigo === 'final' => '',
-                default => number_format(min(20, 8 + ($indice * 5 + $posicion * 3 + $grupo->id) % 12 + ($indice % 3) * 0.5), 2, '.', ''),
+                $indice === 1 => '8.00',
+                default => number_format(min(20, 8 + ($indice * 5 + $posicion * 3 + crc32($grupo->codigo)) % 12 + ($indice % 3) * 0.5), 2, '.', ''),
             }])->all();
         }
 

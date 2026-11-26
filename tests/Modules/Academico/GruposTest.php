@@ -95,7 +95,9 @@ it('refuses to cancel a group with enrolled students', function (): void {
 });
 
 it('creates a scheduled face-to-face group with no enrolled students', function (): void {
-    $siguiente = Ciclo::factory()->create(['idioma_id' => $this->ciclo->idioma_id, 'numero' => $this->ciclo->numero + 1]);
+    // A random base cycle numbered 12 would leave no valid next number.
+    $this->ciclo->update(['numero' => 1]);
+    $siguiente = Ciclo::factory()->create(['idioma_id' => $this->ciclo->idioma_id, 'numero' => 2]);
 
     $grupo = app(GuardarGrupo::class)(datosDeGrupo(['esAcelerado' => true]));
 
