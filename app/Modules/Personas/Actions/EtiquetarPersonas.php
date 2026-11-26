@@ -12,6 +12,7 @@ final readonly class EtiquetarPersonas implements EtiquetasDePersonas
     public function __invoke(array $personaIds): array
     {
         return Persona::query()
+            ->with('tipoDeDocumento')
             ->whereKey($personaIds)
             ->get()
             ->mapWithKeys(fn (Persona $persona): array => [$persona->id => $persona->etiqueta])

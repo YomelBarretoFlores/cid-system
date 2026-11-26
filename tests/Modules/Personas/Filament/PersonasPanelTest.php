@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Modules\Personas\Enums\PermisoPersona;
-use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\CreatePersona;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\EditPersona;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\ListPersonas;
@@ -32,7 +31,7 @@ function usuarioDePersonas(PermisoPersona ...$permisos): User
 function datosDePersona(array $cambios = []): array
 {
     return [
-        'tipo_documento' => TipoDocumento::Dni->value,
+        'tipo_documento' => 'dni',
         'numero_documento' => '45678912',
         'apellido_paterno' => 'Huamán',
         'apellido_materno' => 'Torres',
@@ -106,7 +105,7 @@ it('filters people by link type and document type', function (string $filtro, st
         ->assertCanNotSeeTableRecords([$this->{$descartada}]);
 })->with([
     'link type' => ['tipo_vinculo', 'docente_administrativo_unasam', 'persona', 'extranjera'],
-    'document type' => ['tipo_documento', TipoDocumento::Ce->value, 'extranjera', 'persona'],
+    'document type' => ['tipo_documento', 'ce', 'extranjera', 'persona'],
 ]);
 
 it('shows a person without offering to delete them', function (): void {
@@ -176,14 +175,14 @@ it('registers a person with a normalized document and phone', function (): void 
 
     Livewire::test(CreatePersona::class)
         ->fillForm(datosDePersona([
-            'tipo_documento' => TipoDocumento::Pasaporte->value, 'numero_documento' => ' ab123456 ',
+            'tipo_documento' => 'pasaporte', 'numero_documento' => ' ab123456 ',
             'apellido_materno' => null, 'celular' => '+51 987 654-321',
         ]))
         ->call('create')
         ->assertHasNoFormErrors();
 
     expect(Persona::query()->where('numero_documento', 'AB123456')->sole())
-        ->tipo_documento->toBe(TipoDocumento::Pasaporte)
+        ->tipo_documento->toBe('pasaporte')
         ->apellido_materno->toBeNull()
         ->celular->toBe('+51987654321')
         ->tipo_vinculo->toBe('estudiante_unasam')
@@ -201,10 +200,10 @@ it('rejects data the database would refuse', function (array $cambios, string $c
 
     expect(Persona::query()->count())->toBe(2);
 })->with([
-    'DNI with 7 digits' => [['numero_documento' => '4567891'], 'numero_documento', PersonaForm::DNI_INVALIDO],
-    'DNI with letters' => [['numero_documento' => '4567891A'], 'numero_documento', PersonaForm::DNI_INVALIDO],
-    'CE too short' => [['tipo_documento' => 'ce', 'numero_documento' => 'ab123'], 'numero_documento', PersonaForm::DOCUMENTO_INVALIDO],
-    'passport with symbols' => [['tipo_documento' => 'pasaporte', 'numero_documento' => 'AB-12345'], 'numero_documento', PersonaForm::DOCUMENTO_INVALIDO],
+    'DNI with 7 digits' => [['numero_documento' => '4567891'], 'numero_documento', 'El DNI debe tener exactamente 8 dígitos.'],
+    'DNI with letters' => [['numero_documento' => '4567891A'], 'numero_documento', 'El DNI debe tener exactamente 8 dígitos.'],
+    'CE too short' => [['tipo_documento' => 'ce', 'numero_documento' => 'ab123'], 'numero_documento', 'El documento debe tener de 6 a 12 letras o números, sin espacios ni guiones.'],
+    'passport with symbols' => [['tipo_documento' => 'pasaporte', 'numero_documento' => 'AB-12345'], 'numero_documento', 'El documento debe tener de 6 a 12 letras o números, sin espacios ni guiones.'],
     'missing paternal surname' => [['apellido_paterno' => null], 'apellido_paterno', 'required'],
     'missing names' => [['nombres' => null], 'nombres', 'required'],
     'invalid email' => [['correo' => 'lucia.prueba'], 'correo', 'email'],
@@ -241,7 +240,7 @@ it('reports a document registered by someone else at the same time as a form err
     $this->actingAs(usuarioDePersonas(PermisoPersona::Ver, PermisoPersona::Gestionar));
     Persona::creating(function (Persona $nueva): void {
         DB::table('per_personas')->insert([
-            'ulid' => (string) str()->ulid(), 'tipo_documento' => $nueva->tipo_documento->value,
+            'ulid' => (string) str()->ulid(), 'tipo_documento' => $nueva->tipo_documento,
             'numero_documento' => $nueva->numero_documento, 'apellido_paterno' => 'Simultánea', 'nombres' => 'Prueba',
         ]);
     });
@@ -270,7 +269,7 @@ it('edits a person keeping their document unique and their account link', functi
         ->assertHasFormErrors(['numero_documento' => PersonaForm::DOCUMENTO_REPETIDO]);
 
     expect($this->persona->refresh())
-        ->tipo_documento->toBe(TipoDocumento::Dni)
+        ->tipo_documento->toBe('dni')
         ->numero_documento->toBe('40123456')
         ->correo->toBe('ana.nueva@example.com')
         ->user_id->toBe($usuario->id);
@@ -280,7 +279,7 @@ it('reports a document taken by someone else while editing as a form error', fun
     $this->actingAs(usuarioDePersonas(PermisoPersona::Ver, PermisoPersona::Gestionar));
     Persona::updating(function (Persona $editada): void {
         DB::table('per_personas')->insert([
-            'ulid' => (string) str()->ulid(), 'tipo_documento' => $editada->tipo_documento->value,
+            'ulid' => (string) str()->ulid(), 'tipo_documento' => $editada->tipo_documento,
             'numero_documento' => $editada->numero_documento, 'apellido_paterno' => 'Simultánea', 'nombres' => 'Prueba',
         ]);
     });

@@ -2,30 +2,36 @@
 
 declare(strict_types=1);
 
-use App\Modules\Personas\Enums\TipoDocumento;
+use App\Modules\Personas\Actions\ComprobarDocumento;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
 
-it('rejects malformed identity documents and phone numbers', function (array $attributes, string $constraint): void {
-    expect(fn () => Persona::factory()->create($attributes))->toThrow(QueryException::class, $constraint);
+it('rejects malformed identity documents with the rule of their catalog type', function (array $attributes, string $mensaje): void {
+    expect(fn () => app(ComprobarDocumento::class)(Persona::factory()->make($attributes)))->toThrow(ReglaDeNegocioIncumplida::class, $mensaje);
 })->with([
-    'DNI with 7 digits' => [['numero_documento' => '1234567'], 'per_personas_documento_check'],
-    'DNI with letters' => [['numero_documento' => '1234567A'], 'per_personas_documento_check'],
-    'CE too short' => [['tipo_documento' => TipoDocumento::Ce, 'numero_documento' => '12345'], 'per_personas_documento_check'],
-    'passport with symbols' => [['tipo_documento' => TipoDocumento::Pasaporte, 'numero_documento' => 'AB-12345'], 'per_personas_documento_check'],
-    'phone with letters' => [['celular' => '9871A3456'], 'per_personas_celular_check'],
+    'DNI with 7 digits' => [['numero_documento' => '1234567'], 'El DNI debe tener exactamente 8 dígitos.'],
+    'DNI with letters' => [['numero_documento' => '1234567A'], 'El DNI debe tener exactamente 8 dígitos.'],
+    'CE too short' => [['tipo_documento' => 'ce', 'numero_documento' => '12345'], 'El documento debe tener de 6 a 12 letras o números, sin espacios ni guiones.'],
+    'passport with symbols' => [['tipo_documento' => 'pasaporte', 'numero_documento' => 'AB-12345'], 'El documento debe tener de 6 a 12 letras o números, sin espacios ni guiones.'],
 ]);
 
-it('accepts valid documents of every type', function (TipoDocumento $tipo, string $numero): void {
-    $persona = Persona::factory()->create(['tipo_documento' => $tipo, 'numero_documento' => $numero]);
+it('rejects malformed phone numbers', function (): void {
+    expect(fn () => Persona::factory()->create(['celular' => '9871A3456']))->toThrow(QueryException::class, 'per_personas_celular_check');
+});
+
+it('accepts valid documents of every type', function (string $tipo, string $numero): void {
+    $persona = Persona::factory()->make(['tipo_documento' => $tipo, 'numero_documento' => $numero]);
+    app(ComprobarDocumento::class)($persona);
+    $persona->save();
 
     expect($persona->refresh()->tipo_documento)->toBe($tipo);
 })->with([
-    'DNI' => [TipoDocumento::Dni, '70123456'],
-    'CE' => [TipoDocumento::Ce, '001234567'],
-    'passport' => [TipoDocumento::Pasaporte, 'X1234567'],
+    'DNI' => ['dni', '70123456'],
+    'CE' => ['ce', '001234567'],
+    'passport' => ['pasaporte', 'X1234567'],
 ]);
 
 it('registers each document only once per type', function (): void {
@@ -36,14 +42,14 @@ it('registers each document only once per type', function (): void {
 });
 
 it('allows the same number under a different document type', function (): void {
-    Persona::factory()->create(['tipo_documento' => TipoDocumento::Ce, 'numero_documento' => '70123456']);
+    Persona::factory()->create(['tipo_documento' => 'ce', 'numero_documento' => '70123456']);
 
     expect(Persona::factory()->create(['numero_documento' => '70123456'])->exists)->toBeTrue();
 });
 
 it('normalizes document numbers to uppercase and emails to lowercase', function (): void {
     $persona = Persona::factory()->create([
-        'tipo_documento' => TipoDocumento::Pasaporte,
+        'tipo_documento' => 'pasaporte',
         'numero_documento' => ' x1234567 ',
         'correo' => ' Ana.Quispe@Example.COM ',
     ]);
@@ -62,7 +68,7 @@ it('builds the full name as surnames, first names', function (): void {
 
 it('defaults the link with the university to general public', function (): void {
     $persona = Persona::query()->create([
-        'tipo_documento' => TipoDocumento::Dni,
+        'tipo_documento' => 'dni',
         'numero_documento' => '70123456',
         'apellido_paterno' => 'Rojas',
         'nombres' => 'Luis',

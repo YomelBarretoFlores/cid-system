@@ -20,7 +20,7 @@ final readonly class RegistrarCuentaDeEstudiante
     // One message whether or not the record already has an account, so the form reveals no more than that.
     public const string DOCUMENTO_NO_DISPONIBLE = 'No podemos crear una cuenta con ese documento. Si ya tienes una, ingresa o recupera tu contraseña; si no, acércate a la oficina del CILN con tu documento de identidad para que te creen la cuenta.';
 
-    public function __construct(private ObtenerVinculoPorDefecto $vinculoPorDefecto) {}
+    public function __construct(private ObtenerVinculoPorDefecto $vinculoPorDefecto, private ComprobarDocumento $comprobarDocumento) {}
 
     public function __invoke(SolicitudDeCuenta $solicitud): User
     {
@@ -68,7 +68,7 @@ final readonly class RegistrarCuentaDeEstudiante
 
         throw_if($existe, ReglaDeNegocioIncumplida::class, self::DOCUMENTO_NO_DISPONIBLE);
 
-        return Persona::query()->create([
+        $persona = new Persona([
             'tipo_documento' => $solicitud->tipoDocumento,
             'numero_documento' => $solicitud->numeroDocumento,
             'apellido_paterno' => trim($solicitud->apellidoPaterno),
@@ -79,6 +79,10 @@ final readonly class RegistrarCuentaDeEstudiante
             'celular' => filled($solicitud->celular) ? $solicitud->celular : null,
             'tipo_vinculo' => ($this->vinculoPorDefecto)(),
         ]);
+        ($this->comprobarDocumento)($persona, formal: false);
+        $persona->save();
+
+        return $persona;
     }
 
     private function traducirDuplicado(UniqueConstraintViolationException $error): ReglaDeNegocioIncumplida|UniqueConstraintViolationException

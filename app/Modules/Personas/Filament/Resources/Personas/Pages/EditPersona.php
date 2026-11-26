@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Personas\Filament\Resources\Personas\Pages;
 
+use App\Modules\Personas\Actions\ComprobarDocumento;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\Concerns\InformaDocumentoRepetido;
 use App\Modules\Personas\Filament\Resources\Personas\PersonaResource;
 use App\Modules\Personas\Models\Persona;
@@ -24,11 +25,16 @@ final class EditPersona extends EditRecord
         $aceptado = (bool) Arr::pull($data, 'acepta_tratamiento', false);
 
         return $this->guardarSinRepetirDocumento(function () use ($record, $data, $aceptado): Model {
-            if ($record instanceof Persona) {
-                $record->registrarConsentimiento($aceptado);
+            if (! $record instanceof Persona) {
+                return parent::handleRecordUpdate($record, $data);
             }
 
-            return parent::handleRecordUpdate($record, $data);
+            $record->fill($data);
+            app(ComprobarDocumento::class)($record);
+            $record->registrarConsentimiento($aceptado);
+            $record->save();
+
+            return $record;
         });
     }
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Personas\Models;
 
 use App\Modules\Personas\Database\Factories\PersonaFactory;
-use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Policies\PersonaPolicy;
 use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
@@ -25,13 +24,14 @@ use Illuminate\Support\Str;
 
 /**
  * @property string $tipo_vinculo
- * @property TipoDocumento $tipo_documento
+ * @property string $tipo_documento
  * @property ?CarbonImmutable $fecha_nacimiento
  * @property ?string $direccion
  * @property ?string $foto
  * @property ?CarbonImmutable $tratamiento_aceptado_en
  * @property ?CarbonImmutable $habilitada_en
  * @property-read TipoVinculo $vinculo
+ * @property-read TipoDocumento $tipoDeDocumento
  */
 #[Table('per_personas')]
 #[RouteKey('ulid')]
@@ -100,6 +100,14 @@ final class Persona extends Model
     }
 
     /**
+     * @return BelongsTo<TipoDocumento, $this>
+     */
+    public function tipoDeDocumento(): BelongsTo
+    {
+        return $this->belongsTo(TipoDocumento::class, 'tipo_documento', 'codigo');
+    }
+
+    /**
      * @param  Builder<self>  $query
      */
     #[Scope]
@@ -129,7 +137,7 @@ final class Persona extends Model
      */
     protected function etiqueta(): Attribute
     {
-        return Attribute::get(fn (): string => "{$this->tipo_documento->etiqueta()} {$this->numero_documento} · {$this->nombre_completo}");
+        return Attribute::get(fn (): string => "{$this->tipoDeDocumento->nombre} {$this->numero_documento} · {$this->nombre_completo}");
     }
 
     /**
@@ -159,7 +167,6 @@ final class Persona extends Model
     protected function casts(): array
     {
         return [
-            'tipo_documento' => TipoDocumento::class,
             'fecha_nacimiento' => 'date',
             'tratamiento_aceptado_en' => 'datetime',
             'habilitada_en' => 'datetime',

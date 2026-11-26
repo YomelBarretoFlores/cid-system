@@ -21,6 +21,8 @@ final readonly class FichaDeEstudiante
         // Changes with every new photo so the browser does not show a cached one; never the file path itself.
         public ?string $versionDeFoto = null,
         public bool $habilitada = false,
+        public ?string $tipoDocumento = null,
+        public ?string $numeroDocumento = null,
     ) {}
 
     public static function desde(Persona $persona): self
@@ -29,7 +31,7 @@ final readonly class FichaDeEstudiante
             personaId: $persona->id,
             nombres: $persona->nombres,
             nombreCompleto: $persona->nombre_completo,
-            documento: "{$persona->tipo_documento->etiqueta()} {$persona->numero_documento}",
+            documento: "{$persona->tipoDeDocumento->nombre} {$persona->numero_documento}",
             correo: $persona->correo,
             celular: $persona->celular,
             fechaNacimiento: $persona->fecha_nacimiento?->format('d/m/Y'),
@@ -37,6 +39,8 @@ final readonly class FichaDeEstudiante
             direccion: $persona->direccion,
             versionDeFoto: $persona->foto === null ? null : hash('crc32b', $persona->foto),
             habilitada: $persona->habilitada_en !== null,
+            tipoDocumento: $persona->tipoDeDocumento->nombre,
+            numeroDocumento: $persona->numero_documento,
         );
     }
 }

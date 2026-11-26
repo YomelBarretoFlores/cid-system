@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\Personas\Database\Factories;
 
-use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Models\Persona;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +21,7 @@ final class PersonaFactory extends Factory
 
         return [
             'user_id' => null,
-            'tipo_documento' => TipoDocumento::Dni,
+            'tipo_documento' => 'dni',
             'numero_documento' => $faker->unique()->numerify('########'),
             'apellido_paterno' => $faker->lastName(),
             'apellido_materno' => $faker->lastName(),
@@ -42,7 +41,7 @@ final class PersonaFactory extends Factory
     public function extranjera(): static
     {
         return $this->state(fn (): array => [
-            'tipo_documento' => TipoDocumento::Ce,
+            'tipo_documento' => 'ce',
             'numero_documento' => fake()->unique()->bothify('#########'),
             'apellido_materno' => null,
         ]);

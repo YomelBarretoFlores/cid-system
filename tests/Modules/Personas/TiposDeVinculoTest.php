@@ -14,7 +14,6 @@ use App\Modules\Personas\Actions\ObtenerVinculoPorDefecto;
 use App\Modules\Personas\Actions\RegistrarCuentaDeEstudiante;
 use App\Modules\Personas\Data\SolicitudDeCuenta;
 use App\Modules\Personas\Enums\PermisoPersona;
-use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\EditPersona;
 use App\Modules\Personas\Filament\Resources\TiposVinculo\Pages\CreateTipoVinculo;
 use App\Modules\Personas\Filament\Resources\TiposVinculo\Pages\EditTipoVinculo;
@@ -43,7 +42,7 @@ function egresado(): TipoVinculo
 
 function solicitudDeCuenta(): SolicitudDeCuenta
 {
-    return new SolicitudDeCuenta(TipoDocumento::Dni, '45678912', 'Quispe', null, 'Ana', CarbonImmutable::parse('2000-01-01'), 'ana@correo.test', null, true, 'clave-segura1');
+    return new SolicitudDeCuenta('dni', '45678912', 'Quispe', null, 'Ana', CarbonImmutable::parse('2000-01-01'), 'ana@correo.test', null, true, 'clave-segura1');
 }
 
 it('keeps the three vínculos that existed before, in order, with público general as the default', function (): void {

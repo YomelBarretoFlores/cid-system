@@ -13,7 +13,7 @@ final readonly class ObtenerFichasDePersonas implements FichasDePersonas
     public function __invoke(array $personaIds): array
     {
         return Persona::query()
-            ->with('vinculo')
+            ->with(['vinculo', 'tipoDeDocumento'])
             ->whereKey($personaIds)
             ->get()
             ->mapWithKeys(fn (Persona $persona): array => [$persona->id => FichaDeEstudiante::desde($persona)])

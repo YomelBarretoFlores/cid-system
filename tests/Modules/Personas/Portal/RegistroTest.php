@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Modules\Personas\Actions\RegistrarCuentaDeEstudiante;
-use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Livewire\Registro;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -64,7 +63,7 @@ it('creates the person and an account not yet enabled and signs it in without a 
 
     expect($persona)
         ->user_id->toBe($user->id)
-        ->tipo_documento->toBe(TipoDocumento::Dni)
+        ->tipo_documento->toBe('dni')
         ->numero_documento->toBe('41234567')
         ->nombres->toBe('Rosa Elena')
         ->correo->toBe('rosa@correo.test')

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\Personas\Livewire;
 
 use App\Modules\Personas\Actions\RegistrarCuentaDeEstudiante;
+use App\Modules\Personas\Contracts\CatalogoDeDocumentos;
 use App\Modules\Personas\Data\SolicitudDeCuenta;
-use App\Modules\Personas\Enums\TipoDocumento;
+use App\Modules\Personas\Data\TipoDeDocumento;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Personas\Support\DocumentoValido;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Livewire\MensajesDeValidacion;
 use App\Shared\Support\Logging\RegistroDeRechazos;
@@ -34,7 +36,7 @@ final class Registro extends Component
     // Students often register from one campus address, so the limit leaves room for a full lab.
     private const int INTENTOS_POR_MINUTO = 20;
 
-    public string $tipo_documento = 'dni';
+    public string $tipo_documento = '';
 
     public string $numero_documento = '';
 
@@ -55,6 +57,11 @@ final class Registro extends Component
     public string $password_confirmation = '';
 
     public bool $acepta_tratamiento = false;
+
+    public function mount(CatalogoDeDocumentos $catalogo): void
+    {
+        $this->tipo_documento = collect($catalogo())->first(fn (TipoDeDocumento $tipo): bool => $tipo->porDefecto)->codigo ?? '';
+    }
 
     public function registrarse(RegistrarCuentaDeEstudiante $registrar): void
     {
@@ -80,7 +87,10 @@ final class Registro extends Component
     public function render(): View
     {
         return view('personas::livewire.registro', [
-            'tiposDeDocumento' => collect(TipoDocumento::cases())->mapWithKeys(fn (TipoDocumento $tipo): array => [$tipo->value => $tipo->etiqueta()])->all(),
+            'tiposDeDocumento' => collect(app(CatalogoDeDocumentos::class)())
+                ->filter(fn (TipoDeDocumento $tipo): bool => $tipo->activo)
+                ->mapWithKeys(fn (TipoDeDocumento $tipo): array => [$tipo->codigo => $tipo->nombre])
+                ->all(),
         ]);
     }
 
@@ -90,8 +100,8 @@ final class Registro extends Component
     protected function rules(): array
     {
         return [
-            'tipo_documento' => ['required', Rule::enum(TipoDocumento::class)],
-            'numero_documento' => ['required', 'string', $this->esDni() ? 'regex:/^[0-9]{8}$/' : 'regex:/^[A-Z0-9]{6,12}$/'],
+            'tipo_documento' => ['required', 'string', Rule::exists('per_tipos_documento', 'codigo')->where('activo', true)],
+            'numero_documento' => ['required', 'string', DocumentoValido::para($this->tipo_documento, formal: false)],
             'apellido_paterno' => ['required', 'string', 'max:60'],
             'apellido_materno' => ['nullable', 'string', 'max:60'],
             'nombres' => ['required', 'string', 'max:80'],
@@ -112,7 +122,7 @@ final class Registro extends Component
 
         return [
             ...$this->mensajesComunes(),
-            'numero_documento.regex' => $this->esDni() ? 'El DNI tiene 8 dígitos.' : 'El documento tiene de 6 a 12 letras o números.',
+            'tipo_documento.exists' => DocumentoValido::TIPO_NO_DISPONIBLE,
             'fecha_nacimiento.date_format' => $fechaInvalida,
             'fecha_nacimiento.after' => $fechaInvalida,
             'fecha_nacimiento.before' => $fechaInvalida,
@@ -157,15 +167,10 @@ final class Registro extends Component
         $this->celular = Persona::normalizarCelular(trim($this->celular));
     }
 
-    private function esDni(): bool
-    {
-        return $this->tipo_documento === TipoDocumento::Dni->value;
-    }
-
     private function solicitud(): SolicitudDeCuenta
     {
         return new SolicitudDeCuenta(
-            tipoDocumento: TipoDocumento::from($this->tipo_documento),
+            tipoDocumento: $this->tipo_documento,
             numeroDocumento: $this->numero_documento,
             apellidoPaterno: $this->apellido_paterno,
             apellidoMaterno: $this->apellido_materno,

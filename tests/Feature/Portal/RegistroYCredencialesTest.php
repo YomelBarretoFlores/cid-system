@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Modules\Personas\Actions\RegistrarCuentaDeEstudiante;
-use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Livewire\Registro;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Livewire\IniciarSesion;
@@ -53,8 +52,8 @@ it('cannot be tampered into another link type', function (): void {
 });
 
 it('refuses a record on file with another email and one with an account using the same message, creating nothing', function (): void {
-    Persona::factory()->create(['tipo_documento' => TipoDocumento::Dni, 'numero_documento' => '45678912', 'correo' => 'otro@correo.test']);
-    Persona::factory()->create(['tipo_documento' => TipoDocumento::Dni, 'numero_documento' => '45678913', 'correo' => 'ana2@correo.test', 'user_id' => User::factory()]);
+    Persona::factory()->create(['tipo_documento' => 'dni', 'numero_documento' => '45678912', 'correo' => 'otro@correo.test']);
+    Persona::factory()->create(['tipo_documento' => 'dni', 'numero_documento' => '45678913', 'correo' => 'ana2@correo.test', 'user_id' => User::factory()]);
     $antes = sondaConteos();
 
     sondaRegistrarse()->assertHasErrors(['numero_documento' => RegistrarCuentaDeEstudiante::DOCUMENTO_NO_DISPONIBLE]);
@@ -64,7 +63,7 @@ it('refuses a record on file with another email and one with an account using th
 });
 
 it('refuses a record on file with the same email and leaves it for the office to link', function (): void {
-    $persona = Persona::factory()->estudianteUnasam()->create(['tipo_documento' => TipoDocumento::Dni, 'numero_documento' => '45678912', 'correo' => 'ana@correo.test']);
+    $persona = Persona::factory()->estudianteUnasam()->create(['tipo_documento' => 'dni', 'numero_documento' => '45678912', 'correo' => 'ana@correo.test']);
     $antes = sondaConteos();
 
     sondaRegistrarse(['email' => '  ANA@Correo.test '])->assertHasErrors(['numero_documento' => RegistrarCuentaDeEstudiante::DOCUMENTO_NO_DISPONIBLE]);

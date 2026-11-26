@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\Personas\Actions\RegistrarCuentaDeEstudiante;
 use App\Modules\Personas\Data\SolicitudDeCuenta;
-use App\Modules\Personas\Enums\TipoDocumento;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +16,7 @@ esperarHasta((float) $inicio);
 try {
     DB::transaction(function () use ($app, $documento, $correo): void {
         $app->make(RegistrarCuentaDeEstudiante::class)(new SolicitudDeCuenta(
-            tipoDocumento: TipoDocumento::Dni,
+            tipoDocumento: 'dni',
             numeroDocumento: $documento,
             apellidoPaterno: 'Quispe',
             apellidoMaterno: null,

@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use App\Modules\Personas\Contracts\SubconsultaDePersonas;
-use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Models\Persona;
 
 beforeEach(function (): void {
@@ -13,7 +12,7 @@ beforeEach(function (): void {
         'numero_documento' => '40123456', 'apellido_paterno' => 'Quispe', 'apellido_materno' => 'Mamani', 'nombres' => 'Ana María',
     ]);
     $this->luis = Persona::factory()->create([
-        'tipo_documento' => TipoDocumento::Pasaporte, 'numero_documento' => 'AB1234567',
+        'tipo_documento' => 'pasaporte', 'numero_documento' => 'AB1234567',
         'apellido_paterno' => 'Rojas', 'apellido_materno' => 'Quispe', 'nombres' => 'Luis',
     ]);
 });

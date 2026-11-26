@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\Personas\Filament\Resources\Personas\Schemas;
 
-use App\Modules\Personas\Enums\TipoDocumento;
 use App\Modules\Personas\Models\Persona;
+use App\Modules\Personas\Models\TipoDocumento;
 use App\Modules\Personas\Models\TipoVinculo;
+use App\Modules\Personas\Support\DocumentoValido;
 use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
@@ -19,10 +20,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class PersonaForm
 {
-    public const string DNI_INVALIDO = 'El DNI debe tener exactamente 8 dígitos.';
-
-    public const string DOCUMENTO_INVALIDO = 'El documento debe tener de 6 a 12 letras o números, sin espacios ni guiones.';
-
     public const string DOCUMENTO_REPETIDO = 'Ya existe una persona registrada con ese documento.';
 
     public const string CELULAR_INVALIDO = 'El celular debe tener de 7 a 15 dígitos y puede empezar con +.';
@@ -37,14 +34,14 @@ final class PersonaForm
                     ->schema([
                         Select::make('tipo_documento')
                             ->label('Tipo de documento')
-                            ->options(self::opciones(TipoDocumento::cases()))
-                            ->default(TipoDocumento::Dni->value)
+                            ->options(fn (?Persona $record): array => self::documentos($record?->tipo_documento))
+                            ->default(fn (): ?string => TipoDocumento::query()->where('por_defecto', true)->value('codigo'))
                             ->required(),
                         TextInput::make('numero_documento')
                             ->label('Número de documento')
                             ->required()
                             ->maxLength(20)
-                            ->rule(fn (Get $get): Closure => self::formatoDeDocumento($get('tipo_documento')))
+                            ->rule(fn (Get $get, ?Persona $record): DocumentoValido => DocumentoValido::para($get('tipo_documento'), $record))
                             ->rule(fn (Get $get, ?Persona $record): Closure => self::documentoSinRepetir($get('tipo_documento'), $record)),
                     ]),
                 Section::make('Datos personales')
@@ -77,12 +74,18 @@ final class PersonaForm
     }
 
     /**
-     * @param  list<TipoDocumento>  $casos
+     * The active document types plus the one stored, so editing a person never drops an inactive value.
+     *
      * @return array<string, string>
      */
-    public static function opciones(array $casos): array
+    public static function documentos(?string $guardado = null, bool $todos = false): array
     {
-        return collect($casos)->mapWithKeys(fn (TipoDocumento $caso): array => [$caso->value => $caso->etiqueta()])->all();
+        return TipoDocumento::query()
+            ->when(! $todos, fn (Builder $query): Builder => $query->where(fn (Builder $q): Builder => $q->where('activo', true)->orWhere('codigo', $guardado)))
+            ->orderBy('orden')
+            ->orderBy('nombre')
+            ->pluck('nombre', 'codigo')
+            ->all();
     }
 
     /**
@@ -98,17 +101,6 @@ final class PersonaForm
             ->orderBy('nombre')
             ->pluck('nombre', 'codigo')
             ->all();
-    }
-
-    private static function formatoDeDocumento(mixed $tipo): Closure
-    {
-        return function (string $attribute, mixed $value, Closure $fail) use ($tipo): void {
-            $esDni = $tipo === TipoDocumento::Dni->value;
-
-            if (! preg_match($esDni ? '/^[0-9]{8}$/' : '/^[A-Z0-9]{6,12}$/', Persona::normalizarDocumento((string) $value))) {
-                $fail($esDni ? self::DNI_INVALIDO : self::DOCUMENTO_INVALIDO);
-            }
-        };
     }
 
     private static function documentoSinRepetir(mixed $tipo, ?Persona $record): Closure

@@ -91,7 +91,7 @@ final class PersonaResource extends Resource
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with('vinculo');
+        return parent::getGlobalSearchEloquentQuery()->with(['vinculo', 'tipoDeDocumento']);
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array

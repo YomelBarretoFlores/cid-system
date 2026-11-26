@@ -16,6 +16,7 @@ final readonly class BuscarPersonas implements BusquedaDePersonas
         }
 
         return Persona::query()
+            ->with('tipoDeDocumento')
             ->coincideCon($termino)
             ->orderBy('apellido_paterno')
             ->orderBy('apellido_materno')

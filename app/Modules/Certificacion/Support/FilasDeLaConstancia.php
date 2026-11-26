@@ -32,10 +32,10 @@ final readonly class FilasDeLaConstancia
      */
     public function datosDelEstudiante(int $personaId, string $idioma, array $historial): array
     {
-        [$tipo, $numero] = array_pad(explode(' ', ($this->fichaDePersona)($personaId)->documento, 2), 2, '');
+        $ficha = ($this->fichaDePersona)($personaId);
         $curriculo = collect(($this->catalogoDeIdiomas)())->first(fn (IdiomaDelCatalogo $catalogo): bool => $catalogo->nombre === $idioma)?->curriculo;
 
-        return ['tipo_documento' => $tipo, 'dni' => $numero, 'programa' => $this->programa($historial), 'curriculo' => $curriculo ?? '01'];
+        return ['tipo_documento' => $ficha->tipoDocumento ?? '', 'dni' => $ficha->numeroDocumento ?? '', 'programa' => $this->programa($historial), 'curriculo' => $curriculo ?? '01'];
     }
 
     /**

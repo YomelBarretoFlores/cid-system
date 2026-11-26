@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Personas\Filament\Resources\Personas\Pages;
 
+use App\Modules\Personas\Actions\ComprobarDocumento;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\Concerns\InformaDocumentoRepetido;
 use App\Modules\Personas\Filament\Resources\Personas\PersonaResource;
 use App\Modules\Personas\Models\Persona;
@@ -24,6 +25,7 @@ final class CreatePersona extends CreateRecord
 
         return $this->guardarSinRepetirDocumento(function () use ($data, $aceptado): Model {
             $persona = new Persona($data);
+            app(ComprobarDocumento::class)($persona);
             $persona->registrarConsentimiento($aceptado);
             $persona->save();
 
