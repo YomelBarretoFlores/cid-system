@@ -13,6 +13,7 @@ use App\Modules\Matricula\Data\ResultadoDeClasificacion;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Enums\OrigenHabilitacion;
 use App\Modules\Matricula\Enums\PermisoClasificacion;
+use App\Modules\Matricula\Events\ClasificacionRegistrada;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Pagos\Enums\TipoConcepto;
@@ -23,6 +24,8 @@ use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 
 beforeEach(function (): void {
     $this->travelTo(CarbonImmutable::parse('2026-10-24 10:00', 'America/Lima'));
@@ -178,3 +181,34 @@ it('refuses malformed scores', function (string $puntaje): void {
     expect(fn () => app(RegistrarResultadoDeClasificacion::class)($solicitud->id, resultado(['puntaje' => $puntaje]), $this->coordinador))
         ->toThrow(ReglaDeNegocioIncumplida::class, 'El puntaje va de 0 a 100, con hasta dos decimales.');
 })->with(['-1', '050', '100.1', '101', 'abc', '']);
+
+it('announces the recorded placement with its person, cycle, exam date and evaluator', function (): void {
+    Event::fake([ClasificacionRegistrada::class]);
+    $solicitud = solicitarExamen();
+
+    app(RegistrarResultadoDeClasificacion::class)($solicitud->id, resultado(), $this->coordinador);
+
+    Event::assertDispatchedTimes(ClasificacionRegistrada::class, 1);
+    Event::assertDispatched(ClasificacionRegistrada::class, fn (ClasificacionRegistrada $evento): bool => $evento->solicitudId === $solicitud->id
+        && $evento->personaId === $this->persona->id && $evento->cicloId === $this->cicloVI->id && $evento->fechaExamen === '2026-10-24' && $evento->usuarioId === $this->coordinador->id);
+});
+
+it('announces the placement only after its transaction commits', function (): void {
+    $anunciados = [];
+    Event::listen(ClasificacionRegistrada::class, function (ClasificacionRegistrada $evento) use (&$anunciados): void {
+        $anunciados[] = $evento->solicitudId;
+    });
+    $solicitud = solicitarExamen();
+
+    try {
+        DB::transaction(function () use ($solicitud): void {
+            app(RegistrarResultadoDeClasificacion::class)($solicitud->id, resultado(), $this->coordinador);
+
+            throw new RuntimeException('rollback');
+        });
+    } catch (RuntimeException) {
+    }
+
+    expect($anunciados)->toBe([])
+        ->and($solicitud->refresh()->estado)->toBe(EstadoSolicitudClasificacion::PendienteEvaluacion);
+});

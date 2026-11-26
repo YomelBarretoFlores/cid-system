@@ -23,7 +23,7 @@
                 <tr>
                     <td>{{ $nota['ciclo_nombre'] }} ({{ $nota['ciclo_numero'] }})</td>
                     <td>{{ NivelCurricular::from($nota['nivel'])->etiqueta() }}</td>
-                    <td>{{ $nota['periodo'] }}</td>
+                    <td>{{ $nota['periodo'] ?? '—' }}</td>
                     <td class="centro">{{ $nota['horas_lectivas'] }}</td>
                     <td class="centro"><strong>{{ $nota['promedio'] ?? '—' }}</strong></td>
                     <td>{{ Formato::notaEnLetras($nota['promedio']) }}</td>

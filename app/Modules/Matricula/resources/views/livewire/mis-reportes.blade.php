@@ -88,7 +88,7 @@
                             <ul role="list" class="flex flex-col">
                                 @foreach ($record->ciclos as $ciclo)
                                     @php($nota = $ciclo->resultado)
-                                    <x-portal.fila wire:key="ciclo-{{ $nota->actaId }}" :titulo="'Ciclo '.$nota->cicloNumero.' · '.$nota->cicloNombre" :detalle="$nota->nivel->etiqueta().' · '.$nota->periodo.($ciclo->veces > 1 ? ' · llevado '.$ciclo->veces.' veces' : '')">
+                                    <x-portal.fila wire:key="ciclo-{{ $nota->cicloNumero }}" :titulo="'Ciclo '.$nota->cicloNumero.' · '.$nota->cicloNombre" :detalle="$nota->nivel->etiqueta().' · '.($nota->periodo ?? 'Aprobado por '.mb_strtolower($nota->forma->etiqueta())).($ciclo->veces > 1 ? ' · llevado '.$ciclo->veces.' veces' : '')">
                                         <x-slot:fin>
                                             <span class="font-semibold">{{ $nota->promedio ?? '—' }}</span>
                                             <x-portal.insignia :color="$colorDelEstado($nota->estadoFinal)">{{ $nota->estadoFinal->etiqueta() }}</x-portal.insignia>

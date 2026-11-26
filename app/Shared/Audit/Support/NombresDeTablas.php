@@ -43,6 +43,7 @@ final class NombresDeTablas
         'cer_documentos' => 'Constancias y certificados',
         'cer_firmantes' => 'Firmantes',
         'cer_denominaciones' => 'Denominación del año',
+        'cer_aprobaciones' => 'Aprobaciones sin acta',
         'tra_tipos_tramite' => 'Tipos de trámite',
         'tra_etapas' => 'Etapas de trámite',
         'tra_tramites' => 'Trámites',

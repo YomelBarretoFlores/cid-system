@@ -34,7 +34,7 @@ final readonly class ArmarBoletaDeNotas implements BoletaDeNotas
 
     private function cerrada(NotaDelHistorial $nota): FilaDeLaBoleta
     {
-        return new FilaDeLaBoleta($nota->matriculaId, $nota->grupoCodigo, $nota->idioma, $nota->cicloNumero, $nota->cicloNombre, $nota->horasLectivas, $nota->promedio, $nota->estadoFinal);
+        return new FilaDeLaBoleta((int) $nota->matriculaId, (string) $nota->grupoCodigo, $nota->idioma, $nota->cicloNumero, $nota->cicloNombre, $nota->horasLectivas, $nota->promedio, $nota->estadoFinal);
     }
 
     private function abierta(int $matriculaId, int $grupoId): ?FilaDeLaBoleta

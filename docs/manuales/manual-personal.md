@@ -467,11 +467,11 @@ Finalidad: registrar el resultado del examen de clasificación que solicita un e
 3. Indique la **Fecha del examen**, el **Puntaje**, el **Ciclo asignado** y, si corresponde, **Observaciones**.
 4. Pulse **Enviar**.
 
-Resultado esperado: la solicitud pasa a **Evaluado** y el ciclo asignado queda habilitado para la matrícula del estudiante en ese idioma.
+Resultado esperado: la solicitud pasa a **Evaluado** y el ciclo asignado queda habilitado para la matrícula del estudiante en ese idioma. Los ciclos anteriores al asignado quedan registrados como aprobados con forma de aprobación **Clasificación**, sin nota ni horas lectivas; figuran en el récord y en la constancia de notas y cuentan para el certificado del nivel, cuyo promedio se calcula solo con los ciclos que tienen nota.
 
 ![Figura 23. Registrar resultado de clasificación](figuras/p23-registrar-resultado.png)
 
-Para corregir un resultado ya registrado, use **Corregir resultado** en la solicitud, indique los nuevos datos y el **Motivo de la corrección**. Si cambia el ciclo asignado, la corrección solo procede cuando el ciclo habilitado aún proviene de esta clasificación y el estudiante no se matriculó en él; en caso contrario, el sistema rechaza la corrección e indica usar «Ajustar ciclo habilitado» (sección 7.4).
+Para corregir un resultado ya registrado, use **Corregir resultado** en la solicitud, indique los nuevos datos y el **Motivo de la corrección**. Si cambia el ciclo asignado, la corrección solo procede cuando el ciclo habilitado aún proviene de esta clasificación y el estudiante no se matriculó en él; en caso contrario, el sistema rechaza la corrección e indica usar «Ajustar ciclo habilitado» (sección 7.4). Si la corrección sube el ciclo asignado, se registran también los ciclos que faltaban; si lo baja, los ciclos ya registrados por clasificación se conservan, porque esos registros no se modifican ni se eliminan.
 
 ## 7.2. Matrículas: ficha
 

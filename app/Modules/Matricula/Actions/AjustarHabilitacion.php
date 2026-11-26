@@ -79,8 +79,8 @@ final readonly class AjustarHabilitacion
         }
 
         $matriculas = collect($record->ciclos)
-            ->filter(fn (CicloDelRecord $ciclo): bool => $ciclo->resultado->estadoFinal === EstadoFinal::Aprobado)
-            ->map(fn (CicloDelRecord $ciclo): int => $ciclo->resultado->matriculaId);
+            ->filter(fn (CicloDelRecord $ciclo): bool => $ciclo->resultado->estadoFinal === EstadoFinal::Aprobado && $ciclo->resultado->matriculaId !== null)
+            ->map(fn (CicloDelRecord $ciclo): int => (int) $ciclo->resultado->matriculaId);
         $grupos = array_values(array_unique(array_map(intval(...), Matricula::query()->whereKey($matriculas->all())->pluck('grupo_id')->all())));
         $orden = array_keys($idioma->ciclos);
 

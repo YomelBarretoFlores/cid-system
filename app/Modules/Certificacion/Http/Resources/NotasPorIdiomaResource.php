@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 final class NotasPorIdiomaResource extends JsonResource
 {
     /**
-     * @return array{idioma: string, ciclos: list<array{ciclo: int, nombre: string, nivel: string, periodo: string, horas_lectivas: int, promedio: ?string, estado_final: string, estado_final_etiqueta: string}>}
+     * @return array{idioma: string, ciclos: list<array{ciclo: int, nombre: string, nivel: string, periodo: ?string, horas_lectivas: int, promedio: ?string, estado_final: string, estado_final_etiqueta: string}>}
      */
     public function toArray(Request $request): array
     {

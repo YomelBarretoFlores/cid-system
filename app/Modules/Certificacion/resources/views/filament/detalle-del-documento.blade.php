@@ -15,7 +15,7 @@
                     <tr>
                         <td>{{ $fila['ciclo_nombre'] }} ({{ $fila['ciclo_numero'] }})</td>
                         <td>{{ NivelCurricular::from($fila['nivel'])->etiqueta() }}</td>
-                        <td>{{ $fila['periodo'] }}</td>
+                        <td>{{ $fila['periodo'] ?? '—' }}</td>
                         <td class="text-right">{{ $fila['horas_lectivas'] }}</td>
                         <td class="text-right font-semibold">{{ $fila['promedio'] ?? '—' }}</td>
                         <td>{{ EstadoFinal::from($fila['estado_final'])->etiqueta() }}</td>

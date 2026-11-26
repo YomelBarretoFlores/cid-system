@@ -8,6 +8,7 @@ use App\Modules\Matricula\Data\ResultadoDeClasificacion;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Enums\OrigenHabilitacion;
 use App\Modules\Matricula\Enums\PermisoClasificacion;
+use App\Modules\Matricula\Events\ClasificacionRegistrada;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Matricula\Support\MovimientoDeMatricula;
@@ -56,6 +57,8 @@ final readonly class RegistrarResultadoDeClasificacion
                 ['persona_id' => $solicitud->persona_id, 'idioma_id' => $solicitud->idioma_id],
                 ['ciclo_id' => $resultado->cicloId, 'origen' => OrigenHabilitacion::Clasificacion, 'motivo' => null, 'actualizado_por' => $evaluador->id],
             );
+
+            ClasificacionRegistrada::dispatch($solicitud->id, $solicitud->persona_id, $resultado->cicloId, $resultado->fechaExamen->toDateString(), $evaluador->id);
 
             return $solicitud;
         });

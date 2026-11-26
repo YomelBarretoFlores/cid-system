@@ -24,7 +24,7 @@ trait TruncatesAcademicOffer
      *
      * @var list<string>
      */
-    private array $tablasProtegidas = ['cer_actas', 'cer_notas_finales', 'cer_rectificaciones', 'cer_documentos', 'tra_tramites', 'tra_movimientos', 'tra_notificaciones'];
+    private array $tablasProtegidas = ['cer_actas', 'cer_notas_finales', 'cer_rectificaciones', 'cer_documentos', 'cer_aprobaciones', 'tra_tramites', 'tra_movimientos', 'tra_notificaciones'];
 
     protected function beforeTruncatingDatabase(): void
     {

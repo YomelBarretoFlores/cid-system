@@ -10,6 +10,7 @@ use App\Modules\Matricula\Data\ResultadoDeClasificacion;
 use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
 use App\Modules\Matricula\Enums\OrigenHabilitacion;
 use App\Modules\Matricula\Enums\PermisoClasificacion;
+use App\Modules\Matricula\Events\ClasificacionRegistrada;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Matricula\Models\SolicitudClasificacion;
@@ -46,6 +47,7 @@ final readonly class CorregirResultadoDeClasificacion
 
             if ($resultado->cicloId !== $solicitud->ciclo_asignado_id) {
                 $this->moverHabilitacion($solicitud, $resultado->cicloId, $usuario);
+                ClasificacionRegistrada::dispatch($solicitud->id, $solicitud->persona_id, $resultado->cicloId, $resultado->fechaExamen->toDateString(), $usuario->id);
             }
 
             $solicitud->update([

@@ -24,7 +24,10 @@ use App\Modules\Certificacion\Contracts\MatriculasAprobadas;
 use App\Modules\Certificacion\Contracts\MatriculasCalificadas;
 use App\Modules\Certificacion\Contracts\NivelesPorCertificar;
 use App\Modules\Certificacion\Contracts\RecordDeNotas;
+use App\Modules\Certificacion\Listeners\AlRegistrarClasificacion;
+use App\Modules\Matricula\Events\ClasificacionRegistrada;
 use App\Shared\Support\ModuleServiceProvider;
+use Illuminate\Support\Facades\Event;
 
 final class CertificacionServiceProvider extends ModuleServiceProvider
 {
@@ -46,4 +49,12 @@ final class CertificacionServiceProvider extends ModuleServiceProvider
 
     #[\Override]
     protected string $module = 'Certificacion';
+
+    #[\Override]
+    public function boot(): void
+    {
+        parent::boot();
+
+        Event::listen(ClasificacionRegistrada::class, AlRegistrarClasificacion::class);
+    }
 }

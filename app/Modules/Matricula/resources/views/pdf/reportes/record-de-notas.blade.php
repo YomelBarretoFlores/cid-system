@@ -4,15 +4,16 @@
     @foreach ($records as $record)
         <h2>{{ $record->idioma }}</h2>
         <table class="lista">
-            <thead><tr><th>Ciclo</th><th>Periodo</th><th>Grupo</th><th class="num">Nota</th><th>Estado</th><th class="num">Veces cursado</th></tr></thead>
+            <thead><tr><th>Ciclo</th><th>Periodo</th><th>Grupo</th><th class="num">Nota</th><th>Estado</th><th>Forma de aprobación</th><th class="num">Veces cursado</th></tr></thead>
             <tbody>
                 @foreach ($record->ciclos as $ciclo)
                     <tr>
                         <td>{{ $ciclo->resultado->cicloNombre }} ({{ $ciclo->resultado->cicloNumero }})</td>
-                        <td>{{ $ciclo->resultado->periodo }}</td>
-                        <td>{{ $ciclo->resultado->grupoCodigo }}</td>
+                        <td>{{ $ciclo->resultado->periodo ?? '—' }}</td>
+                        <td>{{ $ciclo->resultado->grupoCodigo ?? '—' }}</td>
                         <td class="num"><strong>{{ $ciclo->resultado->promedio ?? '—' }}</strong></td>
                         <td>{{ $ciclo->resultado->estadoFinal->etiqueta() }}</td>
+                        <td>{{ $ciclo->resultado->forma->etiqueta() }}</td>
                         <td class="num">{{ $ciclo->veces }}</td>
                     </tr>
                 @endforeach
@@ -32,7 +33,7 @@
     @endforeach
 
     <p style="margin-top: 14px; font-size: 8.5pt; color: #5e5a50;">
-        Solo incluye actas cerradas. Cada ciclo muestra su último resultado aprobado o, si no lo aprobó, su último resultado.
+        Solo incluye actas cerradas y ciclos aprobados por clasificación o suficiencia. Cada ciclo muestra su último resultado aprobado o, si no lo aprobó, su último resultado.
     </p>
     <p style="margin-top: 6px; font-weight: bold;">Documento informativo, sin valor oficial; para trámites solicite la constancia de notas.</p>
 </x-pdf.documento>

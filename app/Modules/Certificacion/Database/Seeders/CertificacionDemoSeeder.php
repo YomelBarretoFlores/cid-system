@@ -11,9 +11,13 @@ use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Actions\EmitirCertificadosDelPeriodo;
 use App\Modules\Certificacion\Actions\EmitirConstanciaDeMatricula;
 use App\Modules\Certificacion\Actions\EmitirConstanciasDeNotasDelActa;
+use App\Modules\Certificacion\Listeners\AlRegistrarClasificacion;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Docencia\Contracts\DocenteDelGrupo;
+use App\Modules\Matricula\Enums\EstadoSolicitudClasificacion;
+use App\Modules\Matricula\Events\ClasificacionRegistrada;
 use App\Modules\Matricula\Models\Matricula;
+use App\Modules\Matricula\Models\SolicitudClasificacion;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Illuminate\Database\Seeder;
@@ -42,6 +46,19 @@ final class CertificacionDemoSeeder extends Seeder
         }
 
         $this->documentos($administrador);
+        $this->ciclosSaltadosPorClasificacion();
+    }
+
+    // The demo placements are seeded without the evaluation Action, so the cycles they skip are recorded here as the listener would.
+    private function ciclosSaltadosPorClasificacion(): void
+    {
+        $evaluadas = SolicitudClasificacion::query()->where('estado', EstadoSolicitudClasificacion::Evaluado)->whereNotNull('ciclo_asignado_id')->orderBy('id')->get();
+
+        foreach ($evaluadas as $solicitud) {
+            app(AlRegistrarClasificacion::class)->handle(new ClasificacionRegistrada(
+                $solicitud->id, $solicitud->persona_id, (int) $solicitud->ciclo_asignado_id, (string) $solicitud->fecha_examen?->toDateString(), (int) $solicitud->evaluado_por,
+            ));
+        }
     }
 
     private function documentos(User $administrador): void

@@ -44,7 +44,7 @@ final readonly class ArmarRecordDeNotas implements RecordDeNotas
             fn (NotaDelHistorial $nota): bool => $nota->estadoFinal === EstadoFinal::Aprobado,
         ));
 
-        return new RecordDelIdioma($idioma, $ciclos, $aprobados === [] ? null : HistorialDeNotas::notaFinal($aprobados), $this->faltantes($idioma, $historial, $aprobados));
+        return new RecordDelIdioma($idioma, $ciclos, HistorialDeNotas::notaFinal($aprobados), $this->faltantes($idioma, $historial, $aprobados));
     }
 
     /**

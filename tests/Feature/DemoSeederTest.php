@@ -40,6 +40,7 @@ use App\Shared\Auth\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 it('seeds consistent demo data for local development', function (): void {
     $this->seed(DatabaseSeeder::class);
@@ -52,7 +53,8 @@ it('seeds consistent demo data for local development', function (): void {
         ->and(Matricula::query()->whereNull('pago_id')->exists())->toBeFalse()
         ->and(Pago::query()->whereIn('id', Matricula::query()->select('pago_id'))->where('estado', '!=', EstadoPago::Validado)->exists())->toBeFalse()
         ->and(User::query()->where('email', 'admin@ciln.test')->firstOrFail()->can(User::ADMIN_PANEL_PERMISSION))->toBeTrue()
-        ->and(app(DocentesDeGrupos::class)([$grupo->id]))->toBe([$grupo->id => 'Docente Demo, Ana']);
+        ->and(app(DocentesDeGrupos::class)([$grupo->id]))->toBe([$grupo->id => 'Docente Demo, Ana'])
+        ->and(DB::table('cer_aprobaciones')->where('forma', 'clasificacion')->orderBy('ciclo_numero')->pluck('ciclo_numero')->all())->toBe([1, 2, 3, 4]);
 });
 
 it('dates the demo around today in Lima so the closed flows show data', function (): void {
