@@ -31,7 +31,7 @@ it('writes the data dictionary with every module, the column descriptions, the a
 
     expect($diccionario)
         ->toContain('# Diccionario de datos', '## 3. Académico (oferta académica)', '## 10. Auditoría', 'Seguridad y control de acceso')
-        ->toContain('### 6.4. `pag_pagos`', 'Pagos con su comprobante y su validación.')
+        ->toContain('### 6.5. `pag_pagos`', 'Pagos con su comprobante y su validación.')
         ->toContain('| `estado` | varchar(255) | No | `\'pendiente\'` | Estado de validación del pago. Valores: `pendiente`, `validado`, `rechazado`, `anulado`. |')
         ->toContain('Persona que paga. Referencia a `per_personas`.')
         ->toContain('`pag_pagos_sin_borrado`: BEFORE DELETE, ejecuta `pag_impedir_borrado()`')

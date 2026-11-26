@@ -30,7 +30,7 @@ final readonly class ListarOfertaPublica implements OfertaPublica
             periodo: $periodo->nombre,
             matriculaAbierta: $abierto instanceof Periodo,
             matriculaInicio: $periodo->matricula_inicio,
-            matriculaFin: $periodo->matricula_fin,
+            matriculaFin: $periodo->matricula_extemporanea_fin ?? $periodo->matricula_fin,
             clasesInicio: $periodo->fecha_inicio,
             clasesFin: $periodo->fecha_fin,
             grupos: $this->grupos($periodo),
@@ -41,8 +41,7 @@ final readonly class ListarOfertaPublica implements OfertaPublica
     {
         return Periodo::query()
             ->where('estado', EstadoPeriodo::MatriculaAbierta->value)
-            ->where('matricula_inicio', '<=', $hoy)
-            ->where('matricula_fin', '>=', $hoy)
+            ->conMatriculaEn($hoy)
             ->orderBy('fecha_inicio')
             ->first();
     }

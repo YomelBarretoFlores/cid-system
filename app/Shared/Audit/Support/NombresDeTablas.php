@@ -26,6 +26,7 @@ final class NombresDeTablas
         'pag_tarifas' => 'Tarifas',
         'pag_medios_pago' => 'Medios de pago',
         'pag_fuentes_concepto' => 'Fuentes TUPA/TUSNE',
+        'pag_configuracion' => 'Configuración de pagos',
         'doc_docentes' => 'Docentes',
         'doc_docente_idiomas' => 'Idiomas del docente',
         'doc_disponibilidades' => 'Disponibilidad docente',

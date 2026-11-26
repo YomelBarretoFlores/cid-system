@@ -30,7 +30,7 @@ final class PlazosDeLaSemana
 
         foreach (app(VentanasDeMatricula::class)() as $ventana) {
             /** @var VentanaDeMatricula $ventana */
-            $agregar($ventana->fin, "Cierra la matrícula de {$ventana->periodo}");
+            $agregar($ventana->cierre(), "Cierra la matrícula de {$ventana->periodo}");
         }
 
         $curso = $grupo instanceof FichaDeGrupo ? app(CursoDelGrupo::class)($grupo->id) : null;

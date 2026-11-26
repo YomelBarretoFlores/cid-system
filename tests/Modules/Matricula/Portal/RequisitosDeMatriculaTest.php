@@ -142,3 +142,18 @@ it('names each requirement by its type so the portal never reads them by positio
     expect($tipos)->toEqualCanonicalizing(TipoDeRequisito::cases())
         ->and(array_unique(array_map(fn (TipoDeRequisito $tipo): string => $tipo->value, $tipos)))->toHaveCount(count(TipoDeRequisito::cases()));
 });
+
+it('names the late enrollment window and its surcharge, and still enrolls the student in it', function (): void {
+    $this->periodo->update(['matricula_fin' => '2027-03-08', 'matricula_extemporanea_fin' => '2027-03-12']);
+    Matricula::factory()->activa()->create(['persona_id' => $this->persona->id, 'pago_id' => $this->pago->id, 'grupo_id' => Grupo::factory()->create()->id]);
+
+    expect(requisitosDelEstudiante())
+        ->toMatchArray([
+            'Periodo de matrícula abierto' => [true, ['Marzo 2027: del 7 mar 2027 al 8 mar 2027; matrícula extemporánea hasta el 12 mar 2027.']],
+            'Pago de matrícula validado y sin usar' => [false, ['Registra tu pago de matrícula y espera a que el CILN lo valide.', 'Estás en el plazo de matrícula extemporánea: el pago de matrícula lleva un recargo de 20 %.']],
+        ]);
+
+    $nuevoPago = Pago::factory()->validado()->for($this->concepto)->create(['persona_id' => $this->persona->id]);
+
+    expect(intentarMatricula($this->grupo, $nuevoPago)->grupo_id)->toBe($this->grupo->id);
+});

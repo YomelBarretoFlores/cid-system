@@ -14,5 +14,11 @@ final readonly class VentanaDeMatricula
         public CarbonImmutable $inicio,
         public CarbonImmutable $fin,
         public bool $abierta,
+        public ?CarbonImmutable $extemporaneaFin = null,
     ) {}
+
+    public function cierre(): CarbonImmutable
+    {
+        return $this->extemporaneaFin ?? $this->fin;
+    }
 }

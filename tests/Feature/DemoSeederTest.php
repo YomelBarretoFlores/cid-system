@@ -63,6 +63,7 @@ it('dates the demo around today in Lima so the closed flows show data', function
 
     expect(Periodo::query()->where('estado', 'en_curso')->whereDate('fecha_inicio', '<=', $hoy)->whereDate('fecha_fin', '>=', $hoy)->count())->toBe(1)
         ->and(Periodo::query()->where('estado', 'matricula_abierta')->whereDate('matricula_inicio', '<=', $hoy)->whereDate('matricula_fin', '>=', $hoy)->count())->toBe(1)
+        ->and(Periodo::query()->where('estado', 'matricula_abierta')->whereNotNull('matricula_extemporanea_fin')->count())->toBe(1)
         ->and(Pago::query()->whereDate('fecha_pago', '>', $hoy)->exists())->toBeFalse()
         ->and(Pago::query()->where('estado', EstadoPago::Pendiente)->exists())->toBeTrue()
         ->and(ClaseDictada::query()->whereDate('fecha', '>', $hoy)->exists())->toBeFalse()

@@ -109,6 +109,8 @@ it('refuses periods that break the calendar rules', function (array $cambios, st
     'end before the start' => [['fecha_fin' => '2027-03-31'], 'fecha_fin'],
     'enrollment ending before it starts' => [['matricula_fin' => '2027-03-19'], 'matricula_fin'],
     'enrollment ending after the period' => [['matricula_fin' => '2027-05-01'], 'matricula_fin'],
+    'late enrollment ending with the regular one' => [['matricula_extemporanea_fin' => '2027-04-05'], 'matricula_extemporanea_fin'],
+    'late enrollment ending after the period' => [['matricula_extemporanea_fin' => '2027-05-01'], 'matricula_extemporanea_fin'],
     'grade calendar without its end' => [['actas_inicio' => '2027-04-28'], 'actas_fin'],
     'grade calendar without its start' => [['actas_fin' => '2027-05-05'], 'actas_inicio'],
     'grade calendar ending before it starts' => [['actas_inicio' => '2027-04-28', 'actas_fin' => '2027-04-27'], 'actas_fin'],
@@ -276,4 +278,22 @@ it('explains why a period with open groups cannot be closed', function (): void 
         ->assertNotified('No se puede cerrar el periodo Marzo 2027 mientras tenga grupos abiertos: ING-01-A. Ciérralos o cancélalos antes.');
 
     expect($this->periodo->refresh()->estado)->toBe(EstadoPeriodo::EnCurso);
+});
+
+it('sets a late enrollment window after the regular one and lists its end', function (): void {
+    $this->actingAs($this->gestor);
+
+    Livewire::test(CreatePeriodo::class)
+        ->fillForm(datosDePeriodo(['matricula_extemporanea_fin' => '2027-04-12']))
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertFormFieldExists('matricula_extemporanea_fin', fn ($campo): bool => $campo->getLabel() === 'Matrícula extemporánea hasta');
+
+    $periodo = Periodo::query()->where('numero', 4)->sole();
+
+    expect($periodo->matricula_extemporanea_fin?->toDateString())->toBe('2027-04-12');
+
+    Livewire::test(ListPeriodos::class)
+        ->assertTableColumnFormattedStateSet('matricula_extemporanea_fin', '12/04/2027', $periodo)
+        ->assertTableColumnExists('matricula_extemporanea_fin', fn ($columna): bool => $columna->getLabel() === 'Matrícula extemporánea hasta');
 });

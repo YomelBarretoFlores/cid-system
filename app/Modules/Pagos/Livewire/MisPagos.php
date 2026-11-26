@@ -17,6 +17,7 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
+use App\Modules\Pagos\Support\MontoEsperado;
 use App\Modules\Pagos\Support\TarifaAplicable;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
@@ -87,6 +88,14 @@ final class MisPagos extends Component
         $this->monto = $this->tarifaVigente();
     }
 
+    // The late enrollment surcharge depends on the payment date.
+    public function updatedFechaPago(): void
+    {
+        if (ctype_digit($this->concepto_id)) {
+            $this->monto = $this->tarifaVigente();
+        }
+    }
+
     public function registrar(RegistrarPago $registrar): void
     {
         $this->registrando = true;
@@ -133,6 +142,7 @@ final class MisPagos extends Component
             'niveles' => array_column(array_map(fn (NivelCurricular $nivel): array => [$nivel->value, $nivel->etiqueta()], NivelCurricular::cases()), 1, 0),
             'programas' => $this->programasActivos(),
             'hoy' => $this->hoy(),
+            'recargo' => $this->montoPropuesto()?->recargo,
         ]);
     }
 
@@ -208,14 +218,13 @@ final class MisPagos extends Component
 
     private function tarifaVigente(): string
     {
-        if (! ctype_digit($this->concepto_id)) {
-            return '';
-        }
+        return $this->montoPropuesto()->monto ?? '';
+    }
 
-        $criterios = $this->criterios();
-
-        if ($criterios['nivel'] && $this->nivel === '') {
-            return '';
+    private function montoPropuesto(): ?MontoEsperado
+    {
+        if (! ctype_digit($this->concepto_id) || ($this->criterios()['nivel'] && $this->nivel === '')) {
+            return null;
         }
 
         $tarifa = TarifaAplicable::buscar(
@@ -226,7 +235,16 @@ final class MisPagos extends Component
             ctype_digit($this->programa_id) ? (int) $this->programa_id : null,
         );
 
-        return $tarifa instanceof Tarifa ? (string) $tarifa->monto : '';
+        return $tarifa instanceof Tarifa ? MontoEsperado::de((string) $tarifa->monto, $tarifa->concepto->tipo, $this->fechaDePago()) : null;
+    }
+
+    private function fechaDePago(): CarbonImmutable
+    {
+        [$anio, $mes, $dia] = array_map(intval(...), explode('-', $this->fecha_pago.'--'));
+
+        return preg_match('/^\d{4}-\d{2}-\d{2}$/', $this->fecha_pago) === 1 && checkdate($mes, $dia, $anio)
+            ? CarbonImmutable::parse($this->fecha_pago, self::ZONA_HORARIA)
+            : CarbonImmutable::today(self::ZONA_HORARIA);
     }
 
     /**

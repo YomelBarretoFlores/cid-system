@@ -80,7 +80,7 @@ final readonly class TareasDelInicio
         }
 
         $cuando = $this->cierreDeMatricula instanceof VentanaDeMatricula
-            ? "Elige tu grupo de {$this->cierreDeMatricula->periodo} hasta el ".Formato::diaDeMes($this->cierreDeMatricula->fin).'.'
+            ? "Elige tu grupo de {$this->cierreDeMatricula->periodo} hasta el ".Formato::diaDeMes($this->cierreDeMatricula->cierre()).'.'
             : 'Elige tu grupo mientras la matrícula esté abierta.';
 
         return new TareaDelInicio('Tu pago de matrícula ya fue validado.', $cuando, 'Elegir mi grupo', 'estudiante.matricula');

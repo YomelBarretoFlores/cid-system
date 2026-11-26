@@ -28,7 +28,7 @@
                     <x-portal.fecha nombre="fecha_pago" etiqueta="Fecha de pago" :max="$hoy" />
                     <x-portal.campo nombre="numero_operacion" etiqueta="N.° de recibo u operación" autocomplete="off" maxlength="40" placeholder="Ej.: 00482193" required />
                     <x-portal.campo nombre="monto" etiqueta="Monto pagado (S/)" inputmode="decimal" autocomplete="off"
-                        ayuda="Se completa con la tarifa vigente del concepto." required />
+                        :ayuda="$recargo === null ? 'Se completa con la tarifa vigente del concepto.' : 'Incluye el recargo de '.$recargo.' % por matrícula extemporánea.'" required />
                     <x-portal.archivo nombre="recibo" etiqueta="Recibo escaneado" acepta="image/jpeg,image/png,application/pdf"
                         formatos="JPG, PNG o PDF · hasta 5 MB" />
                 </div>

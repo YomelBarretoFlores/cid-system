@@ -19,6 +19,7 @@ use App\Modules\Matricula\Enums\TipoDeRequisito;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Matricula\Support\OpcionesDeMatricula;
+use App\Modules\Pagos\Contracts\RecargoDeMatricula;
 use App\Shared\Ui\Formato;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -35,6 +36,7 @@ final readonly class EvaluarRequisitosDeMatricula
         private CiclosDeGrupos $ciclosDeGrupos,
         private DetalleDeGrupos $detalleDeGrupos,
         private MatriculasCalificadas $matriculasCalificadas,
+        private RecargoDeMatricula $recargo,
     ) {}
 
     /**
@@ -81,7 +83,8 @@ final readonly class EvaluarRequisitosDeMatricula
 
         if ($abiertas->isNotEmpty()) {
             return new RequisitoDeMatricula(TipoDeRequisito::Periodo, 'Periodo de matrícula abierto', true, array_values($abiertas->map(
-                fn (VentanaDeMatricula $ventana): string => "{$ventana->periodo}: del ".Formato::fechaCorta($ventana->inicio).' al '.Formato::fechaCorta($ventana->fin).'.',
+                fn (VentanaDeMatricula $ventana): string => "{$ventana->periodo}: del ".Formato::fechaCorta($ventana->inicio).' al '.Formato::fechaCorta($ventana->fin)
+                    .($ventana->extemporaneaFin instanceof CarbonImmutable ? '; matrícula extemporánea hasta el '.Formato::fechaCorta($ventana->extemporaneaFin) : '').'.',
             )->all()));
         }
 
@@ -157,9 +160,11 @@ final readonly class EvaluarRequisitosDeMatricula
     private function pago(int $personaId): RequisitoDeMatricula
     {
         $disponibles = count($this->opciones->pagosDisponibles($personaId));
+        $recargo = $disponibles === 0 ? ($this->recargo)(CarbonImmutable::today('America/Lima')) : null;
+        $sinPago = ['Registra tu pago de matrícula y espera a que el CILN lo valide.', ...($recargo === null ? [] : ["Estás en el plazo de matrícula extemporánea: el pago de matrícula lleva un recargo de {$recargo} %."])];
 
         return match ($disponibles) {
-            0 => new RequisitoDeMatricula(TipoDeRequisito::Pago, 'Pago de matrícula validado y sin usar', false, ['Registra tu pago de matrícula y espera a que el CILN lo valide.'], route('estudiante.pagos'), 'Registrar mi pago'),
+            0 => new RequisitoDeMatricula(TipoDeRequisito::Pago, 'Pago de matrícula validado y sin usar', false, $sinPago, route('estudiante.pagos'), 'Registrar mi pago'),
             1 => new RequisitoDeMatricula(TipoDeRequisito::Pago, 'Pago de matrícula validado y sin usar', true, ['Tienes 1 pago de matrícula disponible.']),
             default => new RequisitoDeMatricula(TipoDeRequisito::Pago, 'Pago de matrícula validado y sin usar', true, ["Tienes {$disponibles} pagos de matrícula disponibles."]),
         };

@@ -26,6 +26,7 @@ final class PeriodosTable
                 TextColumn::make('fecha_fin')->label('Fin')->date('d/m/Y'),
                 TextColumn::make('matricula_inicio')->label('Matrícula desde')->date('d/m/Y'),
                 TextColumn::make('matricula_fin')->label('Matrícula hasta')->date('d/m/Y'),
+                TextColumn::make('matricula_extemporanea_fin')->label('Matrícula extemporánea hasta')->date('d/m/Y')->placeholder('No tiene'),
                 TextColumn::make('estado')
                     ->label('Estado')
                     ->badge()

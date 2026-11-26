@@ -120,8 +120,7 @@ final class Grupo extends Model
         $query->where('estado', EstadoGrupo::Abierto->value)
             ->whereHas('periodo', fn (Builder $periodo) => $periodo
                 ->where('estado', EstadoPeriodo::MatriculaAbierta->value)
-                ->where('matricula_inicio', '<=', $hoy)
-                ->where('matricula_fin', '>=', $hoy));
+                ->conMatriculaEn($hoy));
     }
 
     /**

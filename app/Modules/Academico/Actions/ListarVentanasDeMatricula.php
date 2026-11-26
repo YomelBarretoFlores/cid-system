@@ -18,7 +18,7 @@ final readonly class ListarVentanasDeMatricula implements VentanasDeMatricula
 
         return array_values(Periodo::query()
             ->whereIn('estado', [EstadoPeriodo::Planificado, EstadoPeriodo::MatriculaAbierta])
-            ->where('matricula_fin', '>=', $hoy)
+            ->conMatriculaPendienteDesde($hoy)
             ->orderBy('matricula_inicio')
             ->get()
             ->map(fn (Periodo $periodo): VentanaDeMatricula => new VentanaDeMatricula(
@@ -27,6 +27,7 @@ final readonly class ListarVentanasDeMatricula implements VentanasDeMatricula
                 inicio: $periodo->matricula_inicio,
                 fin: $periodo->matricula_fin,
                 abierta: $periodo->estado === EstadoPeriodo::MatriculaAbierta && $periodo->matricula_inicio->toDateString() <= $hoy,
+                extemporaneaFin: $periodo->matricula_extemporanea_fin,
             ))
             ->all());
     }

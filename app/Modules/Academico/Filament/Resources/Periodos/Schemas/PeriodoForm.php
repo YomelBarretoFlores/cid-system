@@ -38,6 +38,11 @@ final class PeriodoForm
                     ->afterOrEqual('matricula_inicio')
                     ->beforeOrEqual('fecha_fin')
                     ->helperText('La matrícula no puede terminar después del fin de clases.'),
+                DatePicker::make('matricula_extemporanea_fin')
+                    ->label('Matrícula extemporánea hasta')
+                    ->after('matricula_fin')
+                    ->beforeOrEqual('fecha_fin')
+                    ->helperText('Opcional. Después de la matrícula regular; el pago de matrícula lleva el recargo de la configuración de pagos.'),
                 DatePicker::make('actas_inicio')
                     ->label('Actas finales desde')
                     ->requiredWith('actas_fin')

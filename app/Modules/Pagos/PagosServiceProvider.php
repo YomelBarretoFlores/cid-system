@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pagos;
 
+use App\Modules\Pagos\Actions\ConsultarRecargoDeMatricula;
 use App\Modules\Pagos\Actions\DescribirPago;
 use App\Modules\Pagos\Actions\ListarCatalogoDeConceptos;
 use App\Modules\Pagos\Actions\ListarPagosValidadosDePersona;
@@ -13,6 +14,7 @@ use App\Modules\Pagos\Actions\VerificarPagoParaServicio;
 use App\Modules\Pagos\Contracts\CatalogoDeConceptos;
 use App\Modules\Pagos\Contracts\ConsultaDePago;
 use App\Modules\Pagos\Contracts\PagosValidadosDePersona;
+use App\Modules\Pagos\Contracts\RecargoDeMatricula;
 use App\Modules\Pagos\Contracts\ResumenDePagosDePersona;
 use App\Modules\Pagos\Contracts\TarifasVigentes;
 use App\Modules\Pagos\Contracts\VerificacionDePago;
@@ -30,6 +32,7 @@ final class PagosServiceProvider extends ModuleServiceProvider
         TarifasVigentes::class => ListarTarifasVigentes::class,
         ResumenDePagosDePersona::class => ResumirPagosDePersona::class,
         CatalogoDeConceptos::class => ListarCatalogoDeConceptos::class,
+        RecargoDeMatricula::class => ConsultarRecargoDeMatricula::class,
     ];
 
     #[\Override]

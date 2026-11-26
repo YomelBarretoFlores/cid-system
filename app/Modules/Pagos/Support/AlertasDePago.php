@@ -23,13 +23,21 @@ final class AlertasDePago
     public static function diferenciaDeMonto(Pago $pago): ?string
     {
         $pagado = $pago->monto;
-        $vigente = $pago->tarifa === null ? null : (string) $pago->tarifa->monto;
+        $tarifa = $pago->tarifa === null ? null : (string) $pago->tarifa->monto;
 
-        if (! is_numeric($pagado) || ! is_numeric($vigente) || bccomp($pagado, $vigente, 2) === 0) {
+        if (! is_numeric($pagado) || ! is_numeric($tarifa)) {
             return null;
         }
 
-        return "El monto pagado (S/ {$pagado}) no coincide con la tarifa (S/ {$vigente}).";
+        $esperado = MontoEsperado::de($tarifa, $pago->concepto->tipo, $pago->fecha_pago);
+
+        if (! is_numeric($esperado->monto) || bccomp($pagado, $esperado->monto, 2) === 0) {
+            return null;
+        }
+
+        return $esperado->recargo === null
+            ? "El monto pagado (S/ {$pagado}) no coincide con la tarifa (S/ {$esperado->monto})."
+            : "El monto pagado (S/ {$pagado}) no coincide con la tarifa más el recargo de {$esperado->recargo} % por matrícula extemporánea (S/ {$esperado->monto}).";
     }
 
     public static function operacionEnOtroMedio(Pago $pago): ?string

@@ -95,7 +95,7 @@ final class AcademicoDemoSeeder extends Seeder
 
         $hoy = CarbonImmutable::today('America/Lima');
         $actual = $this->periodo($hoy->startOfMonth(), $hoy->startOfMonth()->subDays(14), EstadoPeriodo::EnCurso);
-        $siguiente = $this->periodo($hoy->startOfMonth()->addMonth(), min($hoy, $hoy->startOfMonth()->addMonth()->subDays(10)), EstadoPeriodo::MatriculaAbierta);
+        $siguiente = $this->periodo($hoy->startOfMonth()->addMonth(), min($hoy, $hoy->startOfMonth()->addMonth()->subDays(10)), EstadoPeriodo::MatriculaAbierta, conMatriculaExtemporanea: true);
 
         $anterior = $this->periodo($hoy->startOfMonth()->subMonth(), $hoy->startOfMonth()->subMonth()->subDays(14), EstadoPeriodo::Cerrado);
 
@@ -143,12 +143,13 @@ final class AcademicoDemoSeeder extends Seeder
         return $idioma;
     }
 
-    private function periodo(CarbonImmutable $inicio, CarbonImmutable $aperturaDeMatricula, EstadoPeriodo $estado): Periodo
+    private function periodo(CarbonImmutable $inicio, CarbonImmutable $aperturaDeMatricula, EstadoPeriodo $estado, bool $conMatriculaExtemporanea = false): Periodo
     {
         return Periodo::query()->create([
             'anio' => $inicio->year, 'numero' => $inicio->month, 'nombre' => self::MESES[$inicio->month - 1].' '.$inicio->year,
             'fecha_inicio' => $inicio->toDateString(), 'fecha_fin' => $inicio->endOfMonth()->toDateString(),
             'matricula_inicio' => $aperturaDeMatricula->toDateString(), 'matricula_fin' => $inicio->addDays(4)->toDateString(),
+            'matricula_extemporanea_fin' => $conMatriculaExtemporanea ? $inicio->addDays(9)->toDateString() : null,
             ...$this->calendarioDeActas($inicio->endOfMonth()->startOfDay()),
             'estado' => $estado,
         ]);
