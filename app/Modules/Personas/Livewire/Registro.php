@@ -74,7 +74,7 @@ final class Registro extends Component
         Auth::login($user);
         session()->regenerate();
 
-        $this->redirectRoute('verification.notice');
+        $this->redirectRoute('estudiante.inicio');
     }
 
     public function render(): View

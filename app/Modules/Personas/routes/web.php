@@ -16,7 +16,7 @@ Route::view('/privacidad', 'personas::privacidad')->name('privacidad');
 
 Route::livewire('/estudiante/registro', Registro::class)->middleware('guest')->name('estudiante.registro');
 
-Route::middleware(['auth', 'auth.session', 'verified', 'estudiante'])->group(function (): void {
+Route::middleware(['auth', 'auth.session', 'estudiante'])->group(function (): void {
     Route::livewire('/estudiante', InicioDelPortal::class)->name('estudiante.inicio');
     Route::livewire('/estudiante/perfil/datos', ModificarDatos::class)->name('estudiante.perfil.datos');
     Route::livewire('/estudiante/perfil/foto', SubirFotografia::class)->name('estudiante.perfil.foto');

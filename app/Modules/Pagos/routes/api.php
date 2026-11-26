@@ -8,6 +8,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/tarifas', ListarTarifas::class)->name('api.tarifas');
 
-Route::middleware(['auth:sanctum', 'correo.verificado', 'estudiante'])->prefix('estudiante')->group(function (): void {
+Route::middleware(['auth:sanctum', 'estudiante'])->prefix('estudiante')->group(function (): void {
     Route::get('/pagos', ListarMisPagos::class)->name('api.estudiante.pagos');
 });

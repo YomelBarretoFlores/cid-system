@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Personas;
 
+use App\Modules\Pagos\Events\PagoValidado;
 use App\Modules\Personas\Actions\BuscarPersonas;
 use App\Modules\Personas\Actions\EtiquetarPersonas;
 use App\Modules\Personas\Actions\ObtenerFichaDelUsuario;
@@ -20,8 +21,11 @@ use App\Modules\Personas\Contracts\FichaDePersona;
 use App\Modules\Personas\Contracts\FichasDePersonas;
 use App\Modules\Personas\Contracts\FotoDePersona;
 use App\Modules\Personas\Contracts\SubconsultaDePersonas;
+use App\Modules\Personas\Http\Middleware\RequiereCuentaHabilitada;
 use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
+use App\Modules\Personas\Listeners\AlValidarPago;
 use App\Shared\Support\ModuleServiceProvider;
+use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 
 final class PersonasServiceProvider extends ModuleServiceProvider
@@ -47,6 +51,7 @@ final class PersonasServiceProvider extends ModuleServiceProvider
     {
         parent::boot();
 
-        Livewire::addPersistentMiddleware([RequiereFichaDeEstudiante::class]);
+        Livewire::addPersistentMiddleware([RequiereFichaDeEstudiante::class, RequiereCuentaHabilitada::class]);
+        Event::listen(PagoValidado::class, AlValidarPago::class);
     }
 }

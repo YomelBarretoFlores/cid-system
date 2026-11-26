@@ -31,6 +31,7 @@ use Illuminate\Support\Str;
  * @property ?string $direccion
  * @property ?string $foto
  * @property ?CarbonImmutable $tratamiento_aceptado_en
+ * @property ?CarbonImmutable $habilitada_en
  */
 #[Table('per_personas')]
 #[RouteKey('ulid')]
@@ -154,6 +155,7 @@ final class Persona extends Model
             'tipo_vinculo' => TipoVinculo::class,
             'fecha_nacimiento' => 'date',
             'tratamiento_aceptado_en' => 'datetime',
+            'habilitada_en' => 'datetime',
         ];
     }
 }

@@ -26,7 +26,7 @@ beforeEach(function (): void {
     $this->token = $this->usuario->createToken('App', expiresAt: now()->addDays(30))->plainTextToken;
 });
 
-it('gives the student their own profile and refuses guests, accounts without a person record and unverified accounts', function (): void {
+it('gives the student their own profile and refuses guests, accounts without a person record and serves accounts not yet enabled', function (): void {
     $this->getJson('/api/v1/estudiante/perfil')->assertUnauthorized();
 
     $this->withToken($this->token)->getJson('/api/v1/estudiante/perfil')
@@ -42,12 +42,10 @@ it('gives the student their own profile and refuses guests, accounts without a p
         ->assertForbidden()
         ->assertJsonPath('message', 'Tu cuenta no está vinculada a una ficha de estudiante del CILN.');
 
-    $sinVerificar = User::factory()->unverified()->create();
-    Persona::factory()->create(['user_id' => $sinVerificar->id]);
+    $sinHabilitar = User::factory()->unverified()->create();
+    Persona::factory()->create(['user_id' => $sinHabilitar->id, 'habilitada_en' => null]);
     app('auth')->forgetGuards();
-    $this->withToken($sinVerificar->createToken('App')->plainTextToken)->getJson('/api/v1/estudiante/perfil')
-        ->assertForbidden()
-        ->assertJsonPath('message', 'Verifica tu correo antes de usar estos datos.');
+    $this->withToken($sinHabilitar->createToken('App')->plainTextToken)->getJson('/api/v1/estudiante/perfil')->assertOk();
 });
 
 it('lists only the student\'s own enrollments, newest first, with their group, schedule, room or link and teacher', function (): void {

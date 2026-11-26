@@ -19,12 +19,12 @@ it('redirects guests of every portal route to the portal login', function (strin
     $this->get($ruta)->assertRedirect(route('ingresar'));
 })->with('rutas del portal');
 
-it('sends unverified students of every portal route to the verification notice', function (string $ruta): void {
+it('no longer sends students whose email was never verified to a verification notice', function (): void {
     $user = User::factory()->unverified()->create();
     Persona::factory()->create(['user_id' => $user->id]);
 
-    $this->actingAs($user)->get($ruta)->assertRedirect(route('verification.notice'));
-})->with('rutas del portal');
+    $this->actingAs($user)->get(route('estudiante.matriculas'))->assertOk();
+});
 
 it('forbids every portal route to a verified user without a person record', function (string $ruta): void {
     $this->actingAs(User::factory()->create())->get($ruta)->assertForbidden();

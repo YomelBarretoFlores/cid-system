@@ -1,0 +1,31 @@
+# Account enablement by payment and configurable catalogs
+
+Objective: drop email verification, enable student accounts when their first payment is validated, turn the hardcoded business values into staff-editable catalogs, settings and texts, and centralize the panel menu. Branch `feat/habilitacion-y-catalogos`. Delivery: one commit per task, release v1.3.0 after green CI. Runner: Pest on PostgreSQL 18 (`php artisan test --compact`, `composer check`).
+
+## Specs
+
+- S1. Email verification is removed: "Creo que debemos de quitar eso de verificación del email para poder ingresar." "Y eso sobre la verificación de correo creo que debemos de quitarlo."
+- S2. Anyone can register; the admin assigns roles: "Pienso que cualquiera puede crear su cuenta, pero el admin es el que mueve si es estudiante, personal o docente."
+- S3. Restricted portal until enabled: "quizás que al crear la cuenta ingrese y se le vea solo sección de la carga de sus recibos y el inicio de su matrícula no validad, etc. O solo secciones genéricas, cuando vaya a dejar su recibo al CILN y se le valida su pago recién podrá ver todas las secciones completas."
+- S4. The account is enabled automatically when the cashier validates its first payment (user chose the recommended option: "Sí, es mejor lo que recomiendas."). Existing students count as enabled (assumption, from the agreed flow). Registering with a document that already has a ficha also waits for in-office enablement (agreed flow).
+- S5. Tipo de vínculo becomes a catalog: "Sí, incluye en el plan, como te dije, todo debe de ser configurable. Seguramente hay más cosas que no son configurables." "no te preocupes sobre las modificaciones, aún no está en uso el sistema, está en fase de pruebas nada más."
+- S6. Approved plan items ("Bien, lo apruebo así."): catalogs Tipos de documento (with format rule), Modalidades (with portal description), Bancos, Grados del FUT, default-program flag on Programas; "Parámetros del sistema" page (placement validity days, placement score scale, roll-call windows, attachment/receipt/photo limits, few-vacancies threshold); editable texts (university name from institutional data in PDFs/email/portal, closing texts per document, accreditation texts, email footer, privacy policy and consent text, portal content: steps, FAQ, about, payment places from medios de pago). Levels Básico/Intermedio/Avanzado, workflow states, security limits, the average formula and the code-driven concept types stay fixed.
+- S7. Centralized menu: "Pero entonces al hacer eso el sidebar crecerá más. Es posible que todo eso y algunas secciones se centralicen? las que se puedan, porque puede ser que para el usuario se le sea difícil ver tantas secciones en el sidebar." Proposal: Filament clusters "Configuración" (all catalogs, settings, texts) and "Reportes" (all reports).
+
+## Tasks
+
+- [x] T1 · S1–S4 · Registration without verification, restricted portal, enablement on first validated payment · inline · suite 2472/2473 (only ProxiesDeConfianzaTest, known env)
+- [ ] T2 · S5 · Tipo de vínculo catalog (personas, tarifas, portal) · inline
+- [ ] T3 · S6 · Tipo de documento catalog with format rules · inline
+- [ ] T4 · S6 · Modalidades, Bancos, Grados del FUT catalogs; default-program flag · inline
+- [ ] T5 · S6 · Parámetros del sistema page · inline
+- [ ] T6 · S6 · Editable texts and institutional name everywhere · inline
+- [ ] T7 · S7 · Configuración and Reportes clusters · inline
+- [ ] T8 · all · Manuals, data dictionary, demo seed, release v1.3.0 · inline
+
+## Log
+
+- L1 (2026-11-26) Original request: "Bien, ahora veamos el tema de la creación de cuenta. Creo que debemos de quitar eso de verificación del email para poder ingresar. Pienso que cualquiera puede crear su cuenta, pero el admin es el que mueve si es estudiante, personal o docente. Sobre el tema del estudiante, en sus sistema anterior funcionaba así: El estudiante creaba su cuenta y podía ingresar a un panel, pero no había nada. Para que se le habilite el estudiante debía de ir a las oficinas del CILN con su recibo de pago, si era válido se le habilitaba su cuenta y ahoa sí el estudiante podía ver secciones del sistema. Así debería de ser el de nosotros, quizás que al crear la cuenta ingrese y se le vea solo sección de la carga de sus recibos y el inicio de su matrícula no validad, etc. O solo secciones genéricas, cuando vaya a dejar su recibo al CILN y se le valida su pago recién podrá ver todas las secciones completas. Y eso sobre la verificación de correo creo que debemos de quitarlo."
+- L2 Hardcoded-values audit (explorer, spot-checked): 5 views print the university name literally (constancia-de-notas, constancia-de-matricula, Matricula constancia + membrete, privacidad, cambio-de-tramite mail, portada). Business enums: TipoVinculo, TipoDocumento, Modalidad (PG enum columns). config/ciln.php holds asistencia windows and docencia.bancos.
+- L3 Current menu: about 38 entries; "Catálogos" has 12. Filament 5 clusters verified in the docs (resources/pages get a cluster URL prefix and a sub-navigation).
+- L4 T1 done inline: per_personas.habilitada_en (DB default now() so staff records and existing ones are enabled; self-registration clears it, linked records too), Personas listener on PagoValidado (sync) enables it, middleware `estudiante.habilitado` on Matricula/Tramites/Certificacion/Docencia student routes (web redirects to Inicio, API 403 "Tu cuenta aún no está habilitada. Acércate al CILN con tu recibo de pago."). Email verification removed (User no longer MustVerifyEmail, notice/confirm routes, mail, API gate, teacher panel gate). Tests converted from the verification gate to the enablement gate; the "one verification email per minute" test was removed with its feature. Panel infolist shows «Cuenta habilitada». T2 delegated to a bounded writer (context backstop), same tree, disjoint surface.

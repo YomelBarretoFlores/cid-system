@@ -23,11 +23,11 @@ it('sends a signed-out visitor to the sign-in on every student page', function (
     'estudiante.perfil.datos', 'estudiante.perfil.foto', 'estudiante.perfil.foto.ver', 'estudiante.preferencias',
 ]);
 
-it('keeps the portal behind a verified email', function (): void {
-    $user = User::factory()->unverified()->create();
-    Persona::factory()->create(['user_id' => $user->id]);
+it('keeps the academic sections behind an enabled account', function (): void {
+    $user = User::factory()->create();
+    Persona::factory()->create(['user_id' => $user->id, 'habilitada_en' => null]);
 
-    $this->actingAs($user)->get(route('estudiante.inicio'))->assertRedirect(route('verification.notice'));
+    $this->actingAs($user)->get(route('estudiante.matriculas'))->assertRedirect(route('estudiante.inicio'));
 });
 
 it('refuses the portal to an authenticated account without a student record', function (): void {

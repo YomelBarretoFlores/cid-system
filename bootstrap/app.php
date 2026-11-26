@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use App\Modules\Docencia\Http\Middleware\RequierePerfilDocente;
+use App\Modules\Personas\Http\Middleware\RequiereCuentaHabilitada;
 use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Shared\Audit\Http\Middleware\EstablecerContextoAuditoria;
 use App\Shared\Auth\Http\Middleware\ProtegerDescargaDelPanel;
-use App\Shared\Auth\Http\Middleware\RequiereCorreoVerificado;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\DestinoTrasIngreso;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -35,7 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('api', EstablecerContextoAuditoria::class);
         $middleware->throttleApi();
         $middleware->encryptCookies(except: ['ciln-menu-colapsado']);
-        $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'docente' => RequierePerfilDocente::class, 'correo.verificado' => RequiereCorreoVerificado::class, 'panel.sesion' => ProtegerDescargaDelPanel::class]);
+        $middleware->alias(['estudiante' => RequiereFichaDeEstudiante::class, 'estudiante.habilitado' => RequiereCuentaHabilitada::class, 'docente' => RequierePerfilDocente::class, 'panel.sesion' => ProtegerDescargaDelPanel::class]);
 
         // The admin panel redirects its own guests to its login; staff downloads under /panel go there too, every portal page to the single entry.
         $middleware->redirectGuestsTo(fn (Request $request): ?string => match (true) {

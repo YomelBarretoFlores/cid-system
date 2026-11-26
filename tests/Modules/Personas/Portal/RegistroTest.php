@@ -8,7 +8,6 @@ use App\Modules\Personas\Enums\TipoVinculo;
 use App\Modules\Personas\Livewire\Registro;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
-use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
@@ -54,12 +53,12 @@ it('shows the registration form to guests', function (): void {
         ->assertSee('Ley N° 29733');
 });
 
-it('creates the person and an unverified account, signs it in and asks to verify the email', function (): void {
+it('creates the person and an account not yet enabled and signs it in without a verification email', function (): void {
     $this->freezeSecond();
 
     registrarse(['email' => '  Rosa@Correo.TEST '])
         ->assertHasNoErrors()
-        ->assertRedirect(route('verification.notice'));
+        ->assertRedirect(route('estudiante.inicio'));
 
     $persona = Persona::query()->sole();
     $user = User::query()->where('email', 'rosa@correo.test')->sole();
@@ -73,12 +72,12 @@ it('creates the person and an unverified account, signs it in and asks to verify
         ->celular->toBe('987654321')
         ->tipo_vinculo->toBe(TipoVinculo::PublicoGeneral)
         ->tratamiento_aceptado_en->toEqual(now())
-        ->and($user->hasVerifiedEmail())->toBeFalse()
+        ->habilitada_en->toBeNull()
         ->and(Hash::check('clave-segura1', $user->password))->toBeTrue()
         ->and($user->name)->toBe('Rosa Elena Quispe');
 
     $this->assertAuthenticatedAs($user);
-    Notification::assertSentTo($user, CorreoDeVerificacion::class);
+    Notification::assertNothingSent();
 });
 
 it('links an existing CILN record when its email matches and keeps its data', function (): void {
@@ -90,7 +89,7 @@ it('links an existing CILN record when its email matches and keeps its data', fu
 
     registrarse(['email' => 'ROSA@correo.test', 'nombres' => 'Otro Nombre'])
         ->assertHasNoErrors()
-        ->assertRedirect(route('verification.notice'));
+        ->assertRedirect(route('estudiante.inicio'));
 
     $persona->refresh();
 

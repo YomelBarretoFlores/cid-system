@@ -11,7 +11,6 @@ use Filament\Actions\Action;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 
 // Teachers sign in through /ingresar like students; the panel keeps the portal session and asks for no second factor.
 final class DocentePanelProvider extends PanelProvider
@@ -29,7 +28,6 @@ final class DocentePanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 AutenticarAlPanelDocente::class,
-                EnsureEmailIsVerified::class,
                 EstablecerContextoAuditoria::class,
             ], isPersistent: true);
 

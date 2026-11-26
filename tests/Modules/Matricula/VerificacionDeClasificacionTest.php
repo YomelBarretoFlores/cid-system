@@ -77,10 +77,10 @@ it('replaying another student snapshot shows only the replayer own requests', fu
     expect($html)->toContain('22/11/2026')->not->toContain('11/11/2026');
 });
 
-it('an unverified account replaying a snapshot cannot request the exam', function (): void {
+it('an account not yet enabled replaying a snapshot cannot request the exam', function (): void {
     $snapshot = vSnapshot($this->actingAs($this->user)->get(route('estudiante.clasificacion'))->assertOk());
-    $sinVerificar = User::factory()->unverified()->create();
-    $persona = Persona::factory()->create(['user_id' => $sinVerificar->id]);
+    $sinVerificar = User::factory()->create();
+    $persona = Persona::factory()->create(['user_id' => $sinVerificar->id, 'habilitada_en' => null]);
     $pago = Pago::factory()->validado()->for($this->conceptoExamen)->create(['persona_id' => $persona->id]);
 
     $this->actingAs($sinVerificar);

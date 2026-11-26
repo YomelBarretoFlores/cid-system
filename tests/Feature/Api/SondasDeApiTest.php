@@ -122,14 +122,15 @@ it('revokes only the device that asks, the other devices keep working', function
     $this->withToken($tableta)->getJson('/api/v1/sesiones/actual')->assertOk()->assertJsonPath('dispositivo', 'Tableta');
 });
 
-it('issues a token to an unverified account that works on the session but not on the student data', function (): void {
+it('issues a token to an account not yet enabled that works on the profile but not on the academic data', function (): void {
     $usuario = User::factory()->unverified()->create(['email' => 'nuevo@ciln.test']);
-    Persona::factory()->create(['user_id' => $usuario->id]);
+    Persona::factory()->create(['user_id' => $usuario->id, 'habilitada_en' => null]);
 
     $token = $this->postJson('/api/v1/sesiones', ['email' => 'nuevo@ciln.test', 'password' => 'password', 'dispositivo' => 'App'])->assertCreated()->json('token');
 
     $this->withToken($token)->getJson('/api/v1/sesiones/actual')->assertOk()->assertJsonPath('perfiles.estudiante', true);
-    $this->withToken($token)->getJson('/api/v1/estudiante/perfil')->assertForbidden()->assertJsonPath('message', 'Verifica tu correo antes de usar estos datos.');
+    $this->withToken($token)->getJson('/api/v1/estudiante/perfil')->assertOk();
+    $this->withToken($token)->getJson('/api/v1/estudiante/notas')->assertForbidden()->assertJsonPath('message', 'Tu cuenta aún no está habilitada. Acércate al CILN con tu recibo de pago.');
 });
 
 it('answers sign-in validation errors as JSON even without an Accept header, and refuses a non-string e-mail', function (): void {

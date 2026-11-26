@@ -10,10 +10,8 @@ use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Livewire\IniciarSesion;
 use App\Shared\Auth\Livewire\RestablecerClave;
 use App\Shared\Auth\Livewire\SolicitarRestablecimiento;
-use App\Shared\Auth\Livewire\VerificarCorreo;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Notifications\CorreoDeRestablecimiento;
-use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
@@ -69,12 +67,12 @@ it('refuses a record on file with another email and one with an account using th
 it('links a record on file with the same email and keeps its link type', function (): void {
     $persona = Persona::factory()->estudianteUnasam()->create(['tipo_documento' => TipoDocumento::Dni, 'numero_documento' => '45678912', 'correo' => 'ana@correo.test']);
 
-    sondaRegistrarse(['email' => '  ANA@Correo.test '])->assertHasNoErrors()->assertRedirect(route('verification.notice'));
+    sondaRegistrarse(['email' => '  ANA@Correo.test '])->assertHasNoErrors()->assertRedirect(route('estudiante.inicio'));
 
     expect($persona->refresh()->user_id)->toBe(User::query()->sole()->id)
         ->and($persona->tipo_vinculo)->toBe(TipoVinculo::EstudianteUnasam)
         ->and(Persona::query()->count())->toBe(1);
-    Notification::assertSentTo(User::query()->sole(), CorreoDeVerificacion::class);
+    Notification::assertNothingSent();
 });
 
 it('requires consent and creates nothing without it', function (): void {
@@ -130,15 +128,6 @@ it('limits reset requests to 5 per minute per address', function (): void {
     Livewire::test(SolicitarRestablecimiento::class)->set('email', 'ana@correo.test')->call('enviar')->assertHasErrors('email');
 
     Notification::assertNothingSent();
-});
-
-it('sends at most one verification email per minute', function (): void {
-    $user = User::factory()->unverified()->create();
-
-    $componente = Livewire::actingAs($user)->test(VerificarCorreo::class);
-    $componente->call('reenviar')->call('reenviar')->assertSet('aviso', 'Espera un minuto antes de pedir otro enlace.');
-
-    Notification::assertSentToTimes($user, CorreoDeVerificacion::class, 1);
 });
 
 it('refuses an invalid or expired reset token and keeps the password', function (): void {

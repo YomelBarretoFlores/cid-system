@@ -6,13 +6,13 @@
 @use('App\Shared\Auth\Models\User')
 @php
     $usuario = auth()->user();
-    $verificado = $usuario?->hasVerifiedEmail() ?? false;
-    $esDocente = $verificado && app(DocenteDelUsuario::class)((int) $usuario->id) !== null;
-    $ficha = $verificado ? app(FichaDelUsuario::class)((int) $usuario->id) : null;
+    $esDocente = $usuario !== null && app(DocenteDelUsuario::class)((int) $usuario->id) !== null;
+    $ficha = $usuario === null ? null : app(FichaDelUsuario::class)((int) $usuario->id);
+    $habilitada = $ficha?->habilitada ?? false;
     $personaId = $ficha?->personaId;
     $foto = $ficha?->versionDeFoto === null ? null : route('estudiante.perfil.foto.ver', ['v' => $ficha->versionDeFoto]);
-    $observados = $personaId === null ? 0 : app(TramitesObservados::class)($personaId);
-    $porConfirmar = $personaId === null ? null : app(ClasesPorConfirmarDelDelegado::class)($personaId);
+    $observados = ! $habilitada ? 0 : app(TramitesObservados::class)($personaId);
+    $porConfirmar = ! $habilitada ? null : app(ClasesPorConfirmarDelDelegado::class)($personaId);
     $colapsado = request()->cookie('ciln-menu-colapsado') === '1';
     $atajo = str_contains((string) request()->userAgent(), 'Mac') ? '⌘ B' : 'Ctrl B';
 @endphp
@@ -51,7 +51,7 @@
                 </div>
 
                 <div class="h-4 shrink-0"></div>
-                @if ($verificado)
+                @if ($ficha !== null)
                     <nav aria-label="Portal del estudiante" class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-3 pb-4 lg:in-data-colapsado:px-2">
                         <x-portal.grupo-menu titulo="Mi cuenta">
                             <x-portal.enlace-menu ruta="estudiante.inicio" icono="heroicon-o-user-circle">Perfil</x-portal.enlace-menu>
@@ -59,17 +59,23 @@
                             <x-portal.enlace-menu ruta="estudiante.perfil.foto" icono="heroicon-o-camera">Subir fotografía</x-portal.enlace-menu>
                             <x-portal.enlace-menu ruta="estudiante.preferencias" icono="heroicon-o-cog-6-tooth">Preferencias</x-portal.enlace-menu>
                         </x-portal.grupo-menu>
-                        <x-portal.grupo-menu titulo="Reportes">
-                            @php($vista = request()->routeIs('estudiante.reportes') ? request()->query('ver') : null)
-                            <x-portal.enlace-menu ruta="estudiante.reportes" icono="heroicon-o-squares-2x2" :actual="request()->routeIs('estudiante.reportes') && $vista !== 'horario'">Todos</x-portal.enlace-menu>
-                            <x-portal.enlace-menu ruta="estudiante.reportes" :parametros="['ver' => 'horario']" icono="heroicon-o-calendar-days" :actual="$vista === 'horario'">Horario</x-portal.enlace-menu>
-                        </x-portal.grupo-menu>
+                        @if ($habilitada)
+                            <x-portal.grupo-menu titulo="Reportes">
+                                @php($vista = request()->routeIs('estudiante.reportes') ? request()->query('ver') : null)
+                                <x-portal.enlace-menu ruta="estudiante.reportes" icono="heroicon-o-squares-2x2" :actual="request()->routeIs('estudiante.reportes') && $vista !== 'horario'">Todos</x-portal.enlace-menu>
+                                <x-portal.enlace-menu ruta="estudiante.reportes" :parametros="['ver' => 'horario']" icono="heroicon-o-calendar-days" :actual="$vista === 'horario'">Horario</x-portal.enlace-menu>
+                            </x-portal.grupo-menu>
+                        @endif
                         <x-portal.grupo-menu titulo="Procesos">
-                            <x-portal.enlace-menu ruta="estudiante.matricula" icono="heroicon-o-pencil-square">Matrícula</x-portal.enlace-menu>
-                            <x-portal.enlace-menu ruta="estudiante.matriculas" activo="estudiante.matriculas*" icono="heroicon-o-academic-cap">Mis matrículas</x-portal.enlace-menu>
+                            @if ($habilitada)
+                                <x-portal.enlace-menu ruta="estudiante.matricula" icono="heroicon-o-pencil-square">Matrícula</x-portal.enlace-menu>
+                                <x-portal.enlace-menu ruta="estudiante.matriculas" activo="estudiante.matriculas*" icono="heroicon-o-academic-cap">Mis matrículas</x-portal.enlace-menu>
+                            @endif
                             <x-portal.enlace-menu ruta="estudiante.pagos" icono="heroicon-o-banknotes">Registro de pagos</x-portal.enlace-menu>
-                            <x-portal.enlace-menu ruta="estudiante.clasificacion" icono="heroicon-o-clipboard-document-check">Clasificación</x-portal.enlace-menu>
-                            <x-portal.enlace-menu ruta="estudiante.tramites" icono="heroicon-o-document-text" :insignia="$observados ?: null">Trámites</x-portal.enlace-menu>
+                            @if ($habilitada)
+                                <x-portal.enlace-menu ruta="estudiante.clasificacion" icono="heroicon-o-clipboard-document-check">Clasificación</x-portal.enlace-menu>
+                                <x-portal.enlace-menu ruta="estudiante.tramites" icono="heroicon-o-document-text" :insignia="$observados ?: null">Trámites</x-portal.enlace-menu>
+                            @endif
                             @if ($porConfirmar !== null)
                                 <x-portal.enlace-menu ruta="estudiante.clases" icono="heroicon-o-check-badge" :insignia="$porConfirmar ?: null">Confirmar clases</x-portal.enlace-menu>
                             @endif

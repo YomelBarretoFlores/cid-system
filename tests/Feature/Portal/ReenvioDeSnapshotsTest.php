@@ -30,20 +30,17 @@ function sondaActualizar(string $snapshot, array $updates = [], array $calls = [
         ->postJson(route('default-livewire.update'), ['components' => [['snapshot' => $snapshot, 'updates' => $updates, 'calls' => $calls]]]);
 }
 
-it('does not let an unverified account read its payments by replaying a portal snapshot', function (): void {
-    $verificado = User::factory()->create();
-    Persona::factory()->create(['user_id' => $verificado->id]);
-    $snapshot = sondaSnapshot($this->actingAs($verificado)->get(route('estudiante.pagos'))->assertOk());
+it('does not let an account not yet enabled read another student payments by replaying a portal snapshot', function (): void {
+    $ajeno = User::factory()->create();
+    $persona = Persona::factory()->create(['user_id' => $ajeno->id]);
+    Pago::factory()->rechazado()->create(['persona_id' => $persona->id, 'numero_operacion' => 'OP-AJENO-7']);
+    $snapshot = sondaSnapshot($this->actingAs($ajeno)->get(route('estudiante.pagos'))->assertOk());
 
-    $sinVerificar = User::factory()->unverified()->create();
-    $victima = Persona::factory()->create(['user_id' => $sinVerificar->id]);
-    Pago::factory()->rechazado()->create(['persona_id' => $victima->id, 'numero_operacion' => 'OP-VICTIMA-7']);
+    $sinHabilitar = User::factory()->create();
+    Persona::factory()->create(['user_id' => $sinHabilitar->id, 'habilitada_en' => null]);
+    $this->actingAs($sinHabilitar);
 
-    $this->actingAs($sinVerificar)->get(route('estudiante.pagos'))->assertRedirect(route('verification.notice'));
-
-    $respuesta = sondaActualizar($snapshot);
-
-    expect($respuesta->getContent())->not->toContain('OP-VICTIMA-7');
+    expect(sondaActualizar($snapshot)->getContent())->not->toContain('OP-AJENO-7');
 });
 
 it('does not keep serving portal data to a session ended by a password change', function (): void {
@@ -57,14 +54,14 @@ it('does not keep serving portal data to a session ended by a password change', 
     expect(sondaActualizar($snapshot)->getContent())->not->toContain('OP-PROPIA-3');
 });
 
-it('does not let an unverified account enroll by replaying a portal snapshot', function (): void {
+it('does not let an account not yet enabled enroll by replaying a portal snapshot', function (): void {
     $grupo = Grupo::factory()->for(Periodo::factory()->conMatriculaAbierta())->for(Ciclo::factory()->state(['numero' => 1]))->create();
     $verificado = User::factory()->create();
     Persona::factory()->create(['user_id' => $verificado->id]);
     $snapshot = sondaSnapshot($this->actingAs($verificado)->get(route('estudiante.matricula'))->assertOk());
 
-    $sinVerificar = User::factory()->unverified()->create();
-    $victima = Persona::factory()->create(['user_id' => $sinVerificar->id]);
+    $sinVerificar = User::factory()->create();
+    $victima = Persona::factory()->create(['user_id' => $sinVerificar->id, 'habilitada_en' => null]);
     $pago = Pago::factory()->validado()->for(Concepto::factory()->state(['tipo' => TipoConcepto::Matricula]))->create(['persona_id' => $victima->id]);
 
     $this->actingAs($sinVerificar);

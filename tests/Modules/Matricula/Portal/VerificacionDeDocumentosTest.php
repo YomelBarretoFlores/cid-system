@@ -16,10 +16,10 @@ use Spatie\LaravelPdf\PdfBuilder;
 /**
  * @return array{0: User, 1: Matricula}
  */
-function verifEstudiante(array $matricula = [], array $grupo = [], ?string $estadoPago = 'validado', bool $verificado = true): array
+function verifEstudiante(array $matricula = [], array $grupo = [], ?string $estadoPago = 'validado', bool $habilitada = true): array
 {
-    $user = $verificado ? User::factory()->create() : User::factory()->unverified()->create();
-    $persona = Persona::factory()->create(['user_id' => $user->id]);
+    $user = User::factory()->create();
+    $persona = Persona::factory()->create(['user_id' => $user->id, 'habilitada_en' => $habilitada ? now() : null]);
     $pagoId = $estadoPago === null ? null : Pago::factory()->{$estadoPago}()->create(['persona_id' => $persona->id])->id;
 
     return [$user, Matricula::factory()->create([
@@ -44,10 +44,10 @@ it('P1 hides another student documents with 404', function (string $ruta): void 
     Pdf::assertNotQueued();
 })->with(['estudiante.matriculas.ficha', 'estudiante.matriculas.constancia']);
 
-it('P2 sends an unverified account to the verification notice', function (string $ruta): void {
-    [$user, $matricula] = verifEstudiante(verificado: false);
+it('P2 sends an account not yet enabled back to the portal home', function (string $ruta): void {
+    [$user, $matricula] = verifEstudiante(habilitada: false);
 
-    $this->actingAs($user)->get(route($ruta, $matricula))->assertRedirect(route('verification.notice'));
+    $this->actingAs($user)->get(route($ruta, $matricula))->assertRedirect(route('estudiante.inicio'));
 })->with(['estudiante.matriculas.ficha', 'estudiante.matriculas.constancia']);
 
 it('P3 refuses an account without a person record', function (string $ruta): void {
@@ -125,10 +125,10 @@ it('P12 answers 404 for a numeric id, a garbage key and a case-changed ulid', fu
     $this->actingAs($user)->get("/estudiante/matriculas/{$otraCaja}/".str($ruta)->afterLast('.'))->assertNotFound();
 })->with(['estudiante.matriculas.ficha', 'estudiante.matriculas.constancia']);
 
-it('P13 does not leak document links to an unverified account replaying the Mis matriculas snapshot', function (): void {
+it('P13 does not leak document links to an account not yet enabled replaying the Mis matriculas snapshot', function (): void {
     [$verificado] = verifEstudiante();
     $snapshot = verifSnapshot($this->actingAs($verificado)->get(route('estudiante.matriculas'))->assertOk());
-    [$sinVerificar, $victima] = verifEstudiante(verificado: false);
+    [$sinVerificar, $victima] = verifEstudiante(habilitada: false);
 
     $this->actingAs($sinVerificar);
     $respuesta = test()->withHeaders(['X-Livewire' => '1'])

@@ -71,10 +71,11 @@ it('sends a signed-in user away from the login page', function (): void {
         ->assertRedirect(route('estudiante.inicio'));
 });
 
-it('asks an unverified user to verify the email before entering the portal', function (): void {
-    $this->actingAs(User::factory()->unverified()->create())
-        ->get(route('estudiante.inicio'))
-        ->assertRedirect(route('verification.notice'));
+it('lets a student whose email was never verified into the portal', function (): void {
+    $user = User::factory()->unverified()->create();
+    Persona::factory()->create(['user_id' => $user->id]);
+
+    $this->actingAs($user)->get(route('estudiante.inicio'))->assertOk();
 });
 
 it('logs the student out and ends the session', function (): void {

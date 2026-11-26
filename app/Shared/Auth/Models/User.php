@@ -7,7 +7,6 @@ namespace App\Shared\Auth\Models;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Shared\Auth\Enums\TemaDeInterfaz;
 use App\Shared\Auth\Notifications\CorreoDeRestablecimiento;
-use App\Shared\Auth\Notifications\CorreoDeVerificacion;
 use App\Shared\Auth\Policies\UsuarioPolicy;
 use Database\Factories\UserFactory;
 use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
@@ -16,7 +15,6 @@ use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
 use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -37,7 +35,7 @@ use Spatie\Permission\Traits\HasRoles;
 #[Hidden(['password', 'remember_token'])]
 #[UseFactory(UserFactory::class)]
 #[UsePolicy(UsuarioPolicy::class)]
-final class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, MustVerifyEmail
+final class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
 {
     public const string ADMIN_PANEL_PERMISSION = 'admin-panel.access';
 
@@ -53,7 +51,6 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
         'tema' => 'sistema',
     ];
 
-    // The teacher panel checks the email in its own middleware, so an unverified teacher is asked to verify instead of refused.
     public function canAccessPanel(Panel $panel): bool
     {
         if ($this->desactivado_en !== null) {
@@ -64,11 +61,6 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
             'docente' => app(DocenteDelUsuario::class)($this->id) !== null,
             default => $this->can(self::ADMIN_PANEL_PERMISSION),
         };
-    }
-
-    public function sendEmailVerificationNotification(): void
-    {
-        $this->notify(new CorreoDeVerificacion);
     }
 
     /**

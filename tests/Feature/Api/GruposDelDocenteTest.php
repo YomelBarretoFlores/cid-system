@@ -48,7 +48,7 @@ it('lists the teacher\'s own current groups, latest period first, with their sch
         ]);
 });
 
-it('refuses guests, accounts without a teacher profile and unverified teachers', function (): void {
+it('refuses guests and accounts without a teacher profile, and serves a teacher whose email was never verified', function (): void {
     $this->getJson('/api/v1/docente/grupos')->assertUnauthorized();
 
     $estudiante = User::factory()->create();
@@ -59,7 +59,5 @@ it('refuses guests, accounts without a teacher profile and unverified teachers',
 
     app('auth')->forgetGuards();
     $this->usuario->forceFill(['email_verified_at' => null])->save();
-    $this->withToken($this->token)->getJson('/api/v1/docente/grupos')
-        ->assertForbidden()
-        ->assertJsonPath('message', 'Verifica tu correo antes de usar estos datos.');
+    $this->withToken($this->token)->getJson('/api/v1/docente/grupos')->assertOk();
 });

@@ -18,7 +18,7 @@ use App\Modules\Matricula\Livewire\MisReportes;
 use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'auth.session', 'verified', 'estudiante'])->group(function (): void {
+Route::middleware(['auth', 'auth.session', 'estudiante', 'estudiante.habilitado'])->group(function (): void {
     Route::livewire('/estudiante/matricula', Matricularse::class)->name('estudiante.matricula');
     Route::livewire('/estudiante/matriculas', MisMatriculas::class)->name('estudiante.matriculas');
     Route::get('/estudiante/matriculas/{matricula}/ficha', DescargarFichaDeMatricula::class)->name('estudiante.matriculas.ficha');

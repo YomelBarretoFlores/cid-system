@@ -20,6 +20,7 @@ final readonly class FichaDeEstudiante
         public ?string $direccion = null,
         // Changes with every new photo so the browser does not show a cached one; never the file path itself.
         public ?string $versionDeFoto = null,
+        public bool $habilitada = true,
     ) {}
 
     public static function desde(Persona $persona): self
@@ -35,6 +36,7 @@ final readonly class FichaDeEstudiante
             vinculo: $persona->tipo_vinculo->etiqueta(),
             direccion: $persona->direccion,
             versionDeFoto: $persona->foto === null ? null : hash('crc32b', $persona->foto),
+            habilitada: $persona->habilitada_en !== null,
         );
     }
 }

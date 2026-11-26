@@ -25,18 +25,17 @@ beforeEach(function (): void {
     $this->emisor = User::factory()->create()->givePermissionTo(PermisoCertificacion::Documentos->value);
 });
 
-it('refuses guests and unverified accounts on every student endpoint', function (string $ruta): void {
+it('refuses guests and accounts not yet enabled on every academic endpoint', function (string $ruta): void {
     $this->getJson($ruta)->assertUnauthorized();
 
-    $sinVerificar = User::factory()->unverified()->create();
-    Persona::factory()->create(['user_id' => $sinVerificar->id]);
+    $sinVerificar = User::factory()->create();
+    Persona::factory()->create(['user_id' => $sinVerificar->id, 'habilitada_en' => null]);
 
     $this->withToken($sinVerificar->createToken('App')->plainTextToken)->getJson($ruta)
         ->assertForbidden()
-        ->assertJsonPath('message', 'Verifica tu correo antes de usar estos datos.');
+        ->assertJsonPath('message', 'Tu cuenta aún no está habilitada. Acércate al CILN con tu recibo de pago.');
 })->with([
-    '/api/v1/estudiante/perfil', '/api/v1/estudiante/matriculas', '/api/v1/estudiante/pagos',
-    '/api/v1/estudiante/notas', '/api/v1/estudiante/tramites', '/api/v1/estudiante/documentos',
+    '/api/v1/estudiante/matriculas', '/api/v1/estudiante/notas', '/api/v1/estudiante/tramites', '/api/v1/estudiante/documentos',
     '/api/v1/estudiante/documentos/CIL-0001/pdf',
 ]);
 

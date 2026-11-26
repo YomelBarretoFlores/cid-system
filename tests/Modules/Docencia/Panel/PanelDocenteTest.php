@@ -21,11 +21,11 @@ it('refuses an account without a teacher profile, staff included', function (Use
     'staff' => fn (): User => User::factory()->create()->givePermissionTo(User::ADMIN_PANEL_PERMISSION),
 ]);
 
-it('asks a teacher with an unverified email to verify it first', function (): void {
+it('lets a teacher whose email was never verified into the panel', function (): void {
     $usuario = User::factory()->unverified()->create();
     Docente::factory()->create(['persona_id' => Persona::factory()->create(['user_id' => $usuario->id])->id]);
 
-    $this->actingAs($usuario)->get('/docente')->assertRedirect(route('verification.notice'));
+    $this->actingAs($usuario)->get('/docente')->assertOk();
 });
 
 it('keeps a teacher who is not staff out of the admin panel', function (): void {

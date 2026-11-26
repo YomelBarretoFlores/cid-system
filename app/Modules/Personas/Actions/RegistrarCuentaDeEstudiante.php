@@ -51,6 +51,8 @@ final readonly class RegistrarCuentaDeEstudiante
 
         $persona->user()->associate($user);
         $persona->tratamiento_aceptado_en = $solicitud->aceptaTratamiento ? now() : null;
+        // Without email verification, only the payment validated at the office proves who holds the account.
+        $persona->habilitada_en = null;
         $persona->save();
 
         return $user;

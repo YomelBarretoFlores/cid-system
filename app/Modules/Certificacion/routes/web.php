@@ -12,14 +12,14 @@ use App\Modules\Certificacion\Http\Controllers\VerificarDocumento;
 use App\Shared\Auth\Models\User;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'auth.session', 'verified', 'docente'])->group(function (): void {
+Route::middleware(['auth', 'auth.session', 'docente'])->group(function (): void {
     Route::get('/docente/grupos/{grupo}/acta/pdf', DescargarActaFinalDelDocente::class)->whereNumber('grupo')->name('docente.acta.pdf');
     Route::get('/docente/grupos/{grupo}/pre-acta/pdf', DescargarPreActa::class)->whereNumber('grupo')->name('docente.preacta.pdf');
 });
 
 Route::get('/estudiante/documentos/{documento}/pdf', DescargarDocumentoDelEstudiante::class)
     ->whereNumber('documento')
-    ->middleware(['auth', 'auth.session', 'verified', 'estudiante'])
+    ->middleware(['auth', 'auth.session', 'estudiante', 'estudiante.habilitado'])
     ->name('estudiante.documentos.pdf');
 
 Route::get('/panel/actas-finales/{acta}/pdf', DescargarActaFinalParaPersonal::class)
