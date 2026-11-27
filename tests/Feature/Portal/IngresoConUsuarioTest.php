@@ -68,9 +68,12 @@ it('issues an API token for a username', function (): void {
     expect(PersonalAccessToken::findToken((string) $respuesta->json('token'))?->tokenable_id)->toBe($docente->id);
 });
 
-it('keeps the username unique and requires a username or an email on every account', function (): void {
+it('keeps the username unique', function (): void {
     docenteConUsuario('41234567');
 
-    expect(fn () => User::factory()->create(['usuario' => '41234567']))->toThrow(QueryException::class)
-        ->and(fn () => User::factory()->create(['email' => null]))->toThrow(QueryException::class);
+    expect(fn () => User::factory()->create(['usuario' => '41234567']))->toThrow(QueryException::class, 'users_usuario_unique');
+});
+
+it('requires a username or an email on every account', function (): void {
+    expect(fn () => User::factory()->create(['email' => null]))->toThrow(QueryException::class, 'users_usuario_o_correo');
 });
