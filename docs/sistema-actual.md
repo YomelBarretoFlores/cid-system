@@ -78,7 +78,13 @@ Estado de todas: **pendiente de decisión del CILN**.
 - La tabla de programas, currículas y ciclos se levantó completa para Inglés (los cuatro programas) y para Francés en Jóvenes y Adultos. Falta Italiano, Quechua, Alemán, Portugués y Japonés, y los demás programas de Francés.
 - Solo se vio el rol de control académico. No se vieron las pantallas de caja, dirección, docente ni estudiante del sistema actual, si existen.
 - No se abrieron formularios de edición ni se pulsaron Registrar, Editar o Activar mes, así que no se conocen sus validaciones.
-- No se abrieron los reportes estadístico por idioma, administrativo, Beca 18, mensual ni intensivo; solo el financiero de un mes.
+- Reportes revisados el 27/11/2026 (noviembre de 2026):
+  - **Estadístico por idioma:** por idioma y programa, una tabla por nivel con ciclo, docente, grupo, inscritos, aprobados, desaprobados y total, con subtotales.
+  - **Administrativo:** las mismas filas, con la modalidad de pago (Normal, Beca) y el lugar de pago (Tesorería, Descuento, Banco) por grupo.
+  - **Mensual:** por idioma, aprobados, desaprobados y total de cada programa (Niños, Jóvenes y Adultos) y en conjunto.
+  - **Intensivo:** columnas docente, nivel, día y cantidad de alumnos; sin datos en noviembre de 2026.
+  - **Beca 18:** el botón vuelve al inicio sin mostrar datos.
+  - **Reporte de grupos:** lista los grupos del mes con filtros de programa, idioma, nivel y ciclo, y por grupo enlaza a la lista de alumnos y a sus pagos.
 - La programación de asistencia, el mes acelerado y el consolidado de notas se vieron sin datos cargados (antes de elegir mes o alumno).
 
 ## Fallas del sistema actual que no deben repetirse
