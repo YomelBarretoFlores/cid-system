@@ -108,7 +108,16 @@ it('does not offer the receipt download of a payment made before the system with
     $anterior = Pago::factory()->anteriorAlSistema()->create();
 
     Livewire::test(ViewPago::class, ['record' => $anterior->getRouteKey()])
-        ->assertActionHidden('descargarRecibo');
+        ->assertActionHidden('descargarRecibo')
+        ->assertSee('Pago anterior al sistema')
+        ->assertSee('Pago de noviembre de 2026, anterior al sistema.');
+});
+
+it('does not mark a normal payment as made before the system', function (): void {
+    $this->actingAs(usuarioDelPanel(PermisoPago::Ver));
+
+    Livewire::test(ViewPago::class, ['record' => $this->pendiente->getRouteKey()])
+        ->assertDontSee('Pago anterior al sistema');
 });
 
 it('finds payments of every matching person, beyond the picker limit', function (): void {

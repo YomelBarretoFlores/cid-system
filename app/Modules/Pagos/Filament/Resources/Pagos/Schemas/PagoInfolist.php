@@ -48,6 +48,10 @@ final class PagoInfolist
                         TextEntry::make('fecha_pago')->label('Fecha de pago')->date('d/m/Y'),
                         TextEntry::make('registrador.name')->label('Registrado por')->placeholder('La propia persona'),
                         TextEntry::make('created_at')->label('Registrado el')->dateTime('d/m/Y H:i'),
+                        TextEntry::make('anterior_al_sistema')->label('Origen')->state('Pago anterior al sistema')
+                            ->visible(fn (Pago $record): bool => $record->anterior_al_sistema),
+                        TextEntry::make('motivo_anterior')->label('Motivo del pago anterior al sistema')
+                            ->visible(fn (Pago $record): bool => $record->anterior_al_sistema)->columnSpan(2),
                     ]),
                 Section::make('Revisión')
                     ->columns(3)
