@@ -19,6 +19,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.6 | 27/11/2026 | Web pública administrable: foto de portada, títulos, textos, botones, secciones visibles, pie de página y enlaces; vista previa y atajos «Editar» | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.7 | 27/11/2026 | Sistemas de evaluación configurables: columnas que ingresa el docente y calculadas (promedio simple o ponderado, redondeo), nota del ciclo y del segundo ciclo en el acelerado, por programa y régimen | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.8 | 27/11/2026 | Tareas en una sola pantalla: ficha de la persona con sus matrículas, pagos, documentos y trámites; nuevo docente con su persona y su cuenta; matrícula en ventanilla con registro de la persona; grupo con horario y docente; búsqueda de docentes por nombre o documento | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.9 | 27/11/2026 | Pre-acta con el formato del registro de evaluación; reportes estadístico, mensual, administrativo y financiero por idioma, en hoja institucional | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -429,7 +430,7 @@ Un grupo **acelerado** cubre dos ciclos seguidos del mismo nivel con una sola no
 - No se puede crear un grupo acelerado en el último ciclo de un nivel.
 - El acta final es una sola; al cerrarla, el récord y la constancia muestran los dos ciclos con la misma nota y las horas de cada uno, y quien aprueba queda habilitado para el ciclo que sigue al segundo.
 
-Resultado esperado: el listado muestra cada grupo con su programa, estado, docente, matriculados y vacantes. Cada horario del grupo puede corregirse con **Editar** o quitarse con **Borrar**. Desde la vista del grupo, quien tiene el permiso «Gestionar actas» puede usar **Pre acta (PDF)** para obtener la pre acta con los estudiantes matriculados.
+Resultado esperado: el listado muestra cada grupo con su programa, estado, docente, matriculados y vacantes. Cada horario del grupo puede corregirse con **Editar** o quitarse con **Borrar**. Desde la vista del grupo, quien tiene el permiso «Gestionar actas» puede usar **Pre acta (PDF)** para obtener el **Registro de evaluación** del grupo: hoja horizontal con el membrete de la universidad, los datos del curso (idioma, modalidad, currícula, nivel, ciclo, grupo y turno), el docente, el número de alumnos y la fecha; una fila por estudiante con las notas registradas, cada columna con sus siglas (las calculadas sombreadas) y su estado; la leyenda «Sistema de calificación» y los recuadros de firma «Vº Bº Director(a) Académico» y «Firma del docente». Es un documento de trabajo: el documento oficial es el acta final.
 
 ![Figura 10. Listado de grupos](figuras/p10-grupos.png)
 
@@ -861,7 +862,7 @@ Resultado esperado: los indicadores se recalculan con los filtros y el archivo d
 
 ## 10.2. Reportes
 
-Todos los reportes están en **Administración > Reportes**, cada uno en su pestaña: **Matriculados**, **Reporte de recaudación** (sección 6.6), **Asistencia por grupo**, **Notas por periodo** y **Carga docente**. Solo se muestran las pestañas que la cuenta puede ver. Salvo el reporte de recaudación, que tiene sus propios filtros, comparten los filtros **Periodo académico**, **Idioma**, **Nivel** y **Grupo**, y los botones **Exportar PDF** y **Excel**. Cada reporte requiere su propio permiso. El reporte **Matriculados** tiene dos pestañas: **Resumen por grupo** y **Detalle de matriculados**.
+Todos los reportes están en **Administración > Reportes**, cada uno en su pestaña: **Matriculados**, **Reporte de recaudación** (sección 6.6), **Asistencia por grupo**, **Notas por periodo**, **Carga docente**, **Estadístico por idioma**, **Mensual por idioma**, **Administrativo por idioma** y **Financiero por idioma**. Solo se muestran las pestañas que la cuenta puede ver. Salvo el reporte de recaudación, que tiene sus propios filtros, comparten los filtros **Periodo académico**, **Idioma**, **Nivel** y **Grupo**, y los botones **Exportar PDF** y **Excel**. Cada reporte requiere su propio permiso. El reporte **Matriculados** tiene dos pestañas: **Resumen por grupo** y **Detalle de matriculados**.
 
 *Tabla 16. Reportes del panel*
 
@@ -872,12 +873,18 @@ Todos los reportes están en **Administración > Reportes**, cada uno en su pest
 | Asistencia por grupo | Clases programadas, dictadas y confirmadas de cada grupo, y la asistencia de cada estudiante. | Ver reportes de docencia |
 | Notas por periodo | Estado del acta, aprobados, desaprobados, NSP y promedio de cada grupo. | Gestionar actas |
 | Carga docente | Horas asignadas y dictadas de cada docente en el periodo. | Ver reportes de docencia |
+| Estadístico por idioma | Por idioma y programa, los grupos de cada nivel y ciclo con su docente, inscritos (aún sin nota final), aprobados, desaprobados, NSP y total, con subtotales por nivel. | Gestionar actas |
+| Mensual por idioma | Aprobados, desaprobados (incluye NSP) y total de cada idioma, por programa y en conjunto. | Gestionar actas |
+| Administrativo por idioma | Matrículas de cada grupo según el vínculo de la tarifa pagada (Estudiante UNASAM, Docente o administrativo, Público general) y el lugar de pago (medio de pago); «Sin pago» si la matrícula no tiene un pago validado. | Ver reportes de pagos |
+| Financiero por idioma | Cada pago de matrícula por idioma, programa y nivel: apellidos y nombres, grupo, vínculo, lugar de pago, número de comprobante y monto, con el total. | Ver reportes de pagos |
 
 1. Ingrese a **Administración > Reportes** y elija la pestaña del reporte.
 2. Elija los filtros.
 3. Pulse **Exportar PDF** o **Excel**.
 
-Resultado esperado: se descarga el reporte con los datos filtrados.
+Resultado esperado: se descarga el reporte con los datos filtrados. Los cuatro reportes por idioma se imprimen en la hoja institucional (escudo, Vicerrectorado Académico, CILN y el logo del centro difuminado de fondo), con un cuadro por idioma y programa y los totales en negrita; en pantalla, los totales se muestran debajo de la tabla.
+
+El sistema aún no registra la modalidad de pago del sistema anterior (normal, beca, tercio superior); por eso los reportes administrativo y financiero muestran el vínculo de la tarifa pagada.
 
 ![Figura 35. Reporte de matriculados](figuras/p34-reporte-matriculados.png)
 

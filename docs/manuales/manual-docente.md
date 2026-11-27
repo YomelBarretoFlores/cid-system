@@ -18,6 +18,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.3 | 26/11/2026 | Actualización para la versión v1.3.0 del sistema: el personal crea la cuenta del docente y ya no se verifica el correo; ventanas de los llamados configurables por el CILN | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.4 | 27/11/2026 | El docente ingresa con su DNI como usuario y la contraseña que le entrega el CILN; el cambio de contraseña olvidada se hace en la oficina | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.5 | 27/11/2026 | La pre-acta muestra las columnas que define el sistema de evaluación; en un grupo acelerado, cada ciclo puede tener su propia nota | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.6 | 27/11/2026 | La pre-acta en PDF sigue el formato del registro de evaluación, con la leyenda y los recuadros de firma | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -294,7 +295,7 @@ Si el grupo no tiene un sistema de evaluación vigente, la pestaña muestra "El 
 1. En la pestaña **Pre-acta** del grupo, presione **Descargar pre acta (PDF)** (parte superior derecha).
 2. En la pestaña nueva del navegador, guarde o imprima el documento.
 
-**Resultado esperado:** el PDF de la pre-acta, con las notas registradas hasta ese momento, se abre en una pestaña nueva del navegador.
+**Resultado esperado:** el PDF de la pre-acta se abre en una pestaña nueva del navegador. Sigue el formato del **Registro de evaluación**: membrete de la universidad, datos del curso (idioma, modalidad, currícula, nivel, ciclo, grupo y turno), su nombre, el número de alumnos y la fecha; las notas registradas hasta ese momento, cada columna con sus siglas (las calculadas, sombreadas) y la leyenda **Sistema de calificación** que explica cada sigla; y los recuadros para el **Vº Bº del Director(a) Académico** y la **Firma del docente**. Es un documento de trabajo; el documento oficial es el acta final.
 
 # 6. ACTA FINAL
 

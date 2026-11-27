@@ -15,8 +15,8 @@ Objective: the grade register (pre-acta) and the management reports follow the f
 
 - [x] T1 · S1, S2 · Pre-acta as the evaluation register (institutional letterhead, faded emblem, legend, signatures) · inline · 7c3a9d1a
 - [x] T2 · S1, S3, S4 · Statistical report by language and program, and the monthly report · inline · 983b85e1
-- [x] T3 · S1, S5, S6 · Administrative and financial reports by language, program and level · inline · see L5
-- [ ] T4 · all · Manuals · inline
+- [x] T3 · S1, S5, S6 · Administrative and financial reports by language, program and level · inline · f555ee23
+- [x] T4 · all · Manuals · inline · personal 1.9 (4.4, 10.2), docente 1.6 (5.3)
 
 ## Log
 
