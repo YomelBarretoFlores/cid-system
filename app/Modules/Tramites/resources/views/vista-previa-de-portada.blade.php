@@ -19,7 +19,16 @@
             }
 
             try {
-                formulario.location.hash = new URL(enlace.href).hash;
+                const destino = new URL(enlace.href);
+                const seccion = formulario.document.getElementById(destino.hash.slice(1));
+
+                // A form tab that moved to another page, or lost the section, gets no jump: the link opens the form instead.
+                if (formulario.location.pathname !== destino.pathname || ! seccion) {
+                    return;
+                }
+
+                formulario.history.replaceState(null, '', destino.hash);
+                seccion.scrollIntoView({ block: 'start' });
                 formulario.focus();
                 evento.preventDefault();
             } catch {
