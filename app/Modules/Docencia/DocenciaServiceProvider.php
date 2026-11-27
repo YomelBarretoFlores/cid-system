@@ -4,20 +4,24 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia;
 
+use App\Modules\Docencia\Actions\AsignarDocenteAlGrupo;
 use App\Modules\Docencia\Actions\BuscarDocenteDelGrupo;
 use App\Modules\Docencia\Actions\BuscarDocenteDelUsuario;
 use App\Modules\Docencia\Actions\ComprobarClasesDictadas;
 use App\Modules\Docencia\Actions\ContarClasesPorConfirmarDelDelegado;
 use App\Modules\Docencia\Actions\LeerNotasParcialesDelGrupo;
+use App\Modules\Docencia\Actions\ListarDocentesHabilitados;
 use App\Modules\Docencia\Actions\NombrarDocentesDeGrupos;
 use App\Modules\Docencia\Actions\ResumirAsistenciaDeMatricula;
 use App\Modules\Docencia\Actions\VerificarCargaDelGrupo;
+use App\Modules\Docencia\Contracts\AsignacionDeDocente;
 use App\Modules\Docencia\Contracts\AsistenciaDeMatricula;
 use App\Modules\Docencia\Contracts\ClasesDictadasDelGrupo;
 use App\Modules\Docencia\Contracts\ClasesPorConfirmarDelDelegado;
 use App\Modules\Docencia\Contracts\DocenteDelGrupo;
 use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
+use App\Modules\Docencia\Contracts\DocentesHabilitados;
 use App\Modules\Docencia\Contracts\NotasParcialesDelGrupo;
 use App\Modules\Docencia\Contracts\VerificacionDeCargaDocente;
 use App\Modules\Docencia\Filament\Personas\AtajoDeDocente;
@@ -34,6 +38,8 @@ final class DocenciaServiceProvider extends ModuleServiceProvider
         DocentesDeGrupos::class => NombrarDocentesDeGrupos::class,
         DocenteDelUsuario::class => BuscarDocenteDelUsuario::class,
         DocenteDelGrupo::class => BuscarDocenteDelGrupo::class,
+        DocentesHabilitados::class => ListarDocentesHabilitados::class,
+        AsignacionDeDocente::class => AsignarDocenteAlGrupo::class,
         NotasParcialesDelGrupo::class => LeerNotasParcialesDelGrupo::class,
         AsistenciaDeMatricula::class => ResumirAsistenciaDeMatricula::class,
         ClasesPorConfirmarDelDelegado::class => ContarClasesPorConfirmarDelDelegado::class,

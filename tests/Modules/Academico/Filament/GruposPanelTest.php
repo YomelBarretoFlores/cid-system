@@ -18,8 +18,17 @@ use App\Modules\Academico\Models\Horario;
 use App\Modules\Academico\Models\Idioma;
 use App\Modules\Academico\Models\Periodo;
 use App\Modules\Academico\Models\Programa;
+use App\Modules\Docencia\Contracts\AsignacionDeDocente;
+use App\Modules\Docencia\Contracts\DocenteDelGrupo;
+use App\Modules\Docencia\Enums\EstadoDocente;
+use App\Modules\Docencia\Enums\PermisoDocencia;
+use App\Modules\Docencia\Models\Docente;
+use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Filament\Actions\Testing\TestAction;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
@@ -365,3 +374,93 @@ it('offers no edit for a cancelled or finished group and forbids its edit page',
     $this->get(GrupoResource::getUrl('edit', ['record' => $this->grupo]))->assertForbidden();
     $this->get(GrupoResource::getUrl('edit', ['record' => $abierto]))->assertOk();
 })->with([EstadoGrupo::Cancelado, EstadoGrupo::Finalizado]);
+
+function docenteDisponible(Idioma $idioma, NivelCurricular $nivel, array $persona = []): Docente
+{
+    $docente = Docente::factory()->create(['persona_id' => Persona::factory()->create($persona)->id]);
+    $docente->idiomas()->create(['idioma_id' => $idioma->id, 'nivel_maximo' => $nivel]);
+    $docente->disponibilidades()->create(['dia_semana' => 1, 'hora_inicio' => '07:00', 'hora_fin' => '13:00']);
+
+    return $docente;
+}
+
+it('creates a group with its schedule and its teacher in one screen and opens the group page', function (): void {
+    $docente = docenteDisponible($this->idioma, NivelCurricular::Intermedio, ['apellido_paterno' => 'Rímac', 'nombres' => 'Rosa']);
+    $this->actingAs($this->gestor->givePermissionTo(PermisoDocencia::Gestionar->value));
+    $deshacer = Repeater::fake();
+
+    $pagina = Livewire::test(CreateGrupo::class)
+        ->fillForm(formularioDeGrupo([
+            'horarios' => [['dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']],
+            'docente_id' => $docente->id,
+        ]))
+        ->call('create')
+        ->assertHasNoFormErrors();
+    $deshacer();
+
+    $grupo = Grupo::query()->where('codigo', 'ING-03-B')->sole();
+    $pagina->assertRedirect(GrupoResource::getUrl('view', ['record' => $grupo]));
+
+    expect($grupo->horarios()->get(['dia_semana', 'hora_inicio', 'hora_fin'])->map->only(['dia_semana', 'hora_inicio', 'hora_fin'])->all())
+        ->toBe([['dia_semana' => 1, 'hora_inicio' => '08:00:00', 'hora_fin' => '10:00:00']])
+        ->and(app(DocenteDelGrupo::class)($grupo->id)?->docenteId)->toBe($docente->id);
+});
+
+it('offers only the active teachers enabled for the language up to the level of the cycle', function (): void {
+    $habilitado = docenteDisponible($this->idioma, NivelCurricular::Basico, ['apellido_paterno' => 'Rímac', 'nombres' => 'Rosa']);
+    $otroIdioma = docenteDisponible(Idioma::factory()->create(), NivelCurricular::Avanzado);
+    $inactivo = docenteDisponible($this->idioma, NivelCurricular::Avanzado);
+    $inactivo->update(['estado' => EstadoDocente::Inactivo]);
+    $this->actingAs($this->gestor->givePermissionTo(PermisoDocencia::Gestionar->value));
+
+    Livewire::test(CreateGrupo::class)
+        ->fillForm(['ciclo_id' => $this->ciclo->id])
+        ->assertFormFieldExists('docente_id', fn (Select $campo): bool => array_keys($campo->getOptions()) === [$habilitado->id]);
+});
+
+it('saves neither the group nor its schedule when the teacher cannot take it', function (): void {
+    $docente = docenteDisponible($this->idioma, NivelCurricular::Basico);
+    $this->actingAs($this->gestor->givePermissionTo(PermisoDocencia::Gestionar->value));
+    $deshacer = Repeater::fake();
+
+    Livewire::test(CreateGrupo::class)
+        ->fillForm(formularioDeGrupo([
+            'horarios' => [['dia_semana' => 2, 'hora_inicio' => '18:00', 'hora_fin' => '20:00']],
+            'docente_id' => $docente->id,
+        ]))
+        ->call('create')
+        ->assertNotified('La sesión del Martes de 18:00 a 20:00 del grupo ING-03-B está fuera de la disponibilidad del docente.');
+    $deshacer();
+
+    expect(Grupo::query()->where('codigo', 'ING-03-B')->exists())->toBeFalse();
+});
+
+it('shows the teacher on the group page and assigns or changes it there', function (): void {
+    $docente = docenteDisponible($this->idioma, NivelCurricular::Basico, ['apellido_paterno' => 'Rímac', 'apellido_materno' => 'Huaylas', 'nombres' => 'Rosa']);
+    $this->grupo->horarios()->create(['dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '10:00']);
+    $this->actingAs($this->gestor->givePermissionTo(PermisoDocencia::Gestionar->value));
+
+    Livewire::test(ViewGrupo::class, ['record' => $this->grupo->getRouteKey()])
+        ->assertSchemaStateSet(['docente_actual' => 'Por asignar'])
+        ->assertActionHasLabel('asignarDocente', 'Asignar docente')
+        ->callAction('asignarDocente', data: ['docente_id' => $docente->id])
+        ->assertNotified('Docente asignado')
+        ->assertSchemaStateSet(['docente_actual' => 'Rímac Huaylas, Rosa'])
+        ->assertActionHasLabel('asignarDocente', 'Cambiar docente');
+
+    expect(app(DocenteDelGrupo::class)($this->grupo->id)?->docenteId)->toBe($docente->id);
+});
+
+it('hides the teacher choice from staff who cannot manage teaching', function (): void {
+    $this->actingAs($this->gestor);
+
+    Livewire::test(CreateGrupo::class)->assertFormFieldDoesNotExist('docente_id');
+    Livewire::test(ViewGrupo::class, ['record' => $this->grupo->getRouteKey()])->assertActionHidden('asignarDocente');
+});
+
+it('refuses to assign a teacher through the contract to staff who cannot manage teaching', function (): void {
+    $docente = docenteDisponible($this->idioma, NivelCurricular::Basico);
+
+    expect(fn () => app(AsignacionDeDocente::class)($this->grupo->id, $docente->id, $this->gestor))->toThrow(AuthorizationException::class)
+        ->and(app(DocenteDelGrupo::class)($this->grupo->id))->toBeNull();
+});
