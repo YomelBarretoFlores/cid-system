@@ -21,6 +21,8 @@ use App\Modules\Pagos\Models\Concepto;
 use App\Modules\Pagos\Models\MedioDePago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Models\Tarifa;
+use App\Modules\Personas\Enums\PermisoPersona;
+use App\Modules\Personas\Filament\Resources\Personas\Pages\ViewPersona;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
@@ -52,7 +54,7 @@ beforeEach(function (): void {
 function datosDelPagoAnterior(array $cambios = []): array
 {
     return [
-        'persona_id' => test()->persona->id,
+        'persona' => ['tipo_documento' => test()->persona->tipo_documento, 'numero_documento' => test()->persona->numero_documento],
         'grupo_id' => test()->grupo->id,
         'modo_de_pago' => 'anterior',
         'concepto_id' => test()->concepto->id,
@@ -91,7 +93,7 @@ it('enrolls a student at the office with a validated payment of the student', fu
 
     Livewire::test(ListMatriculas::class)
         ->callAction('matricularEnVentanilla', data: [
-            'persona_id' => $this->persona->id,
+            'persona' => ['tipo_documento' => $this->persona->tipo_documento, 'numero_documento' => $this->persona->numero_documento],
             'grupo_id' => $this->grupo->id,
             'modo_de_pago' => 'validado',
             'pago_id' => $pago->id,
@@ -212,4 +214,64 @@ it('refuses a payment made before the system from staff who cannot register paym
         ->toThrow(AuthorizationException::class);
     expect(Pago::query()->count())->toBe(0)
         ->and(Matricula::query()->count())->toBe(0);
+});
+
+it('registers a student new to the system and enrolls them in the same screen', function (): void {
+    $this->actingAs($this->gestor->givePermissionTo(PermisoPersona::Gestionar->value));
+
+    Livewire::test(ListMatriculas::class)
+        ->callAction('matricularEnVentanilla', data: datosDelPagoAnterior([
+            'persona' => [
+                'tipo_documento' => 'dni', 'numero_documento' => '47001122', 'apellido_paterno' => 'Pariona', 'nombres' => 'Rut',
+                'tipo_vinculo' => 'estudiante_unasam', 'acepta_tratamiento' => true,
+            ],
+        ]))
+        ->assertHasNoActionErrors()
+        ->assertNotified('Matrícula registrada');
+
+    $nueva = Persona::query()->where('numero_documento', '47001122')->sole();
+
+    expect(Matricula::query()->where('persona_id', $nueva->id)->sole()->grupo_id)->toBe($this->grupo->id)
+        ->and(Pago::query()->where('persona_id', $nueva->id)->sole()->estado)->toBe(EstadoPago::Validado)
+        ->and($nueva->tratamiento_aceptado_en)->not->toBeNull();
+});
+
+it('leaves no new student behind when the enrollment is refused', function (): void {
+    $this->actingAs($this->gestor->givePermissionTo(PermisoPersona::Gestionar->value));
+    $grupoCiclo2 = Grupo::factory()->for($this->periodo)->for($this->ciclo2)->create();
+
+    Livewire::test(ListMatriculas::class)
+        ->callAction('matricularEnVentanilla', data: datosDelPagoAnterior([
+            'grupo_id' => $grupoCiclo2->id,
+            'persona' => ['tipo_documento' => 'dni', 'numero_documento' => '47001123', 'apellido_paterno' => 'Pariona', 'nombres' => 'Rut', 'tipo_vinculo' => 'estudiante_unasam'],
+        ]));
+
+    expect(Persona::query()->where('numero_documento', '47001123')->exists())->toBeFalse()
+        ->and(Pago::query()->count())->toBe(0)
+        ->and(Matricula::query()->count())->toBe(0);
+});
+
+it('tells staff to register and validate the payment first when the student has no validated enrollment payment', function (): void {
+    $this->actingAs($this->gestor);
+
+    Livewire::test(ListMatriculas::class)
+        ->mountAction('matricularEnVentanilla')
+        ->fillForm(['persona' => ['tipo_documento' => $this->persona->tipo_documento, 'numero_documento' => $this->persona->numero_documento]])
+        ->assertSchemaComponentVisible('sin-pagos-validados')
+        ->assertFormFieldHidden('pago_id');
+});
+
+it('opens the office enrollment from the person page with the student already chosen', function (): void {
+    $pago = Pago::factory()->validado()->for($this->concepto)->create(['persona_id' => $this->persona->id]);
+    $this->actingAs($this->gestor->givePermissionTo(PermisoPersona::Ver->value));
+
+    Livewire::test(ViewPersona::class, ['record' => $this->persona->getRouteKey()])
+        ->mountAction('matricular')
+        ->assertSchemaStateSet(['persona.numero_documento' => $this->persona->numero_documento, 'persona_id' => $this->persona->id])
+        ->fillForm(['grupo_id' => $this->grupo->id, 'modo_de_pago' => 'validado', 'pago_id' => $pago->id])
+        ->callMountedAction()
+        ->assertHasNoActionErrors()
+        ->assertNotified('Matrícula registrada');
+
+    expect(Matricula::query()->where('persona_id', $this->persona->id)->sole()->pago_id)->toBe($pago->id);
 });

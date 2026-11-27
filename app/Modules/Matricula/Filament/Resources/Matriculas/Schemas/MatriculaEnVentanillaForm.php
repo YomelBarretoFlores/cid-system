@@ -11,12 +11,14 @@ use App\Modules\Pagos\Contracts\PagosAnterioresPermitidos;
 use App\Modules\Pagos\Data\PagoAnteriorAlSistema;
 use App\Modules\Pagos\Data\PagoValidado;
 use App\Modules\Pagos\Enums\PermisoPago;
-use App\Modules\Personas\Contracts\BusquedaDePersonas;
-use App\Modules\Personas\Contracts\EtiquetasDePersonas;
+use App\Modules\Personas\Contracts\FormularioDePersona;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 
 final class MatriculaEnVentanillaForm
@@ -31,14 +33,20 @@ final class MatriculaEnVentanillaForm
     public static function componentes(): array
     {
         return [
-            Select::make('persona_id')
-                ->label('Estudiante')
-                ->helperText('Busca por número de documento o por apellidos y nombres.')
-                ->searchable()
-                ->getSearchResultsUsing(fn (string $search): array => app(BusquedaDePersonas::class)($search))
-                ->getOptionLabelUsing(fn (int|string $value): ?string => app(EtiquetasDePersonas::class)([(int) $value])[(int) $value] ?? null)
-                ->live()
-                ->required(),
+            Section::make('Estudiante')
+                ->description('Búscalo por su documento de identidad. Si aún no está registrado, completa sus datos aquí mismo.')
+                ->schema([...app(FormularioDePersona::class)->campos(conId: true), Hidden::make('persona_id')]),
+            Section::make('Matrícula')
+                ->schema(self::matricula()),
+        ];
+    }
+
+    /**
+     * @return list<Component>
+     */
+    private static function matricula(): array
+    {
+        return [
             Select::make('grupo_id')
                 ->label('Grupo')
                 ->helperText('Grupos con matrícula abierta del ciclo para el que está habilitado.')
@@ -54,8 +62,13 @@ final class MatriculaEnVentanillaForm
                 ->label('Pago validado del estudiante')
                 ->helperText('Pagos de matrícula validados que aún no se usaron en otra matrícula.')
                 ->options(fn (Get $get): array => self::pagosDisponibles($get))
-                ->visible(fn (Get $get): bool => $get('modo_de_pago') === self::PAGO_VALIDADO)
+                ->visible(fn (Get $get): bool => $get('modo_de_pago') === self::PAGO_VALIDADO && self::pagosDisponibles($get) !== [])
                 ->required(),
+            Callout::make('Sin pagos de matrícula validados')
+                ->key('sin-pagos-validados')
+                ->description('Registra primero su pago en «Pagos». Cuando otra persona lo valide, podrás matricularlo con ese pago.')
+                ->warning()
+                ->visible(fn (Get $get): bool => $get('modo_de_pago') === self::PAGO_VALIDADO && self::pagosDisponibles($get) === []),
             Grid::make(2)
                 ->schema(fn (): array => app(FormularioDePagoAnterior::class)->campos())
                 ->visible(fn (Get $get): bool => $get('modo_de_pago') === self::PAGO_ANTERIOR && self::ofrecePagoAnterior()),
@@ -94,12 +107,14 @@ final class MatriculaEnVentanillaForm
     private static function grupos(Get $get): array
     {
         $personaId = $get('persona_id');
+        $persona = $get(FormularioDePersona::CAMPO);
+        $nueva = ! is_numeric($personaId) && is_array($persona) && is_string($persona['numero_documento'] ?? null) && trim($persona['numero_documento']) !== '';
 
-        if (! is_numeric($personaId)) {
+        if (! is_numeric($personaId) && ! $nueva) {
             return [];
         }
 
-        $grupos = app(OpcionesDeMatricula::class)->oferta((int) $personaId);
+        $grupos = app(OpcionesDeMatricula::class)->oferta(is_numeric($personaId) ? (int) $personaId : null);
 
         return array_column(array_map(fn (FichaDeGrupo $grupo): array => [
             $grupo->id,

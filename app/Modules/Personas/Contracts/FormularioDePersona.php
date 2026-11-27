@@ -13,9 +13,10 @@ interface FormularioDePersona
     public const string CAMPO = 'persona';
 
     /**
+     * @param  bool  $conId  also keep the id of the person found in the form's `persona_id`, for fields that depend on it
      * @return list<Component> fields kept under the form's `persona` key
      */
-    public function campos(): array;
+    public function campos(bool $conId = false): array;
 
     /**
      * The id of the person the fields found, or null while nobody matches.

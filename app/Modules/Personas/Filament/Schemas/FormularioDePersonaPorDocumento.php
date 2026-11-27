@@ -10,23 +10,33 @@ use App\Modules\Personas\Enums\PermisoPersona;
 use App\Modules\Personas\Filament\Resources\Personas\Schemas\PersonaForm;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 final class FormularioDePersonaPorDocumento implements FormularioDePersona
 {
     /** @var array<string, ?Persona> */
     private array $encontradas = [];
 
-    public function campos(): array
+    public function campos(bool $conId = false): array
     {
+        $documento = PersonaForm::documento(buscar: true);
+
+        if ($conId) {
+            $documento = array_map(fn (Field $campo): Field => $campo->afterStateUpdated(
+                fn (Get $get, Set $set): mixed => $set('../persona_id', $this->buscar($get('tipo_documento'), $get('numero_documento'))?->id),
+            ), $documento);
+        }
+
         return [
             Group::make()
                 ->statePath(self::CAMPO)
                 ->schema([
-                    Grid::make(2)->schema(PersonaForm::documento(buscar: true)),
+                    Grid::make(2)->schema($documento),
                     Callout::make(fn (Get $get): ?string => $this->buscar($get('tipo_documento'), $get('numero_documento'))?->etiqueta)
                         ->description('Ya está registrada: se usarán sus datos.')
                         ->success()

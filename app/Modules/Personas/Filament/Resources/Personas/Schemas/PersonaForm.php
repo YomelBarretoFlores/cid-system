@@ -13,6 +13,7 @@ use App\Modules\Personas\Support\DocumentoValido;
 use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
@@ -44,7 +45,7 @@ final class PersonaForm
     }
 
     /**
-     * @return list<Component>
+     * @return list<Field>
      */
     public static function documento(bool $buscar = false): array
     {

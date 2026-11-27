@@ -21,12 +21,14 @@ final readonly class OpcionesDeMatricula
     ) {}
 
     /**
+     * A person not registered yet has no enabled cycle, so they are offered what anyone new is.
+     *
      * @return list<FichaDeGrupo>
      */
-    public function oferta(int $personaId): array
+    public function oferta(?int $personaId): array
     {
         return ($this->ofertaDeMatricula)(
-            Habilitacion::query()->where('persona_id', $personaId)->pluck('ciclo_id', 'idioma_id')->all(),
+            $personaId === null ? [] : Habilitacion::query()->where('persona_id', $personaId)->pluck('ciclo_id', 'idioma_id')->all(),
         );
     }
 

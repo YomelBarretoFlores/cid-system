@@ -12,7 +12,9 @@ use App\Modules\Matricula\Enums\EstadoMatricula;
 use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Matricula\Filament\Resources\Matriculas\Schemas\MatriculaEnVentanillaForm;
 use App\Modules\Matricula\Models\Matricula;
+use App\Modules\Personas\Contracts\FormularioDePersona;
 use App\Shared\Auth\Models\User;
+use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -39,18 +41,30 @@ final class AccionesDeMatricula
             ->icon(Heroicon::OutlinedUserPlus)
             ->authorize(fn (): bool => auth()->user()?->can(PermisoMatricula::Gestionar->value) ?? false)
             ->modalDescription('Matricula a un estudiante en un grupo con su pago validado o, mientras la configuración de pagos lo permita, con un pago hecho antes del sistema.')
+            ->modalSubmitActionLabel('Matricular')
             ->schema(MatriculaEnVentanillaForm::componentes())
             ->action(fn (Action $action, array $data) => AccionDeNegocio::ejecutar(
                 $action,
-                fn (User $usuario): Matricula => app(MatricularEnVentanilla::class)(
-                    (int) $data['persona_id'],
-                    (int) $data['grupo_id'],
-                    MatriculaEnVentanillaForm::pagoId($data),
-                    MatriculaEnVentanillaForm::pagoAnterior($data),
-                    $usuario,
-                ),
+                fn (User $usuario): Matricula => Transaccion::ejecutar(fn (): Matricula => self::matricular($data, $usuario), reintentar: false),
                 'Matrícula registrada',
             ));
+    }
+
+    // A student new to the system is registered in the same transaction, so a refused enrollment leaves no person behind.
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private static function matricular(array $data, User $usuario): Matricula
+    {
+        $data['persona_id'] = app(FormularioDePersona::class)->persona($data, $usuario);
+
+        return app(MatricularEnVentanilla::class)(
+            $data['persona_id'],
+            (int) $data['grupo_id'],
+            MatriculaEnVentanillaForm::pagoId($data),
+            MatriculaEnVentanillaForm::pagoAnterior($data),
+            $usuario,
+        );
     }
 
     /**

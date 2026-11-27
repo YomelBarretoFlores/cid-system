@@ -22,13 +22,17 @@ use App\Modules\Matricula\Contracts\MovimientoPorTramite;
 use App\Modules\Matricula\Contracts\ProgramasDeLaPersona;
 use App\Modules\Matricula\Enums\PermisoMatricula;
 use App\Modules\Matricula\Filament\Personas\MatriculasDeLaPersona;
+use App\Modules\Matricula\Filament\Resources\Matriculas\Actions\AccionesDeMatricula;
+use App\Modules\Matricula\Filament\Resources\Matriculas\Schemas\MatriculaEnVentanillaForm;
 use App\Modules\Matricula\Listeners\AlAnularPago;
 use App\Modules\Matricula\Listeners\AlCerrarActa;
 use App\Modules\Matricula\Livewire\ResumenDelEstudiante;
 use App\Modules\Matricula\Support\UltimaMatriculaDelIdioma;
 use App\Modules\Pagos\Events\PagoAnulado;
+use App\Modules\Personas\Contracts\FormularioDePersona;
 use App\Shared\Support\Filament\FichaDePersonaEnElPanel;
 use App\Shared\Support\ModuleServiceProvider;
+use Filament\Actions\Action;
 use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
 
@@ -55,7 +59,12 @@ final class MatriculaServiceProvider extends ModuleServiceProvider
     {
         parent::boot();
 
-        app(FichaDePersonaEnElPanel::class)->pestana('matriculas', 'Matrículas', MatriculasDeLaPersona::class, PermisoMatricula::Ver->value, 10);
+        $ficha = app(FichaDePersonaEnElPanel::class);
+        $ficha->pestana('matriculas', 'Matrículas', MatriculasDeLaPersona::class, PermisoMatricula::Ver->value, 10);
+        $ficha->atajo('matricular', fn (int $personaId): Action => AccionesDeMatricula::matricularEnVentanilla()
+            ->name('matricular')
+            ->label('Matricular')
+            ->fillForm(fn (): array => ['persona' => app(FormularioDePersona::class)->estadoDe($personaId), 'persona_id' => $personaId, 'modo_de_pago' => MatriculaEnVentanillaForm::PAGO_VALIDADO]), 10);
 
         Livewire::component('matricula.resumen-del-estudiante', ResumenDelEstudiante::class);
         Event::listen(ActaCerrada::class, AlCerrarActa::class);
