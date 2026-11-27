@@ -1,4 +1,10 @@
-@props(['verificar' => true, 'secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'preguntas' => 'Preguntas']])
+@props([
+    'verificar' => true,
+    'secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'preguntas' => 'Preguntas'],
+    'descripcion' => 'Huaraz, Áncash. Idiomas extranjeros y lenguas originarias en ciclos por nivel.',
+    'contacto' => [],
+    'redes' => [],
+])
 <footer {{ $attributes->class('sobre-oscuro border-t-4 border-real-600 bg-marino-950 text-white') }}>
     <div @class(['mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] gap-10 px-4 pt-14 pb-10 sm:px-6 lg:px-8', 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)]' => $verificar, 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]' => ! $verificar])>
         <div class="flex flex-col gap-4">
@@ -9,7 +15,21 @@
                     <span class="text-[13px] text-celeste-100/75">Universidad Nacional Santiago Antúnez de Mayolo</span>
                 </span>
             </span>
-            <p class="max-w-[38ch] text-[14px] text-pretty text-celeste-100/75">Huaraz, Áncash. Idiomas extranjeros y lenguas originarias en ciclos por nivel.</p>
+            <p class="max-w-[38ch] text-[14px] text-pretty text-celeste-100/75">{{ $descripcion }}</p>
+            @if ($contacto !== [])
+                <dl aria-label="Contacto" class="flex flex-col gap-1 text-[14px] text-celeste-100/75">
+                    @foreach ($contacto as $dato => $valor)
+                        <div><dt class="inline font-semibold text-celeste-100">{{ $dato }}:</dt> <dd class="inline">{{ $valor }}</dd></div>
+                    @endforeach
+                </dl>
+            @endif
+            @if ($redes !== [])
+                <nav aria-label="Redes del centro" class="flex flex-wrap gap-x-4 gap-y-1 text-[14px]">
+                    @foreach ($redes as $red)
+                        <a href="{{ $red['url'] }}" rel="noopener" class="text-celeste-100/80 transition-colors hover:text-white hover:underline">{{ $red['etiqueta'] }}</a>
+                    @endforeach
+                </nav>
+            @endif
         </div>
         <div class="grid grid-cols-2 gap-6 text-[14px]">
             <nav aria-label="Secciones de la portada" class="flex flex-col gap-2">

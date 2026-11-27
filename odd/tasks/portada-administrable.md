@@ -9,7 +9,7 @@ Objective: the administrator edits all public site content (texts, titles, butto
 
 ## Tasks
 
-- [ ] T1 · S1 · Extend the portal content (texts, titles, buttons, footer, contact, social links, visibility, cover photo) and render it · delegated (context backstop)
+- [x] T1 · S1 · Extend the portal content (texts, titles, buttons, footer, contact, social links, visibility, cover photo) and render it · delegated (context backstop)
 - [ ] T2 · S2 · «Vista previa» of unsaved changes and «Editar» shortcuts on the public page · delegated (context backstop), after T1
 - [ ] T3 · all · Staff manual and data dictionary · inline
 
@@ -19,3 +19,4 @@ Objective: the administrator edits all public site content (texts, titles, butto
 - L2 (2026-11-27) "Sí, me gusta la recomendación. Pero yo pensaba en algo, por qué no hacerlo visualmente para editar?, tipo por ejemplo figma que tienes el diseño pero le das click a tales componentes y puedes editar. O no es lo mejor para nuestro caso?"
 - L3 (2026-11-27) "Sí, me gusta esa propuesta, arma el plan y aplica."
 - L4 Current state: `EditarContenidoDePortada` (Tramites) edits presentation, enrollment and placement steps, learning path and FAQ (`tra_textos_portada`, `ContenidoDePortada`); hardcoded: cover image `public/images/portada/portada.jpg`, hero subtitle, section titles and eyebrows, button texts, footer text, top bar links; no section visibility.
+- L5 T1 writer: tra_textos_portada gains cover photo, hero texts, per-section texts and visibility (jsonb keyed by `SeccionDePortada`), footer description, email, office hours and social links (defaults equal today's texts); FotoDePortada (public disk `portada/`, JPG/PNG/WebP by content, 5 MB, old file deleted after commit); panel form moved to Schemas/FormularioDeContenidoDePortada with section ids `seccion-<key>`. Choices: language list in the hero stays automatic, period names stay appended to «Oferta»/«Calendario», address and phone come from institutional data. Tests were written after the code (RED not observed; mutation check on visibility done). Parent spot check: tests/Modules/Tramites + tests/Feature/Portal 368/368. Open: other public pages (privacy, verification, sign-in) still render the header/footer with fixed values; folded into T2.

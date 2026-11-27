@@ -4,17 +4,24 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Data;
 
+use App\Modules\Tramites\Enums\SeccionDePortada;
 use App\Modules\Tramites\Models\TextosDePortada;
 
 final readonly class TextosDeLaPortada
 {
     public const string LUGARES_DE_PAGO = '{lugares_de_pago}';
 
+    public const string SUBTITULO = 'para estudiantes universitarios, profesionales y público en general.';
+
+    public const string PIE = 'Huaraz, Áncash. Idiomas extranjeros y lenguas originarias en ciclos por nivel.';
+
     /**
      * @param  list<array{titulo: string, detalle: string}>  $pasosMatricula
      * @param  list<array{titulo: string, detalle: string}>  $pasosClasificacion
      * @param  list<array{nombre: string, descripcion: string, logro: string}>  $niveles
      * @param  list<array{pregunta: string, respuesta: string}>  $preguntas
+     * @param  array<string, array{etiqueta: string, titulo: string, introduccion: string|null, visible: bool}>  $secciones  keyed by SeccionDePortada value
+     * @param  list<array{etiqueta: string, url: string}>  $redes
      */
     public function __construct(
         public string $nosotros,
@@ -22,11 +29,48 @@ final readonly class TextosDeLaPortada
         public array $pasosClasificacion,
         public array $niveles,
         public array $preguntas,
+        public ?string $fotoPortada = null,
+        public string $subtitulo = self::SUBTITULO,
+        public string $botonPrincipal = 'Ver horarios',
+        public string $botonSecundario = 'Crear cuenta',
+        public array $secciones = [],
+        public string $pie = self::PIE,
+        public ?string $correo = null,
+        public ?string $horarioAtencion = null,
+        public array $redes = [],
     ) {}
 
     public static function desde(TextosDePortada $textos): self
     {
-        return new self($textos->nosotros, $textos->pasos_matricula, $textos->pasos_clasificacion, $textos->niveles, $textos->preguntas);
+        return new self(
+            $textos->nosotros, $textos->pasos_matricula, $textos->pasos_clasificacion, $textos->niveles, $textos->preguntas,
+            fotoPortada: $textos->foto_portada,
+            subtitulo: $textos->subtitulo,
+            botonPrincipal: $textos->boton_principal,
+            botonSecundario: $textos->boton_secundario,
+            secciones: self::completas($textos->secciones),
+            pie: $textos->pie,
+            correo: $textos->correo,
+            horarioAtencion: $textos->horario_atencion,
+            redes: $textos->redes,
+        );
+    }
+
+    /**
+     * Every section of the page in page order, the stored texts over the defaults.
+     *
+     * @param  array<string, array{etiqueta: string, titulo: string, introduccion: string|null, visible: bool}>  $guardadas
+     * @return array<string, array{etiqueta: string, titulo: string, introduccion: string|null, visible: bool}>
+     */
+    public static function completas(array $guardadas = []): array
+    {
+        $secciones = [];
+
+        foreach (SeccionDePortada::cases() as $seccion) {
+            $secciones[$seccion->value] = [...$seccion->porDefecto(), ...$guardadas[$seccion->value] ?? []];
+        }
+
+        return $secciones;
     }
 
     // What the migration inserts, for a missing row (a test truncation).
@@ -59,6 +103,7 @@ final readonly class TextosDeLaPortada
                 ['pregunta' => '¿Cómo verifico una constancia o certificado?', 'respuesta' => 'Escriba el código impreso al pie del documento en la sección de verificación, al final de esta página, o escanee su código QR.'],
                 ['pregunta' => 'Soy docente del CILN, ¿dónde ingreso?', 'respuesta' => 'En Ingresar, con el mismo correo y contraseña. El sistema lo lleva a su panel de docente.'],
             ],
+            secciones: self::completas(),
         );
     }
 }

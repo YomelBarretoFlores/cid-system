@@ -12,6 +12,7 @@ use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Academico\Data\ModalidadDelCatalogo;
 use App\Modules\Academico\Data\OfertaDelPeriodo;
 use App\Modules\Certificacion\Contracts\DatosInstitucionales;
+use App\Modules\Certificacion\Data\DatosDeLaInstitucion;
 use App\Modules\Pagos\Contracts\MediosDePago;
 use App\Modules\Pagos\Contracts\TarifasVigentes;
 use App\Modules\Pagos\Data\MedioDePagoDelCatalogo;
@@ -67,7 +68,7 @@ final readonly class ContenidoDePortada
         $parametros = ($this->parametrosDelSistema)();
 
         return [
-            ...$this->textos(),
+            ...$this->textos($institucion),
             'umbralDePocasVacantes' => $parametros->umbralPocasVacantes,
             'institucion' => ['universidad' => $institucion->universidad, 'centro' => $institucion->centro, 'ciudad' => $institucion->ciudad],
             'ahora' => $ahora,
@@ -90,9 +91,9 @@ final readonly class ContenidoDePortada
     /**
      * The staff-edited texts, with the payment places of the catalog in place of their marker.
      *
-     * @return array{nosotros: list<string>, pasos: list<array<string, string>>, pasosDeClasificacion: list<array<string, string>>, niveles: list<array{nombre: string, descripcion: string, logro: string}>, preguntas: list<array<string, string>>}
+     * @return array<string, mixed>
      */
-    private function textos(): array
+    private function textos(DatosDeLaInstitucion $institucion): array
     {
         $textos = ($this->textosDePortada)();
         $lugares = $this->lugaresDePago();
@@ -103,6 +104,21 @@ final readonly class ContenidoDePortada
             'pasosDeClasificacion' => $this->conLugares($textos->pasosClasificacion, $lugares),
             'niveles' => $textos->niveles,
             'preguntas' => $this->conLugares($textos->preguntas, $lugares),
+            'portada' => [
+                'foto' => FotoDePortada::url($textos->fotoPortada),
+                'subtitulo' => $textos->subtitulo,
+                'botonPrincipal' => $textos->botonPrincipal,
+                'botonSecundario' => $textos->botonSecundario,
+            ],
+            'apartados' => array_map(
+                fn (array $apartado): array => [...$apartado, 'introduccion' => $apartado['introduccion'] === null ? null : str_replace(TextosDeLaPortada::LUGARES_DE_PAGO, $lugares, $apartado['introduccion'])],
+                $textos->secciones,
+            ),
+            'pie' => [
+                'descripcion' => $textos->pie,
+                'contacto' => array_filter(['Dirección' => $institucion->direccion, 'Teléfono' => $institucion->telefono, 'Correo' => $textos->correo, 'Horario de atención' => $textos->horarioAtencion]),
+                'redes' => $textos->redes,
+            ],
         ];
     }
 

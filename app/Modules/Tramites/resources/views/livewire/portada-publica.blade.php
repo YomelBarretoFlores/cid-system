@@ -1,4 +1,5 @@
 @php
+    use App\Modules\Tramites\Enums\SeccionDePortada;
     use App\Shared\Ui\Formato;
     use Illuminate\Support\Arr;
 
@@ -16,11 +17,11 @@
         1 => '1 (I)',
         default => $ciclos.' (I a '.Formato::romano($ciclos).')',
     };
-    $secciones = array_filter(
-        ['idiomas' => 'Idiomas', 'requisitos' => 'Matrícula', 'oferta' => 'Horarios', 'clasificacion' => 'Clasificación', 'costos' => 'Costos', 'fechas' => 'Calendario', 'preguntas' => 'Preguntas'],
-        fn (string $ancla): bool => $ancla !== 'fechas' || $fechas !== [],
-        ARRAY_FILTER_USE_KEY,
-    );
+    $visible = fn (string $clave): bool => $apartados[$clave]['visible'] && ($clave !== 'fechas' || $fechas !== []);
+    $secciones = collect(SeccionDePortada::cases())
+        ->filter(fn (SeccionDePortada $apartado): bool => $apartado->enlace() !== null && $visible($apartado->value))
+        ->mapWithKeys(fn (SeccionDePortada $apartado): array => [$apartado->value => $apartado->enlace()])
+        ->all();
     $avisos = $oferta === null ? [] : [
         $oferta->matriculaAbierta
             ? 'Matrícula '.$oferta->periodo.' abierta hasta el '.Formato::diaDeMes($oferta->matriculaFin)
@@ -63,7 +64,7 @@
 
     <main id="contenido" x-data="revelarCiln">
         <section id="inicio" class="sobre-oscuro relative isolate flex min-h-[min(86vh,780px)] items-end overflow-hidden bg-marino-950 text-white">
-            <img src="{{ asset('images/portada/portada.jpg') }}" alt="" width="2200" height="1238" fetchpriority="high"
+            <img src="{{ $portada['foto'] }}" alt="" width="2200" height="1238" fetchpriority="high"
                 class="foto-portada absolute inset-0 -z-20 size-full object-cover object-[center_35%]">
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-t from-marino-950/85 via-marino-950/30 to-transparent"></div>
             <div aria-hidden="true" class="absolute inset-0 -z-10 bg-linear-to-r from-marino-950/55 via-marino-950/10 to-transparent"></div>
@@ -78,22 +79,25 @@
                     </div>
                     <div data-revelar style="--orden: 4" class="flex flex-col gap-6 lg:pb-3">
                         <p class="text-[17px] leading-relaxed text-pretty text-white/85">
-                            {{ $nombresDeIdiomas === [] ? 'Idiomas extranjeros y lenguas originarias' : Arr::join($nombresDeIdiomas, ', ', ' y ') }} para estudiantes universitarios, profesionales y público en general.
+                            {{ $nombresDeIdiomas === [] ? 'Idiomas extranjeros y lenguas originarias' : Arr::join($nombresDeIdiomas, ', ', ' y ') }} {{ $portada['subtitulo'] }}
                         </p>
                         <div class="flex flex-wrap gap-3">
-                            <x-publico.boton variante="blanco" tamano="grande" href="#oferta">Ver horarios</x-publico.boton>
-                            <x-publico.boton variante="contorno" tamano="grande" :href="route('estudiante.registro')">Crear cuenta</x-publico.boton>
+                            @if ($visible('oferta'))
+                                <x-publico.boton variante="blanco" tamano="grande" href="#oferta">{{ $portada['botonPrincipal'] }}</x-publico.boton>
+                            @endif
+                            <x-publico.boton variante="contorno" tamano="grande" :href="route('estudiante.registro')">{{ $portada['botonSecundario'] }}</x-publico.boton>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        @if ($visible('centro'))
         <section aria-labelledby="titulo-centro" class="{{ $seccion }}">
             <div class="{{ $contenedor }} flex flex-col gap-16 sm:gap-20">
                 <div class="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-24">
                     <div data-revelar>
-                        <x-publico.titulo id="titulo-centro" etiqueta="El centro">Idiomas para la universidad y la región</x-publico.titulo>
+                        <x-publico.titulo id="titulo-centro" :etiqueta="$apartados['centro']['etiqueta']">{{ $apartados['centro']['titulo'] }}</x-publico.titulo>
                     </div>
                     <div data-revelar style="--orden: 1" class="flex flex-col gap-5 {{ $nota }} lg:pt-10">
                         @foreach ($nosotros as $parrafo)
@@ -117,7 +121,9 @@
                 </dl>
             </div>
         </section>
+        @endif
 
+        @if ($visible('idiomas'))
         <section id="idiomas" aria-labelledby="titulo-idiomas" class="scroll-mt-32 border-t border-marino-900/12">
             <div class="{{ $contenedor }} grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
                 <div class="py-14 lg:border-r lg:border-marino-900/12 lg:py-24 lg:pr-12">
@@ -129,8 +135,10 @@
                 </div>
                 <div class="flex flex-col gap-10 pb-20 lg:py-24 lg:pl-12">
                     <div data-revelar class="flex flex-col gap-5">
-                        <x-publico.titulo id="titulo-idiomas" etiqueta="Oferta académica">Idiomas</x-publico.titulo>
-                        <p class="max-w-[520px] {{ $nota }}">Cada idioma se estudia por ciclos, organizados en niveles. Al aprobar un nivel se solicita el certificado correspondiente.</p>
+                        <x-publico.titulo id="titulo-idiomas" :etiqueta="$apartados['idiomas']['etiqueta']">{{ $apartados['idiomas']['titulo'] }}</x-publico.titulo>
+                        @if ($apartados['idiomas']['introduccion'])
+                            <p class="max-w-[520px] {{ $nota }}">{{ $apartados['idiomas']['introduccion'] }}</p>
+                        @endif
                     </div>
                     @if ($idiomas === [])
                         <x-portal.vacio titulo="Los idiomas del CILN se publicarán pronto." />
@@ -146,10 +154,12 @@
                                                     <x-ciln.hoja-bandera :idioma="$idioma['nombre']" size="30" forma="rect" />
                                                     <span class="font-display text-[28px] leading-tight font-semibold tracking-[-0.02em]">{{ $idioma['nombre'] }}</span>
                                                 </span>
-                                                <a href="#oferta" x-on:click="idioma = @js($idioma['nombre'])" class="group flex items-center gap-2 text-[14.5px] font-semibold text-real-600 hover:text-marino-900">
-                                                    <span>{{ $idioma['grupos'] }} {{ $idioma['grupos'] === 1 ? 'grupo' : 'grupos' }} · Ver horarios</span>
-                                                    <span aria-hidden="true" class="transition-transform duration-300 group-hover:translate-x-1">→</span>
-                                                </a>
+                                                @if ($visible('oferta'))
+                                                    <a href="#oferta" x-on:click="idioma = @js($idioma['nombre'])" class="group flex items-center gap-2 text-[14.5px] font-semibold text-real-600 hover:text-marino-900">
+                                                        <span>{{ $idioma['grupos'] }} {{ $idioma['grupos'] === 1 ? 'grupo' : 'grupos' }} · Ver horarios</span>
+                                                        <span aria-hidden="true" class="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                                                    </a>
+                                                @endif
                                             </div>
                                             <dl class="grid grid-cols-2 gap-x-6 gap-y-4 text-[14.5px] xl:grid-cols-[auto_auto_minmax(0,1fr)_auto]">
                                                 <div class="flex flex-col gap-0.5">
@@ -182,15 +192,17 @@
                 </div>
             </div>
         </section>
+        @endif
 
+        @if ($visible('requisitos'))
         <section id="requisitos" aria-labelledby="titulo-requisitos" class="sobre-oscuro scroll-mt-32 bg-real-600 text-white">
             <div class="{{ $contenedor }}">
                 <div class="grid grid-cols-[minmax(0,1fr)] gap-8 border-b border-white/25 pt-20 pb-12 sm:pt-28 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:gap-0">
                     <div data-revelar class="lg:pr-12">
-                        <x-publico.titulo id="titulo-requisitos" etiqueta="Matrícula" claro>Cómo matricularse</x-publico.titulo>
+                        <x-publico.titulo id="titulo-requisitos" :etiqueta="$apartados['requisitos']['etiqueta']" claro>{{ $apartados['requisitos']['titulo'] }}</x-publico.titulo>
                     </div>
                     <div data-revelar style="--orden: 1" class="flex flex-col items-start gap-6 lg:border-l lg:border-white/25 lg:pl-12">
-                        <p class="text-[16px] leading-relaxed text-pretty text-white/90">Todo el proceso es en línea: cree su cuenta, registre su pago y elija un grupo con vacantes. {{ count($modalidades) === 1 ? 'Modalidad' : 'Modalidades' }}: {{ Arr::join($etiquetasDeModalidad, ', ', ' y ') }}.</p>
+                        <p class="text-[16px] leading-relaxed text-pretty text-white/90">{{ $apartados['requisitos']['introduccion'] }} {{ count($modalidades) === 1 ? 'Modalidad' : 'Modalidades' }}: {{ Arr::join($etiquetasDeModalidad, ', ', ' y ') }}.</p>
                         <x-publico.boton variante="blanco" :href="route('estudiante.registro')">Crear cuenta</x-publico.boton>
                     </div>
                 </div>
@@ -212,11 +224,13 @@
                 </ol>
             </div>
         </section>
+        @endif
 
+        @if ($visible('oferta'))
         <section id="oferta" aria-labelledby="titulo-oferta" class="{{ $seccion }}">
             <div class="{{ $contenedor }} flex flex-col gap-8">
                 <div data-revelar class="flex flex-wrap items-end justify-between gap-6">
-                    <x-publico.titulo id="titulo-oferta" :etiqueta="$oferta ? 'Oferta '.$oferta->periodo : 'Oferta'">Horarios y vacantes</x-publico.titulo>
+                    <x-publico.titulo id="titulo-oferta" :etiqueta="trim($apartados['oferta']['etiqueta'].' '.$oferta?->periodo)">{{ $apartados['oferta']['titulo'] }}</x-publico.titulo>
                     @if ($grupos !== [] && count($modalidades) > 1)
                         <div role="group" aria-label="Modalidad" class="flex max-w-full flex-wrap border border-marino-900/25">
                             @foreach (['Todas', ...$etiquetasDeModalidad] as $modalidad)
@@ -296,14 +310,18 @@
                 @endif
             </div>
         </section>
+        @endif
 
+        @if ($visible('clasificacion'))
         <section id="clasificacion" aria-labelledby="titulo-clasificacion" class="scroll-mt-32 border-y border-marino-900/10 bg-papel">
             <div class="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-2">
                 <div class="flex justify-end">
                     <div class="flex w-full max-w-[620px] flex-col gap-10 px-4 py-20 sm:px-6 sm:py-28 lg:pr-16 lg:pl-8">
                         <div data-revelar class="flex flex-col gap-5">
-                            <x-publico.titulo id="titulo-clasificacion" etiqueta="Examen de clasificación">¿Ya conoce el idioma?</x-publico.titulo>
-                            <p class="{{ $nota }}">Rinda el examen de clasificación y, según su resultado, empiece en un ciclo superior sin cursar desde el ciclo I.</p>
+                            <x-publico.titulo id="titulo-clasificacion" :etiqueta="$apartados['clasificacion']['etiqueta']">{{ $apartados['clasificacion']['titulo'] }}</x-publico.titulo>
+                            @if ($apartados['clasificacion']['introduccion'])
+                                <p class="{{ $nota }}">{{ $apartados['clasificacion']['introduccion'] }}</p>
+                            @endif
                         </div>
                         <ol class="border-t border-marino-900/15">
                             @foreach ($pasosDeClasificacion as ['titulo' => $paso, 'detalle' => $detalle])
@@ -341,14 +359,18 @@
                 </figure>
             </div>
         </section>
+        @endif
 
+        @if ($visible('ruta'))
         <section aria-labelledby="titulo-ruta" class="{{ $seccion }}">
             <div class="{{ $contenedor }} flex flex-col gap-14">
                 <div class="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-end lg:gap-24">
                     <div data-revelar>
-                        <x-publico.titulo id="titulo-ruta" etiqueta="Plan de estudios">Ruta de aprendizaje</x-publico.titulo>
+                        <x-publico.titulo id="titulo-ruta" :etiqueta="$apartados['ruta']['etiqueta']">{{ $apartados['ruta']['titulo'] }}</x-publico.titulo>
                     </div>
-                    <p data-revelar style="--orden: 1" class="{{ $nota }}">Cada nivel agrupa varios ciclos. El estudiante avanza de un ciclo al siguiente al aprobarlo; quien ya conoce el idioma puede <a href="#clasificacion" class="font-semibold text-real-600 underline underline-offset-3 hover:text-marino-900">rendir el examen de clasificación</a>.</p>
+                    @if ($apartados['ruta']['introduccion'] || $visible('clasificacion'))
+                        <p data-revelar style="--orden: 1" class="{{ $nota }}">{{ $apartados['ruta']['introduccion'] }}@if ($visible('clasificacion')) Quien ya conoce el idioma puede <a href="#clasificacion" class="font-semibold text-real-600 underline underline-offset-3 hover:text-marino-900">rendir el examen de clasificación</a>.@endif</p>
+                    @endif
                 </div>
                 <ol class="relative grid grid-cols-[minmax(0,1fr)] border-t border-marino-900/15 lg:-mx-8 lg:grid-cols-3 lg:border-t-0 lg:before:absolute lg:before:inset-x-8 lg:before:top-0 lg:before:h-px lg:before:bg-marino-900/15">
                     @foreach ($niveles as ['nombre' => $nivel, 'descripcion' => $detalle, 'logro' => $logro])
@@ -381,14 +403,18 @@
                 </div>
             </div>
         </section>
+        @endif
 
+        @if ($visible('costos'))
         <section id="costos" aria-labelledby="titulo-costos" class="{{ $seccion }} border-y border-marino-900/10 bg-papel">
             <div class="{{ $contenedor }} flex flex-col gap-12">
                 <div class="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-end lg:gap-24">
                     <div data-revelar>
-                        <x-publico.titulo id="titulo-costos" etiqueta="TUPA / TUSNE">Costos según su vínculo con la UNASAM</x-publico.titulo>
+                        <x-publico.titulo id="titulo-costos" :etiqueta="$apartados['costos']['etiqueta']">{{ $apartados['costos']['titulo'] }}</x-publico.titulo>
                     </div>
-                    <p data-revelar style="--orden: 1" class="{{ $nota }}">Pague en el Banco de la Nación, Págalo.pe o la caja de la universidad y registre su recibo en el portal.</p>
+                    @if ($apartados['costos']['introduccion'])
+                        <p data-revelar style="--orden: 1" class="{{ $nota }}">{{ $apartados['costos']['introduccion'] }}</p>
+                    @endif
                 </div>
                 @if ($vinculos === [])
                     <x-portal.vacio titulo="Las tarifas se publicarán pronto." />
@@ -420,12 +446,13 @@
                 @endif
             </div>
         </section>
+        @endif
 
-        @if ($fechas !== [])
+        @if ($visible('fechas'))
             <section id="fechas" aria-labelledby="titulo-fechas" class="{{ $seccion }}">
                 <div class="{{ $contenedor }} flex flex-col gap-12">
                     <div data-revelar>
-                        <x-publico.titulo id="titulo-fechas" resaltado="periodo" :etiqueta="'Calendario '.$oferta?->periodo">Fechas del</x-publico.titulo>
+                        <x-publico.titulo id="titulo-fechas" :etiqueta="trim($apartados['fechas']['etiqueta'].' '.$oferta?->periodo)">{{ $apartados['fechas']['titulo'] }}</x-publico.titulo>
                     </div>
                     <ol class="border-t border-marino-900/15">
                         @foreach ($fechas as $fecha)
@@ -450,12 +477,15 @@
             </section>
         @endif
 
+        @if ($visible('preguntas'))
         <section id="preguntas" aria-labelledby="titulo-preguntas" class="scroll-mt-32 border-t border-marino-900/12">
             <div class="{{ $contenedor }} grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
                 <div data-revelar class="flex flex-col justify-between gap-10 pt-20 pb-8 sm:pt-28 lg:border-r lg:border-marino-900/12 lg:pr-12 lg:pb-28">
                     <div class="flex flex-col gap-5">
-                        <x-publico.titulo id="titulo-preguntas" etiqueta="Orientación">Preguntas frecuentes</x-publico.titulo>
-                        <p class="{{ $nota }}">Lo que más consultan los postulantes y estudiantes del CILN.</p>
+                        <x-publico.titulo id="titulo-preguntas" :etiqueta="$apartados['preguntas']['etiqueta']">{{ $apartados['preguntas']['titulo'] }}</x-publico.titulo>
+                        @if ($apartados['preguntas']['introduccion'])
+                            <p class="{{ $nota }}">{{ $apartados['preguntas']['introduccion'] }}</p>
+                        @endif
                     </div>
                     <p class="flex flex-wrap items-baseline justify-between gap-4 border-t border-marino-900/12 pt-5 text-[14.5px] text-marino-800/80">
                         <span>¿Tiene una constancia o un certificado?</span>
@@ -477,7 +507,9 @@
                 </div>
             </div>
         </section>
+        @endif
 
+        @if ($visible('empieza'))
         <section aria-labelledby="titulo-empieza" class="border-t border-marino-900/10 bg-papel">
             <div class="{{ $contenedor }} grid grid-cols-[minmax(0,1fr)] lg:grid-cols-2">
                 <div class="py-12 lg:border-r lg:border-marino-900/12 lg:py-16 lg:pr-12">
@@ -486,16 +518,21 @@
                     </figure>
                 </div>
                 <div data-revelar class="flex flex-col justify-center gap-7 pb-16 lg:py-16 lg:pl-12">
-                    <x-publico.titulo id="titulo-empieza" etiqueta="Huaraz, Áncash">Matrícula en línea</x-publico.titulo>
-                    <p class="max-w-[480px] {{ $nota }}">Cree su cuenta, registre su pago y elija su horario. El CILN valida su recibo y su ficha de matrícula se descarga al instante.</p>
+                    <x-publico.titulo id="titulo-empieza" :etiqueta="$apartados['empieza']['etiqueta']">{{ $apartados['empieza']['titulo'] }}</x-publico.titulo>
+                    @if ($apartados['empieza']['introduccion'])
+                        <p class="max-w-[480px] {{ $nota }}">{{ $apartados['empieza']['introduccion'] }}</p>
+                    @endif
                     <div class="flex flex-wrap gap-3">
                         <x-publico.boton tamano="grande" :href="route('estudiante.registro')">Crear cuenta</x-publico.boton>
-                        <x-publico.boton variante="claro" tamano="grande" href="#oferta">Ver horarios</x-publico.boton>
+                        @if ($visible('oferta'))
+                            <x-publico.boton variante="claro" tamano="grande" href="#oferta">Ver horarios</x-publico.boton>
+                        @endif
                     </div>
                 </div>
             </div>
         </section>
+        @endif
     </main>
 
-    <x-publico.pie :secciones="$secciones" />
+    <x-publico.pie :secciones="$secciones" :descripcion="$pie['descripcion']" :contacto="$pie['contacto']" :redes="$pie['redes']" />
 </div>
