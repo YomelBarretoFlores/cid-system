@@ -28,9 +28,9 @@ final class IniciarSesion extends Component
 
     public function ingresar(): void
     {
-        $this->email = mb_strtolower(trim($this->email));
+        $this->email = trim($this->email);
         $this->validate([
-            'email' => ['required', 'string', 'email', 'max:255'],
+            'email' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'max:255'],
         ]);
 

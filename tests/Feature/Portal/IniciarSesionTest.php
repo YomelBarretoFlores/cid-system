@@ -37,9 +37,9 @@ it('rejects a wrong password with a message that does not reveal the account', f
     User::factory()->create(['email' => 'ana@correo.test']);
 
     intentarIngreso('ana@correo.test', 'otra-clave1')
-        ->assertHasErrors(['email' => 'El correo o la contraseña no son correctos.']);
+        ->assertHasErrors(['email' => 'El usuario o la contraseña no son correctos.']);
     intentarIngreso('nadie@correo.test', 'otra-clave1')
-        ->assertHasErrors(['email' => 'El correo o la contraseña no son correctos.']);
+        ->assertHasErrors(['email' => 'El usuario o la contraseña no son correctos.']);
 
     $this->assertGuest();
 });

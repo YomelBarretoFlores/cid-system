@@ -16,16 +16,18 @@ use Illuminate\Validation\ValidationException;
 // Checks the credentials under the sign-in limits shared by the web portal and the API; it never opens a session.
 final readonly class AutenticarUsuario
 {
-    public const string CREDENCIALES_INCORRECTAS = 'El correo o la contraseña no son correctos.';
+    public const string CREDENCIALES_INCORRECTAS = 'El usuario o la contraseña no son correctos.';
 
     private const int INTENTOS_POR_MINUTO = 5;
 
     private const int INTENTOS_POR_DIRECCION = 20;
 
-    public function __invoke(string $email, string $password, string $direccion): User
+    // The identifier is an email when it has an @, otherwise the username staff gave the account (the DNI of a teacher).
+    public function __invoke(string $identificador, string $password, string $direccion): User
     {
-        $email = mb_strtolower(trim($email));
-        $clave = "ingreso|{$email}|{$direccion}";
+        $campo = str_contains($identificador, '@') ? 'email' : 'usuario';
+        $identificador = (string) ($campo === 'email' ? User::normalizarCorreo($identificador) : User::normalizarUsuario($identificador));
+        $clave = "ingreso|{$identificador}|{$direccion}";
         // The per-address key also stops one address from trying a common password on many accounts.
         $claveDeDireccion = "ingreso|{$direccion}";
 
@@ -34,7 +36,7 @@ final readonly class AutenticarUsuario
 
         // The same steps as Auth::attempt without opening a session: Attempting, Failed or Validated, and the hash upgrade on success.
         $proveedor = Auth::guard('web')->getProvider();
-        $credenciales = ['email' => $email, 'password' => $password];
+        $credenciales = [$campo => $identificador, 'password' => $password];
         event(new Attempting('web', $credenciales, false));
         $usuario = $proveedor->retrieveByCredentials($credenciales);
 

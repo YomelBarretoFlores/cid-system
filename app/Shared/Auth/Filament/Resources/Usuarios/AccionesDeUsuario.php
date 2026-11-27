@@ -10,6 +10,7 @@ use App\Shared\Auth\Actions\ReactivarUsuario;
 use App\Shared\Auth\Actions\ReiniciarDobleFactor;
 use App\Shared\Auth\Models\User;
 use App\Shared\Auth\Support\GestoresDeUsuarios;
+use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
@@ -90,7 +91,7 @@ final class AccionesDeUsuario
                 $action,
                 function (User $usuario) use ($record): void {
                     GestoresDeUsuarios::autorizar($usuario);
-                    app(ReiniciarDobleFactor::class)($record->email);
+                    app(ReiniciarDobleFactor::class)($record->email ?? throw new ReglaDeNegocioIncumplida('Esta cuenta no tiene correo.'));
                 },
                 'Doble factor reiniciado',
             ));

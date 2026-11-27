@@ -1,6 +1,6 @@
 <x-portal.acceso titulo="Ingresar al portal del CILN">
     <form wire:submit="ingresar" class="flex flex-col gap-4" novalidate>
-        <x-portal.campo nombre="email" etiqueta="Correo" tipo="email" autocomplete="email" placeholder="tucorreo@gmail.com" required autofocus />
+        <x-portal.campo nombre="email" etiqueta="Usuario o correo" autocomplete="username" placeholder="Tu DNI o tu correo" required autofocus />
         <x-portal.campo nombre="password" etiqueta="Contraseña" tipo="password" autocomplete="current-password" required />
 
         <a href="{{ route('password.request') }}" class="enlace -mt-1 self-end">¿Olvidaste tu contraseña?</a>

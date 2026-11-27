@@ -28,10 +28,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
+ * @property string|null $email
+ * @property string|null $usuario
  * @property Carbon|null $desactivado_en
  * @property TemaDeInterfaz $tema
  */
-#[Fillable(['name', 'email', 'password', 'tema'])]
+#[Fillable(['name', 'email', 'usuario', 'password', 'tema'])]
 #[Hidden(['password', 'remember_token'])]
 #[UseFactory(UserFactory::class)]
 #[UsePolicy(UsuarioPolicy::class)]
@@ -72,11 +74,33 @@ final class User extends Authenticatable implements FilamentUser, HasAppAuthenti
     }
 
     /**
-     * @return Attribute<string, string>
+     * @return Attribute<string|null, string|null>
      */
     protected function email(): Attribute
     {
-        return Attribute::set(fn (string $value): string => mb_strtolower(trim($value)));
+        return Attribute::set(fn (?string $value): ?string => self::normalizarCorreo($value));
+    }
+
+    /**
+     * @return Attribute<string|null, string|null>
+     */
+    protected function usuario(): Attribute
+    {
+        return Attribute::set(fn (?string $value): ?string => self::normalizarUsuario($value));
+    }
+
+    public static function normalizarCorreo(?string $correo): ?string
+    {
+        $correo = mb_strtolower(trim((string) $correo));
+
+        return $correo === '' ? null : $correo;
+    }
+
+    public static function normalizarUsuario(?string $usuario): ?string
+    {
+        $usuario = mb_strtoupper(trim((string) $usuario));
+
+        return $usuario === '' ? null : $usuario;
     }
 
     /**

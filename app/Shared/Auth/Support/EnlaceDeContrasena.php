@@ -12,8 +12,10 @@ use Throwable;
 // Staff never get a typed password: the reset link lets each person set their own.
 final class EnlaceDeContrasena
 {
-    public static function enviar(string $email): void
+    public static function enviar(?string $email): void
     {
+        throw_if($email === null, ReglaDeNegocioIncumplida::class, 'Esta cuenta no tiene correo. Cambia su contraseña en la oficina, desde Cuentas de docentes.');
+
         try {
             $estado = Password::broker()->sendResetLink(['email' => $email]);
         } catch (Throwable $error) {

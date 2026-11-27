@@ -34,7 +34,7 @@ final class CreateUsuario extends CreateRecord
         }
     }
 
-    private string $correoDeLaCuenta = '';
+    private ?string $correoDeLaCuenta = null;
 
     private ?string $enlaceNoEnviado = null;
 
