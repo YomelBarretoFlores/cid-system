@@ -21,13 +21,13 @@ use Illuminate\Support\Collection;
 final class HistorialDeNotas
 {
     private const array COLUMNAS = [
-        'cer_notas_finales.acta_id', 'cer_notas_finales.matricula_id', 'cer_notas_finales.promedio', 'cer_notas_finales.estado_final', 'cer_actas.grupo_codigo',
+        'cer_notas_finales.acta_id', 'cer_notas_finales.matricula_id', 'cer_notas_finales.promedio', 'cer_notas_finales.estado_final', 'cer_notas_finales.promedio_hasta', 'cer_notas_finales.estado_final_hasta', 'cer_actas.grupo_codigo',
         'cer_actas.idioma', 'cer_actas.nivel', 'cer_actas.ciclo_numero', 'cer_actas.ciclo_nombre', 'cer_actas.horas_lectivas', 'cer_actas.periodo',
         'cer_actas.ciclo_numero_hasta', 'cer_actas.ciclo_nombre_hasta', 'cer_actas.horas_lectivas_hasta', 'cer_actas.validada_en', 'cer_actas.periodo_id',
     ];
 
     /**
-     * An accelerated acta gives one row per cycle it covers, both with its single grade. Within a cycle, placement rows come first and
+     * An accelerated acta gives one row per cycle it covers, each with its own grade. Within a cycle, placement rows come first and
      * graded rows follow when they were recorded (acta validation or approval registration), so the last passed attempt is the latest
      * graded one and a placement never hides a grade. Voided approvals are left out.
      *
@@ -152,11 +152,11 @@ final class HistorialDeNotas
     {
         $horasHasta = $nota->getAttribute('horas_lectivas_hasta');
         $inicio = $inicios[(int) $nota->getAttribute('periodo_id')] ?? null;
-        $primera = self::nota($nota, (int) $nota->getAttribute('ciclo_numero'), (string) $nota->getAttribute('ciclo_nombre'), (int) $nota->getAttribute('horas_lectivas') - (int) $horasHasta, $inicio);
+        $primera = self::nota($nota, [(int) $nota->getAttribute('ciclo_numero'), (string) $nota->getAttribute('ciclo_nombre'), (int) $nota->getAttribute('horas_lectivas') - (int) $horasHasta], [$nota->promedio, $nota->estado_final], $inicio);
 
-        return $horasHasta === null
+        return $horasHasta === null || ! $nota->estado_final_hasta instanceof EstadoFinal
             ? [$primera]
-            : [$primera, self::nota($nota, (int) $nota->getAttribute('ciclo_numero_hasta'), (string) $nota->getAttribute('ciclo_nombre_hasta'), (int) $horasHasta, $inicio)];
+            : [$primera, self::nota($nota, [(int) $nota->getAttribute('ciclo_numero_hasta'), (string) $nota->getAttribute('ciclo_nombre_hasta'), (int) $horasHasta], [$nota->promedio_hasta, $nota->estado_final_hasta], $inicio)];
     }
 
     private static function diaOficial(mixed $validadaEn): ?string
@@ -185,8 +185,14 @@ final class HistorialDeNotas
         );
     }
 
-    private static function nota(NotaFinal $nota, int $cicloNumero, string $cicloNombre, int $horasLectivas, ?CarbonImmutable $inicio): NotaDelHistorial
+    /**
+     * @param  array{int, string, int}  $ciclo  number, name and teaching hours of the cycle
+     * @param  array{?string, EstadoFinal}  $resultado
+     */
+    private static function nota(NotaFinal $nota, array $ciclo, array $resultado, ?CarbonImmutable $inicio): NotaDelHistorial
     {
+        [$cicloNumero, $cicloNombre, $horasLectivas] = $ciclo;
+
         return new NotaDelHistorial(
             actaId: $nota->acta_id,
             idioma: (string) $nota->getAttribute('idioma'),
@@ -195,8 +201,8 @@ final class HistorialDeNotas
             cicloNombre: $cicloNombre,
             horasLectivas: $horasLectivas,
             periodo: (string) $nota->getAttribute('periodo'),
-            promedio: $nota->promedio,
-            estadoFinal: $nota->estado_final,
+            promedio: $resultado[0],
+            estadoFinal: $resultado[1],
             matriculaId: $nota->matricula_id,
             grupoCodigo: (string) $nota->getAttribute('grupo_codigo'),
             anio: $inicio?->year,

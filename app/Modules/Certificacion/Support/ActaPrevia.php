@@ -43,7 +43,7 @@ final readonly class ActaPrevia
             cicloNumero: $curso->cicloNumero, cicloNombre: $curso->cicloNombre, periodo: $curso->periodo,
             docenteId: $docente->docenteId, docente: $docente->nombreCompleto, esquemaId: $esquema->esquemaId, esquema: $esquema->nombre,
             notaMaxima: $esquema->notaMaxima, notaMinimaAprobatoria: $esquema->notaMinimaAprobatoria,
-            componentes: $esquema->componentes, filas: $this->filas($grupoId, $esquema), validadaEn: null,
+            componentes: $esquema->componentes, filas: $this->filas($grupoId, $esquema, $curso->cicloNumeroHasta !== null), validadaEn: null,
             cicloNumeroHasta: $curso->cicloNumeroHasta, cicloNombreHasta: $curso->cicloNombreHasta,
         );
     }
@@ -56,20 +56,21 @@ final readonly class ActaPrevia
     /**
      * @return list<FilaDelActa>
      */
-    private function filas(int $grupoId, EsquemaDeEvaluacion $esquema): array
+    private function filas(int $grupoId, EsquemaDeEvaluacion $esquema, bool $acelerado): array
     {
         $estudiantes = ($this->estudiantesDelGrupo)($grupoId);
         $fichas = ($this->fichasDePersonas)(array_map(fn (EstudianteDelGrupo $estudiante): int => $estudiante->personaId, $estudiantes));
         $notas = ($this->notasParcialesDelGrupo)($grupoId);
         $vigentes = array_flip(array_map(fn (ComponenteDeEvaluacion $componente): int => $componente->id, $esquema->componentes));
 
-        return array_map(function (EstudianteDelGrupo $estudiante) use ($fichas, $notas, $vigentes, $esquema): FilaDelActa {
+        return array_map(function (EstudianteDelGrupo $estudiante) use ($fichas, $notas, $vigentes, $esquema, $acelerado): FilaDelActa {
             $propias = array_intersect_key($notas[$estudiante->matriculaId] ?? [], $vigentes);
             [$promedio, $estado, $calculadas] = PromedioFinal::calcular($propias, $esquema->componentes, $esquema->notaMinimaAprobatoria);
+            [$promedioHasta, $estadoHasta] = $acelerado ? PromedioFinal::delSegundoCiclo($calculadas, $esquema->notaMinimaAprobatoria) : [null, null];
 
             return new FilaDelActa(
                 $estudiante->matriculaId, $estudiante->personaId, $estudiante->nombreCompleto, $fichas[$estudiante->personaId]->documento ?? '',
-                $propias, $promedio, $estado, $calculadas,
+                $propias, $promedio, $estado, $calculadas, $promedioHasta, $estadoHasta,
             );
         }, $estudiantes);
     }

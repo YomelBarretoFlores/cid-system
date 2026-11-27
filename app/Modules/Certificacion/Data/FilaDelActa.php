@@ -23,6 +23,8 @@ final readonly class FilaDelActa
         public ?string $promedio,
         public EstadoFinal $estadoFinal,
         public NotasCalculadas $calculadas,
+        public ?string $promedioHasta = null,
+        public ?EstadoFinal $estadoFinalHasta = null,
     ) {}
 
     /** What a column shows: the grade the teacher entered, or the calculated value with two decimals. */

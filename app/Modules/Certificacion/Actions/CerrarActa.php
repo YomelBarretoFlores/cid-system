@@ -84,6 +84,7 @@ final readonly class CerrarActa
         $acta->notas()->createMany(array_map(fn (FilaDelActa $fila): array => [
             'matricula_id' => $fila->matriculaId, 'persona_id' => $fila->personaId, 'estudiante_nombre' => $fila->estudiante,
             'estudiante_documento' => $fila->documento, 'notas' => $fila->notas, 'promedio' => $fila->promedio, 'estado_final' => $fila->estadoFinal,
+            'promedio_hasta' => $fila->promedioHasta, 'estado_final_hasta' => $fila->estadoFinalHasta,
         ], $previa->filas));
         $this->validar($acta, $usuario);
     }
@@ -134,7 +135,16 @@ final readonly class CerrarActa
             'firmas' => FirmasDelDocumento::de(GrupoDeFirma::Actas, $enLima), 'denominacion' => ($this->denominacionDelAnio)((int) $enLima->format('Y')),
         ]);
 
-        $aprobadas = $acta->notas()->where('estado_final', EstadoFinal::Aprobado)->orderBy('matricula_id')->pluck('matricula_id')->all();
-        ActaCerrada::dispatch($acta->grupo_id, array_values(array_map(intval(...), $aprobadas)));
+        [$ambos, $soloElPrimero] = [[], []];
+
+        foreach ($acta->notas()->where('estado_final', EstadoFinal::Aprobado)->orderBy('matricula_id')->get(['matricula_id', 'estado_final_hasta']) as $nota) {
+            if (in_array($nota->estado_final_hasta, [null, EstadoFinal::Aprobado], true)) {
+                $ambos[] = $nota->matricula_id;
+            } else {
+                $soloElPrimero[] = $nota->matricula_id;
+            }
+        }
+
+        ActaCerrada::dispatch($acta->grupo_id, $ambos, $soloElPrimero);
     }
 }

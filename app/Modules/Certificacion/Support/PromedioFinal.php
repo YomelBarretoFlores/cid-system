@@ -20,17 +20,31 @@ final class PromedioFinal
     public static function calcular(array $notas, array $componentes, string $notaMinimaAprobatoria): array
     {
         $calculadas = NotasCalculadas::de($componentes, $notas);
-        $promedio = $calculadas->delCiclo(1);
 
-        return [$promedio, self::estado($promedio, $calculadas->sinNotas, $notaMinimaAprobatoria), $calculadas];
+        return [...self::delCiclo($calculadas, 1, $notaMinimaAprobatoria), $calculadas];
     }
 
-    private static function estado(?string $promedio, bool $sinNotas, string $notaMinimaAprobatoria): EstadoFinal
+    /**
+     * The second cycle of an accelerated group; a scheme without a second cycle grade gives it the grade of the first.
+     *
+     * @return array{?string, EstadoFinal}
+     */
+    public static function delSegundoCiclo(NotasCalculadas $calculadas, string $notaMinimaAprobatoria): array
     {
-        if ($sinNotas || $promedio === null) {
-            return EstadoFinal::Nsp;
+        return self::delCiclo($calculadas, $calculadas->tieneCiclo(2) ? 2 : 1, $notaMinimaAprobatoria);
+    }
+
+    /**
+     * @return array{?string, EstadoFinal}
+     */
+    private static function delCiclo(NotasCalculadas $calculadas, int $ciclo, string $notaMinimaAprobatoria): array
+    {
+        $promedio = $calculadas->delCiclo($ciclo);
+
+        if ($calculadas->sinNotas || $promedio === null) {
+            return [null, EstadoFinal::Nsp];
         }
 
-        return Nota::centesimos($promedio) >= Nota::centesimos($notaMinimaAprobatoria) ? EstadoFinal::Aprobado : EstadoFinal::Desaprobado;
+        return [$promedio, Nota::centesimos($promedio) >= Nota::centesimos($notaMinimaAprobatoria) ? EstadoFinal::Aprobado : EstadoFinal::Desaprobado];
     }
 }

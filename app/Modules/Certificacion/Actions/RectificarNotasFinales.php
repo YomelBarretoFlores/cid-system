@@ -71,13 +71,15 @@ final readonly class RectificarNotasFinales
     private function rectificar(NotaFinal $fila, array $cambios, array $componentes, string $notaMinima): void
     {
         $notas = array_filter(array_replace($fila->notas, $cambios), fn (?string $nota): bool => $nota !== null);
-        [$promedio, $estado] = PromedioFinal::calcular($notas, $componentes, $notaMinima);
+        [$promedio, $estado, $calculadas] = PromedioFinal::calcular($notas, $componentes, $notaMinima);
+        [$promedioHasta, $estadoHasta] = $fila->estado_final_hasta === null ? [null, null] : PromedioFinal::delSegundoCiclo($calculadas, $notaMinima);
+        $resultado = ['notas' => $notas, 'promedio' => $promedio, 'estado_final' => $estado, 'promedio_hasta' => $promedioHasta, 'estado_final_hasta' => $estadoHasta];
 
         // Unchanged rows are not rewritten, so the audit trail only shows real corrections.
-        if ($fila->notas == $notas && $fila->promedio === $promedio && $fila->estado_final === $estado) {
+        if ($fila->notas == $notas && [$fila->promedio, $fila->estado_final, $fila->promedio_hasta, $fila->estado_final_hasta] === [$promedio, $estado, $promedioHasta, $estadoHasta]) {
             return;
         }
 
-        $fila->update(['notas' => $notas, 'promedio' => $promedio, 'estado_final' => $estado]);
+        $fila->update($resultado);
     }
 }

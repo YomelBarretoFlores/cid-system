@@ -23,30 +23,31 @@ final readonly class HabilitarCiclosSiguientes
     ) {}
 
     /**
-     * @param  list<int>  $matriculasAprobadas
+     * @param  list<int>  $matriculasAprobadas  passed every cycle of their group
+     * @param  list<int>  $conSoloElPrimerCiclo  passed only the first cycle of an accelerated group, so they go on to its second
      * @return int habilitations moved forward
      */
-    public function __invoke(array $matriculasAprobadas): int
+    public function __invoke(array $matriculasAprobadas, array $conSoloElPrimerCiclo = []): int
     {
-        $matriculas = Matricula::query()->whereKey($matriculasAprobadas)->get(['id', 'persona_id', 'grupo_id']);
+        $matriculas = Matricula::query()->whereKey([...$matriculasAprobadas, ...$conSoloElPrimerCiclo])->get(['id', 'persona_id', 'grupo_id']);
         $grupos = ($this->ciclosDeGrupos)(array_values(array_map(intval(...), $matriculas->pluck('grupo_id')->unique()->all())));
         $ordenPorIdioma = collect(($this->catalogoDeIdiomas)())
             ->mapWithKeys(fn (IdiomaDelCatalogo $idioma): array => [$idioma->id => array_keys($idioma->ciclos)]);
 
-        return $matriculas->sum(function (Matricula $matricula) use ($grupos, $ordenPorIdioma): int {
+        return $matriculas->sum(function (Matricula $matricula) use ($grupos, $ordenPorIdioma, $conSoloElPrimerCiclo): int {
             $grupo = $grupos[$matricula->grupo_id];
+            $ultimoAprobado = in_array($matricula->id, $conSoloElPrimerCiclo, true) ? $grupo->cicloId : ($grupo->cicloHastaId ?? $grupo->cicloId);
 
-            return (int) $this->habilitar($matricula->persona_id, $grupo, $ordenPorIdioma->get($grupo->idiomaId, []));
+            return (int) $this->habilitar($matricula->persona_id, $grupo, $ultimoAprobado, $ordenPorIdioma->get($grupo->idiomaId, []));
         });
     }
 
     /**
      * @param  list<int>  $orden  cycle ids of the language in study order
      */
-    private function habilitar(int $personaId, GrupoData $grupo, array $orden): bool
+    private function habilitar(int $personaId, GrupoData $grupo, int $ultimoAprobado, array $orden): bool
     {
-        // An accelerated group passes its cycle and the next one, so the student moves on to the cycle after its second.
-        $siguiente = (int) array_search($grupo->cicloHastaId ?? $grupo->cicloId, $orden, true) + 1;
+        $siguiente = (int) array_search($ultimoAprobado, $orden, true) + 1;
 
         if (! isset($orden[$siguiente])) {
             return false;

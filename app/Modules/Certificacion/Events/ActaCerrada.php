@@ -12,10 +12,12 @@ final readonly class ActaCerrada implements ShouldDispatchAfterCommit
     use Dispatchable;
 
     /**
-     * @param  list<int>  $matriculasAprobadas
+     * @param  list<int>  $matriculasAprobadas  passed every cycle of the group
+     * @param  list<int>  $matriculasConSoloElPrimerCiclo  passed the first cycle of an accelerated group but not its second
      */
     public function __construct(
         public int $grupoId,
         public array $matriculasAprobadas,
+        public array $matriculasConSoloElPrimerCiclo = [],
     ) {}
 }

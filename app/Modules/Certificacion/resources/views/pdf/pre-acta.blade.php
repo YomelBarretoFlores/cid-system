@@ -21,8 +21,15 @@
                 @foreach ($acta->columnas() as $componente)
                     <th class="num">{{ $componente->nombre }}</th>
                 @endforeach
-                <th class="num">Promedio a la fecha</th>
-                <th>Estado a la fecha</th>
+                @if ($acta->esAcelerada())
+                    <th class="num">Promedio ciclo {{ Formato::romano($acta->cicloNumero) }}</th>
+                    <th>Estado ciclo {{ Formato::romano($acta->cicloNumero) }}</th>
+                    <th class="num">Promedio ciclo {{ Formato::romano((int) $acta->cicloNumeroHasta) }}</th>
+                    <th>Estado ciclo {{ Formato::romano((int) $acta->cicloNumeroHasta) }}</th>
+                @else
+                    <th class="num">Promedio a la fecha</th>
+                    <th>Estado a la fecha</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -36,6 +43,10 @@
                     @endforeach
                     <td class="num"><strong>{{ $fila->promedio ?? '—' }}</strong></td>
                     <td>{{ $fila->estadoFinal->etiqueta() }}</td>
+                    @if ($acta->esAcelerada())
+                        <td class="num"><strong>{{ $fila->promedioHasta ?? '—' }}</strong></td>
+                        <td>{{ $fila->estadoFinalHasta?->etiqueta() }}</td>
+                    @endif
                 </tr>
             @endforeach
         </tbody>

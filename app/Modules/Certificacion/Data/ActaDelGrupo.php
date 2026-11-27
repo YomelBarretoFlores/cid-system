@@ -67,7 +67,7 @@ final readonly class ActaDelGrupo
             componentes: $componentes,
             filas: array_values($acta->notas->sortBy('estudiante_nombre')->map(fn (NotaFinal $nota): FilaDelActa => new FilaDelActa(
                 $nota->matricula_id, $nota->persona_id, $nota->estudiante_nombre, $nota->estudiante_documento,
-                $nota->notas, $nota->promedio, $nota->estado_final, NotasCalculadas::de($componentes, $nota->notas),
+                $nota->notas, $nota->promedio, $nota->estado_final, NotasCalculadas::de($componentes, $nota->notas), $nota->promedio_hasta, $nota->estado_final_hasta,
             ))->all()),
             validadaEn: $acta->validada_en?->setTimezone('America/Lima'),
             cicloNumeroHasta: $acta->ciclo_numero_hasta,
@@ -91,6 +91,11 @@ final readonly class ActaDelGrupo
     public function columnasIngresadas(): array
     {
         return array_values(array_filter($this->componentes, fn (ComponenteDeEvaluacion $componente): bool => $componente->esIngresada()));
+    }
+
+    public function esAcelerada(): bool
+    {
+        return $this->cicloNumeroHasta !== null;
     }
 
     public function ciclos(): string

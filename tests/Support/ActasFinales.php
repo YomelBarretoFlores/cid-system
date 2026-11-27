@@ -81,7 +81,7 @@ final class ActasFinales
     /**
      * Closed actas of past cycles for one student, without going through the teacher flow; the language gets the 4/4/4 plan unless it has its cycles already.
      *
-     * @param  list<array{0: int, 1: ?string, 2: string, 3?: int}>  $ciclos  cycle number, average (null for NSP), final state and, for an accelerated group, its second cycle number
+     * @param  list<array{0: int, 1: ?string, 2: string, 3?: int, 4?: array{?string, string}}>  $ciclos  cycle number, average (null for NSP), final state and, for an accelerated group, its second cycle number and that cycle's average and state (the first cycle's when left out)
      */
     public static function historial(Persona $persona, string $idioma, array $ciclos, string $estadoActa = 'cerrada', ?int $periodoId = null): void
     {
@@ -118,6 +118,7 @@ final class ActasFinales
                 'acta_id' => $actaId, 'matricula_id' => Matricula::factory()->create(['persona_id' => $persona->id, 'grupo_id' => $grupo->id])->id,
                 'persona_id' => $persona->id, 'estudiante_nombre' => $persona->nombre_completo, 'estudiante_documento' => "DNI {$persona->numero_documento}",
                 'notas' => '{}', 'promedio' => $promedio, 'estado_final' => $estado, 'created_at' => now(), 'updated_at' => now(),
+                ...($hasta === null ? [] : ['promedio_hasta' => ($fila[4] ?? [$promedio])[0], 'estado_final_hasta' => ($fila[4] ?? [null, $estado])[1]]),
             ]);
 
             // Validated in the past and in cycle order, so documents issued now come after every acta.

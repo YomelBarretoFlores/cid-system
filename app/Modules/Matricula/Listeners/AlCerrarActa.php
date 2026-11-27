@@ -18,6 +18,6 @@ final readonly class AlCerrarActa implements ShouldQueue
 
     public function handle(ActaCerrada $evento): void
     {
-        ($this->accion)($evento->matriculasAprobadas);
+        ($this->accion)($evento->matriculasAprobadas, $evento->matriculasConSoloElPrimerCiclo);
     }
 }

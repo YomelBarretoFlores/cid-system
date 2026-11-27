@@ -16,7 +16,7 @@ use Filament\Tables\Table;
 final class EsquemasDeEvaluacionTable
 {
     /**
-     * @param  list<ComponenteEvaluacion>  $columnas
+     * @param  array<int, ComponenteEvaluacion>  $columnas
      */
     private static function resumen(array $columnas): string
     {
