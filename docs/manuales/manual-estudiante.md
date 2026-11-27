@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Estudiante
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.3
+version: 1.4
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -16,6 +16,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: programas y grupos acelerados, constancia de notas por nivel, tarifas por nivel y programa, FUT digital, nuevos trámites y matrícula extemporánea | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.3 | 26/11/2026 | Actualización para la versión v1.3.0 del sistema: registro sin verificación del correo, cuenta habilitada al validarse el primer pago y cuentas creadas en la oficina para quienes ya figuran en el CILN | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.4 | 27/11/2026 | Las notas siguen el sistema de evaluación configurado por el CILN; en un grupo acelerado, cada ciclo puede tener su propia nota | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -416,26 +417,16 @@ En **Avance de notas** puede seguir sus notas mientras el docente las registra, 
 2. Elija el **Periodo**.
 3. Revise, por cada curso, el recuadro **Notas** y el recuadro **Asistencia**.
 
-La evaluación de cada ciclo se calcula con los componentes del sistema de evaluación vigente que configura el CILN, actualmente los siguientes:
+La evaluación de cada ciclo sigue el sistema de evaluación que configura el CILN para su grupo. El recuadro **Notas** muestra las notas que registra el docente y, debajo, las notas que el sistema calcula con ellas. Con el sistema actual:
 
-- **Habilidades:** comprensión auditiva, expresión oral, comprensión lectora y expresión escrita. El **Prom. habilidades** es el promedio de las cuatro.
-- **Exámenes:** examen parcial y examen final. El **Prom. exámenes** es el promedio de ambos.
-- **Nota final:** es el promedio del promedio de habilidades y del promedio de exámenes, redondeado al entero (las fracciones de 0.5 o más suben al entero siguiente).
+- **Notas del docente:** comprensión auditiva, expresión oral, comprensión lectora, expresión escrita, examen parcial y examen final.
+- **Promedio de habilidades** y **Promedio de exámenes:** el promedio de las cuatro habilidades y el de los dos exámenes, con dos decimales.
+- **Nota final:** el promedio de ambos promedios, redondeado al entero (las fracciones de 0.5 o más suben al entero siguiente).
 - **Aprobación:** se aprueba con la nota mínima aprobatoria que configura el CILN; por defecto, 11 de 20.
 
-Los promedios se muestran con dos decimales y la nota final se calcula con los promedios sin redondear. Un componente sin nota cuenta como cero, y quien no tiene ninguna nota registrada figura como **NSP** (no se presentó). Mientras el acta del curso esté abierta, la pantalla muestra el **Promedio parcial** con las notas registradas hasta ese momento y la marca **Acta abierta**. Cuando el acta final se cierra, muestra el **Promedio final** con el estado **Aprobado**, **Desaprobado** o **NSP**, y la nota oficial queda en la boleta de notas.
+Una nota en blanco cuenta como cero, y quien no tiene ninguna nota registrada figura como **NSP** (no se presentó). Mientras el acta del curso esté abierta, la pantalla muestra el **Promedio parcial** con las notas registradas hasta ese momento y la marca **Acta abierta**. Cuando el acta final se cierra, muestra el **Promedio final** con el estado **Aprobado**, **Desaprobado** o **NSP**, y la nota oficial queda en la boleta de notas.
 
-*Tabla 9. Componentes de la evaluación*
-
-| Componente | Grupo | Cómo interviene en la nota |
-|---|---|---|
-| Comprensión auditiva | Habilidades | Promedio de las cuatro habilidades (Prom. habilidades). |
-| Expresión oral | Habilidades | |
-| Comprensión lectora | Habilidades | |
-| Expresión escrita | Habilidades | |
-| Examen parcial | Exámenes | Promedio de los dos exámenes (Prom. exámenes). |
-| Examen final | Exámenes | |
-| Nota final | — | Promedio de Prom. habilidades y Prom. exámenes, redondeado al entero (0.5 hacia arriba). Mínimo aprobatorio: el configurado por el CILN, 11 de 20 por defecto. |
+En un grupo acelerado, que cubre dos ciclos en un mes, cada ciclo puede tener su propia nota: el récord y la constancia de notas muestran cada ciclo con su nota, y la constancia de un nivel estudiado en grupos acelerados lleva la indicación **NIVEL ACELERADO**. Si aprueba solo el primero de los dos ciclos, queda habilitado para matricularse en el segundo.
 
 En **Asistencia** verá cuántas clases se dictaron de las programadas («X de Y clases dictadas»), su porcentaje de asistencia, el número de faltas y una barra con el detalle clase por clase.
 
@@ -446,9 +437,9 @@ En **Asistencia** verá cuántas clases se dictaron de las programadas («X de Y
 El panel **Descargar en PDF**, a la derecha de los reportes, permite descargar los documentos del periodo elegido.
 
 1. Abra cualquier reporte del periodo (por ejemplo, **Avance de notas** u **Horario**).
-2. En **Descargar en PDF**, presione el documento que necesite (Tabla 10).
+2. En **Descargar en PDF**, presione el documento que necesite (Tabla 9).
 
-*Tabla 10. Reportes descargables en PDF*
+*Tabla 9. Reportes descargables en PDF*
 
 | Reporte | Contenido |
 |---|---|
@@ -488,7 +479,7 @@ Los documentos que el CILN emite por trámite (constancia de matrícula, constan
 
 # 7. PREGUNTAS FRECUENTES
 
-*Tabla 11. Preguntas frecuentes*
+*Tabla 10. Preguntas frecuentes*
 
 | Pregunta | Respuesta |
 |---|---|
@@ -502,7 +493,7 @@ Los documentos que el CILN emite por trámite (constancia de matrícula, constan
 | Mi pago fue rechazado. | Revise que el número de operación, la fecha, el concepto y el recibo adjunto coincidan con el comprobante, y registre el recibo nuevamente. |
 | ¿En qué ciclo me matriculo? | El sistema lo calcula y lo muestra en **Ciclo que te corresponde**: ciclo 1 si recién empieza, el siguiente si aprobó el anterior, o el asignado por un examen de clasificación, de reclasificación o de suficiencia. |
 | No aparecen grupos para mi ciclo. | Por ahora no hay grupos abiertos con vacantes para su ciclo. Consulte **Horarios y vacantes** en la web pública o comuníquese con el CILN. |
-| ¿Cómo se calcula mi nota final? | Es el promedio del promedio de las cuatro habilidades y del promedio del examen parcial y final, redondeado al entero (0.5 hacia arriba). Se aprueba con el mínimo configurado por el CILN, 11 de 20 por defecto. |
+| ¿Cómo se calcula mi nota final? | Según el sistema de evaluación que configura el CILN; con el actual, es el promedio del promedio de las cuatro habilidades y del promedio del examen parcial y final, redondeado al entero (0.5 hacia arriba). Se aprueba con el mínimo configurado por el CILN, 11 de 20 por defecto. |
 | Soy estudiante o trabajador de la UNASAM y el sistema me propone la tarifa de público general. | Toda cuenta creada desde la web queda como **Público general**. Pida al CILN que actualice su vínculo con la UNASAM antes de registrar el pago. |
 | ¿Dónde descargo mi constancia de matrícula? | En **Mis matrículas**, con **Constancia (PDF)**. Para un documento con firma de Dirección, inicie el trámite **Constancia de matrícula**. |
 | ¿Cómo sé en qué etapa está mi trámite? | En **Trámites**, presione **Ver etapas**. Además, recibirá un correo en cada cambio de estado. |

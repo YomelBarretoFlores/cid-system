@@ -9,6 +9,7 @@ use App\Modules\Academico\Data\DatosDeEsquema;
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
 use App\Modules\Academico\Enums\NivelCurricular;
+use App\Modules\Academico\Enums\RegimenDeEsquema;
 use App\Modules\Academico\Enums\RegimenDePrograma;
 use App\Modules\Academico\Models\Aula;
 use App\Modules\Academico\Models\Ciclo;
@@ -127,6 +128,21 @@ final class AcademicoDemoSeeder extends Seeder
                 ['codigo' => 'nota_final', 'nombre' => 'Nota final', 'tipo' => 'calculada', 'calculo' => 'promedio', 'redondeo' => 'entero', 'ciclo' => 1,
                     'fuentes' => [['codigo' => 'promedio_habilidades'], ['codigo' => 'promedio_examenes']]],
             ],
+        ));
+
+        app(GuardarEsquemaDeEvaluacion::class)(new DatosDeEsquema(
+            nombre: 'Acelerado: una nota por ciclo (demo)', idiomaId: null, nivel: null, notaMaxima: '20', notaMinimaAprobatoria: '11',
+            vigenteDesde: $hoy->subMonths(6)->startOfYear(), vigenteHasta: null,
+            componentes: [
+                ['codigo' => 'habilidades_1', 'nombre' => 'Habilidades (1.ª quincena)', 'tipo' => 'ingresada'],
+                ['codigo' => 'examen_1', 'nombre' => 'Examen (1.ª quincena)', 'tipo' => 'ingresada'],
+                ['codigo' => 'habilidades_2', 'nombre' => 'Habilidades (2.ª quincena)', 'tipo' => 'ingresada'],
+                ['codigo' => 'examen_2', 'nombre' => 'Examen (2.ª quincena)', 'tipo' => 'ingresada'],
+                ['codigo' => 'nota_ciclo_1', 'nombre' => 'Nota del primer ciclo', 'tipo' => 'calculada', 'calculo' => 'promedio', 'redondeo' => 'entero', 'ciclo' => 1,
+                    'fuentes' => [['codigo' => 'habilidades_1'], ['codigo' => 'examen_1']]],
+                ['codigo' => 'nota_ciclo_2', 'nombre' => 'Nota del segundo ciclo', 'tipo' => 'calculada', 'calculo' => 'promedio', 'redondeo' => 'entero', 'ciclo' => 2,
+                    'fuentes' => [['codigo' => 'habilidades_2'], ['codigo' => 'examen_2']]],
+            ], regimen: RegimenDeEsquema::Acelerado,
         ));
     }
 

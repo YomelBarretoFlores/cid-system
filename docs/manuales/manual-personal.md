@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Personal del CILN
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.6
+version: 1.7
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -17,6 +17,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.4 | 27/11/2026 | Cuentas de docentes con el DNI como usuario y contraseña entregada en la oficina; dar de baja y reactivar cuentas del portal | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.5 | 27/11/2026 | Matricular en ventanilla, con un pago validado o con un pago anterior al sistema, y el interruptor que permite estos pagos | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.6 | 27/11/2026 | Web pública administrable: foto de portada, títulos, textos, botones, secciones visibles, pie de página y enlaces; vista previa y atajos «Editar» | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.7 | 27/11/2026 | Sistemas de evaluación configurables: columnas que ingresa el docente y calculadas (promedio simple o ponderado, redondeo), nota del ciclo y del segundo ciclo en el acelerado, por programa y régimen | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -148,7 +149,7 @@ Todos los catálogos, parámetros y textos editables están en **Administración
 | Institución | Política de privacidad | Texto de la política de privacidad y frase de consentimiento del registro (sección 3.8). | Gestionar personas |
 | Institución | Contenido de la portada | Todo el contenido de la web pública: foto de portada, títulos y textos de cada sección, botones, secciones visibles, pie de página, contacto y enlaces (sección 3.8). | Configurar tipos de trámite |
 | Institución | Parámetros del sistema | Vigencia y puntaje del examen de clasificación, ventanas de los llamados de asistencia, límites de archivos y aviso de pocas vacantes (sección 3.7). | Gestionar usuarios, roles y permisos |
-| Académico | Sistemas de evaluación | Componentes de evaluación y nota mínima aprobatoria. | Gestionar la oferta académica |
+| Académico | Sistemas de evaluación | Columnas que ingresa el docente, columnas calculadas, nota del ciclo y nota mínima aprobatoria, por idioma, nivel, programa y régimen. | Gestionar la oferta académica |
 | Académico | Modalidades | Modalidades de los grupos (presencial, virtual, semipresencial u otras) y su descripción en la web pública (sección 3.6). | Gestionar la oferta académica |
 | Personas | Tipos de vínculo | Vínculo de la persona con la UNASAM, que decide su tarifa (sección 3.6). | Gestionar personas |
 | Personas | Tipos de documento | Documentos de identidad aceptados y la regla de formato de su número (sección 3.6). | Gestionar personas |
@@ -217,25 +218,40 @@ Resultado esperado: si está marcado **Disponible para nuevas solicitudes**, el 
 
 ## 3.4. Sistemas de evaluación
 
-Finalidad: definir cómo se calcula la nota final de los grupos.
+Finalidad: definir qué notas registra el docente y cómo se calcula la nota de cada ciclo.
 
-Cada sistema de evaluación tiene dos grupos de componentes:
+Un sistema de evaluación es una lista de **columnas**, en el orden en que se muestran:
 
-- **Habilidades**: las cuatro habilidades del idioma (Comprensión auditiva, Expresión oral, Comprensión lectora y Expresión escrita).
-- **Exámenes**: Examen parcial y Examen final.
+- **La ingresa el docente**: una nota que el docente registra en la pre-acta (por ejemplo, Comprensión auditiva o Examen parcial).
+- **Calculada**: una nota que el sistema obtiene de columnas anteriores. Su **Cálculo** puede ser **Promedio simple** o **Promedio ponderado** (cada columna usada lleva un **Peso**, de 1 a 100). Su **Redondeo** puede ser **Sin redondear (dos decimales)** o **Al entero (0.5 hacia arriba)**.
 
-El sistema promedia por separado las habilidades y los exámenes; la nota final es el promedio de ambos, redondeado al entero. No se asignan pesos o porcentajes a los componentes. Aprueba quien alcanza la **Nota mínima aprobatoria**.
+Una columna se marca como **nota del ciclo**: con ella se decide si el estudiante aprueba (alcanza la **Nota mínima aprobatoria**) y es la nota que pasa al acta, al récord y a la constancia. En un sistema del régimen **Acelerado**, donde un grupo cubre dos ciclos, puede marcarse además la **nota del segundo ciclo**; si no se marca, el segundo ciclo recibe la misma nota que el primero.
+
+Ejemplo, el sistema actual del CILN:
+
+| Columna | Tipo | Cálculo |
+|---|---|---|
+| Comprensión auditiva, Expresión oral, Comprensión lectora, Expresión escrita | La ingresa el docente | — |
+| Examen parcial, Examen final | La ingresa el docente | — |
+| Promedio de habilidades | Calculada | Promedio simple de las cuatro habilidades, sin redondear |
+| Promedio de exámenes | Calculada | Promedio simple de los dos exámenes, sin redondear |
+| Nota final (nota del ciclo) | Calculada | Promedio simple de los dos promedios, al entero |
+
+Ejemplo de un acelerado con una nota por ciclo: «Habilidades 1», «Examen 1», «Habilidades 2» y «Examen 2» las ingresa el docente; «Nota del primer ciclo» es el promedio de las dos primeras y «Nota del segundo ciclo» el de las dos últimas, cada una al entero.
 
 1. Ingrese a **Configuración > Académico > Sistemas de evaluación** y pulse **Nuevo sistema de evaluación**.
-2. Escriba el **Nombre**. Elija el **Idioma** y el **Nivel** al que se aplica, o deje **Todos los idiomas** y **Todos los niveles**.
+2. Escriba el **Nombre**. Elija a qué se aplica: **Idioma**, **Nivel**, **Programa** y **Régimen** (Regular o Acelerado). Deje la opción «Todos» o «Regular y acelerado» para que se aplique a todos.
 3. Indique la **Nota máxima** (por defecto 20) y la **Nota mínima aprobatoria** (por defecto 11).
 4. Indique **Vigente desde** y, solo si corresponde, **Vigente hasta**.
-5. En **Componentes**, registre cada componente con su **Código**, **Nombre** y **Grupo** (Habilidades o Exámenes).
-6. Guarde.
+5. En **Columnas**, pulse **Agregar columna** por cada una y escriba su **Código** y **Nombre**; elija el **Tipo**. Para una columna calculada, elija el **Cálculo**, el **Redondeo** y, con **Agregar columna que usa**, las columnas anteriores que combina (con su **Peso** si el cálculo es ponderado).
+6. En **¿Es la nota del ciclo?**, marque **Sí** en una columna (y, en un sistema acelerado, **Sí, del segundo ciclo** en otra).
+7. Guarde.
 
-Resultado esperado: el sistema se aplica a los grupos que inician dentro de su vigencia. Una vez vigente, solo pueden cambiarse el nombre y la fecha de fin.
+Resultado esperado: el sistema se aplica a los grupos que inician dentro de su vigencia. Si varios sistemas se aplican a un grupo, gana el más específico: primero el del régimen del grupo, luego el de su programa, su idioma y su nivel. La pre-acta del docente muestra las columnas que él ingresa; el acta y los reportes del estudiante muestran también las calculadas. Una vez vigente, solo pueden cambiarse el nombre y la fecha de fin: para cambiar columnas, cálculos o notas, cierre su vigencia y cree un sistema nuevo. Las actas ya cerradas conservan sus notas.
 
-![Figura 6. Sistema de evaluación con cuatro habilidades y dos exámenes](figuras/p06-sistema-de-evaluacion.png)
+Mensajes posibles: «Marca una sola columna como nota del ciclo (y, en el acelerado, una sola como nota del segundo ciclo).», «La nota del segundo ciclo solo existe en un sistema para el régimen acelerado.», «La columna «nota» solo puede usar columnas que estén antes de ella, cada una una vez.», «Cada peso de la columna «nota» debe ser un número entero de 1 a 100.», «El programa Posgrado no tiene grupos de régimen Regular.».
+
+![Figura 6. Sistema de evaluación con sus columnas](figuras/p06-sistema-de-evaluacion.png)
 
 ## 3.5. Condiciones laborales, grados académicos, firmantes y denominación del año
 

@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Docente
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.4
+version: 1.5
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -17,6 +17,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: grupos acelerados | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.3 | 26/11/2026 | Actualización para la versión v1.3.0 del sistema: el personal crea la cuenta del docente y ya no se verifica el correo; ventanas de los llamados configurables por el CILN | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.4 | 27/11/2026 | El docente ingresa con su DNI como usuario y la contraseña que le entrega el CILN; el cambio de contraseña olvidada se hace en la oficina | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.5 | 27/11/2026 | La pre-acta muestra las columnas que define el sistema de evaluación; en un grupo acelerado, cada ciclo puede tener su propia nota | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -241,18 +242,20 @@ Cuando el docente guarda el llamado de cierre, la clase aparece en la opción **
 
 ## 5.1. Componentes de evaluación
 
-La pre-acta reúne las notas parciales de cada estudiante. Las notas se registran sobre los componentes del sistema de evaluación vigente del grupo, que define la coordinación académica. El sistema de evaluación del CILN tiene seis componentes, agrupados en habilidades y exámenes:
+La pre-acta reúne las notas parciales de cada estudiante. Las notas se registran en las columnas que el sistema de evaluación vigente del grupo indica que ingresa el docente; la coordinación académica define ese sistema. Las columnas calculadas (promedios y nota del ciclo) no se escriben: el sistema las calcula y se ven en la pestaña **Acta final**. El sistema de evaluación actual del CILN tiene seis columnas que ingresa el docente:
 
-*Tabla 5. Componentes de evaluación*
+*Tabla 5. Columnas que ingresa el docente en el sistema actual*
 
-| Grupo | Componente |
-|---|---|
-| Habilidades | Comprensión auditiva |
-| Habilidades | Expresión oral |
-| Habilidades | Comprensión lectora |
-| Habilidades | Expresión escrita |
-| Exámenes | Examen parcial |
-| Exámenes | Examen final |
+| Columna |
+|---|
+| Comprensión auditiva |
+| Expresión oral |
+| Comprensión lectora |
+| Expresión escrita |
+| Examen parcial |
+| Examen final |
+
+Si la coordinación cambia el sistema de evaluación (otras columnas, pesos o, en un grupo acelerado, una nota por cada ciclo), la pre-acta muestra las columnas del sistema que corresponda al grupo.
 
 Reglas para registrar notas:
 
@@ -268,8 +271,8 @@ Si el grupo no tiene un sistema de evaluación vigente, la pestaña muestra "El 
 
 1. En **Mis grupos**, presione el paso **Notas** o el botón **Completar notas** de la tarjeta del grupo; también puede abrir la pestaña **Pre-acta** dentro del grupo.
 2. Revise la sección **Camino al acta final**, que muestra las tres etapas: **Registra las notas** (con el avance, por ejemplo "21 de 66 notas"), **Revisa el acta** y **Valida y cierra** (con las fechas del periodo para validar). El botón **Revisar el acta final** abre la pestaña **Acta final**.
-3. En la sección **Notas parciales**, las fichas superiores muestran cuántas notas lleva cada componente (por ejemplo, "2 de 11"). La barra se pone verde cuando el componente está completo.
-4. En la tabla, escriba la nota de cada estudiante en la columna del componente correspondiente.
+3. En la sección **Notas parciales**, las fichas superiores muestran cuántas notas lleva cada columna (por ejemplo, "2 de 11"). La barra se pone verde cuando la columna está completa.
+4. En la tabla, escriba la nota de cada estudiante en la columna correspondiente.
 5. Presione **Guardar notas**.
 
 **Resultado esperado:** el sistema muestra el mensaje "Notas parciales guardadas." y actualiza el avance. Las notas guardadas forman el acta final. Si una nota está fuera del rango permitido, el sistema muestra el error y no guarda los cambios.
@@ -303,7 +306,7 @@ Si el grupo no tiene un sistema de evaluación vigente, la pestaña muestra "El 
 2. Mientras el acta no esté cerrada, aparece con la marca **Vista previa**: "Se calcula con las notas de la pre-acta. Al validarla, el acta se cierra y solo cambia con autorización del administrador." Debajo se indican las fechas para validar (por ejemplo, "Fechas para validar: del 25 nov 2026 al 5 dic 2026."); si el periodo aún no las tiene, se lee "El periodo aún no tiene fechas para actas finales.".
 3. Revise los datos del acta: **Idioma**, **Nivel y ciclo**, **Periodo académico** y **Docente**.
 4. Revise los totales **Aprobados**, **Desaprobados** (con la nota mínima aprobatoria) y **NSP**.
-5. Revise la tabla **Calificaciones**: cada estudiante con su documento de identidad, sus notas por componente, **Prom. habilidades**, **Prom. exámenes**, **Promedio** y **Estado final**.
+5. Revise la tabla **Calificaciones**: cada estudiante con su documento de identidad, las columnas del sistema de evaluación (las que usted ingresó y las calculadas, como **Promedio de habilidades** y **Promedio de exámenes**), el **Promedio** y el **Estado final**. En un grupo acelerado, la tabla muestra **Promedio** y **Estado** de cada uno de sus dos ciclos (por ejemplo, **Promedio ciclo III** y **Promedio ciclo IV**).
 
 **Resultado esperado:** el docente verifica las notas finales. Si encuentra un error, lo corrige en la pestaña **Pre-acta** y la vista previa se actualiza.
 
@@ -313,7 +316,7 @@ Si el grupo no tiene un sistema de evaluación vigente, la pestaña muestra "El 
 
 ## 6.2. Cálculo de la nota final
 
-El sistema calcula la nota final de cada estudiante de la siguiente manera:
+La nota final sigue el sistema de evaluación del grupo. Con el sistema actual del CILN se calcula así:
 
 1. **Promedio de habilidades:** promedio simple de las cuatro habilidades, mostrado con dos decimales.
 2. **Promedio de exámenes:** promedio simple del examen parcial y del examen final, mostrado con dos decimales.
@@ -339,6 +342,8 @@ Este ejemplo corresponde a la fila del estudiante "Uribe Galarza, Maximiliano" d
 | NSP | El estudiante no tiene ninguna nota registrada (no se presentó). |
 
 La nota mínima aprobatoria la define el CILN en el sistema de evaluación; por defecto es 11.
+
+En un grupo acelerado, que cubre dos ciclos, cada ciclo tiene su nota y su estado si el sistema de evaluación define la nota del segundo ciclo; si no la define, el segundo ciclo recibe la misma nota que el primero. Quien aprueba solo el primer ciclo queda habilitado para el segundo; quien aprueba ambos, para el ciclo siguiente.
 
 ## 6.3. Validar y cerrar el acta final
 

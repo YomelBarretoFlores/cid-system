@@ -8,7 +8,7 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 |---|---|
 | Gestor de base de datos | PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) |
 | Esquema | `public` |
-| Última migración aplicada | `2026_12_04_100000_add_usuario_to_users_table` |
+| Última migración aplicada | `2026_12_05_100200_add_second_cycle_grade_to_cer_notas_finales` |
 
 **Convenciones:**
 
@@ -23,18 +23,18 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 
 | Módulo | Tablas | Columnas |
 |---|---|---|
-| Académico (oferta académica) | 10 | 100 |
+| Académico (oferta académica) | 10 | 106 |
 | Personas | 4 | 44 |
 | Matrícula | 5 | 55 |
 | Pagos | 6 | 64 |
 | Docencia | 12 | 101 |
-| Certificación | 10 | 135 |
+| Certificación | 10 | 137 |
 | Trámites | 9 | 102 |
 | Auditoría | 1 | 10 |
 | Parámetros del sistema | 1 | 16 |
 | Seguridad y control de acceso | 9 | 53 |
 | Infraestructura de la aplicación | 7 | 45 |
-| **Total** | **74** | **725** |
+| **Total** | **74** | **733** |
 
 ## 3. Académico (oferta académica)
 
@@ -43,6 +43,7 @@ erDiagram
     aca_idiomas ||--o{ aca_ciclos : "idioma_id"
     aca_esquemas_evaluacion ||--o{ aca_componentes_evaluacion : "esquema_id"
     aca_idiomas ||--o{ aca_esquemas_evaluacion : "idioma_id"
+    aca_programas ||--o{ aca_esquemas_evaluacion : "programa_id"
     aca_aulas ||--o{ aca_grupos : "aula_id"
     aca_ciclos ||--o{ aca_grupos : "ciclo_hasta_id"
     aca_ciclos ||--o{ aca_grupos : "ciclo_id"
@@ -118,7 +119,7 @@ Plan de estudios de cada idioma: ciclos I a XII con su nivel y horas lectivas.
 
 ### 3.3. `aca_componentes_evaluacion`
 
-Componentes de un sistema de evaluación, cada uno habilidad o examen; cada grupo se promedia con promedio simple.
+Columnas de un sistema de evaluación: las que ingresa el docente y las calculadas a partir de otras columnas.
 
 | N° | Columna | Tipo | Nulo | Por defecto | Descripción |
 |---|---|---|---|---|---|
@@ -129,12 +130,20 @@ Componentes de un sistema de evaluación, cada uno habilidad o examen; cada grup
 | 5 | `orden` | smallint | No |  | Orden de presentación. |
 | 6 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
 | 7 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
-| 8 | `grupo` | varchar(20) | No |  | Grupo del componente: habilidades o examenes; la nota final promedia el promedio de cada grupo. Valores: `habilidades`, `examenes`. |
+| 8 | `tipo` | varchar(10) | No |  | ingresada: la nota la registra el docente; calculada: se obtiene de las columnas de fuentes. Valores: `ingresada`, `calculada`. |
+| 9 | `calculo` | varchar(10) | Sí |  | Solo columnas calculadas: promedio (simple) o ponderado (con el peso de cada fuente). Valores: `promedio`, `ponderado`. |
+| 10 | `redondeo` | varchar(10) | No | `'ninguno'` | ninguno: se muestra con dos decimales y se usa sin redondear; entero: redondeo al entero, 0.5 hacia arriba. Valores: `ninguno`, `entero`. |
+| 11 | `fuentes` | jsonb | No | `'[]'` | Columnas anteriores que usa una columna calculada: lista de {codigo, peso}; el peso solo cuenta en el promedio ponderado. |
+| 12 | `ciclo` | smallint | Sí |  | Si la columna es la nota del ciclo: 1 para el ciclo del grupo, 2 para el segundo ciclo de un grupo acelerado. |
 
 **Llave primaria y restricciones únicas:**
 
 - `aca_componentes_evaluacion_pkey`: `PRIMARY KEY (id)`
 - `aca_componentes_evaluacion_esquema_id_codigo_unique`: `UNIQUE (esquema_id, codigo)`
+
+**Índices únicos parciales:**
+
+- `aca_componentes_evaluacion_ciclo_unique`: `(esquema_id, ciclo) WHERE (ciclo IS NOT NULL)`
 
 **Llaves foráneas:**
 
@@ -142,13 +151,18 @@ Componentes de un sistema de evaluación, cada uno habilidad o examen; cada grup
 
 **Reglas de validación:**
 
-- `aca_componentes_evaluacion_grupo_conocido_check`: `CHECK (((grupo) = ANY ((ARRAY['habilidades', 'examenes']))))`
+- `aca_componentes_evaluacion_calculada_check`: `CHECK (((((tipo) = 'ingresada') AND (calculo IS NULL) AND ((redondeo) = 'ninguno') AND (fuentes = '[]'::jsonb)) OR (((tipo) = 'calculada') AND (calculo IS NOT NULL) AND (jsonb_array_length(fuentes) > 0))))`
+- `aca_componentes_evaluacion_calculo_conocido_check`: `CHECK (((calculo) = ANY ((ARRAY['promedio', 'ponderado']))))`
+- `aca_componentes_evaluacion_ciclo_conocido_check`: `CHECK ((ciclo = ANY (ARRAY[1, 2])))`
+- `aca_componentes_evaluacion_fuentes_lista_check`: `CHECK ((jsonb_typeof(fuentes) = 'array'))`
 - `aca_componentes_evaluacion_orden_check`: `CHECK ((orden > 0))`
+- `aca_componentes_evaluacion_redondeo_conocido_check`: `CHECK (((redondeo) = ANY ((ARRAY['ninguno', 'entero']))))`
+- `aca_componentes_evaluacion_tipo_conocido_check`: `CHECK (((tipo) = ANY ((ARRAY['ingresada', 'calculada']))))`
 
 **Triggers:**
 
 - `aca_componentes_evaluacion_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
-- `aca_componentes_evaluacion_grupos`: AFTER INSERT, DELETE, UPDATE, ejecuta `aca_componentes_grupos()`
+- `aca_componentes_evaluacion_completos`: AFTER INSERT, DELETE, UPDATE, ejecuta `aca_componentes_completos()`
 
 ### 3.4. `aca_esquemas_evaluacion`
 
@@ -166,6 +180,8 @@ Sistemas de evaluación configurables por idioma, nivel y vigencia.
 | 8 | `vigente_hasta` | date | Sí |  | Fin de vigencia; nulo si sigue vigente. |
 | 9 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
 | 10 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
+| 11 | `programa_id` | bigint | Sí |  | Programa al que se aplica el sistema; vacío para todos los programas. Referencia a `aca_programas`. |
+| 12 | `regimen` | varchar(10) | Sí |  | Régimen al que se aplica: regular o acelerado; vacío para ambos. Valores: `regular`, `acelerado`. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -174,17 +190,19 @@ Sistemas de evaluación configurables por idioma, nivel y vigencia.
 **Llaves foráneas:**
 
 - `aca_esquemas_evaluacion_idioma_id_foreign`: `FOREIGN KEY (idioma_id) REFERENCES aca_idiomas(id) ON DELETE RESTRICT`
+- `aca_esquemas_evaluacion_programa_id_fkey`: `FOREIGN KEY (programa_id) REFERENCES aca_programas(id)`
 
 **Reglas de validación:**
 
 - `aca_esquemas_evaluacion_nivel_check`: `CHECK (((nivel) = ANY ((ARRAY['basico', 'intermedio', 'avanzado']))))`
 - `aca_esquemas_evaluacion_notas_check`: `CHECK (((nota_minima_aprobatoria > (0)) AND (nota_minima_aprobatoria <= nota_maxima)))`
+- `aca_esquemas_evaluacion_regimen_conocido_check`: `CHECK (((regimen) = ANY ((ARRAY['regular', 'acelerado']))))`
 - `aca_esquemas_evaluacion_vigencia_check`: `CHECK (((vigente_hasta IS NULL) OR (vigente_hasta >= vigente_desde)))`
 
 **Triggers:**
 
 - `aca_esquemas_evaluacion_auditoria`: AFTER INSERT, DELETE, UPDATE, ejecuta `aud_registrar()`
-- `aca_esquemas_evaluacion_grupos`: AFTER INSERT, ejecuta `aca_esquemas_grupos()`
+- `aca_esquemas_evaluacion_componentes`: AFTER INSERT, ejecuta `aca_esquemas_componentes()`
 
 ### 3.5. `aca_grupos`
 
@@ -1521,7 +1539,7 @@ Actas finales de notas por grupo. Guardan una copia de los datos del grupo y se 
 | 15 | `esquema_nombre` | varchar(120) | No |  | Nombre del sistema de evaluación. |
 | 16 | `nota_maxima` | numeric(4,2) | No |  | Nota máxima de la escala. |
 | 17 | `nota_minima_aprobatoria` | numeric(4,2) | No |  | Nota mínima para aprobar. |
-| 18 | `componentes` | jsonb | No |  | Componentes aplicados con su grupo, habilidades o examenes (JSON). |
+| 18 | `componentes` | jsonb | No |  | Columnas del sistema de evaluación con que se calificó: [{id, codigo, nombre, tipo, calculo, redondeo, fuentes, ciclo}]; las notas ingresadas se guardan por id de columna. |
 | 19 | `validada_por` | bigint | Sí |  | Cuenta que validó y cerró el acta. Referencia a `users`. |
 | 20 | `validada_en` | timestamptz | Sí |  | Fecha y hora del cierre. |
 | 21 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
@@ -1811,6 +1829,8 @@ Nota final de cada estudiante en un acta.
 | 9 | `estado_final` | varchar(255) | No |  | Resultado: aprobado, desaprobado o NSP (no se presentó). Valores: `aprobado`, `desaprobado`, `nsp`. |
 | 10 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación del registro. |
 | 11 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación del registro. |
+| 12 | `promedio_hasta` | numeric(4,2) | Sí |  | Nota del segundo ciclo de un grupo acelerado; vacía si es NSP o el acta no es acelerada. |
+| 13 | `estado_final_hasta` | varchar(12) | Sí |  | Estado final del segundo ciclo de un grupo acelerado; vacío si el acta no es acelerada. Valores: `aprobado`, `desaprobado`, `nsp`. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -1826,7 +1846,9 @@ Nota final de cada estudiante en un acta.
 **Reglas de validación:**
 
 - `cer_notas_finales_estado_final_check`: `CHECK (((estado_final) = ANY ((ARRAY['aprobado', 'desaprobado', 'nsp']))))`
+- `cer_notas_finales_estado_hasta_conocido_check`: `CHECK (((estado_final_hasta) = ANY ((ARRAY['aprobado', 'desaprobado', 'nsp']))))`
 - `cer_notas_finales_promedio_check`: `CHECK (((((estado_final) = 'nsp') = (promedio IS NULL)) AND ((promedio IS NULL) OR (promedio >= (0)))))`
+- `cer_notas_finales_promedio_hasta_check`: `CHECK ((((estado_final_hasta IS NULL) AND (promedio_hasta IS NULL)) OR ((estado_final_hasta IS NOT NULL) AND (((estado_final_hasta) = 'nsp') = (promedio_hasta IS NULL)) AND ((promedio_hasta IS NULL) OR (promedio_hasta >= (0))))))`
 
 **Triggers:**
 
@@ -2668,9 +2690,9 @@ Funciones de PostgreSQL que ejecutan los triggers descritos en cada tabla. `aud_
 
 | Función | Tablas que la usan |
 |---|---|
-| `aca_componentes_grupos()` | `aca_componentes_evaluacion` |
+| `aca_componentes_completos()` | `aca_componentes_evaluacion` |
 | `aca_controlar_ciclo_hasta()` | `aca_grupos` |
-| `aca_esquemas_grupos()` | `aca_esquemas_evaluacion` |
+| `aca_esquemas_componentes()` | `aca_esquemas_evaluacion` |
 | `aca_grupos_aula_libre()` | `aca_grupos` |
 | `aca_horarios_aula_libre()` | `aca_horarios` |
 | `aca_periodos_aula_libre()` | `aca_periodos` |

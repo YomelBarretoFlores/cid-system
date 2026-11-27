@@ -21,9 +21,8 @@ final class EsquemasDeEvaluacionTable
     private static function resumen(array $columnas): string
     {
         $ingresadas = count(array_filter($columnas, fn (ComponenteEvaluacion $columna): bool => $columna->tipo === TipoDeComponente::Ingresada));
-        $ciclos = array_map(fn (ComponenteEvaluacion $columna): string => $columna->nombre, array_filter($columnas, fn (ComponenteEvaluacion $columna): bool => $columna->ciclo !== null));
 
-        return "{$ingresadas} del docente, ".(count($columnas) - $ingresadas).' calculadas · nota del ciclo: '.implode(' y ', $ciclos);
+        return "{$ingresadas} del docente, ".(count($columnas) - $ingresadas).' calculadas';
     }
 
     public static function configure(Table $table): Table
