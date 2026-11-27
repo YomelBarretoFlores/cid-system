@@ -105,6 +105,22 @@ it('changes the password at the office and closes the open sessions of the teach
         ->and($cuenta->tokens()->count())->toBe(0);
 });
 
+it('never sets the password of a staff account that also teaches', function (): void {
+    $personal = User::factory()->create(['email' => 'personal@correo.test'])->givePermissionTo(User::ADMIN_PANEL_PERMISSION);
+    $docente = docenteSinCuenta(['user_id' => $personal->id]);
+    $clave = $personal->password;
+
+    cuentasDeDocentes($this->gestor)
+        ->callAction(TestAction::make('crearCuenta')->table($docente), data: ['contrasena' => 'docente2027', 'contrasena_confirmation' => 'docente2027'])
+        ->assertNotified('Es una cuenta del personal: gestiónala desde Usuarios del personal.');
+    cuentasDeDocentes($this->gestor)
+        ->callAction(TestAction::make('cambiarContrasena')->table($docente), data: ['contrasena' => 'docente2027', 'contrasena_confirmation' => 'docente2027'])
+        ->assertNotified('Es una cuenta del personal: gestiónala desde Usuarios del personal.');
+
+    expect($personal->fresh()?->password)->toBe($clave)
+        ->and($personal->fresh()?->usuario)->toBeNull();
+});
+
 it('lists each teacher with the username and the state of the account', function (): void {
     $conCuenta = docenteSinCuenta(['user_id' => User::factory()->create(['usuario' => '41234567'])->id]);
     $sinCuenta = Docente::factory()->create();

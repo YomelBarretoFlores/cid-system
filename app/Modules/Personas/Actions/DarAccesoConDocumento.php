@@ -8,6 +8,7 @@ use App\Modules\Personas\Contracts\AccesoConDocumento;
 use App\Modules\Personas\Data\CuentaDelPortal;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
+use App\Shared\Auth\Support\CuentaSoloDelPortal;
 use App\Shared\Support\Database\Transaccion;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use Illuminate\Support\Str;
@@ -21,7 +22,7 @@ final readonly class DarAccesoConDocumento implements AccesoConDocumento
         return Transaccion::ejecutar(function () use ($personaId, $contrasena): CuentaDelPortal {
             $persona = Persona::query()->whereKey($personaId)->lockForUpdate()->firstOrFail();
             $usuario = (string) User::normalizarUsuario($persona->numero_documento);
-            $cuenta = $persona->user_id === null ? null : User::query()->whereKey($persona->user_id)->lockForUpdate()->first();
+            $cuenta = $persona->user_id === null ? null : CuentaSoloDelPortal::bloquear($persona->user_id);
 
             throw_if(
                 User::query()->where('usuario', $usuario)->when($cuenta, fn ($consulta) => $consulta->whereKeyNot($cuenta?->id))->exists(),
