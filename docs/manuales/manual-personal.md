@@ -18,6 +18,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.5 | 27/11/2026 | Matricular en ventanilla, con un pago validado o con un pago anterior al sistema, y el interruptor que permite estos pagos | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.6 | 27/11/2026 | Web pública administrable: foto de portada, títulos, textos, botones, secciones visibles, pie de página y enlaces; vista previa y atajos «Editar» | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.7 | 27/11/2026 | Sistemas de evaluación configurables: columnas que ingresa el docente y calculadas (promedio simple o ponderado, redondeo), nota del ciclo y del segundo ciclo en el acelerado, por programa y régimen | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.8 | 27/11/2026 | Tareas en una sola pantalla: ficha de la persona con sus matrículas, pagos, documentos y trámites; nuevo docente con su persona y su cuenta; matrícula en ventanilla con registro de la persona; grupo con horario y docente; búsqueda de docentes por nombre o documento | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -42,7 +43,7 @@ La Tabla 1 resume los perfiles habituales del CILN y los permisos que cada uno n
 | Coordinación académica | Prepara periodos, idiomas, ciclos, aulas y grupos; registra a los docentes y gestiona sus cargas, las matrículas y las clasificaciones. | Ver personas · Gestionar personas · Ver la oferta académica · Gestionar la oferta académica · Ver docentes y carga académica · Gestionar docentes y carga académica · Gestionar costos por hora · Ver reportes de docencia · Ver matrículas · Gestionar matrículas, traslados y retiros · Ver solicitudes de examen de clasificación · Registrar resultados de clasificación |
 | Certificación | Revisa actas finales, autoriza rectificaciones y emite constancias y certificados. | Gestionar actas · Emitir y anular constancias y certificados |
 | Trámites | Atiende las solicitudes de trámite de los estudiantes. | Atender trámites |
-| Dirección (tablero) | Consulta indicadores y reportes gerenciales. | Ver el tablero gerencial (opcional, según los reportes que consulte: Ver reportes de pagos, Ver reportes de docencia, Ver matrículas; ver la Tabla 15) |
+| Dirección (tablero) | Consulta indicadores y reportes gerenciales. | Ver el tablero gerencial (opcional, según los reportes que consulte: Ver reportes de pagos, Ver reportes de docencia, Ver matrículas; ver la Tabla 16) |
 
 El permiso «Ingresar al panel» se concede automáticamente a toda cuenta del personal, por lo que no figura en los formularios.
 
@@ -125,7 +126,7 @@ Resultado esperado: la contraseña queda actualizada. El nombre y el correo de l
 
 ## 2.5. Búsqueda
 
-El campo **Buscar** de la parte superior del menú (atajo ⌘+K o Ctrl+K) permite ubicar registros por su nombre o código sin recorrer el menú. Además, cada listado tiene su propio campo **Buscar** y un botón de filtros que muestra entre paréntesis cuántos filtros están activos.
+El campo **Buscar** de la parte superior del menú (atajo ⌘+K o Ctrl+K) permite ubicar registros por su nombre o código sin recorrer el menú. Las personas y los docentes se encuentran por apellidos y nombres o por número de documento; los docentes, también por su código (DOC-…). Además, cada listado tiene su propio campo **Buscar** y un botón de filtros que muestra entre paréntesis cuántos filtros están activos.
 
 ## 2.6. Cerrar sesión
 
@@ -403,10 +404,12 @@ Resultado esperado: el estado del periodo se actualiza en el listado.
 Finalidad: crear los grupos de cada ciclo y registrar sus horarios.
 
 1. Ingrese a **Oferta académica > Grupos** y pulse **Nuevo grupo**.
-2. Elija el **Periodo** y el **Idioma y ciclo** (no cambian después de crear el grupo).
+2. En **Grupo**, elija el **Periodo** y el **Idioma y ciclo** (no cambian después de crear el grupo).
 3. Elija el **Programa** (se propone el programa por defecto, sección 4.5) y complete **Código de grupo**, **Modalidad** (del catálogo de modalidades, sección 3.6), **Acelerado** si corresponde, **Aula** y/o **Enlace de la clase virtual** según la modalidad, **Cupo máximo** y **Cupo mínimo de apertura**.
-4. Guarde y, en la sección **Horarios** del grupo, pulse **Agregar horario** para cada día, con su **Día**, **Desde** y **Hasta**.
-5. Para conducir el grupo, use el menú **Estado** de su tarjeta en el listado (o de la cabecera de la página de edición) con las opciones **Abrir**, **Cerrar**, **Reabrir**, **Finalizar** o **Cancelar grupo**, que piden confirmación. Para abrir un grupo, este debe tener horario y docente asignado, y su periodo debe estar **Planificado** o en **Matrícula abierta**. Si al cerrarlo no alcanza el cupo mínimo, el sistema pregunta si desea iniciarlo de todas formas. No se puede finalizar mientras la matrícula del periodo esté abierta.
+4. En **Horario**, pulse **Agregar día de clase** por cada día, con su **Día**, **Desde** y **Hasta**.
+5. En **Docente** (visible con el permiso «Gestionar docencia»), elija al docente o déjelo **Por asignar**. Solo aparecen los docentes activos habilitados para el idioma hasta el nivel del ciclo; el horario debe estar dentro de su disponibilidad (sección 5.2).
+6. Pulse **Crear**. El grupo, su horario y su docente se guardan juntos: si el docente no puede tomar el grupo (por ejemplo, una sesión fuera de su disponibilidad), el sistema muestra el motivo y no guarda nada. Se abre la ficha del grupo, que muestra al **Docente**; desde ella, **Asignar docente** o **Cambiar docente** lo asigna o reemplaza con las mismas reglas, y la sección **Horarios** permite agregar, editar o quitar días.
+7. Para conducir el grupo, use el menú **Estado** de su tarjeta en el listado (o de la cabecera de la página de edición) con las opciones **Abrir**, **Cerrar**, **Reabrir**, **Finalizar** o **Cancelar grupo**, que piden confirmación. Para abrir un grupo, este debe tener horario y docente asignado, y su periodo debe estar **Planificado** o en **Matrícula abierta**. Si al cerrarlo no alcanza el cupo mínimo, el sistema pregunta si desea iniciarlo de todas formas. No se puede finalizar mientras la matrícula del periodo esté abierta.
 
 *Tabla 9. Estados del grupo*
 
@@ -457,16 +460,18 @@ Resultado esperado: el programa puede elegirse al crear un grupo. Un programa de
 
 ## 5.1. Docentes
 
-Finalidad: registrar a los docentes y su perfil académico.
+Finalidad: registrar a un docente, con su persona y su cuenta, en una sola pantalla.
 
-1. Registre antes a la persona en **Matrícula > Personas** (sección 6.1), con su documento de identidad. El correo personal es opcional: la cuenta del docente se crea después en **Seguridad > Cuentas de docentes** (sección 11.2), con su DNI como usuario.
-2. Ingrese a **Docencia > Docentes** y pulse **Crear docente**.
-3. En **Persona**, busque por documento o por apellidos y nombres.
-4. En la sección **Docente**, complete **Correo institucional**, **Condición laboral** (obligatoria) y **Grado académico**; en **Datos para el expediente**, **RUC**, **Banco** (del catálogo de bancos, sección 3.6) y **Número de cuenta**.
-5. En **Perfil académico**, agregue cada **Idioma** habilitado para dictar con su **Nivel máximo autorizado**.
-6. Guarde. Para cambiar la situación de un docente, use **Cambiar estado** en su vista y elija el **Nuevo estado**: **Activo**, **Inactivo** o **De licencia**. Un docente con grupos a cargo no puede pasar a Inactivo ni a De licencia hasta que se reasignen sus grupos.
+1. Ingrese a **Docencia > Docentes** y pulse **Crear docente**. También puede pulsar **Registrar como docente** en la ficha de la persona (sección 6.1), que abre este formulario con la persona ya elegida.
+2. En **Persona**, elija el **Tipo de documento** y escriba el **Número de documento**. Si la persona ya está registrada, el sistema muestra su nombre («Ya está registrada: se usarán sus datos»). Si no lo está, complete allí mismo sus apellidos, nombres, datos de contacto, **Tipo de vínculo** y, si firmó su autorización, el consentimiento de datos personales; esto requiere el permiso «Gestionar personas».
+3. En la sección **Docente**, complete **Correo institucional**, **Condición laboral** (obligatoria) y **Grado académico**; en **Datos para el expediente**, **RUC**, **Banco** (del catálogo de bancos, sección 3.6) y **Número de cuenta**.
+4. En **Perfil académico**, agregue cada **Idioma** habilitado para dictar con su **Nivel máximo autorizado**.
+5. En **Cuenta de acceso**, active **Crear ahora su cuenta de acceso** y escriba la **Contraseña** dos veces si desea entregarle la cuenta en el momento; su usuario será su número de documento. Puede crearla después desde su ficha.
+6. Pulse **Crear**. La persona, el docente y la cuenta se guardan juntos: si algo no procede (por ejemplo, un RUC ya registrado), no se guarda nada. El sistema muestra «Docente registrado» y, si creó la cuenta, el usuario.
 
-Resultado esperado: el docente aparece en el listado con su código (DOC-…) y puede recibir grupos. El número de cuenta se muestra enmascarado.
+Para cambiar la situación de un docente, use **Más acciones > Cambiar estado** en su ficha y elija **Activo**, **Inactivo** o **De licencia**. Un docente con grupos a cargo no puede pasar a Inactivo ni a De licencia hasta que se reasignen sus grupos.
+
+Resultado esperado: la ficha del docente lleva su nombre como título, con su código (DOC-…) y documento debajo, y muestra la sección **Cuenta de acceso** (usuario, estado y correo). Desde la cabecera se usan **Crear cuenta** o, en **Más acciones**, **Cambiar contraseña**, **Reactivar la cuenta** y **Dar de baja la cuenta** (sección 11.2). El número de cuenta bancaria se muestra enmascarado.
 
 ![Figura 12. Vista de un docente](figuras/p12-docente.png)
 
@@ -478,6 +483,8 @@ Resultado esperado: el docente aparece en el listado con su código (DOC-…) y 
 Resultado esperado: la disponibilidad queda registrada como referencia para asignar grupos.
 
 ## 5.3. Asignar grupo (carga académica)
+
+También puede asignar el docente desde la ficha del grupo (sección 4.4).
 
 1. En la vista del docente, abra la pestaña **Carga académica**. La cabecera muestra el total de horas asignadas por periodo.
 2. Pulse **Asignar grupo**, elija el **Grupo** y pulse **Enviar**.
@@ -533,7 +540,21 @@ Finalidad: registrar a un estudiante, docente o tercero antes de registrar su pa
 5. Si la persona firmó su autorización para el tratamiento de sus datos personales (Ley N.° 29733), marque **La persona aceptó el tratamiento de sus datos personales**. El sistema guarda la fecha y hora del consentimiento; si no lo marca, la ficha muestra "Sin consentimiento registrado" y puede registrarlo más adelante con **Editar**. Una vez registrado, el consentimiento no se borra al editar la ficha.
 6. Pulse **Crear**.
 
-Resultado esperado: la persona queda registrada. Si el documento ya existe, el sistema lo informa y no crea un duplicado.
+Resultado esperado: la persona queda registrada. Si el documento ya existe, el sistema lo informa y no crea un duplicado. Para un docente o un estudiante nuevo no hace falta este paso: **Crear docente** (sección 5.1) y **Matricular en ventanilla** (sección 7.2) registran a la persona en el mismo formulario.
+
+**Ficha de la persona.** Al abrir a una persona, la ficha lleva su nombre como título y reúne en pestañas lo que el sistema sabe de ella, según los permisos de su cuenta:
+
+*Tabla 11. Pestañas de la ficha de la persona*
+
+| Pestaña | Contenido | Permiso |
+|---|---|---|
+| Datos personales | Documento, nombres, contacto, consentimiento, fotografía | Ver personas |
+| Matrículas | Grupo, ciclo, condición, estado y fecha de cada matrícula | Ver matrícula |
+| Pagos | Concepto, operación, medio, monto, fecha y estado | Ver pagos |
+| Documentos | Constancias y certificados emitidos | Gestionar documentos |
+| Trámites | Trámites iniciados, con su etapa y estado | Gestionar trámites |
+
+Cada fila abre su registro. En la cabecera, los atajos **Matricular** (abre la matrícula en ventanilla con la persona elegida), **Registrar pago** (abre el registro de pago con la persona como pagador), **Registrar como docente** o **Ver ficha de docente**, **Editar** y el menú **Cuenta del portal**.
 
 ![Figura 17. Registrar persona](figuras/p17-registrar-persona.png)
 
@@ -589,7 +610,7 @@ Solo la cuenta con el permiso «Anular pagos» (administración) ve este botón.
 
 Resultado esperado: el pago pasa a **Anulado**. Los pagos nunca se eliminan: el registro se conserva con el motivo, el usuario y la fecha de anulación.
 
-*Tabla 11. Estados del pago*
+*Tabla 12. Estados del pago*
 
 | Estado | Significado |
 |---|---|
@@ -615,7 +636,7 @@ Resultado esperado: se descarga el reporte con los pagos validados del rango ele
 
 Resumen: cualquier persona crea su cuenta en la web sin verificar el correo, pero queda **no habilitada** hasta que caja valida su primer pago. Quien ya figura en el CILN no puede registrarse en la web: el personal le crea la cuenta en la oficina.
 
-*Tabla 12. Origen y estado de las cuentas del portal*
+*Tabla 13. Origen y estado de las cuentas del portal*
 
 | Caso | Cómo se crea | Estado inicial | Qué ve en el portal |
 |---|---|---|---|
@@ -668,14 +689,14 @@ Para corregir un resultado ya registrado, use **Corregir resultado** en la solic
 Finalidad: matricular a un estudiante desde el panel, por ejemplo para cargar el ciclo que ya está en curso. Requiere el permiso «Gestionar matrícula». El estudiante también puede matricularse desde su portal.
 
 1. Si el estudiante cursa un ciclo mayor al primero, ajuste antes su ciclo en **Matrícula > Ciclos habilitados** (sección 7.5).
-2. Ingrese a **Matrícula > Matrículas** y pulse **Matricular en ventanilla**.
-3. Elija el **Estudiante** y el **Grupo** (grupos con matrícula abierta del ciclo para el que está habilitado).
+2. Ingrese a **Matrícula > Matrículas** y pulse **Matricular en ventanilla**, o pulse **Matricular** en la ficha de la persona (sección 6.1).
+3. En **Estudiante**, escriba su documento de identidad. Si está registrado, el sistema muestra su nombre; si no, complete sus datos allí mismo (requiere el permiso «Gestionar personas»). En **Matrícula**, elija el **Grupo** (grupos con matrícula abierta del ciclo para el que está habilitado; a un estudiante nuevo se le ofrecen los grupos de inicio).
 4. En **Pago**, elija una opción:
-   - **Pago validado del estudiante**: elija uno de sus pagos de matrícula ya validados por caja que aún no se usaron. Es el camino normal.
+   - **Pago validado del estudiante**: elija uno de sus pagos de matrícula ya validados por caja que aún no se usaron. Es el camino normal. Si no tiene ninguno, el sistema lo indica («Sin pagos de matrícula validados»): registre antes su pago en **Pagos** y, cuando otra persona lo valide, vuelva a matricularlo.
    - **Pago anterior al sistema**: para un pago que el estudiante hizo antes de usar el sistema. Complete **Concepto TUPA/TUSNE**, **Medio de pago**, **N.° de recibo u operación**, **Fecha de pago**, el monto y el **Motivo** (por ejemplo, «Pago de noviembre de 2026, anterior al sistema»). El **Recibo escaneado** es opcional. Esta opción solo aparece si **Permitir pagos anteriores al sistema** está activado y su cuenta tiene además el permiso «Registrar pagos».
-5. Pulse **Enviar**.
+5. Pulse **Matricular**.
 
-Resultado esperado: se muestra «Matrícula registrada». Con un pago anterior al sistema, el pago queda registrado como validado por usted, con el motivo, y la cuenta del portal del estudiante queda habilitada. Si la matrícula no procede (grupo sin vacantes, ciclo no habilitado o matrícula repetida), el sistema muestra el motivo y no registra el pago.
+Resultado esperado: se muestra «Matrícula registrada». Con un pago anterior al sistema, el pago queda registrado como validado por usted, con el motivo, y la cuenta del portal del estudiante queda habilitada. Si la matrícula no procede (grupo sin vacantes, ciclo no habilitado o matrícula repetida), el sistema muestra el motivo y no registra el pago ni, si era nueva, a la persona.
 
 ## 7.3. Matrículas: ficha
 
@@ -791,7 +812,7 @@ En **Trámites > Trámites** se listan los trámites con su **Código** de segui
 4. **Levantar la observación**: el trámite continúa desde su etapa actual; si la tasa sigue sin pagar, vuelve a esperar el pago.
 5. **Cerrar sin atender**: escriba el **Motivo del cierre**; no se ejecuta la acción final y el trámite no se elimina.
 
-*Tabla 13. Estados del trámite*
+*Tabla 14. Estados del trámite*
 
 | Estado | Significado |
 |---|---|
@@ -803,7 +824,7 @@ En **Trámites > Trámites** se listan los trámites con su **Código** de segui
 
 Resultado esperado: cada acción queda en el **Historial** con fecha, estado, etapa, comentario y usuario.
 
-*Tabla 14. Qué pide **Finalizar** según el trámite*
+*Tabla 15. Qué pide **Finalizar** según el trámite*
 
 | Trámite (código) | Al finalizar | Efecto |
 |---|---|---|
@@ -842,7 +863,7 @@ Resultado esperado: los indicadores se recalculan con los filtros y el archivo d
 
 Todos los reportes están en **Administración > Reportes**, cada uno en su pestaña: **Matriculados**, **Reporte de recaudación** (sección 6.6), **Asistencia por grupo**, **Notas por periodo** y **Carga docente**. Solo se muestran las pestañas que la cuenta puede ver. Salvo el reporte de recaudación, que tiene sus propios filtros, comparten los filtros **Periodo académico**, **Idioma**, **Nivel** y **Grupo**, y los botones **Exportar PDF** y **Excel**. Cada reporte requiere su propio permiso. El reporte **Matriculados** tiene dos pestañas: **Resumen por grupo** y **Detalle de matriculados**.
 
-*Tabla 15. Reportes del panel*
+*Tabla 16. Reportes del panel*
 
 | Reporte | Contenido | Permiso |
 |---|---|---|
@@ -885,11 +906,13 @@ Sobre una cuenta existente están disponibles:
 
 Finalidad: dar a cada docente su usuario y contraseña, cambiar la contraseña cuando la olvida y dar de baja su cuenta. El usuario del docente es su número de documento (DNI); no necesita correo. Requiere el permiso «Gestionar docencia».
 
+Las mismas acciones están en la ficha de cada docente (sección 5.1), y la cuenta también puede crearse al registrar al docente.
+
 1. Ingrese a **Seguridad > Cuentas de docentes**. El listado muestra a cada docente con su **Usuario**, el estado de su **Cuenta** (**Activa**, **Dada de baja** o **Sin cuenta**) y el **Correo de la cuenta**, si tiene.
 2. Verifique en persona el documento de identidad del docente.
 3. Según el caso, pulse sobre el docente:
 
-*Tabla 16. Acciones sobre la cuenta de un docente*
+*Tabla 17. Acciones sobre la cuenta de un docente*
 
 | Acción | Cuándo aparece | Qué hace |
 |---|---|---|
@@ -917,7 +940,7 @@ Resultado esperado: todas las cuentas con el rol reciben sus permisos. Solo se p
 
 # 12. PREGUNTAS FRECUENTES
 
-*Tabla 17. Preguntas frecuentes*
+*Tabla 18. Preguntas frecuentes*
 
 | Pregunta | Respuesta |
 |---|---|
