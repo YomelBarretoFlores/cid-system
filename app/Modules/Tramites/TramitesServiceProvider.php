@@ -44,6 +44,7 @@ final class TramitesServiceProvider extends ModuleServiceProvider
     #[\Override]
     public function register(): void
     {
+        parent::register();
         $this->app->scoped(MarcoDelSitio::class);
     }
 
