@@ -75,7 +75,7 @@ Solo acepta etiquetas publicadas en `main`. El script hace lo siguiente:
 | Comprobar | Servidor | La carpeta existe y se puede escribir, hay `.env` y `rsync`, y la versión de PHP alcanza |
 | Respaldar | Servidor | Copia del código actual (con su `.env` y `vendor`, sin `storage`) y de la base de datos en `~/respaldos-ciln`. Conserva las `CILN_RESPALDOS_A_CONSERVAR` copias de código más recientes y borra las anteriores; los respaldos de la base siguen la limpieza de respaldos de la aplicación |
 | Subir | Servidor | Modo mantenimiento y `rsync` del paquete. Nunca toca `.env`, `storage` ni el enlace `public/storage` |
-| Terminar | Servidor | `package:discover`, `config:clear`, `migrate --force`, `optimize`, `filament:optimize`, `queue:restart`, fin del mantenimiento |
+| Terminar | Servidor | `package:discover`, `filament:upgrade` (vuelve a publicar los archivos del panel), `config:clear`, `migrate --force`, `optimize`, `filament:optimize`, `queue:restart`, fin del mantenimiento |
 
 Si algo falla, el script informa en qué estado quedó el sitio y con qué marca (fecha y hora) se guardó el respaldo de esa pasada:
 

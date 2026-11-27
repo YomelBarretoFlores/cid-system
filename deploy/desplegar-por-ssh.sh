@@ -39,7 +39,7 @@ registrar "armando $VERSION"
 git archive "$VERSION" | tar -x -C "$PAQUETE"
 (
     cd "$PAQUETE"
-    # Scripts run on the server (package:discover), where the real .env lives.
+    # Scripts run on the server (package:discover, filament:upgrade), where the real .env lives.
     composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --quiet
     npm ci --silent
     npm run build --silent
@@ -159,6 +159,8 @@ set -uo pipefail
 ruta="$1"; migraciones="$2"
 cd "$ruta" || exit 2
 php artisan package:discover --ansi >/dev/null || exit 2
+# Composer's post-autoload-dump runs here too: the package skips scripts, and rsync removes the published panel assets it does not carry.
+php artisan filament:upgrade >/dev/null || exit 2
 php artisan config:clear >/dev/null || exit 2
 if [[ -n "$migraciones" ]]; then
     ( set -a; source "$migraciones"; set +a; php artisan migrate --force ) || exit 3
