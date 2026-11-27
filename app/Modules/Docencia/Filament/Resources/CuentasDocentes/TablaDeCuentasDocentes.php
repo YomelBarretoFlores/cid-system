@@ -6,6 +6,8 @@ namespace App\Modules\Docencia\Filament\Resources\CuentasDocentes;
 
 use App\Modules\Docencia\Actions\CambiarContrasenaDelDocente;
 use App\Modules\Docencia\Actions\DarAccesoAlDocente;
+use App\Modules\Docencia\Actions\DarDeBajaCuentaDelDocente;
+use App\Modules\Docencia\Actions\ReactivarCuentaDelDocente;
 use App\Modules\Docencia\Filament\Resources\CuentasDocentes\Pages\ListCuentasDocentes;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Support\ContrasenaDeOficina;
@@ -13,6 +15,7 @@ use App\Modules\Personas\Contracts\SubconsultaDePersonas;
 use App\Modules\Personas\Data\CuentaDelPortal;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Support\Filament\MotivoDeBaja;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -45,6 +48,8 @@ final class TablaDeCuentasDocentes
             ->recordActions([
                 self::darAcceso(),
                 self::cambiarContrasena(),
+                self::darDeBaja(),
+                self::reactivar(),
             ]);
     }
 
@@ -109,5 +114,43 @@ final class TablaDeCuentasDocentes
                 fn ($usuario) => app(CambiarContrasenaDelDocente::class)($record->id, (string) $data['contrasena'], $usuario),
                 'Contraseña cambiada',
             ));
+    }
+
+    private static function darDeBaja(): Action
+    {
+        return Action::make('darDeBaja')
+            ->label('Dar de baja')
+            ->icon(Heroicon::OutlinedNoSymbol)
+            ->color('danger')
+            ->visible(fn (Docente $record, ListCuentasDocentes $livewire): bool => $livewire->cuentaDe($record)?->desactivada === false)
+            ->modalDescription('El docente ya no podrá ingresar. No se borra nada y se puede reactivar después.')
+            ->schema([MotivoDeBaja::campo()])
+            ->action(function (Action $action, Docente $record, ListCuentasDocentes $livewire, array $data): void {
+                AccionDeNegocio::ejecutar(
+                    $action,
+                    fn ($usuario) => app(DarDeBajaCuentaDelDocente::class)($record->id, (string) $data['motivo'], $usuario),
+                    'Cuenta dada de baja',
+                );
+                $livewire->olvidarCuentas();
+            });
+    }
+
+    private static function reactivar(): Action
+    {
+        return Action::make('reactivar')
+            ->label('Reactivar')
+            ->icon(Heroicon::OutlinedArrowPath)
+            ->color('gray')
+            ->visible(fn (Docente $record, ListCuentasDocentes $livewire): bool => $livewire->cuentaDe($record)?->desactivada === true)
+            ->requiresConfirmation()
+            ->modalDescription('El docente podrá volver a ingresar con su usuario y su contraseña.')
+            ->action(function (Action $action, Docente $record, ListCuentasDocentes $livewire): void {
+                AccionDeNegocio::ejecutar(
+                    $action,
+                    fn ($usuario) => app(ReactivarCuentaDelDocente::class)($record->id, $usuario),
+                    'Cuenta reactivada',
+                );
+                $livewire->olvidarCuentas();
+            });
     }
 }

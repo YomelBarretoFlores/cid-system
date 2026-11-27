@@ -66,7 +66,8 @@ final class UsuarioResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return User::query()
-            ->where(fn (Builder $consulta): Builder => $consulta->permission(User::ADMIN_PANEL_PERMISSION)->orWhereNotNull('desactivado_en'))
+            // A deactivated staff account keeps its roles or permissions; a deactivated portal account has none and stays out of this list.
+            ->where(fn (Builder $consulta): Builder => $consulta->permission(User::ADMIN_PANEL_PERMISSION)->orWhere(fn (Builder $baja): Builder => $baja->whereNotNull('desactivado_en')->where(fn (Builder $deStaff): Builder => $deStaff->whereHas('roles')->orWhereHas('permissions'))))
             ->with('roles');
     }
 

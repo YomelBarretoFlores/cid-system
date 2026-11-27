@@ -106,13 +106,14 @@ it('lists staff and deactivated accounts with their roles, state and second fact
     $caja = cuentaDelPersonal()->assignRole(Role::create(['name' => 'Caja', 'guard_name' => 'web']));
     $caja->saveAppAuthenticationSecret(app(AppAuthentication::class)->generateSecret());
     $porRol = User::factory()->create()->assignRole(Role::create(['name' => 'Panel', 'guard_name' => 'web'])->givePermissionTo(User::ADMIN_PANEL_PERMISSION));
-    $desactivada = User::factory()->create(['desactivado_en' => now()]);
+    $desactivada = User::factory()->create(['desactivado_en' => now()])->givePermissionTo(PermisoPago::Ver->value);
     $estudiante = User::factory()->create();
+    $estudianteDeBaja = User::factory()->create(['desactivado_en' => now()]);
     $this->actingAs($this->gestor);
 
     Livewire::test(ListUsuarios::class)
         ->assertCanSeeTableRecords([$this->gestor, $caja, $porRol, $desactivada])
-        ->assertCanNotSeeTableRecords([$estudiante])
+        ->assertCanNotSeeTableRecords([$estudiante, $estudianteDeBaja])
         ->assertTableColumnStateSet('roles.name', ['Caja'], $caja)
         ->assertTableColumnStateSet('estado', 'Desactivado', $desactivada)
         ->assertTableColumnStateSet('estado', 'Activo', $caja)

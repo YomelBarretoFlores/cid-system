@@ -15,7 +15,7 @@ final class CuentaSoloDelPortal
         $usuario = User::query()->whereKey($usuarioId)->lockForUpdate()->firstOrFail();
 
         throw_if(
-            $usuario->roles()->exists() || $usuario->can(User::ADMIN_PANEL_PERMISSION),
+            $usuario->roles()->exists() || $usuario->permissions()->exists(),
             ReglaDeNegocioIncumplida::class,
             'Es una cuenta del personal: gestiónala desde Usuarios del personal.',
         );
