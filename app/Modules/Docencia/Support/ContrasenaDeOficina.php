@@ -15,13 +15,21 @@ final class ContrasenaDeOficina
      */
     public static function reglas(): array
     {
-        return ['required', 'string', 'max:255', 'confirmed', Password::defaults()];
+        return [...self::reglasDeLaContrasena(), 'confirmed'];
     }
 
     public static function validar(string $contrasena): void
     {
-        $validacion = Validator::make(['contrasena' => $contrasena], ['contrasena' => ['required', 'string', 'max:255', Password::defaults()]]);
+        $validacion = Validator::make(['contrasena' => $contrasena], ['contrasena' => self::reglasDeLaContrasena()]);
 
         throw_if($validacion->fails(), ReglaDeNegocioIncumplida::class, 'La contraseña debe tener al menos 8 caracteres, con letras y números.');
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private static function reglasDeLaContrasena(): array
+    {
+        return ['required', 'string', 'max:255', Password::defaults()];
     }
 }

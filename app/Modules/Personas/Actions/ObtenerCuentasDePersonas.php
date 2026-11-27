@@ -13,19 +13,19 @@ final readonly class ObtenerCuentasDePersonas implements CuentasDePersonas
 {
     public function __invoke(array $personaIds): array
     {
-        $personas = Persona::query()->whereKey($personaIds)->whereNotNull('user_id')->pluck('user_id', 'id');
-        $cuentas = User::query()->whereKey($personas->values()->all())->get(['id', 'usuario', 'email', 'desactivado_en'])->keyBy('id');
+        $resultado = [];
 
-        return $personas
-            ->filter(fn (int $usuarioId): bool => $cuentas->has($usuarioId))
-            ->map(fn (int $usuarioId, int $personaId): CuentaDelPortal => ObtenerCuentasDePersonas::cuenta($personaId, $cuentas->get($usuarioId)))
-            ->all();
+        foreach (Persona::query()->whereKey($personaIds)->whereNotNull('user_id')->with('user:id,usuario,email,desactivado_en')->get() as $persona) {
+            if ($persona->user instanceof User) {
+                $resultado[$persona->id] = self::cuenta($persona->id, $persona->user);
+            }
+        }
+
+        return $resultado;
     }
 
-    public static function cuenta(int $personaId, ?User $usuario): CuentaDelPortal
+    public static function cuenta(int $personaId, User $usuario): CuentaDelPortal
     {
-        $usuario ??= new User;
-
-        return new CuentaDelPortal($personaId, (int) $usuario->id, $usuario->usuario, $usuario->email, $usuario->desactivado_en !== null);
+        return new CuentaDelPortal($personaId, $usuario->id, $usuario->usuario, $usuario->email, $usuario->desactivado_en !== null);
     }
 }
