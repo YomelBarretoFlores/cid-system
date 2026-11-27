@@ -33,6 +33,7 @@ final readonly class FichaDeGrupo
         public ?string $aulaCodigo,
         public string $programa,
         public ?int $cicloNumeroHasta = null,
+        public string $curriculo = '01',
     ) {}
 
     public static function desde(Grupo $grupo): self
@@ -56,6 +57,7 @@ final readonly class FichaDeGrupo
             programa: $grupo->programa->nombre,
             // The aca_grupos_ciclo_hasta trigger keeps the second cycle of an accelerated group as the next one.
             cicloNumeroHasta: $grupo->es_acelerado ? $grupo->ciclo->numero + 1 : null,
+            curriculo: $grupo->ciclo->idioma->curriculo,
         );
     }
 

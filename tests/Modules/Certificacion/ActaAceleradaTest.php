@@ -9,6 +9,7 @@ use App\Modules\Academico\Models\EsquemaEvaluacion;
 use App\Modules\Certificacion\Actions\AutorizarRectificacion;
 use App\Modules\Certificacion\Actions\CerrarActa;
 use App\Modules\Certificacion\Actions\EmitirCertificadoDeNivel;
+use App\Modules\Certificacion\Actions\GenerarPreActaPdf;
 use App\Modules\Certificacion\Actions\PrepararActaDelGrupo;
 use App\Modules\Certificacion\Actions\RectificarNotasFinales;
 use App\Modules\Certificacion\Contracts\NivelesPorCertificar;
@@ -202,12 +203,13 @@ it('gives the second cycle of an accelerated acta closed before this change the 
 it('renders the final acta and the pre-acta PDFs of an accelerated group with the grade, the words and the state of each cycle', function (): void {
     $segunda = segundoCicloConSuNota();
     ActasFinales::preActa($this->ana, [$segunda->id => '16.40']);
-    $preActa = view('certificacion::pdf.pre-acta', ['acta' => app(PrepararActaDelGrupo::class)($this->grupo->id), 'generadaEl' => '30 mar 2027'])->render();
+    $pdf = app(GenerarPreActaPdf::class)($this->grupo->id);
+    $preActa = view($pdf->viewName, $pdf->viewData)->render();
     cerrarActaAcelerada();
 
     $actaFinal = view('certificacion::pdf.acta-final', ['acta' => ActaDelGrupo::desde(Acta::query()->sole()->load('notas')), 'codigo' => 'ACTA-000001'])->render();
 
-    expect($preActa)->toContain('Promedio ciclo I', 'Estado ciclo II', '16.00')
+    expect($preActa)->toContain('Estado I', 'Estado II', '<strong>16</strong>')
         ->and($actaFinal)->toContain('Promedio ciclo I', 'Condición ciclo II', '<strong>15.00</strong>', '<strong>16.00</strong>', 'Quince', 'Dieciséis');
 });
 

@@ -23,17 +23,27 @@ beforeEach(function (): void {
     ActasFinales::preActa(ActasFinales::estudiante($this->grupo, 'Alva', '70000001'), [$this->curso['parcial']->id => '15.00', $this->curso['final']->id => '12.00']);
 });
 
-it('gives the teacher of the group the pre-acta PDF with the current grades, marked as a working document', function (): void {
+it('gives the teacher the pre-acta as the evaluation register: course data, short column names with their legend and signature boxes', function (): void {
     Pdf::fake();
+    $this->grupo->horarios()->create(['dia_semana' => 1, 'hora_inicio' => '08:00', 'hora_fin' => '09:30']);
 
     $this->actingAs($this->curso['usuario'])->get(route('docente.preacta.pdf', $this->grupo->id))->assertOk();
 
     Pdf::assertRespondedWithPdf(function (PdfBuilder $pdf): bool {
         $html = view($pdf->viewName, $pdf->viewData)->render();
+        $esperado = [
+            'REGISTRO DE EVALUACIÓN', 'Marzo 2027', 'VICERRECTORADO ACADÉMICO',
+            'VEGA RÍOS, CARLOS', 'Número de alumnos', '30 mar 2027',
+            $this->grupo->programa->nombre, 'Currícula', 'Básico', 'I', 'ING-1-M', '08:00',
+            'ALVA PRUEBA, ANA', '15', '12',
+            '>EO<', '>EP<', '>EF<', '>PH<', '>PE<', '>NF<',
+            'SISTEMA DE CALIFICACIÓN', 'EO = Expresión oral', 'PH = Promedio de habilidades', 'NF = Nota final',
+            'Vº Bº DIRECTOR(A) ACADÉMICO', 'FIRMA DEL DOCENTE', 'Documento de trabajo',
+        ];
 
         return $pdf->downloadName === 'pre-acta-ING-1-M.pdf' && $pdf->orientation === 'Landscape'
-            && collect(['PRE ACTA DE EVALUACIÓN', 'PRE ACTA — documento de trabajo, sin valor oficial', 'ING-1-M', 'Vega Ríos, Carlos', 'Alva Prueba, Ana', '15', '12', 'Examen parcial', 'Promedio de habilidades', 'Promedio de exámenes', '30 mar 2027'])
-                ->every(fn (string $texto): bool => str_contains($html, $texto));
+            && collect($esperado)->every(fn (string $texto): bool => str_contains($html, $texto))
+            && ! str_contains($html, 'SIN VALOR OFICIAL');
     });
 });
 
