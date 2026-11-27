@@ -1,4 +1,7 @@
-@props(['secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'preguntas' => 'Preguntas']])
+@props(['secciones' => null])
+@php
+    $secciones ??= $marcoDelSitio->secciones()->enlacesDeCabecera();
+@endphp
 <header x-data="cabeceraCiln" x-bind:class="{ 'shadow-cabecera': desplazada || menu }"
     {{ $attributes->class('sticky top-0 z-30 border-b border-marino-900/12 bg-white transition-shadow duration-300') }}>
     <div class="sobre-oscuro bg-marino-900 text-[13px] text-celeste-100/85">

@@ -16,6 +16,17 @@ final readonly class LimpiezaDeTextosDePortada
     public function __construct(private TextosDeLaPortada $actuales) {}
 
     /**
+     * Every text of the page, as saving and the preview store it.
+     *
+     * @param  array<string, mixed>  $datos
+     * @return array<string, mixed>
+     */
+    public function todo(array $datos): array
+    {
+        return [...LimpiezaDeListasDePortada::de($datos), ...$this->portada($datos), ...$this->secciones($datos), ...$this->pie($datos)];
+    }
+
+    /**
      * @param  array<string, mixed>  $datos
      * @return array{subtitulo: string, boton_principal: string, boton_secundario: string}
      */

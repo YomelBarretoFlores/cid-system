@@ -1,10 +1,21 @@
 @props([
     'verificar' => true,
-    'secciones' => ['idiomas' => 'Idiomas', 'oferta' => 'Horarios', 'costos' => 'Costos', 'preguntas' => 'Preguntas'],
-    'descripcion' => 'Huaraz, Áncash. Idiomas extranjeros y lenguas originarias en ciclos por nivel.',
-    'contacto' => [],
-    'redes' => [],
+    'secciones' => null,
+    'descripcion' => null,
+    'contacto' => null,
+    'redes' => null,
+    'editar' => null,
 ])
+@php
+    // Pages that leave these out get the edited home footer from the shared site frame.
+    if ($secciones === null || $descripcion === null || $contacto === null || $redes === null) {
+        $marco = $marcoDelSitio->pie();
+        $secciones ??= $marcoDelSitio->secciones()->enlaces();
+        $descripcion ??= $marco['descripcion'];
+        $contacto ??= $marco['contacto'];
+        $redes ??= $marco['redes'];
+    }
+@endphp
 <footer {{ $attributes->class('sobre-oscuro border-t-4 border-real-600 bg-marino-950 text-white') }}>
     <div @class(['mx-auto grid max-w-[1240px] grid-cols-[minmax(0,1fr)] gap-10 px-4 pt-14 pb-10 sm:px-6 lg:px-8', 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.3fr)]' => $verificar, 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]' => ! $verificar])>
         <div class="flex flex-col gap-4">
@@ -16,6 +27,7 @@
                 </span>
             </span>
             <p class="max-w-[38ch] text-[14px] text-pretty text-celeste-100/75">{{ $descripcion }}</p>
+            <x-publico.editar :atajo="$editar" claro />
             @if ($contacto !== [])
                 <dl aria-label="Contacto" class="flex flex-col gap-1 text-[14px] text-celeste-100/75">
                     @foreach ($contacto as $dato => $valor)

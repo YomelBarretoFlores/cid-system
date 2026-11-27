@@ -7,6 +7,7 @@ namespace App\Modules\Tramites\Filament\Pages;
 use App\Modules\Tramites\Actions\ConsultarTextosDePortada;
 use App\Modules\Tramites\Actions\GuardarTextosDePortada;
 use App\Modules\Tramites\Filament\Pages\Schemas\FormularioDeContenidoDePortada;
+use App\Modules\Tramites\Support\BorradorDePortada;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 use App\Shared\Support\Filament\AccionDeNegocio;
@@ -20,6 +21,7 @@ use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Js;
 use UnitEnum;
 
 /**
@@ -73,6 +75,18 @@ final class EditarContenidoDePortada extends Page
         return $schema->statePath('data')->components(FormularioDeContenidoDePortada::componentes());
     }
 
+    /**
+     * @return list<Action>
+     */
+    #[\Override]
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('vistaPrevia')->label('Vista previa')->color('gray')
+                ->action(fn (ConsultarTextosDePortada $consultar) => $this->abrirVistaPrevia($consultar)),
+        ];
+    }
+
     public function content(Schema $schema): Schema
     {
         return $schema->components([
@@ -95,5 +109,23 @@ final class EditarContenidoDePortada extends Page
 
         $this->form->fill(FormularioDeContenidoDePortada::estado($consultar()));
         Notification::make()->success()->title('Contenido de la portada guardado')->send();
+    }
+
+    // Opened from the server reply, so a blocked pop-up still leaves the link in the notification.
+    private function abrirVistaPrevia(ConsultarTextosDePortada $consultar): void
+    {
+        try {
+            BorradorDePortada::guardar($this->form->getState(), $consultar());
+        } catch (ReglaDeNegocioIncumplida $error) {
+            AccionDeNegocio::notificarError($error);
+
+            return;
+        }
+
+        $url = route('panel.portada.vista-previa');
+        $this->js('window.open('.Js::from($url).", '_blank', 'noopener')");
+        Notification::make()->info()->title('Vista previa lista')->body('Se abrió en otra pestaña. Los cambios aún no se guardaron.')
+            ->actions([Action::make('abrir')->label('Abrir vista previa')->url($url, shouldOpenInNewTab: true)])
+            ->send();
     }
 }

@@ -1,5 +1,5 @@
 @php
-    use App\Modules\Tramites\Enums\SeccionDePortada;
+    use App\Modules\Tramites\Support\SeccionesVisibles;
     use App\Shared\Ui\Formato;
     use Illuminate\Support\Arr;
 
@@ -17,11 +17,8 @@
         1 => '1 (I)',
         default => $ciclos.' (I a '.Formato::romano($ciclos).')',
     };
-    $visible = fn (string $clave): bool => $apartados[$clave]['visible'] && ($clave !== 'fechas' || $fechas !== []);
-    $secciones = collect(SeccionDePortada::cases())
-        ->filter(fn (SeccionDePortada $apartado): bool => $apartado->enlace() !== null && $visible($apartado->value))
-        ->mapWithKeys(fn (SeccionDePortada $apartado): array => [$apartado->value => $apartado->enlace()])
-        ->all();
+    $visibles = new SeccionesVisibles($apartados, $fechas !== []);
+    $visible = $visibles->visible(...);
     $avisos = $oferta === null ? [] : [
         $oferta->matriculaAbierta
             ? 'Matrícula '.$oferta->periodo.' abierta hasta el '.Formato::diaDeMes($oferta->matriculaFin)
@@ -36,7 +33,7 @@
     $numero = fn (int $indice): string => str_pad((string) ($indice + 1), 2, '0', STR_PAD_LEFT);
 @endphp
 <div x-data="{ idioma: @js($primerIdioma), modalidad: 'Todas', conteos: @js($conteos) }" class="tema-publico min-h-screen overflow-x-clip bg-white text-marino-900">
-    <x-publico.cabecera :secciones="Arr::only($secciones, ['idiomas', 'requisitos', 'oferta', 'costos', 'preguntas'])" />
+    <x-publico.cabecera :secciones="$visibles->enlacesDeCabecera()" />
 
     @if ($avisos !== [])
         <div class="overflow-hidden border-b border-marino-900/10 bg-celeste-50 text-[14px] text-marino-800">
@@ -76,6 +73,7 @@
                             {{ $institucion['universidad'] }} · {{ $institucion['ciudad'] }}
                         </span>
                         <h1 x-data="titularCiln" class="font-display text-[clamp(42px,6.6vw,96px)] leading-[0.98] font-semibold tracking-[-0.035em] text-balance">{{ $institucion['centro'] }}</h1>
+                        <x-publico.editar :atajo="$atajos['inicio'] ?? null" claro />
                     </div>
                     <div data-revelar style="--orden: 4" class="flex flex-col gap-6 lg:pb-3">
                         <p class="text-[17px] leading-relaxed text-pretty text-white/85">
@@ -97,7 +95,7 @@
             <div class="{{ $contenedor }} flex flex-col gap-16 sm:gap-20">
                 <div class="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-24">
                     <div data-revelar>
-                        <x-publico.titulo id="titulo-centro" :etiqueta="$apartados['centro']['etiqueta']">{{ $apartados['centro']['titulo'] }}</x-publico.titulo>
+                        <x-publico.titulo id="titulo-centro" :editar="$atajos['centro'] ?? null" :etiqueta="$apartados['centro']['etiqueta']">{{ $apartados['centro']['titulo'] }}</x-publico.titulo>
                     </div>
                     <div data-revelar style="--orden: 1" class="flex flex-col gap-5 {{ $nota }} lg:pt-10">
                         @foreach ($nosotros as $parrafo)
@@ -135,7 +133,7 @@
                 </div>
                 <div class="flex flex-col gap-10 pb-20 lg:py-24 lg:pl-12">
                     <div data-revelar class="flex flex-col gap-5">
-                        <x-publico.titulo id="titulo-idiomas" :etiqueta="$apartados['idiomas']['etiqueta']">{{ $apartados['idiomas']['titulo'] }}</x-publico.titulo>
+                        <x-publico.titulo id="titulo-idiomas" :editar="$atajos['idiomas'] ?? null" :etiqueta="$apartados['idiomas']['etiqueta']">{{ $apartados['idiomas']['titulo'] }}</x-publico.titulo>
                         @if ($apartados['idiomas']['introduccion'])
                             <p class="max-w-[520px] {{ $nota }}">{{ $apartados['idiomas']['introduccion'] }}</p>
                         @endif
@@ -199,7 +197,7 @@
             <div class="{{ $contenedor }}">
                 <div class="grid grid-cols-[minmax(0,1fr)] gap-8 border-b border-white/25 pt-20 pb-12 sm:pt-28 lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] lg:gap-0">
                     <div data-revelar class="lg:pr-12">
-                        <x-publico.titulo id="titulo-requisitos" :etiqueta="$apartados['requisitos']['etiqueta']" claro>{{ $apartados['requisitos']['titulo'] }}</x-publico.titulo>
+                        <x-publico.titulo id="titulo-requisitos" :editar="$atajos['requisitos'] ?? null" :etiqueta="$apartados['requisitos']['etiqueta']" claro>{{ $apartados['requisitos']['titulo'] }}</x-publico.titulo>
                     </div>
                     <div data-revelar style="--orden: 1" class="flex flex-col items-start gap-6 lg:border-l lg:border-white/25 lg:pl-12">
                         <p class="text-[16px] leading-relaxed text-pretty text-white/90">{{ $apartados['requisitos']['introduccion'] }} {{ count($modalidades) === 1 ? 'Modalidad' : 'Modalidades' }}: {{ Arr::join($etiquetasDeModalidad, ', ', ' y ') }}.</p>
@@ -230,7 +228,7 @@
         <section id="oferta" aria-labelledby="titulo-oferta" class="{{ $seccion }}">
             <div class="{{ $contenedor }} flex flex-col gap-8">
                 <div data-revelar class="flex flex-wrap items-end justify-between gap-6">
-                    <x-publico.titulo id="titulo-oferta" :etiqueta="trim($apartados['oferta']['etiqueta'].' '.$oferta?->periodo)">{{ $apartados['oferta']['titulo'] }}</x-publico.titulo>
+                    <x-publico.titulo id="titulo-oferta" :editar="$atajos['oferta'] ?? null" :etiqueta="trim($apartados['oferta']['etiqueta'].' '.$oferta?->periodo)">{{ $apartados['oferta']['titulo'] }}</x-publico.titulo>
                     @if ($grupos !== [] && count($modalidades) > 1)
                         <div role="group" aria-label="Modalidad" class="flex max-w-full flex-wrap border border-marino-900/25">
                             @foreach (['Todas', ...$etiquetasDeModalidad] as $modalidad)
@@ -318,7 +316,7 @@
                 <div class="flex justify-end">
                     <div class="flex w-full max-w-[620px] flex-col gap-10 px-4 py-20 sm:px-6 sm:py-28 lg:pr-16 lg:pl-8">
                         <div data-revelar class="flex flex-col gap-5">
-                            <x-publico.titulo id="titulo-clasificacion" :etiqueta="$apartados['clasificacion']['etiqueta']">{{ $apartados['clasificacion']['titulo'] }}</x-publico.titulo>
+                            <x-publico.titulo id="titulo-clasificacion" :editar="$atajos['clasificacion'] ?? null" :etiqueta="$apartados['clasificacion']['etiqueta']">{{ $apartados['clasificacion']['titulo'] }}</x-publico.titulo>
                             @if ($apartados['clasificacion']['introduccion'])
                                 <p class="{{ $nota }}">{{ $apartados['clasificacion']['introduccion'] }}</p>
                             @endif
@@ -366,7 +364,7 @@
             <div class="{{ $contenedor }} flex flex-col gap-14">
                 <div class="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-end lg:gap-24">
                     <div data-revelar>
-                        <x-publico.titulo id="titulo-ruta" :etiqueta="$apartados['ruta']['etiqueta']">{{ $apartados['ruta']['titulo'] }}</x-publico.titulo>
+                        <x-publico.titulo id="titulo-ruta" :editar="$atajos['ruta'] ?? null" :etiqueta="$apartados['ruta']['etiqueta']">{{ $apartados['ruta']['titulo'] }}</x-publico.titulo>
                     </div>
                     @if ($apartados['ruta']['introduccion'] || $visible('clasificacion'))
                         <p data-revelar style="--orden: 1" class="{{ $nota }}">{{ $apartados['ruta']['introduccion'] }}@if ($visible('clasificacion')) Quien ya conoce el idioma puede <a href="#clasificacion" class="font-semibold text-real-600 underline underline-offset-3 hover:text-marino-900">rendir el examen de clasificación</a>.@endif</p>
@@ -410,7 +408,7 @@
             <div class="{{ $contenedor }} flex flex-col gap-12">
                 <div class="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-end lg:gap-24">
                     <div data-revelar>
-                        <x-publico.titulo id="titulo-costos" :etiqueta="$apartados['costos']['etiqueta']">{{ $apartados['costos']['titulo'] }}</x-publico.titulo>
+                        <x-publico.titulo id="titulo-costos" :editar="$atajos['costos'] ?? null" :etiqueta="$apartados['costos']['etiqueta']">{{ $apartados['costos']['titulo'] }}</x-publico.titulo>
                     </div>
                     @if ($apartados['costos']['introduccion'])
                         <p data-revelar style="--orden: 1" class="{{ $nota }}">{{ $apartados['costos']['introduccion'] }}</p>
@@ -452,7 +450,7 @@
             <section id="fechas" aria-labelledby="titulo-fechas" class="{{ $seccion }}">
                 <div class="{{ $contenedor }} flex flex-col gap-12">
                     <div data-revelar>
-                        <x-publico.titulo id="titulo-fechas" :etiqueta="trim($apartados['fechas']['etiqueta'].' '.$oferta?->periodo)">{{ $apartados['fechas']['titulo'] }}</x-publico.titulo>
+                        <x-publico.titulo id="titulo-fechas" :editar="$atajos['fechas'] ?? null" :etiqueta="trim($apartados['fechas']['etiqueta'].' '.$oferta?->periodo)">{{ $apartados['fechas']['titulo'] }}</x-publico.titulo>
                     </div>
                     <ol class="border-t border-marino-900/15">
                         @foreach ($fechas as $fecha)
@@ -482,7 +480,7 @@
             <div class="{{ $contenedor }} grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
                 <div data-revelar class="flex flex-col justify-between gap-10 pt-20 pb-8 sm:pt-28 lg:border-r lg:border-marino-900/12 lg:pr-12 lg:pb-28">
                     <div class="flex flex-col gap-5">
-                        <x-publico.titulo id="titulo-preguntas" :etiqueta="$apartados['preguntas']['etiqueta']">{{ $apartados['preguntas']['titulo'] }}</x-publico.titulo>
+                        <x-publico.titulo id="titulo-preguntas" :editar="$atajos['preguntas'] ?? null" :etiqueta="$apartados['preguntas']['etiqueta']">{{ $apartados['preguntas']['titulo'] }}</x-publico.titulo>
                         @if ($apartados['preguntas']['introduccion'])
                             <p class="{{ $nota }}">{{ $apartados['preguntas']['introduccion'] }}</p>
                         @endif
@@ -518,7 +516,7 @@
                     </figure>
                 </div>
                 <div data-revelar class="flex flex-col justify-center gap-7 pb-16 lg:py-16 lg:pl-12">
-                    <x-publico.titulo id="titulo-empieza" :etiqueta="$apartados['empieza']['etiqueta']">{{ $apartados['empieza']['titulo'] }}</x-publico.titulo>
+                    <x-publico.titulo id="titulo-empieza" :editar="$atajos['empieza'] ?? null" :etiqueta="$apartados['empieza']['etiqueta']">{{ $apartados['empieza']['titulo'] }}</x-publico.titulo>
                     @if ($apartados['empieza']['introduccion'])
                         <p class="max-w-[480px] {{ $nota }}">{{ $apartados['empieza']['introduccion'] }}</p>
                     @endif
@@ -534,5 +532,5 @@
         @endif
     </main>
 
-    <x-publico.pie :secciones="$secciones" :descripcion="$pie['descripcion']" :contacto="$pie['contacto']" :redes="$pie['redes']" />
+    <x-publico.pie :secciones="$visibles->enlaces()" :editar="$atajos['pie'] ?? null" :descripcion="$pie['descripcion']" :contacto="$pie['contacto']" :redes="$pie['redes']" />
 </div>

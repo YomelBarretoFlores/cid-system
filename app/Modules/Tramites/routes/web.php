@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Modules\Tramites\Enums\PermisoTramite;
 use App\Modules\Tramites\Http\Controllers\DescargarAdjuntoDelTramite;
 use App\Modules\Tramites\Http\Controllers\VerCargoDelTramite;
+use App\Modules\Tramites\Http\Controllers\VerVistaPreviaDePortada;
 use App\Modules\Tramites\Livewire\MisTramites;
 use App\Modules\Tramites\Livewire\PortadaPublica;
 use App\Shared\Auth\Models\User;
@@ -20,3 +21,7 @@ Route::middleware(['auth', 'auth.session', 'estudiante', 'estudiante.habilitado'
 Route::get('/panel/tramites/adjuntos/{adjunto:ulid}', DescargarAdjuntoDelTramite::class)
     ->middleware(['auth', 'auth.session', 'panel.sesion', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:'.PermisoTramite::Gestionar->value])
     ->name('panel.tramites.adjuntos');
+
+Route::get('/panel/portada/vista-previa', VerVistaPreviaDePortada::class)
+    ->middleware(['auth', 'auth.session', 'panel.sesion', 'can:'.User::ADMIN_PANEL_PERMISSION, 'can:'.PermisoTramite::Configurar->value])
+    ->name('panel.portada.vista-previa');

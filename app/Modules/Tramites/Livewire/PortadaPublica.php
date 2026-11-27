@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Tramites\Livewire;
 
+use App\Modules\Tramites\Support\AtajosDeEdicion;
 use App\Modules\Tramites\Support\ContenidoDePortada;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
@@ -15,6 +16,7 @@ final class PortadaPublica extends Component
 {
     public function render(): View
     {
-        return view('tramites::livewire.portada-publica', app(ContenidoDePortada::class)->armar());
+        // The shared cache holds only the content; the shortcuts depend on who visits.
+        return view('tramites::livewire.portada-publica', [...app(ContenidoDePortada::class)->armar(), 'atajos' => app(AtajosDeEdicion::class)(auth()->user())]);
     }
 }

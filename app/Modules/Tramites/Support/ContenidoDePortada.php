@@ -50,13 +50,23 @@ final readonly class ContenidoDePortada
         // One instant for the cache day and the content, so content of a new day is never stored under the previous one.
         $ahora = CarbonImmutable::now('America/Lima');
 
-        return ContenidoPublico::recordar($ahora->toDateString(), fn (): array => $this->construir($ahora));
+        return ContenidoPublico::recordar($ahora->toDateString(), fn (): array => $this->construir($ahora, ($this->textosDePortada)()));
+    }
+
+    /**
+     * The page with unsaved texts, built apart from the shared cache.
+     *
+     * @return array<string, mixed>
+     */
+    public function conTextos(TextosDeLaPortada $textos): array
+    {
+        return $this->construir(CarbonImmutable::now('America/Lima'), $textos);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function construir(CarbonImmutable $ahora): array
+    private function construir(CarbonImmutable $ahora, TextosDeLaPortada $textos): array
     {
         $oferta = ($this->ofertaPublica)();
         $grupos = $oferta->grupos ?? [];
@@ -68,7 +78,7 @@ final readonly class ContenidoDePortada
         $parametros = ($this->parametrosDelSistema)();
 
         return [
-            ...$this->textos($institucion),
+            ...$this->textos($textos, $institucion),
             'umbralDePocasVacantes' => $parametros->umbralPocasVacantes,
             'institucion' => ['universidad' => $institucion->universidad, 'centro' => $institucion->centro, 'ciudad' => $institucion->ciudad],
             'ahora' => $ahora,
@@ -93,9 +103,8 @@ final readonly class ContenidoDePortada
      *
      * @return array<string, mixed>
      */
-    private function textos(DatosDeLaInstitucion $institucion): array
+    private function textos(TextosDeLaPortada $textos, DatosDeLaInstitucion $institucion): array
     {
-        $textos = ($this->textosDePortada)();
         $lugares = $this->lugaresDePago();
 
         return [

@@ -38,6 +38,20 @@ final class FormularioDeContenidoDePortada
     }
 
     /**
+     * The form blocks by their public section key, in page order.
+     *
+     * @return array<string, string>
+     */
+    public static function bloques(): array
+    {
+        return [
+            'inicio' => 'Portada',
+            ...array_combine(array_column(SeccionDePortada::cases(), 'value'), array_map(fn (SeccionDePortada $seccion): string => $seccion->nombre(), SeccionDePortada::cases())),
+            'pie' => 'Pie de página y contacto',
+        ];
+    }
+
+    /**
      * @return list<Component>
      */
     public static function componentes(): array
@@ -51,7 +65,7 @@ final class FormularioDeContenidoDePortada
 
     private static function portada(): Section
     {
-        return self::bloque('Portada', 'inicio')->schema([
+        return self::bloque('inicio')->schema([
             FileUpload::make('foto_portada')->label('Foto de portada (JPG, PNG o WebP)')
                 ->image()->disk(FotoDePortada::DISCO)->acceptedFileTypes(array_keys(FotoDePortada::EXTENSIONES))->maxSize(FotoDePortada::MAXIMO_KB)
                 ->storeFiles(false)
@@ -74,7 +88,7 @@ final class FormularioDeContenidoDePortada
             $titulos[] = Textarea::make('introduccion')->label('Introducción')->maxLength(400)->rows(2)->columnSpanFull();
         }
 
-        return self::bloque($seccion->nombre(), $seccion->value)->collapsible()->schema([
+        return self::bloque($seccion->value)->collapsible()->schema([
             Fieldset::make('Títulos y visibilidad')->statePath("secciones.{$seccion->value}")->schema([
                 ...$titulos,
                 Toggle::make('visible')->label('Mostrar sección')->default(true),
@@ -108,7 +122,7 @@ final class FormularioDeContenidoDePortada
 
     private static function pie(): Section
     {
-        return self::bloque('Pie de página y contacto', 'pie')
+        return self::bloque('pie')
             ->description('La dirección y el teléfono se toman de los datos institucionales.')
             ->schema([
                 Textarea::make('pie')->label('Descripción del centro')->required()->maxLength(300)->rows(2),
@@ -122,9 +136,9 @@ final class FormularioDeContenidoDePortada
             ]);
     }
 
-    private static function bloque(string $titulo, string $clave): Section
+    private static function bloque(string $clave): Section
     {
-        return Section::make($titulo)->id("seccion-{$clave}")->key("seccion-{$clave}");
+        return Section::make(self::bloques()[$clave])->id("seccion-{$clave}")->key("seccion-{$clave}");
     }
 
     private static function pasos(string $lista): Repeater
