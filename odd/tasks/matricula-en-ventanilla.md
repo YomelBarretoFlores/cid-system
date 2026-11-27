@@ -1,0 +1,21 @@
+# Staff enrollment at the office, with the payment made before the system
+
+Objective: staff enroll a student in a group from the panel and register in the same step the payment already made outside the system, so CILN can load the cycle in progress (November 2026) before real use in December. Branch `feat/matricula-en-ventanilla` (based on `feat/cuentas-de-docentes`). Delivery: one commit per task. Runner: Pest on PostgreSQL 18.
+
+## Specs
+
+- S1. Staff load the cycle in progress from the panel: someone "estaba pidiendo acceso como admin para que pueda esa persona agregar a los estudiantes, vincularlos con su docente, crear grupos, el modo ya sea acelerado, horarios, etc. Esto quiere hacerlo con el ciclo o mes que está corriendo ahora mismo, ya hay estudiantes estudiando." "Y quiere ya todo eso para que trabaje y en diciembre ya comenzar todo lo real." Existing screens cover people, teachers, groups (regular or accelerated, schedules), teaching load and cycle placement (Habilitaciones > Ajustar); enrollment from the panel is missing.
+- S2. «Matricular en ventanilla»: staff pick the student and the group and register the payment in the same step (receipt or operation number, amount, date, payment method). The payment is stored as validated and the enrollment is linked to it, so documents, actas and reports work as for any enrollment. Agreed proposal: "Sí, se podría?"
+- S3. Payment made before the system: "Lo que puede trabar es que no llenaría nada eso de pagos, porque los estudiantes ya pagaron para este mes de noviembre que está en curso." For such a payment the receipt file is optional and a reason is required. It must be removable: "tenlo apuntado que al final se podría quitar eso, porque creo que no sería lo correcto matricular sin pago, pero eso lo hablaré con el área usuaria." It is a switch in the payment settings (assumption: on by default until CILN decides), recorded as pending decision #153.
+
+## Tasks
+
+- [ ] T1 · S2–S3 · «Matricular en ventanilla» with the payment in the same step; switch for payments made before the system · delegated (context backstop): one bounded writer; Risk: items 1 and 2 (pag_pagos migration, financial records; permissions)
+- [ ] T2 · all · Staff manual, data dictionary, pending decision #153
+
+## Log
+
+- L1 (2026-11-27) Request: "Si es así ahora regresemos a donde dije hace unas horas, sobre que alguien estaba pidiendo acceso como admin para que pueda esa persona agregar a los estudiantes, vincularlos con su docente, crear grupos, el modo ya sea acelerado, horarios, etc. Esto quiere hacerlo con el ciclo o mes que está corriendo ahora mismo, ya hay estudiantes estudiando. Y quiere ya todo eso para que trabaje y en diciembre ya comenzar todo lo real. Lo que puede trabar es que no llenaría nada eso de pagos, porque los estudiantes ya pagaron para este mes de noviembre que está en curso."
+- L2 (2026-11-27) "Sí, se podría?, pero tenlo apuntado que al final se podría quitar eso, porque creo que no sería lo correcto matricular sin pago, pero eso lo hablaré con el área usuaria."
+- L3 Current state: `MatricularEstudiante(personaId, grupoId, pagoId)` requires a validated enrollment payment and a habilitación for the cycle; the Matrículas resource only lists and views; staff payment registration (CreatePago) requires the receipt file.
+- L4 Code map (explorer): blockers are `pag_pagos.recibo_path` NOT NULL plus `RegistrarPago` requiring a file; `exige_boleta_original` defaults to true and its CHECK requires the original voucher check on validated rows; `config('ciln.pagos.validacion_por_otra_persona')` forbids one user registering and validating; Matricula may use only Pagos Contracts/Data/Enums/Events; `MatriculaPolicy::create` is false. Decision: two modes in «Matricular en ventanilla»: (a) pick a validated enrollment payment of the student (normal path from December, segregation of duties intact); (b) «Pago anterior al sistema», only while the switch is on: receipt file optional, reason required, stored validated by the same staff member with `exige_boleta_original = false`, flagged in the row.
