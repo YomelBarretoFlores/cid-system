@@ -6,19 +6,23 @@ namespace App\Modules\Personas;
 
 use App\Modules\Pagos\Events\PagoValidado;
 use App\Modules\Personas\Actions\BuscarPersonas;
+use App\Modules\Personas\Actions\DarAccesoConDocumento;
 use App\Modules\Personas\Actions\EtiquetarPersonas;
 use App\Modules\Personas\Actions\ListarCatalogoDeDocumentos;
 use App\Modules\Personas\Actions\ListarCatalogoDeVinculos;
+use App\Modules\Personas\Actions\ObtenerCuentasDePersonas;
 use App\Modules\Personas\Actions\ObtenerFichaDelUsuario;
 use App\Modules\Personas\Actions\ObtenerFichaDePersona;
 use App\Modules\Personas\Actions\ObtenerFichasDePersonas;
 use App\Modules\Personas\Actions\ObtenerFotoDePersona;
 use App\Modules\Personas\Actions\ObtenerVinculo;
 use App\Modules\Personas\Actions\SeleccionarIdsDePersonas;
+use App\Modules\Personas\Contracts\AccesoConDocumento;
 use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use App\Modules\Personas\Contracts\CatalogoDeDocumentos;
 use App\Modules\Personas\Contracts\CatalogoDeVinculos;
 use App\Modules\Personas\Contracts\ConsultaDeVinculo;
+use App\Modules\Personas\Contracts\CuentasDePersonas;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Contracts\FichaDePersona;
@@ -48,6 +52,8 @@ final class PersonasServiceProvider extends ModuleServiceProvider
         FichaDePersona::class => ObtenerFichaDePersona::class,
         FichasDePersonas::class => ObtenerFichasDePersonas::class,
         FotoDePersona::class => ObtenerFotoDePersona::class,
+        CuentasDePersonas::class => ObtenerCuentasDePersonas::class,
+        AccesoConDocumento::class => DarAccesoConDocumento::class,
     ];
 
     #[\Override]
