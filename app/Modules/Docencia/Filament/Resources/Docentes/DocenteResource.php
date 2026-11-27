@@ -14,6 +14,9 @@ use App\Modules\Docencia\Filament\Resources\Docentes\Schemas\DocenteForm;
 use App\Modules\Docencia\Filament\Resources\Docentes\Schemas\DocenteInfolist;
 use App\Modules\Docencia\Filament\Resources\Docentes\Tables\DocentesTable;
 use App\Modules\Docencia\Models\Docente;
+use App\Modules\Personas\Contracts\FichaDePersona;
+use App\Modules\Personas\Contracts\SubconsultaDePersonas;
+use App\Modules\Personas\Data\FichaDeEstudiante;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
 use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
@@ -21,6 +24,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 final class DocenteResource extends Resource
@@ -52,6 +57,9 @@ final class DocenteResource extends Resource
     #[\Override]
     protected static ?string $recordTitleAttribute = 'codigo';
 
+    #[\Override]
+    protected static int $globalSearchResultsLimit = 10;
+
     public static function form(Schema $schema): Schema
     {
         return DocenteForm::configure($schema);
@@ -73,6 +81,32 @@ final class DocenteResource extends Resource
             CargasRelationManager::class,
             DisponibilidadesRelationManager::class,
         ];
+    }
+
+    // Staff look for a teacher by name or document more often than by code; the names live in Personas.
+    /**
+     * @param  Builder<Model>  $query
+     */
+    protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
+    {
+        $query->where(fn (Builder $coincidencia): Builder => $coincidencia
+            ->whereLike('codigo', '%'.addcslashes(trim($search), '\\%_').'%')
+            ->orWhereIn('persona_id', app(SubconsultaDePersonas::class)($search)));
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        return $record instanceof Docente ? self::fichaDe($record)->nombreCompleto : '';
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return $record instanceof Docente ? ['Código' => $record->codigo, 'Documento' => self::fichaDe($record)->documento] : [];
+    }
+
+    private static function fichaDe(Docente $docente): FichaDeEstudiante
+    {
+        return app(FichaDePersona::class)($docente->persona_id);
     }
 
     public static function getPages(): array

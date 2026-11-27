@@ -7,6 +7,9 @@ use App\Modules\Academico\Filament\Resources\Idiomas\IdiomaResource;
 use App\Modules\Academico\Filament\Resources\Idiomas\Pages\ListIdiomas;
 use App\Modules\Academico\Models\Grupo;
 use App\Modules\Academico\Models\Idioma;
+use App\Modules\Docencia\Enums\PermisoDocencia;
+use App\Modules\Docencia\Filament\Resources\Docentes\DocenteResource;
+use App\Modules\Docencia\Models\Docente;
 use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Personas\Enums\PermisoPersona;
@@ -110,5 +113,21 @@ it('finds people without typing the accents or the ñ of their names', function 
 
     foreach (['nunez pena', 'NUÑEZ', 'jose'] as $termino) {
         expect(PersonaResource::getGlobalSearchResults($termino)->pluck('title')->all())->toBe([$persona->etiqueta]);
+    }
+});
+
+it('finds teachers by name, document or code, titled with their name', function (): void {
+    $persona = Persona::factory()->create(['apellido_paterno' => 'Rímac', 'apellido_materno' => 'Huaylas', 'nombres' => 'Rosa', 'numero_documento' => '40123456']);
+    $docente = Docente::factory()->create(['persona_id' => $persona->id]);
+    Docente::factory()->create(['persona_id' => Persona::factory()->create(['apellido_paterno' => 'Torres', 'nombres' => 'Luis', 'numero_documento' => '87654321'])->id]);
+    $this->actingAs(User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoDocencia::Ver->value]));
+
+    foreach (['rimac huay', '4012', $docente->codigo] as $termino) {
+        $resultados = DocenteResource::getGlobalSearchResults($termino);
+
+        expect($resultados)->toHaveCount(1)
+            ->and($resultados->first()->title)->toBe('Rímac Huaylas, Rosa')
+            ->and($resultados->first()->details)->toBe(['Código' => $docente->codigo, 'Documento' => 'DNI 40123456'])
+            ->and($resultados->first()->url)->toBe(DocenteResource::getUrl('view', ['record' => $docente]));
     }
 });
