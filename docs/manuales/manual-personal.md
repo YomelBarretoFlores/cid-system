@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Personal del CILN
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.5
+version: 1.6
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -16,6 +16,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.3 | 26/11/2026 | Actualización para la versión v1.3.0 del sistema: menú «Administración» con «Reportes» y «Configuración», catálogos de tipos de vínculo, tipos de documento, modalidades, bancos y grados del FUT, programa por defecto, parámetros del sistema, textos editables, cuentas del portal creadas en la oficina y habilitación de la cuenta del estudiante con su primer pago validado | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.4 | 27/11/2026 | Cuentas de docentes con el DNI como usuario y contraseña entregada en la oficina; dar de baja y reactivar cuentas del portal | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.5 | 27/11/2026 | Matricular en ventanilla, con un pago validado o con un pago anterior al sistema, y el interruptor que permite estos pagos | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.6 | 27/11/2026 | Web pública administrable: foto de portada, títulos, textos, botones, secciones visibles, pie de página y enlaces; vista previa y atajos «Editar» | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -145,7 +146,7 @@ Todos los catálogos, parámetros y textos editables están en **Administración
 | Institución | Datos institucionales | Nombre de la universidad y del centro, encabezado, pie de página, ciudad y formato del número de los documentos oficiales. | Emitir y anular constancias y certificados y Gestionar actas |
 | Institución | Textos de documentos | Frases de las constancias, de la acreditación y del certificado de nivel (sección 3.8). | Emitir y anular constancias y certificados |
 | Institución | Política de privacidad | Texto de la política de privacidad y frase de consentimiento del registro (sección 3.8). | Gestionar personas |
-| Institución | Contenido de la portada | Presentación del centro, pasos, ruta de aprendizaje y preguntas frecuentes de la web pública (sección 3.8). | Configurar tipos de trámite |
+| Institución | Contenido de la portada | Todo el contenido de la web pública: foto de portada, títulos y textos de cada sección, botones, secciones visibles, pie de página, contacto y enlaces (sección 3.8). | Configurar tipos de trámite |
 | Institución | Parámetros del sistema | Vigencia y puntaje del examen de clasificación, ventanas de los llamados de asistencia, límites de archivos y aviso de pocas vacantes (sección 3.7). | Gestionar usuarios, roles y permisos |
 | Académico | Sistemas de evaluación | Componentes de evaluación y nota mínima aprobatoria. | Gestionar la oferta académica |
 | Académico | Modalidades | Modalidades de los grupos (presencial, virtual, semipresencial u otras) y su descripción en la web pública (sección 3.6). | Gestionar la oferta académica |
@@ -323,9 +324,13 @@ Finalidad: editar los textos que imprimen los documentos y los que muestra la we
 |---|---|---|
 | Textos de documentos | **Constancias**: **Frase final de la constancia de matrícula** (también la imprime la constancia de inscripción), **Frase final de la constancia de notas**, **Nota de la escala de calificación**. **Acreditación de conocimiento de idioma extranjero**: **Modalidad al llevar ciclos**, **Modalidad por examen de suficiencia**, **Frase del acta final**, **Frase de validez** ({mencion}: grado de la mención). **Certificado de nivel**: **Texto del certificado** ({nivel}, {idioma} y {horas} se imprimen en negrita) | Cada documento guarda los textos vigentes al emitirlo: editarlos no cambia los documentos ya emitidos. Los emitidos antes de esta versión conservan la redacción original. |
 | Política de privacidad | **Política de privacidad**: **Domicilio del titular del banco de datos** (se imprime donde dice {domicilio}) y **Texto de la política** (con negrita, cursiva, enlaces, títulos, listas y tablas; {universidad} y {centro} se toman de los datos institucionales). **Registro de cuenta**: **Frase de consentimiento** ({politica} se muestra como el enlace a la política) | Al cambiar el texto o el domicilio se actualiza la fecha de la política. El HTML que se escriba se muestra como texto. |
-| Contenido de la portada | **El centro** (**Presentación del centro**; párrafos separados por una línea en blanco), **Cómo matricularse** y **Examen de clasificación** (pasos con **Paso** y **Detalle**), **Ruta de aprendizaje** (**Nivel**, **Descripción** y **Al concluir el nivel podrá**), **Preguntas frecuentes** (**Pregunta** y **Respuesta**). Cada lista admite de 1 a 12 elementos, que se reordenan arrastrándolos | {lugares_de_pago} se reemplaza por los medios de pago activos del catálogo. La web pública muestra el cambio al guardar. |
+| Contenido de la portada | **Portada**: **Foto de portada (JPG, PNG o WebP)**, hasta 5 MB (sin foto se usa la del sistema), **Texto después de la lista de idiomas** (la lista de idiomas se arma sola desde el catálogo) y los textos del **Botón principal** y del **Botón secundario**. En cada sección de la web: **Etiqueta sobre el título**, **Título**, **Introducción** y **Mostrar sección**; una sección oculta desaparece de la web junto con sus enlaces del menú y del pie. **Pie de página y contacto**: **Descripción del centro**, **Correo de contacto**, **Horario de atención** y hasta 6 **Enlaces** (**Nombre** y **Dirección**, que debe empezar con https://); la dirección y el teléfono se toman de los datos institucionales. Además: **El centro** (**Presentación del centro**; párrafos separados por una línea en blanco), **Cómo matricularse** y **Examen de clasificación** (pasos con **Paso** y **Detalle**), **Ruta de aprendizaje** (**Nivel**, **Descripción** y **Al concluir el nivel podrá**), **Preguntas frecuentes** (**Pregunta** y **Respuesta**). Cada lista admite de 1 a 12 elementos, que se reordenan arrastrándolos | {lugares_de_pago} se reemplaza por los medios de pago activos del catálogo. La web pública muestra el cambio al guardar. |
 
 Resultado esperado: se muestra el mensaje de guardado de la pantalla («Textos de documentos guardados», «Política de privacidad guardada» o «Contenido de la portada guardado»). Si un campo obligatorio queda vacío o excede su longitud, el sistema no guarda e indica el campo.
+
+**Vista previa de la portada.** Antes de guardar, pulse **Vista previa** en **Contenido de la portada**: se abre en otra pestaña la web pública con los cambios y el aviso «Vista previa: los cambios aún no se guardaron.». Nada se publica hasta pulsar **Guardar**. Una foto nueva se ve recién después de guardar. Si el navegador bloquea la pestaña, use **Abrir vista previa** en el aviso.
+
+**Atajos «Editar».** Si inició sesión en el panel con el permiso para configurar la portada y visita la web pública, cada sección muestra un enlace **Editar** que abre esa parte del formulario. Los visitantes, los estudiantes y el personal sin ese permiso no lo ven.
 
 # 4. OFERTA ACADÉMICA
 

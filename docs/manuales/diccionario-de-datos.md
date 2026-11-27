@@ -29,12 +29,12 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 | Pagos | 6 | 64 |
 | Docencia | 12 | 101 |
 | Certificación | 10 | 135 |
-| Trámites | 9 | 93 |
+| Trámites | 9 | 102 |
 | Auditoría | 1 | 10 |
 | Parámetros del sistema | 1 | 16 |
 | Seguridad y control de acceso | 9 | 53 |
 | Infraestructura de la aplicación | 7 | 45 |
-| **Total** | **74** | **716** |
+| **Total** | **74** | **725** |
 
 ## 3. Académico (oferta académica)
 
@@ -2109,6 +2109,15 @@ Textos editables de la portada pública (nosotros, pasos, niveles, preguntas fre
 | 6 | `preguntas` | jsonb | No |  | Preguntas frecuentes: lista de {pregunta, respuesta}, con la misma marca {lugares_de_pago}. |
 | 7 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación de la fila. |
 | 8 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación. |
+| 9 | `foto_portada` | varchar(255) | Sí |  | Ruta en el disco público (portada/) de la foto de portada subida; vacía usa la foto incluida en el sistema. |
+| 10 | `subtitulo` | varchar(200) | No | `'para estudiantes universitarios, profesionales y público en general.'` | Texto que sigue a la lista de idiomas del catálogo bajo el nombre del centro. |
+| 11 | `boton_principal` | varchar(40) | No | `'Ver horarios'` | Texto del botón principal de la portada, que lleva a los horarios. |
+| 12 | `boton_secundario` | varchar(40) | No | `'Crear cuenta'` | Texto del botón secundario de la portada, que lleva a crear la cuenta. |
+| 13 | `pie` | varchar(300) | No | `'Huaraz, Áncash. Idiomas extranjeros y lenguas originarias en ciclos por nivel.'` | Descripción del centro en el pie de página. |
+| 14 | `correo` | varchar(120) | Sí |  | Correo de contacto del pie de página; la dirección y el teléfono vienen de los datos institucionales. |
+| 15 | `horario_atencion` | varchar(150) | Sí |  | Horario de atención del pie de página. |
+| 16 | `redes` | jsonb | No | `'[]'` | Enlaces del pie de página (redes sociales, web): lista de {etiqueta, url}, solo https, hasta 6. |
+| 17 | `secciones` | jsonb | No | `'{"ruta": {"titulo": "Ruta de aprendizaje", "visible": true, "etiqueta": "Plan de estudios", "introduccion": "Cada nivel agrupa varios ciclos. El estudiante avanza de un ciclo al siguiente al aprobarlo."}, "centro": {"titulo": "Idiomas para la universidad y la región", "visible": true, "etiqueta": "El centro", "introduccion": null}, "costos": {"titulo": "Costos según su vínculo con la UNASAM", "visible": true, "etiqueta": "TUPA / TUSNE", "introduccion": "Pague en el Banco de la Nación, Págalo.pe o la caja de la universidad y registre su recibo en el portal."}, "fechas": {"titulo": "Fechas del periodo", "visible": true, "etiqueta": "Calendario", "introduccion": null}, "oferta": {"titulo": "Horarios y vacantes", "visible": true, "etiqueta": "Oferta", "introduccion": null}, "empieza": {"titulo": "Matrícula en línea", "visible": true, "etiqueta": "Huaraz, Áncash", "introduccion": "Cree su cuenta, registre su pago y elija su horario. El CILN valida su recibo y su ficha de matrícula se descarga al instante."}, "idiomas": {"titulo": "Idiomas", "visible": true, "etiqueta": "Oferta académica", "introduccion": "Cada idioma se estudia por ciclos, organizados en niveles. Al aprobar un nivel se solicita el certificado correspondiente."}, "preguntas": {"titulo": "Preguntas frecuentes", "visible": true, "etiqueta": "Orientación", "introduccion": "Lo que más consultan los postulantes y estudiantes del CILN."}, "requisitos": {"titulo": "Cómo matricularse", "visible": true, "etiqueta": "Matrícula", "introduccion": "Todo el proceso es en línea: cree su cuenta, registre su pago y elija un grupo con vacantes."}, "clasificacion": {"titulo": "¿Ya conoce el idioma?", "visible": true, "etiqueta": "Examen de clasificación", "introduccion": "Rinda el examen de clasificación y, según su resultado, empiece en un ciclo superior sin cursar desde el ciclo I."}}'` | Por sección de la portada (centro, idiomas, requisitos, oferta, clasificacion, ruta, costos, fechas, preguntas, empieza): {etiqueta, titulo, introduccion, visible}. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -2116,8 +2125,10 @@ Textos editables de la portada pública (nosotros, pasos, niveles, preguntas fre
 
 **Reglas de validación:**
 
+- `tra_textos_portada_estructura_check`: `CHECK (((jsonb_typeof(secciones) = 'object') AND (jsonb_typeof(redes) = 'array')))`
 - `tra_textos_portada_listas_check`: `CHECK (((jsonb_typeof(pasos_matricula) = 'array') AND (jsonb_typeof(pasos_clasificacion) = 'array') AND (jsonb_typeof(niveles) = 'array') AND (jsonb_typeof(preguntas) = 'array')))`
 - `tra_textos_portada_nosotros_check`: `CHECK ((btrim(nosotros) <> ''))`
+- `tra_textos_portada_portada_check`: `CHECK (((btrim((subtitulo)) <> '') AND (btrim((boton_principal)) <> '') AND (btrim((boton_secundario)) <> '') AND (btrim((pie)) <> '')))`
 - `tra_textos_portada_unica_check`: `CHECK ((id = 1))`
 
 **Triggers:**
