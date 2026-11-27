@@ -53,7 +53,7 @@ it('gathers the reports and every catalog, setting and editable text under two m
         ->map(fn ($pantallas): array => $pantallas->map(fn (string $pantalla): string => (string) $pantalla::getNavigationLabel())->sort()->values()->all())
         ->sortKeys()->all();
 
-    expect($contenido(Reportes::class))->toBe(['' => ['Asistencia por grupo', 'Carga docente', 'Matriculados', 'Notas por periodo', 'Reporte de recaudación']])
+    expect($contenido(Reportes::class))->toBe(['' => ['Administrativo por idioma', 'Asistencia por grupo', 'Carga docente', 'Estadístico por idioma', 'Financiero por idioma', 'Matriculados', 'Mensual por idioma', 'Notas por periodo', 'Reporte de recaudación']])
         ->and($contenido(Configuracion::class))->toBe([
             'Académico' => ['Modalidades', 'Sistemas de evaluación'],
             'Docencia' => ['Bancos', 'Condiciones laborales', 'Costos por hora', 'Grados académicos'],
