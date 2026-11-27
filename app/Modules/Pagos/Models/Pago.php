@@ -32,6 +32,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property ?CarbonImmutable $boleta_original_verificada_en
  * @property ?string $justificacion_monto
  * @property ?string $recibo_sha256
+ * @property ?string $recibo_path
+ * @property bool $anterior_al_sistema
+ * @property ?string $motivo_anterior
  * @property-read ?Tarifa $tarifa
  * @property-read Concepto $concepto
  */
@@ -41,6 +44,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'persona_id', 'concepto_id', 'tarifa_id', 'monto', 'medio_pago_id', 'numero_operacion', 'fecha_pago',
     'recibo_path', 'estado', 'registrado_por', 'validado_por', 'validado_en', 'motivo_rechazo',
     'anulado_por', 'anulado_en', 'motivo_anulacion', 'boleta_original_verificada_por', 'boleta_original_verificada_en', 'justificacion_monto', 'recibo_sha256',
+    'exige_boleta_original', 'anterior_al_sistema', 'motivo_anterior',
 ])]
 #[UseFactory(PagoFactory::class)]
 #[UsePolicy(PagoPolicy::class)]
@@ -52,6 +56,7 @@ final class Pago extends Model
     #[\Override]
     protected $attributes = [
         'estado' => 'pendiente',
+        'anterior_al_sistema' => false,
     ];
 
     /**
@@ -135,6 +140,7 @@ final class Pago extends Model
             'validado_en' => 'datetime',
             'anulado_en' => 'datetime',
             'exige_boleta_original' => 'boolean',
+            'anterior_al_sistema' => 'boolean',
             'boleta_original_verificada_en' => 'immutable_datetime',
         ];
     }

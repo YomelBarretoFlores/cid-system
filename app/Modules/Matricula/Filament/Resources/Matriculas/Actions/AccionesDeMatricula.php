@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Modules\Matricula\Filament\Resources\Matriculas\Actions;
 
 use App\Modules\Academico\Contracts\GruposParaTraslado;
+use App\Modules\Matricula\Actions\MatricularEnVentanilla;
 use App\Modules\Matricula\Actions\RetirarMatricula;
 use App\Modules\Matricula\Actions\TrasladarMatricula;
 use App\Modules\Matricula\Enums\EstadoMatricula;
+use App\Modules\Matricula\Enums\PermisoMatricula;
+use App\Modules\Matricula\Filament\Resources\Matriculas\Schemas\MatriculaEnVentanillaForm;
 use App\Modules\Matricula\Models\Matricula;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Filament\AccionDeNegocio;
@@ -27,6 +30,27 @@ final class AccionesDeMatricula
             ->authorize('view')
             ->url(fn (Matricula $record): string => route('panel.matriculas.ficha', $record))
             ->openUrlInNewTab();
+    }
+
+    public static function matricularEnVentanilla(): Action
+    {
+        return Action::make('matricularEnVentanilla')
+            ->label('Matricular en ventanilla')
+            ->icon(Heroicon::OutlinedUserPlus)
+            ->authorize(fn (): bool => auth()->user()?->can(PermisoMatricula::Gestionar->value) ?? false)
+            ->modalDescription('Matricula a un estudiante en un grupo con su pago validado o, mientras la configuración de pagos lo permita, con un pago hecho antes del sistema.')
+            ->schema(MatriculaEnVentanillaForm::componentes())
+            ->action(fn (Action $action, array $data) => AccionDeNegocio::ejecutar(
+                $action,
+                fn (User $usuario): Matricula => app(MatricularEnVentanilla::class)(
+                    (int) $data['persona_id'],
+                    (int) $data['grupo_id'],
+                    MatriculaEnVentanillaForm::pagoId($data),
+                    MatriculaEnVentanillaForm::pagoAnterior($data),
+                    $usuario,
+                ),
+                'Matrícula registrada',
+            ));
     }
 
     /**

@@ -21,9 +21,13 @@ final readonly class GuardarConfiguracionDePagos
         throw_unless($usuario->can(PermisoPago::Configurar->value), AuthorizationException::class);
         $recargo = $this->porcentaje($datos['recargo_matricula_extemporanea'] ?? null);
 
-        return Transaccion::ejecutar(function () use ($recargo): Configuracion {
+        return Transaccion::ejecutar(function () use ($datos, $recargo): Configuracion {
             $configuracion = Configuracion::query()->whereKey(Configuracion::FILA)->lockForUpdate()->first() ?? new Configuracion;
-            $configuracion->forceFill(['id' => Configuracion::FILA, 'recargo_matricula_extemporanea' => $recargo])->save();
+            $configuracion->forceFill([
+                'id' => Configuracion::FILA,
+                'recargo_matricula_extemporanea' => $recargo,
+                'permite_pagos_anteriores_al_sistema' => (bool) ($datos['permite_pagos_anteriores_al_sistema'] ?? $configuracion->permite_pagos_anteriores_al_sistema),
+            ])->save();
 
             return $configuracion;
         });

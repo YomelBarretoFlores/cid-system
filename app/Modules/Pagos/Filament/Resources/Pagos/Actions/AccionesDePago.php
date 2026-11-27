@@ -10,6 +10,7 @@ use App\Modules\Pagos\Actions\ValidarPago;
 use App\Modules\Pagos\Enums\EstadoPago;
 use App\Modules\Pagos\Models\Pago;
 use App\Modules\Pagos\Support\AlertasDePago;
+use App\Modules\Pagos\Support\ReciboGuardado;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Actions\Action;
@@ -18,7 +19,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class AccionesDePago
@@ -30,6 +30,7 @@ final class AccionesDePago
             ->icon(Heroicon::OutlinedArrowDownTray)
             ->color('gray')
             ->authorize('view')
+            ->visible(fn (Pago $record): bool => $record->recibo_path !== null)
             ->action(fn (Action $action, Pago $record): ?StreamedResponse => self::recibo($action, $record));
     }
 
@@ -105,18 +106,16 @@ final class AccionesDePago
 
     private static function recibo(Action $action, Pago $record): ?StreamedResponse
     {
-        $disco = Storage::disk('local');
+        $ruta = ReciboGuardado::ruta($record);
 
-        if (! $disco->exists($record->recibo_path)) {
+        if ($ruta === null) {
             Notification::make()->danger()->title('No se encontró el archivo del recibo.')->send();
             $action->halt();
 
             return null;
         }
 
-        $extension = pathinfo($record->recibo_path, PATHINFO_EXTENSION);
-
-        return $disco->download($record->recibo_path, 'recibo-'.Str::slug($record->numero_operacion).".{$extension}");
+        return Storage::disk('local')->download($ruta, ReciboGuardado::nombreDeDescarga($record, $ruta));
     }
 
     private static function transicion(string $nombre, EstadoPago $destino): Action

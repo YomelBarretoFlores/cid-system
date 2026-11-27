@@ -12,6 +12,7 @@ use App\Shared\Support\Filament\AccionDeNegocio;
 use App\Shared\Ui\Filament\Clusters\Configuracion as ClusterDeConfiguracion;
 use BackedEnum;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
@@ -62,7 +63,10 @@ final class EditarConfiguracionDePagos extends Page
     {
         $configuracion = Configuracion::query()->find(Configuracion::FILA) ?? new Configuracion;
 
-        $this->form->fill(['recargo_matricula_extemporanea' => $configuracion->recargo_matricula_extemporanea]);
+        $this->form->fill([
+            'recargo_matricula_extemporanea' => $configuracion->recargo_matricula_extemporanea,
+            'permite_pagos_anteriores_al_sistema' => $configuracion->permite_pagos_anteriores_al_sistema,
+        ]);
     }
 
     public function form(Schema $schema): Schema
@@ -78,6 +82,9 @@ final class EditarConfiguracionDePagos extends Page
                         ->minValue(0)
                         ->maxValue(100)
                         ->helperText('Se suma a la tarifa de matrícula pagada en el plazo de matrícula extemporánea del periodo. 0 lo desactiva.'),
+                    Toggle::make('permite_pagos_anteriores_al_sistema')
+                        ->label('Permitir pagos anteriores al sistema')
+                        ->helperText('Permite matricular en ventanilla con un pago hecho fuera del sistema, sin el archivo del recibo y con un motivo.'),
                 ]),
             ]);
     }

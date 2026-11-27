@@ -51,6 +51,20 @@ final class PagoFactory extends Factory
         ]);
     }
 
+    public function anteriorAlSistema(): static
+    {
+        return $this->state([
+            'estado' => EstadoPago::Validado,
+            'validado_por' => User::factory(),
+            'validado_en' => now(),
+            'exige_boleta_original' => false,
+            'anterior_al_sistema' => true,
+            'motivo_anterior' => 'Pago de noviembre de 2026, anterior al sistema.',
+            'recibo_path' => null,
+            'recibo_sha256' => null,
+        ]);
+    }
+
     public function rechazado(): static
     {
         return $this->state([

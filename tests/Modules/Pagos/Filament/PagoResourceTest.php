@@ -103,6 +103,14 @@ it('explains a missing receipt file instead of failing', function (): void {
         ->assertNotified('No se encontró el archivo del recibo.');
 });
 
+it('does not offer the receipt download of a payment made before the system without a file', function (): void {
+    $this->actingAs(usuarioDelPanel(PermisoPago::Ver));
+    $anterior = Pago::factory()->anteriorAlSistema()->create();
+
+    Livewire::test(ViewPago::class, ['record' => $anterior->getRouteKey()])
+        ->assertActionHidden('descargarRecibo');
+});
+
 it('finds payments of every matching person, beyond the picker limit', function (): void {
     $personas = Persona::factory()->count(60)->create(['apellido_paterno' => 'Huamán']);
     $pagos = $personas->map(fn (Persona $persona): Pago => Pago::factory()->create(['persona_id' => $persona->id]));

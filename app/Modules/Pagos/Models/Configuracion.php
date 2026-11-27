@@ -12,9 +12,10 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @property int $id
  * @property int $recargo_matricula_extemporanea
+ * @property bool $permite_pagos_anteriores_al_sistema
  */
 #[Table('pag_configuracion')]
-#[Fillable(['recargo_matricula_extemporanea'])]
+#[Fillable(['recargo_matricula_extemporanea', 'permite_pagos_anteriores_al_sistema'])]
 #[WithoutIncrementing]
 final class Configuracion extends Model
 {
@@ -25,10 +26,11 @@ final class Configuracion extends Model
     #[\Override]
     protected $attributes = [
         'recargo_matricula_extemporanea' => self::RECARGO_POR_DEFECTO,
+        'permite_pagos_anteriores_al_sistema' => true,
     ];
 
     protected function casts(): array
     {
-        return ['recargo_matricula_extemporanea' => 'integer'];
+        return ['recargo_matricula_extemporanea' => 'integer', 'permite_pagos_anteriores_al_sistema' => 'boolean'];
     }
 }

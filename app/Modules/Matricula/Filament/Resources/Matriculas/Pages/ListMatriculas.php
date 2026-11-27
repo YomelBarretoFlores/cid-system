@@ -6,6 +6,7 @@ namespace App\Modules\Matricula\Filament\Resources\Matriculas\Pages;
 
 use App\Modules\Academico\Contracts\DetalleDeGrupos;
 use App\Modules\Academico\Data\FichaDeGrupo;
+use App\Modules\Matricula\Filament\Resources\Matriculas\Actions\AccionesDeMatricula;
 use App\Modules\Matricula\Filament\Resources\Matriculas\MatriculaResource;
 use App\Modules\Matricula\Models\Matricula;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
@@ -29,6 +30,11 @@ final class ListMatriculas extends ListRecords
      * @var array<int, FichaDeGrupo>|null
      */
     private ?array $grupos = null;
+
+    protected function getHeaderActions(): array
+    {
+        return [AccionesDeMatricula::matricularEnVentanilla()];
+    }
 
     public function etiquetaDePersona(int $personaId): string
     {

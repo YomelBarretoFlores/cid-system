@@ -43,6 +43,14 @@ it('answers not found when the receipt file is missing', function (): void {
         ->assertNotFound();
 });
 
+it('answers not found for a payment made before the system without a receipt file', function (): void {
+    $pago = Pago::factory()->anteriorAlSistema()->create(['persona_id' => $this->persona->id]);
+
+    $this->actingAs($this->estudiante)
+        ->get(route('estudiante.pagos.recibo', $pago))
+        ->assertNotFound();
+});
+
 it('sends guests to the portal sign-in instead of the receipt', function (): void {
     $pago = Pago::factory()->create(['persona_id' => $this->persona->id]);
 
