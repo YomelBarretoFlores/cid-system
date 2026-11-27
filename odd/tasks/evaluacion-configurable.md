@@ -15,7 +15,7 @@ Objective: CILN defines, without code changes, the grade columns teachers enter,
 - [x] T1 · S2, S3, S4 · Columns (entered/calculated, simple/weighted, rounding, cycle grade), calculation, scope by program and regime, admin form, and every grade view (teacher, acta, student) rendering the scheme columns · inline (one behavior: removing the fixed groups touches every view) · 215c6f3
 - [x] T2 · S1, S3 · Acta stores one grade per cycle; accelerated actas carry two; history and progression use them · inline · d67bcfd, review fixes c09f2f5
 - [x] T3 · S5 · Constancia and record show each accelerated cycle with its own grade · inline · 610cd54
-- [ ] T4 · all · Manuals, data dictionary, pending decisions, demo seed · inline
+- [x] T4 · all · Manuals, data dictionary, pending decisions, demo seed · inline · 509ef6d (migration fix 0fab574)
 
 ## Log
 
