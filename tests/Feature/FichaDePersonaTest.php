@@ -19,7 +19,7 @@ use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Livewire\Livewire;
 
-function personalConPermisos(string ...$permisos): User
+function personalDeLaFicha(string ...$permisos): User
 {
     return User::factory()->create()->givePermissionTo([User::ADMIN_PANEL_PERMISSION, PermisoPersona::Ver->value, ...$permisos]);
 }
@@ -29,7 +29,7 @@ beforeEach(function (): void {
 });
 
 it('titles the person page with the name and shows only the tabs of the modules the staff member can see', function (): void {
-    $this->actingAs(personalConPermisos(PermisoMatricula::Ver->value))
+    $this->actingAs(personalDeLaFicha(PermisoMatricula::Ver->value))
         ->get(PersonaResource::getUrl('view', ['record' => $this->persona]))
         ->assertOk()
         ->assertSee(['Quispe Mamani, Ana', 'DNI 40123456', 'Datos personales', 'Matrículas'])
@@ -42,21 +42,21 @@ it('lists in each tab only the records of the person', function (): void {
     $suyo = Pago::factory()->create(['persona_id' => $this->persona->id]);
     $ajeno = Pago::factory()->create();
 
-    Livewire::actingAs(personalConPermisos(PermisoMatricula::Ver->value))->test(MatriculasDeLaPersona::class, ['personaId' => $this->persona->id])
+    Livewire::actingAs(personalDeLaFicha(PermisoMatricula::Ver->value))->test(MatriculasDeLaPersona::class, ['personaId' => $this->persona->id])
         ->assertCanSeeTableRecords([$suya])
         ->assertCanNotSeeTableRecords([$ajena]);
 
-    Livewire::actingAs(personalConPermisos(PermisoPago::Ver->value))->test(PagosDeLaPersona::class, ['personaId' => $this->persona->id])
+    Livewire::actingAs(personalDeLaFicha(PermisoPago::Ver->value))->test(PagosDeLaPersona::class, ['personaId' => $this->persona->id])
         ->assertCanSeeTableRecords([$suyo])
         ->assertCanNotSeeTableRecords([$ajeno]);
 });
 
 it('refuses a tab to staff without the permission of its module', function (): void {
-    Livewire::actingAs(personalConPermisos())->test(PagosDeLaPersona::class, ['personaId' => $this->persona->id])->assertForbidden();
+    Livewire::actingAs(personalDeLaFicha())->test(PagosDeLaPersona::class, ['personaId' => $this->persona->id])->assertForbidden();
 });
 
 it('offers to register the person as a teacher with the form opened on them, or to open the teacher record', function (): void {
-    $gestor = personalConPermisos(...PermisoDocencia::valores());
+    $gestor = personalDeLaFicha(...PermisoDocencia::valores());
 
     Livewire::actingAs($gestor)->test(ViewPersona::class, ['record' => $this->persona->getRouteKey()])
         ->assertActionVisible('registrarComoDocente')
@@ -74,10 +74,10 @@ it('offers to register the person as a teacher with the form opened on them, or 
 });
 
 it('offers to register a payment with the payer already chosen, only to staff who register payments', function (): void {
-    Livewire::actingAs(personalConPermisos(PermisoPago::Ver->value))->test(ViewPersona::class, ['record' => $this->persona->getRouteKey()])
+    Livewire::actingAs(personalDeLaFicha(PermisoPago::Ver->value))->test(ViewPersona::class, ['record' => $this->persona->getRouteKey()])
         ->assertActionDoesNotExist('registrarPago');
 
-    $cajero = personalConPermisos(PermisoPago::Ver->value, PermisoPago::Registrar->value);
+    $cajero = personalDeLaFicha(PermisoPago::Ver->value, PermisoPago::Registrar->value);
 
     Livewire::actingAs($cajero)->test(ViewPersona::class, ['record' => $this->persona->getRouteKey()])
         ->assertActionVisible('registrarPago');
