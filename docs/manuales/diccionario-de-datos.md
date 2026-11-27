@@ -8,7 +8,7 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 |---|---|
 | Gestor de base de datos | PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) |
 | Esquema | `public` |
-| Última migración aplicada | `2026_12_03_100100_add_puntaje_maximo_to_mat_solicitudes_clasificacion_table` |
+| Última migración aplicada | `2026_12_04_100000_add_usuario_to_users_table` |
 
 **Convenciones:**
 
@@ -32,9 +32,9 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 | Trámites | 9 | 93 |
 | Auditoría | 1 | 10 |
 | Parámetros del sistema | 1 | 16 |
-| Seguridad y control de acceso | 9 | 52 |
+| Seguridad y control de acceso | 9 | 53 |
 | Infraestructura de la aplicación | 7 | 45 |
-| **Total** | **74** | **712** |
+| **Total** | **74** | **713** |
 
 ## 3. Académico (oferta académica)
 
@@ -2497,7 +2497,7 @@ Cuentas de acceso al sistema (personal, docentes y estudiantes).
 |---|---|---|---|---|---|
 | 1 | `id` | bigint | No | Autoincremental | Identificador interno (llave primaria). |
 | 2 | `name` | varchar(255) | No |  | Nombre visible de la cuenta. |
-| 3 | `email` | varchar(255) | No |  | Correo electrónico con el que se inicia sesión; único. |
+| 3 | `email` | varchar(255) | Sí |  | Correo de ingreso, en minúsculas; nulo en una cuenta de docente que solo tiene usuario. |
 | 4 | `email_verified_at` | timestamp | Sí |  | Fecha y hora en que se verificó el correo. |
 | 5 | `password` | varchar(255) | No |  | Contraseña cifrada con hash (bcrypt/argon); nunca se guarda en claro. |
 | 6 | `remember_token` | varchar(100) | Sí |  | Token de la opción "recordarme". |
@@ -2507,15 +2507,18 @@ Cuentas de acceso al sistema (personal, docentes y estudiantes).
 | 10 | `app_authentication_recovery_codes` | text | Sí |  | Códigos de recuperación cifrados del segundo factor. |
 | 11 | `desactivado_en` | timestamptz | Sí |  | Fecha y hora en que la cuenta fue desactivada; nulo si está activa. |
 | 12 | `tema` | varchar(10) | No | `'sistema'` | Preferencia de apariencia de la cuenta (claro, oscuro o del sistema). Valores: `claro`, `oscuro`, `sistema`. |
+| 13 | `usuario` | varchar(20) | Sí |  | Usuario de ingreso que el CILN asigna a un docente: su número de documento; nulo en las demás cuentas. |
 
 **Llave primaria y restricciones únicas:**
 
 - `users_pkey`: `PRIMARY KEY (id)`
 - `users_email_unique`: `UNIQUE (email)`
+- `users_usuario_unique`: `UNIQUE (usuario)`
 
 **Reglas de validación:**
 
 - `users_tema_valido_check`: `CHECK (((tema) = ANY ((ARRAY['claro', 'oscuro', 'sistema']))))`
+- `users_usuario_o_correo`: `CHECK (((usuario IS NOT NULL) OR (email IS NOT NULL)))`
 
 ## 13. Infraestructura de la aplicación
 

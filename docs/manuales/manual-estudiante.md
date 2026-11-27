@@ -118,7 +118,7 @@ Para habilitar su cuenta:
 3. Si usa su propio equipo, puede marcar **Mantener la sesión iniciada en este equipo**. No lo marque en computadoras compartidas o de cabinas públicas.
 4. Presione **Ingresar**.
 
-**Resultado:** el sistema abre la página de inicio del portal del estudiante (ver numeral 3.1). Si su cuenta se creó en la oficina del CILN, primero cree su contraseña con el enlace que recibió en su correo (o pida uno nuevo con **¿Olvidaste tu contraseña?**, numeral 2.5). Si el correo o la contraseña no coinciden, se muestra «El correo o la contraseña no son correctos.». Por seguridad, después de cinco intentos fallidos en un minuto se muestra «Demasiados intentos. Vuelve a intentarlo en … segundos.»; espere ese tiempo e inténtelo de nuevo. La pantalla de ingreso también enlaza la **Política de privacidad y tratamiento de datos personales**.
+**Resultado:** el sistema abre la página de inicio del portal del estudiante (ver numeral 3.1). Si su cuenta se creó en la oficina del CILN, primero cree su contraseña con el enlace que recibió en su correo (o pida uno nuevo con **¿Olvidaste tu contraseña?**, numeral 2.5). Escriba su correo en el campo **Usuario o correo**. Si el correo o la contraseña no coinciden, se muestra «El usuario o la contraseña no son correctos.». Por seguridad, después de cinco intentos fallidos en un minuto se muestra «Demasiados intentos. Vuelve a intentarlo en … segundos.»; espere ese tiempo e inténtelo de nuevo. La pantalla de ingreso también enlaza la **Política de privacidad y tratamiento de datos personales**.
 
 ![Figura 7. Pantalla «Ingresar al portal del CILN»](figuras/ingresar.png)
 

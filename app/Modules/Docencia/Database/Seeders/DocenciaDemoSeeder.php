@@ -89,7 +89,7 @@ final class DocenciaDemoSeeder extends Seeder
      */
     private function docente(array $nombre, string $documento, array $categoria, array $idiomas, array $disponibilidad, bool $conCuenta): Docente
     {
-        $usuario = $conCuenta ? User::factory()->create(['name' => 'Docente Demo', 'email' => 'docente@ciln.test']) : null;
+        $usuario = $conCuenta ? User::factory()->create(['name' => 'Docente Demo', 'email' => 'docente@ciln.test', 'usuario' => $documento]) : null;
         $correo = $conCuenta ? 'docente@ciln.test' : "docente.{$documento}@ciln.test";
         $persona = Persona::factory()->create([
             'user_id' => $usuario?->id, 'numero_documento' => $documento,

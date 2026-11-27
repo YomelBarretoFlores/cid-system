@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Docente
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.3
+version: 1.4
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -16,12 +16,13 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: grupos acelerados | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.3 | 26/11/2026 | Actualización para la versión v1.3.0 del sistema: el personal crea la cuenta del docente y ya no se verifica el correo; ventanas de los llamados configurables por el CILN | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.4 | 27/11/2026 | El docente ingresa con su DNI como usuario y la contraseña que le entrega el CILN; el cambio de contraseña olvidada se hace en la oficina | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
 ## 1.1. Objetivo
 
-El presente manual describe, paso a paso, el uso del Portal Docente del Sistema de Gestión Académica y Administrativa del Centro de Idiomas y Lenguas Nativas (CILN) de la Universidad Nacional Santiago Antúnez de Mayolo (UNASAM). En él se explica cómo crear la cuenta e ingresar al portal, consultar los grupos a cargo, registrar la asistencia y el tema dictado en cada clase, designar al delegado, registrar las notas en la pre-acta, y validar y cerrar el acta final de cada grupo.
+El presente manual describe, paso a paso, el uso del Portal Docente del Sistema de Gestión Académica y Administrativa del Centro de Idiomas y Lenguas Nativas (CILN) de la Universidad Nacional Santiago Antúnez de Mayolo (UNASAM). En él se explica cómo obtener el usuario e ingresar al portal, consultar los grupos a cargo, registrar la asistencia y el tema dictado en cada clase, designar al delegado, registrar las notas en la pre-acta, y validar y cerrar el acta final de cada grupo.
 
 ## 1.2. A quién está dirigido
 
@@ -36,22 +37,21 @@ El manual está dirigido a los docentes del CILN que tienen grupos asignados por
 | Equipo | Computadora, tableta o teléfono con conexión a internet. |
 | Navegador | Versión reciente de Google Chrome, Mozilla Firefox, Microsoft Edge o Safari. |
 | Dirección del sistema | **https://ciln.unasam.edu.pe** |
-| Ficha docente | La coordinación académica registra al docente en el sistema: su ficha de persona, con su documento de identidad y su correo personal, y su ficha docente. |
-| Cuenta de usuario | El personal del CILN crea la cuenta del docente desde su ficha de persona, con el correo personal registrado en ella (no con el correo institucional); el docente crea su contraseña con el enlace que recibe en ese correo (sección 2.1). |
+| Ficha docente | La coordinación académica registra al docente en el sistema: su ficha de persona, con su documento de identidad, y su ficha docente. El correo personal es opcional. |
+| Cuenta de usuario | El personal del CILN crea la cuenta del docente en **Cuentas de docentes**: el usuario es su número de documento (DNI) y la contraseña se la entrega el CILN por escrito (sección 2.1). |
 | Grupos asignados | La coordinación académica debe haber asignado al menos un grupo al docente. |
 
 Las imágenes de este manual se obtuvieron del sistema con datos de demostración generados para las pruebas: los nombres, documentos de identidad, correos, teléfonos, grupos y fechas que aparecen en ellas son ficticios.
 
 # 2. ACCESO AL PORTAL DOCENTE
 
-## 2.1. Obtener la cuenta y crear la contraseña (primer acceso)
+## 2.1. Obtener el usuario y la contraseña (primer acceso)
 
-**Propósito:** obtener el acceso al Portal Docente la primera vez. El docente usa la misma cuenta y la misma página de ingreso que los estudiantes; el sistema lo reconoce como docente porque su cuenta queda vinculada a su ficha docente. El docente no crea su cuenta desde la web: como su documento ya figura en el CILN, el formulario **Crear cuenta** lo rechaza con "No podemos crear una cuenta con ese documento…".
+**Propósito:** obtener el acceso al Portal Docente la primera vez. El docente usa la misma página de ingreso que los estudiantes; el sistema lo reconoce como docente porque su cuenta queda vinculada a su ficha docente. El docente no crea su cuenta desde la web: como su documento ya figura en el CILN, el formulario **Crear cuenta** lo rechaza con "No podemos crear una cuenta con ese documento…".
 
-1. Pida a la coordinación académica que cree su cuenta. El personal verifica su documento de identidad y usa **Crear cuenta del portal** en su ficha de persona; la cuenta se crea con el correo personal registrado en la ficha.
-2. Abra el mensaje **Restablece tu contraseña del CILN** en su correo personal (revise también el correo no deseado) y presione **Restablecer mi contraseña**. El enlace vence a los 60 minutos; si venció, pida otro con **¿Olvidaste tu contraseña?** en la página de ingreso (sección 2.3).
-3. En la página **Crea una nueva contraseña**, escriba la **Nueva contraseña** (al menos 8 caracteres, con letras y números), repítala en **Repite la nueva contraseña** y presione **Guardar contraseña**.
-4. Ingrese con su correo personal y la contraseña creada (sección 2.2).
+1. Acérquese a la oficina del CILN con su documento de identidad.
+2. El personal verifica su documento y crea su cuenta en **Cuentas de docentes**. Su **usuario** es su número de documento (DNI) y la **contraseña** se la entrega el personal por escrito.
+3. Ingrese con ese usuario y esa contraseña (sección 2.2). Si desea, puede cambiar la contraseña después; no es obligatorio.
 
 **Resultado esperado:** el sistema abre el Portal Docente. Si al ingresar aparece "Tu cuenta no está vinculada a un perfil docente del CILN.", la cuenta no corresponde a su ficha docente; comuníquese con la coordinación académica.
 
@@ -60,28 +60,26 @@ Las imágenes de este manual se obtuvieron del sistema con datos de demostració
 **Propósito:** iniciar sesión en el sistema para trabajar con los grupos a cargo.
 
 1. Ingrese a **https://ciln.unasam.edu.pe/ingresar** (opción **Ingresar** de la parte superior de la página pública del CILN).
-2. En la sección **Ingresar al portal del CILN**, escriba su correo en el campo **Correo**.
+2. En la sección **Ingresar al portal del CILN**, escriba su DNI en el campo **Usuario o correo**. Si su cuenta tiene correo, también puede ingresar con él.
 3. Escriba su contraseña en el campo **Contraseña**.
 4. Si usa su propio equipo, puede marcar **Mantener la sesión iniciada en este equipo**. No la marque en computadoras compartidas.
 5. Presione **Ingresar**.
 
 **Resultado esperado:** el sistema reconoce la cuenta de docente y muestra la página **Mis grupos** del Portal Docente.
 
-Si el correo o la contraseña no coinciden, el sistema muestra "El correo o la contraseña no son correctos.". Después de cinco intentos fallidos en un minuto, muestra "Demasiados intentos. Vuelve a intentarlo en … segundos." y espera ese tiempo antes de aceptar un nuevo intento.
+Si el usuario o la contraseña no coinciden, el sistema muestra "El usuario o la contraseña no son correctos.". Después de cinco intentos fallidos en un minuto, muestra "Demasiados intentos. Vuelve a intentarlo en … segundos." y espera ese tiempo antes de aceptar un nuevo intento. Si su cuenta fue dada de baja, el sistema muestra el mismo mensaje; comuníquese con la oficina del CILN.
 
 ![Figura 1. Página de ingreso al portal del CILN](figuras/01-ingresar.png)
 
-## 2.3. Recuperar la contraseña
+## 2.3. Olvidé mi usuario o mi contraseña
 
-**Propósito:** crear una nueva contraseña cuando se ha olvidado la actual. Para cambiar una contraseña que sí recuerda, use **Modificar datos** en el portal del estudiante (opción **Mi portal de estudiante**, sección 2.5), como se explica en el Manual de Usuario – Estudiante, numeral 3.3.
+**Propósito:** recuperar el acceso cuando se olvidó la contraseña.
 
-1. En la página de ingreso, presione **¿Olvidaste tu contraseña?**.
-2. En la sección **Recuperar contraseña**, escriba su correo en el campo **Correo** y presione **Enviar enlace**. El sistema muestra "Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.". Para regresar sin hacer cambios, presione **Volver a ingresar**.
-3. Abra el mensaje **Restablece tu contraseña del CILN** (revise también el correo no deseado) y presione **Restablecer mi contraseña**. El enlace vence a los 60 minutos.
-4. En la página **Crea una nueva contraseña**, verifique su **Correo**, escriba la **Nueva contraseña** (al menos 8 caracteres, con letras y números) y repítala en **Repite la nueva contraseña**.
-5. Presione **Guardar contraseña**.
+1. Acérquese a la oficina del CILN con su documento de identidad. Su usuario es siempre su número de documento (DNI).
+2. El personal verifica su documento y le asigna una nueva contraseña en **Cuentas de docentes**, que le entrega por escrito. Las sesiones que tenga abiertas en otros equipos se cierran.
+3. Ingrese con su DNI y la nueva contraseña (sección 2.2).
 
-**Resultado esperado:** el sistema abre la página de ingreso con el mensaje "Tu contraseña fue restablecida. Ya puedes ingresar.". Si el enlace ya venció, el sistema muestra "El enlace no es válido o ya venció. Solicita uno nuevo." y debe repetir el procedimiento.
+Si su cuenta tiene un correo registrado, también puede crear una nueva contraseña por su cuenta con **¿Olvidaste tu contraseña?** en la página de ingreso: escriba su correo, abra el mensaje **Restablece tu contraseña del CILN** y siga el enlace, que vence a los 60 minutos.
 
 ![Figura 2. Página para recuperar la contraseña](figuras/02-recuperar-clave.png)
 

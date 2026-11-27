@@ -18,6 +18,8 @@ return new class extends Migration
         });
 
         DB::statement('ALTER TABLE users ADD CONSTRAINT users_usuario_o_correo CHECK (usuario IS NOT NULL OR email IS NOT NULL)');
+        DB::statement("COMMENT ON COLUMN users.usuario IS 'Usuario de ingreso que el CILN asigna a un docente: su número de documento; nulo en las demás cuentas.'");
+        DB::statement("COMMENT ON COLUMN users.email IS 'Correo de ingreso, en minúsculas; nulo en una cuenta de docente que solo tiene usuario.'");
     }
 
     public function down(): void

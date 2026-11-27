@@ -11,13 +11,19 @@ Objective: teachers sign in with their DNI and a password that CILN gives them; 
 
 ## Tasks
 
-- [ ] T1 · S1 · `users.usuario` (DNI) and sign-in with username or email (portal and API); email optional for those accounts · inline
-- [ ] T2 · S2–S3 · «Cuentas de docentes» section: create account with DNI and staff-typed password, office password reset · inline
-- [ ] T3 · S4 · Deactivate and reactivate portal accounts (teachers and students) with a reason · inline
-- [ ] T4 · all · Manuals (staff, teacher) and data dictionary · inline
+- [x] T1 · S1 · `users.usuario` (DNI) and sign-in with username or email (portal and API); email optional for those accounts · inline · 39987a3, a9f0846
+- [x] T2 · S2–S3 · «Cuentas de docentes» section: create account with DNI and staff-typed password, office password reset · inline · b8ed33e, correction 1ab5ce7 (see L5)
+- [x] T3 · S4 · Deactivate and reactivate portal accounts (teachers and students) with a reason · inline · d9b317b
+- [x] T4 · all · Manuals (staff, teacher) and data dictionary · inline · see L8–L9
 
 ## Log
 
 - L1 (2026-11-27) Original request: "Bien, ahora vamos a corregir algunas cosas. Primero los inicios de sesión para los docentes, anteriormente en el sistema viejo ellos accedían con un usuario y contraseña que el CILN les proporcionaba. Algo así debe de seguir, esto porque la mayoría de los docentes son personas de la 3ra edad y que no manejan mucho la tecnología. Creo que sería lo mejor que el administrador tenga una sección o algo para que pueda administrar las cuentas de los docentes. Y si es que se olvidan el usuario o contraseña el docente vaya a la oficina correspondiente a que le puedan cambiar de contraseña. Y ahora que lo pienso creo que sería bueno además, que haya opción de dar de baja cuentas, esto sería útil?, para qué casos? Quizás si un estudiante ya no estudia por largos años darle de baja y ya no acceda a su cuenta?, o no es lo mejor?, obvio si hay la opción de dar de baja también debe de haber la opción de revertir o reincorporar."
 - L2 (2026-11-27) "Sí, que su usuario sea su DNI."
 - L3 Current state: sign-in is by email only (`AutenticarUsuario`, portal `IniciarSesion`, API `EmitirTokenDeApi`); teachers use the portal sign-in and the `docente` panel. Teacher accounts are created by `CrearCuentaDelPortal` (record email plus emailed link). `DesactivarUsuario`/`ReactivarUsuario` exist only for staff accounts (`GestoresDeUsuarios`); `users.desactivado_en` already blocks sign-in and panel access.
+- L4 T1 native review (risk, reliability) approved and acknowledged (review-391bff956c6fa6f0). Advisories: `down()` fails if accounts without email exist; generic message changed on purpose («El usuario o la contraseña no son correctos.»); the per-identifier attempt bucket differs for email and username of the same account (the per-address limit of 20 still applies); CHECK test split by constraint name in a9f0846.
+- L5 T2 native review: 1 CRITICAL, valid: a holder of `docencia.gestionar` could set the password of a staff account linked to a teacher's record. Correction: `CuentaSoloDelPortal::bloquear` refuses accounts with roles or panel access in the office password change and in «Asignar usuario» (also used by T3), with a test. The successor review runs on the corrected range.
+- L6 T2 successor review (review-ecc2ce6770911018) approved and acknowledged after the correction. Advisory fixed in e11c8eb: an existing account given the DNI username loses its app tokens. Other advisories: email uniqueness checked without a lock (the unique index still guards it).
+- L7 T3 review (review-fbbc4ef4e145a408) approved and acknowledged. Advisories: the staff guard now refuses any account with roles or permissions, not only panel access (intended); the staff list hides deactivated accounts without roles or permissions (UsuariosDelPersonalTest updated); session closing is not asserted in the test.
+- L8 T4: manuals 1.4 (docente sections 1.3, 2.1–2.3; personal 5.1, 6.7, new 11.2 «Cuentas de docentes», FAQ; estudiante sign-in field and message), column comments for users.usuario and users.email in the T1 migration, demo teacher gets its DNI as username.
+- L9 (2026-11-27) User: «sí por favor y toma en cuenta eso para que no los vuelvas a cometer. Sobre los archivos largos de antes ya que se queden así». Refactor: `CuentaDelDocente` replaces the account lookup repeated in three Actions, one password rule list, `ObtenerCuentasDePersonas` without a placeholder `User`. Full suite 2621/2625 before fixes: data dictionary comments, Seguridad menu order and sentence-case titles were fixed; ProxiesDeConfianzaTest is the known environment failure. Data dictionary regenerated from ciln_testing.

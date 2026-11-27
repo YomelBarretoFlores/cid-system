@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Personal del CILN
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.3
+version: 1.4
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -14,6 +14,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.1 | 19/11/2026 | Actualización para la versión v1.1.1 del sistema | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: programas, grupos acelerados, forma de aprobación, constancia de notas por nivel, datos institucionales, tarifas por nivel y programa, FUT configurable, nuevos trámites y matrícula extemporánea | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.3 | 26/11/2026 | Actualización para la versión v1.3.0 del sistema: menú «Administración» con «Reportes» y «Configuración», catálogos de tipos de vínculo, tipos de documento, modalidades, bancos y grados del FUT, programa por defecto, parámetros del sistema, textos editables, cuentas del portal creadas en la oficina y habilitación de la cuenta del estudiante con su primer pago validado | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.4 | 27/11/2026 | Cuentas de docentes con el DNI como usuario y contraseña entregada en la oficina; dar de baja y reactivar cuentas del portal | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -100,7 +101,7 @@ El menú lateral muestra primero el **Tablero gerencial** y organiza las demás 
 | Certificación | Actas pendientes, Actas finales, Constancias y certificados |
 | Trámites | Trámites |
 | Administración | **Reportes** (todos los reportes, en pestañas; sección 10.2) y **Configuración** (todos los catálogos, parámetros y textos editables; capítulo 3) |
-| Seguridad | Usuarios del personal, Roles, Auditoría |
+| Seguridad | Usuarios del personal, Cuentas de docentes, Roles, Auditoría |
 
 Cada grupo puede contraerse con la flecha de su encabezado, y el menú completo se contrae con **Contraer el menú**. Las cifras resaltadas junto a una opción indican tareas pendientes, por ejemplo pagos por validar o solicitudes de clasificación por evaluar. Al pasar de una pantalla a otra, el menú lateral y el submenú de **Configuración** conservan la posición en que estaban.
 
@@ -436,7 +437,7 @@ Resultado esperado: el programa puede elegirse al crear un grupo. Un programa de
 
 Finalidad: registrar a los docentes y su perfil académico.
 
-1. Registre antes a la persona en **Matrícula > Personas** (sección 6.1), con su **Correo personal**: es el correo de la cuenta del docente, que el personal crea con **Crear cuenta del portal** (sección 6.7).
+1. Registre antes a la persona en **Matrícula > Personas** (sección 6.1), con su documento de identidad. El correo personal es opcional: la cuenta del docente se crea después en **Seguridad > Cuentas de docentes** (sección 11.2), con su DNI como usuario.
 2. Ingrese a **Docencia > Docentes** y pulse **Crear docente**.
 3. En **Persona**, busque por documento o por apellidos y nombres.
 4. En la sección **Docente**, complete **Correo institucional**, **Condición laboral** (obligatoria) y **Grado académico**; en **Datos para el expediente**, **RUC**, **Banco** (del catálogo de bancos, sección 3.6) y **Número de cuenta**.
@@ -597,7 +598,8 @@ Resumen: cualquier persona crea su cuenta en la web sin verificar el correo, per
 | Caso | Cómo se crea | Estado inicial | Qué ve en el portal |
 |---|---|---|---|
 | Persona nueva que se registra en la web | La propia persona, con **Crear cuenta** | No habilitada | Inicio, Modificar datos, Subir fotografía, Preferencias y Registro de pagos |
-| Persona que ya figura en el CILN (estudiante anterior, docente, registrado en ventanilla) | El personal, con **Crear cuenta del portal** | Habilitada | Todas las opciones |
+| Persona que ya figura en el CILN (estudiante anterior, registrado en ventanilla) | El personal, con **Crear cuenta del portal** | Habilitada | Todas las opciones |
+| Docente | El personal, en **Seguridad > Cuentas de docentes** (sección 11.2): usuario = DNI, contraseña entregada en la oficina | Habilitada | Portal Docente |
 | Persona registrada por el personal en **Matrícula > Personas** | Registro en ventanilla (sección 6.1) | Habilitada | Todas las opciones, una vez creada su cuenta |
 
 **Habilitación automática.** Al validar el primer pago de una persona no habilitada (sección 6.3), el sistema registra la fecha de habilitación y la persona ve todas las opciones del portal desde su siguiente pantalla. No hay un botón para habilitar a mano: si una persona necesita la cuenta habilitada, debe tener un pago validado.
@@ -611,7 +613,16 @@ Resumen: cualquier persona crea su cuenta en la web sin verificar el correo, per
 3. Pulse **Crear cuenta del portal**. El botón solo aparece si la persona aún no tiene cuenta y su cuenta del personal tiene el permiso «Gestionar personas».
 4. Confirme en el recuadro.
 
+Para los docentes use **Seguridad > Cuentas de docentes** (sección 11.2), que no necesita correo.
+
 Resultado esperado: se muestra «Cuenta creada y enlace enviado». La cuenta se crea con el correo personal de la ficha y la persona recibe un enlace para crear su contraseña (vence a los 60 minutos; si venció, la persona pide otro con **¿Olvidaste tu contraseña?**). El personal nunca conoce ni escribe la contraseña. El sistema no crea la cuenta si la persona ya tiene una («Esta persona ya tiene una cuenta del portal.»), si no tiene correo personal («Registra primero el correo personal de la persona.») o si el correo ya pertenece a otra cuenta («Ya existe una cuenta con ese correo.»).
+
+**Dar de baja la cuenta.** Finalidad: impedir que una persona ingrese al portal sin borrar nada. Úselo para una cuenta duplicada, una contraseña filtrada o un uso indebido. No dé de baja a un estudiante solo porque dejó de estudiar: más adelante puede necesitar su constancia o su certificado.
+
+1. En **Matrícula > Personas**, abra la vista de la persona y pulse **Dar de baja la cuenta**.
+2. Escriba el **Motivo** y confirme.
+
+Resultado esperado: se muestra «Cuenta dada de baja». La persona ya no puede ingresar al portal, al Portal Docente ni a la API, y se cierran sus sesiones; al intentar ingresar ve el mismo mensaje que con una contraseña incorrecta. Sus datos, pagos, matrículas y documentos se conservan. Para devolverle el acceso, pulse **Reactivar la cuenta**. Las cuentas del personal se dan de baja desde **Seguridad > Usuarios del personal** («Es una cuenta del personal: gestiónala desde Usuarios del personal.»).
 
 # 7. MATRÍCULA Y CLASIFICACIÓN
 
@@ -834,7 +845,27 @@ Sobre una cuenta existente están disponibles:
 - **Reiniciar doble factor**: la persona deberá configurar de nuevo su aplicación autenticadora; también se cierran sus sesiones.
 - **Desactivar**: con un **Motivo**, impide que la persona ingrese al panel, al portal y a la API, y cierra sus sesiones. **Reactivar** devuelve el acceso.
 
-## 11.2. Roles
+## 11.2. Cuentas de docentes
+
+Finalidad: dar a cada docente su usuario y contraseña, cambiar la contraseña cuando la olvida y dar de baja su cuenta. El usuario del docente es su número de documento (DNI); no necesita correo. Requiere el permiso «Gestionar docencia».
+
+1. Ingrese a **Seguridad > Cuentas de docentes**. El listado muestra a cada docente con su **Usuario**, el estado de su **Cuenta** (**Activa**, **Dada de baja** o **Sin cuenta**) y el **Correo de la cuenta**, si tiene.
+2. Verifique en persona el documento de identidad del docente.
+3. Según el caso, pulse sobre el docente:
+
+*Tabla 16. Acciones sobre la cuenta de un docente*
+
+| Acción | Cuándo aparece | Qué hace |
+|---|---|---|
+| **Crear cuenta** | El docente no tiene cuenta | Crea la cuenta con su DNI como usuario y la **Contraseña** que usted escribe (al menos 8 caracteres, con letras y números, repetida en **Repite la contraseña**). Si su ficha tiene un correo personal que ninguna otra cuenta usa, la cuenta lo conserva. Muestra «Cuenta creada. Usuario: …». |
+| **Asignar usuario** | El docente ya tiene una cuenta sin usuario (creada con su correo) | Agrega su DNI como usuario y le pone la contraseña que usted escribe; sigue pudiendo ingresar también con su correo. |
+| **Cambiar contraseña** | El docente tiene cuenta | Le pone una nueva contraseña cuando la olvidó y cierra las sesiones que tenga abiertas. Muestra «Contraseña cambiada». |
+| **Dar de baja** | La cuenta está activa | Con un **Motivo** (por ejemplo, dejó de enseñar en el CILN), impide que ingrese; no borra nada. Muestra «Cuenta dada de baja». |
+| **Reactivar** | La cuenta está dada de baja | Devuelve el acceso con el mismo usuario y contraseña. Muestra «Cuenta reactivada». |
+
+Resultado esperado: entregue al docente por escrito su usuario (DNI) y su contraseña. El docente no está obligado a cambiarla. El sistema rechaza un DNI que ya usa otra cuenta («Ya existe otra cuenta con el usuario …») y nunca cambia la contraseña de una cuenta del personal («Es una cuenta del personal: gestiónala desde Usuarios del personal.»).
+
+## 11.3. Roles
 
 1. Ingrese a **Seguridad > Roles** y pulse **Nuevo rol**, o **Editar** sobre uno existente.
 2. Escriba el **Nombre** del rol y marque sus **Permisos**.
@@ -842,7 +873,7 @@ Sobre una cuenta existente están disponibles:
 
 Resultado esperado: todas las cuentas con el rol reciben sus permisos. Solo se puede eliminar un rol que ninguna cuenta tiene.
 
-## 11.3. Auditoría
+## 11.4. Auditoría
 
 **Seguridad > Auditoría** registra cada alta, modificación y baja de los datos críticos (pagos, matrículas, actas, documentos, trámites, cuentas y roles), con **Fecha y hora**, **Tabla**, **Operación**, **Registro**, **Usuario** e **IP**. Filtre por fechas (**Desde**, **Hasta**), **Usuario**, **Tabla**, **Operación** o **Registro (ID)**, y pulse **Ver** para consultar los **Cambios** de un registro. La auditoría es de solo lectura: nadie puede modificarla ni borrarla.
 
@@ -850,7 +881,7 @@ Resultado esperado: todas las cuentas con el rol reciben sus permisos. Solo se p
 
 # 12. PREGUNTAS FRECUENTES
 
-*Tabla 16. Preguntas frecuentes*
+*Tabla 17. Preguntas frecuentes*
 
 | Pregunta | Respuesta |
 |---|---|
@@ -858,6 +889,7 @@ Resultado esperado: todas las cuentas con el rol reciben sus permisos. Solo se p
 | Un estudiante creó su cuenta pero no ve la matrícula ni los trámites. | Su cuenta no está habilitada: falta validar su primer pago. Revise **Cuenta habilitada** en su ficha («Pendiente…») y valide el pago con la boleta original (sección 6.7). |
 | Una persona que ya estudió en el CILN no puede crear su cuenta en la web. | Es lo esperado: el registro web rechaza los documentos que ya figuran en el CILN. Verifique su documento y use **Crear cuenta del portal** en su ficha (sección 6.7). |
 | El sistema no me deja ingresar tras varios intentos. | Por seguridad se bloquean temporalmente los intentos y el sistema indica cuántos segundos esperar; si olvidó la contraseña, pida al administrador **Reenviar enlace para crear contraseña**. |
+| Un docente olvidó su usuario o su contraseña. | Su usuario es su DNI. Verifique su documento y use **Cambiar contraseña** en **Seguridad > Cuentas de docentes** (sección 11.2). |
 | Perdí el teléfono con la aplicación autenticadora. | Use un código de recuperación o pida al administrador **Reiniciar doble factor**. |
 | No aparece el botón **Validar** en un pago. | Solo se validan pagos en estado **Pendiente** y con el permiso «Validar pagos». |
 | El monto del pago no coincide con la tarifa. | Al validar, el sistema pide la **Justificación del monto distinto de la tarifa**; si el pago no corresponde, use **Rechazar**. Un pago de matrícula del plazo extemporáneo debe incluir el recargo. |
