@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\Personas\Filament\Resources\Personas\Pages;
 
-use App\Modules\Personas\Actions\ComprobarDocumento;
+use App\Modules\Personas\Actions\RegistrarPersona;
 use App\Modules\Personas\Filament\Resources\Personas\Pages\Concerns\InformaDocumentoRepetido;
 use App\Modules\Personas\Filament\Resources\Personas\PersonaResource;
-use App\Modules\Personas\Models\Persona;
+use App\Modules\Personas\Filament\Resources\Personas\Schemas\PersonaForm;
+use App\Shared\Support\Filament\AccionDeNegocio;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 
 final class CreatePersona extends CreateRecord
 {
@@ -21,16 +21,7 @@ final class CreatePersona extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $aceptado = (bool) Arr::pull($data, 'acepta_tratamiento', false);
-
-        return $this->guardarSinRepetirDocumento(function () use ($data, $aceptado): Model {
-            $persona = new Persona($data);
-            app(ComprobarDocumento::class)($persona);
-            $persona->registrarConsentimiento($aceptado);
-            $persona->save();
-
-            return $persona;
-        });
+        return $this->guardarSinRepetirDocumento(fn (): Model => app(RegistrarPersona::class)(PersonaForm::datos($data), AccionDeNegocio::usuario()));
     }
 
     protected function getRedirectUrl(): string

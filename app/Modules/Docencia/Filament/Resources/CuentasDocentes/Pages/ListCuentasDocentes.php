@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Docencia\Filament\Resources\CuentasDocentes\Pages;
 
+use App\Modules\Docencia\Filament\Resources\CuentasDocentes\ConCuentasDeDocentes;
 use App\Modules\Docencia\Filament\Resources\CuentasDocentes\CuentaDocenteResource;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Personas\Contracts\CuentasDePersonas;
@@ -12,7 +13,7 @@ use App\Modules\Personas\Data\CuentaDelPortal;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Collection;
 
-final class ListCuentasDocentes extends ListRecords
+final class ListCuentasDocentes extends ListRecords implements ConCuentasDeDocentes
 {
     #[\Override]
     protected static string $resource = CuentaDocenteResource::class;
@@ -42,7 +43,6 @@ final class ListCuentasDocentes extends ListRecords
         return $this->cuentas[$docente->persona_id] ?? null;
     }
 
-    // After a change the next render must read the accounts again.
     public function olvidarCuentas(): void
     {
         $this->cuentas = null;

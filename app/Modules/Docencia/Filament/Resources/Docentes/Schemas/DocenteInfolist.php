@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Docencia\Filament\Resources\Docentes\Schemas;
 
 use App\Modules\Docencia\Enums\EstadoDocente;
+use App\Modules\Docencia\Filament\Resources\CuentasDocentes\AccionesDeCuentaDocente;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ViewDocente;
 use App\Modules\Docencia\Models\Docente;
 use Filament\Infolists\Components\TextEntry;
@@ -41,6 +42,13 @@ final class DocenteInfolist
                             ->placeholder('—'),
                         TextEntry::make('condicionLaboral.nombre')->label('Condición laboral'),
                         TextEntry::make('gradoAcademico.nombre')->label('Grado académico')->placeholder('Sin registrar'),
+                    ]),
+                Section::make('Cuenta de acceso')
+                    ->columns(3)
+                    ->schema([
+                        TextEntry::make('usuario')->label('Usuario')->state(fn (Docente $record, ViewDocente $livewire): ?string => $livewire->cuentaDe($record)?->usuario)->placeholder('—')->copyable(),
+                        TextEntry::make('estado_de_cuenta')->label('Estado')->state(fn (Docente $record, ViewDocente $livewire): string => AccionesDeCuentaDocente::estado($livewire->cuentaDe($record))),
+                        TextEntry::make('correo_de_cuenta')->label('Correo de la cuenta')->state(fn (Docente $record, ViewDocente $livewire): ?string => $livewire->cuentaDe($record)?->correo)->placeholder('Sin correo'),
                     ]),
                 Section::make('Perfil académico')
                     ->schema([

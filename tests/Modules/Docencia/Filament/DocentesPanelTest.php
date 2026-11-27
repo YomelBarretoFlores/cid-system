@@ -13,11 +13,13 @@ use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ListDocentes;
 use App\Modules\Docencia\Filament\Resources\Docentes\Pages\ViewDocente;
 use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
+use App\Modules\Personas\Enums\PermisoPersona;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use Filament\Forms\Components\Repeater;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 
@@ -40,10 +42,15 @@ afterEach(function (): void {
     ($this->undoRepeaterFake)();
 });
 
+function documentoDe(Persona $persona): array
+{
+    return ['tipo_documento' => $persona->tipo_documento, 'numero_documento' => $persona->numero_documento];
+}
+
 function formularioDeDocente(array $cambios = []): array
 {
     return [
-        'persona_id' => Persona::factory()->create()->id,
+        'persona' => documentoDe(Persona::factory()->create()),
         'correo_institucional' => 'nuevo@unasam.test',
         'ruc' => '10777777777',
         'banco' => 'bbva',
@@ -93,7 +100,7 @@ it('registers a teacher from the panel', function (): void {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    $docente = Docente::query()->where('persona_id', $datos['persona_id'])->firstOrFail();
+    $docente = Docente::query()->where('persona_id', Persona::query()->where('numero_documento', $datos['persona']['numero_documento'])->value('id'))->firstOrFail();
 
     expect([$docente->ruc, $docente->cuenta_bancaria, $docente->condicionLaboral->codigo, $docente->idiomas()->count()])
         ->toBe(['10777777777', '0011-0222-0333', 'tercero', 1]);
@@ -101,7 +108,7 @@ it('registers a teacher from the panel', function (): void {
 
 it('tells why a teacher cannot be registered and saves nothing', function (): void {
     Livewire::actingAs($this->gestor)->test(CreateDocente::class)
-        ->fillForm(formularioDeDocente(['persona_id' => $this->persona->id]))
+        ->fillForm(formularioDeDocente(['persona' => documentoDe($this->persona)]))
         ->call('create')
         ->assertNotified('Esta persona ya está registrada como docente.');
 
@@ -187,4 +194,85 @@ it('offers the active banks of the catalog and refuses one outside it', function
         ->assertHasFormErrors(['banco']);
 
     expect(Docente::query()->where('banco', 'caja_sullana')->exists())->toBeFalse();
+});
+
+it('registers a new person and the teacher in one screen, with an account whose username is the DNI', function (): void {
+    Livewire::actingAs($this->gestor->givePermissionTo(PermisoPersona::Gestionar->value))->test(CreateDocente::class)
+        ->fillForm(formularioDeDocente([
+            'persona' => ['tipo_documento' => 'dni', 'numero_documento' => '45678912'],
+        ]))
+        ->assertSee('Datos de la nueva persona')
+        ->fillForm(['persona' => [
+            'tipo_documento' => 'dni', 'numero_documento' => '45678912', 'apellido_paterno' => 'Huamán', 'apellido_materno' => 'Torres',
+            'nombres' => 'Lucía', 'correo' => 'lucia.prueba@example.com', 'celular' => '987 654 321', 'tipo_vinculo' => 'publico_general', 'acepta_tratamiento' => true,
+        ], 'crear_cuenta' => true, 'contrasena' => 'docente2027', 'contrasena_confirmation' => 'docente2027'])
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertNotified('Docente registrado. Usuario: 45678912');
+
+    $persona = Persona::query()->where('numero_documento', '45678912')->sole();
+    $cuenta = User::query()->where('usuario', '45678912')->sole();
+
+    expect([$persona->nombres, $persona->celular, $persona->tratamiento_aceptado_en !== null, $persona->user_id])->toBe(['Lucía', '987654321', true, $cuenta->id])
+        ->and(Hash::check('docente2027', $cuenta->password))->toBeTrue()
+        ->and(Docente::query()->where('persona_id', $persona->id)->sole()->ruc)->toBe('10777777777');
+});
+
+it('uses the person already registered with the document instead of registering another', function (): void {
+    $persona = Persona::factory()->create(['numero_documento' => '46000111', 'apellido_paterno' => 'Yauri', 'nombres' => 'Teodoro']);
+
+    Livewire::actingAs($this->gestor)->test(CreateDocente::class)
+        ->fillForm(formularioDeDocente(['persona' => documentoDe($persona)]))
+        ->assertSee(['Yauri', 'Teodoro', 'Ya está registrada: se usarán sus datos.'])
+        ->assertDontSee('Datos de la nueva persona')
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Persona::query()->where('numero_documento', '46000111')->count())->toBe(1)
+        ->and(Docente::query()->where('persona_id', $persona->id)->exists())->toBeTrue()
+        ->and($persona->refresh()->user_id)->toBeNull();
+});
+
+it('saves neither the new person nor the account when the teacher is refused', function (): void {
+    Livewire::actingAs($this->gestor->givePermissionTo(PermisoPersona::Gestionar->value))->test(CreateDocente::class)
+        ->fillForm(formularioDeDocente([
+            'persona' => ['tipo_documento' => 'dni', 'numero_documento' => '45678913', 'apellido_paterno' => 'Huamán', 'nombres' => 'Lucía', 'tipo_vinculo' => 'publico_general'],
+            'ruc' => '10401234567', 'crear_cuenta' => true, 'contrasena' => 'docente2027', 'contrasena_confirmation' => 'docente2027',
+        ]))
+        ->call('create')
+        ->assertNotified('Ya existe un docente con el RUC 10401234567.');
+
+    expect(Persona::query()->where('numero_documento', '45678913')->exists())->toBeFalse()
+        ->and(User::query()->where('usuario', '45678913')->exists())->toBeFalse();
+});
+
+it('asks staff who cannot register people to have the person registered first', function (): void {
+    Livewire::actingAs($this->gestor)->test(CreateDocente::class)
+        ->fillForm(formularioDeDocente(['persona' => ['tipo_documento' => 'dni', 'numero_documento' => '45678914']]))
+        ->assertSee('Pide a quien gestiona personas que la registre y vuelve a buscarla.')
+        ->assertDontSee('Datos de la nueva persona')
+        ->call('create');
+
+    expect(Persona::query()->where('numero_documento', '45678914')->exists())->toBeFalse()
+        ->and(Docente::query()->count())->toBe(1);
+});
+
+it('shows the account on the teacher page and manages it there', function (): void {
+    $this->actingAs($this->gestor)->get(DocenteResource::getUrl('view', ['record' => $this->docente]))
+        ->assertOk()
+        ->assertSee(['Cuenta de acceso', 'Sin cuenta']);
+
+    Livewire::actingAs($this->gestor)->test(ViewDocente::class, ['record' => $this->docente->getRouteKey()])
+        ->callAction('crearCuenta', data: ['contrasena' => 'docente2027', 'contrasena_confirmation' => 'docente2027'])
+        ->assertNotified('Cuenta creada. Usuario: 40123456')
+        ->assertSee('Activa')
+        ->callAction('cambiarContrasena', data: ['contrasena' => 'clave2028', 'contrasena_confirmation' => 'clave2028'])
+        ->assertNotified('Contraseña cambiada')
+        ->callAction('darDeBaja', data: ['motivo' => 'Dejó de dictar en el CILN'])
+        ->assertNotified('Cuenta dada de baja')
+        ->assertSee('Dada de baja');
+
+    $cuenta = User::query()->where('usuario', '40123456')->sole();
+    expect(Hash::check('clave2028', $cuenta->password))->toBeTrue()
+        ->and($cuenta->desactivado_en)->not->toBeNull();
 });

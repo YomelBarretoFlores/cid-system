@@ -24,6 +24,7 @@ trait InformaDocumentoRepetido
         try {
             return Transaccion::ejecutar($guardar, reintentar: false);
         } catch (ReglaDeNegocioIncumplida $error) {
+            throw_if($error->getMessage() === PersonaForm::DOCUMENTO_REPETIDO, ValidationException::withMessages(['data.numero_documento' => PersonaForm::DOCUMENTO_REPETIDO]));
             AccionDeNegocio::detener($error);
         } catch (UniqueConstraintViolationException $error) {
             // Someone else registered the same document after validation ran.

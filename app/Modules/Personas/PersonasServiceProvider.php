@@ -27,8 +27,10 @@ use App\Modules\Personas\Contracts\EtiquetasDePersonas;
 use App\Modules\Personas\Contracts\FichaDelUsuario;
 use App\Modules\Personas\Contracts\FichaDePersona;
 use App\Modules\Personas\Contracts\FichasDePersonas;
+use App\Modules\Personas\Contracts\FormularioDePersona;
 use App\Modules\Personas\Contracts\FotoDePersona;
 use App\Modules\Personas\Contracts\SubconsultaDePersonas;
+use App\Modules\Personas\Filament\Schemas\FormularioDePersonaPorDocumento;
 use App\Modules\Personas\Http\Middleware\RequiereCuentaHabilitada;
 use App\Modules\Personas\Http\Middleware\RequiereFichaDeEstudiante;
 use App\Modules\Personas\Listeners\AlValidarPago;
@@ -54,6 +56,7 @@ final class PersonasServiceProvider extends ModuleServiceProvider
         FotoDePersona::class => ObtenerFotoDePersona::class,
         CuentasDePersonas::class => ObtenerCuentasDePersonas::class,
         AccesoConDocumento::class => DarAccesoConDocumento::class,
+        FormularioDePersona::class => FormularioDePersonaPorDocumento::class,
     ];
 
     #[\Override]

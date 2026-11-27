@@ -9,17 +9,21 @@ use App\Modules\Academico\Data\IdiomaDelCatalogo;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Docencia\Data\DatosDeDocente;
 use App\Modules\Docencia\Data\IdiomaHabilitado;
+use App\Modules\Docencia\Filament\Resources\CuentasDocentes\AccionesDeCuentaDocente;
 use App\Modules\Docencia\Models\Banco;
 use App\Modules\Docencia\Models\CondicionLaboral;
 use App\Modules\Docencia\Models\Docente;
 use App\Modules\Docencia\Models\DocenteIdioma;
 use App\Modules\Docencia\Models\GradoAcademico;
-use App\Modules\Personas\Contracts\BusquedaDePersonas;
 use App\Modules\Personas\Contracts\EtiquetasDePersonas;
+use App\Modules\Personas\Contracts\FormularioDePersona;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -30,17 +34,18 @@ final class DocenteForm
         return $schema
             ->columns(1)
             ->components([
+                Section::make('Persona')
+                    ->description('Busca por su documento de identidad. Si aún no está registrada, completa sus datos aquí mismo.')
+                    ->schema(fn (): array => app(FormularioDePersona::class)->campos())
+                    ->visibleOn('create'),
                 Section::make('Docente')
                     ->columns(2)
                     ->schema([
                         Select::make('persona_id')
                             ->label('Persona')
-                            ->helperText('Registra antes a la persona en «Personas»; aquí se busca por documento o por apellidos y nombres.')
-                            ->searchable()
-                            ->getSearchResultsUsing(fn (string $search): array => app(BusquedaDePersonas::class)($search))
-                            ->getOptionLabelUsing(fn (int|string $value): ?string => app(EtiquetasDePersonas::class)([(int) $value])[(int) $value] ?? null)
-                            ->disabledOn('edit')
-                            ->required()
+                            ->options(fn (?Docente $record): array => $record instanceof Docente ? app(EtiquetasDePersonas::class)([$record->persona_id]) : [])
+                            ->disabled()
+                            ->visibleOn('edit')
                             ->columnSpanFull(),
                         TextInput::make('correo_institucional')->label('Correo institucional')->email()->required()->maxLength(120),
                         Select::make('condicion_laboral_id')->label('Condición laboral')->options(fn (?Docente $record): array => self::opciones(CondicionLaboral::query(), $record?->condicion_laboral_id))->required(),
@@ -64,6 +69,15 @@ final class DocenteForm
                                 Select::make('idioma_id')->label('Idioma')->options(fn (): array => self::idiomas())->distinct()->required(),
                                 Select::make('nivel_maximo')->label('Nivel máximo autorizado')->options(self::niveles())->required(),
                             ]),
+                    ]),
+                Section::make('Cuenta de acceso')
+                    ->description('Con ella el docente ingresa a su panel. También puedes crearla después desde su ficha.')
+                    ->columns(2)
+                    ->visibleOn('create')
+                    ->schema([
+                        Toggle::make('crear_cuenta')->label('Crear ahora su cuenta de acceso')->helperText('Su usuario será su número de documento.')->live()->columnSpanFull(),
+                        Group::make(AccionesDeCuentaDocente::camposDeContrasena())->columns(2)->columnSpanFull()
+                            ->visible(fn (Get $get): bool => (bool) $get('crear_cuenta')),
                     ]),
             ]);
     }
@@ -98,12 +112,12 @@ final class DocenteForm
     /**
      * @param  array<string, mixed>  $data
      */
-    public static function datos(array $data): DatosDeDocente
+    public static function datos(array $data, ?int $personaId = null): DatosDeDocente
     {
         $idiomas = is_array($data['idiomas'] ?? null) ? $data['idiomas'] : [];
 
         return new DatosDeDocente(
-            personaId: self::entero($data['persona_id'] ?? null),
+            personaId: $personaId ?? self::entero($data['persona_id'] ?? null),
             correoInstitucional: self::texto($data['correo_institucional'] ?? null),
             ruc: trim(self::texto($data['ruc'] ?? null)),
             banco: self::texto($data['banco'] ?? null),
