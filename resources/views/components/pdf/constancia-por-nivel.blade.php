@@ -6,6 +6,8 @@
     $detalle = $documento->detalle;
     $emitido = $documento->emitido_en->setTimezone('America/Lima');
     $fecha = $emitido->day.' de '.Formato::mes($emitido->month).' de '.$emitido->year;
+    // Records issued before accelerated rows were marked have no flag: their rows read as regular, as they were printed.
+    $acelerados = array_filter($detalle['filas'], fn (array $fila): bool => $fila['acelerado'] ?? false);
 @endphp
 <x-pdf.documento :titulo="trim($titulo.' '.$documento->numeroOficial())" membrete="institucional" :institucion="$institucion" :denominacion="$denominacion">
     <p><strong>EL DIRECTOR DEL {{ mb_strtoupper($institucion->centro) }} DE LA {{ preg_replace('/^(UNIVERSIDAD NACIONAL)\s+(.+)$/u', '$1 "$2"', mb_strtoupper($institucion->universidad)) }} QUIEN SUSCRIBE AL FINAL, HACE CONSTAR LO SIGUIENTE:</strong></p>
@@ -20,6 +22,9 @@
         @endisset
     </table>
 
+    @if ($acelerados !== [] && count($acelerados) === count($detalle['filas']))
+        <p style="margin: 12px 0 0; text-align: center;"><strong>NIVEL ACELERADO</strong></p>
+    @endif
     <table class="lista" style="margin-top: 12px;">
         <thead>
             <tr><th class="centro">ITEM</th><th>NIVEL</th><th class="centro">CICLO</th><th class="centro">AÑO</th><th>MES</th><th class="centro">NOTA</th><th>FORMA DE APROBACIÓN</th></tr>
@@ -33,7 +38,7 @@
                     <td class="centro">{{ $fila['anio'] ?? '—' }}</td>
                     <td>{{ $fila['mes'] ?? '—' }}</td>
                     <td class="centro"><strong>{{ $fila['nota'] }}</strong></td>
-                    <td>{{ $fila['forma'] }}</td>
+                    <td>{{ $fila['forma'] }}{{ ($fila['acelerado'] ?? false) && count($acelerados) < count($detalle['filas']) ? ' (ACELERADO)' : '' }}</td>
                 </tr>
             @endforeach
         </tbody>

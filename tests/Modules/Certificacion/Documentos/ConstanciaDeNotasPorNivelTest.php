@@ -62,12 +62,32 @@ it('issues a grade record of one level with its passed cycles, year, month and f
         ->and($documento->detalle['programa'])->toBe('Programa Sintético')
         ->and($documento->detalle['curriculo'])->toBe('01')
         ->and($documento->detalle['filas'])->toBe([
-            ['item' => 1, 'nivel' => 'Básico', 'ciclo' => 'I', 'anio' => 2026, 'mes' => 'Setiembre', 'nota' => '15.00', 'forma' => 'MATRÍCULA'],
-            ['item' => 2, 'nivel' => 'Básico', 'ciclo' => 'II', 'anio' => 2026, 'mes' => 'Octubre', 'nota' => '16.50', 'forma' => 'MATRÍCULA'],
-            ['item' => 3, 'nivel' => 'Básico', 'ciclo' => 'III', 'anio' => 2026, 'mes' => 'Noviembre', 'nota' => '14.00', 'forma' => 'SUFICIENCIA'],
+            ['item' => 1, 'nivel' => 'Básico', 'ciclo' => 'I', 'anio' => 2026, 'mes' => 'Setiembre', 'nota' => '15.00', 'forma' => 'MATRÍCULA', 'acelerado' => false],
+            ['item' => 2, 'nivel' => 'Básico', 'ciclo' => 'II', 'anio' => 2026, 'mes' => 'Octubre', 'nota' => '16.50', 'forma' => 'MATRÍCULA', 'acelerado' => false],
+            ['item' => 3, 'nivel' => 'Básico', 'ciclo' => 'III', 'anio' => 2026, 'mes' => 'Noviembre', 'nota' => '14.00', 'forma' => 'SUFICIENCIA', 'acelerado' => false],
         ])
         ->and($documento->detalle['programa_curricular'])->toBe(['basico' => 4, 'intermedio' => 4, 'avanzado' => 4])
         ->and(array_column($documento->detalle['notas'], 'ciclo_numero'))->toBe([1, 2, 3]);
+});
+
+it('shows a level studied in accelerated groups with the grade of each cycle and marks it as accelerated', function (): void {
+    $eva = Persona::factory()->create(['apellido_paterno' => 'Ramos', 'numero_documento' => '70000002']);
+    ActasFinales::historial($eva, 'Italiano', [[1, '16.00', 'aprobado', 2, ['16.00', 'aprobado']], [3, '16.00', 'aprobado', 4, ['15.00', 'aprobado']]]);
+    $documento = app(EmitirConstanciaDeNotas::class)($eva->id, 'Italiano', NivelCurricular::Basico, $this->emisor);
+
+    expect(array_map(fn (array $fila): array => [$fila['ciclo'], $fila['nota'], $fila['acelerado']], $documento->detalle['filas']))
+        ->toBe([['I', '16.00', true], ['II', '16.00', true], ['III', '16.00', true], ['IV', '15.00', true]])
+        ->and(htmlDelDocumento($documento))->toContain('NIVEL ACELERADO')->not->toContain('(ACELERADO)');
+});
+
+it('marks only the accelerated cycles when the level mixes regular and accelerated groups', function (): void {
+    $eva = Persona::factory()->create(['apellido_paterno' => 'Ramos', 'numero_documento' => '70000002']);
+    ActasFinales::historial($eva, 'Italiano', [[1, '14.00', 'aprobado', 2, ['13.00', 'aprobado']], [3, '16.00', 'aprobado']]);
+
+    $html = htmlDelDocumento(app(EmitirConstanciaDeNotas::class)($eva->id, 'Italiano', NivelCurricular::Basico, $this->emisor));
+
+    expect($html)->not->toContain('NIVEL ACELERADO')
+        ->and(substr_count($html, 'MATRÍCULA (ACELERADO)'))->toBe(2);
 });
 
 it('issues the intermediate level apart, with only its cycles', function (): void {

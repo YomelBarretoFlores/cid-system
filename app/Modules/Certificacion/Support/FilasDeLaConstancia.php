@@ -61,7 +61,7 @@ final readonly class FilasDeLaConstancia
 
     /**
      * @param  list<NotaDelHistorial>  $notas
-     * @return list<array{item: int, nivel: string, ciclo: string, anio: ?int, mes: ?string, nota: string, forma: string}>
+     * @return list<array{item: int, nivel: string, ciclo: string, anio: ?int, mes: ?string, nota: string, forma: string, acelerado: bool}>
      */
     public static function filas(array $notas): array
     {
@@ -73,6 +73,7 @@ final readonly class FilasDeLaConstancia
             'mes' => $nota->mes === null ? null : Formato::mes($nota->mes),
             'nota' => $nota->promedio ?? '—',
             'forma' => mb_strtoupper($nota->forma->etiqueta()),
+            'acelerado' => $nota->acelerado,
         ], array_keys($notas), $notas);
     }
 

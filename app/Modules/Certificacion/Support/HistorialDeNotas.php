@@ -208,6 +208,7 @@ final class HistorialDeNotas
             anio: $inicio?->year,
             mes: $inicio?->month,
             fecha: self::diaOficial($nota->getAttribute('validada_en')),
+            acelerado: $nota->getAttribute('horas_lectivas_hasta') !== null,
         );
     }
 }

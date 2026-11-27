@@ -28,6 +28,8 @@ final readonly class NotaDelHistorial
         public ?int $mes = null,
         // Day the result became official (acta validation or approval date), Y-m-d in Lima; not part of the frozen detail.
         public ?string $fecha = null,
+        // One of the two cycles of an accelerated group.
+        public bool $acelerado = false,
     ) {}
 
     /**
