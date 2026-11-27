@@ -32,6 +32,8 @@ final readonly class DarAccesoConDocumento implements AccesoConDocumento
 
             $cuenta ??= $this->nuevaCuenta($persona);
             $cuenta->forceFill(['usuario' => $usuario, 'password' => $contrasena, 'remember_token' => Str::random(60)])->save();
+            // An account that already existed may have app tokens issued with its previous password.
+            $cuenta->tokens()->delete();
             $persona->user()->associate($cuenta)->save();
 
             return ObtenerCuentasDePersonas::cuenta($persona->id, $cuenta);

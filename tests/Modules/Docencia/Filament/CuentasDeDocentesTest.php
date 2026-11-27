@@ -53,6 +53,7 @@ it('keeps the email of the record on the new account when no other account uses 
 
 it('gives the DNI username and a new password to the account a teacher already has', function (): void {
     $existente = User::factory()->create(['email' => 'docente@correo.test']);
+    $existente->createToken('App móvil');
     $docente = docenteSinCuenta(['user_id' => $existente->id]);
 
     cuentasDeDocentes($this->gestor)
@@ -62,6 +63,7 @@ it('gives the DNI username and a new password to the account a teacher already h
 
     expect(User::query()->count())->toBe(2)
         ->and($existente->fresh()?->usuario)->toBe('41234567')
+        ->and($existente->tokens()->count())->toBe(0)
         ->and(Hash::check('docente2027', (string) $existente->fresh()?->password))->toBeTrue();
 });
 
