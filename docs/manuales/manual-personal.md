@@ -328,7 +328,7 @@ Finalidad: editar los textos que imprimen los documentos y los que muestra la we
 
 Resultado esperado: se muestra el mensaje de guardado de la pantalla («Textos de documentos guardados», «Política de privacidad guardada» o «Contenido de la portada guardado»). Si un campo obligatorio queda vacío o excede su longitud, el sistema no guarda e indica el campo.
 
-**Vista previa de la portada.** Antes de guardar, pulse **Vista previa** en **Contenido de la portada**: se abre en otra pestaña la web pública con los cambios y el aviso «Vista previa: los cambios aún no se guardaron.». Nada se publica hasta pulsar **Guardar**. Una foto nueva se ve recién después de guardar. Si el navegador bloquea la pestaña, use **Abrir vista previa** en el aviso.
+**Vista previa de la portada.** Antes de guardar, pulse **Vista previa** en **Contenido de la portada**: se abre en otra pestaña la web pública con los cambios y el aviso «Vista previa: los cambios aún no se guardaron.». Nada se publica hasta pulsar **Guardar**. Una foto nueva se ve recién después de guardar. Si el navegador bloquea la pestaña, use **Abrir vista previa** en el aviso. En la vista previa, cada sección tiene un enlace **Editar**: lo lleva a la pestaña del formulario, en esa sección, sin perder los cambios que aún no guardó.
 
 **Atajos «Editar».** Si inició sesión en el panel con el permiso para configurar la portada y visita la web pública, cada sección muestra un enlace **Editar** que abre esa parte del formulario. Los visitantes, los estudiantes y el personal sin ese permiso no lo ven.
 

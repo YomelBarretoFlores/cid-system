@@ -40,7 +40,8 @@ it('previews the unsaved texts with a banner, without saving them nor caching or
         ->assertSeeText('Vista previa: los cambios aún no se guardaron')
         ->assertSeeText('para el borrador sintético.')
         ->assertSeeText('Pie de borrador sintético.')
-        ->assertDontSee('#seccion-', false)
+        ->assertSee(EditarContenidoDePortada::getUrl(panel: 'admin').'#seccion-centro', false)
+        ->assertSee('data-editar-seccion', false)
         ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
         ->assertHeader('Cache-Control', 'no-store, private');
 

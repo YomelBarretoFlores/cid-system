@@ -123,7 +123,8 @@ final class EditarContenidoDePortada extends Page
         }
 
         $url = route('panel.portada.vista-previa');
-        $this->js('window.open('.Js::from($url).", '_blank', 'noopener')");
+        // Without noopener: the preview's «Editar» links move this tab, with its unsaved changes, to the section.
+        $this->js('window.open('.Js::from($url).", '_blank')");
         Notification::make()->info()->title('Vista previa lista')->body('Se abrió en otra pestaña. Los cambios aún no se guardaron.')
             ->actions([Action::make('abrir')->label('Abrir vista previa')->url($url, shouldOpenInNewTab: true)])
             ->send();

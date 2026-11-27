@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Tramites\Http\Controllers;
 
 use App\Modules\Tramites\Filament\Pages\EditarContenidoDePortada;
+use App\Modules\Tramites\Support\AtajosDeEdicion;
 use App\Modules\Tramites\Support\BorradorDePortada;
 use App\Modules\Tramites\Support\ContenidoDePortada;
 use Illuminate\Http\RedirectResponse;
@@ -12,7 +13,7 @@ use Illuminate\Http\Response;
 
 final class VerVistaPreviaDePortada
 {
-    public function __invoke(ContenidoDePortada $portada): Response|RedirectResponse
+    public function __invoke(ContenidoDePortada $portada, AtajosDeEdicion $atajos): Response|RedirectResponse
     {
         $borrador = BorradorDePortada::leer();
 
@@ -20,7 +21,7 @@ final class VerVistaPreviaDePortada
             return redirect(EditarContenidoDePortada::getUrl(panel: 'admin'));
         }
 
-        return response()->view('tramites::vista-previa-de-portada', [...$portada->conTextos($borrador['textos']), 'fotoPendiente' => $borrador['fotoPendiente']])
+        return response()->view('tramites::vista-previa-de-portada', [...$portada->conTextos($borrador['textos']), 'fotoPendiente' => $borrador['fotoPendiente'], 'atajos' => $atajos(auth()->user())])
             ->header('Cache-Control', 'private, no-store')
             ->header('X-Robots-Tag', 'noindex, nofollow');
     }
