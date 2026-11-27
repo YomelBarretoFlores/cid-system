@@ -25,7 +25,7 @@ final readonly class LibroDelReporte implements Export, WithMultipleSheets
         return array_map(fn (SeccionDeReporte $seccion): HojaDelTablero => new HojaDelTablero(
             Str::limit($seccion->titulo, 31, ''),
             array_map(fn (ColumnaDeReporte $columna): string => $columna->nombre, $seccion->columnas),
-            $seccion->filas,
+            [...$seccion->filas, ...$seccion->totales],
             $this->formatos($seccion),
         ), $this->reporte->secciones);
     }

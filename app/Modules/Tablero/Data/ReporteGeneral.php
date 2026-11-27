@@ -11,12 +11,14 @@ final readonly class ReporteGeneral
     /**
      * @param  array<string, string>  $alcance  filter label => chosen value, printed under the title
      * @param  list<SeccionDeReporte>  $secciones
+     * @param  bool  $formal  printed on the institutional register sheet of the previous system instead of the SGA report sheet
      */
     public function __construct(
         public string $titulo,
         public string $periodo,
         public array $alcance,
         public array $secciones,
+        public bool $formal = false,
     ) {}
 
     public function nombreDeArchivo(string $extension): string

@@ -12,9 +12,11 @@ final readonly class ExportarReporteGeneralPdf
 {
     public function __invoke(ReporteGeneral $reporte): PdfBuilder
     {
-        return Pdf::view('tablero::pdf.reporte-general', [
+        $pdf = Pdf::view($reporte->formal ? 'tablero::pdf.reporte-formal' : 'tablero::pdf.reporte-general', [
             'reporte' => $reporte,
             'emitido' => now('America/Lima')->format('Y-m-d H:i:s'),
-        ])->format('a4')->landscape()->download($reporte->nombreDeArchivo('pdf'));
+        ])->format('a4');
+
+        return ($reporte->formal ? $pdf->portrait() : $pdf->landscape())->download($reporte->nombreDeArchivo('pdf'));
     }
 }

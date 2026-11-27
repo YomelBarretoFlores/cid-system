@@ -6,7 +6,6 @@ namespace App\Modules\Tablero\Actions;
 
 use App\Modules\Academico\Data\HorarioDeGrupo;
 use App\Modules\Certificacion\Enums\EstadoActa;
-use App\Modules\Certificacion\Enums\EstadoFinal;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
 use App\Modules\Matricula\Contracts\EstudiantesDelGrupo;
 use App\Modules\Tablero\Data\ColumnaDeReporte;
@@ -15,7 +14,7 @@ use App\Modules\Tablero\Data\ReporteGeneral;
 use App\Modules\Tablero\Data\SeccionDeReporte;
 use App\Modules\Tablero\Enums\TipoDeColumna;
 use App\Modules\Tablero\Support\AlcanceDelReporte;
-use Illuminate\Support\Facades\DB;
+use App\Modules\Tablero\Support\ResultadosPorGrupo;
 use stdClass;
 
 // Counts come from the acta's final grades; a group without an acta only shows its active students.
@@ -33,7 +32,7 @@ final readonly class GenerarReporteDeNotas
         $grupos = $this->alcance->grupos($filtros);
         $ids = array_map(fn (HorarioDeGrupo $grupo): int => $grupo->grupoId, $grupos);
         $docentes = ($this->docentesDeGrupos)($ids);
-        $actas = $this->actas($ids);
+        $actas = ResultadosPorGrupo::actas($ids);
 
         return new ReporteGeneral('Notas por periodo', $periodo, $this->alcance->descripcion($filtros, $grupos), [
             new SeccionDeReporte('Notas por grupo', [
@@ -46,25 +45,6 @@ final readonly class GenerarReporteDeNotas
                 ...$this->resultado($grupo, $actas[$grupo->grupoId] ?? null),
             ], $grupos)),
         ]);
-    }
-
-    /**
-     * @param  list<int>  $grupoIds
-     * @return array<int, stdClass>
-     */
-    private function actas(array $grupoIds): array
-    {
-        return DB::table('cer_actas as a')
-            ->leftJoin('cer_notas_finales as n', 'n.acta_id', '=', 'a.id')
-            ->whereIn('a.grupo_id', $grupoIds)
-            ->groupBy('a.grupo_id', 'a.estado')
-            ->selectRaw('a.grupo_id, a.estado, count(n.id) as estudiantes, avg(n.promedio) as promedio')
-            ->selectRaw('count(n.id) filter (where n.estado_final = ?) as aprobados', [EstadoFinal::Aprobado->value])
-            ->selectRaw('count(n.id) filter (where n.estado_final = ?) as desaprobados', [EstadoFinal::Desaprobado->value])
-            ->selectRaw('count(n.id) filter (where n.estado_final = ?) as nsp', [EstadoFinal::Nsp->value])
-            ->get()
-            ->keyBy(fn (stdClass $acta): int => (int) $acta->grupo_id)
-            ->all();
     }
 
     /**

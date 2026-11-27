@@ -19,6 +19,13 @@
             @empty
                 <tr><td colspan="{{ count($seccion->columnas) }}">Sin registros para los filtros elegidos.</td></tr>
             @endforelse
+            @foreach ($seccion->totales as $fila)
+                <tr class="total">
+                    @foreach ($seccion->columnas as $indice => $columna)
+                        <td @class(['centro' => $columna->tipo->esNumero()])>{{ $columna->tipo->mostrar($fila[$indice] ?? null) }}</td>
+                    @endforeach
+                </tr>
+            @endforeach
         </tbody>
     </table>
 @endforeach
