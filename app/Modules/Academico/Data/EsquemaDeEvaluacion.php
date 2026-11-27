@@ -16,4 +16,12 @@ final readonly class EsquemaDeEvaluacion
         public string $notaMinimaAprobatoria,
         public array $componentes,
     ) {}
+
+    /**
+     * @return list<ComponenteDeEvaluacion>
+     */
+    public function ingresadas(): array
+    {
+        return array_values(array_filter($this->componentes, fn (ComponenteDeEvaluacion $componente): bool => $componente->esIngresada()));
+    }
 }

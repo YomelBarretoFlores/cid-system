@@ -94,7 +94,7 @@ final class HistorialDemoSeeder extends Seeder
         $administrador = User::query()->where('email', 'admin@ciln.test')->firstOrFail();
 
         app(AsignarDocente::class)($grupo->id, $docenteId, $administrador);
-        $notas = collect(app(EsquemaDelGrupo::class)($grupo->id)->componentes ?? [])
+        $notas = collect(app(EsquemaDelGrupo::class)($grupo->id)?->ingresadas() ?? [])
             ->mapWithKeys(fn (ComponenteDeEvaluacion $componente): array => [$componente->id => self::NOTAS[$numero][$componente->codigo] ?? '15.00'])->all();
         app(RegistrarNotasParciales::class)($grupo->id, $docenteId, [$matricula->id => $notas], $administrador);
 

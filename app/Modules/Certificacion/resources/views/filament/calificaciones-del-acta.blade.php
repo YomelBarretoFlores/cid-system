@@ -1,6 +1,4 @@
-@use('App\Modules\Academico\Enums\GrupoDeComponente')
 @use('App\Modules\Certificacion\Data\ActaDelGrupo')
-@use('App\Shared\Ui\Formato')
 @php
     $acta = ActaDelGrupo::desde($getRecord()->loadMissing('notas'));
 @endphp
@@ -8,21 +6,13 @@
     <table class="tabla-reporte">
         <thead>
             <tr>
-                <th scope="col" rowspan="2">ID estudiante</th>
-                <th scope="col" rowspan="2">Estudiante</th>
-                @foreach (GrupoDeComponente::cases() as $grupo)
-                    <th scope="colgroup" class="text-center" colspan="{{ count($acta->componentesDe($grupo)) + 1 }}">{{ $grupo->etiqueta() }}</th>
+                <th scope="col">ID estudiante</th>
+                <th scope="col">Estudiante</th>
+                @foreach ($acta->columnas() as $componente)
+                    <th scope="col" class="text-right">{{ $componente->nombre }}</th>
                 @endforeach
-                <th scope="col" class="text-right" rowspan="2">Promedio final</th>
-                <th scope="col" rowspan="2">Estado final</th>
-            </tr>
-            <tr>
-                @foreach (GrupoDeComponente::cases() as $grupo)
-                    @foreach ($acta->componentesDe($grupo) as $componente)
-                        <th scope="col" class="text-right">{{ $componente->nombre }}</th>
-                    @endforeach
-                    <th scope="col" class="text-right">Prom. {{ mb_strtolower($grupo->etiqueta()) }}</th>
-                @endforeach
+                <th scope="col" class="text-right">Promedio final</th>
+                <th scope="col">Estado final</th>
             </tr>
         </thead>
         <tbody>
@@ -30,11 +20,8 @@
                 <tr wire:key="nota-final-{{ $fila->matriculaId }}">
                     <td>{{ $fila->documento }}</td>
                     <td>{{ $fila->estudiante }}</td>
-                    @foreach (GrupoDeComponente::cases() as $grupo)
-                        @foreach ($acta->componentesDe($grupo) as $componente)
-                            <td class="text-right">{{ Formato::nota($fila->notas[$componente->id] ?? null) }}</td>
-                        @endforeach
-                        <td class="text-right">{{ $fila->promedioDe($grupo) ?? '—' }}</td>
+                    @foreach ($acta->columnas() as $componente)
+                        <td class="text-right">{{ $fila->celda($componente) }}</td>
                     @endforeach
                     <td class="text-right font-semibold">{{ $fila->promedio ?? '—' }}</td>
                     <td class="whitespace-nowrap">{{ $fila->estadoFinal->etiqueta() }}</td>

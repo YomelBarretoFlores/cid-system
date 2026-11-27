@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace App\Modules\Academico\Support;
 
-use App\Modules\Academico\Enums\GrupoDeComponente;
+use App\Modules\Academico\Enums\RegimenDeEsquema;
+use App\Modules\Academico\Enums\TipoDeComponente;
 use App\Shared\Support\Exceptions\ReglaDeNegocioIncumplida;
 
-/** Validates and normalizes the components of an evaluation scheme: codes, names and a group, with at least one skill and one exam. */
+/** Validates and normalizes the columns of an evaluation scheme: codes, names, what each one is, and which ones are the grade of each cycle. */
 final class ComponentesDelEsquema
 {
     /**
-     * @param  list<array{codigo: string, nombre: string, grupo: string}>  $entrada
-     * @return list<array{codigo: string, nombre: string, grupo: GrupoDeComponente, orden: int}>
+     * @param  list<array{codigo: string, nombre: string, tipo: string, calculo?: ?string, redondeo?: ?string, fuentes?: list<array{codigo: string, peso?: mixed}>, ciclo?: mixed}>  $entrada
+     * @return list<array{codigo: string, nombre: string, tipo: string, calculo: ?string, redondeo: string, fuentes: list<array{codigo: string, peso: int}>, ciclo: ?int, orden: int}>
      */
-    public static function validar(array $entrada): array
+    public static function validar(array $entrada, ?RegimenDeEsquema $regimen): array
     {
         if ($entrada === []) {
-            throw new ReglaDeNegocioIncumplida('Agrega al menos un componente de evaluación.');
+            throw new ReglaDeNegocioIncumplida('Agrega al menos una columna.');
         }
 
         $componentes = [];
@@ -29,10 +30,14 @@ final class ComponentesDelEsquema
                 throw new ReglaDeNegocioIncumplida("El código «{$codigo}» se repite.");
             }
 
-            $componentes[$codigo] = ['codigo' => $codigo, 'nombre' => self::nombre($componente['nombre'], $codigo), 'grupo' => self::grupo($componente['grupo'], $codigo), 'orden' => $posicion + 1];
+            $componentes[$codigo] = [
+                'codigo' => $codigo, 'nombre' => self::nombre($componente['nombre'], $codigo),
+                ...ColumnaDelEsquema::definir($componente, $codigo, array_keys($componentes)),
+                'ciclo' => self::ciclo($componente['ciclo'] ?? null, $codigo), 'orden' => $posicion + 1,
+            ];
         }
 
-        self::asegurarAmbosGrupos(array_column($componentes, 'grupo'));
+        self::asegurarCompleto(array_values($componentes), $regimen);
 
         return array_values($componentes);
     }
@@ -60,21 +65,35 @@ final class ComponentesDelEsquema
     {
         $limpio = trim($nombre);
 
-        return $limpio !== '' && mb_strlen($limpio) <= 80 ? $limpio : throw new ReglaDeNegocioIncumplida("Escribe el nombre del componente «{$codigo}», hasta 80 caracteres.");
+        return $limpio !== '' && mb_strlen($limpio) <= 80 ? $limpio : throw new ReglaDeNegocioIncumplida("Escribe el nombre de la columna «{$codigo}», hasta 80 caracteres.");
     }
 
-    private static function grupo(string $grupo, string $codigo): GrupoDeComponente
+    private static function ciclo(mixed $ciclo, string $codigo): ?int
     {
-        return GrupoDeComponente::tryFrom(trim($grupo)) ?? throw new ReglaDeNegocioIncumplida("Elige si el componente «{$codigo}» es una habilidad o un examen.");
+        if ($ciclo === null || $ciclo === '') {
+            return null;
+        }
+
+        return in_array((string) $ciclo, ['1', '2'], true) ? (int) $ciclo : throw new ReglaDeNegocioIncumplida("La columna «{$codigo}» solo puede ser la nota del primer o del segundo ciclo.");
     }
 
     /**
-     * @param  list<GrupoDeComponente>  $grupos
+     * @param  list<array{tipo: string, ciclo: ?int}>  $componentes
      */
-    private static function asegurarAmbosGrupos(array $grupos): void
+    private static function asegurarCompleto(array $componentes, ?RegimenDeEsquema $regimen): void
     {
-        if (! in_array(GrupoDeComponente::Habilidades, $grupos, true) || ! in_array(GrupoDeComponente::Examenes, $grupos, true)) {
-            throw new ReglaDeNegocioIncumplida('El sistema de evaluación necesita al menos una habilidad y al menos un examen.');
+        $ciclos = array_count_values(array_filter(array_column($componentes, 'ciclo')));
+
+        if (! in_array(TipoDeComponente::Ingresada->value, array_column($componentes, 'tipo'), true)) {
+            throw new ReglaDeNegocioIncumplida('Agrega al menos una columna que ingrese el docente.');
+        }
+
+        if (($ciclos[1] ?? 0) !== 1 || ($ciclos[2] ?? 0) > 1) {
+            throw new ReglaDeNegocioIncumplida('Marca una sola columna como nota del ciclo (y, en el acelerado, una sola como nota del segundo ciclo).');
+        }
+
+        if (isset($ciclos[2]) && $regimen !== RegimenDeEsquema::Acelerado) {
+            throw new ReglaDeNegocioIncumplida('La nota del segundo ciclo solo existe en un sistema para el régimen acelerado.');
         }
     }
 }

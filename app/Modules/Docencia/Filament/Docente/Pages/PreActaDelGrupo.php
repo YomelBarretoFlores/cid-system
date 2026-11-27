@@ -144,7 +144,7 @@ final class PreActaDelGrupo extends Page
             'cerradas' => VentanaDeNotasParciales::motivoDelCierre($curso, $acta, CarbonImmutable::now()),
             'etapas' => EtapasDelActa::de(
                 array_sum($registradas),
-                count($estudiantes) * count($esquema->componentes ?? []),
+                count($estudiantes) * count($esquema?->ingresadas() ?? []),
                 $acta,
                 $curso->actasInicio,
                 $curso->actasFin,
@@ -184,7 +184,7 @@ final class PreActaDelGrupo extends Page
             ->mapWithKeys(fn (NotaParcial $nota): array => ["{$nota->matricula_id}.{$nota->componente_id}" => $nota->nota ?? '']);
 
         $this->notas = $esquema instanceof EsquemaDeEvaluacion ? collect($this->estudiantes())
-            ->mapWithKeys(fn (EstudianteDelGrupo $estudiante): array => [$estudiante->matriculaId => collect($esquema->componentes)
+            ->mapWithKeys(fn (EstudianteDelGrupo $estudiante): array => [$estudiante->matriculaId => collect($esquema->ingresadas())
                 ->mapWithKeys(fn (ComponenteDeEvaluacion $componente): array => [$componente->id => $guardadas["{$estudiante->matriculaId}.{$componente->id}"] ?? ''])
                 ->all()])
             ->all() : [];

@@ -58,9 +58,9 @@ it('previews the acta from the pre-acta with the course, teacher, averages and f
         ->assertSeeInOrder([
             'Acta final del grupo ING-1-M', 'Vista previa', 'Fechas para validar: del 29 mar 2027 al 5 abr 2027.',
             'Inglés', 'Básico · Básico I', 'Marzo 2027', 'Vega Ríos, Carlos', $this->curso['docente']->refresh()->codigo,
-            'Habilidades', 'Exámenes', 'Promedio', 'Expresión oral', 'Prom. habilidades', 'Examen parcial', 'Examen final', 'Prom. exámenes',
-            'Alva Prueba, Ana', 'DNI 70000001', '18', '18.00', '15', '12', '13.50', '16.00', 'Aprobado',
-            'Bravo Prueba, Ana', 'DNI 70000002', '—', '0.00', '8', '10', '9.00', '5.00', 'Desaprobado',
+            'Expresión oral', 'Examen parcial', 'Examen final', 'Promedio de habilidades', 'Promedio de exámenes', 'Promedio',
+            'Alva Prueba, Ana', 'DNI 70000001', '18', '15', '12', '18.00', '13.50', '16.00', 'Aprobado',
+            'Bravo Prueba, Ana', 'DNI 70000002', '—', '8', '10', '0.00', '9.00', '5.00', 'Desaprobado',
         ])
         ->assertSee('Validar y cerrar acta')
         ->assertDontSee('Descargar acta (PDF)')
@@ -214,7 +214,8 @@ it('renders the acta PDF with the course, teacher and grades', function (): void
 
     expect($html)->toContain('ACTA FINAL DE EVALUACIÓN')
         ->toContain('Vega Ríos, Carlos')
-        ->toContain('<th class="centro" colspan="2">Habilidades</th>', '<th class="centro" colspan="3">Exámenes</th>', '<th class="centro">Examen parcial</th>', 'Prom. habilidades', 'Prom. exámenes')
+        ->toContain('<th class="centro">Expresión oral</th>', '<th class="centro">Examen parcial</th>', '<th class="centro">Promedio de habilidades</th>', '<th class="centro">Promedio de exámenes</th>')
+        ->not->toContain('<th class="centro">Nota final</th>')
         ->not->toContain('%)')
         ->toContain('Alva Prueba, Ana')
         ->toContain('<td class="centro">18.00</td>', '<td class="centro">13.50</td>', '<strong>16.00</strong>')

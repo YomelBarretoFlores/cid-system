@@ -68,7 +68,7 @@ final readonly class RegistrarNotasParciales
     private function validar(array $notas, array $estudiantes, EsquemaDeEvaluacion $esquema): array
     {
         $matriculas = array_map(fn (EstudianteDelGrupo $estudiante): int => $estudiante->matriculaId, $estudiantes);
-        $componentes = array_map(fn (ComponenteDeEvaluacion $componente): int => $componente->id, $esquema->componentes);
+        $componentes = array_map(fn (ComponenteDeEvaluacion $componente): int => $componente->id, $esquema->ingresadas());
         $valores = [];
 
         if (array_diff(array_keys($notas), $matriculas) !== []) {

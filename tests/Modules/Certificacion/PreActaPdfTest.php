@@ -32,7 +32,7 @@ it('gives the teacher of the group the pre-acta PDF with the current grades, mar
         $html = view($pdf->viewName, $pdf->viewData)->render();
 
         return $pdf->downloadName === 'pre-acta-ING-1-M.pdf' && $pdf->orientation === 'Landscape'
-            && collect(['PRE ACTA DE EVALUACIÓN', 'PRE ACTA — documento de trabajo, sin valor oficial', 'ING-1-M', 'Vega Ríos, Carlos', 'Alva Prueba, Ana', '15', '12', 'Habilidades', 'Exámenes', 'Examen parcial', 'Prom. habilidades', 'Prom. exámenes', '30 mar 2027'])
+            && collect(['PRE ACTA DE EVALUACIÓN', 'PRE ACTA — documento de trabajo, sin valor oficial', 'ING-1-M', 'Vega Ríos, Carlos', 'Alva Prueba, Ana', '15', '12', 'Examen parcial', 'Promedio de habilidades', 'Promedio de exámenes', '30 mar 2027'])
                 ->every(fn (string $texto): bool => str_contains($html, $texto));
     });
 });

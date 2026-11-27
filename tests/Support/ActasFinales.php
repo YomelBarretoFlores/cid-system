@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
+use App\Modules\Academico\Database\Factories\ComponenteEvaluacionFactory;
 use App\Modules\Academico\Enums\EstadoGrupo;
-use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\ComponenteEvaluacion;
@@ -39,13 +39,15 @@ final class ActasFinales
         // One transaction, so the scheme and its components reach the commit-time groups check together (concurrency tests commit).
         return DB::transaction(function () use ($idioma, $grupo, $usuario, $docente): array {
             $esquema = EsquemaEvaluacion::factory()->create(['nombre' => 'Esquema general', 'idioma_id' => $idioma->id, 'nota_maxima' => '20.00', 'nota_minima_aprobatoria' => '11.00', 'vigente_desde' => '2027-01-01']);
-
-            return [
+            $columnas = [
                 'grupo' => $grupo, 'usuario' => $usuario, 'docente' => $docente,
-                'oral' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'nombre' => 'Expresión oral', 'grupo' => GrupoDeComponente::Habilidades, 'orden' => 1]),
-                'parcial' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'grupo' => GrupoDeComponente::Examenes, 'orden' => 2]),
-                'final' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'nombre' => 'Examen final', 'grupo' => GrupoDeComponente::Examenes, 'orden' => 3]),
+                'oral' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'nombre' => 'Expresión oral', 'orden' => 1]),
+                'parcial' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'orden' => 2]),
+                'final' => ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'nombre' => 'Examen final', 'orden' => 3]),
             ];
+            ComponenteEvaluacionFactory::promediosCiln($esquema, ['oral'], ['parcial', 'final'], 4);
+
+            return $columnas;
         });
     }
 
@@ -86,8 +88,9 @@ final class ActasFinales
         $docente = Docente::factory()->create();
         $esquema = DB::transaction(function (): EsquemaEvaluacion {
             $esquema = EsquemaEvaluacion::factory()->create();
-            ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'grupo' => GrupoDeComponente::Habilidades, 'orden' => 1]);
-            ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'grupo' => GrupoDeComponente::Examenes, 'orden' => 2]);
+            ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'orden' => 1]);
+            ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'orden' => 2]);
+            ComponenteEvaluacionFactory::promediosCiln($esquema, ['oral'], ['final'], 3);
 
             return $esquema;
         });

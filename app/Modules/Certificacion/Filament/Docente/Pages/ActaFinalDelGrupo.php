@@ -154,7 +154,7 @@ final class ActaFinalDelGrupo extends Page
     {
         $registradas = array_sum(array_map(fn (FilaDelActa $fila): int => count($fila->notas), $acta->filas));
 
-        return EtapasDelActa::de($registradas, count($acta->filas) * count($acta->componentes), $acta->estado, $curso->actasInicio, $curso->actasFin, CarbonImmutable::now('America/Lima'));
+        return EtapasDelActa::de($registradas, count($acta->filas) * count($acta->columnasIngresadas()), $acta->estado, $curso->actasInicio, $curso->actasFin, CarbonImmutable::now('America/Lima'));
     }
 
     protected function pestana(): string
@@ -215,7 +215,7 @@ final class ActaFinalDelGrupo extends Page
         $acta = $this->acta();
 
         $this->notas = $acta instanceof ActaDelGrupo && $acta->admiteRectificacion() ? collect($acta->filas)
-            ->mapWithKeys(fn (FilaDelActa $fila): array => [$fila->matriculaId => collect($acta->componentes)
+            ->mapWithKeys(fn (FilaDelActa $fila): array => [$fila->matriculaId => collect($acta->columnasIngresadas())
                 ->mapWithKeys(fn (ComponenteDeEvaluacion $componente): array => [$componente->id => $fila->notas[$componente->id] ?? ''])
                 ->all()])
             ->all() : [];

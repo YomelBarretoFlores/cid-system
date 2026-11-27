@@ -66,7 +66,7 @@ final readonly class ResumirMisGrupos
     private function notas(int $grupoId): array
     {
         $matriculas = array_map(fn (EstudianteDelGrupo $estudiante): int => $estudiante->matriculaId, ($this->estudiantesDelGrupo)($grupoId));
-        $componentes = count(($this->esquemaDelGrupo)($grupoId)->componentes ?? []);
+        $componentes = count(($this->esquemaDelGrupo)($grupoId)?->ingresadas() ?? []);
         $notas = ($this->notasParciales)($grupoId);
         $registradas = array_sum(array_map(fn (int $matriculaId): int => count($notas[$matriculaId] ?? []), $matriculas));
 

@@ -1,4 +1,3 @@
-@use('App\Modules\Academico\Enums\GrupoDeComponente')
 @use('App\Modules\Certificacion\Enums\EstadoFinal')
 @use('App\Shared\Ui\Formato')
 @php
@@ -29,23 +28,15 @@
     <table class="lista" style="margin-top: 10px;">
         <thead>
             <tr>
-                <th class="centro" rowspan="2">N.°</th>
-                <th rowspan="2">Documento</th>
-                <th rowspan="2">Apellidos y nombres</th>
-                @foreach (GrupoDeComponente::cases() as $grupo)
-                    <th class="centro" colspan="{{ count($acta->componentesDe($grupo)) + 1 }}">{{ $grupo->etiqueta() }}</th>
+                <th class="centro">N.°</th>
+                <th>Documento</th>
+                <th>Apellidos y nombres</th>
+                @foreach ($acta->columnas() as $componente)
+                    <th class="centro">{{ $componente->nombre }}</th>
                 @endforeach
-                <th class="centro" rowspan="2">Promedio</th>
-                <th rowspan="2">En letras</th>
-                <th rowspan="2">Condición</th>
-            </tr>
-            <tr>
-                @foreach (GrupoDeComponente::cases() as $grupo)
-                    @foreach ($acta->componentesDe($grupo) as $componente)
-                        <th class="centro">{{ $componente->nombre }}</th>
-                    @endforeach
-                    <th class="centro">Prom. {{ mb_strtolower($grupo->etiqueta()) }}</th>
-                @endforeach
+                <th class="centro">Promedio</th>
+                <th>En letras</th>
+                <th>Condición</th>
             </tr>
         </thead>
         <tbody>
@@ -54,11 +45,8 @@
                     <td class="centro">{{ $loop->iteration }}</td>
                     <td>{{ $fila->documento }}</td>
                     <td style="text-transform: uppercase;">{{ $fila->estudiante }}</td>
-                    @foreach (GrupoDeComponente::cases() as $grupo)
-                        @foreach ($acta->componentesDe($grupo) as $componente)
-                            <td class="centro">{{ Formato::nota($fila->notas[$componente->id] ?? null) }}</td>
-                        @endforeach
-                        <td class="centro">{{ $fila->promedioDe($grupo) ?? '—' }}</td>
+                    @foreach ($acta->columnas() as $componente)
+                        <td class="centro">{{ $fila->celda($componente) }}</td>
                     @endforeach
                     <td class="centro"><strong>{{ $fila->promedio ?? '—' }}</strong></td>
                     <td>{{ Formato::notaEnLetras($fila->promedio) }}</td>

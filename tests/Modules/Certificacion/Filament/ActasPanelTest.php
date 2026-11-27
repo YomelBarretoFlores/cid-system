@@ -75,9 +75,9 @@ it('shows the acta with its grades, averages and final states', function (): voi
         ->get(ActaResource::getUrl('view', ['record' => $this->acta]))
         ->assertOk()
         ->assertSeeInOrder(['Inglés', 'Básico · Básico I', 'Marzo 2027', 'ING-1-M', 'Vega Ríos, Carlos', 'Cerrada',
-            'Habilidades', 'Exámenes', 'Promedio final', 'Expresión oral', 'Prom. habilidades', 'Examen parcial', 'Examen final', 'Prom. exámenes',
-            'DNI 70000001', 'Alva Prueba, Ana', '18', '18.00', '15', '12', '13.50', '16.00', 'Aprobado',
-            'DNI 70000002', 'Bravo Prueba, Ana', '—', '0.00', '8', '—', '4.00', '2.00', 'Desaprobado', 'Sin rectificaciones.']);
+            'Expresión oral', 'Examen parcial', 'Examen final', 'Promedio de habilidades', 'Promedio de exámenes', 'Promedio final',
+            'DNI 70000001', 'Alva Prueba, Ana', '18', '15', '12', '18.00', '13.50', '16.00', 'Aprobado',
+            'DNI 70000002', 'Bravo Prueba, Ana', '—', '8', '—', '0.00', '4.00', '2.00', 'Desaprobado', 'Sin rectificaciones.']);
 });
 
 it('authorizes a rectification with its reason and records who did it', function (): void {

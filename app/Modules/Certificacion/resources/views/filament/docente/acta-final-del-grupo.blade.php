@@ -1,4 +1,3 @@
-@use('App\Modules\Academico\Enums\GrupoDeComponente')
 @use('App\Modules\Certificacion\Filament\Docente\Pages\ActaFinalDelGrupo')
 @use('App\Shared\Ui\Formato')
 <x-filament-panels::page>
@@ -54,7 +53,7 @@
         </div>
 
         <form wire:submit="guardar" novalidate>
-            <x-filament::section heading="Calificaciones" :description="$acta->esquema.' · notas de 0 a '.Formato::nota($acta->notaMaxima).'; el promedio final es la media del promedio de habilidades y del promedio de exámenes, redondeada al entero.'">
+            <x-filament::section heading="Calificaciones" :description="$acta->esquema.' · notas de 0 a '.Formato::nota($acta->notaMaxima).'; las columnas calculadas y el promedio siguen este sistema de evaluación.'">
                 <div class="flex flex-col gap-4">
                     <dl class="grid gap-2.5 text-sm sm:grid-cols-4">
                         <div><dt class="text-apagado">Idioma</dt><dd class="text-tinta">{{ $acta->idioma }}</dd></div>
@@ -67,20 +66,12 @@
                         <table class="tabla-reporte min-w-[720px]">
                             <thead>
                                 <tr>
-                                    <th scope="col" rowspan="2">Estudiante</th>
-                                    @foreach (GrupoDeComponente::cases() as $grupo)
-                                        <th scope="colgroup" class="text-center" colspan="{{ count($acta->componentesDe($grupo)) + 1 }}">{{ $grupo->etiqueta() }}</th>
+                                    <th scope="col">Estudiante</th>
+                                    @foreach ($acta->columnas() as $componente)
+                                        <th scope="col" class="text-right">{{ $componente->nombre }}</th>
                                     @endforeach
-                                    <th scope="col" class="text-right" rowspan="2">Promedio</th>
-                                    <th scope="col" rowspan="2">Estado final</th>
-                                </tr>
-                                <tr>
-                                    @foreach (GrupoDeComponente::cases() as $grupo)
-                                        @foreach ($acta->componentesDe($grupo) as $componente)
-                                            <th scope="col" class="text-right">{{ $componente->nombre }}</th>
-                                        @endforeach
-                                        <th scope="col" class="text-right">Prom. {{ mb_strtolower($grupo->etiqueta()) }}</th>
-                                    @endforeach
+                                    <th scope="col" class="text-right">Promedio</th>
+                                    <th scope="col">Estado final</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -90,19 +81,16 @@
                                             <span class="block font-medium text-tinta">{{ $fila->estudiante }}</span>
                                             <span class="text-[13px] text-apagado">{{ $fila->documento }}</span>
                                         </th>
-                                        @foreach (GrupoDeComponente::cases() as $grupo)
-                                            @foreach ($acta->componentesDe($grupo) as $componente)
-                                                <td class="text-right">
-                                                    @if ($editable)
-                                                        <x-filament::input.wrapper class="ml-auto w-[92px]">
-                                                            <x-filament::input type="text" inputmode="decimal" placeholder="—" class="text-right" wire:model="notas.{{ $fila->matriculaId }}.{{ $componente->id }}" aria-label="{{ $componente->nombre }} de {{ $fila->estudiante }}" />
-                                                        </x-filament::input.wrapper>
-                                                    @else
-                                                        {{ Formato::nota($fila->notas[$componente->id] ?? null) }}
-                                                    @endif
-                                                </td>
-                                            @endforeach
-                                            <td class="text-right">{{ $fila->promedioDe($grupo) ?? '—' }}</td>
+                                        @foreach ($acta->columnas() as $componente)
+                                            <td class="text-right">
+                                                @if ($editable && $componente->esIngresada())
+                                                    <x-filament::input.wrapper class="ml-auto w-[92px]">
+                                                        <x-filament::input type="text" inputmode="decimal" placeholder="—" class="text-right" wire:model="notas.{{ $fila->matriculaId }}.{{ $componente->id }}" aria-label="{{ $componente->nombre }} de {{ $fila->estudiante }}" />
+                                                    </x-filament::input.wrapper>
+                                                @else
+                                                    {{ $fila->celda($componente) }}
+                                                @endif
+                                            </td>
                                         @endforeach
                                         <td class="text-right font-semibold">{{ $fila->promedio ?? '—' }}</td>
                                         <td class="whitespace-nowrap">{{ $fila->estadoFinal->etiqueta() }}</td>

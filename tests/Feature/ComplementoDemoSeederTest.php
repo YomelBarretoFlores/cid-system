@@ -113,7 +113,7 @@ it('completes a fresh demo seed with delegates, both calls, complete grades and 
         ->and(clasesConLlamados($ingles))->toBe(['2026-10-14 confirmada', '2026-10-16 confirmada', '2026-10-19 observada', '2026-10-21 sin_confirmar'])
         ->and($observada->observacion)->toBe('La clase terminó veinte minutos antes de la hora programada.')
         ->and($matriculas)->toHaveCount(3)
-        ->and($matriculas->every(fn (Matricula $matricula): bool => NotaParcial::query()->where('matricula_id', $matricula->id)->whereNotNull('nota')->count() === count(app(EsquemaDelGrupo::class)($matricula->grupo_id)->componentes ?? [])))->toBeTrue()
+        ->and($matriculas->every(fn (Matricula $matricula): bool => NotaParcial::query()->where('matricula_id', $matricula->id)->whereNotNull('nota')->count() === count(app(EsquemaDelGrupo::class)($matricula->grupo_id)?->ingresadas() ?? [])))->toBeTrue()
         ->and(historialDelEstudiante())->toBe(['Portugués 1 Julio 2026: cerrada aprobado', 'Portugués 2 Agosto 2026: cerrada aprobado'])
         ->and(cicloHabilitadoEnPortugues())->toBe('3 aprobacion');
 });

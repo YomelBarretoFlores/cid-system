@@ -151,7 +151,7 @@
                                         <ul role="list" class="flex flex-col gap-3">
                                             @foreach ($avance->componentes as $componente)
                                                 <li wire:key="componente-{{ $matricula->id }}-{{ $componente->codigo }}" class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1.5">
-                                                    <span>{{ $componente->nombre }} <span class="text-terciario">· {{ $componente->grupo->etiqueta() }}</span></span>
+                                                    <span>{{ $componente->nombre }}</span>
                                                     <span class="row-span-2 text-right font-semibold tabular-nums">{{ $componente->nota ?? '—' }}</span>
                                                     <span aria-hidden="true" class="h-1.5 overflow-hidden rounded-full bg-piedra-200">
                                                         <span class="block h-full rounded-full bg-acento" style="width: {{ $componente->nota === null ? 0 : min(100, round((float) $componente->nota * 5)) }}%"></span>
@@ -159,10 +159,13 @@
                                                 </li>
                                             @endforeach
                                         </ul>
-                                        <dl class="grid grid-cols-2 gap-2 border-t border-separador pt-3 text-secundario">
-                                            <div><dt>Prom. habilidades</dt><dd class="font-semibold text-tinta tabular-nums">{{ $avance->promedioHabilidades ?? '—' }}</dd></div>
-                                            <div><dt>Prom. exámenes</dt><dd class="font-semibold text-tinta tabular-nums">{{ $avance->promedioExamenes ?? '—' }}</dd></div>
-                                        </dl>
+                                        @if ($avance->calculadas !== [])
+                                            <dl class="grid grid-cols-2 gap-2 border-t border-separador pt-3 text-secundario">
+                                                @foreach ($avance->calculadas as $calculada)
+                                                    <div wire:key="calculada-{{ $matricula->id }}-{{ $calculada->codigo }}"><dt>{{ $calculada->nombre }}</dt><dd class="font-semibold text-tinta tabular-nums">{{ $calculada->nota ?? '—' }}</dd></div>
+                                                @endforeach
+                                            </dl>
+                                        @endif
                                         <p class="mt-auto flex items-baseline justify-between gap-2 border-t border-separador pt-3">
                                             <span class="text-secundario">{{ $avance->actaCerrada ? 'Promedio final' : 'Promedio parcial' }}</span>
                                             <span class="text-[28px] leading-none font-semibold tabular-nums">{{ $avance->promedio ?? '—' }}</span>

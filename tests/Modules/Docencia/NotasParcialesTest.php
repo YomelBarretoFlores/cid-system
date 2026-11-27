@@ -107,6 +107,7 @@ it('refuses grades that break a rule and saves nothing', function (Closure $prep
     }, 'La lista de estudiantes del grupo cambió; vuelve a cargarla.'],
     'grade that is not a number' => [fn (): array => [[$this->ana->id => [$this->parcial->id => ['15']]]], 'Una de las notas no es válida: usa un número de 0 a 20 con hasta dos decimales.'],
     'grades that are not a list per component' => [fn (): array => [[$this->ana->id => '15']], 'El sistema de evaluación del grupo cambió; vuelve a cargar la página.'],
+    'calculated column' => [fn (): array => [[$this->ana->id => [ComponenteEvaluacion::factory()->for(EsquemaEvaluacion::query()->sole(), 'esquema')->calculada(['parcial', 'final'], ciclo: 1)->create(['codigo' => 'nota', 'orden' => 3])->id => '15']]], 'El sistema de evaluación del grupo cambió; vuelve a cargar la página.'],
     'component of another scheme' => [fn (): array => [[$this->ana->id => [ComponenteEvaluacion::factory()->create()->id => '15']]], 'El sistema de evaluación del grupo cambió; vuelve a cargar la página.'],
 ]);
 

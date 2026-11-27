@@ -135,7 +135,7 @@ final class DocenciaDemoSeeder extends Seeder
     // Every component of a finished course, in a fixed pattern with some failing students, one without the final exam and one who never showed up.
     private function registrarNotasDelCiclo(Grupo $grupo, Docente $docente): void
     {
-        $componentes = collect(app(EsquemaDelGrupo::class)($grupo->id)->componentes ?? []);
+        $componentes = collect(app(EsquemaDelGrupo::class)($grupo->id)?->ingresadas() ?? []);
         $estudiantes = app(EstudiantesDelGrupo::class)($grupo->id);
         $notas = [];
 
@@ -179,7 +179,7 @@ final class DocenciaDemoSeeder extends Seeder
     private function registrarNotasParciales(): void
     {
         $grupo = Grupo::query()->where('codigo', 'ING-1-M')->whereRelation('periodo', 'estado', 'en_curso')->firstOrFail();
-        $parcial = collect(app(EsquemaDelGrupo::class)($grupo->id)->componentes ?? [])->firstWhere('codigo', 'parcial');
+        $parcial = collect(app(EsquemaDelGrupo::class)($grupo->id)?->ingresadas() ?? [])->firstWhere('codigo', 'parcial');
         $docente = Docente::query()->whereRelation('cargas', 'grupo_id', $grupo->id)->first();
 
         if ($parcial === null || $docente === null) {

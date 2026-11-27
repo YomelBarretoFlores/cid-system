@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use App\Modules\Academico\Enums\EstadoGrupo;
 use App\Modules\Academico\Enums\EstadoPeriodo;
-use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Academico\Enums\NivelCurricular;
+use App\Modules\Academico\Enums\TipoDeComponente;
 use App\Modules\Academico\Models\Ciclo;
 use App\Modules\Academico\Models\ComponenteEvaluacion;
 use App\Modules\Academico\Models\EsquemaEvaluacion;
@@ -78,11 +78,11 @@ it('lists group schedules by day and start time', function (): void {
 
 it('lists evaluation components in their configured order', function (): void {
     $esquema = EsquemaEvaluacion::factory()->create();
-    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'grupo' => GrupoDeComponente::Examenes, 'orden' => 3]);
-    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'grupo' => GrupoDeComponente::Habilidades, 'orden' => 1]);
-    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'grupo' => GrupoDeComponente::Examenes, 'orden' => 2]);
+    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->calculada(['oral', 'parcial'], ciclo: 1)->create(['codigo' => 'nota', 'orden' => 3]);
+    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'orden' => 1]);
+    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'orden' => 2]);
 
-    expect($esquema->componentes->pluck('codigo')->all())->toBe(['oral', 'parcial', 'final'])
-        ->and($esquema->componentes->map(fn (ComponenteEvaluacion $componente): GrupoDeComponente => $componente->grupo)->all())
-        ->toBe([GrupoDeComponente::Habilidades, GrupoDeComponente::Examenes, GrupoDeComponente::Examenes]);
+    expect($esquema->componentes->pluck('codigo')->all())->toBe(['oral', 'parcial', 'nota'])
+        ->and($esquema->componentes->map(fn (ComponenteEvaluacion $componente): TipoDeComponente => $componente->tipo)->all())
+        ->toBe([TipoDeComponente::Ingresada, TipoDeComponente::Ingresada, TipoDeComponente::Calculada]);
 });

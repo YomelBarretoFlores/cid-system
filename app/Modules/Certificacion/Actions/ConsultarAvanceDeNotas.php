@@ -33,8 +33,10 @@ final readonly class ConsultarAvanceDeNotas implements AvanceDeNotas
             promedio: $fila?->promedio,
             estadoFinal: $acta->estaCerrada() ? $fila?->estadoFinal : null,
             notaMinimaAprobatoria: $acta->notaMinimaAprobatoria,
-            promedioHabilidades: $fila?->promedioHabilidades,
-            promedioExamenes: $fila?->promedioExamenes,
+            calculadas: array_map(
+                fn (ComponenteDeEvaluacion $componente): NotaDelComponente => new NotaDelComponente($componente->codigo, $componente->nombre, $fila?->calculadas->valor($componente->codigo)),
+                array_values(array_filter($acta->columnas(), fn (ComponenteDeEvaluacion $componente): bool => ! $componente->esIngresada())),
+            ),
         );
     }
 
@@ -44,8 +46,8 @@ final readonly class ConsultarAvanceDeNotas implements AvanceDeNotas
     private function componentes(ActaDelGrupo $acta, ?FilaDelActa $fila): array
     {
         return array_map(
-            fn (ComponenteDeEvaluacion $componente): NotaDelComponente => new NotaDelComponente($componente->codigo, $componente->nombre, $componente->grupo, $fila->notas[$componente->id] ?? null),
-            $acta->componentes,
+            fn (ComponenteDeEvaluacion $componente): NotaDelComponente => new NotaDelComponente($componente->codigo, $componente->nombre, $fila->notas[$componente->id] ?? null),
+            $acta->columnasIngresadas(),
         );
     }
 }

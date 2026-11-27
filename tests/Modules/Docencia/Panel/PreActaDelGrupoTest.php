@@ -30,6 +30,7 @@ beforeEach(function (): void {
     $esquema = EsquemaEvaluacion::factory()->create(['nombre' => 'Esquema general', 'nota_maxima' => '20.00', 'vigente_desde' => '2027-01-01']);
     $this->oral = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'nombre' => 'Expresión oral', 'orden' => 1]);
     $this->parcial = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'parcial', 'nombre' => 'Examen parcial', 'orden' => 2]);
+    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->calculada(['oral', 'parcial'], redondeo: 'entero', ciclo: 1)->create(['codigo' => 'nota_final', 'nombre' => 'Nota final calculada', 'orden' => 3]);
     $this->ana = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Quispe', 'apellido_materno' => 'Rojas', 'nombres' => 'Ana'])->id]);
     $this->luis = Matricula::factory()->create(['grupo_id' => $this->grupo->id, 'persona_id' => Persona::factory()->create(['apellido_paterno' => 'Álvarez', 'apellido_materno' => 'Mejía', 'nombres' => 'Luis'])->id]);
 });
@@ -40,14 +41,14 @@ it('links the pre-acta from the list of groups', function (): void {
         ->assertSee(route('filament.docente.pages.grupos.notas', $this->grupo->id));
 });
 
-it('shows the scheme components grouped into skills and exams and the students in alphabetical order', function (): void {
+it('shows the columns the teacher enters, not the calculated ones, and the students in alphabetical order', function (): void {
     NotaParcial::query()->create(['grupo_id' => $this->grupo->id, 'matricula_id' => $this->ana->id, 'componente_id' => $this->parcial->id, 'nota' => '14.50', 'registrado_por' => $this->usuario->id]);
 
     $this->actingAs($this->usuario)
         ->get(route('filament.docente.pages.grupos.notas', $this->grupo->id))
         ->assertOk()
-        ->assertSeeInOrder(['Pre-acta del grupo ING-01-A', 'Esquema general · notas de 0 a 20', 'Expresión oral', 'Habilidades', 'Examen parcial', 'Exámenes', 'Habilidades', 'Exámenes', 'Expresión oral', 'Examen parcial', 'Álvarez Mejía, Luis', 'Quispe Rojas, Ana'])
-        ->assertDontSee('Peso');
+        ->assertSeeInOrder(['Pre-acta del grupo ING-01-A', 'Esquema general · notas de 0 a 20', 'Expresión oral', 'Examen parcial', 'Expresión oral', 'Examen parcial', 'Álvarez Mejía, Luis', 'Quispe Rojas, Ana'])
+        ->assertDontSee(['Peso', 'Nota final calculada']);
 
     Livewire::actingAs($this->usuario)
         ->test(PreActaDelGrupo::class, ['grupo' => $this->grupo->id])
@@ -113,7 +114,7 @@ it('shows how many grades each component has and that the acta waits for the mis
         ->assertOk()
         ->assertSeeInOrder([
             'Registra las notas', '1 de 4 notas', 'Revisa el acta', 'Cuando completes las notas', 'Valida y cierra', 'Del 28 mar al 31 mar',
-            'Expresión oral', 'Habilidades', '0 de 2', 'Examen parcial', 'Exámenes', '1 de 2',
+            'Expresión oral', '0 de 2', 'Examen parcial', '1 de 2',
         ]);
 });
 

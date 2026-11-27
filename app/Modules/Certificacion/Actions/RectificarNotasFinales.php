@@ -55,7 +55,7 @@ final readonly class RectificarNotasFinales
      */
     private function leer(mixed $porComponente, array $componentes, string $notaMaxima): array
     {
-        $ids = array_map(fn (ComponenteDeEvaluacion $componente): int => $componente->id, $componentes);
+        $ids = array_map(fn (ComponenteDeEvaluacion $componente): int => $componente->id, array_filter($componentes, fn (ComponenteDeEvaluacion $componente): bool => $componente->esIngresada()));
 
         if (! is_array($porComponente) || array_diff(array_keys($porComponente), $ids) !== []) {
             throw new ReglaDeNegocioIncumplida(self::LISTA_CAMBIADA);

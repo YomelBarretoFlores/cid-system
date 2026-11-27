@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\Certificacion\Data;
 
 use App\Modules\Academico\Data\ComponenteDeEvaluacion;
-use App\Modules\Academico\Enums\GrupoDeComponente;
+use App\Modules\Academico\Data\NotasCalculadas;
 use App\Modules\Academico\Enums\NivelCurricular;
 use App\Modules\Certificacion\Enums\EstadoActa;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\NotaFinal;
-use App\Modules\Certificacion\Support\PromedioFinal;
 use App\Modules\Docencia\Data\CodigoDeDocente;
 use App\Shared\Ui\Formato;
 use Carbon\CarbonImmutable;
@@ -68,7 +67,7 @@ final readonly class ActaDelGrupo
             componentes: $componentes,
             filas: array_values($acta->notas->sortBy('estudiante_nombre')->map(fn (NotaFinal $nota): FilaDelActa => new FilaDelActa(
                 $nota->matricula_id, $nota->persona_id, $nota->estudiante_nombre, $nota->estudiante_documento,
-                $nota->notas, $nota->promedio, $nota->estado_final, ...PromedioFinal::promediosPorGrupo($nota->notas, $componentes),
+                $nota->notas, $nota->promedio, $nota->estado_final, NotasCalculadas::de($componentes, $nota->notas),
             ))->all()),
             validadaEn: $acta->validada_en?->setTimezone('America/Lima'),
             cicloNumeroHasta: $acta->ciclo_numero_hasta,
@@ -77,11 +76,21 @@ final readonly class ActaDelGrupo
     }
 
     /**
+     * The columns shown before the cycle grade; a calculated cycle grade is shown once, from the stored average.
+     *
      * @return list<ComponenteDeEvaluacion>
      */
-    public function componentesDe(GrupoDeComponente $grupo): array
+    public function columnas(): array
     {
-        return array_values(array_filter($this->componentes, fn (ComponenteDeEvaluacion $componente): bool => $componente->grupo === $grupo));
+        return array_values(array_filter($this->componentes, fn (ComponenteDeEvaluacion $componente): bool => $componente->ciclo === null || $componente->esIngresada()));
+    }
+
+    /**
+     * @return list<ComponenteDeEvaluacion>
+     */
+    public function columnasIngresadas(): array
+    {
+        return array_values(array_filter($this->componentes, fn (ComponenteDeEvaluacion $componente): bool => $componente->esIngresada()));
     }
 
     public function ciclos(): string

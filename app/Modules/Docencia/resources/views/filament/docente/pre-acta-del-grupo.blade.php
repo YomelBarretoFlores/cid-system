@@ -1,4 +1,3 @@
-@use('App\Modules\Academico\Enums\GrupoDeComponente')
 @use('App\Modules\Docencia\Filament\Docente\Pages\PreActaDelGrupo')
 <x-filament-panels::page>
     @if ($guardadas)
@@ -28,14 +27,14 @@
 
         <form wire:submit="guardar" novalidate>
             <x-filament::section heading="Notas parciales" :description="$esquema->nombre.' · notas de 0 a '.PreActaDelGrupo::numero($esquema->notaMaxima).', con hasta dos decimales. Deja en blanco lo que aún no evalúas; al cerrar, una nota en blanco cuenta como cero.'">
-                @php($porGrupo = collect(GrupoDeComponente::cases())->mapWithKeys(fn (GrupoDeComponente $grupo): array => [$grupo->value => array_values(array_filter($esquema->componentes, fn ($componente): bool => $componente->grupo === $grupo))]))
+                @php($columnas = $esquema->ingresadas())
                 <div class="flex flex-col gap-4">
                     <ul role="list" class="grid gap-2 sm:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
-                        @foreach ($esquema->componentes as $componente)
+                        @foreach ($columnas as $componente)
                             @php($llenas = $registradas[$componente->id] ?? 0)
                             <li class="flex flex-col gap-2 rounded-interna bg-lienzo px-3.5 py-3">
                                 <span class="flex items-baseline justify-between gap-2 text-sm">
-                                    <span class="text-tinta">{{ $componente->nombre }} <span class="text-terciario">· {{ $componente->grupo->etiqueta() }}</span></span>
+                                    <span class="text-tinta">{{ $componente->nombre }}</span>
                                     <span class="text-terciario tabular-nums">{{ $llenas }} de {{ count($estudiantes) }}</span>
                                 </span>
                                 <span aria-hidden="true" class="h-1.5 overflow-hidden rounded-full bg-piedra-200">
@@ -49,13 +48,8 @@
                         <table class="tabla-reporte min-w-[560px]">
                             <thead>
                                 <tr>
-                                    <th scope="col" rowspan="2">Estudiante</th>
-                                    @foreach (GrupoDeComponente::cases() as $grupo)
-                                        <th scope="colgroup" class="text-center" colspan="{{ count($porGrupo[$grupo->value]) }}">{{ $grupo->etiqueta() }}</th>
-                                    @endforeach
-                                </tr>
-                                <tr>
-                                    @foreach ($porGrupo->flatten(1) as $componente)
+                                    <th scope="col">Estudiante</th>
+                                    @foreach ($columnas as $componente)
                                         <th scope="col" class="w-32 text-right">{{ $componente->nombre }}</th>
                                     @endforeach
                                 </tr>
@@ -64,7 +58,7 @@
                                 @foreach ($estudiantes as $estudiante)
                                     <tr wire:key="estudiante-{{ $estudiante->matriculaId }}">
                                         <th scope="row" class="font-normal"><span class="font-medium text-tinta">{{ $estudiante->nombreCompleto }}</span></th>
-                                        @foreach ($porGrupo->flatten(1) as $componente)
+                                        @foreach ($columnas as $componente)
                                             @if ($cerradas)
                                                 <td class="text-right tabular-nums">{{ ($notas[$estudiante->matriculaId][$componente->id] ?? '') ?: '—' }}</td>
                                             @else

@@ -9,7 +9,8 @@ use App\Modules\Certificacion\Enums\EstadoFinal;
 final readonly class AvanceDeNotasDelEstudiante
 {
     /**
-     * @param  list<NotaDelComponente>  $componentes
+     * @param  list<NotaDelComponente>  $componentes  the columns the teacher enters
+     * @param  list<NotaDelComponente>  $calculadas  the calculated columns before the cycle grade
      */
     public function __construct(
         public bool $disponible,
@@ -19,8 +20,7 @@ final readonly class AvanceDeNotasDelEstudiante
         public ?EstadoFinal $estadoFinal,
         public ?string $notaMinimaAprobatoria,
         public ?string $aviso = null,
-        public ?string $promedioHabilidades = null,
-        public ?string $promedioExamenes = null,
+        public array $calculadas = [],
     ) {}
 
     public static function noDisponible(): self

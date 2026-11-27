@@ -54,6 +54,7 @@ it('refuses the grades of a teacher whose group is being reassigned at the same 
     $componente = DB::transaction(function (): ComponenteEvaluacion {
         $esquema = EsquemaEvaluacion::factory()->create(['vigente_desde' => $this->clase->subYear()]);
         ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'final', 'orden' => 2]);
+        ComponenteEvaluacion::factory()->for($esquema, 'esquema')->calculada(['oral', 'final'], ciclo: 1)->create(['codigo' => 'nota', 'orden' => 3]);
 
         return ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'orden' => 1]);
     });

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Modules\Certificacion\Data;
 
-use App\Modules\Academico\Enums\GrupoDeComponente;
+use App\Modules\Academico\Data\ComponenteDeEvaluacion;
+use App\Modules\Academico\Data\NotasCalculadas;
 use App\Modules\Certificacion\Enums\EstadoFinal;
+use App\Shared\Ui\Formato;
 
 final readonly class FilaDelActa
 {
     /**
-     * @param  array<int, string>  $notas  grade per component id, blanks left out
-     * @param  ?string  $promedioHabilidades  shown with two decimals; the final grade never uses it rounded
+     * @param  array<int, string>  $notas  grade per entered column id, blanks left out
      */
     public function __construct(
         public int $matriculaId,
@@ -21,12 +22,12 @@ final readonly class FilaDelActa
         public array $notas,
         public ?string $promedio,
         public EstadoFinal $estadoFinal,
-        public ?string $promedioHabilidades,
-        public ?string $promedioExamenes,
+        public NotasCalculadas $calculadas,
     ) {}
 
-    public function promedioDe(GrupoDeComponente $grupo): ?string
+    /** What a column shows: the grade the teacher entered, or the calculated value with two decimals. */
+    public function celda(ComponenteDeEvaluacion $componente): string
     {
-        return $grupo === GrupoDeComponente::Habilidades ? $this->promedioHabilidades : $this->promedioExamenes;
+        return $componente->esIngresada() ? Formato::nota($this->notas[$componente->id] ?? null) : ($this->calculadas->valor($componente->codigo) ?? '—');
     }
 }

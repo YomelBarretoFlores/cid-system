@@ -32,7 +32,9 @@ it('rejects rows that break an academic invariant', function (Closure $violation
     'day of week outside 1-7' => [fn () => Horario::factory()->create(['dia_semana' => 8]), 'aca_horarios_dia_semana_check'],
     'passing grade above the maximum' => [fn () => EsquemaEvaluacion::factory()->create(['nota_minima_aprobatoria' => '21.00']), 'aca_esquemas_evaluacion_notas_check'],
     'validity ending before it starts' => [fn () => EsquemaEvaluacion::factory()->create(['vigente_hasta' => '2026-12-31']), 'aca_esquemas_evaluacion_vigencia_check'],
-    'component outside the skills and exams groups' => [fn () => DB::table('aca_componentes_evaluacion')->where('id', ComponenteEvaluacion::factory()->create()->id)->update(['grupo' => 'participacion']), 'aca_componentes_evaluacion_grupo_conocido_check'],
+    'column neither entered nor calculated' => [fn () => DB::table('aca_componentes_evaluacion')->where('id', ComponenteEvaluacion::factory()->create()->id)->update(['tipo' => 'otra']), 'aca_componentes_evaluacion_calculada_check'],
+    'cycle grade of a third cycle' => [fn () => DB::table('aca_componentes_evaluacion')->where('id', ComponenteEvaluacion::factory()->create()->id)->update(['ciclo' => 3]), 'aca_componentes_evaluacion_ciclo_conocido_check'],
+    'entered column with sources' => [fn () => DB::table('aca_componentes_evaluacion')->where('id', ComponenteEvaluacion::factory()->create()->id)->update(['fuentes' => '[{"codigo": "oral", "peso": 1}]']), 'aca_componentes_evaluacion_calculada_check'],
 ]);
 
 it('never lets enrolled students exceed the group capacity', function (): void {

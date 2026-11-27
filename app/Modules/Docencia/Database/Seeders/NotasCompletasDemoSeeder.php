@@ -33,7 +33,7 @@ final class NotasCompletasDemoSeeder extends Seeder
     {
         $docenteId = CargaAcademica::query()->where('grupo_id', $matricula->grupo_id)->value('docente_id');
         $llenas = NotaParcial::query()->where('matricula_id', $matricula->id)->whereNotNull('nota')->pluck('componente_id')->map(intval(...))->all();
-        $faltantes = collect(app(EsquemaDelGrupo::class)($matricula->grupo_id)->componentes ?? [])
+        $faltantes = collect(app(EsquemaDelGrupo::class)($matricula->grupo_id)?->ingresadas() ?? [])
             ->reject(fn (ComponenteDeEvaluacion $componente): bool => in_array($componente->id, $llenas, true))
             ->mapWithKeys(fn (ComponenteDeEvaluacion $componente): array => [$componente->id => self::NOTAS[$componente->codigo] ?? '15.00']);
 

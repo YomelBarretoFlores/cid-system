@@ -66,7 +66,7 @@ it('closes the acta with a copy of the course, teacher and scheme, the grades, a
         ->nota_minima_aprobatoria->toBe('11.00')
         ->validada_por->toBe($this->curso['usuario']->id)
         ->and($acta->validada_en?->toIso8601String())->toBe(CarbonImmutable::now()->toIso8601String())
-        ->and(array_column($acta->componentes, 'grupo', 'codigo'))->toBe(['oral' => 'habilidades', 'parcial' => 'examenes', 'final' => 'examenes'])
+        ->and(array_column($acta->componentes, 'tipo', 'codigo'))->toBe(['oral' => 'ingresada', 'parcial' => 'ingresada', 'final' => 'ingresada', 'promedio_habilidades' => 'calculada', 'promedio_examenes' => 'calculada', 'nota_final' => 'calculada'])
         ->and(filasDelActa())->toBe([
             [$this->ana->id, 'DNI 70000001', '16.00', EstadoFinal::Aprobado],
             [$this->beto->id, 'DNI 70000002', '5.00', EstadoFinal::Desaprobado],
@@ -82,7 +82,7 @@ it('previews the acta from the pre-acta without storing anything, then shows the
 
     expect($previa->estado)->toBeNull()
         ->and($previa->docente)->toBe('Vega Ríos, Carlos')
-        ->and(array_map(fn (FilaDelActa $fila): array => [$fila->estudiante, $fila->promedioHabilidades, $fila->promedioExamenes, $fila->promedio, $fila->estadoFinal], $previa->filas))->toBe([
+        ->and(array_map(fn (FilaDelActa $fila): array => [$fila->estudiante, $fila->calculadas->valor('promedio_habilidades'), $fila->calculadas->valor('promedio_examenes'), $fila->promedio, $fila->estadoFinal], $previa->filas))->toBe([
             ['Alva Prueba, Ana', '18.00', '13.50', '16.00', EstadoFinal::Aprobado],
             ['Bravo Prueba, Ana', '0.00', '9.00', '5.00', EstadoFinal::Desaprobado],
             ['Castro Prueba, Ana', null, null, null, EstadoFinal::Nsp],

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Modules\Academico\Enums\GrupoDeComponente;
 use App\Modules\Certificacion\Contracts\AvanceDeNotas;
 use App\Modules\Certificacion\Contracts\BoletaDeNotas;
 use App\Modules\Certificacion\Contracts\RecordDeNotas;
@@ -26,13 +25,13 @@ it('shows the grade progress from the pre-acta with the partial average while th
     expect($avance)
         ->disponible->toBeTrue()
         ->actaCerrada->toBeFalse()
-        ->promedioHabilidades->toBe('0.00')
-        ->promedioExamenes->toBe('13.50')
         ->promedio->toBe('7.00')
         ->estadoFinal->toBeNull()
         ->notaMinimaAprobatoria->toBe('11.00')
-        ->and(array_map(fn (NotaDelComponente $nota): array => [$nota->nombre, $nota->grupo, $nota->nota], $avance->componentes))
-        ->toBe([['Expresión oral', GrupoDeComponente::Habilidades, null], ['Examen parcial', GrupoDeComponente::Examenes, '15.00'], ['Examen final', GrupoDeComponente::Examenes, '12.00']]);
+        ->and(array_map(fn (NotaDelComponente $nota): array => [$nota->nombre, $nota->nota], $avance->componentes))
+        ->toBe([['Expresión oral', null], ['Examen parcial', '15.00'], ['Examen final', '12.00']])
+        ->and(array_map(fn (NotaDelComponente $nota): array => [$nota->nombre, $nota->nota], $avance->calculadas))
+        ->toBe([['Promedio de habilidades', '0.00'], ['Promedio de exámenes', '13.50']]);
 });
 
 it('shows the final grades once the acta is closed', function (): void {
