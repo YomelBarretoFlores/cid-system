@@ -10,8 +10,8 @@ Objective: staff enroll a student in a group from the panel and register in the 
 
 ## Tasks
 
-- [ ] T1 · S2–S3 · «Matricular en ventanilla» with the payment in the same step; switch for payments made before the system · delegated (context backstop): one bounded writer; Risk: items 1 and 2 (pag_pagos migration, financial records; permissions)
-- [ ] T2 · all · Staff manual, data dictionary, pending decision #153
+- [x] T1 · S2–S3 · «Matricular en ventanilla» with the payment in the same step; switch for payments made before the system · delegated (context backstop): one bounded writer; Risk: items 1 and 2 (pag_pagos migration, financial records; permissions) · 6398a4d
+- [x] T2 · all · Staff manual, data dictionary, pending decision #153 · inline
 
 ## Log
 
@@ -19,3 +19,5 @@ Objective: staff enroll a student in a group from the panel and register in the 
 - L2 (2026-11-27) "Sí, se podría?, pero tenlo apuntado que al final se podría quitar eso, porque creo que no sería lo correcto matricular sin pago, pero eso lo hablaré con el área usuaria."
 - L3 Current state: `MatricularEstudiante(personaId, grupoId, pagoId)` requires a validated enrollment payment and a habilitación for the cycle; the Matrículas resource only lists and views; staff payment registration (CreatePago) requires the receipt file.
 - L4 Code map (explorer): blockers are `pag_pagos.recibo_path` NOT NULL plus `RegistrarPago` requiring a file; `exige_boleta_original` defaults to true and its CHECK requires the original voucher check on validated rows; `config('ciln.pagos.validacion_por_otra_persona')` forbids one user registering and validating; Matricula may use only Pagos Contracts/Data/Enums/Events; `MatriculaPolicy::create` is false. Decision: two modes in «Matricular en ventanilla»: (a) pick a validated enrollment payment of the student (normal path from December, segregation of duties intact); (b) «Pago anterior al sistema», only while the switch is on: receipt file optional, reason required, stored validated by the same staff member with `exige_boleta_original = false`, flagged in the row.
+- L5 T1 writer (delegated): AltaDePago shared by RegistrarPago and RegistrarPagoAnteriorAlSistema (stored file removed on rollback via DB::afterRollBack), Pagos contracts RegistroDePagoAnterior, PagosAnterioresPermitidos, FormularioDePagoAnterior; MatricularEnVentanilla reuses MatricularEstudiante in one transaction. Parent additions: ReciboGuardado so a payment without a file is a missing receipt in the panel (download hidden) and the portal (404); the payment made before the system also requires `pagos.registrar`, and the option is hidden without it. Checks: tests/Modules/Pagos + Matricula + Architecture 665/665, PHPStan and Rector clean.
+- L6 T2: staff manual 1.5 (new 7.2 «Matricular en ventanilla», settings switch, sections renumbered 7.3–7.5), data dictionary regenerated from ciln_testing.

@@ -26,7 +26,7 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 | Académico (oferta académica) | 10 | 100 |
 | Personas | 4 | 44 |
 | Matrícula | 5 | 55 |
-| Pagos | 6 | 61 |
+| Pagos | 6 | 64 |
 | Docencia | 12 | 101 |
 | Certificación | 10 | 135 |
 | Trámites | 9 | 93 |
@@ -34,7 +34,7 @@ Este diccionario describe la base de datos del Sistema de Gestión Académica y 
 | Parámetros del sistema | 1 | 16 |
 | Seguridad y control de acceso | 9 | 53 |
 | Infraestructura de la aplicación | 7 | 45 |
-| **Total** | **74** | **713** |
+| **Total** | **74** | **716** |
 
 ## 3. Académico (oferta académica)
 
@@ -849,6 +849,7 @@ Parámetros de pagos que configura el CILN; una sola fila.
 | 2 | `recargo_matricula_extemporanea` | smallint | No | `'20'` | Porcentaje entero (0 a 100) que se suma a la tarifa de matrícula pagada en el plazo de matrícula extemporánea del periodo. |
 | 3 | `created_at` | timestamptz | Sí |  | Fecha y hora de creación de la fila. |
 | 4 | `updated_at` | timestamptz | Sí |  | Fecha y hora de la última modificación. |
+| 5 | `permite_pagos_anteriores_al_sistema` | boolean | No | `true` | Si es verdadero, el personal puede matricular en ventanilla con un pago hecho antes del sistema, sin el archivo del recibo y con motivo (decisión pendiente 153). |
 
 **Llave primaria y restricciones únicas:**
 
@@ -937,7 +938,7 @@ Pagos con su comprobante y su validación. Nunca se borran: un pago validado se 
 | 6 | `monto` | numeric(10,2) | No |  | Monto pagado en soles. |
 | 7 | `numero_operacion` | varchar(40) | No |  | Número de operación del voucher, en mayúsculas; único por medio entre pagos no rechazados. |
 | 8 | `fecha_pago` | date | No |  | Fecha de la operación bancaria. |
-| 9 | `recibo_path` | varchar(255) | No |  | Ruta del comprobante digitalizado en el almacenamiento privado. |
+| 9 | `recibo_path` | varchar(255) | Sí |  | Ruta del comprobante digitalizado en el almacenamiento privado; opcional solo en un pago anterior al sistema. |
 | 10 | `estado` | varchar(255) | No | `'pendiente'` | Estado de validación del pago. Valores: `pendiente`, `validado`, `rechazado`, `anulado`. |
 | 11 | `registrado_por` | bigint | Sí |  | Cuenta que registró el pago. Referencia a `users`. |
 | 12 | `validado_por` | bigint | Sí |  | Cuenta de tesorería que validó o rechazó el pago. Referencia a `users`. |
@@ -954,6 +955,8 @@ Pagos con su comprobante y su validación. Nunca se borran: un pago validado se 
 | 23 | `justificacion_monto` | text | Sí |  | Justificación cuando el monto difiere de la tarifa. |
 | 24 | `recibo_sha256` | char(64) | Sí |  | Huella SHA-256 del comprobante, para impedir que el mismo archivo sustente dos pagos. |
 | 25 | `medio_pago_id` | bigint | No |  | Medio de pago usado. Referencia a `pag_medios_pago`. |
+| 26 | `anterior_al_sistema` | boolean | No | `false` | Verdadero si el pago se hizo antes del sistema y el personal lo registró validado al matricular en ventanilla. |
+| 27 | `motivo_anterior` | text | Sí |  | Motivo por el que se registró un pago anterior al sistema; obligatorio solo en ese caso. |
 
 **Llave primaria y restricciones únicas:**
 
@@ -984,7 +987,9 @@ Pagos con su comprobante y su validación. Nunca se borran: un pago validado se 
 - `pag_pagos_estado_check`: `CHECK (((estado) = ANY ((ARRAY['pendiente', 'validado', 'rechazado', 'anulado']))))`
 - `pag_pagos_justificacion_monto_check`: `CHECK (((justificacion_monto IS NULL) OR (btrim(justificacion_monto) <> '')))`
 - `pag_pagos_monto_check`: `CHECK ((monto > (0)))`
+- `pag_pagos_motivo_anterior_check`: `CHECK ((anterior_al_sistema = ((motivo_anterior IS NOT NULL) AND (btrim(motivo_anterior) <> ''))))`
 - `pag_pagos_numero_operacion_check`: `CHECK ((((numero_operacion) = upper(btrim((numero_operacion)))) AND ((numero_operacion) <> '')))`
+- `pag_pagos_recibo_check`: `CHECK (((recibo_path IS NOT NULL) OR anterior_al_sistema))`
 - `pag_pagos_recibo_sha256_check`: `CHECK (((recibo_sha256 IS NULL) OR (recibo_sha256 ~ '^[0-9a-f]{64}$')))`
 
 **Triggers:**

@@ -1,7 +1,7 @@
 <!--
 titulo: Manual de Usuario – Personal del CILN
 sistema: Sistema de Gestión Académica y Administrativa del CILN
-version: 1.4
+version: 1.5
 fecha: noviembre de 2026
 autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 -->
@@ -15,6 +15,7 @@ autor: ELECTRODATA INGENIERIA & SISTEMAS S.A.C.
 | 1.2 | 26/11/2026 | Actualización para la versión v1.2.0 del sistema: programas, grupos acelerados, forma de aprobación, constancia de notas por nivel, datos institucionales, tarifas por nivel y programa, FUT configurable, nuevos trámites y matrícula extemporánea | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.3 | 26/11/2026 | Actualización para la versión v1.3.0 del sistema: menú «Administración» con «Reportes» y «Configuración», catálogos de tipos de vínculo, tipos de documento, modalidades, bancos y grados del FUT, programa por defecto, parámetros del sistema, textos editables, cuentas del portal creadas en la oficina y habilitación de la cuenta del estudiante con su primer pago validado | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 | 1.4 | 27/11/2026 | Cuentas de docentes con el DNI como usuario y contraseña entregada en la oficina; dar de baja y reactivar cuentas del portal | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
+| 1.5 | 27/11/2026 | Matricular en ventanilla, con un pago validado o con un pago anterior al sistema, y el interruptor que permite estos pagos | ELECTRODATA INGENIERIA & SISTEMAS S.A.C. | CILN – UNASAM |
 
 # 1. INTRODUCCIÓN
 
@@ -153,7 +154,7 @@ Todos los catálogos, parámetros y textos editables están en **Administración
 | Pagos | Conceptos y tarifas | Conceptos TUPA/TUSNE (matrícula, pensión, constancias, examen de clasificación, etc.) y sus tarifas por vínculo con la UNASAM, nivel, programa y vigencia. | Configurar conceptos y tarifas |
 | Pagos | Medios de pago | Bancos, agentes y canales con los que se paga (por ejemplo, Banco de la Nación, Tesorería UNASAM, Págalo.pe). La web pública los lista como lugares de pago. | Configurar conceptos y tarifas |
 | Pagos | Fuentes TUPA/TUSNE | Documento normativo del que proviene cada concepto. | Configurar conceptos y tarifas |
-| Pagos | Configuración de pagos | **Recargo por matrícula extemporánea (%)**: porcentaje entero de 0 a 100 (20 por defecto) que se suma a la tarifa de matrícula pagada en el plazo extemporáneo. 0 lo desactiva. Cada cambio queda en la auditoría. | Configurar conceptos y tarifas |
+| Pagos | Configuración de pagos | **Recargo por matrícula extemporánea (%)**: porcentaje entero de 0 a 100 (20 por defecto) que se suma a la tarifa de matrícula pagada en el plazo extemporáneo. 0 lo desactiva. **Permitir pagos anteriores al sistema**: activado por defecto; permite usar **Matricular en ventanilla** con un pago hecho fuera del sistema (sección 7.2). Desactívelo cuando el CILN ya no lo necesite. Cada cambio queda en la auditoría. | Configurar conceptos y tarifas |
 | Docencia | Costos por hora | Costo por hora del docente según su grado académico (sección 5.4). | Gestionar costos por hora |
 | Docencia | Condiciones laborales | Condición del docente (nombrado, contratado, etc.). | Gestionar docentes y carga académica |
 | Docencia | Grados académicos | Grado del docente; define su costo por hora. | Gestionar docentes y carga académica |
@@ -639,11 +640,25 @@ Resultado esperado: la solicitud pasa a **Evaluado** y el ciclo asignado queda h
 
 ![Figura 23. Registrar resultado de clasificación](figuras/p23-registrar-resultado.png)
 
-Para corregir un resultado ya registrado, use **Corregir resultado** en la solicitud, indique los nuevos datos y el **Motivo de la corrección**. Si cambia el ciclo asignado, la corrección solo procede cuando el ciclo habilitado aún proviene de esta clasificación y el estudiante no se matriculó en él; en caso contrario, el sistema rechaza la corrección e indica usar «Ajustar ciclo habilitado» (sección 7.4). Si la corrección sube el ciclo asignado, se registran también los ciclos que faltaban; si lo baja, los ciclos que dejan de saltarse quedan anulados con el motivo «Corrección del examen de clasificación» y el usuario que corrigió; no se eliminan, pero ya no figuran en el récord, en la constancia ni en el certificado. Los ciclos que el estudiante ya aprobó con nota en un acta no se registran por clasificación y conservan su nota.
+Para corregir un resultado ya registrado, use **Corregir resultado** en la solicitud, indique los nuevos datos y el **Motivo de la corrección**. Si cambia el ciclo asignado, la corrección solo procede cuando el ciclo habilitado aún proviene de esta clasificación y el estudiante no se matriculó en él; en caso contrario, el sistema rechaza la corrección e indica usar «Ajustar ciclo habilitado» (sección 7.5). Si la corrección sube el ciclo asignado, se registran también los ciclos que faltaban; si lo baja, los ciclos que dejan de saltarse quedan anulados con el motivo «Corrección del examen de clasificación» y el usuario que corrigió; no se eliminan, pero ya no figuran en el récord, en la constancia ni en el certificado. Los ciclos que el estudiante ya aprobó con nota en un acta no se registran por clasificación y conservan su nota.
 
-## 7.2. Matrículas: ficha
+## 7.2. Matricular en ventanilla
 
-1. Ingrese a **Matrícula > Matrículas** y pulse **Ver** en la matrícula. El listado se filtra por **Estado** y **Grupo**. Las matrículas las registra el propio estudiante desde su portal; el personal no las crea desde el panel.
+Finalidad: matricular a un estudiante desde el panel, por ejemplo para cargar el ciclo que ya está en curso. Requiere el permiso «Gestionar matrícula». El estudiante también puede matricularse desde su portal.
+
+1. Si el estudiante cursa un ciclo mayor al primero, ajuste antes su ciclo en **Matrícula > Ciclos habilitados** (sección 7.5).
+2. Ingrese a **Matrícula > Matrículas** y pulse **Matricular en ventanilla**.
+3. Elija el **Estudiante** y el **Grupo** (grupos con matrícula abierta del ciclo para el que está habilitado).
+4. En **Pago**, elija una opción:
+   - **Pago validado del estudiante**: elija uno de sus pagos de matrícula ya validados por caja que aún no se usaron. Es el camino normal.
+   - **Pago anterior al sistema**: para un pago que el estudiante hizo antes de usar el sistema. Complete **Concepto TUPA/TUSNE**, **Medio de pago**, **N.° de recibo u operación**, **Fecha de pago**, el monto y el **Motivo** (por ejemplo, «Pago de noviembre de 2026, anterior al sistema»). El **Recibo escaneado** es opcional. Esta opción solo aparece si **Permitir pagos anteriores al sistema** está activado y su cuenta tiene además el permiso «Registrar pagos».
+5. Pulse **Enviar**.
+
+Resultado esperado: se muestra «Matrícula registrada». Con un pago anterior al sistema, el pago queda registrado como validado por usted, con el motivo, y la cuenta del portal del estudiante queda habilitada. Si la matrícula no procede (grupo sin vacantes, ciclo no habilitado o matrícula repetida), el sistema muestra el motivo y no registra el pago.
+
+## 7.3. Matrículas: ficha
+
+1. Ingrese a **Matrícula > Matrículas** y pulse **Ver** en la matrícula. El listado se filtra por **Estado** y **Grupo**.
 2. Revise el **Estudiante**, el **Grupo**, el **Horario**, la **Condición**, el **Estado**, el pago asociado y la sección **Traslados y retiros**.
 3. Pulse **Ficha de matrícula** para abrir la ficha en PDF.
 
@@ -651,7 +666,7 @@ Resultado esperado: la ficha se abre en una pestaña nueva, desde donde puede im
 
 ![Figura 24. Vista de una matrícula](figuras/p24-matricula.png)
 
-## 7.3. Trasladar y retirar
+## 7.4. Trasladar y retirar
 
 **Trasladar** cambia al estudiante a otro grupo del mismo periodo y ciclo:
 
@@ -668,7 +683,7 @@ Resultado esperado: el movimiento queda en **Traslados y retiros** con el usuari
 
 ![Figura 25. Trasladar una matrícula](figuras/p25-trasladar.png)
 
-## 7.4. Ciclos habilitados
+## 7.5. Ciclos habilitados
 
 Finalidad: ajustar el ciclo en el que puede matricularse un estudiante, por ejemplo cuando continúa desde el sistema anterior o para corregir una ubicación.
 
