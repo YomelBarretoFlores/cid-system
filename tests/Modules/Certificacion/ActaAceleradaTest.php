@@ -13,11 +13,13 @@ use App\Modules\Certificacion\Actions\PrepararActaDelGrupo;
 use App\Modules\Certificacion\Actions\RectificarNotasFinales;
 use App\Modules\Certificacion\Contracts\NivelesPorCertificar;
 use App\Modules\Certificacion\Contracts\RecordDeNotas;
+use App\Modules\Certificacion\Data\ActaDelGrupo;
 use App\Modules\Certificacion\Data\CicloDelRecord;
 use App\Modules\Certificacion\Data\NivelPorCertificar;
 use App\Modules\Certificacion\Enums\PermisoCertificacion;
 use App\Modules\Certificacion\Models\Acta;
 use App\Modules\Certificacion\Models\NotaFinal;
+use App\Modules\Certificacion\Support\ResultadosDelActa;
 use App\Modules\Matricula\Models\Habilitacion;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
@@ -195,4 +197,24 @@ it('gives the second cycle of an accelerated acta closed before this change the 
     expect(NotaFinal::query()->where('persona_id', $persona->id)->sole())
         ->promedio_hasta->toBe('14.00')
         ->estado_final_hasta->value->toBe('aprobado');
+});
+
+it('renders the final acta and the pre-acta PDFs of an accelerated group with the grade, the words and the state of each cycle', function (): void {
+    $segunda = segundoCicloConSuNota();
+    ActasFinales::preActa($this->ana, [$segunda->id => '16.40']);
+    $preActa = view('certificacion::pdf.pre-acta', ['acta' => app(PrepararActaDelGrupo::class)($this->grupo->id), 'generadaEl' => '30 mar 2027'])->render();
+    cerrarActaAcelerada();
+
+    $actaFinal = view('certificacion::pdf.acta-final', ['acta' => ActaDelGrupo::desde(Acta::query()->sole()->load('notas')), 'codigo' => 'ACTA-000001'])->render();
+
+    expect($preActa)->toContain('Promedio ciclo I', 'Estado ciclo II', '16.00')
+        ->and($actaFinal)->toContain('Promedio ciclo I', 'Condición ciclo II', '<strong>15.00</strong>', '<strong>16.00</strong>', 'Quince', 'Dieciséis');
+});
+
+it('does not take an accelerated acta as changed when its rectification began before the second cycle was graded apart', function (): void {
+    cerrarActaAcelerada();
+    $acta = Acta::query()->sole();
+    $guardados = collect(ResultadosDelActa::de($acta))->map(fn (array $resultado): array => ['promedio' => $resultado['promedio'], 'estado_final' => $resultado['estado_final']])->all();
+
+    expect(ResultadosDelActa::personasConCambios($acta, $guardados))->toBe([]);
 });

@@ -36,8 +36,10 @@
                 @endforeach
                 @if ($acta->esAcelerada())
                     <th class="centro">Promedio ciclo {{ Formato::romano($acta->cicloNumero) }}</th>
+                    <th>En letras</th>
                     <th>Condición ciclo {{ Formato::romano($acta->cicloNumero) }}</th>
                     <th class="centro">Promedio ciclo {{ Formato::romano((int) $acta->cicloNumeroHasta) }}</th>
+                    <th>En letras</th>
                     <th>Condición ciclo {{ Formato::romano((int) $acta->cicloNumeroHasta) }}</th>
                 @else
                     <th class="centro">Promedio</th>
@@ -56,12 +58,11 @@
                         <td class="centro">{{ $fila->celda($componente) }}</td>
                     @endforeach
                     <td class="centro"><strong>{{ $fila->promedio ?? '—' }}</strong></td>
-                    @unless ($acta->esAcelerada())
-                        <td>{{ Formato::notaEnLetras($fila->promedio) }}</td>
-                    @endunless
+                    <td>{{ Formato::notaEnLetras($fila->promedio) }}</td>
                     <td @if ($fila->estadoFinal !== EstadoFinal::Aprobado) style="font-weight: bold;" @endif>{{ $fila->estadoFinal->etiqueta() }}</td>
                     @if ($acta->esAcelerada())
                         <td class="centro"><strong>{{ $fila->promedioHasta ?? '—' }}</strong></td>
+                        <td>{{ Formato::notaEnLetras($fila->promedioHasta) }}</td>
                         <td @if ($fila->estadoFinalHasta !== EstadoFinal::Aprobado) style="font-weight: bold;" @endif>{{ $fila->estadoFinalHasta?->etiqueta() }}</td>
                     @endif
                 </tr>

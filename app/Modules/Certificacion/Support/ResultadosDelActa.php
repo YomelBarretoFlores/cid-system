@@ -35,11 +35,17 @@ final class ResultadosDelActa
      */
     private static function cambio(NotaFinal $nota, ?array $previo): bool
     {
-        // Results stored before accelerated actas graded their second cycle apart have no second-cycle keys.
-        return $previo === null || [
-            'promedio' => $previo['promedio'], 'estado_final' => $previo['estado_final'],
-            'promedio_hasta' => $previo['promedio_hasta'] ?? null, 'estado_final_hasta' => $previo['estado_final_hasta'] ?? null,
-        ] !== self::resultado($nota);
+        if ($previo === null) {
+            return true;
+        }
+
+        // Results saved before accelerated actas graded their second cycle apart have no second-cycle keys; the migration gave that cycle the first one's grade.
+        $acelerada = $nota->estado_final_hasta !== null;
+        $segundo = array_key_exists('estado_final_hasta', $previo)
+            ? [$previo['promedio_hasta'] ?? null, $previo['estado_final_hasta']]
+            : ($acelerada ? [$previo['promedio'], $previo['estado_final']] : [null, null]);
+
+        return ['promedio' => $previo['promedio'], 'estado_final' => $previo['estado_final'], 'promedio_hasta' => $segundo[0], 'estado_final_hasta' => $segundo[1]] !== self::resultado($nota);
     }
 
     /**
