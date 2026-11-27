@@ -141,3 +141,11 @@ it('lets only staff who manage teaching open the section', function (): void {
     $this->actingAs($lector)->get(route('filament.admin.resources.cuentas-de-docentes.index'))->assertForbidden();
     $this->actingAs($this->gestor)->get(route('filament.admin.resources.cuentas-de-docentes.index'))->assertOk();
 });
+
+it('labels the copy button of the username in Spanish', function (): void {
+    docenteSinCuenta(['user_id' => User::factory()->create(['usuario' => '41234567'])->id]);
+
+    cuentasDeDocentes($this->gestor)
+        ->assertSee('Copiar 41234567')
+        ->assertDontSee('filament::components/copyable.label');
+});
