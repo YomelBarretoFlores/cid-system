@@ -34,6 +34,8 @@ git rev-parse -q --verify "refs/tags/$VERSION" >/dev/null || fallar "la etiqueta
 git merge-base --is-ancestor "${VERSION}^{commit}" origin/main || fallar "$VERSION no está en main: solo se despliegan versiones publicadas"
 
 PAQUETE="$(mktemp -d)"
+# mktemp creates a 700 folder; the web server and the queue user must be able to enter the app folder.
+chmod 755 "$PAQUETE"
 trap 'rm -rf "$PAQUETE"' EXIT
 registrar "armando $VERSION"
 git archive "$VERSION" | tar -x -C "$PAQUETE"
@@ -85,7 +87,8 @@ echo "versión instalada: $(cat "$ruta/VERSION_DESPLEGADA" 2>/dev/null || echo '
 command -v pg_dump >/dev/null && echo "pg_dump: disponible" || echo "pg_dump: no disponible"
 REMOTO
 
-RSYNC=(rsync -az --delete --exclude-from="$EXCLUSIONES" -e "ssh ${OPCIONES_SSH[*]}")
+# No -p/-o/-g: the server keeps the permissions DSTI set on existing folders (v1.4.0 left the app folder in 700 and the site answered 403).
+RSYNC=(rsync -rltz --delete --exclude-from="$EXCLUSIONES" -e "ssh ${OPCIONES_SSH[*]}")
 
 if $SIMULAR; then
     registrar "simulación: archivos que se borrarían en el servidor (no se cambia nada)"
