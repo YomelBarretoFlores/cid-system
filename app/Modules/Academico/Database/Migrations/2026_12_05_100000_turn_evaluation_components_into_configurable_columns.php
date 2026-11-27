@@ -33,9 +33,10 @@ return new class extends Migration
                 AS v(grupo, codigo, nombre, desplazamiento) ON v.grupo = c.grupo
             GROUP BY c.esquema_id, c.grupo, v.codigo, v.nombre, m.orden, v.desplazamiento;
 
+            -- The final grade averages the averages the scheme has: a scheme with only skills keeps its grade as the average of its skills.
             INSERT INTO aca_componentes_evaluacion (esquema_id, codigo, nombre, grupo, orden, tipo, calculo, redondeo, fuentes, ciclo, created_at, updated_at)
             SELECT esquema_id, 'nota_final', 'Nota final', 'examenes', max(orden) + 1, 'calculada', 'promedio', 'entero',
-                '[{"codigo": "promedio_habilidades", "peso": 1}, {"codigo": "promedio_examenes", "peso": 1}]'::jsonb, 1, now(), now()
+                jsonb_agg(jsonb_build_object('codigo', codigo, 'peso', 1) ORDER BY orden) FILTER (WHERE codigo IN ('promedio_habilidades', 'promedio_examenes')), 1, now(), now()
             FROM aca_componentes_evaluacion
             GROUP BY esquema_id;
 

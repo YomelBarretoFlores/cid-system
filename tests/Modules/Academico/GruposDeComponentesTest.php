@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Modules\Academico\Data\ComponenteDeEvaluacion;
+use App\Modules\Academico\Data\NotasCalculadas;
 use App\Modules\Academico\Models\ComponenteEvaluacion;
 use App\Modules\Academico\Models\EsquemaEvaluacion;
 use Illuminate\Database\Migrations\Migration;
@@ -68,4 +70,19 @@ it('turns the skills and exams of each scheme into entered columns plus the two 
     expect(DB::table('aca_componentes_evaluacion')->where('esquema_id', $esquema->id)->orderBy('orden')->pluck('grupo', 'codigo')->all())->toBe(['oral' => 'habilidades', 'escrita' => 'habilidades', 'parcial' => 'examenes']);
 
     migracionDeColumnasConfigurables()->up();
+});
+
+it('keeps a scheme that had only skills calculable, its final grade being the average of its skills', function (): void {
+    $esquema = EsquemaEvaluacion::factory()->create();
+    $oral = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'oral', 'orden' => 1]);
+    $escrita = ComponenteEvaluacion::factory()->for($esquema, 'esquema')->create(['codigo' => 'escrita', 'orden' => 2]);
+    ComponenteEvaluacion::factory()->for($esquema, 'esquema')->calculada(['oral', 'escrita'], ciclo: 1)->create(['codigo' => 'nota', 'orden' => 3]);
+    DB::statement('SET CONSTRAINTS ALL IMMEDIATE');
+    migracionDeColumnasConfigurables()->down();
+
+    migracionDeColumnasConfigurables()->up();
+    $columnas = $esquema->refresh()->componentes()->get()->map(fn (ComponenteEvaluacion $columna): ComponenteDeEvaluacion => $columna->aDatos())->all();
+
+    expect(array_map(fn (ComponenteDeEvaluacion $c): string => $c->codigo, $columnas))->toBe(['oral', 'escrita', 'promedio_habilidades', 'nota_final'])
+        ->and(NotasCalculadas::de($columnas, [$oral->id => '12.00', $escrita->id => '13.00'])->delCiclo(1))->toBe('13.00');
 });

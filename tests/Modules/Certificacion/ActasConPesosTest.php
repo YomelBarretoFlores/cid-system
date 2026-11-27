@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\Academico\Data\ComponenteDeEvaluacion;
+use App\Modules\Academico\Data\NotasCalculadas;
 use App\Modules\Academico\Enums\RedondeoDeNota;
 use App\Modules\Academico\Enums\TipoDeComponente;
 use App\Modules\Certificacion\Models\Acta;
@@ -49,4 +50,22 @@ it('describes the columns of an acta closed with groups or weights in the new sh
         ['id' => 2, 'codigo' => 'participacion', 'nombre' => 'Participación', 'grupo' => 'habilidades'],
         ['id' => 3, 'codigo' => 'oral', 'nombre' => 'Expresión oral', 'grupo' => 'habilidades'],
     ]);
+});
+
+it('keeps an acta closed with only skills calculable, with the same grade the old formula gave', function (): void {
+    $persona = Persona::factory()->create();
+    ActasFinales::historial($persona, 'Inglés', [[1, '13.00', 'aprobado']]);
+    $acta = Acta::query()->sole();
+    DB::statement('ALTER TABLE cer_actas DISABLE TRIGGER cer_actas_bloqueo');
+    DB::table('cer_actas')->where('id', $acta->id)->update(['componentes' => json_encode([
+        ['id' => 1, 'codigo' => 'oral', 'nombre' => 'Expresión oral', 'grupo' => 'habilidades'],
+        ['id' => 2, 'codigo' => 'escrita', 'nombre' => 'Expresión escrita', 'grupo' => 'habilidades'],
+    ])]);
+    DB::statement('ALTER TABLE cer_actas ENABLE TRIGGER cer_actas_bloqueo');
+
+    migracionDeColumnasDelActa()->up();
+    $columnas = $acta->refresh()->componentesDeEvaluacion();
+
+    expect(array_map(fn (ComponenteDeEvaluacion $c): string => $c->codigo, $columnas))->toBe(['oral', 'escrita', 'promedio_habilidades', 'nota_final'])
+        ->and(NotasCalculadas::de($columnas, [1 => '12.00', 2 => '13.00'])->delCiclo(1))->toBe('13.00');
 });

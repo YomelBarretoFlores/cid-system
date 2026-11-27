@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-// Actas keep the columns they were graded with; this rewrites the stored description in the new shape without touching any grade.
+// Actas keep the columns they were graded with; this rewrites the stored description in the new shape without touching any grade. A group the acta never had gets no average, as the old formula averaged only the groups present.
 return new class extends Migration
 {
     public function up(): void
@@ -19,14 +19,18 @@ return new class extends Migration
                     (
                         SELECT jsonb_agg((e - 'grupo') || '{"tipo": "ingresada", "calculo": null, "redondeo": "ninguno", "fuentes": [], "ciclo": null}'::jsonb ORDER BY o)
                         FROM jsonb_array_elements(a.componentes) WITH ORDINALITY x(e, o)
-                    ) || jsonb_build_array(
+                    )
+                    || CASE WHEN g.habilidades IS NULL THEN '[]'::jsonb ELSE jsonb_build_array(
                         jsonb_build_object('id', coalesce(ph.id, 0), 'codigo', 'promedio_habilidades', 'nombre', 'Promedio de habilidades', 'tipo', 'calculada',
-                            'calculo', 'promedio', 'redondeo', 'ninguno', 'fuentes', coalesce(g.habilidades, '[]'::jsonb), 'ciclo', null),
+                            'calculo', 'promedio', 'redondeo', 'ninguno', 'fuentes', g.habilidades, 'ciclo', null)) END
+                    || CASE WHEN g.examenes IS NULL THEN '[]'::jsonb ELSE jsonb_build_array(
                         jsonb_build_object('id', coalesce(pe.id, 0), 'codigo', 'promedio_examenes', 'nombre', 'Promedio de exámenes', 'tipo', 'calculada',
-                            'calculo', 'promedio', 'redondeo', 'ninguno', 'fuentes', coalesce(g.examenes, '[]'::jsonb), 'ciclo', null),
+                            'calculo', 'promedio', 'redondeo', 'ninguno', 'fuentes', g.examenes, 'ciclo', null)) END
+                    || jsonb_build_array(
                         jsonb_build_object('id', coalesce(nf.id, 0), 'codigo', 'nota_final', 'nombre', 'Nota final', 'tipo', 'calculada',
-                            'calculo', 'promedio', 'redondeo', 'entero',
-                            'fuentes', '[{"codigo": "promedio_habilidades", "peso": 1}, {"codigo": "promedio_examenes", "peso": 1}]'::jsonb, 'ciclo', 1)
+                            'calculo', 'promedio', 'redondeo', 'entero', 'ciclo', 1,
+                            'fuentes', CASE WHEN g.habilidades IS NULL THEN '[]'::jsonb ELSE '[{"codigo": "promedio_habilidades", "peso": 1}]'::jsonb END
+                                || CASE WHEN g.examenes IS NULL THEN '[]'::jsonb ELSE '[{"codigo": "promedio_examenes", "peso": 1}]'::jsonb END)
                     ) AS nuevo
                 FROM cer_actas a
                 CROSS JOIN LATERAL (
