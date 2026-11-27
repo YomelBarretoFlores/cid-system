@@ -41,7 +41,7 @@ it('orders the sidebar by TdR module, with every section in its group', function
         'Certificación' => ['Actas pendientes', 'Actas finales', 'Constancias y certificados'],
         'Trámites' => ['Trámites'],
         'Administración' => ['Reportes', 'Configuración'],
-        'Seguridad' => ['Usuarios del personal', 'Roles', 'Auditoría'],
+        'Seguridad' => ['Usuarios del personal', 'Cuentas de docentes', 'Roles', 'Auditoría'],
     ]);
 });
 

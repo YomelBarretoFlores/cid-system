@@ -44,7 +44,7 @@ final class RolResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Seguridad';
 
     #[\Override]
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     #[\Override]
     protected static ?string $navigationLabel = 'Roles';

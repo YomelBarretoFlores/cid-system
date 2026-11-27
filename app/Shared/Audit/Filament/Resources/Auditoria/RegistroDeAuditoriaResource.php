@@ -35,7 +35,7 @@ final class RegistroDeAuditoriaResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Seguridad';
 
     #[\Override]
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
     #[\Override]
     protected static ?string $navigationLabel = 'Auditoría';

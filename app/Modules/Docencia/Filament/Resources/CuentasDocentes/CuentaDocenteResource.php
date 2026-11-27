@@ -8,6 +8,7 @@ use App\Modules\Docencia\Enums\PermisoDocencia;
 use App\Modules\Docencia\Filament\Resources\CuentasDocentes\Pages\ListCuentasDocentes;
 use App\Modules\Docencia\Models\Docente;
 use App\Shared\Support\Filament\ClaveDeRegistroValidada;
+use App\Shared\Support\Filament\TitulosEnMayusculaInicial;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
@@ -17,6 +18,7 @@ use UnitEnum;
 final class CuentaDocenteResource extends Resource
 {
     use ClaveDeRegistroValidada;
+    use TitulosEnMayusculaInicial;
 
     #[\Override]
     protected static ?string $model = Docente::class;
@@ -40,7 +42,7 @@ final class CuentaDocenteResource extends Resource
     protected static ?string $modelLabel = 'cuenta de docente';
 
     #[\Override]
-    protected static ?string $pluralModelLabel = 'Cuentas de docentes';
+    protected static ?string $pluralModelLabel = 'cuentas de docentes';
 
     #[\Override]
     public static function canAccess(): bool
