@@ -20,11 +20,14 @@ use App\Modules\Matricula\Contracts\HabilitacionPorTramite;
 use App\Modules\Matricula\Contracts\MatriculasActivasDePersona;
 use App\Modules\Matricula\Contracts\MovimientoPorTramite;
 use App\Modules\Matricula\Contracts\ProgramasDeLaPersona;
+use App\Modules\Matricula\Enums\PermisoMatricula;
+use App\Modules\Matricula\Filament\Personas\MatriculasDeLaPersona;
 use App\Modules\Matricula\Listeners\AlAnularPago;
 use App\Modules\Matricula\Listeners\AlCerrarActa;
 use App\Modules\Matricula\Livewire\ResumenDelEstudiante;
 use App\Modules\Matricula\Support\UltimaMatriculaDelIdioma;
 use App\Modules\Pagos\Events\PagoAnulado;
+use App\Shared\Support\Filament\FichaDePersonaEnElPanel;
 use App\Shared\Support\ModuleServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
@@ -51,6 +54,8 @@ final class MatriculaServiceProvider extends ModuleServiceProvider
     public function boot(): void
     {
         parent::boot();
+
+        app(FichaDePersonaEnElPanel::class)->pestana('matriculas', 'Matrículas', MatriculasDeLaPersona::class, PermisoMatricula::Ver->value, 10);
 
         Livewire::component('matricula.resumen-del-estudiante', ResumenDelEstudiante::class);
         Event::listen(ActaCerrada::class, AlCerrarActa::class);

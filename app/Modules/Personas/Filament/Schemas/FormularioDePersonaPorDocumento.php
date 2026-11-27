@@ -46,6 +46,13 @@ final class FormularioDePersonaPorDocumento implements FormularioDePersona
         ];
     }
 
+    public function estadoDe(int $personaId): array
+    {
+        $persona = Persona::query()->find($personaId, ['tipo_documento', 'numero_documento']);
+
+        return $persona === null ? [] : ['tipo_documento' => $persona->tipo_documento, 'numero_documento' => $persona->numero_documento];
+    }
+
     public function encontrada(mixed $estado): ?int
     {
         return is_array($estado) ? $this->buscar($estado['tipo_documento'] ?? null, $estado['numero_documento'] ?? null)?->id : null;

@@ -20,6 +20,8 @@ use App\Modules\Docencia\Contracts\DocenteDelUsuario;
 use App\Modules\Docencia\Contracts\DocentesDeGrupos;
 use App\Modules\Docencia\Contracts\NotasParcialesDelGrupo;
 use App\Modules\Docencia\Contracts\VerificacionDeCargaDocente;
+use App\Modules\Docencia\Filament\Personas\AtajoDeDocente;
+use App\Shared\Support\Filament\FichaDePersonaEnElPanel;
 use App\Shared\Support\ModuleServiceProvider;
 
 final class DocenciaServiceProvider extends ModuleServiceProvider
@@ -40,4 +42,11 @@ final class DocenciaServiceProvider extends ModuleServiceProvider
 
     #[\Override]
     protected string $module = 'Docencia';
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        app(FichaDePersonaEnElPanel::class)->atajo('docente', AtajoDeDocente::para(...), 30);
+    }
 }

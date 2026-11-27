@@ -27,6 +27,16 @@ final class CreatePago extends CreateRecord
     #[\Override]
     protected static bool $canCreateAnother = false;
 
+    // The person page opens this form with the payer already chosen.
+    protected function afterFill(): void
+    {
+        $persona = request()->query('persona');
+
+        if (is_string($persona) && ctype_digit($persona)) {
+            $this->data['persona_id'] = (int) $persona;
+        }
+    }
+
     /**
      * @param  array{persona_id: int|string, concepto_id: int|string, medio_pago_id: int|string, numero_operacion: string, fecha_pago: string, monto: int|float|string, recibo: UploadedFile, nivel?: string|null, programa_id?: int|string|null}  $data
      */

@@ -12,8 +12,10 @@ use App\Modules\Personas\Filament\Resources\Personas\PersonaResource;
 use App\Modules\Personas\Models\Persona;
 use App\Shared\Auth\Models\User;
 use App\Shared\Support\Filament\AccionDeNegocio;
+use App\Shared\Support\Filament\FichaDePersonaEnElPanel;
 use App\Shared\Support\Filament\MotivoDeBaja;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Icons\Heroicon;
@@ -23,7 +25,35 @@ final class ViewPersona extends ViewRecord
     #[\Override]
     protected static string $resource = PersonaResource::class;
 
+    public function getTitle(): string
+    {
+        return $this->persona()->nombre_completo;
+    }
+
+    public function getSubheading(): string
+    {
+        $persona = $this->persona();
+
+        return "{$persona->tipoDeDocumento->nombre} {$persona->numero_documento} · {$persona->vinculo->nombre}";
+    }
+
     protected function getHeaderActions(): array
+    {
+        return [
+            ...app(FichaDePersonaEnElPanel::class)->atajos($this->persona()->id),
+            EditAction::make(),
+            ActionGroup::make($this->accionesDeLaCuenta())
+                ->label('Cuenta del portal')
+                ->icon(Heroicon::OutlinedEllipsisVertical)
+                ->color('gray')
+                ->button(),
+        ];
+    }
+
+    /**
+     * @return list<Action>
+     */
+    private function accionesDeLaCuenta(): array
     {
         return [
             Action::make('crearCuentaDelPortal')
@@ -62,8 +92,14 @@ final class ViewPersona extends ViewRecord
                     fn (User $usuario) => app(ReactivarCuentaDeLaPersona::class)($record->id, $usuario),
                     'Cuenta reactivada',
                 )),
-            EditAction::make(),
         ];
+    }
+
+    private function persona(): Persona
+    {
+        $persona = $this->getRecord();
+
+        return $persona instanceof Persona ? $persona : abort(404);
     }
 
     private function puedeGestionar(): bool

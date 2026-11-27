@@ -34,8 +34,11 @@ use App\Modules\Certificacion\Contracts\NivelesConNotas;
 use App\Modules\Certificacion\Contracts\NivelesPorCertificar;
 use App\Modules\Certificacion\Contracts\RecordDeNotas;
 use App\Modules\Certificacion\Contracts\TextosDeDocumentos;
+use App\Modules\Certificacion\Enums\PermisoCertificacion;
+use App\Modules\Certificacion\Filament\Personas\DocumentosDeLaPersona;
 use App\Modules\Certificacion\Listeners\AlRegistrarClasificacion;
 use App\Modules\Matricula\Events\ClasificacionRegistrada;
+use App\Shared\Support\Filament\FichaDePersonaEnElPanel;
 use App\Shared\Support\ModuleServiceProvider;
 use Illuminate\Support\Facades\Event;
 
@@ -69,6 +72,8 @@ final class CertificacionServiceProvider extends ModuleServiceProvider
     public function boot(): void
     {
         parent::boot();
+
+        app(FichaDePersonaEnElPanel::class)->pestana('documentos', 'Documentos', DocumentosDeLaPersona::class, PermisoCertificacion::Documentos->value, 30);
 
         Event::listen(ClasificacionRegistrada::class, AlRegistrarClasificacion::class);
     }

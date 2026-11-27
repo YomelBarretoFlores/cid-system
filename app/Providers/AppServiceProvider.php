@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Shared\Support\Database\ConectorPostgres;
+use App\Shared\Support\Filament\FichaDePersonaEnElPanel;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
@@ -18,6 +19,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->app->bind('db.connector.pgsql', fn (): ConectorPostgres => new ConectorPostgres(
             sinLimiteDeSentencia: $this->app->runningInConsole() && ConectorPostgres::liberaLimiteDeSentencia($_SERVER['argv'] ?? []),
         ));
+        $this->app->singleton(FichaDePersonaEnElPanel::class);
     }
 
     public function boot(): void

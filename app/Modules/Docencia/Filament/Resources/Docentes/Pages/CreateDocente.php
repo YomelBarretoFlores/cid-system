@@ -29,6 +29,16 @@ final class CreateDocente extends CreateRecord
 
     private ?string $usuario = null;
 
+    // The person page opens this form with the person already chosen.
+    protected function afterFill(): void
+    {
+        $persona = request()->query('persona');
+
+        if (is_string($persona) && ctype_digit($persona)) {
+            $this->data[FormularioDePersona::CAMPO] = [...($this->data[FormularioDePersona::CAMPO] ?? []), ...app(FormularioDePersona::class)->estadoDe((int) $persona)];
+        }
+    }
+
     protected function handleRecordCreation(array $data): Model
     {
         $actor = AccionDeNegocio::usuario();

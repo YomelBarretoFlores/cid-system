@@ -15,12 +15,15 @@ use App\Modules\Tramites\Contracts\TitulosDeGrados;
 use App\Modules\Tramites\Contracts\TramiteDelPago;
 use App\Modules\Tramites\Contracts\TramitesEnProceso;
 use App\Modules\Tramites\Contracts\TramitesObservados;
+use App\Modules\Tramites\Enums\PermisoTramite;
 use App\Modules\Tramites\Events\TramiteActualizado;
+use App\Modules\Tramites\Filament\Personas\TramitesDeLaPersona;
 use App\Modules\Tramites\Listeners\AlAnularPago;
 use App\Modules\Tramites\Listeners\AlRechazarPago;
 use App\Modules\Tramites\Listeners\AlValidarPago;
 use App\Modules\Tramites\Listeners\NotificarCambioDeTramite;
 use App\Modules\Tramites\Support\MarcoDelSitio;
+use App\Shared\Support\Filament\FichaDePersonaEnElPanel;
 use App\Shared\Support\ModuleServiceProvider;
 use Illuminate\Contracts\View\View as Vista;
 use Illuminate\Support\Facades\Event;
@@ -51,6 +54,8 @@ final class TramitesServiceProvider extends ModuleServiceProvider
     public function boot(): void
     {
         parent::boot();
+
+        app(FichaDePersonaEnElPanel::class)->pestana('tramites', 'Trámites', TramitesDeLaPersona::class, PermisoTramite::Gestionar->value, 40);
 
         // Every public page reads its header menu and footer from the edited home content; the object queries only when a page leaves them out.
         View::composer(['components.publico.cabecera', 'components.publico.pie'], fn (Vista $vista) => $vista->with('marcoDelSitio', $this->app->make(MarcoDelSitio::class)));

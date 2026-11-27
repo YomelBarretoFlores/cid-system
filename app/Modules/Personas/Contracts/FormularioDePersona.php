@@ -25,6 +25,13 @@ interface FormularioDePersona
     public function encontrada(mixed $estado): ?int;
 
     /**
+     * The state that shows an already registered person in the fields, to open a form with them chosen.
+     *
+     * @return array{tipo_documento: string, numero_documento: string}|array{}
+     */
+    public function estadoDe(int $personaId): array;
+
+    /**
      * The id of the person found, or of the person registered with the fields. Call it inside the caller's transaction.
      *
      * @param  array<string, mixed>  $datos  the whole form state

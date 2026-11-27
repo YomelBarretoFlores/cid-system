@@ -24,9 +24,15 @@ use App\Modules\Pagos\Contracts\RegistroDePagoAnterior;
 use App\Modules\Pagos\Contracts\ResumenDePagosDePersona;
 use App\Modules\Pagos\Contracts\TarifasVigentes;
 use App\Modules\Pagos\Contracts\VerificacionDePago;
+use App\Modules\Pagos\Enums\PermisoPago;
+use App\Modules\Pagos\Filament\Personas\PagosDeLaPersona;
+use App\Modules\Pagos\Filament\Resources\Pagos\PagoResource;
 use App\Modules\Pagos\Filament\Schemas\FormularioDePagoAnteriorAlSistema;
 use App\Modules\Pagos\Support\InterruptorDePagosAnteriores;
+use App\Shared\Support\Filament\FichaDePersonaEnElPanel;
 use App\Shared\Support\ModuleServiceProvider;
+use Filament\Actions\Action;
+use Filament\Support\Icons\Heroicon;
 
 final class PagosServiceProvider extends ModuleServiceProvider
 {
@@ -49,4 +55,15 @@ final class PagosServiceProvider extends ModuleServiceProvider
 
     #[\Override]
     protected string $module = 'Pagos';
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        $ficha = app(FichaDePersonaEnElPanel::class);
+        $ficha->pestana('pagos', 'Pagos', PagosDeLaPersona::class, PermisoPago::Ver->value, 20);
+        $ficha->atajo('registrar-pago', fn (int $personaId): ?Action => auth()->user()?->can(PermisoPago::Registrar->value) === true
+            ? Action::make('registrarPago')->label('Registrar pago')->icon(Heroicon::OutlinedBanknotes)->color('gray')->url(PagoResource::getUrl('create', ['persona' => $personaId]))
+            : null, 20);
+    }
 }
