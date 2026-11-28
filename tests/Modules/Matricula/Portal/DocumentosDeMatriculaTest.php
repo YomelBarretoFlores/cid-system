@@ -139,6 +139,8 @@ it('lists every enrollment of the period on one record, marks a withdrawal and a
         Matricula::factory()->{$estado}()->create(['persona_id' => $ingles->persona_id, 'grupo_id' => $grupo->id, 'pago_id' => $pago->id]);
     }
 
+    // The record prints when it was generated; a fixed clock keeps that time from ever reading as the 18:00 class this test must not show.
+    $this->travelTo(CarbonImmutable::parse('2026-10-25 15:10:00+00'));
     $this->actingAs($user)->get(route('estudiante.matriculas.ficha', $ingles))->assertOk();
 
     Pdf::assertRespondedWithPdf(fn (PdfBuilder $pdf): bool => collect([
